@@ -21,9 +21,10 @@ internal static class RoomObjectFrameImageFiles
     /// <remarks>
     /// Revision 3 names no cartridge (#1693): the installation receipt does. Revision 4 names the collectibles' frames by what
     /// each shows, not by its place in its group (#1762). Revision 5 names the door caps', shot blocks', Grapple blocks', eye doors',
-    /// stations', downward gate's and Samus Eaters' frames by what each shows, not by number (#1994).
+    /// stations', downward gate's and Samus Eaters' frames by what each shows, not by number (#1994). Revision 6 writes no
+    /// block for a cell that shows nothing (#2100).
     /// </remarks>
-    internal const int FormatVersion = 5;
+    internal const int FormatVersion = 6;
 
     /// <summary>Camel-case field names, mirroring by name and readable output for the installed document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -77,7 +78,8 @@ internal static class RoomObjectFrameImageFiles
         {
             RoomObjectFrameImage image = Picture(bus, family.Name, Layout(family, frame));
             frames.Add(new FrameEntry(Id(family, frame), image.Cells
-                .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.Block, cell.Value.Mirroring)).ToArray()));
+                .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.ShowsNothing ? null : cell.Value.Block,
+                    cell.Value.Mirroring)).ToArray()));
         }
         Directory.CreateDirectory(directory);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), JsonOptions);
@@ -178,7 +180,8 @@ internal static class RoomObjectFrameImageFiles
             RoomBlockAppearance shown;
             try
             {
-                shown = RoomBlockAppearance.Of(cell.Block, cell.Mirroring);
+                shown = cell.Block is { } block ? RoomBlockAppearance.Of(block, cell.Mirroring)
+                    : RoomBlockAppearance.Nothing.WithMirroring(cell.Mirroring);
             }
             catch (ArgumentOutOfRangeException error)
             {
@@ -230,7 +233,10 @@ internal static class RoomObjectFrameImageFiles
     /// <summary>One frame's picture: its published name and every cell it shows.</summary>
     private sealed record FrameEntry(string Id, FrameCell[] Cells);
 
-    /// <summary>One pictured cell: its place from the object's origin, the block it shows and how that block is mirrored.</summary>
+    /// <summary>
+    /// One pictured cell: its place from the object's origin, the block it shows, or null where it shows nothing, and how it
+    /// is mirrored.
+    /// </summary>
     [SpatialComponents("External format: a room object's frame document stores each pictured cell's offset from the object's origin as x/y blocks.")]
-    private sealed record FrameCell(int X, int Y, int Block, BlockMirroring Mirroring);
+    private sealed record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
 }

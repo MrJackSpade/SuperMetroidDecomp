@@ -107,11 +107,10 @@ internal sealed class CollectibleObjects
         {
             if (!place.Active || place.Block != block || place.Behaviour is not CollectibleObject item)
                 continue;
-            // The pickup message retains both the visible block and its physical owner.
-            // On message return, movement can touch that block before the room-object update runs
-            // the pending empty draw/delete. The touch setup matches the block index without
-            // filtering the item's phase; acknowledge this owner without collecting
-            // again or disturbing its message-return continuation.
+            // The pickup message keeps both the visible block and the item that lies on it. As the message closes,
+            // Samus's movement can touch that block before the room objects' update empties and removes the item. A touch
+            // finds the item by its block whatever it is doing, so it is acknowledged here without being collected again
+            // or disturbing what it does as the message closes.
             if (item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
                 CollectiblePhase.EmptyAwaitingDelete)
                 return true;
@@ -153,8 +152,7 @@ internal sealed class CollectibleObjects
 
     /// <summary>
     /// Runs one permanent-item setup on the place selected by the shared room loader, for the item its placement
-    /// (<paramref name="placed"/>) names the location of. The setup remains table-driven by the game's definition and
-    /// presentation.
+    /// (<paramref name="placed"/>) names the location of, as the collectible's definition and its pictures describe it.
     /// </summary>
     internal void SetupCollectible(
         RoomObjectRoom room,

@@ -149,9 +149,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         {
             case CeresDoorCueKind.GoToIfSamusDistant:
             {
-                // The distance test subtracts the two positions, takes the
-                // wrapped difference, then its distance independently
-                // on each axis. If Samus is distant along either axis, the door branches.
+                // The door branches when Samus is distant from it along either axis, each distance measured the short
+                // way across the coordinate's wrap.
                 int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
                 int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
                 return xDistance >= CeresDoorApproachDefinitions.DistantPixels || yDistance >= CeresDoorApproachDefinitions.DistantPixels
@@ -162,10 +161,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 // The test reads whether the current area's boss is saved
                 // as defeated. Ceres begins with that flag clear, so the door of Ridley's room
                 // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
-                // the boss's defeat together with Ceres's escape status; the next pass must then run on
-                // past the branch to the intangible setup.
-                // Hardcoding the early-game branch stranded the invisible 8x32 actor at
-                // X=8 and clipped Samus at X=29 after the getaway cutscene.
+                // the boss's defeat together with Ceres's escape status; the next pass then runs on
+                // past the branch and makes the door intangible.
                 return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : cue.Target;
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
                 return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;

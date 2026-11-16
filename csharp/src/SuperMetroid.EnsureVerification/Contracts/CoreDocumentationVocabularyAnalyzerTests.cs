@@ -716,5 +716,24 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // hardware owner are English.
         Expect("class P { /// <summary>A fixed set of colours; 5 tm; the per-line scroll; a per-line window; the type; checked under water.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the colour math adds the fixed colour to the TM layers, a per-line effect of type-2.</summary>\n[CompatibilityService(\"math\")] class ColourMath { }");
+        // The review inventory and fix history, in every type (#2105).
+        Expect("class P { /// <remarks>The shares are authored tuning (see the review inventory's residual scalar inputs).</remarks>\nint F => 0; }", "('review inventory')");
+        Expect("class P { // Hardcoding the early-game branch stranded the invisible actor after the getaway cutscene.\n }",
+            "('Hardcoding the early-game branch stranded')");
+        Expect("class P { void Run() { // Omitting this queue made the moving pad flash, then left the platform frozen.\n } }", "('Omitting this queue made')");
+        Expect("class P { /// <remarks>Treating the station's room as sufficient discarded the elevator's view.</remarks>\nint F => 0; }",
+            "('Treating the station's room as sufficient discarded')");
+        Expect(CompatibilityService + "/// <summary>Evidence: hard-coding the step broke the carry.</summary>\n[CompatibilityService(\"carry\")] class Carry { }", "('hard-coding the step broke')");
+        // A check of the repository cited by its kind or its name, outside hardware owners (#2105).
+        Expect("class P { /// <summary>The Tourian animation lookup check matches each statue's segments.</summary>\nint F => 0; }", "('lookup check')");
+        Expect("class P { // The eye-fade verification checks every shade.\n }", "('verification checks')");
+        Expect("class P { /// <summary>A drain as a parity check states one.</summary>\nint F => 0; }", "('parity check')");
+        Expect("class P { /// <remarks>Evidence: the Ridley full-movie check compares the random number.</remarks>\nint F => 0; }", "('full-movie check')");
+        Expect("class P { /// <remarks>The running cadence check (<c>VerifyRunningCadence</c>) replays every update.</remarks>\nint F => 0; }", "('<c>VerifyRunningCadence</c>')");
+        Expect("class P { /// <remarks>Compared by <c>BeamCallbackTablesVerification</c>.</remarks>\nint F => 0; }", "('<c>BeamCallbackTablesVerification</c>')");
+        // An inventory alone, treating a value as another with no breakage told, a frozen enemy, a check the game makes, the
+        // condition a replay tests, a test alone and a hardware owner's cited check are English.
+        Expect("class P { /// <summary>Samus's inventory; treating the left-behind value as gameplay; skipping a frozen enemy; the awakening facing check compares the facing; the condition the replay tests; the test.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the parity check (<c>VerifyRunningCadence</c>) replays every update.</summary>\n[CompatibilityService(\"cadence\")] class Cadence { }");
     }
 }

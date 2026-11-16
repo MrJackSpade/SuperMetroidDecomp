@@ -81,7 +81,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
     /// <summary>
     /// Allocates an unlock effect of <paramref name="kind"/>, starting its animation at <paramref name="start"/>, at a
-    /// statue's <paramref name="eye"/>; null when every slot is busy.
+    /// statue's <paramref name="eye"/>; null when the room already holds as many enemy projectiles as it can.
     /// </summary>
     private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye)
     {

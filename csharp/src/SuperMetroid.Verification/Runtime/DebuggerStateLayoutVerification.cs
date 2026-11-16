@@ -179,7 +179,7 @@ internal static class DebuggerStateLayoutVerification
     internal static void VerifyDebuggerStateRestoresRoomObjectVisuals()
     {
         RoomObjectSetupBlock block = Enum.GetValues<RoomObjectSetupBlock>()[0];
-        var shown = new RoomBlockAppearance(5, BlockMirroring.Horizontal);
+        var shown = RoomBlockAppearance.Of(5, BlockMirroring.Horizontal);
         var visuals = new SuperMetroid.Core.World.RoomObjectVisuals
         {
             RoomObjectSetupBlocks = new InstalledRoomObjectSetupBlocks(new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance> { [block] = shown }),

@@ -34,15 +34,16 @@ internal static class CeresMode7MapVerification
         FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
         byte[] map = memory.Map, pixels = memory.Pixels;
         SpriteImage image = first.Image.Sheet;
-        // The installed image holds the part of the floor that shows anything, placed by its origin (#1649); the floor
-        // beyond it shows nothing.
+        // The installed image is the whole floor (#2104), and the floor's extent is the image's.
+        AssertEqual(new Extent16<ImagePixels>(FloorSheetComposer.SidePixels, FloorSheetComposer.SidePixels), first.Extent,
+            "Ceres Ridley's floor is its whole floor, its image's extent");
         int left = -first.Image.Origin.X, top = -first.Image.Origin.Y;
         int mismatches = 0;
-        for (int y = 0; y < AffineFloor.SidePixels; y++)
+        for (int y = 0; y < FloorSheetComposer.SidePixels; y++)
         {
-            for (int x = 0; x < AffineFloor.SidePixels; x++)
+            for (int x = 0; x < FloorSheetComposer.SidePixels; x++)
             {
-                int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
+                int tile = map[y / 8 * (FloorSheetComposer.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
                 bool within = x >= left && x < left + first.Image.Size.X && y >= top && y < top + first.Image.Size.Y;
                 int painted = within

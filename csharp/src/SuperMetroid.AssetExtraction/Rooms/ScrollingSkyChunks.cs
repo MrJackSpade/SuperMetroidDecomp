@@ -1,16 +1,22 @@
-namespace SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Scrolling;
 
-/// <summary>The sky page each chunk down the land and ocean skies shows (#1414, #1611).</summary>
+namespace SuperMetroid.AssetExtraction.Rooms;
+
+/// <summary>
+/// The cartridge's sky page each chunk down the land and ocean skies shows (#1414, #1611, #2101): the import lays each
+/// sky's rows from these pages once (<see cref="SkyTilemap"/>), so the installed sky is one image repeating down its span
+/// and the game never knows the pages.
+/// </summary>
 /// <remarks>
 /// A sky is <see cref="ChunkCount"/> chunks down its span, each showing one of the seven sky pages, and every chunk shows
 /// one of its own sky's pages. The land sky has five chunks, pages 0 through 4, and repeats them from its first: chunks 5
 /// through 7 show pages 0 through 2. The ocean sky has six chunks, pages 0 through 3 and then 5 and 6, skipping page 4,
 /// and repeats them from its first: chunks 6 and 7 show pages 0 and 1.
 /// </remarks>
-public static class ScrollingSkyChunks
+internal static class ScrollingSkyChunks
 {
     /// <summary>The chunks down the sky's span before the span repeats.</summary>
-    public const int ChunkCount = 8;
+    internal const int ChunkCount = 8;
 
     /// <summary>The land sky's own chunks, which show pages 0 through 4.</summary>
     private const int LandChunks = 5;
@@ -26,7 +32,7 @@ public static class ScrollingSkyChunks
     /// <param name="chunk">The chunk down the sky's span, 0 through <see cref="ChunkCount"/> less one.</param>
     /// <returns>The page's position among the seven sky pages.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The sky is unknown or the chunk lies outside the sky's span.</exception>
-    public static int PageOf(ScrollingSky sky, int chunk)
+    internal static int PageOf(ScrollingSky sky, int chunk)
     {
         bool ocean = sky switch
         {

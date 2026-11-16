@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 public sealed class RoomBackgroundImage
 {
     /// <summary>The frame of an image's sheet that pictures the whole background.</summary>
-    public const string FrameName = "pages";
+    public const string FrameName = "image";
 
     /// <summary>Pixels along a cell's side.</summary>
     public const int CellPixels = 16;

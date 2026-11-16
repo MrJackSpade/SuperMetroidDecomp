@@ -49,10 +49,11 @@ public static class RoomLevelStreamFiles
     /// block's behaviour as the reading its collision kind takes instead of the game's behaviour byte (#1709), and 6 names
     /// each reacting kind's reactions, written by position, instead of a list code and an entry, and names unrevealed air
     /// (#1722), 7 names the slope shapes, written by position, and writes each reacting block's reaction as its room's
-    /// area resolves it (#1805), and 8 writes nothing for a door block, whose door the room door-blocks document names
-    /// (#2090).
+    /// area resolves it (#1805), 8 writes nothing for a door block, whose door the room door-blocks document names
+    /// (#2090), and 9 writes whether each appearance shows a block or nothing, and a block's number only for a block
+    /// (#2100).
     /// </summary>
-    private const int FormatVersion = 8;
+    private const int FormatVersion = 9;
 
     /// <summary>The collision kinds in the order the level files write them by position.</summary>
     private static readonly ImmutableArray<RoomCollisionType> CollisionKinds = [.. Enum.GetValues<RoomCollisionType>()];
@@ -282,11 +283,27 @@ public static class RoomLevelStreamFiles
         WriteAppearance(writer, block.Appearance);
     }
 
-    /// <summary>Writes an appearance: its block number, then its mirroring's code.</summary>
+    /// <summary>
+    /// Writes an appearance: what it shows (<see cref="ShownCode"/>), a block's number, then its mirroring's code.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The appearance is terrain beyond the room, which no installed level holds.</exception>
     private static void WriteAppearance(BinaryWriter writer, RoomBlockAppearance appearance)
     {
-        writer.Write(checked((ushort)appearance.Block));
+        if (appearance.IsBeyondRoom)
+            throw new InvalidDataException("An installed level holds no terrain beyond the room: the game fills that space itself.");
+        writer.Write(checked((byte)(appearance.ShowsNothing ? ShownCode.Nothing : ShownCode.Block)));
+        if (appearance.ShowsBlock)
+            writer.Write(checked((ushort)appearance.Block));
         writer.Write(checked((byte)MirroringCodes.IndexOf(appearance.Mirroring)));
+    }
+
+    /// <summary>What an appearance shows, as the byte a level file writes before it (#2100).</summary>
+    private enum ShownCode
+    {
+        /// <summary>A block, whose number follows.</summary>
+        Block,
+        /// <summary>Nothing.</summary>
+        Nothing,
     }
 
     /// <summary>Reads one installed level file.</summary>
@@ -338,13 +355,20 @@ public static class RoomLevelStreamFiles
     }
 
     /// <summary>Reads an appearance written by <see cref="WriteAppearance"/>.</summary>
+    /// <exception cref="InvalidDataException">The appearance's code or its mirroring's code is unknown.</exception>
     private static RoomBlockAppearance ReadAppearance(BinaryReader reader)
     {
-        int block = reader.ReadUInt16();
+        var shown = (ShownCode)reader.ReadByte();
+        RoomBlockAppearance appearance = shown switch
+        {
+            ShownCode.Block => RoomBlockAppearance.Of(reader.ReadUInt16()),
+            ShownCode.Nothing => RoomBlockAppearance.Nothing,
+            _ => throw new InvalidDataException($"Appearance code {(int)shown} names neither a block nor nothing."),
+        };
         int mirroring = reader.ReadByte();
         if (mirroring >= MirroringCodes.Length)
             throw new InvalidDataException($"Mirroring code {mirroring} is not one of the {MirroringCodes.Length} codes.");
-        return new RoomBlockAppearance(block, MirroringCodes[mirroring]);
+        return appearance.WithMirroring(MirroringCodes[mirroring]);
     }
 
     /// <summary>Reads the document's collision kinds by name, requiring every kind exactly once.</summary>

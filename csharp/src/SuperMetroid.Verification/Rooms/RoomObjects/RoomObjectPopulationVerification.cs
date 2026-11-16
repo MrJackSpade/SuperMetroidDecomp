@@ -845,7 +845,7 @@ internal static class RoomObjectPopulationVerification
         const int gateY = 2;
         RoomTerrainBlock originalGateWord = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.BombableBlock);
         RoomTerrainBlock deactivatedGateWord = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock);
-        RoomTerrainBlock openGateWord = RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        RoomTerrainBlock openGateWord = new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.SolidBlock);
         RoomTerrainBlock halfClosedGateTopWord = RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock);
         RoomTerrainBlock closedGateMiddleWord = RoomTerrainBlock.Of(0x2e8, BlockMirroring.Vertical, RoomCollisionType.SolidBlock);
 

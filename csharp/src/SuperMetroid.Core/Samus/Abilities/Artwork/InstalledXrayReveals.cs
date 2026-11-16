@@ -73,7 +73,7 @@ public sealed class InstalledXrayReveals
     /// <summary>Whether <paramref name="reaction"/> is a reaction <paramref name="type"/> reads, or null for a kind that reads none.</summary>
     private static bool IsReadingOf(RoomCollisionType type, Enum? reaction) => BlockReactionFamilies.ReadingsOf(type).Contains(reaction);
 
-    /// <summary>Rejects reveal blocks outside the tileset's block set, as an appearance of each would.</summary>
+    /// <summary>Rejects a negative reveal block, as an appearance of it would; the tileset's sheet bounds the rest (#2100).</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)
     {
         foreach (int block in visual.InReadingOrder)

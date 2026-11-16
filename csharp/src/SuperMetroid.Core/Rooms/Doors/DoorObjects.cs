@@ -138,8 +138,7 @@ internal sealed class DoorObjects
     internal void RecordDoorOpened(PlacedDoor? door) => door?.RecordOpened(_system);
 
     /// <summary>
-    /// Names the color and facing of a colored-door room object (#1414: each of the twelve doors is matched by member, replacing
-    /// the color ranges the room-object definitions implied).
+    /// Names the color and facing of a colored-door room object: each of the twelve coloured doors by its own kind (#1414).
     /// </summary>
     internal static bool TryIdentifyColoredDoor(
         RoomObjectKind kind,

@@ -301,6 +301,17 @@ type by number, hyphenated (`the ordinary type-6 fall`, #2089), and, in every ty
 or without its number sign (`reviewed under 1165`). A table of settings, Ridley's tail whip, a multiplication, a rotting
 corpse, a value modulo another number, a fixed set of colours, a per-line scroll or window and a type alone stay English.
 
+#2105 widens the review trail, read in every type: the review inventory (`see the review inventory's inputs`) and fix
+history, an earlier implementation choice told by what it broke (`Hardcoding the early-game branch stranded the actor`,
+`Omitting this queue made the pad flash`, `Treating the station's room as sufficient discarded the view`). Outside
+hardware owners it also reads a check of the repository cited by its kind or its name: a lookup, verification,
+regression, oracle or parity check, test or suite, a full-movie or movie check (`the Tourian animation lookup check`,
+`the eye-fade verification checks every shade`, `the Ridley full-movie check`) and a check's name set as code
+(`<c>VerifyRunningCadence</c>`, `<c>BeamCallbackTablesVerification</c>`). Core says what the game does; a compatibility
+service may name the check that confirms the behaviour it reproduces. A check the game makes (`the awakening facing
+check`), the condition a replay tests, treating a value as another with no breakage told, an inventory and a frozen
+enemy stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

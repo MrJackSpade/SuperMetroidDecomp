@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Resolves the picture each block and collectible picture a room's planes use shows (#1392, #1431, #1466, #1764): a
-/// block, by its index, for the values the appearance inputs the sheet records it depends on take now, and a collectible's
-/// own picture (#1538). A block is resolved again only when one of its inputs changes, so a frame whose inputs stand still
-/// reuses its table.
+/// block, by its index among the tileset's installed blocks (#2100), for the values the appearance inputs the sheet records
+/// it depends on take now, and a collectible's own picture (#1538); a cell that shows nothing needs no picture. A block is
+/// resolved again only when one of its inputs changes, so a frame whose inputs stand still reuses its table.
 /// </summary>
 /// <param name="sheet">The room tileset's block sheet.</param>
 public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
@@ -60,10 +60,11 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             foregroundPlane = foreground;
             backgroundPlane = background;
             further = also;
-            used = [.. Uses(foreground).Concat(background is null ? [] : Uses(background)).Concat(also).Distinct()];
+            used = [.. Uses(foreground).Concat(background is null ? [] : Uses(background))
+                .Concat(also.Where(shown => !shown.ShowsNothing)).Distinct()];
             values = [.. used.Select(shown => new string[InputsOf(shown).Length])];
         }
-        LayeredPicture?[]? blocks = fresh ? new LayeredPicture?[RoomBlockAppearance.LastBlock + 1] : null;
+        LayeredPicture?[]? blocks = fresh ? new LayeredPicture?[Sheet.Inputs.Count] : null;
         Dictionary<CollectiblePicture, LayeredPicture>? collectibles = fresh ? [] : null;
         for (int index = 0; index < used.Length; index++)
         {
@@ -98,12 +99,15 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
         return resolved;
     }
 
-    /// <summary>The blocks and collectible pictures a plane's cells show.</summary>
+    /// <summary>The blocks and collectible pictures a plane's cells show; a cell that shows nothing uses neither.</summary>
     private static HashSet<RoomCellPicture> Uses(RoomLevelPlane plane)
     {
         var uses = new HashSet<RoomCellPicture>();
         foreach (RoomBlockCell cell in plane.Cells.Cells)
-            uses.Add(cell.Picture);
+        {
+            if (!cell.Picture.ShowsNothing)
+                uses.Add(cell.Picture);
+        }
         return uses;
     }
 

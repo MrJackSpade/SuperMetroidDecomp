@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -207,7 +208,10 @@ internal static class CeresRidleyArenaBlocksVerification
         return (bases & 0x0F) * CharacterBaseStepWords;
     }
 
-    /// <summary>The distinct blocks the level of the state at <paramref name="state"/> places in either layer, ascending.</summary>
+    /// <summary>
+    /// The distinct blocks the level of the state at <paramref name="state"/> places in either layer, ascending; open space
+    /// places none (#2100).
+    /// </summary>
     private static int[] PlacedBlocks(IImportCartridgeSource cartridge, int state)
     {
         byte[] level = RomDataReader.Decompress(cartridge, RomDataReader.ReadLongFixedBank(cartridge, state));
@@ -215,10 +219,16 @@ internal static class CeresRidleyArenaBlocksVerification
         int foreground = sizeof(ushort);
         int background = foreground + foregroundBytes + foregroundBytes / 2;
         var blocks = new SortedSet<int>();
+        void Add(int word)
+        {
+            RoomBlockAppearance shown = RoomLevelWordCodec.DecodeAppearance((ushort)(level[word] | level[word + 1] << 8));
+            if (shown.ShowsBlock)
+                blocks.Add(shown.Block);
+        }
         for (int word = foreground; word < foreground + foregroundBytes; word += sizeof(ushort))
-            blocks.Add((level[word] | level[word + 1] << 8) & 0x3FF);
+            Add(word);
         for (int word = background; word + 1 < level.Length; word += sizeof(ushort))
-            blocks.Add((level[word] | level[word + 1] << 8) & 0x3FF);
+            Add(word);
         return [.. blocks];
     }
 

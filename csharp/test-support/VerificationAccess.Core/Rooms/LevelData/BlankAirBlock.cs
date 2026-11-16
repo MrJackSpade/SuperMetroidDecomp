@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 internal static class BlankAirBlock
 {
     /// <summary>A blank air block: block 255 of the tileset's set, unmirrored, which stock room-object frames draw to clear terrain.</summary>
-    internal static readonly RoomTerrainBlock Value = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air);
+    internal static readonly RoomTerrainBlock Value = new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air);
 }

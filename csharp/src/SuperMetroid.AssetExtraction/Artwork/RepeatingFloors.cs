@@ -11,9 +11,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Which turning floors the cartridge repeats beyond their edges (#1646), decided from the Mode 7 settings each scene that
 /// shows a floor runs with (the settings shadow at <c>$7E:005F</c>, written to <c>M7SEL</c> each frame by
 /// <c>$80:9225</c>): settings 0 repeat the 1024 by 1024 floor beyond its edges, so every pixel of the floor, its clear
-/// margin as well, comes into view with the period of the whole floor, and the floor's picture is the whole floor; settings
-/// <c>$80</c> show nothing beyond its edges, so what lies beyond the part that shows anything shows nothing either, and its
-/// picture is the box of that part.
+/// margin as well, comes into view with the period of the whole floor, and the picture store keeps the floor's picture
+/// whole; settings <c>$80</c> show nothing beyond its edges, so what lies beyond the part that shows anything shows nothing
+/// either, and the store keeps only the box of that part. Either way the floor's picture is the whole floor, whose extent
+/// the game takes from it (#2104).
 /// </summary>
 /// <remarks>
 /// <para>

@@ -20,8 +20,8 @@ namespace SuperMetroid.Verification.Rooms.Artwork;
 
 /// <summary>
 /// Checks the turning floors (#1649): only a room state that shows a turning floor has one, installed for its tileset and
-/// bound when the room loads; the floor's picture holds exactly the part of the floor that shows anything, placed where it
-/// lies on the whole floor; and the installed Ceres Ridley floor pictures the cartridge's own floor data.
+/// bound when the room loads; the floor's picture is the whole floor (#2104); and the installed Ceres Ridley floor pictures
+/// the cartridge's own floor data.
 /// </summary>
 internal static class RoomFloorSheetsVerification
 {
@@ -62,10 +62,9 @@ internal static class RoomFloorSheetsVerification
     }
 
     /// <summary>
-    /// A synthetic floor memory whose cells show one tile with visible pixels at two places composes a floor picture of
-    /// exactly the rectangle spanning them, placed by its origin where it lies on the whole floor, each pixel the tile pixel
-    /// its cell shows; a cell showing a tile of colour zero alone does not widen it, and a floor showing nothing anywhere
-    /// is refused.
+    /// A synthetic floor memory whose cells show one tile with visible pixels at two places composes a floor picture of the
+    /// whole floor (#2104), placed at the floor's top-left corner, each pixel the tile pixel its cell shows and colour zero
+    /// everywhere else; a floor showing nothing anywhere is refused.
     /// </summary>
     internal static void VerifyFloorPicturesWhatShows()
     {
@@ -81,13 +80,13 @@ internal static class RoomFloorSheetsVerification
         colours[5] = RgbColor.FromWord(0x1234);
         ComposedSpriteSheet sheet = RoomFloorSheetComposer.ComposeFloor(words, colours);
         SpriteSheetFrameDocument floor = sheet.Manifest.Frames[RoomFloorSheet.FloorFrameName];
-        AssertEqual(new Extent16<ImagePixels>(3 * TilePixels, 2 * TilePixels), floor.Size, "the floor's picture spans exactly the cells that show anything");
-        AssertEqual(Offset16<ImagePixels>.Of(-5 * TilePixels, -3 * TilePixels), floor.Origin, "the floor's picture lies where its cells lie on the whole floor");
+        AssertEqual(new Extent16<ImagePixels>(Side * TilePixels, Side * TilePixels), floor.Size, "the floor's picture is the whole floor");
+        AssertEqual(Offset16<ImagePixels>.Zero, floor.Origin, "the floor's picture lies at the floor's top-left corner");
         for (int y = 0; y < floor.Size.Y; y++)
         {
             for (int x = 0; x < floor.Size.X; x++)
             {
-                int column = 5 + x / TilePixels, row = 3 + y / TilePixels;
+                int column = x / TilePixels, row = y / TilePixels;
                 bool showsTile = (column, row) is (5, 3) or (7, 4);
                 int expected = showsTile && x % TilePixels == y % TilePixels ? 5 : 0;
                 int painted = sheet.PaletteIndices[(floor.Corner.Y + y) * sheet.Size.X + floor.Corner.X + x];
@@ -105,7 +104,7 @@ internal static class RoomFloorSheetsVerification
             refused = true;
         }
         AssertTrue(refused, "a floor no cell of which shows anything is refused");
-        Console.WriteLine("  Turning floors: a floor's picture holds exactly the part of it that shows anything, in place.");
+        Console.WriteLine("  Turning floors: a floor's picture is the whole floor, each pixel its cell's.");
     }
 
     /// <summary>
@@ -138,8 +137,7 @@ internal static class RoomFloorSheetsVerification
     /// <summary>
     /// The installed Ceres Ridley floor pictures the cartridge's floor data (#1649): the tileset's characters as the cartridge
     /// stores them, which its rooms upload as the floor's memory, give every cell's tile and every tile's pixels; the floor's
-    /// picture is exactly the rectangle of the cells whose tiles show a pixel, and each of its pixels is the pixel the
-    /// cartridge's cell shows there.
+    /// picture is the whole floor (#2104), and each of its pixels is the pixel the cartridge's cell shows there.
     /// </summary>
     internal static void VerifyRidleyFloorMatchesCartridge()
     {
@@ -152,25 +150,8 @@ internal static class RoomFloorSheetsVerification
         byte[] memory = RomDataReader.Decompress(cartridge, RoomTilesetSources.Read(cartridge).Characters[tileset.Characters]);
         AssertTrue(memory.Length >= FloorMemoryBytes, $"the cartridge's {tileset} characters fill the floor's memory ({memory.Length} bytes)");
 
-        // The rectangle of the cells whose tiles show a pixel, from the cartridge's data alone.
-        int left = Side, top = Side, right = -1, bottom = -1;
-        for (int cell = 0; cell < Side * Side; cell++)
-        {
-            int tile = memory[cell * sizeof(ushort)];
-            bool shows = false;
-            for (int pixel = 0; pixel < TileBytes && !shows; pixel++)
-                shows = memory[(tile * TileBytes + pixel) * sizeof(ushort) + 1] != 0;
-            if (!shows)
-                continue;
-            left = Math.Min(left, cell % Side);
-            right = Math.Max(right, cell % Side);
-            top = Math.Min(top, cell / Side);
-            bottom = Math.Max(bottom, cell / Side);
-        }
-        AssertEqual(Offset16<ImagePixels>.Of(-left * TilePixels, -top * TilePixels), image.Origin,
-            "the installed floor lies where the cartridge's first showing cells lie");
-        AssertEqual(new Extent16<ImagePixels>(checked((ushort)((right - left + 1) * TilePixels)), checked((ushort)((bottom - top + 1) * TilePixels))), image.Size,
-            "the installed floor spans exactly the cartridge's cells that show anything");
+        AssertEqual(Offset16<ImagePixels>.Zero, image.Origin, "the installed floor lies at the floor's top-left corner");
+        AssertEqual(new Extent16<ImagePixels>(Side * TilePixels, Side * TilePixels), image.Size, "the installed floor is the whole floor");
 
         SpriteImage sheet = image.Sheet;
         int mismatches = 0;
@@ -178,15 +159,14 @@ internal static class RoomFloorSheetsVerification
         {
             for (int x = 0; x < image.Size.X; x++)
             {
-                int floorX = left * TilePixels + x, floorY = top * TilePixels + y;
-                int tile = memory[(floorY / TilePixels * Side + floorX / TilePixels) * sizeof(ushort)];
-                int expected = memory[(tile * TileBytes + floorY % TilePixels * TilePixels + floorX % TilePixels) * sizeof(ushort) + 1];
+                int tile = memory[(y / TilePixels * Side + x / TilePixels) * sizeof(ushort)];
+                int expected = memory[(tile * TileBytes + y % TilePixels * TilePixels + x % TilePixels) * sizeof(ushort) + 1];
                 if (InstalledPictureColoursConstants.ComposedIndexAt(sheet, (image.Corner.Y + y) * sheet.Size.X + image.Corner.X + x) != expected)
                     mismatches++;
             }
         }
         AssertEqual(0, mismatches, "every pixel of the installed Ceres Ridley floor is the pixel the cartridge's cell shows there");
-        Console.WriteLine($"  Turning floors: {RoomFloorSheet.NameOf(tileset)} pictures the cartridge's {image.Size.X}x{image.Size.Y} showing part of its floor.");
+        Console.WriteLine($"  Turning floors: {RoomFloorSheet.NameOf(tileset)} pictures the cartridge's whole {image.Size.X}x{image.Size.Y} floor.");
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded.</summary>

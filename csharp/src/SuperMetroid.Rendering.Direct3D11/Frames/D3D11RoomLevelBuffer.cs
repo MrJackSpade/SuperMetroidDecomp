@@ -174,16 +174,22 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private static readonly Dictionary<CollectiblePicture, int> CollectibleEntries =
         CollectiblePicture.All.Select((picture, index) => (picture, index)).ToDictionary(pair => pair.picture, pair => pair.index);
 
-    /// <summary>The entries of a plane's picture table: each block the table covers, then each collectible picture.</summary>
-    private static int TableEntries(RoomBlockPictureTable table) => table.Blocks + CollectiblePicture.All.Length;
+    /// <summary>
+    /// The entries of a plane's picture table: each block the table covers, then each collectible picture, then one entry
+    /// with no picture, which a cell that shows nothing names (#2100).
+    /// </summary>
+    private static int TableEntries(RoomBlockPictureTable table) => table.Blocks + CollectiblePicture.All.Length + 1;
 
-    /// <summary>The block or collectible picture entry <paramref name="entry"/> of <paramref name="table"/> holds.</summary>
+    /// <summary>The block, collectible picture or nothing entry <paramref name="entry"/> of <paramref name="table"/> holds.</summary>
     private static RoomCellPicture EntryPicture(RoomBlockPictureTable table, int entry) =>
-        entry < table.Blocks ? RoomCellPicture.OfBlock(entry) : RoomCellPicture.Of(CollectiblePicture.All[entry - table.Blocks]);
+        entry < table.Blocks ? RoomCellPicture.OfBlock(entry)
+            : entry - table.Blocks < CollectiblePicture.All.Length ? RoomCellPicture.Of(CollectiblePicture.All[entry - table.Blocks])
+            : RoomCellPicture.Nothing;
 
     /// <summary>The entry of <paramref name="table"/> holding the picture of <paramref name="shown"/>.</summary>
     private static int EntryOf(RoomBlockPictureTable table, RoomCellPicture shown) =>
-        shown.ShowsCollectible ? table.Blocks + CollectibleEntries[shown.Collectible] : shown.Block;
+        shown.ShowsNothing ? table.Blocks + CollectiblePicture.All.Length
+            : shown.ShowsCollectible ? table.Blocks + CollectibleEntries[shown.Collectible] : shown.Block;
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -425,8 +431,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             ReadOnlySpan<RevealedBlock?> blocks = reveal.Blocks;
             for (int block = 0; block < blocks.Length; block++)
             {
-                // A block copied from beyond the room has no picture: zero, which draws nothing.
-                if (blocks[block] is not { } shown)
+                // A block copied from beyond the room has no picture, and a block that shows nothing none either (#2100):
+                // zero, which draws nothing.
+                if (blocks[block] is not { } shown || shown.Picture.ShowsNothing)
                     continue;
                 LayeredPicture picture = reveal.Pictures.Picture(shown.Picture)
                     ?? throw new InvalidOperationException($"The X-ray reveal's {shown.Picture} has no picture.");

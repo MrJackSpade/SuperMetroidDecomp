@@ -59,9 +59,10 @@ public static class RoomBlockSheetFiles
     /// <summary>
     /// The floor manifest's schema revision: revision 1 names the tilesets whose floors are pictures (#1467); revision 2
     /// names only the tilesets whose rooms show a turning floor, each floor pictured as the part of it that shows anything,
-    /// placed by its origin (#1649).
+    /// placed by its origin (#1649); revision 3 pictures each floor whole, as the game takes the floor's extent from its
+    /// picture (#2104).
     /// </summary>
-    private const int FloorManifestVersion = 2;
+    private const int FloorManifestVersion = 3;
 
     /// <summary>
     /// Composes every tileset's block sheet and background image and writes the manifests of what they picture; the sheets

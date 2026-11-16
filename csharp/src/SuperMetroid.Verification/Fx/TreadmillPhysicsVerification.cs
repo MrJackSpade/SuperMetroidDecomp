@@ -23,7 +23,7 @@ internal static class TreadmillPhysicsVerification
         behavior.AsSpan().Fill(RoomBlockBehavior.None);
         for (int i = 8; i < 12; i++)
         {
-            terrain[i] = RoomTerrainBlock.Of(255, BlockMirroring.None, WreckedShipTreadmillBlockDefinitions.RunningCollision);
+            terrain[i] = new RoomTerrainBlock(RoomBlockAppearance.Nothing, WreckedShipTreadmillBlockDefinitions.RunningCollision);
             behavior[i] = WreckedShipTreadmillBlockDefinitions.RightwardsBehavior;
         }
         for (int i = 12; i < 16; i++) terrain[i] = Solid;

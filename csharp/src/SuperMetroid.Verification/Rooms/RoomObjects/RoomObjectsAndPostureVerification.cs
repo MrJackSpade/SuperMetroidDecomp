@@ -83,7 +83,7 @@ internal static void VerifyBreakableGrappleObjects()
     AssertEqual(RoomTerrainBlock.Of(0x055, BlockMirroring.None, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "respawning break frame two advances after four");
     StepMany(respawningObjects,respawning, 6);
-    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
+    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "respawning break reaches blank frame after six");
     StepMany(respawningObjects,respawning, 4 + 4 + 4 + 4);
     AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
@@ -109,7 +109,7 @@ internal static void VerifyBreakableGrappleObjects()
     AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
         "nonrespawning timer 120 begins break sequence");
     StepMany(permanentObjects,permanent, 4 + 4 + 4);
-    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
+    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
         "nonrespawning sequence ends on blank-air visual word");
     permanentObjects.Step(permanent);
     AssertEqual(0, permanentObjects.Places.ActiveCount,
@@ -146,7 +146,7 @@ internal static void VerifyBreakableGrappleObjects()
         "signed {0,+1} record draws the 2x2 lower-right block");
 
     StepMany(respawning2x2Objects,respawning2x2, 12);
-    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), respawning2x2.GetCollisionBlock(new(4, 4)).Terrain,
+    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), respawning2x2.GetCollisionBlock(new(4, 4)).Terrain,
         "BTS-3 reaches its four-block blank frame after three four-frame transitions");
     StepMany(respawning2x2Objects,respawning2x2, 384 + 12);
     AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), respawning2x2.GetCollisionBlock(new(3, 3)).Terrain,
@@ -174,7 +174,7 @@ internal static void VerifyBreakableGrappleObjects()
     AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(4, 3)).Terrain,
         "vertical draw does not accidentally advance into the neighboring column");
     StepMany(permanent1x2Objects,permanent1x2, 12);
-    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 4)).Terrain,
+    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 4)).Terrain,
         "permanent BTS-6 finishes on two vertical blank-air words");
     permanent1x2Objects.Step(permanent1x2);
     AssertEqual(0, permanent1x2Objects.Places.ActiveCount,

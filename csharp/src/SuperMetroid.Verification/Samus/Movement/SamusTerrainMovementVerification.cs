@@ -250,7 +250,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled right room edge clips at logical boundary");
-    AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlockOrEdgeSolid(new(4, 1)).Terrain,
+    AssertEqual(RoomTerrainBlocks.EdgeSolid, level.GetCollisionBlockOrEdgeSolid(new(4, 1)).Terrain,
         "prefilled right room edge probe reads native $8000 word");
 
     var bottomEdgeBody = new SamusKinematicsState
@@ -262,7 +262,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled bottom room edge clips at logical boundary");
-    AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlockOrEdgeSolid(new(3, 4)).Terrain,
+    AssertEqual(RoomTerrainBlocks.EdgeSolid, level.GetCollisionBlockOrEdgeSolid(new(3, 4)).Terrain,
         "prefilled bottom room edge probe reads native $8000 word");
 
     // Grapple endpoint/body collision now consumes this same room-owned seam instead of

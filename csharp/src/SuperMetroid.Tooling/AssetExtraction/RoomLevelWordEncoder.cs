@@ -23,7 +23,7 @@ public static class RoomLevelWordEncoder
     /// <summary>Encodes an appearance as an appearance-only level word: no collision bits.</summary>
     /// <param name="appearance">The appearance.</param>
     public static ushort EncodeAppearance(RoomBlockAppearance appearance) =>
-        checked((ushort)(appearance.Block |
+        checked((ushort)(RoomLevelWordCodec.BlockNumberOf(appearance) |
             ((appearance.Mirroring & BlockMirroring.Horizontal) != 0 ? RoomLevelWordCodec.HorizontalBit : 0) |
             ((appearance.Mirroring & BlockMirroring.Vertical) != 0 ? RoomLevelWordCodec.VerticalBit : 0)));
 }

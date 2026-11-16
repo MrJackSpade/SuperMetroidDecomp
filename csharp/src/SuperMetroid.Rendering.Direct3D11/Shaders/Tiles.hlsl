@@ -21,7 +21,8 @@ cbuffer TileParameters : register(b0)
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FloorOutside, FirstScanline, EndScanline;
     uint Reserved27;
-    uint Reserved28, Reserved29, Reserved30, Reserved31;
+    // A floor pass's floor width and height (D3D11FloorImage.Extent, #2104): the floor's extent and the period it repeats with.
+    uint FloorWidth, FloorHeight, Reserved30, Reserved31;
     uint4 ScanlineParameters[224];
     // The window an operation tests pixels against (Window.hlsli, #1468): a header row and two rows per shape.
     uint4 WindowShapes[9];
@@ -86,8 +87,8 @@ static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord 
 // place of the pixel's colour key among its image's in the low sixteen bits (#1633), and above it whether it is clear.
 Texture2D<uint2> Images : register(t4);
 static const uint KeyPlaceMask = 65535, KeyClear = 65536;
-// The perspective floor's image (D3D11FloorImage): the 1024-pixel floor with its states' pictures laid over it. Each
-// texel's key word keeps the index of the floor picture it comes from.
+// The perspective floor's image (D3D11FloorImage): the whole floor, FloorWidth by FloorHeight, with its states' pictures
+// laid over it. Each texel's key word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
 static const uint FloorSheetShift = 20;
 // How a floor pass blends, in Reserved27 (D3D11FrameRenderer.FloorBlendWord): not at all, subtracting the frontmost
@@ -351,6 +352,13 @@ bool RoomTile(uint source, uint2 scrolled, uint part, out uint entry, out uint2 
     return shown;
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
+
+// Where `v` lands within a span that repeats every `period` pixels, for any `v`; only unsigned remainders are taken, as
+// HLSL leaves a negative remainder undefined.
+uint RepeatedPlace(int v, uint period)
+{
+    return v >= 0 ? (uint)v % period : period - 1u - ((uint)(-(v + 1)) % period);
+}
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
@@ -663,10 +671,10 @@ void Main(uint3 id : SV_DispatchThreadID)
             asfloat(MatrixA) * fromCentre.x + asfloat(MatrixB) * fromCentre.y,
             asfloat(MatrixC) * fromCentre.x + asfloat(MatrixD) * fromCentre.y);
         int x = (int)floor(onFloor.x), y = (int)floor(onFloor.y);
-        bool outside = (uint)x >= 1024 || (uint)y >= 1024;
+        bool outside = (uint)x >= FloorWidth || (uint)y >= FloorHeight;
         bool transparentOutside = outside && FloorOutside == 0;
-        // Outside the floor, it shows nothing or repeats.
-        uint2 at = uint2((uint)x & 1023, (uint)y & 1023);
+        // Outside the floor, it shows nothing or repeats with the floor's own period.
+        uint2 at = uint2(RepeatedPlace(x, FloorWidth), RepeatedPlace(y, FloorHeight));
         uint2 texel = Floor.Load(int3(at, 0));
         // `shown` is the colour a nonzero pixel shows.
         uint index;

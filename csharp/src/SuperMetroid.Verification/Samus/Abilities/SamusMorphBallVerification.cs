@@ -701,7 +701,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertTrue(bombs.Bombs[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(SamusBombProjectileSystem.NormalBombType, bombs.Bombs[0].Type, "the exploding bomb stays a bomb");
     AssertTrue(bombs.Bombs[0].HasReactedToTerrain, "first explosion pass marks block cross handled");
-    AssertEqual(RoomTerrainBlocks.EdgeSolid, floor.GetCollisionBlockByIndex(4 * width + 3).Terrain,
+    AssertEqual(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock), floor.GetCollisionBlockByIndex(4 * width + 3).Terrain,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
     AssertEqual(1, bombs.AudioRequests.SoundRequests.Count,
         "normal bomb fuse expiry queues exactly one sound request");
@@ -1074,7 +1074,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // timeline. The restored word is deliberately `$F058`, not the original `$F321`:
     // setup CEDA synthesized PLM_Vars by replacing all twelve low bits with `$058`.
     StepFrames(12, _ => reactionObjects.Step(reactionLevel));
-    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air),
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).Terrain,
         "bomb reaction reaches blank air after three four-frame transitions");
     StepFrames(384 + 12, _ =>
@@ -1196,7 +1196,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(1, shotObjects.Sounds.SoundRequests[0].Priority.Requests,
         "$84:8C79 uses sound-library-two maximum one");
     StepFrames(12, _ => shotObjects.Step(shotLevel));
-    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air),
         shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "respawning shot block reaches its blank hold word");
     StepFrames(384 + 12, _ =>
@@ -1368,7 +1368,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         {
             permanentWeaponObjects.Step(permanentWeaponLevel);
         }
-        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+        AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air),
             permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
             $"permanent {familyName} block ends on retail blank word");
         AssertEqual(0, permanentWeaponObjects.Places.ActiveCount,

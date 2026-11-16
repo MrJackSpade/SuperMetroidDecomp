@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <remarks>
 /// A load-station entry identifies both a room and the door through which that room is
 /// entered. The latter is behaviorally significant: its setup can change how the
-/// room is shown before gameplay. Treating the station's room as sufficient discarded
-/// exactly the turning-floor view of the opening Ceres elevator.
+/// room is shown before gameplay, as the opening Ceres elevator's door shows its room as a turning floor.
 /// </remarks>
 /// <param name="Name">The door's name.</param>
 /// <param name="DestinationRoom">The room the door leads to.</param>

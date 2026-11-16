@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Progression;
 /// </summary>
 /// <remarks>
 /// <see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/> yields it and <see cref="SharedGameState"/> applies
-/// it. Evidence: the Spacetime Beam check replays the recorded Pit Room probe's two input phases and matches its corrupted loading
-/// state, and runs the game's copy over the game's data for every situation, requiring this overwrite to leave every
-/// event, boss, orb, item, door, station and map as the copy does; the owner kept only the progress part of the
-/// overwrite (#1318).
+/// it. Evidence: the recorded Pit Room probe's two input phases leave the corrupted loading state this overwrite gives,
+/// and the game's copy, run over the game's data in every situation, leaves every event, boss, orb, item, door, station
+/// and map as this overwrite does; only the progress part of the overwrite is kept (#1318).
 /// </remarks>
 /// <param name="Events">The story events the copy decides.</param>
 /// <param name="ZebetitesDestroyed">The Zebetite count the copy leaves, or null when it stops before deciding it.</param>

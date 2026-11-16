@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Scrolling;
-
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Verification's view of which page each row of a scrolling sky shows.</summary>

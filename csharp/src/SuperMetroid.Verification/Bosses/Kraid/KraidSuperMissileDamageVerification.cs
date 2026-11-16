@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus.Poses;
@@ -124,7 +125,7 @@ internal static class KraidSuperMissileDamageVerification
             int row = index / ArenaWidth;
             int shown = Math.Min(row, room.Size.Y - 1) * ArenaWidth + index % ArenaWidth;
             terrain[index] = new RoomTerrainBlock(room.ShownForeground[shown], row == FloorRow ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
-            backdrop[index] = RoomBlockAppearance.Of(background[shown].Picture.Block, background[shown].Flips);
+            backdrop[index] = background[shown].Appearance;
         }
         return new RoomLevelData(new Extent16<RoomBlocks>(ArenaWidth, ArenaHeight),
             new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], backdrop), RoomLevelData.NothingBeyondGrid(), []);

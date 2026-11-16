@@ -86,7 +86,7 @@ internal static class XraySetupVerification
             .Where(item => item.Location is { } location && !runtime.System.HasCollectedItem(location) && CollectibleObjects.ShowsOwnPicture(item.Kind))
             .Select(item => RoomCellPicture.Of(new CollectiblePicture(item.Kind, CollectibleLook.Primary)))];
         RevealedBlock? stray = expected.FirstOrDefault(block => block is { } shown && shown != Marker(2) &&
-            (shown.Picture.ShowsCollectible ? !itemPictures.Contains(shown.Picture) : shown.Picture.Block >= CommonRoomElementBlocks));
+            (shown.Picture.ShowsCollectible ? !itemPictures.Contains(shown.Picture) : !shown.Picture.ShowsNothing && shown.Picture.Block >= CommonRoomElementBlocks));
         AssertTrue(stray is null,
             $"every revealed block is the shown foreground block as the level shows it, a reveal or overlay metatile, or an uncollected item's own picture (first other: {stray}, at {Array.IndexOf(expected, stray)})");
         AssertEqual(XrayRevealMap.OriginOf(scroll.ForegroundPosition), Shown().Origin,

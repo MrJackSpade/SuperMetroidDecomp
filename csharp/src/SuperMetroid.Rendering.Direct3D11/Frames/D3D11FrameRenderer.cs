@@ -968,7 +968,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>
     /// Uploads the frame's floor (#1514): the matrix that turns each screen pixel's distance from the floor's centre into a
     /// distance across the floor, built from the floor's angle and scale, then the centre, the scroll, what shows outside
-    /// the floor, and how the floor blends. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
+    /// the floor, how the floor blends, and the floor's extent, the shown floor image's (#2104). The floor's pictures' colour slots are in the room buffer (#1403, #1467).
     /// </summary>
     private unsafe void DispatchFloor(FloorView view, int firstScanline = 0, int endScanline = 224,
         FloorColorBlend blend = FloorColorBlend.None)
@@ -989,6 +989,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         };
         data[25] = firstScanline; data[26] = endScanline;
         data[27] = (int)FloorBlendWord(blend);
+        // The floor's extent, which is its image's, and the period it repeats with (#2104).
+        data[28] = floorImage.Extent.X; data[29] = floorImage.Extent.Y;
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

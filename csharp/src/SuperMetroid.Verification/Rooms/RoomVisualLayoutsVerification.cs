@@ -99,8 +99,8 @@ internal static class RoomVisualLayoutsVerification
                 AssertEqual(RoomLevelWordCodec.Decode(word), terrain.Following[index],
                     $"room level {level} block {count + index} past the grid");
             }
-            AssertEqual(RoomTerrainBlocks.EdgeSolid, RoomLevelWordCodec.Decode(FillWord),
-                "the level-space fill is the game's edge-solid block");
+            AssertEqual(RoomTerrainBlocks.EdgeSolid.Collision, RoomLevelWordCodec.Decode(FillWord).Collision,
+                "the level-space fill collides as the game's edge-solid block");
         }
 
         // Exercise the real room loader for every selectable state, not merely

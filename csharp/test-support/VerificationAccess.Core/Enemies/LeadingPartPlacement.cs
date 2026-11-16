@@ -2,7 +2,6 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Powamp;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Enemies;
 

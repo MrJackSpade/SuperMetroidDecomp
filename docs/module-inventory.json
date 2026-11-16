@@ -74119,6 +74119,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationName.cs",
+      "module": "csharp/src/SuperMetroid.Core/Samus",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Samus.Poses",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationPlace.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -74704,16 +74714,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Compatibility"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusUnreachablePoseDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Poses",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {

@@ -126,6 +126,8 @@ internal static class TorizoAnimationsVerification
         IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> steps = TorizoAnimations.Segments.Beats(animation);
         AssertEqual(native.Count, typed.Phases.Count, $"{animation} plays its native lists' runs");
         int offset = 0;
+        // The posture the animation's last step cue left, which its decisions' targets follow (#2175).
+        TorizoPostureFlags? posture = null;
         for (int index = 0; index < native.Count; index++)
         {
             AnimationPhase<TorizoAnimation> phase = typed.Phases[index];
@@ -136,7 +138,12 @@ internal static class TorizoAnimationsVerification
             AssertEqual(run.BeatCount, phase.BeatCount, $"{at}'s run length");
             AssertEqual(run.Plays, phase.Plays, $"{at}'s plays");
             for (int beat = 0; beat < run.BeatCount; beat++)
-                CompareBeat(cartridge, run, lists[run.List].Beats[run.FirstBeat + beat], steps[offset + beat], $"{at} step {offset + beat}");
+            {
+                AnimationBeat<EnemyFrameId, TorizoCue> step = steps[offset + beat];
+                if (step is AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: TorizoCue.Stepped stepped })
+                    posture = TorizoFacing.AfterStep(stepped.Direction, stepped.Foot);
+                CompareBeat(cartridge, run, lists[run.List].Beats[run.FirstBeat + beat], step, posture, $"{at} step {offset + beat}");
+            }
             played.Add(run.List);
             offset += run.BeatCount;
         }
@@ -149,7 +156,14 @@ internal static class TorizoAnimationsVerification
     /// Compares one step with the native beat it plays: a frame's duration and spritemap, a wait's length, a tile
     /// transfer's look and descriptor, an instruction's cue and operands, a callback's sleep.
     /// </summary>
-    private static void CompareBeat(IImportCartridgeSource cartridge, NativePhase run, BodyBeat beat, AnimationBeat<EnemyFrameId, TorizoCue> step, string at)
+    /// <param name="cartridge">The retail cartridge.</param>
+    /// <param name="run">The native run the step's phase plays.</param>
+    /// <param name="beat">The native beat the step plays.</param>
+    /// <param name="step">The typed step.</param>
+    /// <param name="posture">The posture the animation's last step cue before this step left, if any.</param>
+    /// <param name="at">Where the step is, for failure messages.</param>
+    private static void CompareBeat(IImportCartridgeSource cartridge, NativePhase run, BodyBeat beat, AnimationBeat<EnemyFrameId, TorizoCue> step,
+        TorizoPostureFlags? posture, string at)
     {
         at = $"{at} at $AA:{beat.Address:X4}";
         int address = (BodyBankNumber << 16) | beat.Address;
@@ -190,7 +204,7 @@ internal static class TorizoAnimationsVerification
                     $"{at}: the callback's sleep length");
                 return;
             case BodyBeatKind.Instruction:
-                CompareInstruction(cartridge, run, address, AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(step, $"{at}: instruction").Raised, at);
+                CompareInstruction(cartridge, run, address, AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(step, $"{at}: instruction").Raised, posture, at);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BodyBeatKind)} {beat.Kind}.");
@@ -199,9 +213,11 @@ internal static class TorizoAnimationsVerification
 
     /// <summary>
     /// Compares a Torizo instruction with its cue: the cue it must become and each operand word with the value, phase, body
-    /// motion or animation the cue carries; a replay's operand is the entry of the list its run begins at.
+    /// motion or animation the cue carries; a replay's operand is the entry of the list its run begins at, and a decision's
+    /// the animation its owner continues in for the posture the walk's last step left (#2175).
     /// </summary>
-    private static void CompareInstruction(IImportCartridgeSource cartridge, NativePhase run, int address, TorizoCue cue, string at)
+    private static void CompareInstruction(IImportCartridgeSource cartridge, NativePhase run, int address, TorizoCue cue,
+        TorizoPostureFlags? stepPosture, string at)
     {
         ushort word = cartridge.ReadCartridgeWord(address);
         AssertTrue(BodyInstructions.TryGetValue(word, out TorizoNativeListAddressesBodyInstruction instruction), $"{at}: native instruction ${word:X4} is known");
@@ -271,7 +287,8 @@ internal static class TorizoAnimationsVerification
                 })),
                 TorizoOperand.Target => Entry(cue switch
                 {
-                    TorizoCue.Branch branch => branch.Target,
+                    TorizoCue.Branch branch => TorizoBranches.Target(branch.Kind,
+                        stepPosture ?? throw new InvalidDataException($"{at}: a decision follows no step of its walk.")),
                     TorizoCue.Interrupt interrupt => interrupt.Animation,
                     TorizoCue.Choice choice => choice.Target,
                     TorizoCue.LandIn landIn => landIn.Landing,

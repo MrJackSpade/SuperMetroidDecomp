@@ -88,7 +88,7 @@ internal sealed class CeresRidleyFlight
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
-        StartRidleyAnimation(_ridleyEncounter.Ridley, place, RidleyBodySegment.Initial);
+        StartRidleyAnimation(_ridleyEncounter.Ridley, place, RidleyAnimations.Initial);
         // Ceres Ridley's initialization ends by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
@@ -176,7 +176,7 @@ internal sealed class CeresRidleyFlight
         // The fireball phase starts the complete retail mouth/fireball animation.
         // Its fireball cues calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
-        StartRidleyAnimation(state, place, RidleyBodySegment.Fireballing);
+        StartRidleyAnimation(state, place, RidleyAnimations.Fireballing);
         state.Phase = RidleyPhase.CeresFireballShooting;
         state.PhaseTimer = 224;
         TickCeresRidleyFireballShooting(place, state);
@@ -508,6 +508,10 @@ internal sealed class CeresRidleyFlight
     {
         state.BodyPlayback = EnemyAnimationPlayback.Start(place, RidleyAnimations.StartingWith(segment));
     }
+
+    /// <summary>Restarts Ridley's body animation and frame timer at <paramref name="animation"/> for the way he faces (#2175).</summary>
+    internal static void StartRidleyAnimation(RidleyEnemyState state, RoomEnemyPlace place, RidleyFacedAnimation animation) =>
+        StartRidleyAnimation(state, place, animation.For(Ensure.NotNull(state).FacingDirection));
 
     /// <summary>Animates Ridley's wings after the common Ridley movement pass.</summary>
     internal static void TickRidleyWingAnimation(RidleyEnemyState state)

@@ -105,7 +105,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.WaitBeforeRoar:
                 if (--state.PhaseTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.OpeningRoar);
+                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.OpeningRoar);
                     state.PhaseTimer = 252;
                     state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }
@@ -115,7 +115,7 @@ internal sealed class CeresRidleyBehavior
                 if (--state.PhaseTimer < 0)
                 {
                     state.FadeStep = 0;
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.TransitionToFlying);
+                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.TransitionToFlying);
                     // Ridley's roar before flying primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs the flying animation.
@@ -160,7 +160,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.CeresLungeSetup:
-                CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.CeresLunge);
+                CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.CeresLunge);
                 state.Phase = RidleyPhase.CeresLungeMain;
                 state.PhaseTimer = 64;
                 CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
@@ -243,7 +243,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.CeresWaitBeforeRetrievingBaby:
                 if (--state.PhaseTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.RetrieveBabyMetroid);
+                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.RetrieveBabyMetroid);
                     state.Phase = RidleyPhase.CeresRetrieveBaby;
                     CeresRidleyFlight.TickCeresRidleyRetrieveBaby(place, state);
                 }

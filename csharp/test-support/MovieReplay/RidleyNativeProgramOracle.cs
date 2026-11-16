@@ -26,6 +26,16 @@ internal static class RidleyNativeProgramOracle
         [.. FireballEntries.Select(item => new NativeProgramEntry<RidleyFireballSegment>(item.Program, item.Entry))];
 
     /// <summary>
+    /// The animations Ridley's owner starts for the way he faces (#2175). The cartridge starts each at its left-facing list,
+    /// which opens by going on to the right-facing list unless he faces left.
+    /// </summary>
+    internal static readonly RidleyFacedAnimation[] OwnerStartedFacedAnimations =
+    [
+        RidleyAnimations.Initial, RidleyAnimations.CeresLunge, RidleyAnimations.RetrieveBabyMetroid, RidleyAnimations.OpeningRoar,
+        RidleyAnimations.DeathRoar, RidleyAnimations.Fireballing, RidleyAnimations.TransitionToFlying,
+    ];
+
+    /// <summary>
     /// Compares every body segment with its native list and every body animation with the lists' control flow, and
     /// returns each list's beat and control addresses.
     /// </summary>
@@ -35,8 +45,52 @@ internal static class RidleyNativeProgramOracle
         Dictionary<RidleyBodySegment, NativeEnemyList<RidleyBodySegment>> lists =
             BodyEntries.ToDictionary(item => item.Program, item => ReadBodyList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyAnimations.StartingAt);
+        // Exactly the owner's faced animations open with the facing branch, each naming its right-facing counterpart.
+        foreach (BodyEntry entry in BodyEntries)
+        {
+            int address = (BodyBankNumber << 16) | entry.Entry;
+            RidleyFacedAnimation? faced = OwnerStartedFacedAnimations.Where(animation => animation.FacingLeft == entry.Program)
+                .Select(animation => (RidleyFacedAnimation?)animation).SingleOrDefault();
+            bool branches = cartridge.ReadCartridgeWord(address) == GoToUnlessFacingLeft;
+            VerificationAssertions.AssertEqual(faced is not null, branches, $"Ridley {entry.Program}: its native list opens with the facing branch only when the owner starts it by facing");
+            if (faced is { } opened)
+                VerificationAssertions.AssertEqual(EntryOf(opened.FacingRight), cartridge.ReadCartridgeWord(address + 2),
+                    $"Ridley {entry.Program}: the facing branch goes on to {opened.FacingRight}");
+        }
         return lists;
     }
+
+    /// <summary>The native entry of body <paramref name="segment"/>.</summary>
+    private static ushort EntryOf(RidleyBodySegment segment) => BodyEntries.Single(item => item.Program == segment).Entry;
+
+    /// <summary>
+    /// The native pointer of an owner-started faced animation before its first play (#2175): the entry of its left-facing
+    /// list, which the cartridge starts for either facing; null for any other animation.
+    /// </summary>
+    internal static ushort? FacedStartPointer(Animation<RidleyBodySegment> animation) =>
+        OwnerStartedFacedAnimations
+            .Where(faced => ReferenceEquals(RidleyAnimations.StartingWith(faced.FacingLeft), animation)
+                || ReferenceEquals(RidleyAnimations.StartingWith(faced.FacingRight), animation))
+            .Select(faced => (ushort?)EntryOf(faced.FacingLeft))
+            .SingleOrDefault();
+
+    /// <summary>
+    /// The playback before the first play of the owner-started faced animation whose left-facing list starts at
+    /// <paramref name="address"/>, for a Ridley facing <paramref name="facing"/> (#2175); null when no such list starts there.
+    /// </summary>
+    internal static AnimationPlayback<RidleyBodySegment>? FacedStartAt(ushort address, RidleyFacing facing) =>
+        OwnerStartedFacedAnimations
+            .Where(faced => EntryOf(faced.FacingLeft) == address)
+            .Select(faced => (AnimationPlayback<RidleyBodySegment>?)new AnimationPlayback<RidleyBodySegment>(
+                RidleyAnimations.StartingWith(faced.For(facing)), AnimationPlace.StartOfAnimation))
+            .SingleOrDefault();
+
+    /// <summary>The way a Ridley playing fireballing <paramref name="segment"/> faces.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="segment"/> is no fireballing.</exception>
+    private static RidleyFacing FireballingFacing(RidleyBodySegment segment) =>
+        segment == RidleyAnimations.Fireballing.FacingLeft ? RidleyFacing.Left
+        : segment == RidleyAnimations.Fireballing.FacingRight ? RidleyFacing.Right
+        : throw new InvalidDataException($"Ridley {segment} is no fireballing, but may cut its fireballing short.");
 
     /// <summary>Reads one body segment's native list, comparing each of its beats with the segment's.</summary>
     private static NativeEnemyList<RidleyBodySegment> ReadBodyList(IImportCartridgeSource cartridge, RidleyBodySegment segment, ushort entry)
@@ -57,6 +111,13 @@ internal static class RidleyNativeProgramOracle
             int address = (BodyBankNumber << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
+            if (cursor == entry && word == GoToUnlessFacingLeft)
+            {
+                // The owner starts the right-facing counterpart this branch names instead (#2175, checked in BodyLists): the
+                // branch is no beat of the left-facing segment.
+                cursor = unchecked((ushort)(cursor + 4));
+                continue;
+            }
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
@@ -77,11 +138,10 @@ internal static class RidleyNativeProgramOracle
                     instruction.Cue.Check(cue, at);
                     switch (cue)
                     {
-                        case RidleyBodyCue.GoToUnlessFacingLeft goToUnlessFacingLeft:
-                            VerificationAssertions.AssertEqual(BodyProgramAt(operand), goToUnlessFacingLeft.Target, $"{at}: goto target");
-                            break;
-                        case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
-                            VerificationAssertions.AssertEqual(BodyProgramAt(operand), goToIfCeresAndSamusLowEnergy.Target, $"{at}: goto target");
+                        case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.MayCutFireballingShort }:
+                            // The native branch names the end the owner continues in for the way the fireballing faces (#2175).
+                            VerificationAssertions.AssertEqual(BodyProgramAt(operand), (RidleyBodySegment?)RidleyAnimations.FireballingEnd.For(FireballingFacing(segment)),
+                                $"{at}: goto target");
                             break;
                         case RidleyBodyCue.SetClawHeight setClawHeight:
                             // The native operand is the height's byte offset into the word-sized claw-height table.

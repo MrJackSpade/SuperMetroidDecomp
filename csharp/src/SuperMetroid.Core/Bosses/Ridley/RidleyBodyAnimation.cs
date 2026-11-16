@@ -47,17 +47,15 @@ internal sealed class RidleyBodyAnimation
     {
         switch (cue)
         {
-            case RidleyBodyCue.GoToUnlessFacingLeft goToUnlessFacingLeft:
-                return state.FacingDirection != RidleyFacing.Left ? goToUnlessFacingLeft.Target : null;
-            case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
+            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.MayCutFireballingShort }:
                 if (place.DefinitionId == EnemyDefinitionId.Ridley)
                     return null;
                 if (samus.Health >= 30)
                     return null;
                 // The fireball animation stores 8 in the Ridley timer before it continues elsewhere,
-                // cutting the fireball hover short.
+                // cutting the fireball hover short. He faces the way the fireballing he started faces: nothing in it turns him.
                 state.PhaseTimer = 8;
-                return goToIfCeresAndSamusLowEnergy.Target;
+                return RidleyAnimations.FireballingEnd.For(state.FacingDirection);
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.Roar }:
                 state.Roaring = true;
                 _audio.QueueEnemySound(RidleySoundDefinitions.Roar, priority: SoundRequestPriority.Normal);

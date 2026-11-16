@@ -127,7 +127,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.WaitBeforeRoar:
                 if (--state.PhaseTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.OpeningRoar);
+                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.OpeningRoar);
                     state.PhaseTimer = 0;
                     state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }

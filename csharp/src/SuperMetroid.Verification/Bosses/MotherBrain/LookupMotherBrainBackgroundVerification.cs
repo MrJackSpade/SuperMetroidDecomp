@@ -12,10 +12,10 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class LookupMotherBrainBackgroundVerification
 {
     /// <summary>The twelve mural rows' draw-list addresses and published names, top to bottom.</summary>
-    internal static readonly LookupEscapeGateStockFrame[] Rows = [new(0x9505, "background-row-2"), new(0x9523, "background-row-3"),
-        new(0x9541, "background-row-4"), new(0x955f, "background-row-5"), new(0x957d, "background-row-6"), new(0x959b, "background-row-7"),
-        new(0x95b9, "background-row-8"), new(0x95d7, "background-row-9"), new(0x95f5, "background-row-a"), new(0x9613, "background-row-b"),
-        new(0x9631, "background-row-c"), new(0x964f, "background-row-d")];
+    internal static readonly LookupEscapeGateStockFrame[] Rows = [new(0x9505, "mural-row-1"), new(0x9523, "mural-row-2"),
+        new(0x9541, "mural-row-3"), new(0x955f, "mural-row-4"), new(0x957d, "mural-row-5"), new(0x959b, "mural-row-6"),
+        new(0x95b9, "mural-row-7"), new(0x95d7, "mural-row-8"), new(0x95f5, "mural-row-9"), new(0x9613, "mural-row-10"),
+        new(0x9631, "mural-row-11"), new(0x964f, "mural-row-12")];
 
     /// <summary>The mural rows in the order the mural shows them, top to bottom.</summary>
     private static readonly MotherBrainFakeDeathDraw[] MuralOrder =

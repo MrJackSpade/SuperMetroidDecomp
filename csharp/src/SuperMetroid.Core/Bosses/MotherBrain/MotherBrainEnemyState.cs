@@ -36,6 +36,12 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>The body's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyPhase Phase { get; internal set; }
+
+    /// <summary>
+    /// How many of the mural's rows her fake death's ascent has drawn (#2211): zero when the reveal starts, two more each
+    /// update of <see cref="MotherBrainBodyPhase.FakeDeathAscentDrawMural"/>.
+    /// </summary>
+    public int MuralRowsDrawn { get; internal set; }
     /// <summary>The brain's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainAction BrainAction { get; internal set; }
 

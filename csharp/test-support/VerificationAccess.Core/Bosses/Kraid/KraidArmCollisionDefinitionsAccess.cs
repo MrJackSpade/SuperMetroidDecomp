@@ -17,22 +17,22 @@ internal static class KraidArmCollisionDefinitionsAccess
     /// <summary>Each hitbox list's bank-$A7 address.</summary>
     private static readonly NativeWordIdentities<KraidArmHitboxList> HitboxListAddresses = new(new Dictionary<KraidArmHitboxList, ushort>
     {
-        [KraidArmHitboxList.ArticulatedFirst] = 0x92d1,
-        [KraidArmHitboxList.ArticulatedSecond] = 0x92eb,
-        [KraidArmHitboxList.ArticulatedThird] = 0x92f9,
-        [KraidArmHitboxList.ArticulatedFourth] = 0x9313,
-        [KraidArmHitboxList.ArticulatedFifth] = 0x9321,
-        [KraidArmHitboxList.ArticulatedSixth] = 0x933b,
-        [KraidArmHitboxList.ArticulatedSeventh] = 0x9349,
-        [KraidArmHitboxList.ConnectorSecond] = 0x9371,
-        [KraidArmHitboxList.ConnectorThird] = 0x937f,
-        [KraidArmHitboxList.ConnectorFinal] = 0x9399,
-        [KraidArmHitboxList.ConnectorInitial] = 0x93f7,
-        [KraidArmHitboxList.BodyFinal] = 0x9411,
-        [KraidArmHitboxList.BodyMiddle] = 0x941f,
-        [KraidArmHitboxList.BodyInitial] = 0x9439,
-        [KraidArmHitboxList.FinalPoseFirst] = 0x946f,
-        [KraidArmHitboxList.FinalPoseSecond] = 0x947d,
+        [KraidArmHitboxList.LimbRaised] = 0x92d1,
+        [KraidArmHitboxList.LimbRaisedOpen] = 0x92eb,
+        [KraidArmHitboxList.LimbLowering] = 0x92f9,
+        [KraidArmHitboxList.LimbLevel] = 0x9313,
+        [KraidArmHitboxList.LimbHanging] = 0x9321,
+        [KraidArmHitboxList.LimbTucked] = 0x933b,
+        [KraidArmHitboxList.LimbFolded] = 0x9349,
+        [KraidArmHitboxList.ConnectorLowered] = 0x9371,
+        [KraidArmHitboxList.ConnectorHanging] = 0x937f,
+        [KraidArmHitboxList.ConnectorTucked] = 0x9399,
+        [KraidArmHitboxList.ConnectorRaised] = 0x93f7,
+        [KraidArmHitboxList.BodyBehindLoweredArm] = 0x9411,
+        [KraidArmHitboxList.BodyBehindLoweringArm] = 0x941f,
+        [KraidArmHitboxList.BodyBehindRaisedArm] = 0x9439,
+        [KraidArmHitboxList.DroopingDiagonal] = 0x946f,
+        [KraidArmHitboxList.Outstretched] = 0x947d,
     });
 
     /// <summary>The hitbox list stored at bank-$A7 address <paramref name="pointer"/>.</summary>

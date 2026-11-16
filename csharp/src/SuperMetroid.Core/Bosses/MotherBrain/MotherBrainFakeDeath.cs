@@ -366,7 +366,8 @@ internal sealed class MotherBrainFakeDeath
         state.LowerNeckAngle = RotationAngle.FromSteps(72);
         state.UpperNeckAngle = RotationAngle.FromSteps(80);
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows1And2;
+        state.Phase = MotherBrainBodyPhase.FakeDeathAscentDrawMural;
+        state.MuralRowsDrawn = 0;
         ExplodeMotherBrainTube(tube);
     }
 
@@ -395,127 +396,22 @@ internal sealed class MotherBrainFakeDeath
             _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
 
-    /// <summary>Queues the background room rows revealed by the tube collapse.</summary>
-    internal void RequestMotherBrainRoomRows(
-        MotherBrainEnemyState state,
-        MotherBrainRoomMutation firstRowMutation,
-        MotherBrainRoomMutation secondRowMutation,
-        MotherBrainBodyPhase next)
+    /// <summary>
+    /// Draws the next rows of the mural the tube collapse revealed, two an update from the top (#2211), and hands off to
+    /// the phase-two graphics setup once every row is drawn.
+    /// </summary>
+    internal void DrawNextMuralRows(MotherBrainEnemyState state)
     {
-        int firstRow = state.Phase switch
+        int drawn = state.MuralRowsDrawn;
+        for (int row = drawn; row < drawn + MotherBrainMuralDefinitions.RowsEachUpdate; row++)
         {
-            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows1And2 => 2,
-            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows3And4 => 4,
-            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows5And6 => 6,
-            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows7And8 => 8,
-            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows9And10 => 10,
-            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows11And12 => 12,
-            MotherBrainBodyPhase.FirstPhase or
-                MotherBrainBodyPhase.FakeDeathDescentInitialPause or
-                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock or
-                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic or
-                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock or
-                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash or
-                MotherBrainBodyPhase.FakeDeathDescentFadeToGray or
-                MotherBrainBodyPhase.FakeDeathDescentCollapseTubes or
-                MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics or
-                MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain or
-                MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense or
-                MotherBrainBodyPhase.FakeDeathAscentPrepareForRising or
-                MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody or
-                MotherBrainBodyPhase.FakeDeathAscentContinuePausing or
-                MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake or
-                MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain or
-                MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched or
-                MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray or
-                MotherBrainBodyPhase.SecondPhaseStretchingShakeHead or
-                MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp or
-                MotherBrainBodyPhase.SecondPhaseStretchingFinish or
-                MotherBrainBodyPhase.SecondPhaseThinking or
-                MotherBrainBodyPhase.SecondPhaseTryAttack or
-                MotherBrainBodyPhase.SecondPhaseBombDecideWalking or
-                MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards or
-                MotherBrainBodyPhase.SecondPhaseBombCrouch or
-                MotherBrainBodyPhase.SecondPhaseBombFired or
-                MotherBrainBodyPhase.SecondPhaseBombStandUp or
-                MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly or
-                MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire or
-                MotherBrainBodyPhase.SecondPhaseLaserFinishAttack or
-                MotherBrainBodyPhase.SecondPhaseHandBeam or
-                MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck or
-                MotherBrainBodyPhase.SecondPhaseRainbowStartCharging or
-                MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck or
-                MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge or
-                MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown or
-                MotherBrainBodyPhase.SecondPhaseRainbowStartFiring or
-                MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall or
-                MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay or
-                MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus or
-                MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus or
-                MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring or
-                MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall or
-                MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand or
-                MotherBrainBodyPhase.SecondPhaseRainbowLowerHead or
-                MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction or
-                MotherBrainBodyPhase.SecondPhaseFinishSamusOff or
-                MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp or
-                MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire or
-                MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam or
-                MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby or
-                MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam or
-                MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey or
-                MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey or
-                MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey or
-                MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife or
-                MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey or
-                MotherBrainBodyPhase.SecondPhaseReviveWakeUp or
-                MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch or
-                MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby or
-                MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath or
-                MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath or
-                MotherBrainBodyPhase.SecondPhaseMurderBabyAttack or
-                MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown or
-                MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack or
-                MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack or
-                MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding or
-                MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance or
-                MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting or
-                MotherBrainBodyPhase.ThirdPhaseFightingMain or
-                MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown or
-                MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom or
-                MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding or
-                MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom or
-                MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects or
-                MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut or
-                MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody or
-                MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions or
-                MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation or
-                MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround or
-                MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse or
-                MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey or
-                MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey or
-                MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver or
-                MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway or
-                MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay or
-                MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning or
-                MotherBrainBodyPhase.ThirdPhaseDeathStartEscape or
-                MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle or
-                MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText or
-                MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer or
-                MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor or
-                MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
-            _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
-        };
-        _access.RequestMotherBrainObject(new(2, CoordinateAxis.Wrap(firstRow)), firstRowMutation);
-        _access.RequestMotherBrainObject(new(2, CoordinateAxis.Wrap(firstRow + 1)), secondRowMutation);
-        state.Phase = next;
+            _access.RequestMotherBrainObject(
+                new(MotherBrainMuralDefinitions.Column, CoordinateAxis.Wrap(MotherBrainMuralDefinitions.TopBlockRow + row)),
+                MotherBrainMuralDefinitions.Rows[row]);
+        }
+        state.MuralRowsDrawn = drawn + MotherBrainMuralDefinitions.RowsEachUpdate;
+        if (state.MuralRowsDrawn == MotherBrainMuralDefinitions.Rows.Count)
+            state.Phase = MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics;
     }
 
     /// <summary>Restores the combat colours after the gray fake-death phase.</summary>

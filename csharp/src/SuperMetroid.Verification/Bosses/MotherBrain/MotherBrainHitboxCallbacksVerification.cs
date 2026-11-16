@@ -29,16 +29,21 @@ internal static class MotherBrainHitboxCallbacksVerification
             NativeEnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitionsConstants.Frame(index);
             int root = (int)new SnesAddress(frame.Bank, frame.Pointer);
             ReadOnlySpan<EnemyCollisionComponent> components = MotherBrainCollision.ComponentsAt(frame.Pointer);
-            AssertEqual(rom.ReadCartridgeByte(root), components.Length, $"frame {frame.Name} component count");
-            for (int component = 0; component < components.Length; component++)
+            // #2211: the port lists only the native components that hold rectangles, in their order; the collision tests
+            // walk the rectangles, so a native component without one is never tested.
+            int listed = 0;
+            for (int component = 0; component < rom.ReadCartridgeByte(root); component++)
             {
                 int record = root + 2 + component * ComponentRecordBytes;
-                EnemyCollisionComponent compiled = components[component];
+                int list = (int)new SnesAddress(MotherBrainCollision.Bank, cartridge.ReadCartridgeWord(record + 6));
+                if (cartridge.ReadCartridgeWord(list) == 0)
+                    continue;
+                AssertTrue(listed < components.Length, $"frame {frame.Name} lists native component {component}");
+                EnemyCollisionComponent compiled = components[listed++];
                 AssertEqual(cartridge.ReadCartridgeWord(record), unchecked((ushort)compiled.Offset.X),
                     $"frame {frame.Name} component {component} X");
                 AssertEqual(cartridge.ReadCartridgeWord(record + 2), unchecked((ushort)compiled.Offset.Y),
                     $"frame {frame.Name} component {component} Y");
-                int list = (int)new SnesAddress(MotherBrainCollision.Bank, cartridge.ReadCartridgeWord(record + 6));
                 AssertEqual(cartridge.ReadCartridgeWord(list), compiled.Hitboxes.Count,
                     $"frame {frame.Name} component {component} rectangle count");
                 for (int box = 0; box < compiled.Hitboxes.Count; box++)
@@ -57,6 +62,7 @@ internal static class MotherBrainHitboxCallbacksVerification
                     rectangles++;
                 }
             }
+            AssertEqual(components.Length, listed, $"frame {frame.Name} lists only the native components that hold rectangles");
         }
 
         Console.WriteLine(

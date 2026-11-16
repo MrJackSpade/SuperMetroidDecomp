@@ -44,18 +44,18 @@ public static class RoomObjectMotherBrainGlassVisualFiles
         var runs = new Dictionary<MotherBrainGlassDraw, RoomObjectShapeRun[]>
         {
             [MotherBrainGlassDraw.Initial] = [RoomObjectShapeRun.Row(origin, 1)],
-            [MotherBrainGlassDraw.PaneDamage1] = pane,
-            [MotherBrainGlassDraw.PaneDamage2] = pane,
+            [MotherBrainGlassDraw.PaneCracked] = pane,
+            [MotherBrainGlassDraw.PaneCrackedThrough] = pane,
             [MotherBrainGlassDraw.PaneTransition] = [RoomObjectShapeRun.Column(origin, 3)],
-            [MotherBrainGlassDraw.ShiftedPane1] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 0), 4),
+            [MotherBrainGlassDraw.PaneShifted] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 0), 4),
                 RoomObjectShapeRun.Column(new(-2, 1), 2)],
-            [MotherBrainGlassDraw.ShiftedPane2] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 1), 3),
+            [MotherBrainGlassDraw.PaneShiftedCrumbling] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 1), 3),
                 RoomObjectShapeRun.Column(new(-2, 1), 2)],
-            [MotherBrainGlassDraw.ShiftedPane3] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 1), 2)],
-            [MotherBrainGlassDraw.Shatter1] = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(-3, 0), 4),
+            [MotherBrainGlassDraw.PaneShiftedEmptying] = [RoomObjectShapeRun.Row(origin, 1), RoomObjectShapeRun.Column(new(-3, 1), 2)],
+            [MotherBrainGlassDraw.RimBuckling] = [RoomObjectShapeRun.Column(origin, 4), RoomObjectShapeRun.Column(new(-3, 0), 4),
                 RoomObjectShapeRun.Column(new(-2, 1), 2), RoomObjectShapeRun.Column(new(-1, 1), 2)],
-            [MotherBrainGlassDraw.Shatter2] = square,
-            [MotherBrainGlassDraw.Shatter3] = square,
+            [MotherBrainGlassDraw.RimBursting] = square,
+            [MotherBrainGlassDraw.RimGone] = square,
             [MotherBrainGlassDraw.Cleared] = square,
         };
 

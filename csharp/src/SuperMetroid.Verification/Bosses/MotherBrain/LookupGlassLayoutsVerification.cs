@@ -12,9 +12,9 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class LookupGlassLayoutsVerification
 {
     /// <summary>The eleven glass frames' draw-list addresses and published names.</summary>
-    private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9717, "initial"), new(0x971d, "pane-damage-1"),
-        new(0x9731, "pane-damage-2"), new(0x9745, "pane-transition"), new(0x974f, "shifted-pane-1"), new(0x9769, "shifted-pane-2"),
-        new(0x9781, "shifted-pane-3"), new(0x978f, "shatter-1"), new(0x97b7, "shatter-2"), new(0x97e7, "shatter-3"), new(0x9817, "cleared")];
+    private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9717, "initial"), new(0x971d, "pane-cracked"),
+        new(0x9731, "pane-cracked-through"), new(0x9745, "pane-transition"), new(0x974f, "pane-shifted"), new(0x9769, "pane-shifted-crumbling"),
+        new(0x9781, "pane-shifted-emptying"), new(0x978f, "rim-buckling"), new(0x97b7, "rim-bursting"), new(0x97e7, "rim-gone"), new(0x9817, "cleared")];
 
     /// <summary>
     /// Checks which draws are the glass's, each frame's runs and continuations against the cartridge, and that each shape

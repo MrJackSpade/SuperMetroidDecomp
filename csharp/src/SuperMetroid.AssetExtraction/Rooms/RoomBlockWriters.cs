@@ -266,7 +266,8 @@ internal static class RoomBlockWriters
     /// where the picture does not cover them (#1538).
     /// </summary>
     private static HashSet<int> BlockPairBlocks() =>
-        [.. RoomObjectCollectibleDrawDefinitions.BlockPairBlocks.Values];
+        [.. Enum.GetValues<CollectibleDraw>().Select(CollectibleObjectDraws.BlockPairTerrain).OfType<RoomTerrainBlock>()
+            .Select(terrain => terrain.Appearance.Block)];
 
     /// <summary>The blocks <paramref name="shown"/> show, each once; an appearance that shows nothing shows none (#2100).</summary>
     private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) =>

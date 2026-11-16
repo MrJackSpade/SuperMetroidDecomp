@@ -21,15 +21,36 @@ internal static class CollectibleObjectDraws
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
     internal static RoomCollisionType CollisionOf(CollectibleDraw draw) => Collision(GroupOf(draw));
 
+    /// <summary>The looks of an item's own picture, in the order a block pair's draws are matched.</summary>
+    private static readonly CollectibleLook[] Looks = [CollectibleLook.Primary, CollectibleLook.Alternate];
+
     /// <summary>
     /// The terrain a block pair's frame writes, or null when <paramref name="draw"/> is not one: the frame lies under the
-    /// item's own picture (#1538), has no installed picture of its own, and writes its block number, which is gameplay
-    /// terrain (<see cref="RoomObjectCollectibleDrawDefinitions.OwnPictureFirstBlock"/>).
+    /// item's own picture (#1538), has no installed picture of its own, and writes the block its pair writes under that
+    /// look, which is gameplay terrain (<see cref="CollectibleBlockPairs.BlocksOf"/>, #2125).
     /// </summary>
-    internal static RoomTerrainBlock? BlockPairTerrain(CollectibleDraw draw) =>
-        BlockPairBlocks.TryGetValue(draw, out int block)
-            ? RoomTerrainBlock.Of(block, BlockMirroring.None, Collision(DrawGroup.OwnPicture))
-            : null;
+    internal static RoomTerrainBlock? BlockPairTerrain(CollectibleDraw draw)
+    {
+        foreach ((CollectibleBlockPairs.Pair pair, CollectibleLookDraws looks) in BlockPairLooks)
+        {
+            foreach (CollectibleLook look in Looks)
+            {
+                if (looks.Of(look) == draw)
+                    return RoomTerrainBlock.Of(BlockUnder(CollectibleBlockPairs.BlocksOf(pair), look), BlockMirroring.None,
+                        Collision(DrawGroup.OwnPicture));
+            }
+        }
+        return null;
+    }
+
+    /// <summary>The block of <paramref name="blocks"/> written while the item's picture shows <paramref name="look"/>.</summary>
+    /// <exception cref="InvalidOperationException">The look is undefined.</exception>
+    private static int BlockUnder(CollectibleBlockPairs.WrittenBlocks blocks, CollectibleLook look) => look switch
+    {
+        CollectibleLook.Primary => blocks.UnderPrimaryLook,
+        CollectibleLook.Alternate => blocks.UnderAlternateLook,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CollectibleLook)} {look}."),
+    };
 
     /// <summary>The kind of draw <paramref name="draw"/> is.</summary>
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
@@ -41,9 +62,9 @@ internal static class CollectibleObjectDraws
         CollectibleDraw.EnergyTankBright or CollectibleDraw.EnergyTankDim or CollectibleDraw.MissileTankDim or CollectibleDraw.MissileTankBright
             or CollectibleDraw.SuperMissileTankDim or CollectibleDraw.SuperMissileTankBright or CollectibleDraw.PowerBombTankBright
             or CollectibleDraw.PowerBombTankDim => DrawGroup.Tank,
-        CollectibleDraw.FirstBlockPairFirstFrame or CollectibleDraw.FirstBlockPairSecondFrame or CollectibleDraw.SecondBlockPairFirstFrame
-            or CollectibleDraw.SecondBlockPairSecondFrame or CollectibleDraw.ThirdBlockPairFirstFrame or CollectibleDraw.ThirdBlockPairSecondFrame
-            or CollectibleDraw.FourthBlockPairFirstFrame or CollectibleDraw.FourthBlockPairSecondFrame => DrawGroup.OwnPicture,
+        CollectibleDraw.FirstBlockPairPrimaryLook or CollectibleDraw.FirstBlockPairAlternateLook or CollectibleDraw.SecondBlockPairPrimaryLook
+            or CollectibleDraw.SecondBlockPairAlternateLook or CollectibleDraw.ThirdBlockPairPrimaryLook or CollectibleDraw.ThirdBlockPairAlternateLook
+            or CollectibleDraw.FourthBlockPairPrimaryLook or CollectibleDraw.FourthBlockPairAlternateLook => DrawGroup.OwnPicture,
         CollectibleDraw.ShotBlockIntact or CollectibleDraw.ShotBlockCracking or CollectibleDraw.ShotBlockDust => DrawGroup.ShotReveal,
         _ => throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}."),
     };

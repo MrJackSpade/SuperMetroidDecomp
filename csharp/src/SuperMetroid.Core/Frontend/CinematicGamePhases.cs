@@ -66,7 +66,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         CeresDestructionCinematicState destruction = session.ScreenAs<CeresDestructionCinematicState>() ??
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.InstalledPowerBombGlowColors,
-                session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets,
+                session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
                 japaneseText: session.Runtime?.JapaneseText == true));
         destruction.Step();
         session.display.PublishCeresDestruction(destruction);
@@ -118,8 +118,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         }
         session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.InstalledPowerBombGlowColors,
-            session.Artwork.IntroCinematicArt, outcome: CeresDestructionOutcome.SamusAboard,
-            spriteSheets: session.Artwork.SpriteSheets, japaneseText: session.Runtime.JapaneseText));
+            session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
+            outcome: CeresDestructionOutcome.SamusAboard, japaneseText: session.Runtime.JapaneseText));
         session.GameState = SuperMetroidGameState.CeresGoesBoomWithSamus;
     }
 

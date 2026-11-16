@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Hardware;
@@ -56,7 +57,7 @@ internal static class FileSelectMapWindowVerification
             "a stopped edge stays at the screen's edge and a moving edge carries its fraction");
         fractional.Step();
         AssertEqual(5, fractional.Right, "a completed reveal stays where it ended");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(AreaId.Ceres), "Ceres has no area-select window record");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(AreaId.Ceres, RetailPresentationFixture().Labels), "Ceres has no area-select window record");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(bus));

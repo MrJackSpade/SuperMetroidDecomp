@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -47,7 +48,7 @@ internal static class GenericSpriteArtworkVerification
 
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
-        var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
+        var title = new TitleSequenceState(AudioQueues.Standalone(), titleGradientPresentation: maps.TitleGradient,
             titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(installedMaps.TitleGraphics));
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
             Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(

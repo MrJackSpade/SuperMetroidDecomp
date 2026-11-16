@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Video;
@@ -40,7 +41,7 @@ internal static class PauseHudLocationVerification
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = runtime.AcceptedHud });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(28, 2), GameplayHud = runtime.AcceptedHud });
             // The centre tile sits in the HUD's mutable rows, which follow the static top row on BG3.
             const int centerWord = FxOverlayPlaneConstants.Columns + 60;
             // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.

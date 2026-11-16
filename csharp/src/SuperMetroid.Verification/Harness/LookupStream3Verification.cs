@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Collections.Immutable;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -140,7 +141,8 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
-            var objects = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone());
+            var objects = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
+                global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.IntroNarration);
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {

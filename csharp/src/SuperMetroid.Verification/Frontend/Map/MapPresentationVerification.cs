@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Samus;
@@ -640,7 +641,7 @@ internal static class MapPresentationVerification
             RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole));
         AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Offset16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");

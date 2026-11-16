@@ -232,7 +232,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         AudioQueues audio,
         SamusArtworkBinding samusArtwork,
         InstalledPowerBombGlowColors powerBombGlowColors,
-        IntroCinematicArtwork? characterArtwork = null,
+        IntroCinematicArtwork characterArtwork,
         bool japaneseText = false)
     {
         flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
@@ -248,8 +248,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = Ensure.NotNull(audio);
-        CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
-            "Opening cinematic requires installed artwork.");
+        CharacterArtwork = Ensure.NotNull(characterArtwork);
 
         // Setup loads the sprite sheets the intro binds; the narration, the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
@@ -484,8 +483,9 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // a blanked screen, while the approach restores full brightness only after
                     // the fourteen-frame delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
-                        CharacterArtwork?.CeresFlight, subtitles.Enabled,
-                        SceneSheets);
+                        (CharacterArtwork ?? throw new InvalidOperationException(
+                            "Ceres approach requires installed cinematic artwork.")).CeresFlight,
+                        SceneSheets, subtitles.Enabled);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -1159,7 +1159,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             narrationText,
             subtitles,
             audio,
-            NarrationPresentation);
+            NarrationPresentation ?? throw new InvalidOperationException(
+                "Opening narration requires installed text presentation assets."));
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));

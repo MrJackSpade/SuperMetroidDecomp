@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.Core.Assets;
@@ -96,7 +97,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
-    var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+    var options = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)

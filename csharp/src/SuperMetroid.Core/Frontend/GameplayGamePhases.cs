@@ -133,7 +133,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.InstalledPowerBombGlowColors,
-                session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets,
+                session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
                 japaneseText: session.GameplayRuntime.JapaneseText));
             session.GameState = SuperMetroidGameState.CeresGoesBoom;
             session.display.PublishBlack();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -50,5 +51,5 @@ internal sealed record TitleFixtureContent(TitleGraphicsCharacters Graphics, Sup
     TitleGradientPresentation Gradient, SuperMetroid.Core.Assets.InstalledSpriteSheets Sheets)
 {
     /// <summary>A new title state drawing this content.</summary>
-    internal TitleSequenceState NewState(AudioQueues? audio = null) => new(audio, Gradient, Backdrop, Sheets);
+    internal TitleSequenceState NewState(AudioQueues? audio = null) => new(audio ?? AudioQueues.Standalone(), Gradient, Backdrop, Sheets);
 }

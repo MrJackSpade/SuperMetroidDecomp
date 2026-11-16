@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -146,10 +147,6 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(LoadStationDefinitions.CeresElevator), "Ceres has no file-select map anchor");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
-        SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(SaveSlot.A) ??
-            throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
-        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), savedSlot, 0),
-            "file-select map cannot construct a cartridge-backed fallback graph");
         foreach (AreaId area in AreaIds.Zebes)
         {
             var native = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));

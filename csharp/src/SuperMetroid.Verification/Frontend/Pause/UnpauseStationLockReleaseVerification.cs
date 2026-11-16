@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -33,7 +34,7 @@ internal static class UnpauseStationLockReleaseVerification
         samus.Control.Unlock();
         samus.Control.LockAtStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
         EnterPauseEquipment(pause);
         game.AdoptRuntime(runtime);
         game.Session.Show(pause);

@@ -29,20 +29,18 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Installs one area's revealed map and fixed frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
+    /// <param name="mapPresentation">The installed map tiles, colours, screens, and sprite/layout resources.</param>
+    /// <param name="sheets">The installed sprite sheets: the map sprites and the background pictures.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
-    /// <param name="mapPresentation">Required installed map tiles, colours, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
-    /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background pictures.</param>
-    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area,
-        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? sheets = null)
+    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area, AreaMapPresentation mapPresentation,
+        InstalledSpriteSheets sheets, MapRevealMode revealMode = MapRevealMode.None)
     {
         Ensure.NotNull(system);
-        if (mapPresentation is null)
-            throw new InvalidOperationException(
-                "Room-map graphics require installed map presentation assets.");
+        Ensure.NotNull(mapPresentation);
         icons = new FileSelectMapIcons(system, area);
         icons.BindStations(mapPresentation.Stations);
         icons.BindLandmarks(mapPresentation.Landmarks);
-        InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
+        InstalledSpriteSheets installed = Ensure.NotNull(sheets);
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
@@ -81,10 +79,11 @@ public sealed class FileSelectRoomMapGraphics
     {
         ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
+        SpriteSheet sheet = mapSheet ?? throw new InvalidOperationException("The room map requires the installed map sprite sheet.");
         icons.DrawBeforeMarker(entries, scroll);
-        marker.Draw(entries, scroll, mapSheet);
+        marker.Draw(entries, scroll, sheet);
         icons.DrawAfterMarker(entries, scroll,
-            animations is null ? null : () => animations.DrawArrows(entries, animations.HighlightShading, mapSheet));
+            animations is null ? null : () => animations.DrawArrows(entries, animations.HighlightShading, sheet));
         entries.FinishFrame();
     }
 

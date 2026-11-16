@@ -78,7 +78,7 @@ internal sealed class EndingLogo
         Ensure.NotNull(destination);
         if (!Completed)
             foreach (CinematicActor actor in Actors)
-                actor.Draw(destination, EndingLogoDefinitions.Camera, installedArt);
+                actor.Draw(destination, installedArt, EndingLogoDefinitions.Camera);
     }
 
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>

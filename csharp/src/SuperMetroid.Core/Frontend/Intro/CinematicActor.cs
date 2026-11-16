@@ -165,9 +165,10 @@ internal sealed class CinematicActor
     /// Draws the current frame at the screen place minus <paramref name="scroll"/>, wherever that lies: the display clips
     /// a frame off the screen (#1587).
     /// </summary>
-    public void Draw(ScreenSprites screenSprites, Offset16<ScreenPixels> scroll = default,
-        IIntroCinematicSpritePresentation? installedArt = null)
+    public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt,
+        Offset16<ScreenPixels> scroll = default)
     {
+        Ensure.NotNull(installedArt);
         // The blank pose draws nothing.
         if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
             return;
@@ -178,8 +179,6 @@ internal sealed class CinematicActor
             int alongLoop = AlongLoop(placed.X, loop);
             placed = new Offset16<ScreenPixels>(alongLoop < loop / 2 ? alongLoop : alongLoop - loop, placed.Y);
         }
-        (installedArt ?? throw new InvalidOperationException(
-            "Cinematic sprites require installed artwork."))
-            .Draw(pose, screenSprites, placed, Colouring);
+        installedArt.Draw(pose, screenSprites, placed, Colouring);
     }
 }

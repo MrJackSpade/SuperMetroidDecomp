@@ -62,9 +62,8 @@ internal sealed class IntroEggSlimeDrop
         sprite.Step();
     }
 
-    /// <summary>Draws the drop's current frame with installed egg-effect artwork when provided.</summary>
-    public void Draw(ScreenSprites screenSprites,
-        IIntroCinematicSpritePresentation? installedArt = null) =>
+    /// <summary>Draws the drop's current frame with the installed egg-effect artwork.</summary>
+    public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         sprite.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>Adds 1/65536-pixel motion to one screen coordinate while preserving its fractional part.</summary>

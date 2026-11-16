@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
@@ -22,7 +23,7 @@ internal static class TitleScreenPublicationVerification
     {
         var maps = InstalledFixtures.Maps;
         TitleGraphicsCharacters graphics = InstalledFixtures.ImportOf(maps).TitleGraphics;
-        var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
+        var title = new TitleSequenceState(AudioQueues.Standalone(), titleGradientPresentation: maps.TitleGradient,
             titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(graphics));
         SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(graphics).Get(SpriteSheetId.Title);
         byte[] baby = graphics.BabyCharacters.ToArray();

@@ -85,8 +85,7 @@ internal sealed class IntroScientistCutsceneState
     }
 
     /// <summary>Draws the current Baby actor frame through the installed scientist-scene sprite presentation.</summary>
-    public void Draw(ScreenSprites screenSprites,
-        IIntroCinematicSpritePresentation? installedArt = null) =>
+    public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         baby.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>Requests the next intro page when the Baby's animation reaches its page cue.</summary>

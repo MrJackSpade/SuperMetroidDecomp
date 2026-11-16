@@ -156,27 +156,26 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
-    /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
+    /// <param name="artwork">Installed cinematic artwork.</param>
+    /// <param name="spriteSheets">Installed sprite sheets the scene's actors draw from.</param>
     /// <param name="outcome">
     /// The Ceres-destruction state with Samus aboard: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
-    /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
         AudioQueues audio,
         InstalledPowerBombGlowColors glowColors,
-        IntroCinematicArtwork? artwork = null,
+        IntroCinematicArtwork artwork,
+        InstalledSpriteSheets spriteSheets,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
-        InstalledSpriteSheets? spriteSheets = null,
         bool japaneseText = false)
     {
         this.japaneseText = japaneseText;
-        BindSpriteSheets(spriteSheets);
+        BindSpriteSheets(Ensure.NotNull(spriteSheets));
         WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = Ensure.NotNull(audio);
-        Artwork = artwork ?? throw new InvalidOperationException(
-            "Ceres destruction requires installed cinematic artwork.");
+        Artwork = Ensure.NotNull(artwork);
         stationExplosion = new CeresStationBlast(glowColors);
         screenSprites = new ScreenSprites();
     }

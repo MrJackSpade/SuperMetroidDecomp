@@ -64,7 +64,8 @@ public sealed class FileSelectMapNavigation
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
                 break;
             case FileSelectMapNavigationPhase.PreparingWindow:
-                Window = new FileSelectMapWindow(area, labels);
+                Window = new FileSelectMapWindow(area, labels ?? throw new InvalidOperationException(
+                    "Map-window positions require installed world-map labels."));
                 Phase = FileSelectMapNavigationPhase.ExpandingWindow;
                 break;
             case FileSelectMapNavigationPhase.ExpandingWindow:

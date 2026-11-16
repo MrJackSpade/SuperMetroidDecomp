@@ -23,8 +23,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The installed sprite sheets the headings and cursor draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;
 
-    /// <summary>Receives cursor and confirmation sounds when available.</summary>
-    private readonly AudioQueues? audio;
+    /// <summary>Receives the cursor and confirmation sounds.</summary>
+    private readonly AudioQueues audio;
     /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
@@ -51,27 +51,26 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private readonly MenuMissileAnimation missile = new();
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
-    /// <param name="audio">Optional audio queues for cursor and confirmation sounds.</param>
-    /// <param name="controllerBindings">Initial retail controller-button permutation.</param>
+    /// <param name="audio">The audio queues the cursor and confirmation sounds join.</param>
+    /// <param name="mapPresentation">The installed menu presentation assets.</param>
+    /// <param name="spriteSheets">The installed sprite sheets, which the headings and cursor draw from.</param>
+    /// <param name="controllerBindings">Initial retail controller-button permutation; a new game's are the defaults.</param>
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
     /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
-    /// <param name="mapPresentation">Required installed menu presentation assets.</param>
-    /// <param name="spriteSheets">Required installed sprite sheets, which the headings and cursor draw from.</param>
     [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
-        AudioQueues? audio = null,
+        AudioQueues audio,
+        AreaMapPresentation mapPresentation,
+        InstalledSpriteSheets spriteSheets,
         ControllerBindings? controllerBindings = null,
         bool iconCancelEnabled = false,
         bool moonwalkEnabled = false,
-        bool japaneseText = false,
-        AreaMapPresentation? mapPresentation = null,
-        InstalledSpriteSheets? spriteSheets = null)
+        bool japaneseText = false)
     {
-        this.audio = audio;
-        this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
-            "Options menu requires installed presentation assets.");
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, spriteSheets);
+        this.audio = Ensure.NotNull(audio);
+        this.mapPresentation = Ensure.NotNull(mapPresentation);
+        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
@@ -483,13 +482,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>Queues the cursor sound at the menu's sound priority.</summary>
     private void QueueMoveSound() =>
-        audio?.QueueSound(
+        audio.QueueSound(
             SamusSound.MenuCursor,
             priority: GameOptionsDefinitions.MenuSoundPriority);
 
     /// <summary>Queues the confirmation sound at the menu's sound priority.</summary>
     private void QueueSelectSound() =>
-        audio?.QueueSound(
+        audio.QueueSound(
             SamusSound.MenuConfirm,
             priority: GameOptionsDefinitions.MenuSoundPriority);
 }

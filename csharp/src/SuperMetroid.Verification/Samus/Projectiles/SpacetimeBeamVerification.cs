@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus;
@@ -56,7 +57,7 @@ internal static class SpacetimeBeamVerification
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
         };
-        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (ControllerButton.Left | ControllerButton.A));

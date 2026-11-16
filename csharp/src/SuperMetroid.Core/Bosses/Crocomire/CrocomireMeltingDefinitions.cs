@@ -38,4 +38,19 @@ internal static class CrocomireMeltingDefinitions
     /// them, and those below the screen are never shown.
     /// </summary>
     public const int DistortionLines = 256;
+
+    /// <summary>
+    /// The height in the room from which down only the top row of Crocomire's melting body stands above the acid, so his
+    /// melting pictures show that row alone: the height at which a sink into the acid ends.
+    /// </summary>
+    public const int TopRowAboveAcidY = 280;
+
+    /// <summary>The height in the room from which down, above <see cref="TopRowAboveAcidY"/>, his melting pictures show his top two rows.</summary>
+    public const int TopTwoRowsAboveAcidY = 264;
+
+    /// <summary>
+    /// The height in the room from which down, above <see cref="TopTwoRowsAboveAcidY"/>, his melting pictures show his
+    /// top three rows; higher than this they show his top four.
+    /// </summary>
+    public const int TopThreeRowsAboveAcidY = 248;
 }

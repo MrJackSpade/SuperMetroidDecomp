@@ -34,6 +34,8 @@ using static SuperMetroid.Verification.Enemies.PipeBugs.PipeBugEmergenceRiseVeri
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardFallAccelerationVerification;
+using static SuperMetroid.Verification.Enemies.Yard.YardShotLaunchFractionsVerification;
+using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserSoundRangeVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
@@ -269,6 +271,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyPublicationVerifica
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltFrameSelectionVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireFirstMeltHeightVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyBodyPublicationVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomBackgroundsVerification;
@@ -1102,6 +1105,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
         new(nameof(VerifyYardAirborneSlowing), () => VerifyYardAirborneSlowing()),
         new(nameof(VerifyYardFallAcceleration), () => VerifyYardFallAcceleration()),
+        new(nameof(VerifyYardShotLaunchFractions), () => VerifyYardShotLaunchFractions()),
+        new(nameof(VerifyWorkRobotLaserSoundRange), () => VerifyWorkRobotLaserSoundRange()),
         new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
@@ -1230,6 +1235,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPhantoonBodyPublication), () => VerifyPhantoonBodyPublication()),
         new(nameof(VerifyDraygonBodyPublication), () => VerifyDraygonBodyPublication()),
         new(nameof(VerifyCrocomireMeltFrameSelection), () => VerifyCrocomireMeltFrameSelection()),
+        new(nameof(VerifyCrocomireFirstMeltPicturesByHeight), () => VerifyCrocomireFirstMeltPicturesByHeight()),
         new(nameof(VerifyMotherBrainBodyPublication), () => VerifyMotherBrainBodyPublication()),
         new(nameof(VerifyCeresRidleyBodyPublication), () => VerifyCeresRidleyBodyPublication()),
         new(nameof(AuditBoostFloor), () => AuditBoostFloor()),

@@ -2,6 +2,14 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A two-dimensional unsigned 1/65536-pixel position: whole pixels and subpixels on each axis.</summary>
 /// <typeparam name="TSpace">The coordinate space of the position.</typeparam>
+/// <remarks>
+/// Placing something at a whole-pixel point (<see cref="WithWhole"/>, <see cref="WithWholeX"/>,
+/// <see cref="WithWholeY"/> and their wrapping forms) keeps the fractions of a pixel it already had, as the game's own
+/// placements do (#2184). This is stated once here for every such placement: a Zoa sent back to the point it rose from
+/// when its flight leaves the screen, or a Ninja Pirate set on its post's row when its dive lands, starts its next
+/// movement from the fractions its last one left, and those fractions decide on which update that movement reaches each
+/// next whole pixel. Only <see cref="FromWhole"/> and the fraction writes clear or set them.
+/// </remarks>
 [SpatialComponents("Spatial value type: owns its X and Y fixed-point axes.")]
 public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
     where TSpace : ISpatialSpace

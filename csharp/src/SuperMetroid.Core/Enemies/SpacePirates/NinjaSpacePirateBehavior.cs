@@ -412,7 +412,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.WalkToRightPost
                 : NinjaSpacePirateSegment.WalkToLeftPost);
-        // Landing at either post stores the spawn row's whole Y only; the dive's Y fraction stays.
+        // Landing at either post sets it on its spawn row.
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
         SpawnNinjaPirateLandingDust(place);
     }

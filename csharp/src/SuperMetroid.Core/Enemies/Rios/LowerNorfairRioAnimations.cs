@@ -85,16 +85,17 @@ internal static class LowerNorfairRioAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at; the loops only run on from the
+    /// animations that start them (#2061).
+    /// </summary>
     internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
         [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.PrepareToSwoop] = new([new(P.PrepareToSwoop, 0, 11, 1)], AnimationEnd.Holds),
         [P.Descending] = new([new(P.Descending, 0, 2, 1)], AnimationEnd.Holds),
         [P.AscentOpening] = new([new(P.AscentOpening, 0, 5, 1)], AnimationEnd.Holds),
         [P.Ascending] = new([new(P.Ascending, 0, 1, 1), new(P.AscendingLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.AscendingLoop] = new([new(P.AscendingLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Cooldown] = new([new(P.Cooldown, 0, 11, 1)], AnimationEnd.Holds),
         [P.Flames] = new([new(P.Flames, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
     };

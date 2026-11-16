@@ -32,8 +32,8 @@ internal static class BullBehaviorVerification
             "Bull normal loop");
 
         BullBehavior.ResolveBullImmuneShot(place, state, SamusProjectileDirection.Right);
-        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Shot), AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
-        ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.ShotLoop).ToArray();
+        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.Shot, AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
+        ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.Shot).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullSegment.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
             EnemyInstructionRunner.ShownFrames(place, 61), "Bull shot program repeats five times and returns to normal");

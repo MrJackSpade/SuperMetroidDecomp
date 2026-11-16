@@ -1,27 +1,19 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Dachora's typed animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The escaping Dachora's typed animation segments (#641): its laps each way at either tide and its run for the escape, in authored order.
 /// Their steps are <see cref="EscapeDachoraAnimations"/>.
 /// </summary>
 internal enum EscapeDachoraSegment
 {
-    /// <summary>The running around low tide animation.</summary>
-    RunningAroundLowTide,
     /// <summary>The running around low tide left animation.</summary>
     RunningAroundLowTideLeft,
     /// <summary>The running around low tide right animation.</summary>
     RunningAroundLowTideRight,
-    /// <summary>The running around high tide animation.</summary>
-    RunningAroundHighTide,
     /// <summary>The running around high tide left animation.</summary>
     RunningAroundHighTideLeft,
-    /// <summary>The running around high tide left loop animation.</summary>
-    RunningAroundHighTideLeftLoop,
     /// <summary>The running around high tide right animation.</summary>
     RunningAroundHighTideRight,
-    /// <summary>The running around high tide right loop animation.</summary>
-    RunningAroundHighTideRightLoop,
     /// <summary>The running for escape animation.</summary>
     RunningForEscape,
     /// <summary>The running for escape accelerating animation.</summary>

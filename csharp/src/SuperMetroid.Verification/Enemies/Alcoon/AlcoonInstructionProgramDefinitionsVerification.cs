@@ -103,13 +103,9 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             .Select(step => new ReachedPose(step.Program, step.Step))
             .ToHashSet();
         string missed = string.Join(", ", poses.Where(pose => !reachedPoses.Contains(pose)).Select(pose => $"{pose.Program}[{pose.Step}]"));
-        AssertEqual(44, poses.Count, "the Alcoon's programs author 44 poses");
-        AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
-        AssertTrue(poses.Except(reachedPoses).All(pose =>
-                pose.Program is AlcoonSegment.FireLeft or AlcoonSegment.FireRight &&
-                AlcoonAnimations.Segments.Beats(pose.Program)[pose.Step - 1] is AnimationBeat<EnemyFrameId, AlcoonCue>.Event cue &&
-                cue.Raised.Kind == AlcoonCueKind.StartWalking),
-            "native start-walking cues skip the two trailing unreachable poses");
+        // The fire animations end at their start-walking cue (#2061): every authored pose is reachable.
+        AssertEqual(42, poses.Count, "the Alcoon's programs author 42 poses");
+        AssertTrue(poses.SetEquals(reachedPoses), $"real Alcoon reaches every authored pose; missing={missed}");
         Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));
 
         Console.WriteLine(installedArt is null

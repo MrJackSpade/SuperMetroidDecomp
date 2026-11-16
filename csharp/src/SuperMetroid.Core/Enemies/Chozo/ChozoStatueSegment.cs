@@ -18,6 +18,9 @@ internal enum ChozoStatueSegment
     WreckedShipActivated,
     /// <summary>The loop.</summary>
     WreckedShipActivatedLoop,
-    /// <summary>The loop.</summary>
-    WreckedShipActivatedLoop2,
+    /// <summary>
+    /// The Wrecked Ship statue's walk with Samus in its hand (#2061): its counted strides, then lowering her and letting
+    /// her go.
+    /// </summary>
+    WreckedShipWalkingWithSamus,
 }

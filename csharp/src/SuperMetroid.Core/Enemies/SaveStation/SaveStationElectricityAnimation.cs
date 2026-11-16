@@ -4,10 +4,14 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
-/// <summary>The save-station electricity's typed animation.</summary>
-internal sealed class SaveStationElectricityAnimation(SaveStationElectricitySegment segment)
-    : EnemyProjectileFrameAnimation<SaveStationElectricitySegment, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.StartingWith(segment))
+/// <summary>The save-station electricity's typed animation: its discharge (#2061).</summary>
+internal sealed class SaveStationElectricityAnimation()
+    : EnemyProjectileFrameAnimation<SaveStationElectricitySegment, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge)
 {
+    /// <summary>The segment the discharge starts at: its cycle.</summary>
+    private protected override SaveStationElectricitySegment SegmentStartedAt(Animation<SaveStationElectricitySegment> started) =>
+        Ensure.NotNull(started).Phases[0].Segment;
+
     /// <inheritdoc/>
     private protected override AnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 

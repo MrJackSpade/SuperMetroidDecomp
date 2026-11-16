@@ -12,10 +12,10 @@ internal static class CrawlerAnimationDefinitions
             CrawlerSegment.SharedUpsideDown,
             CrawlerSegment.SharedUpsideUp),
         [CrawlerAnimationFamily.Viola] = new(
-            CrawlerSegment.ViolaUpsideRight,
-            CrawlerSegment.ViolaUpsideLeft,
-            CrawlerSegment.ViolaUpsideDown,
-            CrawlerSegment.ViolaUpsideUp),
+            CrawlerSegment.ViolaNormal,
+            CrawlerSegment.ViolaNormal,
+            CrawlerSegment.ViolaNormal,
+            CrawlerSegment.ViolaNormal),
         [CrawlerAnimationFamily.Sciser] = new(
             CrawlerSegment.SciserUpsideRight,
             CrawlerSegment.SciserUpsideLeft,

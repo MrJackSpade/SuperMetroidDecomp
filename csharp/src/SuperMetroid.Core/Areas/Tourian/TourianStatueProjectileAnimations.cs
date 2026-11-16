@@ -75,15 +75,15 @@ internal static class TourianStatueProjectileAnimations
         ],
         [P.BaseDecorationLoop] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueBaseDecorationLoop, 1911),
+            Hold(EnemyProjectileFrameId.TourianStatueBaseDecorationLoop),
         ],
         [P.Ridley] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueRidley, 1911),
+            Hold(EnemyProjectileFrameId.TourianStatueRidley),
         ],
         [P.Phantoon] =
         [
-            Show(EnemyProjectileFrameId.TourianStatuePhantoon, 1911),
+            Hold(EnemyProjectileFrameId.TourianStatuePhantoon),
         ],
     });
 
@@ -111,6 +111,9 @@ internal static class TourianStatueProjectileAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2068): a statue and the base's decoration rest on their picture.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);

@@ -21,7 +21,8 @@ internal static class AlcoonAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                cue => cue.Kind is AlcoonCueKind.StartWalking));
         Console.WriteLine($"  Alcoon animations: {Entries.Length} segments ({beats} beats) and {AlcoonAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

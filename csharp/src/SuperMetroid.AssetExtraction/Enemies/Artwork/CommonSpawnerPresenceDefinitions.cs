@@ -109,10 +109,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(EyeDoorBehavior)] = new() { RoomObjects = EyeDoors },
         [nameof(FallingSparksBehavior)] = new() { Enemies = [EnemyDefinitionId.Spark] },
         [nameof(NoobTubeBehavior)] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
-        [nameof(OldTourianEscapeShaftWallBehavior)] = new()
-        {
-            RoomObjects = [RoomObjectKind.OldTourianEscapeShaftFakeWall], Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape],
-        },
+        [nameof(OldTourianEscapeShaftWallBehavior)] = new() { Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape] },
         [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
         [nameof(SaveStationElectricity)] = new() { RoomObjects = [RoomObjectKind.SaveStation] },
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,

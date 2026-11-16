@@ -50,7 +50,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         AssertEqual(6, statueObjects.Length, "Chozo statue room object count");
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
-        AssertTrue(headers.SequenceEqual(statueObjects.Select(statueObject => RoomObjectNativeWords.Word(NativeIdentities[statueObject])).Distinct()),
+        AssertTrue(headers.SequenceEqual(statueObjects.Select(statueObject => NativeHeaders[statueObject]).Distinct()),
             "the statue room objects are the original game's five statue objects, in order");
 
         // The four terrain changes play as their native lists do; the slope accesses change the slope as they end.
@@ -128,17 +128,18 @@ internal static class ChozoStatueObjectDefinitionsVerification
     }
 
     /// <summary>
-    /// The original game's identity of each statue room object, through which verification reads its native list; both
-    /// plug crumbles are the one original object, spawned two ways.
+    /// The original game's header of each statue room object, through which verification reads its native list; both
+    /// plug crumbles are the one original object, spawned two ways. The port's statue room objects carry no room-object
+    /// identity (#2126): the statue spawns each by its <see cref="ChozoStatueRoomObject"/>.
     /// </summary>
-    private static readonly Dictionary<ChozoStatueRoomObject, RoomObjectKind> NativeIdentities = new()
+    private static readonly Dictionary<ChozoStatueRoomObject, ushort> NativeHeaders = new()
     {
-        [ChozoStatueRoomObject.LowerNorfairHand] = RoomObjectKind.LowerNorfairChozoHand,
-        [ChozoStatueRoomObject.WreckedShipHand] = RoomObjectKind.WreckedShipChozoHand,
-        [ChozoStatueRoomObject.SlopeAccessOpening] = RoomObjectKind.ClearSlopeAccessForWreckedShipChozo,
-        [ChozoStatueRoomObject.SlopeAccessClosing] = RoomObjectKind.BlockSlopeAccessForWreckedShipChozo,
-        [ChozoStatueRoomObject.PlugCrumbleAtHand] = RoomObjectKind.CrumbleLowerNorfairChozoRoomPlug,
-        [ChozoStatueRoomObject.PlugCrumbleUnderFootstep] = RoomObjectKind.CrumbleLowerNorfairChozoRoomPlug,
+        [ChozoStatueRoomObject.LowerNorfairHand] = 0xd6d6,
+        [ChozoStatueRoomObject.WreckedShipHand] = 0xd6ee,
+        [ChozoStatueRoomObject.SlopeAccessOpening] = 0xd6f8,
+        [ChozoStatueRoomObject.SlopeAccessClosing] = 0xd6fc,
+        [ChozoStatueRoomObject.PlugCrumbleAtHand] = 0xd113,
+        [ChozoStatueRoomObject.PlugCrumbleUnderFootstep] = 0xd113,
     };
 
     /// <summary>
@@ -214,7 +215,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
 
     /// <summary>The native list a statue room object starts.</summary>
     private static ushort NativeList(IImportCartridgeSource cartridge, ChozoStatueRoomObject statueObject) =>
-        cartridge.ReadCartridgeWord(0x840000 | unchecked((ushort)(RoomObjectNativeWords.Word(NativeIdentities[statueObject]) + 2)));
+        cartridge.ReadCartridgeWord(0x840000 | unchecked((ushort)(NativeHeaders[statueObject] + 2)));
 
     /// <summary>The slope accesses' two slope changes.</summary>
     private static bool ChozoTerrainStepAt(IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step)

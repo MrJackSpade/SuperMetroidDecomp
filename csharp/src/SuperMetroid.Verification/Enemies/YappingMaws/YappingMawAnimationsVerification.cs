@@ -20,6 +20,7 @@ internal static class YappingMawAnimationsVerification
                 {
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(instruction.Aim, cue.Aim, $"{at}: cue aim");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }));
         Console.WriteLine($"  Yapping Maw animations: {Entries.Length} segments ({beats} beats) and {YappingMawAnimations.StartingAt.Count} animations match bank $A8.");

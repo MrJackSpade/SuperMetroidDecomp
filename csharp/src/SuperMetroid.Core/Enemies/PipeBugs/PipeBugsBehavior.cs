@@ -139,10 +139,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.NorfairWaitForSamus:
             case PipeBugAction.NorfairRise:
             case PipeBugAction.NorfairLeaderStagger:
-            case PipeBugAction.NorfairUpperNearStagger:
-            case PipeBugAction.NorfairUpperFarStagger:
-            case PipeBugAction.NorfairLowerNearStagger:
-            case PipeBugAction.NorfairLowerFarStagger:
+            case PipeBugAction.NorfairStagger:
             case PipeBugAction.NorfairFlyLeft:
             case PipeBugAction.NorfairFlyRight:
             case PipeBugAction.NorfairWaitForStagger:
@@ -184,20 +181,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = PipeBugAction.NorfairWaitForStagger;
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
-            case PipeBugAction.NorfairUpperNearStagger:
-                RunNorfairPipeBugVerticalStagger(slot, state, -16);
-                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
-                return;
-            case PipeBugAction.NorfairUpperFarStagger:
-                RunNorfairPipeBugVerticalStagger(slot, state, -32);
-                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
-                return;
-            case PipeBugAction.NorfairLowerNearStagger:
-                RunNorfairPipeBugVerticalStagger(slot, state, 16);
-                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
-                return;
-            case PipeBugAction.NorfairLowerFarStagger:
-                RunNorfairPipeBugVerticalStagger(slot, state, 32);
+            case PipeBugAction.NorfairStagger:
+                RunNorfairPipeBugVerticalStagger(slot, state, state.StaggerOffset);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugAction.NorfairWaitForStagger:
@@ -267,10 +252,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.NorfairWaitForSamus:
             case PipeBugAction.NorfairRise:
             case PipeBugAction.NorfairLeaderStagger:
-            case PipeBugAction.NorfairUpperNearStagger:
-            case PipeBugAction.NorfairUpperFarStagger:
-            case PipeBugAction.NorfairLowerNearStagger:
-            case PipeBugAction.NorfairLowerFarStagger:
+            case PipeBugAction.NorfairStagger:
             case PipeBugAction.NorfairFlyLeft:
             case PipeBugAction.NorfairFlyRight:
             case PipeBugAction.NorfairWaitForStagger:
@@ -400,6 +382,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             memberState.Action = PipeBugAction.NorfairRise;
             memberState.StaggerTarget = member.Role.StaggerTarget;
             memberState.PostRiseAction = member.Role.PostRiseAction;
+            memberState.StaggerOffset = member.Role.StaggerOffset;
         }
     }
 
@@ -431,7 +414,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.CountFormationTick();
         // Negative offsets move upward and positive offsets downward, one pixel per frame. The
-        // game clamps exactly at the emergence Y +/- 16/32.
+        // game clamps exactly at the emergence Y plus the offset.
         AddPipeBugLinearVelocity(
             slot,
             axis: Axis.Vertical,

@@ -588,7 +588,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of a Magdollite part's animations: the sixteen private cues the ten
+    /// Carries out one cue of a Magdollite part's animations: each private cue the ten
     /// authored animations reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private MagdolliteSegment? ApplyMagdolliteCue(
@@ -597,41 +597,31 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         MagdollitePartState state = slot.RequireSpeciesState<MagdollitePartState>();
-        switch (cue.Kind)
+        switch (cue)
         {
-            case MagdolliteCueKind.PlaySoundIfOnScreen:
+            case MagdolliteCue.PlaySoundIfOnScreen playSound:
             {
                 if (EnemyView.Contains(slot.Position.Whole, camera))
-                    _audio.QueueEnemySound(cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
+                    _audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
                 break;
             }
-            case MagdolliteCueKind.MoveDown2:
-                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 2);
+            case MagdolliteCue.Move move:
+                slot.Position += move.Offset;
                 break;
-            case MagdolliteCueKind.MoveUp2:
-                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 2);
-                break;
-            case MagdolliteCueKind.SetAnimationBusy:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SetAnimationBusy }:
                 state.AnimationBusy = true;
                 break;
-            case MagdolliteCueKind.ClearAnimationBusy:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.ClearAnimationBusy }:
                 state.AnimationBusy = false;
                 break;
-            case MagdolliteCueKind.MoveWithPillarUp1:
+            case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
-                next.Position = next.Position.WithWrappedWholeY(next.Position.Y.Whole - 1);
+                slot.Position += moveWithPillar.Offset;
+                next.Position += moveWithPillar.Offset;
                 break;
             }
-            case MagdolliteCueKind.MoveWithPillarDown1:
-            {
-                RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
-                next.Position = next.Position.WithWrappedWholeY(next.Position.Y.Whole + 1);
-                break;
-            }
-            case MagdolliteCueKind.SinkAndShowParts:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SinkAndShowParts }:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
                 int sunkY = CoordinateAxis.Wrap(state.OriginY + MagdolliteMotionDefinitions.SunkDepth);
@@ -641,14 +631,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 overlay.Presence = overlay.Presence.Without(EnemyPresence.Hidden);
                 break;
             }
-            case MagdolliteCueKind.RestoreOrigins:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.RestoreOrigins }:
             {
                 (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(slot);
                 slot.Position = slot.Position.WithWholeY(state.OriginY);
                 body.Position = body.Position.WithWholeY(state.OriginY);
                 break;
             }
-            case MagdolliteCueKind.SurfaceAndHideParts:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SurfaceAndHideParts }:
             {
                 (_, RoomEnemySlot body, RoomEnemySlot overlay) = RequireMagdolliteComposite(slot);
                 int surfacedY = CoordinateAxis.Wrap(state.OriginY + MagdolliteMotionDefinitions.SurfacedDepth);
@@ -658,23 +648,17 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 overlay.Presence = overlay.Presence.With(EnemyPresence.Hidden);
                 break;
             }
-            case MagdolliteCueKind.SpawnLava:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
                 SpawnMagdolliteLava(slot, PartState<MagdolliteOverlayState>(slot).ThrowsRight);
                 break;
-            case MagdolliteCueKind.ShiftRightUp4:
-                slot.Position = slot.Position.WithWhole(PartState<MagdolliteOverlayState>(slot).ThrowOrigin + new Offset16<RoomPixels>(8, -4));
+            case MagdolliteCue.ShiftFromThrowOrigin shift:
+                slot.Position = slot.Position.WithWhole(PartState<MagdolliteOverlayState>(slot).ThrowOrigin + shift.Offset);
                 break;
-            case MagdolliteCueKind.ShiftLeftUp4:
-                slot.Position = slot.Position.WithWhole(PartState<MagdolliteOverlayState>(slot).ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
-                break;
-            case MagdolliteCueKind.ShiftRightUp8:
-                slot.Position = slot.Position.WithWhole(PartState<MagdolliteOverlayState>(slot).ThrowOrigin + new Offset16<RoomPixels>(8, -8));
-                break;
-            case MagdolliteCueKind.StartCooldown:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
                 PartState<MagdolliteOverlayState>(slot).AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(MagdolliteCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
         }
         return null;
     }

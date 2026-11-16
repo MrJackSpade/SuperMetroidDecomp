@@ -312,7 +312,19 @@ internal static class NativeEnemyFamilyStateImport
             brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
         }
         if (slot.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
-            norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+        {
+            // A member's stagger routine names its role's offset (#2071); every other routine names an action.
+            if (PipeBugsNativeWords.FormationStaggers.TryDecode(words.A, out NorfairPipeBugRole? staggerRole) &&
+                staggerRole.PostRiseAction == PipeBugAction.NorfairStagger)
+            {
+                norfairPipeBug.Action = PipeBugAction.NorfairStagger;
+                norfairPipeBug.StaggerOffset = staggerRole.StaggerOffset;
+            }
+            else
+            {
+                norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+            }
+        }
         if (slot.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
             yellowPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
         if (slot.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)

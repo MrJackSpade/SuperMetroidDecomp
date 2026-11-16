@@ -20,14 +20,14 @@ internal static class MagdolliteAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    // A sound operand is checked by decoding the native byte to the cue's sound.
-                    for (int index = 0; index < operands.Length; index++)
-                        AssertEqual<SoundEffectId>(instruction.Operands[index] switch
+                    // The sound routine's cue is its operand decoded to the cue's sound; every other routine's cue is fixed.
+                    MagdolliteCue expected = instruction.Operands switch
                     {
-                        'V' => cue.Sound ?? throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
-                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                    }, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[index]), $"{at}: operand {index}");
+                        "V" => new MagdolliteCue.PlaySoundIfOnScreen(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
+                        "" => instruction.Cue ?? throw new InvalidOperationException($"{at}: the routine names no cue."),
+                        _ => throw new InvalidOperationException($"Undefined operand roles {instruction.Operands}."),
+                    };
+                    AssertEqual(expected, cue, $"{at}: cue");
                 }));
         Console.WriteLine($"  Magdollite animations: {Entries.Length} segments ({beats} beats) and {MagdolliteAnimations.StartingAt.Count} animations match bank $A8.");
     }

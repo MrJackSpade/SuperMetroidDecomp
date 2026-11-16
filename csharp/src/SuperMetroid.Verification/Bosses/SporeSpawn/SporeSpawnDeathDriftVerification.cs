@@ -33,18 +33,15 @@ internal static class SporeSpawnDeathDriftVerification
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
             body.Position = body.Position.WithWhole(start);
-            var state = new SporeSpawnEnemyState(body)
+            var state = new SporeSpawnEnemyState
             {
                 Movement = SporeSpawnMovement.SetupDeath,
                 MovementCenter = new(128, 624),
             };
             state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];
-            enemies.SporeSpawnBehavior.SporeSpawn = state;
-            var frame = new ClockedEnemyAiFrame(
-                RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-                new FrameCounters(0));
+            body.SetSpeciesState(state);
 
-            enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, frame);
+            enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
             FixedVector<RoomPixels> velocity = state.DeathVelocity;
             string from = $"Spore Spawn's death drift from ({start.X},{start.Y})";
             AssertEqual(start, body.Position.Whole, $"{from}: setting it up does not move him");
@@ -55,7 +52,7 @@ internal static class SporeSpawnDeathDriftVerification
             for (int update = 0; update < 2; update++)
             {
                 FixedPosition<RoomPixels> expected = body.Position.AdvanceX(velocity.X).AdvanceY(velocity.Y);
-                enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, frame);
+                enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
                 AssertEqual(expected, body.Position, $"{from}: dying update {update} moves him by the velocity set up");
                 AssertEqual(velocity, state.DeathVelocity, $"{from}: dying update {update} keeps the velocity");
             }

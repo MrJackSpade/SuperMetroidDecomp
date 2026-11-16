@@ -57,10 +57,10 @@ internal sealed class DraygonGrab
         RoomEnemyPlace body = state.Body;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-        int clawOffset = state.Facing == HorizontalDirection.Right ? 8 : -8;
+        int clawOffset = state.Facing == HorizontalDirection.Right ? DraygonArenaDefinitions.ClawReach : -DraygonArenaDefinitions.ClawReach;
         bool insideGrabWindow =
-            EnemyMath.IsWithinStrictModularDistance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole, 8) &&
-            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, 8);
+            EnemyMath.IsWithinStrictModularDistance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole, DraygonArenaDefinitions.GrabWindow) &&
+            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, DraygonArenaDefinitions.GrabWindow);
         if (!insideGrabWindow)
         {
             MoveDraygonToward(body, samus.Position.Whole, DraygonBehavior.DraygonChaseSpeed);
@@ -112,8 +112,8 @@ internal sealed class DraygonGrab
 
         RoomEnemyPlace body = state.Body;
         bool reachedTarget =
-            EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonSpiralTarget.X, 2) &&
-            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonSpiralTarget.Y, 2);
+            EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonSpiralTarget.X, DraygonArenaDefinitions.SpiralTargetTolerance) &&
+            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonSpiralTarget.Y, DraygonArenaDefinitions.SpiralTargetTolerance);
         if (reachedTarget)
         {
             state.Phase = DraygonPhase.FlailWithSamus;
@@ -158,12 +158,12 @@ internal sealed class DraygonGrab
             EnemyMath.CircleCosinePixels(state.SpiralAngle.ToTrigonometryAngle(), state.SpiralXRadius.WholePixels),
             EnemyMath.CircleNegativeSinePixels(
                 state.SpiralAngle.ToTrigonometryAngle(),
-                state.SpiralXRadius.WholePixels / 4)));
+                state.SpiralXRadius.WholePixels / DraygonArenaDefinitions.SpiralWidthToHeight)));
 
         if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
-                body.Position.Whole + new Offset16<RoomPixels>(state.Facing == HorizontalDirection.Right ? 32 : -32, -16),
+                body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
@@ -288,7 +288,7 @@ internal sealed class DraygonGrab
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        body.FlashTimer = body.HurtFlashFrames + 8;
+        body.FlashTimer = body.HurtFlashFrames + DraygonArenaDefinitions.GrappleShockFlashExtension;
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 

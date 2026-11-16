@@ -28,7 +28,7 @@ internal sealed class DraygonIntro
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
-        if (state.IntroFrames < 256)
+        if (state.IntroFrames < DraygonArenaDefinitions.IntroUpdates)
         {
             if (state.IntroFrames == 0)
             {
@@ -37,7 +37,7 @@ internal sealed class DraygonIntro
                 for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
                 {
                     RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
-                        new(16, 384),
+                        DraygonArenaDefinitions.IntroEvirEntry,
                         RoomEffectActorKind.EvirFacingLeft,
                         SpriteGraphics.SharedIn(DraygonColours.Evirs));
                     state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));

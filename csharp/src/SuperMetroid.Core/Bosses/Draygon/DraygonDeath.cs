@@ -48,15 +48,15 @@ internal sealed class DraygonDeath
         if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
-                body.Position.Whole + new Offset16<RoomPixels>(state.Facing == HorizontalDirection.Right ? 32 : -32, -16),
+                body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
 
-        if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, 4) ||
-            !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonDeathTargetY, 4))
+        if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, DraygonArenaDefinitions.BurialPointTolerance) ||
+            !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonDeathTargetY, DraygonArenaDefinitions.BurialPointTolerance))
         {
             return;
         }
@@ -118,10 +118,10 @@ internal sealed class DraygonDeath
         // lower half of the arena. The drops spawn before the body is deleted.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.DraygonBody,
-            count: 16,
-            xBase: 128,
+            count: DraygonArenaDefinitions.DeathDropCount,
+            xBase: DraygonArenaDefinitions.DeathDropOrigin.X,
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
-            yBase: 352,
+            yBase: DraygonArenaDefinitions.DeathDropOrigin.Y,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
             samus: samus);
         // The body is deleted, and the eye takes the body's properties.
@@ -144,7 +144,7 @@ internal sealed class DraygonDeath
             return;
 
         int random = _room.Random.Generate();
-        Position16<RoomPixels> smoke = new(DraygonRandomDefinitions.DeathSmokeX.Of(random) + 192, DraygonRandomDefinitions.DeathSmokeY.Of(random) + 400);
+        Position16<RoomPixels> smoke = DraygonArenaDefinitions.DeathSmokeOrigin + new Offset16<RoomPixels>(DraygonRandomDefinitions.DeathSmokeX.Of(random), DraygonRandomDefinitions.DeathSmokeY.Of(random));
         _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: default);
     }
 

@@ -80,15 +80,15 @@ internal sealed class DraygonCombat
         state.ShadeSprites();
 
         // A grapple connected to the turrets is the game's electrocution channel. It is
-        // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
+        // sampled only while hurt AI owns the body and subtracts its grapple-shock damage on every
         // eighth body frame before running the same fatal/nonfatal reaction as a shot.
         if (!DraygonGrab.IsDraygonGrappleConnected(samus) ||
             !DraygonCadenceDefinitions.GrappleShockEveryEighthUpdate.IsDue(body.FrameCounter))
             return;
 
-        body.Health = body.Health <= 256
+        body.Health = body.Health <= DraygonArenaDefinitions.GrappleShockDamage
             ? 0
-            : body.Health - 256;
+            : body.Health - DraygonArenaDefinitions.GrappleShockDamage;
         ResolveDraygonReaction(body, samus);
     }
 

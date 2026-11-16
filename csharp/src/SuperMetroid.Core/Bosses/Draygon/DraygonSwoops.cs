@@ -43,7 +43,7 @@ internal sealed class DraygonSwoops
         // The climb ends only because its rising speed grows; every producer of the acceleration keeps it above zero.
         if (state.SwoopAcceleration <= SignedEightEight.Zero)
             throw new InvalidOperationException("Draygon's swoop path climbs only under a swoop acceleration above zero.");
-        int yPosition = 384;
+        int yPosition = DraygonArenaDefinitions.SwimLineY;
         SignedEightEight speed = SignedEightEight.Zero;
         var heights = ImmutableArray.CreateBuilder<int>();
 
@@ -105,7 +105,7 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
-        int distance = CoordinateAxis.Wrap(672 - body.Position.X.Whole);
+        int distance = CoordinateAxis.Wrap(DraygonBehavior.DraygonRightSideResetDistance - body.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
@@ -216,7 +216,7 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 4);
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - DraygonArenaDefinitions.SwoopClimbOutSpeed);
         if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)
             return;
 

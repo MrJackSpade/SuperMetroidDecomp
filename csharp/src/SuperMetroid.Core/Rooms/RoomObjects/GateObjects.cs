@@ -158,11 +158,9 @@ internal sealed class GateObjects
         IRoomSamus? samus = _samus.Current;
         if (samus is null)
             return false;
-        int gateX = place.Block.X;
-        int gateY = place.Block.Y;
-        return RoomGridConversions.PixelToBlock(samus.Position.X.Whole) == gateX &&
-            CoordinateAxis.Wrap(RoomGridConversions.PixelToBlock(samus.Position.Y.Whole) - gateY) <
-                DownwardGateDefinitions.GateHeightInBlocks;
+        int rowsBelowGateTop = RoomGridConversions.PixelToBlock(samus.Position.Y.Whole) - place.Block.Y;
+        return RoomGridConversions.PixelToBlock(samus.Position.X.Whole) == place.Block.X &&
+            rowsBelowGateTop >= 0 && rowsBelowGateTop < DownwardGateDefinitions.GateHeightInBlocks;
     }
 
     /// <summary>Whether <paramref name="trigger"/> is a left-side trigger.</summary>

@@ -34,7 +34,7 @@ internal sealed class SamusEaterObjects
 
         place.Block = block.At;
         place.Become(new SamusEaterObject(this, definition,
-            new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));
+            new(samus.Position.X.Whole, samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
         level.SetTerrain(block.At, block.Terrain.Deactivated());
     }
 

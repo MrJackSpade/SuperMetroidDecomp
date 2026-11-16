@@ -96,25 +96,25 @@ internal static class TorizoEncounterAnimations
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 48),
-            ShowArtwork(L.EyesLightingUp1),
+            ShowArtwork(L.EyesDark),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
-            ShowArtwork(L.EyesLightingUp2),
+            ShowArtwork(L.EyesGlowingFaintly),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 16),
-            ShowArtwork(L.EyesLightingUp3),
+            ShowArtwork(L.EyesGlowingBrightly),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 8),
-            ShowArtwork(L.EyesLightingUp4),
+            ShowArtwork(L.EyesGlowingFully),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
         ],
         [A.SeatedEyesLightingAgain] =
         [
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(L.EyesLightingAgain1),
+            ShowArtwork(L.EyesDarkAgain),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(L.EyesLightingAgain2),
+            ShowArtwork(L.EyesGlowingFaintlyAgain),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(L.EyesLightingAgain3),
+            ShowArtwork(L.EyesGlowingBrightlyAgain),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
-            ShowArtwork(L.EyesLightingAgain4),
+            ShowArtwork(L.EyesGlowingFullyAgain),
         ],
         [A.BombTorizoStandingUp] =
         [
@@ -152,13 +152,13 @@ internal static class TorizoEncounterAnimations
         [A.StunnedEyesLightingAgain] =
         [
             Wait(3),
-            ShowArtwork(L.EyesLightingAfterStun1),
+            ShowArtwork(L.StunnedEyesDark),
             Wait(3),
-            ShowArtwork(L.EyesLightingAfterStun2),
+            ShowArtwork(L.StunnedEyesGlowingFaintly),
             Wait(3),
-            ShowArtwork(L.EyesLightingAfterStun3),
+            ShowArtwork(L.StunnedEyesGlowingBrightly),
             Wait(3),
-            ShowArtwork(L.EyesLightingAfterStun4),
+            ShowArtwork(L.StunnedEyesGlowingFully),
         ],
         [A.StunnedRecovery] =
         [

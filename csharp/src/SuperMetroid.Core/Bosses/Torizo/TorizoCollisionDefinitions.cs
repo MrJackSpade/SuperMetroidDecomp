@@ -19,18 +19,18 @@ internal static class TorizoCollisionDefinitions
 
     /// <summary>The seated right-facing body, narrower on the left than the left-facing one.</summary>
     private static readonly TorizoHitboxList SeatedBodyRight = new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body at the first stand-up stage.</summary>
-    private static readonly TorizoHitboxList StandingUpFirstBodyRight = new([new(-13, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body at the second stand-up stage, growing upward to Y -32.</summary>
-    private static readonly TorizoHitboxList StandingUpSecondBodyRight = new([new(-14, -32, 13, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body at the third stand-up stage, reaching Y -35 and down to 39.</summary>
-    private static readonly TorizoHitboxList StandingUpThirdBodyRight = new([new(-14, -35, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body at the fourth stand-up stage, its upper reach shifted toward positive X.</summary>
-    private static readonly TorizoHitboxList StandingUpFourthBodyRight = new([new(-6, -42, 13, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body at the fifth stand-up stage.</summary>
-    private static readonly TorizoHitboxList StandingUpFifthBodyRight = new([new(-7, -41, 11, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The right-facing body at the last stand-up stage, expanding to X 22.</summary>
-    private static readonly TorizoHitboxList StandingUpSixthBodyRight = new([new(-8, -41, 22, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body rising from its seat (#2241).</summary>
+    private static readonly TorizoHitboxList RisingFromSeatBodyRight = new([new(-13, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body crouched, growing upward to Y -32.</summary>
+    private static readonly TorizoHitboxList CrouchedBodyRight = new([new(-14, -32, 13, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body half risen, reaching Y -35 and down to 39.</summary>
+    private static readonly TorizoHitboxList HalfRisenBodyRight = new([new(-14, -35, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body nearly upright, its upper reach shifted toward positive X.</summary>
+    private static readonly TorizoHitboxList NearlyUprightBodyRight = new([new(-6, -42, 13, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body upright and stepping.</summary>
+    private static readonly TorizoHitboxList UprightSteppingBodyRight = new([new(-7, -41, 11, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The right-facing body upright in its wide stance, expanding to X 22.</summary>
+    private static readonly TorizoHitboxList UprightWideStanceBodyRight = new([new(-8, -41, 22, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>Right-facing active body.</summary>
     private static readonly TorizoHitboxList ActiveBodyRight = new([new(-10, -38, 13, 23, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Right-facing standing body, extending farther down and right than the right-facing jump-back body.</summary>
@@ -40,18 +40,18 @@ internal static class TorizoCollisionDefinitions
 
     /// <summary>The seated body, 32 by 54, with the stand-up/sit-down shot reaction.</summary>
     private static readonly TorizoHitboxList SeatedBody = new([new(-16, -27, 16, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The body at the first stand-up stage, narrowed on the left.</summary>
-    private static readonly TorizoHitboxList StandingUpFirstBody = new([new(-14, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The body at the second stand-up stage, taller.</summary>
-    private static readonly TorizoHitboxList StandingUpSecondBody = new([new(-13, -34, 9, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The body at the third stand-up stage, centred and extending farther vertically.</summary>
-    private static readonly TorizoHitboxList StandingUpThirdBody = new([new(-11, -38, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The body at the fourth stand-up stage, its upper reach shifted left.</summary>
-    private static readonly TorizoHitboxList StandingUpFourthBody = new([new(-15, -44, 8, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The body at the fifth stand-up stage, shortened below the centre.</summary>
-    private static readonly TorizoHitboxList StandingUpFifthBody = new([new(-18, -43, 3, 24, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
-    /// <summary>The body at the last stand-up stage, narrowing below under the tall upper reach.</summary>
-    private static readonly TorizoHitboxList StandingUpSixthBody = new([new(-17, -42, 5, 15, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body rising from its seat (#2241), narrowed on the left.</summary>
+    private static readonly TorizoHitboxList RisingFromSeatBody = new([new(-14, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body crouched, taller.</summary>
+    private static readonly TorizoHitboxList CrouchedBody = new([new(-13, -34, 9, 33, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body half risen, centred and extending farther vertically.</summary>
+    private static readonly TorizoHitboxList HalfRisenBody = new([new(-11, -38, 11, 39, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body nearly upright, its upper reach shifted left.</summary>
+    private static readonly TorizoHitboxList NearlyUprightBody = new([new(-15, -44, 8, 47, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body upright and stepping, shortened below the centre.</summary>
+    private static readonly TorizoHitboxList UprightSteppingBody = new([new(-18, -43, 3, 24, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
+    /// <summary>The body upright in its wide stance, narrowing below under the tall upper reach.</summary>
+    private static readonly TorizoHitboxList UprightWideStanceBody = new([new(-17, -42, 5, 15, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);
     /// <summary>Left-facing active body, with the ordinary body shot reaction.</summary>
     private static readonly TorizoHitboxList ActiveBody = new([new(-15, -39, 7, 21, TorizoReactions.Touch, TorizoReactions.Shot)]);
     /// <summary>Compact left-facing jump-back body with its lower edge at Y 9.</summary>
@@ -107,12 +107,12 @@ internal static class TorizoCollisionDefinitions
         [EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmRaised] = StandingBody,
         [EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmOverhead] = StandingBody,
         [EnemyFrameId.TorizoFacingLeftSeated] = SeatedBody,
-        [EnemyFrameId.TorizoFacingLeftRisingFromSeat] = StandingUpFirstBody,
-        [EnemyFrameId.TorizoFacingLeftCrouched] = StandingUpSecondBody,
-        [EnemyFrameId.TorizoFacingLeftHalfRisen] = StandingUpThirdBody,
-        [EnemyFrameId.TorizoFacingLeftNearlyUpright] = StandingUpFourthBody,
-        [EnemyFrameId.TorizoFacingLeftUprightStepping] = StandingUpFifthBody,
-        [EnemyFrameId.TorizoFacingLeftUprightWideStance] = StandingUpSixthBody,
+        [EnemyFrameId.TorizoFacingLeftRisingFromSeat] = RisingFromSeatBody,
+        [EnemyFrameId.TorizoFacingLeftCrouched] = CrouchedBody,
+        [EnemyFrameId.TorizoFacingLeftHalfRisen] = HalfRisenBody,
+        [EnemyFrameId.TorizoFacingLeftNearlyUpright] = NearlyUprightBody,
+        [EnemyFrameId.TorizoFacingLeftUprightStepping] = UprightSteppingBody,
+        [EnemyFrameId.TorizoFacingLeftUprightWideStance] = UprightWideStanceBody,
         [EnemyFrameId.TorizoFacingRightWalkingLeftLegLifting] = StandingBodyRight,
         [EnemyFrameId.TorizoFacingRightWalkingLeftLegSwinging] = ActiveBodyRight,
         [EnemyFrameId.TorizoFacingRightWalkingLeftLegReaching] = ActiveBodyRight,
@@ -156,12 +156,12 @@ internal static class TorizoCollisionDefinitions
         [EnemyFrameId.TorizoFacingRightRightFootForwardFarArmRaised] = StandingBodyRight,
         [EnemyFrameId.TorizoFacingRightRightFootForwardFarArmOverhead] = StandingBodyRight,
         [EnemyFrameId.TorizoFacingRightSeated] = SeatedBodyRight,
-        [EnemyFrameId.TorizoFacingRightRisingFromSeat] = StandingUpFirstBodyRight,
-        [EnemyFrameId.TorizoFacingRightCrouched] = StandingUpSecondBodyRight,
-        [EnemyFrameId.TorizoFacingRightHalfRisen] = StandingUpThirdBodyRight,
-        [EnemyFrameId.TorizoFacingRightNearlyUpright] = StandingUpFourthBodyRight,
-        [EnemyFrameId.TorizoFacingRightUprightStepping] = StandingUpFifthBodyRight,
-        [EnemyFrameId.TorizoFacingRightUprightWideStance] = StandingUpSixthBodyRight,
+        [EnemyFrameId.TorizoFacingRightRisingFromSeat] = RisingFromSeatBodyRight,
+        [EnemyFrameId.TorizoFacingRightCrouched] = CrouchedBodyRight,
+        [EnemyFrameId.TorizoFacingRightHalfRisen] = HalfRisenBodyRight,
+        [EnemyFrameId.TorizoFacingRightNearlyUpright] = NearlyUprightBodyRight,
+        [EnemyFrameId.TorizoFacingRightUprightStepping] = UprightSteppingBodyRight,
+        [EnemyFrameId.TorizoFacingRightUprightWideStance] = UprightWideStanceBodyRight,
         [EnemyFrameId.TorizoFacingLeftJumpCrouch] = JumpBackBody,
         [EnemyFrameId.TorizoFallingLeft] = JumpBackBody,
         [EnemyFrameId.TorizoFacingLeftLeaping] = JumpBackBody,

@@ -184,7 +184,7 @@ internal static class SporeSpawnCeilingObjectsVerification
                     ((pointer >= BossRoomObjectNativeListAddresses.SporeSpawnCeilingEntries[0].Entry &&
                       pointer < BossRoomObjectNativeListAddresses.SporeSpawnCeilingEntries[1].Entry + 6) ||
                      (pointer >= RoomObjectDrawSourceDefinitions.SporeSpawnCeiling[SporeSpawnCeilingDraw.Clear].Offset &&
-                      pointer < RoomObjectDrawSourceDefinitions.SporeSpawnCeiling[SporeSpawnCeilingDraw.CrumbleThird].Offset + 16));
+                      pointer < RoomObjectDrawSourceDefinitions.SporeSpawnCeiling[SporeSpawnCeilingDraw.CeilingCrumbled].Offset + 16));
             },
             address => $"Spore Spawn ceiling reread migrated source ${address:X6}.");
 

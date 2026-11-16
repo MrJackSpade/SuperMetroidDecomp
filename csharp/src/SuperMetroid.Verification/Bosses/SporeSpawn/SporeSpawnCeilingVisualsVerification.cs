@@ -47,8 +47,8 @@ internal static class SporeSpawnCeilingVisualsVerification
     private static void VerifySporeSpawnCeilingStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectSporeSpawnCeilingVisuals installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9413,"clear-ceiling"), new LookupEscapeGateStockFrame(0x9423,"crumble-frame-0"),
-            new LookupEscapeGateStockFrame(0x9433,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x9443,"crumble-frame-2")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9413,"clear-ceiling"), new LookupEscapeGateStockFrame(0x9423,"ceiling-cracked"),
+            new LookupEscapeGateStockFrame(0x9433,"ceiling-crumbling"), new LookupEscapeGateStockFrame(0x9443,"ceiling-crumbled")];
         foreach (InstalledRoomObjectSporeSpawnCeilingVisuals pictures in new[] { InstalledRoomObjectSporeSpawnCeilingVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family, frames, WrittenCells(RoomObjectSporeSpawnCeilingVisualFiles.Family));

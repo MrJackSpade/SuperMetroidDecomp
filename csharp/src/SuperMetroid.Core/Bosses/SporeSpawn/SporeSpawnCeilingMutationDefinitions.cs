@@ -26,9 +26,9 @@ internal static class SporeSpawnCeilingMutationDefinitions
         {
             [SporeSpawnCeilingMutation.Crumble] = new(1,
             [
-                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CrumbleFirst), FrameDuration, SoundBefore: CrumbleSoundId),
-                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CrumbleSecond), FrameDuration),
-                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CrumbleThird), FrameDuration),
+                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CeilingCracked), FrameDuration, SoundBefore: CrumbleSoundId),
+                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CeilingCrumbling), FrameDuration),
+                new TerrainChangeFrame(SporeSpawnCeilingDraws.Family.Of(SporeSpawnCeilingDraw.CeilingCrumbled), FrameDuration),
                 Cleared,
             ]),
             [SporeSpawnCeilingMutation.Clear] = new(1, [Cleared]),

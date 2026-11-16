@@ -233,9 +233,9 @@ internal static class RoomObjectDrawSourceDefinitions
     internal static IReadOnlyDictionary<SporeSpawnCeilingDraw, SnesAddress> SporeSpawnCeiling { get; } = new Dictionary<SporeSpawnCeilingDraw, SnesAddress>
     {
         [SporeSpawnCeilingDraw.Clear] = new(Bank, 0x9413),
-        [SporeSpawnCeilingDraw.CrumbleFirst] = new(Bank, 0x9423),
-        [SporeSpawnCeilingDraw.CrumbleSecond] = new(Bank, 0x9433),
-        [SporeSpawnCeilingDraw.CrumbleThird] = new(Bank, 0x9443),
+        [SporeSpawnCeilingDraw.CeilingCracked] = new(Bank, 0x9423),
+        [SporeSpawnCeilingDraw.CeilingCrumbling] = new(Bank, 0x9433),
+        [SporeSpawnCeilingDraw.CeilingCrumbled] = new(Bank, 0x9443),
     };
 
     /// <summary>The address of each <see cref="StationDraw"/>.</summary>

@@ -112,9 +112,9 @@ internal static class RoomObjectVisualIdDefinitions
     internal static readonly Dictionary<SporeSpawnCeilingDraw, string> SporeSpawnCeiling = new()
     {
         [SporeSpawnCeilingDraw.Clear] = "clear-ceiling",
-        [SporeSpawnCeilingDraw.CrumbleFirst] = "crumble-frame-0",
-        [SporeSpawnCeilingDraw.CrumbleSecond] = "crumble-frame-1",
-        [SporeSpawnCeilingDraw.CrumbleThird] = "crumble-frame-2",
+        [SporeSpawnCeilingDraw.CeilingCracked] = "ceiling-cracked",
+        [SporeSpawnCeilingDraw.CeilingCrumbling] = "ceiling-crumbling",
+        [SporeSpawnCeilingDraw.CeilingCrumbled] = "ceiling-crumbled",
     };
 
     /// <summary>The intact and cleared hand draws' stable artwork identities.</summary>

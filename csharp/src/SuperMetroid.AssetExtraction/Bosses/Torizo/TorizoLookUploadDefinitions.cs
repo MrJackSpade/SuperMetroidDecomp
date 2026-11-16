@@ -40,30 +40,30 @@ internal static class TorizoLookUploadDefinitions
             new(TorizoTilePage.SharedDeath, 0, 64, 504),
             new(TorizoTilePage.SharedDeath, 0, 32, 415),
         ],
-        [L.EyesLightingUp1] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
-        [L.EyesLightingUp2] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
-        [L.EyesLightingUp3] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
-        [L.EyesLightingUp4] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
-        [L.EyesLightingAgain1] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
-        [L.EyesLightingAgain2] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
-        [L.EyesLightingAgain3] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
-        [L.EyesLightingAgain4] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
+        [L.EyesDark] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
+        [L.EyesGlowingFaintly] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
+        [L.EyesGlowingBrightly] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
+        [L.EyesGlowingFully] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
+        [L.EyesDarkAgain] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
+        [L.EyesGlowingFaintlyAgain] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
+        [L.EyesGlowingBrightlyAgain] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
+        [L.EyesGlowingFullyAgain] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
         [L.Awakening] = [new(TorizoTilePage.GoldenAwakening, 0, 1536, 208)],
-        [L.ChestOpening1] = [new(TorizoTilePage.LeftAttack, 128, 64, 304), new(TorizoTilePage.RightAttack, 128, 64, 320)],
-        [L.ChestOpening2] = [new(TorizoTilePage.LeftAttack, 192, 64, 304), new(TorizoTilePage.RightAttack, 192, 64, 320)],
+        [L.ChestParting] = [new(TorizoTilePage.LeftAttack, 128, 64, 304), new(TorizoTilePage.RightAttack, 128, 64, 320)],
+        [L.ChestHalfOpen] = [new(TorizoTilePage.LeftAttack, 192, 64, 304), new(TorizoTilePage.RightAttack, 192, 64, 320)],
         [L.ChestOpen] = [new(TorizoTilePage.LeftAttack, 256, 64, 304), new(TorizoTilePage.RightAttack, 256, 64, 320)],
         [L.ChestHeldOpen] = [new(TorizoTilePage.LeftAttack, 256, 64, 304), new(TorizoTilePage.RightAttack, 256, 64, 320)],
-        [L.ChestClosing1] = [new(TorizoTilePage.LeftAttack, 192, 64, 304), new(TorizoTilePage.RightAttack, 192, 64, 320)],
-        [L.ChestClosing2] = [new(TorizoTilePage.LeftAttack, 128, 64, 304), new(TorizoTilePage.RightAttack, 128, 64, 320)],
+        [L.ChestHalfClosed] = [new(TorizoTilePage.LeftAttack, 192, 64, 304), new(TorizoTilePage.RightAttack, 192, 64, 320)],
+        [L.ChestNearlyClosed] = [new(TorizoTilePage.LeftAttack, 128, 64, 304), new(TorizoTilePage.RightAttack, 128, 64, 320)],
         [L.ChestClosed] = [new(TorizoTilePage.GoldenLeftAttack, 0, 64, 304), new(TorizoTilePage.GoldenRightAttack, 0, 64, 320)],
-        [L.EyeBeamGlow1] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
-        [L.EyeBeamGlow2] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
-        [L.EyeBeamGlow3] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
-        [L.EyeBeamGlow4] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
-        [L.EyesLightingAfterStun1] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
-        [L.EyesLightingAfterStun2] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
-        [L.EyesLightingAfterStun3] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
-        [L.EyesLightingAfterStun4] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
+        [L.EyeBeamEyesDark] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
+        [L.EyeBeamEyesGlowingFaintly] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
+        [L.EyeBeamEyesGlowingBrightly] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
+        [L.EyeBeamEyesGlowingFully] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
+        [L.StunnedEyesDark] = [new(TorizoTilePage.StatueCrumble, 0, 64, 472)],
+        [L.StunnedEyesGlowingFaintly] = [new(TorizoTilePage.StatueCrumble, 64, 64, 472)],
+        [L.StunnedEyesGlowingBrightly] = [new(TorizoTilePage.StatueCrumble, 128, 64, 472)],
+        [L.StunnedEyesGlowingFully] = [new(TorizoTilePage.StatueCrumble, 192, 64, 472)],
     };
 
     /// <summary>
@@ -72,8 +72,8 @@ internal static class TorizoLookUploadDefinitions
     /// </summary>
     internal static readonly TorizoArtworkLook[] BombSequence =
     [
-        L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
-        L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4,
+        L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+        L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain,
         L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp,
     ];
 
@@ -85,10 +85,10 @@ internal static class TorizoLookUploadDefinitions
     internal static readonly TorizoArtworkLook[] GoldenSequence =
     [
         L.Awakening,
-        L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
-        L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4,
-        L.ChestOpening1, L.ChestOpening2, L.ChestOpen, L.ChestHeldOpen, L.ChestClosing1, L.ChestClosing2, L.ChestClosed,
-        L.EyeBeamGlow1, L.EyeBeamGlow2, L.EyeBeamGlow3, L.EyeBeamGlow4,
-        L.EyesLightingAfterStun1, L.EyesLightingAfterStun2, L.EyesLightingAfterStun3, L.EyesLightingAfterStun4,
+        L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+        L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain,
+        L.ChestParting, L.ChestHalfOpen, L.ChestOpen, L.ChestHeldOpen, L.ChestHalfClosed, L.ChestNearlyClosed, L.ChestClosed,
+        L.EyeBeamEyesDark, L.EyeBeamEyesGlowingFaintly, L.EyeBeamEyesGlowingBrightly, L.EyeBeamEyesGlowingFully,
+        L.StunnedEyesDark, L.StunnedEyesGlowingFaintly, L.StunnedEyesGlowingBrightly, L.StunnedEyesGlowingFully,
     ];
 }

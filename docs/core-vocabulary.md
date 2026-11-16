@@ -338,6 +338,17 @@ meaning (the direction is left or right, a pose faces left). Assembling a value 
 Line, a count of what is stored (`stores these as four separate flags`), a literal alone and the unverified stay
 English.
 
+#2139 widens the review trail, read in every type: anything reviewed or approved (`the reviewed wording`, `the
+reviewed 1e-19 margin`, `the six approved launch bodies`) and the port's history told against its present (`replacing
+it with defaults used to hide bad data; the loader now gets the bindings`, `the update used to be gated`). Outside
+hardware owners it also reads the port's narration of itself and of the original: managed code set against the original
+(`the managed menu`), the original's steps, programs and code (`an otherwise unused original step`), backing up and
+restoring graphics (`backing up gameplay graphics`), and a story event named by a number or as a bit (`the event number`,
+`eventNumber`, `story-event bits`). Core names the wording, the margin and the choice, says what the game does now, and
+names each `StoryEvent` and whether it has happened. A thing used to do something with no present told against it (`the
+counter used to pace the dust`), original alone, restoring a value, graphics alone, a story event, a number and a bit
+stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

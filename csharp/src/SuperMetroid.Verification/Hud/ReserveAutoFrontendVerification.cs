@@ -97,7 +97,7 @@ internal static class ReserveAutoFrontendVerification
         // Seed the display at the pre-transfer health. Each subsequent gameplay
         // pass updates the HUD for the next accepted NMI to latch, including while
         // automatic recovery freezes movement. Inspect presentation, not just HP.
-        runtime.Hud.UpdateGameplayCounters(samus, runtime.AudioRequests);
+        runtime.Hud.UpdateGameplayCounters(samus, runtime.AudioRequests, timeIsFrozen: false);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, RgbaPixel[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;

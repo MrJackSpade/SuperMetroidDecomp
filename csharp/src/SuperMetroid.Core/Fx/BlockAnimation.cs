@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The block animations rooms, room effects and the Tourian statues animate their pictures with.
-/// Its values are arbitrary; verification's view names each member's original identity (#1415).
+/// Its values are arbitrary: nothing reads them.
 /// </summary>
 public enum BlockAnimation
 {

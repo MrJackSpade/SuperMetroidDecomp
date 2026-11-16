@@ -40,6 +40,7 @@ internal static class GameplayAudioOrderVerification
         SoundRequestsMark samusLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
 
+        runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(ControllerButton.X, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
 
         SoundEffectId missile = SamusProjectileSoundRoutingDefinitions.MissileRequest;
@@ -56,25 +57,26 @@ internal static class GameplayAudioOrderVerification
     }
 
     /// <summary>
-    /// The update after the Ki Hunter's spit makes no enemy request. Its record starts empty and nothing reads an earlier
-    /// update's requests again, so the spit reaches the enemies' library once across both updates and the later update
-    /// records no spit.
+    /// The update after the Ki Hunter's spit makes no enemy request: the spit reaches the enemies' library once across both
+    /// updates, and the later update requests no spit.
     /// </summary>
     internal static void VerifyLaterUpdateQueuesNothingStale()
     {
         (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
         RoomEnemyPlace kiHunter = KiHunterAtItsSpit(runtime);
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
+        runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(0, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         AssertTrue(runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
-            "the first update records the Ki Hunter's spit");
+            "the first update requests the Ki Hunter's spit");
 
         // The Ki Hunter's next step lies far ahead, so the second update's enemies request nothing.
         kiHunter.AnimationClock.HoldFor(200);
+        runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(0, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
 
         AssertTrue(!runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
-            "the second update's record holds none of the first update's requests");
+            "the second update requests no spit");
         AssertEqual(1, audio.SoundsQueuedSinceForVerification(enemyLibrary).Count(sound => sound == EnemySound.AcidSpit),
             "the spit reaches the enemies' library once across both updates");
         Console.WriteLine("  Stale audio: an update that makes no enemy request queues none of an earlier update's.");

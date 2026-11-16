@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>What one Samus animation step reads: input, the frame counter, system state, liquid-sound and pose-input policy, and the echo-sound queue (#633).</summary>
+/// <summary>What one Samus animation step reads: input, the frame counter, system state, pose-input policy, and the echo-sound queue (#633).</summary>
 public sealed record SamusAnimationStep
 {
     /// <summary>The actions held this update.</summary>
@@ -20,12 +20,6 @@ public sealed record SamusAnimationStep
 
     /// <summary>The session's random-number generator, which Samus's liquid effects draw air bubbles from.</summary>
     public required SharedRandom Random { get; init; }
-
-    /// <summary>
-    /// Whether the animation call is an update of its own, which begins Samus's audio requests; the runtime's animation
-    /// runs inside its update and passes false.
-    /// </summary>
-    public bool BeginLiquidSoundRequestFrame { get; init; } = true;
 
     /// <summary>The pose this update's input selected, if any: a jump it selected survives a turn's last frame.</summary>
     public SamusPoseId? ProspectiveInputPose { get; init; } = null;

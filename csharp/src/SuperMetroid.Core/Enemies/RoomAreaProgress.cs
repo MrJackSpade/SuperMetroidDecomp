@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The persistent event bits, the Zebetite count and one area's defeated bosses, as a room's room objects and enemies read and write them.
+/// The story events, the Zebetite count and one area's defeated bosses, as a room's room objects and enemies read and write them.
 /// </summary>
 /// <param name="system">The session's progression owner.</param>
 /// <param name="area">The room's area, whose defeated bosses these are.</param>
@@ -16,11 +16,11 @@ internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IG
         set => system.Progress.ZebetitesDestroyed = value;
     }
 
-    /// <summary>Checks a persistent event bit from the system owner.</summary>
-    public bool Has(StoryEvent eventNumber) => system.HasEvent(eventNumber);
+    /// <summary>Whether <paramref name="storyEvent"/> has happened, as the session's progress keeps it.</summary>
+    public bool Has(StoryEvent storyEvent) => system.HasEvent(storyEvent);
 
-    /// <summary>Publishes an event bit through the system owner.</summary>
-    public void Set(StoryEvent eventNumber) => system.SetEvent(eventNumber);
+    /// <summary>Marks <paramref name="storyEvent"/> as having happened in the session's progress.</summary>
+    public void Set(StoryEvent storyEvent) => system.SetEvent(storyEvent);
 
     /// <summary>Whether any of <paramref name="bosses"/> is defeated in this room's area.</summary>
     public bool IsDefeated(DefeatedBosses bosses) => system.HasDefeatedAnyOf(area, bosses);

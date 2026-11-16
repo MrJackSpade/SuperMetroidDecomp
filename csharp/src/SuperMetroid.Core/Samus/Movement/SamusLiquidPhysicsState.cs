@@ -288,21 +288,14 @@ public sealed class SamusLiquidPhysicsState
     /// timer: liquid delay, medium changes, four particle producers, sound requests, and
     /// lava/acid fixed-point damage accumulation.
     /// </summary>
-    [IndependentFlag("The liquid sound request frame and boss presence are independent facts of the frame.")]
+    [IndependentFlag("Boss presence is an independent fact of the room the frame runs in.")]
     public void PrepareAnimationFrame(
         SamusState samus,
         SharedRandom random,
         int frameCounter = 0,
-        bool beginSoundRequestFrame = true,
         bool bossPresent = false)
     {
         Ensure.NotNull(samus);
-
-        // A call made outside the frame loop is an update of its own: it begins the update's audio here. The full runtime begins its update before movement and passes false, preserving collision sounds
-        // queued by landing before this animation phase. Particles, effect waits and damage are persistent state and
-        // therefore are never cleared merely because a frame began.
-        if (beginSoundRequestFrame)
-            AudioRequests.BeginUpdate();
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         TrySpawnRunningFootsteps(samus, movementType, bossPresent);

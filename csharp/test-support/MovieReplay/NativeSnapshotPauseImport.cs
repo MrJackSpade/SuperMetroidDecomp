@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.Core.Assets;
@@ -39,8 +40,9 @@ internal static class NativeSnapshotPauseImport
         game.Session.Show(menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
-        runtime.System.TimedHeldInputTimer = WrappingCountdown.Start(W(PauseMemory.TimedHeldTimer));
-        runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
-        runtime.System.TimedHeldInput = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
+        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInputTimer), WrappingCountdown.Start(W(PauseMemory.TimedHeldTimer)));
+        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInputTimerReset), (int)W(PauseMemory.TimedHeldReset));
+        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInput),
+            ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input"));
     }
 }

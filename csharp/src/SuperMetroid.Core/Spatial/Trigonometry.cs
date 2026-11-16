@@ -80,7 +80,6 @@ public static class Trigonometry
     /// All 128 of the game's values match.
     /// Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before <see cref="FineSignedSine"/>'s halving and sign.
-    /// This identifies the exact numerical convention, not the historical authoring tool.
     /// A step outside the half turn throws ArgumentOutOfRangeException.
     /// </remarks>
     public static int UnsignedHalfWave(int step)
@@ -90,7 +89,7 @@ public static class Trigonometry
     }
 
     /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>
-    /// <remarks>The omitted term is below 5.2e-21; the reviewed 1e-19 margin covers rounding and the 28-place pi constant. Full-domain comparisons with the game's tables establish the integer outputs without libm or correction tables.</remarks>
+    /// <remarks>The omitted term is below 5.2e-21, and a margin of 1e-19 covers rounding and the 28-place pi constant, so the integer outputs need no libm or correction tables.</remarks>
     internal static decimal UnitHalfWave(int step)
     {
         if ((uint)step >= 128) throw new ArgumentOutOfRangeException(nameof(step));

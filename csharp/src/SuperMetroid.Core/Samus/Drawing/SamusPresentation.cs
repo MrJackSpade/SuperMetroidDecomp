@@ -169,7 +169,6 @@ internal sealed class SamusPresentation
             samus,
             step.Random,
             step.FrameCounter,
-            step.BeginLiquidSoundRequestFrame,
             step.BossPresent);
 
         // The animation keeps the neutral jump's second frame alive in four-tick chunks while Samus is

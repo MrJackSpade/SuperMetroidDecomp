@@ -97,7 +97,7 @@ public sealed class SharedGameState
     /// Held-input countdown. A step past zero to 65,535
     /// causes the held input to become active.
     /// </summary>
-    public WrappingCountdown TimedHeldInputTimer { get; internal set; }
+    public WrappingCountdown TimedHeldInputTimer { get; private set; }
 
     /// <summary>
     /// Held-input countdown reload value, 0 through <see cref="WrappingCountdown.LongestStart"/>: any value the held-input
@@ -105,13 +105,13 @@ public sealed class SharedGameState
     /// The value is only ever reloaded into <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps
     /// the wrap.
     /// </summary>
-    public int TimedHeldInputTimerReset { get; internal set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
+    public int TimedHeldInputTimerReset { get; private set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
 
     /// <summary>
     /// Filtered input. Bits appear after their buttons have remained
     /// stable long enough for the timer to pass zero.
     /// </summary>
-    public ControllerButton TimedHeldInput { get; internal set; }
+    public ControllerButton TimedHeldInput { get; private set; }
 
     /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
@@ -174,8 +174,8 @@ public sealed class SharedGameState
         Progress.SetDefeatedBosses(area, Progress.BossesDefeatedIn(area) | bosses);
 
     /// <summary>
-    /// Forgets <paramref name="bosses"/> as defeated in <paramref name="area"/>, as an otherwise unused original
-    /// step does; the encounter reset on loading a save uses it.
+    /// Forgets <paramref name="bosses"/> as defeated in <paramref name="area"/>; the encounter reset on loading a save
+    /// uses it.
     /// </summary>
     public void ForgetBossesDefeated(AreaId area, DefeatedBosses bosses) =>
         Progress.SetDefeatedBosses(area, Progress.BossesDefeatedIn(area) & ~bosses);
@@ -187,14 +187,14 @@ public sealed class SharedGameState
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
     public DefeatedBosses BossesDefeatedIn(AreaId area) => Progress.BossesDefeatedIn(area);
 
-    /// <summary>Marks an event as having occurred.</summary>
-    public void SetEvent(StoryEvent eventNumber) => Progress.SetEvent(eventNumber);
+    /// <summary>Marks <paramref name="storyEvent"/> as having happened.</summary>
+    public void SetEvent(StoryEvent storyEvent) => Progress.SetEvent(storyEvent);
 
-    /// <summary>Clears an event.</summary>
-    public void ClearEvent(StoryEvent eventNumber) => Progress.ClearEvent(eventNumber);
+    /// <summary>Forgets that <paramref name="storyEvent"/> happened.</summary>
+    public void ClearEvent(StoryEvent storyEvent) => Progress.ClearEvent(storyEvent);
 
-    /// <summary>Tests an event.</summary>
-    public bool HasEvent(StoryEvent eventNumber) => Progress.HasEvent(eventNumber);
+    /// <summary>Whether <paramref name="storyEvent"/> has happened.</summary>
+    public bool HasEvent(StoryEvent storyEvent) => Progress.HasEvent(storyEvent);
 
     /// <summary>Whether <paramref name="location"/>'s pickup has been collected, as the item room objects test it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not a retail item location.</exception>

@@ -9,26 +9,30 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Verification reads of an update's <see cref="GameplayAudioRequests"/>, and of the requests each system has queued into
-/// the record it joins: its own, or, once a runtime points it there, the runtime's, which every system shares (#1620).
+/// Verification reads of the requests a check records (<see cref="GameplayAudioRequestsAccess2"/>), and of the requests each
+/// system has made through the requests it joins: its own, or, once a runtime points it there, the runtime's, which every
+/// system shares (#1620).
 /// </summary>
 internal static class GameplayAudioRequestsAccess
 {
-    /// <summary>Builds a record whose requests go straight on into a check's queues.</summary>
+    /// <summary>Builds requests that go straight on into a check's queues, recorded from the start.</summary>
     extension(GameplayAudioRequests)
     {
-        /// <summary>A record whose requests go straight on into <paramref name="queues"/>, as a selected game's do.</summary>
+        /// <summary>
+        /// Requests that go straight on into <paramref name="queues"/>, as a selected game's do, recorded from the start
+        /// until the check begins an update.
+        /// </summary>
         internal static GameplayAudioRequests Reaching(AudioQueues queues) =>
-            new(new SessionGameplayAudioQueues(queues, NoAttractDemo.Instance));
+            new(new RecordingAudioQueues(new SessionGameplayAudioQueues(queues, NoAttractDemo.Instance)));
 
         /// <summary>
-        /// A record of a check's own, whose requests go straight on into standalone queues (#2057): what a system a check
-        /// builds outside a runtime joins.
+        /// Requests of a check's own, which go straight on into standalone queues (#2057): what a system a check builds
+        /// outside a runtime joins.
         /// </summary>
         internal static GameplayAudioRequests Standalone() => Reaching(AudioQueues.Standalone());
     }
 
-    /// <summary>Reads the update's music requests by kind and counts its sounds.</summary>
+    /// <summary>Reads the recorded music requests by kind and counts the recorded sounds.</summary>
     extension(GameplayAudioRequests self)
     {
         /// <summary>The update's scheduled music requests, in request order.</summary>
@@ -45,58 +49,55 @@ internal static class GameplayAudioRequestsAccess
     /// <summary>Reads the requests the enemies have queued.</summary>
     extension(EnemyAudioQueue self)
     {
-        /// <summary>The update's sound requests in the record the enemies' queue joins, in request order.</summary>
+        /// <summary>The recorded sound requests of the requests the enemies' queue joins, in request order.</summary>
         internal IReadOnlyList<SoundRequest> SoundRequests => self.Requests.SoundRequests;
 
-        /// <summary>The update's scheduled music requests in the record the enemies' queue joins, in request order.</summary>
+        /// <summary>The recorded scheduled music requests of the requests the enemies' queue joins, in request order.</summary>
         internal IReadOnlyList<DelayedMusicRequest> MusicRequests => self.Requests.ScheduledMusic;
 
-        /// <summary>Begins a check's update of the enemies' audio: the earlier requests leave the record.</summary>
-        internal void BeginFrame() => self.Requests.BeginUpdate();
+        /// <summary>Begins a check's recorded update of the enemies' audio: the earlier requests leave the record.</summary>
+        internal void BeginFrame() => self.Requests.BeginRecordedUpdate();
     }
 
     /// <summary>Begins an update of a room's enemy audio.</summary>
     extension(RoomEnemySystem self)
     {
-        /// <summary>Begins a check's update of the enemies' audio: the earlier requests leave the record their queue joins.</summary>
-        internal void BeginEnemySoundRequestFrame() => self.Audio.Requests.BeginUpdate();
+        /// <summary>Begins a check's recorded update of the enemies' audio: the earlier requests leave the record.</summary>
+        internal void BeginEnemySoundRequestFrame() => self.Audio.Requests.BeginRecordedUpdate();
     }
 
     /// <summary>Reads the requests the room objects have queued.</summary>
     extension(RoomObjectSoundQueue self)
     {
-        /// <summary>The update's sound requests in the record the room objects' queue joins, in request order.</summary>
+        /// <summary>The recorded sound requests of the requests the room objects' queue joins, in request order.</summary>
         internal IReadOnlyList<SoundRequest> SoundRequests => self.Requests.SoundRequests;
 
-        /// <summary>The update's scheduled music requests in the record the room objects' queue joins, in request order.</summary>
+        /// <summary>The recorded scheduled music requests of the requests the room objects' queue joins, in request order.</summary>
         internal IReadOnlyList<DelayedMusicRequest> MusicRequests => self.Requests.ScheduledMusic;
     }
 
     /// <summary>Reads the effect overlay's sound requests.</summary>
     extension(RoomFxOverlayState self)
     {
-        /// <summary>The update's sound requests in the record the effect's sounds join, in request order.</summary>
+        /// <summary>The recorded sound requests of the requests the effect's sounds join, in request order.</summary>
         internal IReadOnlyList<SoundRequest> SoundRequests => self.AudioRequests.SoundRequests;
     }
 
     /// <summary>Reads the colour effects' sound requests.</summary>
     extension(ColourEffectSystem self)
     {
-        /// <summary>The update's sound requests in the record the colour effects' sounds join, in request order.</summary>
+        /// <summary>The recorded sound requests of the requests the colour effects' sounds join, in request order.</summary>
         internal IReadOnlyList<SoundRequest> SoundRequests => self.AudioRequests.SoundRequests;
     }
 
     /// <summary>Reads Samus's movement and liquid sound requests and begins a check's update of them.</summary>
     extension(SamusLiquidPhysicsState self)
     {
-        /// <summary>The update's sound requests in the record Samus's sounds join, in request order.</summary>
+        /// <summary>The recorded sound requests of the requests Samus's sounds join, in request order.</summary>
         internal IReadOnlyList<SoundRequest> SoundRequests => self.AudioRequests.SoundRequests;
 
-        /// <summary>
-        /// Begins a check's update of Samus's audio, as an animation call outside the runtime does: the earlier requests
-        /// leave her record.
-        /// </summary>
-        internal void BeginFrameSoundRequests() => self.AudioRequests.BeginUpdate();
+        /// <summary>Begins a check's recorded update of Samus's audio: the earlier requests leave the record.</summary>
+        internal void BeginFrameSoundRequests() => self.AudioRequests.BeginRecordedUpdate();
     }
 
     /// <summary>The state of a check's game, which no attract demo drives.</summary>

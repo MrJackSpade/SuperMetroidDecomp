@@ -46,12 +46,10 @@ public readonly record struct ControllerBindings(
     /// list. Only these seven can be assigned in an ordinary retail options menu.
     /// </summary>
     /// <remarks>
-    /// The options menu's button list holds nine
-    /// buttons: X, A, B, Select, Y, L, R, Left, Right. The managed seven-button prefix
-    /// matches exactly; the final two follow the list, not assignable actions. Setting a
-    /// binding starts at the seventh choice and scans backward to the first; saving the
-    /// controller settings uses the same seven choices. The managed menu scans this list backward and
-    /// AssignAndSwap validates membership through it.
+    /// The options menu's button list holds nine buttons: X, A, B, Select, Y, L, R, Left, Right. These seven are its
+    /// first seven; the last two are never assigned. Setting a binding starts at the seventh choice and scans backward to
+    /// the first, and saving the controller settings uses the same seven choices. The options menu scans this list
+    /// backward, and <see cref="AssignAndSwap"/> admits only its buttons.
     /// </remarks>
     public static ImmutableArray<ControllerButton> AssignableButtons { get; } =
     [
@@ -155,10 +153,9 @@ public readonly record struct ControllerBindings(
     /// Returns this binding set only when it is a complete retail permutation.
     /// </summary>
     /// <remarks>
-    /// A valid save checksum proves only that the slot was written consistently; it does
-    /// not make malformed button bindings safe. Replacing a corrupt permutation with defaults
-    /// used to hide both bad save data and decoding bugs. The save's loader now gets the exact
-    /// seven bindings in the exception and can decide whether to delete or repair the save.
+    /// A valid save checksum proves only that the slot was written consistently; it does not make malformed button
+    /// bindings safe. A malformed permutation is never replaced with the defaults: the save's loader gets the exact seven
+    /// bindings in the exception and decides whether to delete or repair the save.
     /// </remarks>
     public ControllerBindings RequireRetailPermutation()
     {

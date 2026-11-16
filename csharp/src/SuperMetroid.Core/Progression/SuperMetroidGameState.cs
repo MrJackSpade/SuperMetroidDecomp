@@ -37,7 +37,7 @@ public enum SuperMetroidGameState
     DoorTransition,
     /// <summary>Continues ordinary gameplay while darkening for pause.</summary>
     PausingDarkening,
-    /// <summary>Prepares the pause screen on a blank display, backing up gameplay graphics and cancelling effects.</summary>
+    /// <summary>Prepares the pause screen on a blank display, cancelling effects.</summary>
     Pausing,
     /// <summary>Draws and brightens the prepared pause screen without resuming gameplay.</summary>
     PauseScreenFadeIn,
@@ -45,7 +45,7 @@ public enum SuperMetroidGameState
     Paused,
     /// <summary>Draws the pause screen during its fade to a blank display after Start requests unpause.</summary>
     PauseScreenFadeOut,
-    /// <summary>Restores gameplay graphics, reconciles equipped items, and runs the unpause hook on a blank display.</summary>
+    /// <summary>Returns from the pause screen to gameplay on a blank display, reconciling equipped items.</summary>
     RestoringGameplayFromPause,
     /// <summary>Resumes ordinary gameplay while brightening, then restores <see cref="MainGameplay"/>.</summary>
     Unpausing,

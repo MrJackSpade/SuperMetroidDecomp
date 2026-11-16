@@ -871,8 +871,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
-        // The update's requests, which the frontend's queues already hold, leave the flashbacks' record.
-        flashbackAudioRequests.BeginUpdate();
         FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
 
         // The HUD and projectile step calls the shared cooldown owner before

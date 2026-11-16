@@ -82,9 +82,9 @@ public static class SamusBlockCollision
 
         if ((!acceptedDisplacement.IsZero || move.CollisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
         {
-            // Presents enemy collision with an unsigned magnitude even though the
-            // managed block mover receives signed 1/65536-pixel displacement. Preserve both halves:
-            // enemy clipping clears the fractional half only when it actually collides.
+            // Enemy collision takes an unsigned magnitude even though the block mover takes a signed displacement in
+            // 1/65536ths of a pixel. Both halves are kept: enemy clipping clears the fractional half only when it
+            // actually collides.
             UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
             // The sign of the requested distance selects the entry: zero is not negative and enters right.
             // The probe itself reads the calculator's stored direction, so a zero move

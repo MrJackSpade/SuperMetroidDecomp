@@ -33,6 +33,7 @@ internal static class ContactDamageSoundVerification
         RoomEnemyPlace sciser = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Sciser);
         int healthBefore = sciser.Health;
 
+        runtime.AudioRequests.BeginRecordedUpdate();
         runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, TouchDeathAnimation.Play);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");

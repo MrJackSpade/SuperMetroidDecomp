@@ -57,7 +57,7 @@ public sealed class EscapeTimer
     /// <summary>Runs one timer update and reports whether the countdown has reached zero.</summary>
     /// <param name="frameCounter">The game's frame counter, which selects this update's step of the countdown cadence.</param>
     /// <param name="holdAtOneSecond">Whether the countdown holds at one second instead of expiring, as an assist can ask; it runs normally until then.</param>
-    public bool Process(int frameCounter, bool holdAtOneSecond = false)
+    public bool Process(int frameCounter, bool holdAtOneSecond)
     {
         if (CountdownExpired)
             return false;
@@ -86,10 +86,10 @@ public sealed class EscapeTimer
     /// <summary>The time-up black-out stops the timer without clearing its countdown or position.</summary>
     public void ClearStatus() => SelectPhase(EscapeTimerPhase.Inactive);
 
-    /// <summary>Sets the remaining countdown directly, as starting the timer installs its duration.</summary>
+    /// <summary>Sets the remaining countdown, as starting the timer installs its duration.</summary>
     /// <param name="centiseconds">The remaining countdown, 0 through <see cref="LongestTime"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The countdown is negative or longer than the timer shows.</exception>
-    public void SetRemaining(int centiseconds) =>
+    private void SetRemaining(int centiseconds) =>
         RemainingCentiseconds = Ensure.BetweenInclusive(0, LongestTime, centiseconds);
 
     /// <summary>Stops the timer, empties its countdown and returns it to the screen's centre.</summary>
@@ -187,7 +187,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Selects a step of the sequence with the timer running.</summary>
-    internal void SelectRunningPhase(EscapeTimerPhase phase)
+    private void SelectRunningPhase(EscapeTimerPhase phase)
     {
         Phase = phase;
         IsActive = true;

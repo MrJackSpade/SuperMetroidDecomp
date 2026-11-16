@@ -15,18 +15,18 @@ public static class EscapeTypewriterDefinitions
     /// </summary>
     internal static readonly UpdateCadence ClickEverySecondGlyph = new(2, 0);
 
-    /// <summary>The delay between typed characters; unchanged and outside the installed messages table payload. No timing exemption is claimed.</summary>
+    /// <summary>The updates from one typed character to the next.</summary>
     public const int CharacterDelayFrames = 2;
 
-    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>The Ceres warning's first line.</summary>
     private const string CeresSequenceWarning = "SELF DESTRUCT SEQUENCE";
-    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>The Ceres warning's second line.</summary>
     private const string CeresEvacuationWarning = "ACTIVATED EVACUATE";
-    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>The Ceres warning's third line.</summary>
     private const string CeresColonyWarning = "COLONY IMMEDIATELY";
-    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>The Zebes warning's first line.</summary>
     private const string ZebesBombWarning = "TIME BOMB SET!";
-    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>The Zebes warning's second line.</summary>
     private const string ZebesEscapeWarning = "ESCAPE IMMEDIATELY!";
 
     /// <summary>The warning block's left margin: each line's first glyph shows 40 pixels from the layer's left.</summary>
@@ -37,9 +37,9 @@ public static class EscapeTypewriterDefinitions
     internal const int LineSpacing = 16;
     /// <summary>How far right the next character is typed after each character, glyph or space, in pixels: one glyph's width.</summary>
     public const int GlyphAdvance = 8;
-    /// <summary>Reviewed three-line grouping of the approved Ceres wording; selected line breaks are lexical composition.</summary>
+    /// <summary>The lines the Ceres warning is typed in.</summary>
     private const int CeresLineCount = 3;
-    /// <summary>Reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
+    /// <summary>The lines the Zebes warning is typed in.</summary>
     private const int ZebesLineCount = 2;
 
     /// <summary>Each warning message's line count: Ceres uses three warning lines while Zebes uses two.</summary>
@@ -50,7 +50,7 @@ public static class EscapeTypewriterDefinitions
             [EscapeTypewriterMessageId.Zebes] = ZebesLineCount,
         };
 
-    /// <summary>The reviewed wording of each warning line, by message and line.</summary>
+    /// <summary>The wording of each warning line, by message and line.</summary>
     internal static readonly IReadOnlyDictionary<EscapeTypewriterLineKey, string> LineTexts =
         new Dictionary<EscapeTypewriterLineKey, string>
         {

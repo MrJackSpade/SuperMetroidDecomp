@@ -79,8 +79,8 @@ internal static class GameplayHudPresentationVerification
         };
         var nativeAudio = GameplayAudioRequests.Standalone();
         var installedAudio = GameplayAudioRequests.Standalone();
-        native.UpdateGameplayCounters(samus, nativeAudio);
-        installed.UpdateGameplayCounters(samus, installedAudio);
+        native.UpdateGameplayCounters(samus, nativeAudio, timeIsFrozen: false);
+        installed.UpdateGameplayCounters(samus, installedAudio, timeIsFrozen: false);
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed live HUD updates match native without presentation ROM reads");
         AssertSequenceEqual(nativeAudio.SoundRequests, installedAudio.SoundRequests,

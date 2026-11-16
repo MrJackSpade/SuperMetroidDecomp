@@ -113,19 +113,17 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// The current controller bindings: the applicable item panels name the button bound to Shoot or to Dash, as the
     /// options menu may have remapped them.
     /// </param>
-    /// <param name="sourceContext">What opened the message, included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
         GameplayMessageId messageId,
         ControllerButton controllerRead,
-        ControllerBindings bindings,
-        string sourceContext = nameof(GameplayMessageBoxState))
+        ControllerBindings bindings)
     {
         if (!IsOrdinary(messageId))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
                 messageId,
-                $"The ordinary message box shows no gameplay message {messageId} from {sourceContext}.");
+                $"The ordinary message box shows no gameplay message {messageId}.");
         }
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
@@ -196,10 +194,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     }
                     else
                     {
-                        // The four completion notices hold for only ten updates;
-                        // equipment descriptions hold for 360. Treating
-                        // every ordinary message as equipment left Samus locked in a map
-                        // station while its access-loop sound continued for six seconds.
+                        // The four completion notices hold for only ten updates; equipment descriptions hold for 360.
                         MinimumDisplayFramesRemaining = MessageId is
                             GameplayMessageId.MapDataAccessCompleted or
                             GameplayMessageId.EnergyRechargeCompleted or

@@ -461,9 +461,8 @@ internal static class RoomObjectSystemAccess
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
         {
-            // A check's pass is an update of its own: it begins the record the room objects' sounds join, as the runtime's
-            // update begins its own.
-            self.Sounds.Requests.BeginUpdate();
+            // A check's pass is an update of its own: it begins the check's record of the requests the room objects join.
+            self.Sounds.Requests.BeginRecordedUpdate();
             self.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
         }
     }

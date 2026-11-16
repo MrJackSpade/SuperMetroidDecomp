@@ -255,7 +255,7 @@ public sealed class ClipAudioBackend
         return length;
     }
 
-    /// <summary>A clip's samples, read and hash-checked on first use.</summary>
+    /// <summary>A clip's samples, read and checked against the manifest's frame count on first use.</summary>
     private short[] Samples(AudioClipFile clip)
     {
         if (!samples.TryGetValue(clip, out short[]? pcm))

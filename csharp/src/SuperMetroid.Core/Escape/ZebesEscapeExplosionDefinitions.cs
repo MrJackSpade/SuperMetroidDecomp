@@ -43,8 +43,6 @@ internal static class ZebesEscapeExplosionDefinitions
     /// one small dust cloud, two smoke clouds, two short big dust clouds and one big dust cloud. Only the first small
     /// explosion and the first smoke cloud sound.
     /// </summary>
-    /// <remarks>The bucket weights and sound-bearing choices are authored effect variety (see the residual scalar
-    /// inputs review).</remarks>
     internal static readonly ZebesEscapeExplosionDefinition[] Drawn =
     [
         SoundingSmallExplosion,

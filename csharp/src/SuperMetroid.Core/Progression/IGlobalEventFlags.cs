@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Progression;
 
-/// <summary>Global story-event bits.</summary>
+/// <summary>The story events that have happened, which room objects and enemies read and mark.</summary>
 public interface IGlobalEventFlags
 {
-    /// <summary>Whether <paramref name="eventNumber"/> is set.</summary>
-    bool Has(StoryEvent eventNumber);
+    /// <summary>Whether <paramref name="storyEvent"/> has happened.</summary>
+    bool Has(StoryEvent storyEvent);
 
-    /// <summary>Sets <paramref name="eventNumber"/>.</summary>
-    void Set(StoryEvent eventNumber);
+    /// <summary>Marks <paramref name="storyEvent"/> as having happened.</summary>
+    void Set(StoryEvent storyEvent);
 }

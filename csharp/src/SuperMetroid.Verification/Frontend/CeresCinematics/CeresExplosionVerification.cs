@@ -45,8 +45,11 @@ internal static class CeresExplosionVerification
 
             var actual = scene.CaptureRenderSnapshot()
                 .LayersOf<ColourAddWindowLayer>().SingleOrDefault();
-            var expected = GameplayEffectCapture.CapturePowerBombGlow(
-                PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0), firstLine: 0);
+            // The station's blast covers the screen from its top line, where a gameplay Power Bomb's starts below the HUD.
+            var glow = GameplayEffectCapture.CapturePowerBombGlow(
+                PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0));
+            var expected = glow is null || glow.Window == ScreenWindow.Closed ? glow
+                : glow with { Window = new ScreenWindow(glow.Window.Shapes) };
             AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
             if (expected is not null && actual is not null)
             {

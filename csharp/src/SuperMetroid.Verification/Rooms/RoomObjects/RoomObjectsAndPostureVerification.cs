@@ -261,7 +261,10 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: S
     AssertEqual(48, sunkSamus.Position.Y.Whole, "command seven clips its crouch descent at the floor");
 
     for (int tick = 0; tick < 3; tick++)
+    {
+        samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    }
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
     samus.HorizontalSpeed.HasRunningMomentum = true;
@@ -286,7 +289,10 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: Sa
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes standing transition radius");
     for (int tick = 0; tick < 3; tick++)
+    {
+        samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    }
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "standing FD applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "standing transition target");
 
@@ -312,7 +318,10 @@ level, aimedCrouchTransitions[index], unchecked((ushort)index), roomObjects: Sam
         SamusPostureMovement.StepCrouchStandTransition(
 level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         for (int tick = 0; tick < 3; tick++)
+        {
+            aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
             SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
+        }
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
@@ -332,7 +341,10 @@ level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: Samu
         SamusPoseMetadata.RefreshCollisionRadii(aimedSamus);
         AssertEqual(21, aimedSamus.Kinematics.Radius.Y, "aimed stand next alpha radius");
         for (int tick = 0; tick < 3; tick++)
+        {
+            aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
             SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
+        }
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(aimedSamus), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");
     }

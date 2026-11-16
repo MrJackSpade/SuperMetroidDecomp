@@ -747,8 +747,7 @@ internal sealed class RoomLoader
         // The door's scroll has already placed Samus before the destination room is
         // constructed. This ordering is observable for elevator arrivals:
         // The elevator's initialization sees the arrival, moves the platform to its arrival height, and then pins
-        // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
-        // that attachment and exposed the upward arrival one row too low.
+        // Samus to it, so the door's placement comes first and never moves her off the platform.
         _player.Samus.Position = placement.SamusPosition;
         // The door's scroll moves Samus at its own speed. Ordinary jump velocity survives
         // room loading and the final nudge; clearing it here restarts a fall
@@ -1154,10 +1153,8 @@ internal sealed class RoomLoader
         // the room's own colours.
         _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
-        // The locked Ceres start's frame still publishes the initial minimap. The
-        // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving
-        // the HUD template's unrelated map glyphs visible for the entire descent. Seed
-        // Ceres's real room coordinate now; subsequent normal frames keep updating it.
+        // The locked Ceres start's frame publishes the initial minimap itself, so the HUD shows Ceres's room from the
+        // descent's first frame; later frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation.Get(roomGeometry.Area) });
 

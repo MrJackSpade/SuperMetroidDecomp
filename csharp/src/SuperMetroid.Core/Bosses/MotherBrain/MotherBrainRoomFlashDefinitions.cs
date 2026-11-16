@@ -9,6 +9,6 @@ internal static class MotherBrainRoomFlashDefinitions
     /// <summary>The flash's fourteen two-tick frames, each showing one set of room colors.</summary>
     internal const int FlashFrameCount = 14;
 
-    /// <summary>Reviewed two-tick visual cadence for the fourteen-image flash performance; only the room flash's own timer consumes it.</summary>
+    /// <summary>The updates each of the flash's fourteen images shows for; only the room flash's own timer counts them.</summary>
     internal const int FlashImageTicks = 2;
 }

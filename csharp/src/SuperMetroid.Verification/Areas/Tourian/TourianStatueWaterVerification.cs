@@ -79,6 +79,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(0xb0, runtime.RoomFxOverlay.NamedSurface, "Water motion first arms its native wait");
         game.Step(0);
         AssertEqual(0xb0, runtime.RoomFxOverlay.NamedSurface, "Water wait expires before movement");
+        runtime.AudioRequests.BeginRecordedUpdate();
         game.Step(0);
         AssertEqual(0xb1, runtime.RoomFxOverlay.NamedSurface, "Special water follows the native one-pixel velocity");
         AssertEqual(0xb1, samus.LiquidPhysics.WaterSurfaceY, "The moved water surface reaches live Samus physics");

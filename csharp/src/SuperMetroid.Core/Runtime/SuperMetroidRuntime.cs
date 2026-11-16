@@ -489,8 +489,6 @@ internal sealed class SuperMetroidRuntime
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard)
     {
-        // The update's audio record starts empty, so an update that skips a system records nothing of an earlier one.
-        AudioRequests.BeginUpdate();
         RebindRoutingReferences();
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.

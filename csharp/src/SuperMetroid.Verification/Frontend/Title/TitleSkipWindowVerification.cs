@@ -155,7 +155,7 @@ internal static class TitleSkipWindowVerification
                 fadedIn |= title.Phase == TitleSequencePhase.TitleScreenFadeIn;
             }
             AssertTrue(fadedIn, $"{place} rebuilds the title objects and fades back in");
-            AssertEqual(TitleSequenceDefinitions.Timing.MaximumBrightness, (int)title.Brightness, $"{place} returns at full brightness");
+            AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full, (int)title.Brightness, $"{place} returns at full brightness");
             return;
         }
         if (expected.Phase == TitleSequencePhase.TitleScreen && update > titleScreen)

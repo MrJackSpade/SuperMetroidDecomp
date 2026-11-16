@@ -212,12 +212,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// intro reaches the title long before the game counter's 65536-update wrap, so it is a plain count.
     /// </summary>
     private int frameCounter;
-    /// <summary>How bright the narration screen is; the intro starts blanked and fades each narration page in and out.</summary>
-    private ScreenBrightness brightness = ScreenBrightness.Blanked;
-    /// <summary>How bright the narration screen the cinematic publishes is.</summary>
-    internal ScreenBrightness Brightness { get => brightness; set => brightness = value; }
-    /// <summary>Times the narration's screen fades at cinematic entry, between pages and at exit.</summary>
-    private readonly ScreenFade fade = new();
+    /// <summary>
+    /// How bright the narration screen is and the cadence of its fades at cinematic entry, between pages and at exit; the
+    /// intro starts black.
+    /// </summary>
+    private readonly ScreenFade fade = new(0);
     /// <summary>The updates the running narration hold has left.</summary>
     private int timer;
 
@@ -303,14 +302,13 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // A request queued with the shortest delay waits eight updates before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
-                    // The fade-in seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInFirstNarration;
-                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
             case IntroCinematicPhase.FadeInFirstNarration:
-                if (fade.AdvanceSlowFadeIn(ref brightness))
+                if (fade.Brighten())
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
                     timer = 60;
@@ -352,15 +350,14 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.FourSecondHold:
                 if (--timer <= 0)
                 {
-                    // The fade-out seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
-                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
             case IntroCinematicPhase.FadeOutFirstNarration:
                 // The fade-out installs page one's setup, which runs in the next update.
-                if (fade.AdvanceSlowFadeOut(ref brightness))
+                if (fade.Darken())
                     Phase = IntroCinematicPhase.SetupPageOne;
                 break;
 
@@ -374,14 +371,13 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (MusicQueueFinished())
                 {
                     Narration.StartEnglishPageOne();
-                    // Page one seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
-                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
             case IntroCinematicPhase.FadeInPageOne:
-                if (fade.AdvanceSlowFadeIn(ref brightness))
+                if (fade.Brighten())
                     Phase = IntroCinematicPhase.PageOneText;
                 break;
 
@@ -486,8 +482,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
             case IntroCinematicPhase.IntroFadeOut:
                 // The intro's end fades out and finishes once the screen is black.
-                fade.FadeOut(ref brightness);
-                if (brightness.IsBlanked)
+                if (fade.Darken())
                 {
                     // The Ceres approach immediately replaces the narration display setup with the
                     // Ceres turning-floor scene. Give that scene its own display, colour, and
@@ -526,9 +521,8 @@ public sealed class IntroCinematicState : IFrontendScreen
                 Phase = IntroCinematicPhase.PageFiveAwaitingInput;
             if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageSixText)
             {
-                // Page six selects the ordinary fade-out owner with delay/counter one. The
-                // framebuffer on this request frame is still full-brightness page six.
-                fade.SetTiming(IntroCinematicDefinitions.Fade.FinishFade, IntroCinematicDefinitions.Fade.FinishFade);
+                // Page six starts the final fade-out; the screen on this request frame is still full-brightness page six.
+                fade.StepEvery(IntroCinematicDefinitions.Fade.FinishUpdatesPerStep);
                 Phase = IntroCinematicPhase.IntroFadeOut;
             }
         }
@@ -1235,7 +1229,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // and cropped eight pixels down. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
                 new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { DrawsOpaque = true } },
-                Brightness.Level);
+                fade.Level);
         }
         else
         {
@@ -1250,7 +1244,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         return new(new FramePaint(Backdrop), new DisplayLayer[]
         {
             room, new SpritesLayer(FlashbackDraws(sprites.Draws)), text,
-        }, Brightness.Level);
+        }, fade.Level);
     }
 
 

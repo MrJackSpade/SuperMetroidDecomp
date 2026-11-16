@@ -37,8 +37,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
-    /// <summary>Screen brightness level, 0 (black) through 15, that the page fades and final exits step.</summary>
-    private int brightness;
+    /// <summary>The screen's brightness, which the page fades and final exits step one level an update.</summary>
+    private readonly ScreenFade fade = new(0);
     /// <summary>The page's vertical scroll, which exposes the lower controller rows.</summary>
     private int pageVerticalScroll;
     /// <summary>The selection missile's frame cycle.</summary>
@@ -142,8 +142,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeIn:
-                brightness = Math.Min(GameOptionsDefinitions.MaximumBrightness, brightness + 1);
-                if (brightness == GameOptionsDefinitions.MaximumBrightness)
+                if (fade.Brighten())
                     Phase = GameOptionsPhase.Main;
                 break;
 
@@ -152,8 +151,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.DissolveOut:
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                if (fade.Darken())
                 {
                     page = dissolveDestination;
                     SelectedItem = 0;
@@ -164,8 +162,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.DissolveIn:
-                brightness = Math.Min(GameOptionsDefinitions.MaximumBrightness, brightness + 1);
-                if (brightness == GameOptionsDefinitions.MaximumBrightness)
+                if (fade.Brighten())
                 {
                     Phase = page switch
                     {
@@ -200,8 +197,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPhase.FadeOutToIntro:
                 // Reaching black selects the start-game step, which
                 // runs the loading game state on the following update.
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                if (fade.Darken())
                     Phase = GameOptionsPhase.StartGame;
                 break;
 
@@ -210,8 +206,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeOutToFileSelect:
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                if (fade.Darken())
                     FileSelectRequested = true;
                 break;
 
@@ -226,7 +221,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         // The backdrop, the page and its labels, language rows and toggle choices are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
-            screen.PagePictures(ShownPage.Frames()), pageVerticalScroll, brightness);
+            screen.PagePictures(ShownPage.Frames()), pageVerticalScroll, fade.Level);
     }
 
     /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>

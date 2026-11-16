@@ -69,7 +69,7 @@ internal static class XrayGameStateVerification
 
         // State $12: the unpause fade also runs the state-eight routine.
         {
-            game.Session.PauseBrightness = 0;
+            game.Session.screenFade.Show(0);
             game.GameState = SuperMetroidGameState.Unpausing;
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "the held-Run frame is an unpausing gameplay frame");

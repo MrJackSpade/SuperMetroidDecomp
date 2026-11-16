@@ -303,7 +303,7 @@ is a file format, such as PNG chunk names or player-authored INI values, stays t
 justification on the decoder. A field another type writes is a field nobody owns: each mutable field is private or a
 property whose setter is private, and other types change the state through named operations of its owner
 (`ClipLibraryState.Play`, `SamusControlFrame.SampleFrameStartPose`, `FrontendSession.ChooseOptions`). Shared frontend
-state lives in owners with real lifetimes: one screen at a time behind `IFrontendScreen`, fades in `BrightnessFade`,
+state lives in owners with real lifetimes: one screen at a time behind `IFrontendScreen`, fades in `ScreenFade`,
 the attract schedule in `AttractDemoSchedule`. **SME6433** reports a switch on string constants or a string member
 compared with a string constant. **SME6434** reports a string field or property every assignment of which is a
 constant of one type. **SME6435** reports an interpolated string of only integral or enum holes used as a dictionary

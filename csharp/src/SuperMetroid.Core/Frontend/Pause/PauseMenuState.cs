@@ -80,10 +80,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal ShownAreaMap ShownMap { get; private set; }
     /// <summary>Current map/equipment fade or load phase.</summary>
     internal PauseMenuTransition Transition { get; private set; }
-    /// <summary>Counter inserted between brightness changes during fade-in.</summary>
-    private int transitionFadeCounter;
+    /// <summary>
+    /// The page transition's fade: one level darker every update on the way out, and one level brighter every second
+    /// update on the way in after the load.
+    /// </summary>
+    private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    internal int TransitionBrightness { get; private set; } = DisplayBrightness.Full;
+    internal int TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     internal PauseEquipmentControl SelectedControl { get; private set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
@@ -192,7 +195,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
                 SetPauseButtonLabelMode(PauseButtonHighlight.EquipmentPage);
                 Transition = PauseMenuTransition.MapToEquipmentFadeOut;
-                TransitionBrightness = DisplayBrightness.Full;
+                transitionFade.Restart(DisplayBrightness.Full, 0);
             }
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller buttons, not the delayed chrome
@@ -212,7 +215,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
             Transition = PauseMenuTransition.EquipmentToMapFadeOut;
-            TransitionBrightness = DisplayBrightness.Full;
+            transitionFade.Restart(DisplayBrightness.Full, 0);
         }
         return HandleStartButton(delayedPressed);
     }
@@ -315,8 +318,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             case PauseMenuTransition.MapToEquipmentFadeOut:
             case PauseMenuTransition.EquipmentToMapFadeOut:
-                TransitionBrightness--;
-                if (TransitionBrightness > 0)
+                if (!transitionFade.Darken())
                     return;
 
                 // The fade-out returns at black before the separate load update.
@@ -340,22 +342,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     LoadMapPage();
                     Transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
-                TransitionBrightness = 0;
-                transitionFadeCounter = PauseFadeTiming.CounterReload;
+                transitionFade.Restart(0, PauseFadeTiming.CounterReload);
                 return;
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
-                // Load updates set delay/counter to one; the fade-in spends a
-                // counter-only update between brightness writes.
-                if (transitionFadeCounter-- > 0) return;
-                transitionFadeCounter = PauseFadeTiming.CounterReload;
-                TransitionBrightness++;
-                if (TransitionBrightness >= DisplayBrightness.Full)
-                {
-                    TransitionBrightness = DisplayBrightness.Full;
+                // The load set the fade to wait one update before each brightness step.
+                if (transitionFade.Brighten())
                     Transition = PauseMenuTransition.None;
-                }
                 return;
 
             case PauseMenuTransition.None:

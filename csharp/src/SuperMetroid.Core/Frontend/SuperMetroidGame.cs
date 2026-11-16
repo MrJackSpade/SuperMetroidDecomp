@@ -264,7 +264,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.MainGameplayFadeIn,
                 PhaseRandomStep.RuntimeOwned,
                 step: controllerInput => LoadingPhases.RunMainGameplayFadeIn(controllerInput),
-                name: () => Session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.GameplayFadeIn.Brightness})" : $"Landing Site fade-in (brightness {Session.GameplayFadeIn.Brightness})"),
+                name: () => Session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {Session.GameplayFadeIn.Level})"),
             new GamePhase(SuperMetroidGameState.MainGameplay,
                 PhaseRandomStep.RuntimeOwned,
                 step: controllerInput => GameplayPhases.RunMainGameplay(controllerInput),
@@ -399,7 +399,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.SamusEscapesFromZebes,
                 PhaseRandomStep.RuntimeOwned,
                 step: controllerInput => GameplayPhases.RunSamusEscapesFromZebes(controllerInput),
-                name: () => $"Zebes escape fade-out ({Session.EscapeFade.Brightness})"),
+                name: () => $"Zebes escape fade-out ({Session.EscapeFade.Level})"),
             // The ending runs after the random advance, except while its setup waits out
             // frames of the display.
             new GamePhase(SuperMetroidGameState.EndingAndCredits,

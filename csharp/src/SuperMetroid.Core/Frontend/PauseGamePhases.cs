@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
@@ -37,11 +38,11 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void RunPauseScreenFadeIn(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.AdvanceScreenFadeIn();
+        bool lit = session.AdvanceScreenFadeIn();
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.ShortCounter, PauseAnimationPhase.FadingIn);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
-        if (session.PauseBrightness == PauseFadeTiming.FullyLit)
+        if (lit)
             session.GameState = SuperMetroidGameState.Paused;
     }
 
@@ -64,7 +65,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActivePauseMenu);
         if (unpauseRequested)
         {
-            session.BeginPauseFade(PauseFadeTiming.FullyLit);
+            session.BeginPauseFade(DisplayBrightness.Full);
             session.GameState = SuperMetroidGameState.PauseScreenFadeOut;
         }
     }
@@ -76,7 +77,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.ShortCounter, PauseAnimationPhase.FadingOut);
         session.display.PublishMenu(session.ActivePauseMenu);
-        if (session.StepScreenFadeOut() == 0)
+        if (session.StepScreenFadeOut())
             session.GameState = SuperMetroidGameState.RestoringGameplayFromPause;
     }
 

@@ -161,7 +161,7 @@ internal static class CeresSaveStartupVerification
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.GameplayRuntimeForVerification.Room.LoadedCamera;
         deathCamera.Position = deathCamera.Position.WithFractionX(0xbfff).WithFractionY(0x9c00);
-        gameOverProbe.Session.DeathFade.Start(1, 0);
+        gameOverProbe.Session.DeathFade.Restart(1, 0);
         SetState(gameOverProbe, SuperMetroidGameState.DeathFinalBlackOut);
         gameOverProbe.Step(0);
         AssertEqual(SuperMetroidGameState.GameOverMenu, gameOverProbe.GameState, "#1275 state $19 reaches the game-over menu");

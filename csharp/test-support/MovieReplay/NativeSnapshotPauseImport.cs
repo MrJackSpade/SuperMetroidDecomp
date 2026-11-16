@@ -37,8 +37,7 @@ internal static class NativeSnapshotPauseImport
         menu.MapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
         menu.MapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);
         game.Session.Show(menu);
-        game.Session.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
-        game.Session.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
+        game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
         runtime.System.TimedHeldInputTimer = WrappingCountdown.Start(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);

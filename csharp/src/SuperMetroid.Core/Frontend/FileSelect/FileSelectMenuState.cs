@@ -53,9 +53,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Selected helmet turn frame retained through the options fade.</summary>
     internal int HelmetAnimationFrame { get; private set; }
     /// <summary>How bright the file-select screen is; it starts blanked and fades in and out between pages.</summary>
-    private ScreenBrightness brightness;
-    /// <summary>Advances the brightness timing for entry and submenu transitions.</summary>
-    private readonly ScreenFade screenFade = new();
+    /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
+    private readonly ScreenFade screenFade = new(0);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
@@ -83,7 +82,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         // Loading above is atomic, but the menu's opening steps are not: the
         // blanking and unblanking steps each wait out one more update.
         Phase = FileSelectPhase.EnterBlankScreen;
-        brightness = ScreenBrightness.Blanked;
     }
 
     /// <summary>Main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
@@ -133,10 +131,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             case FileSelectPhase.EnterBlankScreen:
                 // Finish any fade-out, then blank the display and wait out one update.
-                screenFade.FadeOut(ref brightness);
-                if (brightness.Level != 0)
+                if (!screenFade.Darken())
                     break;
-                brightness = ScreenBrightness.Blanked;
                 Phase = FileSelectPhase.EnterBlankScreenAfterFrameWait;
                 break;
 
@@ -150,9 +146,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.InitializeMain:
-                // Set both fade timings to one, then unblank the display and wait out one update.
-                screenFade.SetTiming(1, 1);
-                brightness = brightness.Unblanked();
+                // The fades step every second update from here; the display then waits out one update.
+                screenFade.StepEvery(FileSelectLayout.FadeUpdatesPerStep);
                 Phase = FileSelectPhase.InitializeMainAfterFrameWait;
                 break;
 
@@ -161,8 +156,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.FadeIn:
-                screenFade.FadeIn(ref brightness);
-                if (brightness == ScreenBrightness.FullyLit)
+                if (screenFade.Brighten())
                     Phase = FileSelectPhase.Main;
                 break;
 
@@ -196,14 +190,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.FadeOutToOptions:
-                screenFade.FadeOut(ref brightness);
-                if (brightness.IsBlanked)
+                if (screenFade.Darken())
                     NewGameRequested = true;
                 break;
 
             case FileSelectPhase.FadeOutToTitle:
-                screenFade.FadeOut(ref brightness);
-                if (brightness.IsBlanked)
+                if (screenFade.Darken())
                     TitleRequested = true;
                 break;
             default:
@@ -219,7 +211,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             "File select requires installed menu presentation assets.")).FileSelect;
         // The backdrop, the page, its slots' fields and its slot letters are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
-            screen.PlacedPictures(ShownPage.Pictures(presentation)), 0, brightness.Level);
+            screen.PlacedPictures(ShownPage.Pictures(presentation)), 0, screenFade.Level);
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
@@ -399,8 +391,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)
         {
-            screenFade.FadeOut(ref brightness);
-            if (!brightness.IsBlanked)
+            if (!screenFade.Darken())
                 return;
 
             if (Phase == FileSelectPhase.FadeOutToDataManagement)
@@ -418,8 +409,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             return;
         }
 
-        screenFade.FadeIn(ref brightness);
-        if (brightness == ScreenBrightness.FullyLit)
+        if (screenFade.Brighten())
             Phase = phaseAfterFadeIn;
     }
 

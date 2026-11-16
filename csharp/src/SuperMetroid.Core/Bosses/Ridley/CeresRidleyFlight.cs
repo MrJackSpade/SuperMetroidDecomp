@@ -341,7 +341,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>
     /// One axis of Ridley's seek (Y and X): one run of steps toward the target, three while reversing
     /// and one otherwise, in which a step that crosses zero makes the next one a unit larger
-    /// (<see cref="SeekingVelocityRun"/>). The velocity stays within a few thousand units of rest (each call clamps it
+    /// (<see cref="SeekingVelocityRun"/>). The velocity stays within a few thousand units of rest (each update clamps it
     /// to five pixels and a step is at most the arena's width), so the clamps compare signed velocities.
     /// </summary>
     /// <param name="velocity">The axis velocity.</param>

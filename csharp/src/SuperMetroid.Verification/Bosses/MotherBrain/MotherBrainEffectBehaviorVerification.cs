@@ -46,9 +46,9 @@ internal static class MotherBrainEffectBehaviorVerification
         AssertTrue(!breath.IsActive, "room-system Mother Brain purple breath reaches its deletion");
 
         RoomEnemySystem rainbowEnemies = CreateRoomEnemySystem();
-        var rainbowState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry))
+        var rainbowState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
         {
-            Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) },
+            Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) },
         };
         rainbowEnemies.MotherBrainEncounter.MotherBrain = rainbowState;
         rainbowEnemies.MotherBrainBehavior.Head.SpawnMotherBrainRainbowChargingProjectile();
@@ -76,7 +76,7 @@ internal static class MotherBrainEffectBehaviorVerification
         {
             RoomEnemySystem deathEnemies = CreateRoomEnemySystem();
             deathEnemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(
-                new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) });
+                new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             deathEnemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(
                 new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter], SoundEffect: MotherBrainSoundDefinitions.Explosion));
             EnemyProjectile deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
@@ -121,7 +121,7 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyHandBeam()
         {
             RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem();
-            var handBeamState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) });
+            var handBeamState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) }, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             handBeamEnemies.MotherBrainEncounter.MotherBrain = handBeamState;
             var handBeamTarget = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             handBeamEnemies.MotherBrainBehavior.Body.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
@@ -165,9 +165,9 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyOnionRing()
         {
             RoomEnemySystem ringEnemies = CreateRoomEnemySystem();
-            var ringState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry))
+            var ringState = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
             {
-                Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) },
+                Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) },
             };
             ringEnemies.MotherBrainEncounter.MotherBrain = ringState;
             ringEnemies.MotherBrainBehavior.Head.SpawnMotherBrainOnionRing(ringState, new TrigonometryAngle(0));
@@ -203,9 +203,9 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyDrool(RoomEnemyProjectileKind expectedKind, ushort neckAngleDelta)
         {
             RoomEnemySystem droolEnemies = CreateRoomEnemySystem();
-            var state = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry))
+            var state = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
             {
-                Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) },
+                Head = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) },
                 DroolGenerationEnabled = true,
                 NeckTurnPerUpdate = RotationAngleConstants.FromRaw(neckAngleDelta),
             };
@@ -239,7 +239,7 @@ internal static class MotherBrainEffectBehaviorVerification
     /// </summary>
     internal static void VerifyMotherBrainBombCount()
     {
-        var state = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry));
+        var state = new MotherBrainEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         state.RecordBombSpawned();
         state.RecordBombSpawned();
         AssertEqual(2, state.BombCounter, "two spawned bombs are counted");

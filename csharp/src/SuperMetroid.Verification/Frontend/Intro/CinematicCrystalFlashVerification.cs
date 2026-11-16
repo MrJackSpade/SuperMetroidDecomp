@@ -34,7 +34,7 @@ internal static class CinematicCrystalFlashVerification
             CrystalFlashPhase phaseBefore = samus.CrystalFlash.Phase;
             ushort yBefore = samus.Position.Y.Whole;
 
-            var rainbow = new MotherBrainRainbowBeamAttackSequence();
+            var rainbow = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             rainbow.RainbowAttack.StartActiveBeam(samus);
             AssertEqual(DrainedSamusPhase.RainbowBeamLocked, samus.Drained.Phase,
                 $"Mother Brain command $18 installs drained lock after {movementCalls} Flash calls");
@@ -58,7 +58,7 @@ internal static class CinematicCrystalFlashVerification
             SamusState motherSamus) = CreateCinematicFlashRuntime(movementCalls: 12);
         motherSamus.MaxHealth = 9999;
         motherSamus.Health = 699;
-        var motherRainbow = new MotherBrainRainbowBeamAttackSequence();
+        var motherRainbow = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
         var motherCameraCheckpoint = new RainbowBeamCameraCheckpoint();
         bool motherUnlocked = false;

@@ -21,7 +21,7 @@ internal static class CacatacProjectileBehaviorVerification
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
+            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
             enemies.CacatacBehavior.SpawnCacatacSpike(source, direction);
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.PlayingSegment == direction, $"a {direction} spike starts its direction's animation");

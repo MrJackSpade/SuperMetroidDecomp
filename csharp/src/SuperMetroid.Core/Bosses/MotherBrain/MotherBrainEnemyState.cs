@@ -12,7 +12,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainEnemyState
 {
     /// <summary>Starts the shared encounter state with her body before her head is attached.</summary>
-    internal MotherBrainEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <param name="body">Her body's place.</param>
+    /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
+    /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
+    internal MotherBrainEnemyState(RoomEnemyPlace body, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
+    {
+        Body = body;
+        Walk = Ensure.NotNull(walk);
+        Bursts = Ensure.NotNull(bursts);
+    }
 
     /// <summary>Her body, which owns the encounter and runs first.</summary>
     public RoomEnemyPlace Body { get; }
@@ -185,9 +193,9 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Where her ascent's dust, her death explosions and the escape door's dust burst next (#1872): each effect continues
-    /// the place the one before it left. The phase-three sequence attached to the encounter shares it.
+    /// the place the one before it left. The phase-three sequence attached to the encounter is built over it.
     /// </summary>
-    public MotherBrainBurstCycle Bursts { get; } = new();
+    public MotherBrainBurstCycle Bursts { get; }
 
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
@@ -211,8 +219,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int LastDroolMouthPoint { get; internal set; }
 
-    /// <summary>The walk credit this encounter owns and an attached sequence shares.</summary>
-    internal MotherBrainWalkCounter Walk { get; } = new();
+    /// <summary>The walk credit this encounter holds, over which an attached sequence is built.</summary>
+    internal MotherBrainWalkCounter Walk { get; }
 
     /// <summary>Walk credit: standing turns earn it toward a forward step and the player's hits spend it.</summary>
     public MotherBrainWalkCredit WalkCounter
@@ -282,10 +290,10 @@ public sealed class MotherBrainEnemyState
         get;
         internal set
         {
-            // An attached sequence reads and writes the encounter's own walk credit.
-            value?.ShareWalkCounter(Walk);
-            // Its death explosions and the escape door's dust continue the encounter's bursts (#1872).
-            value?.ShareBurstCycle(Bursts);
+            // An attached sequence reads and writes the encounter's own walk credit, and its death explosions and the
+            // escape door's dust continue the encounter's bursts (#1872): it is built over both.
+            if (value is not null && (!ReferenceEquals(value.Walk, Walk) || !ReferenceEquals(value.Bursts, Bursts)))
+                throw new InvalidOperationException("A rainbow-beam sequence attached to Mother Brain's encounter is built over its walk credit and burst cycle.");
             field = value;
         }
     }

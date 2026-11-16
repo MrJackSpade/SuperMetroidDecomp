@@ -23,8 +23,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPlaces _places;
     /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
-    /// <summary>The state of the parent each flame follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
-    private readonly EnemyPartLinks<NorfairRioEnemyState> _parentStates = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -50,7 +48,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _parents.Place(place, _places.ListedBefore(place, 1));
             ValidateNorfairRioParent(place);
-            _parentStates.Place(place, GetPrecedingNorfairRioPlace(place).RequireSpeciesState<NorfairRioEnemyState>());
             place.SetSpeciesState(new NorfairRioFollowerState
             {
                 InstalledAnimation = NorfairRioSegment.FlamesAscending,
@@ -207,9 +204,9 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         // The pair is checked when the follower is placed; a parent deleted without a kill is read as it left its place and
-        // its animation (DeletedParentLeftovers).
-        NorfairRioEnemyState parentState = DeletedParentLeftovers.Parent(
-            parent.SpeciesState<NorfairRioEnemyState>(), _parentStates.Of(follower));
+        // its animation (RoomEnemyPlace.FoundState).
+        NorfairRioEnemyState parentState = parent.FoundState<NorfairRioEnemyState>() ?? throw new InvalidOperationException(
+            $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
         follower.FrozenTimer = parent.FrozenTimer;
         if (parent.FrozenTimer != 0 ||
             parentState.InstalledAnimation == NorfairRioSegment.Idle)

@@ -43,7 +43,7 @@ internal static class PhantoonSolidifyingCentreVerification
         var state = new PhantoonEnemyState(body) { Phase = PhantoonPhase.EyeTracksSamus, PhaseTimer = 60 };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
 
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount())
         {
             Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
         };

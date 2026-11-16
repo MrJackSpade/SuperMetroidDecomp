@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How a Yard in the air gains downward speed (#1620, was <c>YardEnemyBehavior</c>'s "stores the whole pixels only
-/// below four"): each update its vertical move meets nothing, an eighth of a pixel an update is added to its vertical
-/// speed, but an addition that would leave the speed's whole pixels at four or more down keeps the whole pixels it had
-/// and takes only the new fraction. A falling Yard therefore never reaches four pixels an update: from three and seven
-/// eighths its fraction wraps to nothing and it falls at three pixels again, so its speed climbs through three to
-/// three and seven eighths and starts over every eight updates. A Yard sent down at four pixels an update or more (a
-/// fast kick's speed reversed by a ceiling) keeps those whole pixels until it strikes something, its fraction cycling.
+/// How a Yard in the air gains downward speed: each update its vertical move meets nothing, an eighth of a pixel an
+/// update is added to its vertical speed, but an addition that would leave the speed's whole pixels at four or more
+/// down keeps the whole pixels it had and takes only the new fraction. A falling Yard therefore never reaches four
+/// pixels an update: from three and seven eighths its fraction wraps to nothing and it falls at three pixels again, so
+/// its speed climbs through three to three and seven eighths and starts over every eight updates. A Yard sent down at
+/// four pixels an update or more (a fast kick's speed reversed by a ceiling) keeps those whole pixels until it strikes
+/// something, its fraction cycling.
 /// </summary>
 /// <remarks>
 /// Consulted on every update of a dropped, kicked or shot Yard's flight whose vertical move meets nothing, after that

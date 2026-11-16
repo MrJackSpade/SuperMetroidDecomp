@@ -21,12 +21,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// first, which each found when it was placed. The spit has no follow-up.
     /// </summary>
     private readonly EnemyPartLinks<IReadOnlyList<RoomEnemyPlace>> _followUpRecipients = new();
-    /// <summary>
-    /// Each spit's own state as it was placed. Its body keeps reaching it after the spit has left its place (#1543): a
-    /// power bomb that kills the arms deletes the spit by its follow-up (<see cref="FollowUpAfterStruckPart"/>), and the
-    /// living body goes on reading the spit's last state.
-    /// </summary>
-    private readonly EnemyPartLinks<EvirSpitState> _spitStates = new();
     /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
     private readonly EnemyCollision _collision;
 
@@ -87,7 +81,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
             // body and which always read facing and position from it.
             RoomEnemyPlace body = _places.ListedBefore(place, 1);
-            var arms = new EvirArmsState(body, PlacedBody(body, place, "arms"));
+            RequirePlacedBody(body, place, "arms");
+            var arms = new EvirArmsState(body);
             place.SetSpeciesState(arms);
             PositionEvirArms(place, arms);
             arms.InstalledAnimation = null;
@@ -129,7 +124,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The room lists each Evir's spit two places after its body, behind the arms.
         RoomEnemyPlace body = _places.ListedBefore(place, 2);
-        var state = new EvirSpitState(EvirSpitAction.Idle, body, PlacedBody(body, place, "spit"))
+        RequirePlacedBody(body, place, "spit");
+        var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
             RequestedAnimation = EvirSegment.ProjectileNormal,
             InstalledAnimation = null,
@@ -137,7 +133,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             InFlight = false,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
-        _spitStates.Place(place, state);
         place.SetSpeciesState(state);
         StartEvirAnimation(place, state);
 
@@ -150,22 +145,24 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The state of the body an Evir's <paramref name="part"/> (its arms or spit) finds where its room lists the body,
-    /// which the room's population must have placed there.
+    /// Rejects an Evir's <paramref name="part"/> (its arms or spit) unless the room's population placed an Evir body where
+    /// its room lists the body.
     /// </summary>
     /// <exception cref="InvalidDataException">The population places no Evir body there.</exception>
-    private static EvirBodyState PlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName) =>
-        body.SpeciesState<EvirBodyState>() ?? throw new InvalidDataException(
-            $"Evir {partName} of enemy {part.Ordinal} follows {body.DefinitionId}, not an Evir body.");
+    private static void RequirePlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName)
+    {
+        if (body.SpeciesState<EvirBodyState>() is null)
+            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.DefinitionId}, not an Evir body.");
+    }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
-    private void RunEvirMain(RoomEnemyPlace place, EvirBodyState state, SamusState samus)
+    private static void RunEvirMain(RoomEnemyPlace place, EvirBodyState state, SamusState samus)
     {
-        EvirSpitState projectileState = SpitStateOf(state.Spit);
-
         // Direction is allowed to follow Samus only while the projectile is fully present.
-        // During regeneration the mouth, arms, and projectile retain their launch facing.
-        if (!projectileState.Regenerating)
+        // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
+        // whatever it holds: a spit a power bomb's follow-up deleted (FollowUpAfterStruckPart) as it left itself, and a
+        // killed spit's cleared place as not regenerating.
+        if (state.Spit.FoundState<EvirSpitState>() is not { Regenerating: true })
             SetEvirBodyFacing(place, state, samus);
 
         place.Position = place.Position.AdvanceY(state.MovingDown ? state.BobbingSpeed : -state.BobbingSpeed);
@@ -246,7 +243,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void PositionEvirArms(RoomEnemyPlace arms, EvirArmsState state)
     {
         RoomEnemyPlace body = state.Body;
-        state.Facing = BodyFacingOf(body, state.BodyState);
+        state.Facing = BodyFacingOf(body);
         arms.Position = arms.Position.WithWhole(new(CoordinateAxis.Wrap(
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 10)));
         RequestEvirAnimation(
@@ -261,7 +258,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResetEvirProjectilePosition(RoomEnemyPlace projectile, EvirSpitState state)
     {
         RoomEnemyPlace body = state.Body;
-        state.Facing = BodyFacingOf(body, state.BodyState);
+        state.Facing = BodyFacingOf(body);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 18)));
     }
@@ -366,30 +363,18 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Both regeneration cues test the animation installed on the spit's body, not any facing of its own: the living
-    /// body's, or the one a body that left its place last installed.
+    /// body's, the one a deleted body last installed, or none on a killed body's cleared place.
     /// </summary>
     private static bool EvirBodyFacesRight(EvirSpitState spit) =>
-        (spit.Body.SpeciesState<EvirBodyState>() ?? spit.BodyState).InstalledAnimation == EvirSegment.BodyFacingRight;
+        spit.Body.FoundState<EvirBodyState>()?.InstalledAnimation == EvirSegment.BodyFacingRight;
 
     /// <summary>
-    /// The facing an arms or spit reads from its body, whose place is <paramref name="bodyPlace"/> and whose state the part
-    /// found as <paramref name="bodyState"/>: the living body's own; a deleted body's last; or, once a hit has killed the
-    /// body, the left facing the kill left it (<see cref="KilledEvirBodyFacing"/>). A killed body's place keeps no health; a
-    /// deleted one keeps its health.
+    /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
+    /// body's last, or, once a hit has killed the body, left, as its cleared place reads
+    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
     /// </summary>
-    private static EvirFacing BodyFacingOf(RoomEnemyPlace bodyPlace, EvirBodyState bodyState)
-    {
-        if (bodyPlace.SpeciesState<EvirBodyState>() is { } living)
-            return living.Facing;
-        return KilledEvirBodyFacing.Facing(bodyState.Facing, EvirFacing.Left, bodyKilled: bodyPlace.Health == 0);
-    }
-
-    /// <summary>
-    /// The state of a body's spit: the spit's own while it holds its place, or, once a power bomb's follow-up deleted it,
-    /// the state it left there.
-    /// </summary>
-    private EvirSpitState SpitStateOf(RoomEnemyPlace spit) =>
-        spit.SpeciesState<EvirSpitState>() ?? _spitStates.Of(spit);
+    private static EvirFacing BodyFacingOf(RoomEnemyPlace bodyPlace) =>
+        bodyPlace.FoundState<EvirBodyState>()?.Facing ?? EvirFacing.Left;
 
     /// <summary>Animation cue: finishes regeneration.</summary>
     private static void FinishEvirRegeneration(EvirSpitState state)
@@ -462,7 +447,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs an Evir body's or arms' main AI: the body bobs and turns, and the arms follow it.</summary>
-    internal void RunEvirMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunEvirMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         if (place.SpeciesState<EvirArmsState>() is { } arms)
         {

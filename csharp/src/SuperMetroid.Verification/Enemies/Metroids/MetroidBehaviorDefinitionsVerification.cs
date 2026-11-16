@@ -53,7 +53,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         // An escape starts at its duration and ends on the step that reaches zero, so every count from one is swept.
         for (int timer = 1; timer <= short.MaxValue; timer++)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };

@@ -247,7 +247,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackAudioRequests = new GameplayAudioRequests(new CinematicAudioQueues(Ensure.NotNull(audio)));
         flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, powerBombGlowColors);
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = Ensure.NotNull(audio);

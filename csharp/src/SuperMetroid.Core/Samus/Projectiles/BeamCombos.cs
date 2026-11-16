@@ -280,7 +280,8 @@ internal sealed class BeamCombos
                 $"The Spazer particle in place {shot.Place} has no partner.");
             _animation.ClearProjectile(shot);
             if (!falling)
-                _animation.ClearProjectile(SpentSpazerParticleEndsPartnerPlace.ShotToEnd(partner, _pool.HolderOfPlaceOf));
+                // The spent particle ends, with itself, whatever shot holds its partner's place (SamusShotPool.HolderOfPlaceOf).
+                _animation.ClearProjectile(_pool.HolderOfPlaceOf(partner));
             return null;
         }
         CountdownStep trailStep = shot.TrailTimer.Decrement();

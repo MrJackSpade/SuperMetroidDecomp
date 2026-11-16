@@ -137,7 +137,7 @@ internal static class MurderBeamVerification
         AssertEqual(400, target.FrozenTimer,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
 
-        var phaseBoundary = new MotherBrainRainbowBeamAttackSequence();
+        var phaseBoundary = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         phaseBoundary.StartFinishOffSequence();
         phaseBoundary.BeginPhase3RecoveryFromBabyCutscene();
         AssertEqual(MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance,

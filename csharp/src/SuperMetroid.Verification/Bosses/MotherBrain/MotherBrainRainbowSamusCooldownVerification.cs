@@ -23,7 +23,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
             Health = 999,
             Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
         };
-        var attack = new MotherBrainRainbowBeamAttackSequence
+        var attack = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
         {
             State = { BrainPosition = new(64, 96) },
         };
@@ -42,7 +42,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
-        var state = new MotherBrainEnemyState(body) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase };
+        var state = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase };
         enemies.MotherBrainEncounter.MotherBrain = state;
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         bombs.SetSharedCooldown(20);

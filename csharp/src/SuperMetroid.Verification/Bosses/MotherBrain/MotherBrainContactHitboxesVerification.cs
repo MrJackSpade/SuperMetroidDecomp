@@ -49,8 +49,8 @@ internal static class MotherBrainContactHitboxesVerification
             }
         }
 
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
-        var state = new MotherBrainEnemyState(body);
+        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
+        var state = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         Func<MotherBrainEnemyState, SamusState, MotherBrainContactPart,
                 Position16<RoomPixels>, bool> resolve = MotherBrainBody.ResolveMotherBrainSamusCollisionPart;
 

@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted whenever one of the three effects may burst: on each step of her ascent, on every update of her death
 /// explosions and on every update the escape door explodes. The place chooses only where a burst shows; the interval
-/// decides on which update each burst draws its random numbers. One cycle per encounter, owned by her encounter state and
-/// shared with the phase-three sequence attached to it. Evidence: the original keeps one counter for the ascent dust's,
+/// decides on which update each burst draws its random numbers. One cycle per encounter, created by her body's setup,
+/// held by her encounter state and given to the phase-three sequence attached to it. Evidence: the original keeps one counter for the ascent dust's,
 /// the death explosions' and the door dust's places and one for the death explosions' and the door dust's interval,
 /// clearing them only at the two points of her death this type's restart stands for; the full-movie replays compare
 /// every enemy projectile's position, these bursts among them, so the place each starts from is observable to them: with

@@ -165,7 +165,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         PowerBombs = 400,
         Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
     };
-    var attack = new MotherBrainRainbowBeamAttackSequence
+    var attack = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
     {
         State = { BrainPosition = new(64, 96) },
     };
@@ -285,7 +285,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         AutoCancelledItem = HudItem.XRay,
         Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
     };
-    var lowAttack = new MotherBrainRainbowBeamAttackSequence();
+    var lowAttack = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
     lowAttack.RainbowAttack.StartActiveBeam(low);
     AssertEqual(DrainedGetUpCheck.UnableToStand, low.Drained.GetUpCheck,
         "energy 699 selects command $18 unable handler");

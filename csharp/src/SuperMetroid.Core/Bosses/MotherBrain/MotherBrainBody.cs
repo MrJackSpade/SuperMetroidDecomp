@@ -80,7 +80,8 @@ internal sealed class MotherBrainBody
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         body.Shading = EnemyShades.HurtFlashLook;
 
-        _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
+        // The encounter's setup creates the walk credit and the burst cycle the encounter and its later sequence share.
+        _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,

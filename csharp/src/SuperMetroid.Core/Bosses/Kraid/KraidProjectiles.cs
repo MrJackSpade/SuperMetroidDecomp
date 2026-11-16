@@ -66,9 +66,9 @@ internal sealed class KraidProjectiles
         _access.AttachKraidPart(nail, state);
         nail.Shading = _parts.Body.Shading;
         KraidNailState nailPart = _parts.NailStateOf(state, nail);
-        // A fingernail is set up at rest, so its sibling's launch reads it as stopped (KilledFingernailStops).
+        // A fingernail is set up at rest, so its sibling's launch reads it as stopped, as it reads a killed one.
         nailPart.NailVelocity = FixedVector<RoomPixels>.Zero;
-        // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn (KilledFingernailStops).
+        // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn, as a killed one has not.
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
@@ -284,21 +284,20 @@ internal sealed class KraidProjectiles
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
+        // The sibling is read in its place whatever the place holds (RoomEnemyPlace.FoundState): a sibling killed since it
+        // was set up has a cleared place, which reads as a nail at rest that took no alternate spawn, so the launch goes up.
         RoomEnemyPlace sibling = ReferenceEquals(nail, _parts.FirstNail) ? _parts.SecondNail : _parts.FirstNail;
-        KraidNailState siblingPart = _parts.NailStateOf(_access.RequireKraidState(nail), sibling);
+        var siblingPart = (KraidNailState?)sibling.FoundState<KraidPartState>();
         int random = _room.Random.Read();
-        // A sibling killed since it was set up holds its place without its state, and launches nothing.
-        bool siblingKilled = !ReferenceEquals(sibling.SpeciesState<KraidPartState>(), siblingPart);
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(
-            KilledFingernailStops.SiblingSpeed(siblingPart.NailVelocity.Y.WholePixels, stopped: 0, siblingKilled));
+            (siblingPart?.NailVelocity ?? FixedVector<RoomPixels>.Zero).Y.WholePixels);
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
         nail.AnimationClock.StepOnNextUpdate();
         _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
         part.Phase = KraidPhase.FingernailFire;
 
-        if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) ||
-            KilledFingernailStops.SiblingTookAlternateSpawn(siblingKilled ? null : siblingPart, static nail => nail.AlternateSpawn))
+        if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) || siblingPart is { AlternateSpawn: true })
         {
             part.AlternateSpawn = false;
             RoomEnemyPlace body = _parts.Body;
@@ -531,10 +530,11 @@ internal sealed class KraidProjectiles
     internal void ReactToKraidNailTouch(EnemyTouchContext context)
     {
         _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
-        // A fingernail the touch left in its place dies in the explosion its remaining health names.
+        // A fingernail the touch left in its place dies in the explosion the health the touch left names
+        // (LeftoverNumberDeathExplosion).
         if (!context.Place.IsFree)
             _deathsAndDrops.StartGenericEnemyDeath(context.Place,
-                KraidNailTouchDeathExplosion.AfterTouch(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
+                LeftoverNumberDeathExplosion.Named(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
     }
 
 }

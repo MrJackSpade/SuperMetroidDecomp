@@ -49,17 +49,33 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainThirdPhaseDeath ThirdPhaseDeath { get; }
 
 
-    /// <summary>Builds the sequence's phases over one shared late-fight state.</summary>
-    public MotherBrainRainbowBeamAttackSequence()
+    /// <summary>
+    /// Builds the sequence's phases over one shared late-fight state, reading and writing the walk credit and the burst
+    /// cycle of the encounter it is attached to.
+    /// </summary>
+    /// <param name="walk">The encounter's walk credit, which phase three walks on and the shot reactions spend.</param>
+    /// <param name="bursts">
+    /// The encounter's burst cycle, which her ascent's dust left and the death explosions and the escape door's dust
+    /// continue (#1872).
+    /// </param>
+    internal MotherBrainRainbowBeamAttackSequence(MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
     {
+        Walk = Ensure.NotNull(walk);
+        Bursts = Ensure.NotNull(bursts);
         State = new MotherBrainLateFightState();
         RainbowAttack = new MotherBrainRainbowAttackPhases(_movement, State);
         FinishSamusOff = new MotherBrainFinishSamusOffPhases(State);
         DrainedByBaby = new MotherBrainDrainedByBabyPhases(State);
         Revival = new MotherBrainRevivalPhases(State);
-        ThirdPhaseFight = new MotherBrainThirdPhaseFight(State);
-        ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State);
+        ThirdPhaseFight = new MotherBrainThirdPhaseFight(State, Walk);
+        ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State, Bursts);
     }
+
+    /// <summary>The walk credit the sequence reads and writes, its encounter's.</summary>
+    internal MotherBrainWalkCounter Walk { get; }
+
+    /// <summary>The burst cycle the death explosions and the escape door's dust step, its encounter's.</summary>
+    internal MotherBrainBurstCycle Bursts { get; }
 
     /// <summary>
     /// Current angle, in 256ths of a turn, of the rainbow beam's cone.
@@ -67,15 +83,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>
     public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
-
-    /// <summary>Reads and writes <paramref name="walk"/> from now on, the walk credit of the encounter attaching this sequence.</summary>
-    internal void ShareWalkCounter(MotherBrainWalkCounter walk) => ThirdPhaseFight.ShareWalkCounter(Ensure.NotNull(walk));
-
-    /// <summary>
-    /// Bursts the death explosions and the escape door's dust from <paramref name="bursts"/> from now on, the cycle of the
-    /// encounter attaching this sequence, which her ascent's dust left (#1872).
-    /// </summary>
-    internal void ShareBurstCycle(MotherBrainBurstCycle bursts) => ThirdPhaseDeath.ShareBurstCycle(Ensure.NotNull(bursts));
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle, before its two charge waits.

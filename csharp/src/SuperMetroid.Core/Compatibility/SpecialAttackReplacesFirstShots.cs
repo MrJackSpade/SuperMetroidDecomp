@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Which of Samus's shots a starting special attack replaces (#1683, was <c>BeamCombos</c>' loop over the first four
-/// projectile places): its particles take Samus's first shot places, the particle playing the first part the first
-/// place, whatever shots hold them. A shot still flying in one of them ends as the attack starts, live, just spent or
-/// exploding alike, with no sound or explosion of its own, while a shot in a later place flies on; a particle carries
-/// nothing from the shot it replaces but its horizontal sub-pixel position (<see cref="LeftMuzzleSubpixelCarry"/>).
+/// Which of Samus's shots a starting special attack replaces: its particles take Samus's first shot places, the
+/// particle playing the first part the first place, whatever shots hold them. A shot still flying in one of them ends
+/// as the attack starts, live, just spent or exploding alike, with no sound or explosion of its own, while a shot in a
+/// later place flies on; a particle carries nothing from the shot it replaces but its horizontal sub-pixel position
+/// (<see cref="LeftMuzzleSubpixelCarry"/>).
 /// </summary>
 /// <remarks>
 /// Consulted once per special-attack start, after its Power Bomb cost, as the particles are set off. Evidence: the Wave, Ice, Spazer and Plasma starts (<c>$90:CD1A</c>, <c>$90:CD9B</c>, <c>$90:CE14</c>,

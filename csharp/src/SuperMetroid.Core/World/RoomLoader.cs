@@ -918,7 +918,7 @@ internal sealed class RoomLoader
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.MapPresentation.PowerBombGlowColors);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;

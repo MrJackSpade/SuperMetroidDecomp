@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How a Yard in the air slows its sideways speed (#1620, was <c>YardEnemyBehavior</c>'s "declines to replace the whole
-/// part" quirk): each update its flight meets no wall, a sixteenth of a pixel an update is taken toward the left from a
-/// speed of nothing or more and toward the right from a leftward one, but a slowing that would leave the speed's whole
-/// pixels at nothing keeps the whole pixels it had and takes only the new fraction. A shell flying right therefore never
-/// slows below a pixel an update: from just under two it falls to one, then jumps back to just under two; one flying left
-/// never slows below a sixteenth of a pixel an update, and one that reaches a leftward sixteenth jumps to a whole pixel an
-/// update left. A shell kicked while the camera stands still drifts left at up to a pixel an update.
+/// How a Yard in the air slows its sideways speed: each update its flight meets no wall, a sixteenth of a pixel an
+/// update is taken toward the left from a speed of nothing or more and toward the right from a leftward one, but a
+/// slowing that would leave the speed's whole pixels at nothing keeps the whole pixels it had and takes only the new
+/// fraction. A shell flying right therefore never slows below a pixel an update: from just under two it falls to one,
+/// then jumps back to just under two; one flying left never slows below a sixteenth of a pixel an update, and one that
+/// reaches a leftward sixteenth jumps to a whole pixel an update left. A shell kicked while the camera stands still
+/// drifts left at up to a pixel an update.
 /// </summary>
 /// <remarks>
 /// Consulted on every update of a kicked or shot Yard's flight whose sideways move meets no wall, after that move and

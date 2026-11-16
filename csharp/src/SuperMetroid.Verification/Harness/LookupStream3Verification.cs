@@ -1008,9 +1008,8 @@ internal static class LookupStream3Verification
                 MotherBrainDeathExplosionDefinitions.Anchor(index), "stream 3 native decorative death anchor");
         foreach (bool mixed in new[] { false, true })
         {
-            var scatter = new MotherBrainRainbowBeamAttackSequence();
             var bursts = new MotherBrainBurstCycle();
-            scatter.ShareBurstCycle(bursts);
+            var scatter = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), bursts);
             scatter.State.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
@@ -1034,7 +1033,7 @@ internal static class LookupStream3Verification
                 }
             }
         }
-        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
@@ -1066,7 +1065,7 @@ internal static class LookupStream3Verification
         }
         foreach (int stage in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
-            var sequence = new MotherBrainRainbowBeamAttackSequence();
+            var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             sequence.State.Body.Position = sequence.State.Body.Position.WithX(0);
             sequence.DrainedByBaby.PainfulWalkingStage = stage;
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
@@ -1084,7 +1083,7 @@ internal static class LookupStream3Verification
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         EncounterArtworkUpload[] Copies(params string[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
             EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
         foreach (bool timerList in new[] { true, false })

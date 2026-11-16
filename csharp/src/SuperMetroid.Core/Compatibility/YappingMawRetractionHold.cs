@@ -1,11 +1,10 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Whether a Yapping Maw that finishes retracting carries the Samus it holds to its mouth on that update (#1620, was
-/// <c>YappingMawBehavior</c>'s "parameter-zero early return"): only a maw that reaches down and bit straight right or left
-/// does. A maw that reaches up, and one that reaches down and bit in any other direction, leaves her where its previous
-/// update held her, though its mouth has moved; its cooldown's first update carries her to the mouth again. Through that
-/// one update Samus's own update starts from the earlier hold.
+/// Whether a Yapping Maw that finishes retracting carries the Samus it holds to its mouth on that update: only a maw
+/// that reaches down and bit straight right or left does. A maw that reaches up, and one that reaches down and bit in
+/// any other direction, leaves her where its previous update held her, though its mouth has moved; its cooldown's first
+/// update carries her to the mouth again. Through that one update Samus's own update starts from the earlier hold.
 /// </summary>
 /// <remarks>
 /// Consulted once per retraction, on the update the maw's curl passes below nothing and its cooldown starts, after the

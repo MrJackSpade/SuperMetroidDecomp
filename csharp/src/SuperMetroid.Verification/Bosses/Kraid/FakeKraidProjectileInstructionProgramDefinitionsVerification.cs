@@ -41,7 +41,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry)
+        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,

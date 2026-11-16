@@ -21,8 +21,17 @@ internal sealed class SamusShotPool
     private readonly SamusProjectile[] _places =
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();
 
-    /// <summary>Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/>.</summary>
-    internal SamusShotPool(LeftMuzzleSubpixelCarry muzzleCarry) => MuzzleCarry = Ensure.NotNull(muzzleCarry);
+    /// <summary>
+    /// Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/> and whose
+    /// shots are counted by <paramref name="shotCount"/>.
+    /// </summary>
+    /// <param name="muzzleCarry">What each place keeps for its next projectile's horizontal sub-pixel position.</param>
+    /// <param name="shotCount">The shots counted out, which the room's builder creates with the pool.</param>
+    internal SamusShotPool(LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount)
+    {
+        MuzzleCarry = Ensure.NotNull(muzzleCarry);
+        ShotCount = Ensure.NotNull(shotCount);
+    }
 
     /// <summary>The horizontal sub-pixel position each place hands its next projectile.</summary>
     internal LeftMuzzleSubpixelCarry MuzzleCarry { get; }
@@ -30,7 +39,15 @@ internal sealed class SamusShotPool
     /// <summary>Each place's projectile, in place order.</summary>
     internal IReadOnlyList<SamusProjectile> Shots => _places;
 
-    /// <summary>The projectile now holding the place <paramref name="projectile"/> took: itself, or one that replaced it.</summary>
+    /// <summary>
+    /// The projectile now holding the place <paramref name="projectile"/> took: itself, or one that replaced it. A Spazer
+    /// special-attack particle that strikes something while it circles or flies (#1683) ends, besides itself, the shot
+    /// holding its partner's place: the partner itself until a shinespark crash echo is released onto that place, when the
+    /// echo ends instead. Replacing the partner has already ended it, so the echo is the only other shot ended there, and
+    /// the spent particle's hit takes Samus's crash echo with it: a crash echo released while the attack runs takes the
+    /// last two places, the first of which the attack's last trailing particle holds (<c>docs/compatibility-layer.md</c>
+    /// gives the evidence).
+    /// </summary>
     internal SamusProjectile HolderOfPlaceOf(SamusProjectile projectile) => _places[Ensure.NotNull(projectile).Place];
     /// <summary>The lowest place no projectile holds, which firing and the Super Missile's link take, or null when all are held.</summary>
     internal int? FindFreePlace() => _places.FirstOrDefault(projectile => !projectile.IsOccupied)?.Place;
@@ -103,5 +120,5 @@ internal sealed class SamusShotPool
     }
 
     /// <summary>How many shots Samus has out as firing counts them, which drifts from the places held.</summary>
-    public SamusShotCount ShotCount { get; } = new();
+    public SamusShotCount ShotCount { get; }
 }

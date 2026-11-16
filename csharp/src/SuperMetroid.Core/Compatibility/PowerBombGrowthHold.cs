@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How far a Power Bomb's blast grows while it shows its authored ovals (#1684, was <c>PowerBombRadius</c>'s "add unless
-/// the sum carries"): each update the radius grows by its speed and the speed then changes, but an update whose growth
-/// would take the radius to 256 pixels or more changes neither. The radius therefore holds at the last value it reached
-/// below 256 pixels, and so does its speed, for the rest of the stage.
+/// How far a Power Bomb's blast grows while it shows its authored ovals: each update the radius grows by its speed and
+/// the speed then changes, but an update whose growth would take the radius to 256 pixels or more changes neither. The
+/// radius therefore holds at the last value it reached below 256 pixels, and so does its speed, for the rest of the
+/// stage.
 /// </summary>
 /// <remarks>
 /// Consulted once an update by the flash's yellow pre-explosion and by the blast's white explosion, after the update's

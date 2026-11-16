@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How a Yapping Maw's bend corrects the offsets of its four links (#1620, was <c>YappingMawBehavior</c>'s local
-/// "wrapped into next" sum): the eight offsets, link by link and X before Y, are corrected in one chain, and an offset
-/// whose correction takes it past the end of the coordinate space, as it does when the offset and the correction both
-/// point backward, or one does and their sum does not, moves the next offset in the chain one pixel further. The maw's head stands at its last
-/// link's offset, so where the head reaches, and where it grabs Samus, follows the chain.
+/// How a Yapping Maw's bend corrects the offsets of its four links: the eight offsets, link by link and X before Y, are
+/// corrected in one chain, and an offset whose correction takes it past the end of the coordinate space, as it does
+/// when the offset and the correction both point backward, or one does and their sum does not, moves the next offset in
+/// the chain one pixel further. The maw's head stands at its last link's offset, so where the head reaches, and where
+/// it grabs Samus, follows the chain.
 /// </summary>
 /// <remarks>
 /// Consulted once per offset on every update the maw extends or retracts, after the bend's corrections are formed and

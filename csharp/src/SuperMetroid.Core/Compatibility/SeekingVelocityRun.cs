@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// One axis of a seeking boss's velocity while it accelerates toward a point (#1620, was in Bosses, unmarked): a run of
-/// steps, each raising or lowering the velocity, in which a step that raises the velocity from below zero to zero or
-/// above, or lowers it from zero or above to below zero, makes the run's next step one 256th of a pixel an update
-/// larger. The run's first step is one unit larger when the target lies the other way round from the coordinates' plain
-/// order: the distance across the wrapping coordinate space puts it ahead while the coordinates' order puts it behind, or
-/// the reverse, as for a target above the room's top seen from inside the room. A step that starts a fresh run adds no
-/// unit for a crossing before it. Ceres Ridley, Norfair Ridley and the Shitroid seek this way, so every reversal of
-/// their flight, and every seek toward a point past the room's top, moves them by those extra units; combining a run's
-/// steps into one sum would change their trajectories.
+/// One axis of a seeking boss's velocity while it accelerates toward a point: a run of steps, each raising or lowering
+/// the velocity, in which a step that raises the velocity from below zero to zero or above, or lowers it from zero or
+/// above to below zero, makes the run's next step one 256th of a pixel an update larger. The run's first step is one
+/// unit larger when the target lies the other way round from the coordinates' plain order: the distance across the
+/// wrapping coordinate space puts it ahead while the coordinates' order puts it behind, or the reverse, as for a target
+/// above the room's top seen from inside the room. A step that starts a fresh run adds no unit for a crossing before
+/// it. Ceres Ridley, Norfair Ridley and the Shitroid seek this way, so every reversal of their flight, and every seek
+/// toward a point past the room's top, moves them by those extra units; combining a run's steps into one sum would
+/// change their trajectories.
 /// </summary>
 /// <remarks>
 /// Consulted on every update a seeking boss accelerates toward its target, once per axis, before the velocity is clamped

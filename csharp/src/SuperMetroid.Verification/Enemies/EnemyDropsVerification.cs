@@ -104,7 +104,7 @@ internal static class EnemyDropsVerification
         enemy.Contact = EnemyContact.None;
         enemy.Processing = EnemyProcessing.None;
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
         AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
@@ -384,7 +384,7 @@ internal static class EnemyDropsVerification
 
         // A Fireflea touched with health nine left dies in the small explosion.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
-            deathAnimation: FirefleaTouchDeathExplosion.AfterSurvivedTouch(9, EnemyDeathExplosionDefinitions.AuthoredOrder));
+            deathAnimation: LeftoverNumberDeathExplosion.Named(9, EnemyDeathExplosionDefinitions.AuthoredOrder));
         AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
             "respawning death leaves the enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,

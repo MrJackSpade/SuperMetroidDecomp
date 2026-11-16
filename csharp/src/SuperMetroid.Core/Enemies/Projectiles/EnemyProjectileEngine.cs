@@ -204,7 +204,7 @@ internal sealed class EnemyProjectileEngine
             // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
-            // touch animation, PowerBombedDraygonShotFinishesItsUpdate). One that ended plays no animation, so nothing runs.
+            // touch animation, EnemyProjectile.FreePlace). One that ended plays no animation, so nothing runs.
             AdvanceEnemyProjectileAnimations(_places[place], samus, camera, shortCounter);
         }
     }

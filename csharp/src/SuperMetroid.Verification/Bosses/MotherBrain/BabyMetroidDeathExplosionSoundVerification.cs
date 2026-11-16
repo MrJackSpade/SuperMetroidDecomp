@@ -50,7 +50,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, EnemySound.SmallExplosion),
         };
         runtime.Enemies.Audio.BeginFrame();
-        runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
+        runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle()), death);
         AssertSequenceEqual(
             new[]
             {

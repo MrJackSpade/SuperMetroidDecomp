@@ -631,26 +631,25 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ReactVerticalShutter(
         RoomEnemyPlace place,
         Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(place, place.RequireSpeciesState<VerticalShutterEnemyState>(), camera, healthAfterHit: null);
+        ReactVerticalShutter(place, place.RequireSpeciesState<VerticalShutterEnemyState>(), camera);
 
     /// <summary>
     /// Runs a destroyable shutter's reaction after the common damage of a shot or bomb. The hit that destroys it still sets
-    /// it off, as a shutter at rest whose killed place lies at the room's top-left corner
-    /// (<see cref="DestroyedShutterReaction"/>).
+    /// it off, as a shutter at rest whose killed place lies at the room's top-left corner: the reaction reads the shutter's
+    /// place, which the kill cleared (<see cref="RoomEnemyPlace.FoundState{T}"/>).
     /// </summary>
     private void ReactDestroyableShutterAfterCommon(RoomEnemyPlace place, EnemyOccupantStates struck, Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(place, struck.Require<VerticalShutterEnemyState>(), camera, healthAfterHit: place.Health);
+        ReactVerticalShutter(place, struck.Require<VerticalShutterEnemyState>(), camera);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="place"/>, whose state is
-    /// <paramref name="state"/>. A destroyable shutter's reaction after a hit's damage carries the shutter's
-    /// <paramref name="healthAfterHit"/>, null for any other reaction; one the hit destroyed reacts as one at rest.
+    /// <paramref name="state"/>. Whether it is already moving is read in its place, so one a hit destroyed reacts as one
+    /// at rest.
     /// </summary>
     private void ReactVerticalShutter(
         RoomEnemyPlace place,
         VerticalShutterEnemyState state,
-        Position16<RoomPixels> camera,
-        int? healthAfterHit)
+        Position16<RoomPixels> camera)
     {
         if (state.TriggerMode is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
         {
@@ -665,11 +664,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotActivated = true;
         }
 
-        bool moving = state.Action is VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown;
-        if (healthAfterHit is { } health ? DestroyedShutterReaction.FindsMoving(moving, health) : moving)
-        {
+        if (place.FoundState<VerticalShutterEnemyState>() is { Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
             return;
-        }
 
         state.Action = state.ReactionDirection == ShutterHeading.LeftOrUp
             ? VerticalShutterAction.MovingUp

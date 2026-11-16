@@ -503,7 +503,7 @@ internal sealed class MotherBrainAttacks
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
         MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;

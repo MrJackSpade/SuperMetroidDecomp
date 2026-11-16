@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How Samus's speeds behave past the ends of their range (moved from Samus's movement, #1621). A speed is a magnitude,
-/// its direction held apart, whose whole pixels and fraction each count 0 through 65535 steps. Slowing a speed past zero
-/// continues it from the top of that range rather than stopping it, and the game compares a speed part with a threshold
-/// by the sign of their difference within the range. A speed in the upper half of the range therefore reads as having
-/// passed zero and as below every threshold: a rise that reads as past its apex, a moonfall that lands without a bounce,
-/// a fraction more than half a pixel above a cap's that reads as under it.
+/// How Samus's speeds behave past the ends of their range. A speed is a magnitude, its direction held apart, whose
+/// whole pixels and fraction each count 0 through 65535 steps. Slowing a speed past zero continues it from the top of
+/// that range rather than stopping it, and the game compares a speed part with a threshold by the sign of their
+/// difference within the range. A speed in the upper half of the range therefore reads as having passed zero and as
+/// below every threshold: a rise that reads as past its apex, a moonfall that lands without a bounce, a fraction more
+/// than half a pixel above a cap's that reads as under it.
 /// </summary>
 /// <remarks>
 /// A whole speed is compared with its limit part by part: the whole pixels first, and the fraction only to settle a tie

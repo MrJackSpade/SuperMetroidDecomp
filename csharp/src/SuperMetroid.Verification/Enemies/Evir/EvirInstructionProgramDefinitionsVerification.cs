@@ -43,7 +43,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem();
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             // The held pose runs no cue, so the spit's body is never read.
-            EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileNormal, body: place, new EvirBodyState(spit: place));
+            EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileNormal, body: place);
             _ = EnemyInstructionRunner.ShownFrames(place, 4);
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), place.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
@@ -64,7 +64,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // The spit finds its body as production places it, two places after the body.
             place.Bind(EnemyDefinitionId.EvirProjectile, place.Definition);
             enemies.EvirBehavior.InitializeEvirProjectile(place);
-            EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileRegenerating, body, bodyState);
+            EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileRegenerating, body);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.Facing = EvirFacing.Right;
@@ -119,13 +119,12 @@ internal static class EvirInstructionProgramDefinitionsVerification
     }
 
     /// <summary>
-    /// Seeds an Evir spit place with its bank-$A8 definition and starting program, its body at <paramref name="body"/> with
-    /// <paramref name="bodyState"/>.
+    /// Seeds an Evir spit place with its bank-$A8 definition and starting program, its body at <paramref name="body"/>.
     /// </summary>
-    internal static EvirSpitState PrepareEvirSpit(RoomEnemyPlace place, EvirSegment program, RoomEnemyPlace body, EvirBodyState bodyState)
+    internal static EvirSpitState PrepareEvirSpit(RoomEnemyPlace place, EvirSegment program, RoomEnemyPlace body)
     {
         Bind(place, EnemyDefinitionId.EvirProjectile);
-        var state = new EvirSpitState(EvirSpitAction.Idle, body, bodyState)
+        var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
             RequestedAnimation = program,
             InstalledAnimation = program,

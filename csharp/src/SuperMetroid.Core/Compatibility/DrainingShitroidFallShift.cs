@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Where the Shitroid sits while it drains Samus (#1620, was <c>ShitroidBehavior</c>'s "X carry"): it shakes over her
-/// at its shake offset, and one pixel further right on every update her vertical speed's whole pixels read four or more
-/// as a count, which is also every update her speed has been slowed past zero at the top of a rise. A drain that starts
-/// while she falls fast shows the Shitroid a pixel right for that update (the drain then slows her to two pixels an
-/// update), and one that starts as a rise slows past zero keeps it a pixel right while her speed stays there.
+/// Where the Shitroid sits while it drains Samus: it shakes over her at its shake offset, and one pixel further right
+/// on every update her vertical speed's whole pixels read four or more as a count, which is also every update her speed
+/// has been slowed past zero at the top of a rise. A drain that starts while she falls fast shows the Shitroid a pixel
+/// right for that update (the drain then slows her to two pixels an update), and one that starts as a rise slows past
+/// zero keeps it a pixel right while her speed stays there.
 /// </summary>
 /// <remarks>
 /// Consulted on every update of the drain, after its speed clamp reads Samus's vertical speed and before the Shitroid is

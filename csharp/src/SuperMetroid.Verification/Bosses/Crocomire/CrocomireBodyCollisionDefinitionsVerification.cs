@@ -25,7 +25,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCrocomireTongueNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry);
+        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
         var boundDefinition = default(RoomEnemyDefinition);
         nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);

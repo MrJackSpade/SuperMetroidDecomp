@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How a Yard in the air reverses a speed (#1620, was <c>YardEnemyBehavior.NegatePartsSeparately</c>): when Samus facing
-/// left kicks it, when it bounces off a wall, and when it bounces off a ceiling or strikes the floor at three pixels an
-/// update or more, the speed's whole pixels and its fraction are each negated on their own
-/// (<see cref="PartwiseReversal.BothPartsNegated"/>). A speed with no fraction is reversed exactly; one with a fraction
-/// leaves a pixel an update short of its true reversal, back along its first direction, so a kicked shell flies left a
-/// pixel an update slower than Samus's speed, and a bouncing one rebounds a pixel an update slower than it struck.
+/// How a Yard in the air reverses a speed: when Samus facing left kicks it, when it bounces off a wall, and when it
+/// bounces off a ceiling or strikes the floor at three pixels an update or more, the speed's whole pixels and its
+/// fraction are each negated on their own (<see cref="PartwiseReversal.BothPartsNegated"/>). A speed with no fraction
+/// is reversed exactly; one with a fraction leaves a pixel an update short of its true reversal, back along its first
+/// direction, so a kicked shell flies left a pixel an update slower than Samus's speed, and a bouncing one rebounds a
+/// pixel an update slower than it struck.
 /// </summary>
 /// <remarks>
 /// Consulted when a kick by Samus facing left sets the Yard's speeds, and on each update of its flight after its

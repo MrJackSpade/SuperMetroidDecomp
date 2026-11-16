@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted once, when the Baby is set up in the first free enemy place on the update Mother Brain's final beam calls it.
 /// It owns no state of its own: the fractions are what the place's previous occupant left, which an enemy deleted without
-/// being killed leaves in its place, as <see cref="DeletedParentLeftovers"/> describes for the flame followers, so it is
+/// being killed leaves in its place, as <see cref="RemovedEnemyLeftovers{TStates}"/> describes for its species state, so it is
 /// a rule over what the place holds rather than a store, as <see cref="BabyMetroidVictim"/> is for the Tourian Baby.
 /// Evidence: the enemy spawn routine and the cutscene Baby's setup write the arrival point's whole X and Y only, never
 /// the fractions, and a kill is the only thing that clears a place's fractions; the 100% movie loses the Baby's vertical

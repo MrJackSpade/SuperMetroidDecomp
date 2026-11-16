@@ -51,7 +51,7 @@ internal static class KraidNailSiblingVerification
 
     /// <summary>
     /// Checks both nail slots, sibling flags, RNG preservation, the actual launch or waiting phase, and that a launch
-    /// after its sibling was killed reads the sibling as stopped (<see cref="KilledFingernailStops"/>).
+    /// after its sibling was killed reads the sibling as stopped (<see cref="RemovedEnemyLeftovers{TStates}"/>).
     /// </summary>
     internal static void VerifyKraidNailSibling(CartridgeImportAddressSpace rom)
     {
@@ -70,9 +70,10 @@ internal static class KraidNailSiblingVerification
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
         Action<RoomEnemyPlace, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
         // Both fingernails live in their places, so each launch reads its sibling's speed.
-        foreach (int place in new[] { 6, 7 })
+        foreach ((int place, EnemyDefinitionId nailDefinition) in new[] { (6, EnemyDefinitionId.KraidFirstNail), (7, EnemyDefinitionId.KraidSecondNail) })
         {
             RoomEnemyPlace living = enemies.Places.InUpdateOrder[place];
+            living.Bind(nailDefinition, living.Definition);
             living.SetSpeciesState<KraidPartState>(enemies.KraidBehavior.Parts.NailStateOf(state, living));
         }
         foreach (int slot in new[] { 6, 7 })

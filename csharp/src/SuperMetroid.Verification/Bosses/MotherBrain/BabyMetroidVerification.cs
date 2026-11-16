@@ -71,7 +71,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // pose radius. Controller one/four intentionally do not refresh it, so initialize that
     // pre-existing WRAM state once rather than widening touch collision in production code.
     SamusPoseMetadata.RefreshCollisionRadii(samus);
-    var motherBrain = new MotherBrainRainbowBeamAttackSequence
+    var motherBrain = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
     {
         State = { BrainPosition = new(0x0040, 0x0060) },
     };

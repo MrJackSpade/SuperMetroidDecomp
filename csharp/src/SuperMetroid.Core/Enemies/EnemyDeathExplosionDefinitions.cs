@@ -33,9 +33,8 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly RandomSampleField NarrowSpriteVerticalScatter = new(8, 5);
 
     /// <summary>
-    /// The death explosions in their authored order, the small explosion first: the order the deaths that pick their
-    /// explosion by a number count in (<see cref="FirefleaTouchDeathExplosion"/>, <see cref="KraidNailTouchDeathExplosion"/>,
-    /// <see cref="PowampBurstExplosion"/>).
+    /// The death explosions in their authored order, the small explosion first: the order the deaths that take their
+    /// explosion from a leftover number count in (<see cref="LeftoverNumberDeathExplosion"/>).
     /// </summary>
     internal static readonly IReadOnlyList<EnemyDeathExplosion> AuthoredOrder =
     [

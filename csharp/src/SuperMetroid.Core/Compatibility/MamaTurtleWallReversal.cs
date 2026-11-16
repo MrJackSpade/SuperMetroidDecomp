@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How a hovering Mama Turtle turns back at a wall (#1620, was <c>MamaTurtleBehavior.ReverseMamaTurtleAtWall</c>'s
-/// "lowered" carry): its horizontal velocity and acceleration are each reversed by complementing the whole pixels and
-/// negating the fraction on its own, which reverses a value exactly unless its fraction is zero, when the reversed value
-/// lies one pixel an update further left; and when the turtle met the wall moving left by less than a pixel an update
-/// (its velocity's whole pixels at minus one), the reversed acceleration lies one more pixel further left. The turtle,
-/// and Samus riding it, therefore leaves a wall by those pixels faster or slower, and its hover drifts by them.
+/// How a hovering Mama Turtle turns back at a wall: its horizontal velocity and acceleration are each reversed by
+/// complementing the whole pixels and negating the fraction on its own, which reverses a value exactly unless its
+/// fraction is zero, when the reversed value lies one pixel an update further left; and when the turtle met the wall
+/// moving left by less than a pixel an update (its velocity's whole pixels at minus one), the reversed acceleration
+/// lies one more pixel further left. The turtle, and Samus riding it, therefore leaves a wall by those pixels faster or
+/// slower, and its hover drifts by them.
 /// </summary>
 /// <remarks>
 /// Consulted once per wall hit of the hovering turtle, after its horizontal move reports the wall and before the hit's

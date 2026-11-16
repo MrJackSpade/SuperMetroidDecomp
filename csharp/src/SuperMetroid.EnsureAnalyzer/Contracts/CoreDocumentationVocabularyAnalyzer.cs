@@ -58,6 +58,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// review cited under its ticket. #2105 adds to the review trail, in every type, the review inventory and fix history,
 /// and, outside hardware owners, a check of the repository cited by its kind or its name.
 /// #2113 adds, outside hardware owners, a controller button's letter used as the name of a gameplay action.
+/// #2133 adds to the review trail, in every type, relocation history: a ticket followed by what a thing was, a
+/// parenthetical telling what it was, and where a thing moved from.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -628,6 +630,22 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// Relocation history in prose (#2133), part of the review trail and read in every Core type, hardware owners
+    /// included, outside markup: a ticket followed by what a thing was or where it moved ((#1620, was <c>Old.Name</c>),
+    /// (#1620, was in Bosses, unmarked), (#1416: moved from the deleted catalog)), a parenthetical opening with what a
+    /// thing was, formerly was or where it moved ((was in Bosses), (moved from Samus's movement, #1621)), and where a thing
+    /// moved from when its clause names no destination (moved here from the ending catalog). Which member a summary's
+    /// subject was before a ticket renamed or moved it, and which module it lived in, are the repository's history, not
+    /// the game's. English stays legal: a thing that moved from one state or place to another (the elevator moved from
+    /// its arrival to its return), a ticket cited for the change it names, and a parenthetical of what a thing is.
+    /// </summary>
+    private static readonly Regex RelocationHistoryProse = new(
+        @"#[0-9]+\s*[,:;]\s*(?:was|were|moved|formerly)\b" +
+        @"|\(\s*(?:was|were|formerly|moved)\b" +
+        @"|\bmoved\s+(?:here\s+)?from\b(?![^.;:()]*\bto\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A check of the repository cited in prose (#2105), outside hardware owners: a check, test or suite named by its kind
     /// (the Tourian animation lookup check, the eye-fade verification checks every shade, a parity check, the regression
     /// test, the Ridley full-movie check) and a check's name set as code (<c>&lt;c&gt;BeamCallbackTablesVerification&lt;/c&gt;</c>,
@@ -903,7 +921,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
-    /// trail (<see cref="ReviewTrailProse"/>).
+    /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>).
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
         Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
@@ -916,6 +934,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
             : !generated && ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
+            : !generated && RelocationHistoryProse.Match(Markup.Replace(text, " ")) is { Success: true } relocation ? relocation.Value
             : IsInHardwareOwner(owner) ? null
             : CitedCheckProse.Match(text) is { Success: true } citedCheck ? citedCheck.Value
             : Address.Match(text) is { Success: true } address ? address.Value

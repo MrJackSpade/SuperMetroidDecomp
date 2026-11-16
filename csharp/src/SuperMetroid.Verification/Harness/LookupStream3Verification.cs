@@ -798,17 +798,16 @@ internal static class LookupStream3Verification
         ];
         int targetPaletteBase = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82e1f5) - 18;
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
-        // The HUD's door fade shades (#1512) fade every HUD ink but those the door keeps lit: an ink a shade leaves out is
-        // one the native copy writes into the fade's target.
+        // The HUD's door fade shades (#1512, #2289) black every HUD ink but those the door keeps lit: an ink a shade leaves
+        // out is one the native copy writes into the fade's target.
         const int hudInks = 32;
-        IReadOnlyList<SheetShade> hudShades = DoorFadeHudShades.Of(ToColors(sourceColors).AsSpan(0, hudInks));
+        IReadOnlyList<SheetShade> hudShades = DoorFadeHudShades.Of();
         int[] KeptBy(PictureShade shade) =>
             [.. Enumerable.Range(0, hudInks).Except(hudShades.Single(hud => hud.Shade == shade).Inks)];
-        int[] keptByEveryDoor = KeptBy(DoorFadeShades.HudFadingOut(0));
-        int[] keptBetweenCommonRooms = [.. KeptBy(DoorFadeShades.HudFadingOutBetweenCommonRooms(0)).Except(keptByEveryDoor)];
-        AssertTrue(KeptBy(DoorFadeShades.HudFadingIn(0)).SequenceEqual(keptByEveryDoor) &&
-            KeptBy(DoorFadeShades.HudFadingInBetweenCommonRooms(0)).Except(keptByEveryDoor).SequenceEqual(keptBetweenCommonRooms),
-            "stream 3 door fades in keep the HUD inks their fades out keep");
+        int[] keptByEveryDoor = KeptBy(DoorFadeShades.HudDark);
+        int[] keptBetweenCommonRooms = [.. KeptBy(DoorFadeShades.HudDarkBetweenCommonRooms).Except(keptByEveryDoor)];
+        AssertTrue(hudShades.All(hud => hud.Colours.All(colour => colour == RgbColor.Black)),
+            "stream 3 door fades' dark HUD shades black every ink they fade");
         // The first two copies keep the HUD's colours, the third the escape timer's, checked below.
         for (int group = 0; group < 2; group++)
         {
@@ -976,9 +975,8 @@ internal static class LookupStream3Verification
                 - SpriteColoursFirst - timerRowFirstInk).Order()];
         AssertTrue(nativeKept.SequenceEqual(SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShades.Kept),
             "stream 3 native third door copy keeps exactly the escape timer's kept colours");
-        RgbColor[] standard = [.. Enumerable.Repeat(RgbColor.White, SpriteColoursFirst)];
         int[] keptInks = [.. nativeKept.Select(colour => timerRowFirstInk + colour)];
-        foreach (SheetShade shade in SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShades.Of(standard,
+        foreach (SheetShade shade in SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShades.Of(
                      SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerSheetComposer.PaletteRow))
         {
             AssertTrue(shade.Inks.Concat(keptInks).Order().SequenceEqual(Enumerable.Range(timerRowFirstInk, RowColours)),
@@ -986,7 +984,7 @@ internal static class LookupStream3Verification
         }
 
         // A door fade's step: the display fades with the HUD spared, and the door shades the HUD and the escape timer.
-        PictureShade step = DoorFadeShades.EscapeTimerFadingOut(3);
+        PictureShade step = DoorFadeShades.EscapeTimerDark;
         var shadings = Enum.GetValues<GameplayPictures>().ToDictionary(pictures => pictures,
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Shaded(step) : PictureShading.Standard);
         var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), GameplayFadeSpares.Hud);

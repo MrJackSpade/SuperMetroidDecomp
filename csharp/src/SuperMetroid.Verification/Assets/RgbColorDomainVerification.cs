@@ -93,10 +93,16 @@ internal static class RgbColorDomainVerification
         // movement, reaches its target on the step after its last and completes on the call after that.
         const int longFade = 70000;
         AssertEqual(longFade, new GradualFadeSteps(longFade, new SharedFadeStepCount()).Denominator, "a fade keeps a length past a word's range");
-        AssertEqual(0, GradualColourFade.Component(1, 0, 31, longFade), "the long fade's first moving step moves less than a level");
-        AssertEqual(31, GradualColourFade.Component(longFade + 1, 0, 31, longFade), "the step after the long fade's last reaches the target");
-        AssertEqual(RgbColor.White, new GradualColourFade(RgbColor.White, GradualFadeDirection.Toward, longFade,
-            [.. Enumerable.Range(0, longFade + 2)]).Apply(RgbColor.Black), "the long fade ends on its target");
+        var longSteps = new GradualFadeSteps(longFade, new SharedFadeStepCount());
+        _ = longSteps.Step();
+        _ = longSteps.Step();
+        AssertEqual(RgbColor.Black, longSteps.Toward(RgbColor.White).Apply(RgbColor.Black),
+            "the long fade's first moving step moves less than a level");
+        int calls = 2;
+        while (!longSteps.Step())
+            calls++;
+        AssertEqual(longFade + 2, calls, "the long fade completes on the call after the step past its length");
+        AssertEqual(RgbColor.White, longSteps.Toward(RgbColor.White).Apply(RgbColor.Black), "the long fade ends on its target");
         AssertThrows<ArgumentOutOfRangeException>(() => new GradualFadeSteps(0, new SharedFadeStepCount()), "a fade takes at least one step");
 
         Console.WriteLine("RgbColor domain: all 32768 words, levels, off-scale rejection, plain channel bounds, level fades, and CGRAM agree.");

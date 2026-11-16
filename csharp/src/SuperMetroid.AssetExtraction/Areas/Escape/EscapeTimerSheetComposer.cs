@@ -34,7 +34,7 @@ internal static class EscapeTimerSheetComposer
         }
         RgbColor[] colours = GameplayBasePaletteFiles.RoomLoadSpriteColours(bus);
         return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes,
-            Shades: EscapeTimerDoorFadeShades.Of(colours, PaletteRow)), PaletteRow, 0);
+            Shades: EscapeTimerDoorFadeShades.Of(PaletteRow)), PaletteRow, 0);
     }
 
     /// <summary>Reads one timer spritemap's parts, with characters counted from the timer artwork's first.</summary>

@@ -83,9 +83,11 @@ internal static class InstalledSporesTests
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
                 {
-                    ushort accumulator = unchecked((ushort)(-tick * 64));
-                    Require(capture.Scroll == new Position16<OverlayPixels>(camera.X,
-                        unchecked((ushort)(camera.Y + (sbyte)(LittleEndianBytes.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
+                    // The spores rise from the camera's top, their whole pixels risen kept within the overlay pictures' repeat (#2141).
+                    int risen = (-tick * AtmosphereDriftDefinitions.SporesRiseSpeed.InTwoHundredFiftySixthsOfPixel) >> 8;
+                    int drift = (risen % TextureDrift.RepeatPixels + TextureDrift.RepeatPixels) % TextureDrift.RepeatPixels;
+                    Require(capture.Scroll == new Position16<OverlayPixels>(camera.X, unchecked((ushort)(camera.Y + drift))),
+                        "Spores lost their camera anchoring or their rise.");
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
                     Require(stock.BlockAnimationAtlas.TryResolve(source, 48, out var expected), "Missing stock spores frame.");

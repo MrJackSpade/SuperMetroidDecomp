@@ -54,12 +54,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomEffectTint? Tint { get; private set; }
     /// <summary>
-    /// Rain, fog, and spores texture drift: one signed 1/256-pixel running sum per axis, its fractions kept between
-    /// updates. Its whole pixels shift the effect overlay's scroll before the next velocity step; a sum carried past
-    /// either end of its range continues from the other, which keeps the drifting textures' pictures as they have always
-    /// been drawn.
+    /// Rain, fog, and spores texture drift, its fractions kept between updates. Its whole pixels shift the effect overlay's
+    /// scroll before the next velocity step.
     /// </summary>
-    private EightEightVector<OverlayPixels> drift;
+    private TextureDrift drift;
     /// <summary>
     /// Rain's sideways texture drift each frame, the wind chosen from the random number when the room loads; it only
     /// blows across. The fall is <see cref="RainFall"/>.
@@ -77,10 +75,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
     internal SignedSixteenSixteen TideOffset { get; private set; }
     /// <summary>
-    /// Water's effect overlay surface drift: a signed 1/256-pixel horizontal running sum, its fraction kept between updates,
-    /// whose whole pixels offset the surface texture. Only X moves.
+    /// Water's effect overlay surface drift, its fraction kept between updates, whose whole pixels offset the surface
+    /// texture. It only moves across.
     /// </summary>
-    private EightEightVector<OverlayPixels> waterDrift;
+    private TextureDrift waterDrift;
     /// <summary>Where water's surface wave on the effect overlay stands in its cycle.</summary>
     private WaveCycle waterOverlayWave;
     /// <summary>Where water's optional sideways background wave stands in its cycle.</summary>
@@ -416,7 +414,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
             Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.Whole;
-            drift += rainWind + RainFall;
+            drift += rainWind;
+            drift += RainFall;
             previousCamera = frame.Camera;
             return;
         }
@@ -820,7 +819,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LiquidMoveDelay = WrappingCountdown.Start(0);
         Blend = null;
         Scroll = Position16<OverlayPixels>.Zero;
-        drift = EightEightVector<OverlayPixels>.Zero;
+        drift = TextureDrift.None;
         rainWind = EightEightVector<OverlayPixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         BaseY = null;
@@ -828,7 +827,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         TideOffset = SignedSixteenSixteen.Zero;
         Surface = null;
         Liquid = null;
-        waterDrift = EightEightVector<OverlayPixels>.Zero;
+        waterDrift = TextureDrift.None;
         waterOverlayWave = default;
         waterBackgroundWave = default;
         waterSurfaceScreenY = null;

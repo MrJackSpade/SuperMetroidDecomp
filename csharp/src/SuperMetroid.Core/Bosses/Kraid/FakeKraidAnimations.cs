@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Mini-Kraid's action choice, step and spit animations (#641). Each
+/// Fake Kraid's action choice, step and spit animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> saying what it does.
 /// </summary>
 internal static class FakeKraidAnimations
@@ -15,7 +15,7 @@ internal static class FakeKraidAnimations
     internal static AnimationSegments<FakeKraidSegment, EnemyFrameId, FakeKraidCue> Segments { get; } = new(
         new Dictionary<FakeKraidSegment, AnimationBeat<EnemyFrameId, FakeKraidCue>[]>
     {
-        [P.ChooseActionFacingLeft] =
+        [P.ChooseAction] =
         [
             Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
@@ -26,10 +26,6 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingLeftFeetPlanted, 12),
             Cue(new FakeKraidCue.Signal(K.Move)),
-        ],
-        [P.ChooseAlternateActionFacingLeft] =
-        [
-            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
         [P.StepBackwardsFacingLeft] =
         [
@@ -48,10 +44,6 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidFacingLeftMouthWide, 16),
             Show(EnemyFrameId.FakeKraidFacingLeftMouthOpening, 8),
         ],
-        [P.ChooseActionFacingRight] =
-        [
-            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
-        ],
         [P.StepForwardsFacingRight] =
         [
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetTogether, 16),
@@ -59,10 +51,6 @@ internal static class FakeKraidAnimations
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFrontFootForward, 8),
             Show(EnemyFrameId.FakeKraidSteppingFacingRightFeetPlanted, 12),
             Cue(new FakeKraidCue.Signal(K.Move)),
-        ],
-        [P.ChooseAlternateActionFacingRight] =
-        [
-            Cue(new FakeKraidCue.Signal(K.ChooseAction)),
         ],
         [P.StepBackwardsFacingRight] =
         [
@@ -83,19 +71,18 @@ internal static class FakeKraidAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each step and spit (#2214): it plays, then chooses the next action, which always
+    /// continues at the step or spit it picks, so no animation plays past its choice and none starts at the choice.
+    /// </summary>
     internal static IReadOnlyDictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } = new Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>>
     {
-        [P.ChooseActionFacingLeft] = new([new(P.ChooseActionFacingLeft, 0, 1, 1), new(P.StepForwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StepForwardsFacingLeft] = new([new(P.StepForwardsFacingLeft, 0, 5, 1), new(P.ChooseActionFacingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChooseAlternateActionFacingLeft] = new([new(P.ChooseAlternateActionFacingLeft, 0, 1, 1), new(P.StepBackwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StepBackwardsFacingLeft] = new([new(P.StepBackwardsFacingLeft, 0, 5, 1), new(P.ChooseAlternateActionFacingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireSpitFacingLeft] = new([new(P.FireSpitFacingLeft, 0, 6, 1), new(P.ChooseActionFacingLeft, 0, 1, 1), new(P.StepForwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChooseActionFacingRight] = new([new(P.ChooseActionFacingRight, 0, 1, 1), new(P.StepForwardsFacingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StepForwardsFacingRight] = new([new(P.StepForwardsFacingRight, 0, 5, 1), new(P.ChooseActionFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChooseAlternateActionFacingRight] = new([new(P.ChooseAlternateActionFacingRight, 0, 1, 1), new(P.StepBackwardsFacingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StepBackwardsFacingRight] = new([new(P.StepBackwardsFacingRight, 0, 5, 1), new(P.ChooseAlternateActionFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireSpitFacingRight] = new([new(P.FireSpitFacingRight, 0, 6, 1), new(P.ChooseActionFacingRight, 0, 1, 1), new(P.StepForwardsFacingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.StepForwardsFacingLeft] = new([new(P.StepForwardsFacingLeft, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
+        [P.StepBackwardsFacingLeft] = new([new(P.StepBackwardsFacingLeft, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FireSpitFacingLeft] = new([new(P.FireSpitFacingLeft, 0, 6, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
+        [P.StepForwardsFacingRight] = new([new(P.StepForwardsFacingRight, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
+        [P.StepBackwardsFacingRight] = new([new(P.StepBackwardsFacingRight, 0, 5, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FireSpitFacingRight] = new([new(P.FireSpitFacingRight, 0, 6, 1), new(P.ChooseAction, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

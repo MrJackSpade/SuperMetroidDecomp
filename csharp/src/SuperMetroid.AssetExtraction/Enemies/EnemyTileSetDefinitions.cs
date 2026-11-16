@@ -78,7 +78,7 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.KzanBottom] = 512,
         [EnemyDefinitionId.Hibashi] = 2048,
         [EnemyDefinitionId.NuclearWaffle] = 2048,
-        [EnemyDefinitionId.MiniKraid] = 4096,
+        [EnemyDefinitionId.FakeKraid] = 4096,
         [EnemyDefinitionId.RidleyCeres] = 8192,
         [EnemyDefinitionId.Ridley] = 8192,
         [EnemyDefinitionId.RidleyBreakupPiece] = 1024,

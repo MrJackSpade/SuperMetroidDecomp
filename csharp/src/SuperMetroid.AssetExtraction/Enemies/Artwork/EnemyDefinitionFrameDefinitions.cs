@@ -2469,7 +2469,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.CrocomireTongue] = CrocomireTongueFrames,
             [EnemyDefinitionId.DraygonArms] = DraygonArmsFrames,
             [EnemyDefinitionId.DraygonTail] = DraygonTailFrames,
-            [EnemyDefinitionId.MiniKraid] = FakeKraid,
+            [EnemyDefinitionId.FakeKraid] = FakeKraid,
             [EnemyDefinitionId.KraidArm] = KraidArmFrames,
             [EnemyDefinitionId.KraidFoot] = KraidFootFrames,
             [EnemyDefinitionId.KraidLintBottom] = KraidLintBottomFrames,

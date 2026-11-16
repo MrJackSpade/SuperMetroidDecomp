@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's and Mini-Kraid's sound effects.</summary>
+/// <summary>Kraid's and Fake Kraid's sound effects.</summary>
 internal static class KraidSoundDefinitions
 {
-    /// <summary>Mini-Kraid's cry before it spits, requested only while its origin is on screen.</summary>
-    internal static SoundEffectId MiniKraidCry { get; } = EnemySound.FakeKraidCry;
+    /// <summary>Fake Kraid's cry before it spits, requested only while its origin is on screen.</summary>
+    internal static SoundEffectId FakeKraidCry { get; } = EnemySound.FakeKraidCry;
 
-    /// <summary>Mini-Kraid launches a body spike, requested only while its origin is on screen.</summary>
-    internal static SoundEffectId MiniKraidSpikeLaunch { get; } = EnemySound.Whoosh;
+    /// <summary>Fake Kraid launches a body spike, requested only while its origin is on screen.</summary>
+    internal static SoundEffectId FakeKraidSpikeLaunch { get; } = EnemySound.Whoosh;
 
     /// <summary>A spat rock leaves the mouth, or a rock rises from the floor.</summary>
     internal static SoundEffectId RockSpit { get; } = RoomSound.KraidEarthquake;

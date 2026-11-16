@@ -109,7 +109,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.KihunterGreen] = leftToSpecies,
             [EnemyDefinitionId.KihunterYellow] = leftToSpecies,
             [EnemyDefinitionId.KihunterRed] = leftToSpecies,
-            [EnemyDefinitionId.MiniKraid] = leftToSpecies,
+            [EnemyDefinitionId.FakeKraid] = leftToSpecies,
             [EnemyDefinitionId.Zebetite] = leftToSpecies,
             [EnemyDefinitionId.CorpseTorizo] = leftToSpecies,
             [EnemyDefinitionId.CorpseSidehopper] = leftToSpecies,

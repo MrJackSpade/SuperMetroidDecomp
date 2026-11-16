@@ -336,7 +336,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The sparks that fall from the Wrecked Ship's sparks and skitter along the floor.</summary>
     internal FallingSparksBehavior FallingSparksBehavior { get; }
 
-    /// <summary>Mini-Kraid, the small Kraid in the room before Kraid's.</summary>
+    /// <summary>Fake Kraid, the small Kraid in the room before Kraid's.</summary>
     internal FakeKraidBehavior FakeKraidBehavior { get; }
 
     /// <summary>The eyes guarding some doors, which fire at Samus until she destroys them.</summary>

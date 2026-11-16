@@ -16,7 +16,7 @@ internal static class EnemyDeathProjectileNativeListAddresses
     [
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.RespawnTail, 0xeca3),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.BigExplosion, 0xecaf),
-        new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.MiniKraidExplosion, 0xecc9),
+        new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.FakeKraidExplosion, 0xecc9),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.NormalExplosion, 0xed4b),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.SmallExplosion, 0xed69),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.SmallEnergy, 0xed8d),
@@ -31,13 +31,13 @@ internal static class EnemyDeathProjectileNativeListAddresses
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xeca3, 0xee43);
 
     /// <summary>
-    /// The native entries the big and Mini-Kraid explosions start at (#2061): each loads its bursts' count and runs on into
+    /// The native entries the big and Fake Kraid explosions start at (#2061): each loads its bursts' count and runs on into
     /// the burst's list.
     /// </summary>
     internal static IReadOnlyList<NativeCountedEntry<EnemyDeathProjectileSegment>> CountedExplosions { get; } =
     [
         new NativeCountedEntry<EnemyDeathProjectileSegment>("the big explosion", EnemyDeathProjectileAnimations.Explosions[EnemyDeathExplosion.Big], 0xecab),
-        new NativeCountedEntry<EnemyDeathProjectileSegment>("Mini-Kraid's explosion", EnemyDeathProjectileAnimations.Explosions[EnemyDeathExplosion.MiniKraid], 0xecc5),
+        new NativeCountedEntry<EnemyDeathProjectileSegment>("Fake Kraid's explosion", EnemyDeathProjectileAnimations.Explosions[EnemyDeathExplosion.FakeKraid], 0xecc5),
     ];
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
@@ -49,7 +49,7 @@ internal static class EnemyDeathProjectileNativeListAddresses
             ? counted.Address
             : Entry(EnemyDeathProjectileAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key);
 
-    /// <summary>The family's typed programs beside their native lists; the big and Mini-Kraid explosions start at their counted entries.</summary>
+    /// <summary>The family's typed programs beside their native lists; the big and Fake Kraid explosions start at their counted entries.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Segments, EnemyDeathProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), EnemyDeathProjectileCueRules.Rules,
         countedEntries: CountedExplosions);
 }

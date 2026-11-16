@@ -3,17 +3,18 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Launches Fake Kraid's spit and body-spike projectiles.</summary>
 internal static class FakeKraidProjectiles
 {
-    /// <summary>Computes the near and far spit launch velocities, in pixels and 256ths of a pixel, mirrored by facing.</summary>
-    internal static EightEightVector<RoomPixels> SpitLaunch(bool movingRight, int projectile)
+    /// <summary>
+    /// The launch velocity of <paramref name="spit"/>, in pixels and 256ths of a pixel: its speed toward
+    /// <paramref name="direction"/> and the shots' common rise.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="spit"/> is neither of the two shots.</exception>
+    internal static EightEightVector<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
     {
-        if ((uint)projectile >= FakeKraidProjectileDefinitions.SpitCount)
-        {
-            throw new InvalidDataException(
-                $"Fake Kraid spit {projectile} is neither of its two directions.");
-        }
-
-        SignedEightEight horizontal = SignedEightEight.FromPixels((projectile + 1) * FakeKraidProjectileDefinitions.SpitSpeedStepPixels);
-        return new(movingRight ? horizontal : -horizontal, FakeKraidProjectileDefinitions.SpitRise);
+        SignedEightEight horizontal = SignedEightEight.FromPixels(
+            FakeKraidProjectileDefinitions.SpitSpeedPixels.TryGetValue(spit, out int speed)
+                ? speed
+                : throw new InvalidDataException($"Fake Kraid spit {spit} is neither of its two shots."));
+        return new(direction == HorizontalDirection.Right ? horizontal : -horizontal, FakeKraidProjectileDefinitions.SpitRise);
     }
 
     /// <summary>

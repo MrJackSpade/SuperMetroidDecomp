@@ -1041,7 +1041,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>
     /// Publishes the gameplay display at the end of an update: the most recent frame-boundary
     /// latch, the display state read while the frame is shown (the door transition's layers
-    /// and the per-line effects), and the frame's colours. Publishing never advances
+    /// and the screen effects), and the frame's colours. Publishing never advances
     /// simulation, and the result shares no storage with it.
     /// </summary>
     public GameplayDisplayFrame PublishDisplayFrame()

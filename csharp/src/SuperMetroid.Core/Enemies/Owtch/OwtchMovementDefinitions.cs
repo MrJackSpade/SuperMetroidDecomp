@@ -7,7 +7,7 @@ internal static class OwtchMovementDefinitions
     internal static readonly RandomSampleField MoveRightChoice = new(8, 1);
 
     /// <summary>
-    /// The random field a walking Owtch's burial roll starts from: the sample modulo 256, 0 through 255. The roll adds the
+    /// The random field a walking Owtch's burial roll starts from: the sample's lowest 256-value field, 0 through 255. The roll adds the
     /// enemy's frame counter and continues past the field's last value from zero.
     /// </summary>
     internal static readonly RandomSampleField SinkRoll = new(0, 8);

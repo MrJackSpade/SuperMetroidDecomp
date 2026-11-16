@@ -20,7 +20,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Supplies the enemy counter used to pace corpse dust sounds.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Emits dust when a rotting-table row finishes.</summary>
+    /// <summary>Spawns the dust each fallen row raises.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Raises each fallen row's dust and its sound request.</summary>

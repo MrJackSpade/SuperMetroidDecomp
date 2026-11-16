@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// </summary>
 internal enum RipperSegment
 {
-    /// <summary>The g Ripper moving left animation.</summary>
+    /// <summary>The grapple Ripper moving left animation.</summary>
     GrappleRipperMovingLeft,
-    /// <summary>The g Ripper moving right animation.</summary>
+    /// <summary>The grapple Ripper moving right animation.</summary>
     GrappleRipperMovingRight,
     /// <summary>The Ripper moving right animation.</summary>
     RipperMovingRight,

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Physical foreground of the intro Mother Brain room. Regular regions are constructed geometrically;
-/// the left silhouette is authored collision-mask data reviewed under 1165.</summary>
+/// the left silhouette is authored collision-mask data.</summary>
 internal static class IntroMotherBrainCollisionDefinitions
 {
     /// <summary>Sixteen blocks per room row.</summary>
@@ -27,6 +27,6 @@ internal static class IntroMotherBrainCollisionDefinitions
 
     /// <summary>Authored collision-mask widths on rows 2..12: tank interior, upper notch and pipe base.
     /// These select blocking geometry independently of visible pixels; a fitted curve would
-    /// restate or alter the chosen level mask (see the intro Mother Brain collision contour disposition).</summary>
+    /// restate or alter the authored mask.</summary>
     internal static ReadOnlySpan<int> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 }

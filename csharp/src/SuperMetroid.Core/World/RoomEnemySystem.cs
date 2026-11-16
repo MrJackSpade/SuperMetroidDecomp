@@ -706,7 +706,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, DeathsAndDrops, RoomStatus, Audio);
         HoppersBehavior = new HoppersBehavior(Room, Terrain, Audio);
         HibashiBehavior = new HibashiBehavior(Places, Audio);
-        GrappleBehavior = new GrappleBehavior(Lifecycle, Room, DeathsAndDrops);
+        GrappleBehavior = new GrappleBehavior(Lifecycle, DeathsAndDrops);
         FuneNamiheBehavior = new FuneNamiheBehavior(Projectiles, Audio);
         FliesBehavior = new FliesBehavior(Room);
         FirefleaBehavior = new FirefleaBehavior(Collision, DeathsAndDrops, RoomStatus);

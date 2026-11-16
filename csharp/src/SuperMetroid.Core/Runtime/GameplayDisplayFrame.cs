@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// any number of times yields the same picture and never advances simulation.
 /// </summary>
 /// <param name="Latched">Values the most recent frame boundary made visible.</param>
-/// <param name="FrameEnd">The door layers and per-line effect inputs sampled at publication.</param>
+/// <param name="FrameEnd">The door layers and screen-effect inputs sampled at publication.</param>
 /// <param name="Paint">The colours and displayed sprites at publication (#1403).</param>
 public sealed record GameplayDisplayFrame(
     GameplayDisplayLatch Latched,

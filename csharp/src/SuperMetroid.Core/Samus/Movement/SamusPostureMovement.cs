@@ -82,7 +82,7 @@ public static class SamusPostureMovement
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Does exactly two stores before tail-calling the ordinary horizontal
+        // Sets exactly two values before going on to the ordinary horizontal
         // mover: it zeros the *base* displacement pair. It emphatically does
         // not require extra run speed to be zero. Horizontal movement subsequently
         // adds the extra run speed to that zero base. This is the retail

@@ -18,7 +18,10 @@ public sealed class SbugEnemyState
         Action = action;
     }
 
-    /// <summary>The long lifetime of a straight move, used only by moving forward then waiting.</summary>
+    /// <summary>
+    /// The long countdown of the random movement that reverses when far from Samus: while it has not passed zero, each
+    /// leg may reverse away from her.
+    /// </summary>
     public WrappingCountdown StraightMovementTimer { get; internal set; }
 
     /// <summary>The current AI behaviour.</summary>

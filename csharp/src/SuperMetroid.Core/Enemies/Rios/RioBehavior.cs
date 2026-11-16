@@ -179,9 +179,9 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 TrigonometryAngle angle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
-                state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
+                state.Velocity = state.Velocity.WithX(HoverVelocity(
                     angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn)));
-                state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));
+                state.Velocity = state.Velocity.WithY(HoverVelocity(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
                     place,
@@ -233,7 +233,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Rio's hover velocity along <paramref name="angle"/>'s sine: one pixel per update at its peak, the sine itself
     /// with no speed of its own, unlike Rinka's.
     /// </summary>
-    internal static SignedEightEight ReadRioSignedSineCosineSample(TrigonometryAngle angle) =>
+    internal static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>

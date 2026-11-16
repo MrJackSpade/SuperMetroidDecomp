@@ -720,7 +720,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// <paramref name="field"/>, checked to read only the sample modulo 256, the only range the scatter authors.
+    /// <paramref name="field"/>, checked to read only within the sample's lowest 256-value field, the only range the
+    /// scatter authors.
     /// </summary>
     private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
@@ -728,7 +729,7 @@ internal sealed class EnemyProjectileEngine
         return field;
     }
 
-    /// <summary>The width of the sample modulo 256, the only part of the sample a scatter's range reads.</summary>
+    /// <summary>The width of the sample's lowest 256-value field, the only part of the sample a scatter's range reads.</summary>
     private const int LowHalfBits = 8;
 
     /// <summary>

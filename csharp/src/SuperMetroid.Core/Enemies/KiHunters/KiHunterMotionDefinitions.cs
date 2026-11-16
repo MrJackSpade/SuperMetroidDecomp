@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>Ki-Hunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
 public static class KiHunterMotionDefinitions
 {
-    /// <summary>Tested with signed distance comparison.</summary>
+    /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>
     public const int SwoopTriggerDistance = 96;
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>

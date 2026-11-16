@@ -89,8 +89,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Powered = true;
 
-        // The initializer sets the animating property and one more unnamed but observable property.
-        // Population entries already carry process-off-screen in retail rooms.
+        // A powered robot is solid to Samus and animates; its placements already process it off screen in every retail
+        // room.
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.AnimationClock.RestartAfter(4);

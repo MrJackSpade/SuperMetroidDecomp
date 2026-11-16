@@ -9,8 +9,7 @@ public static class BoyonBounceCurve
     /// <remarks>
     /// Each of the 23 authored samples equals k*(k+1)/2 for place k from 0 through 22, ending at 253. From the
     /// twenty-fourth place down the bounce uses 255 before it multiplies, so no sample past the authored 23 ever reaches
-    /// it; this method gives the sample the bounce uses. The compiled Boyon speed check checks all authored samples, the
-    /// first 65,536 places, and every multiplier a Boyon takes through the real production calculation.
+    /// it; this method gives the sample the bounce uses.
     /// </remarks>
     /// <param name="place">The place along the curve, never past the top.</param>
     public static int Sample(BoyonCurvePlace place) => place.EntryFromTop < StoredSampleCount

@@ -29,7 +29,6 @@ internal static class InterfacePresentationContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IIntroCinematicSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresSceneSpriteSheet.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/TypedTextSpriteSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/EndingAnimalEscapeDefinitions.cs")]),
         new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
@@ -57,8 +56,7 @@ internal static class InterfacePresentationContractDefinitions
         "SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource" => [ContractTypeNames.MetadataName(typeof(RoomPaletteFxPresentation)), ContractTypeNames.MetadataName(typeof(TitlePalettePresentation))],
         "SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation" =>
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
-             ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet)),
-             ContractTypeNames.MetadataName(typeof(TypedTextSpriteSheet))],
+             ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet))],
         // The installed presentation's game catalog is the one implementation: the import's reads hold it beside the source
         // artwork and colours only the import reads, and implement neither contract (#1616).
         "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation))],

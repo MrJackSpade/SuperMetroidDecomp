@@ -21,15 +21,15 @@ internal static class IntroMotherBrainDefinitionsVerification
         // initial instruction list is the record's third word.
         IntroMotherBrainDefinitionsActor[] actors =
         [
-            new IntroMotherBrainDefinitionsActor(0xce55, IntroMotherBrainDefinitions.MotherBrain),
-            new IntroMotherBrainDefinitionsActor(0xcf15, IntroMotherBrainDefinitions.BigExplosionActor),
-            new IntroMotherBrainDefinitionsActor(0xcf1b, IntroMotherBrainDefinitions.SmallExplosionActor),
+            new IntroMotherBrainDefinitionsActor(0xce55, IntroMotherBrainDefinitions.MotherBrain.Animation),
+            new IntroMotherBrainDefinitionsActor(0xcf15, IntroMotherBrainDefinitions.BigExplosionActor.Animation),
+            new IntroMotherBrainDefinitionsActor(0xcf1b, IntroMotherBrainDefinitions.SmallExplosionActor.Animation),
         ];
         for (int index = 0; index < actors.Length; index++)
         {
-            (ushort pointer, IntroMotherBrainActorDefinition actual) = actors[index];
+            (ushort pointer, Enum actual) = actors[index];
             int address = IntroMotherBrainDefinitions.NativeBank | pointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual),
                 $"intro Mother Brain actor {index} instruction list");
         }
 
@@ -67,7 +67,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int frame = 0; frame < 80; frame++)
         {
             motherBrain.Step();
-            int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrain) +
+            int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.Pulsing) +
                 ((frame / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
@@ -91,7 +91,8 @@ internal static class IntroMotherBrainDefinitionsVerification
             motherBrain.RunBehavior((ushort)(129 + frame),
                 crossfadeFinishing: false);
             motherBrain.Step();
-            int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainPageTwo) +
+            // Page two's list follows the page-two start's owner instruction and cross-fade install, six bytes in, and loops by itself.
+            int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.StartingPageTwo) + 6 +
                 (((frame + 1) / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
@@ -109,16 +110,16 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int frame = 0; frame < 192; frame++)
         {
             explosions.Step(crossfadeFinishing: false);
-            int smallPhase = frame % LoopFrames(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
-            int bigPhase = frame % LoopFrames(CinematicSpriteSegment.IntroMotherBrainExplosionBig);
+            int smallPhase = frame % LoopFrames(IntroMotherBrainExplosionAnimation.Small);
+            int bigPhase = frame % LoopFrames(IntroMotherBrainExplosionAnimation.Big);
             ushort expectedSmall = smallPhase < 18
                 ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
-                    (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainExplosionSmall) +
+                    (CinematicSpriteNativeListAddresses.Start(IntroMotherBrainExplosionAnimation.Small) +
                         (smallPhase / 3) * 4 + 2)))
                 : (ushort)0;
             ushort expectedBig = bigPhase < 36
                 ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
-                    (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainExplosionBig) +
+                    (CinematicSpriteNativeListAddresses.Start(IntroMotherBrainExplosionAnimation.Big) +
                         (bigPhase / 6) * 4 + 2)))
                 : (ushort)0;
             AssertEqual(expectedSmall, CinematicSpritePoseSpritemaps.Of(explosionActors[0].Pose),
@@ -183,6 +184,6 @@ internal static class IntroMotherBrainDefinitionsVerification
     }
 
     /// <summary>The updates one pass of looping <paramref name="program"/> lasts: the sum of its frames' durations.</summary>
-    private static int LoopFrames(CinematicSpriteSegment program) =>
-        CinematicSpriteAnimations.Segments.Beats(program).OfType<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>().Sum(frame => frame.Duration);
+    private static int LoopFrames(IntroMotherBrainExplosionAnimation program) =>
+        IntroMotherBrainAnimations.Explosions.Segments.Beats(program).OfType<AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame>().Sum(frame => frame.Duration);
 }

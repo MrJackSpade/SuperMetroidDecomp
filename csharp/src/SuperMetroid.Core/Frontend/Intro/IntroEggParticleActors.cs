@@ -12,7 +12,7 @@ internal static class IntroEggParticleActors
     /// egg's colours in front of the scene, for as long as it flies.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
-    public static CinematicActorDefinition Particle(IntroEggShellFragment fragment) =>
-        new(ShellFragmentAnimations.TryGetValue(fragment, out CinematicSpriteSegment animation)
+    public static CinematicActorDefinition<IntroEggEffectAnimation> Particle(IntroEggShellFragment fragment) =>
+        new(ShellFragmentAnimations.TryGetValue(fragment, out IntroEggEffectAnimation animation)
                 ? animation : throw new ArgumentOutOfRangeException(nameof(fragment)));
 }

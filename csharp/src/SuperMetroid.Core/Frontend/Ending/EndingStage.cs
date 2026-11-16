@@ -67,15 +67,28 @@ internal sealed class EndingStage
     internal EndingSprite SpawnSprite(
         Offset16<ScreenPixels> position,
         EndingSpriteColouring colouring,
-        CinematicSpriteSegment segment,
-        EndingSpriteRole role)
+        EndingSceneAnimation animation,
+        EndingSpriteRole role) =>
+        Place(new EndingPictureSprite(new(position, EndingShades.Drawn(colouring), EndingSceneAnimations.Pictures, animation), role));
+
+    /// <summary>Adds the typed text <paramref name="definition"/> authors in its place in the running order (#2195).</summary>
+    /// <returns>The actor added.</returns>
+    internal EndingSprite SpawnText(EndingTextDefinition definition, EndingSpriteRole role) =>
+        Place(new EndingTextSprite(new(definition.Position, EndingShades.Drawn(definition.Colouring), EndingTextAnimations.Texts, definition.Text), role));
+
+    /// <summary>
+    /// Adds <paramref name="added"/> in its place in the running order: one the ending shows one of at a time replaces the
+    /// one already shown and takes its fixed place after every other actor; any other follows the actors that spawned
+    /// before it.
+    /// </summary>
+    private EndingSprite Place(EndingSprite added)
     {
+        EndingSpriteRole role = added.Role;
         if (!Enum.IsDefined(role))
-            throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role.");
+            throw new ArgumentOutOfRangeException(nameof(added), role, "Undefined ending sprite role.");
         int rank = SoleActorRank(role);
         if (rank >= 0)
             sprites.RemoveAll(actor => actor.Role == role);
-        var added = new EndingSprite(new CinematicActor(position, EndingShades.Drawn(colouring), segment), role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
@@ -128,7 +141,7 @@ internal sealed class EndingStage
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
     internal void StepEndingSpriteMotion(EndingSprite wrapper)
     {
-        CinematicActor sprite = wrapper.Sprite;
+        ICinematicActor<EndingSceneCue> sprite = wrapper.Sprite;
         switch (wrapper.Role)
         {
             case EndingSpriteRole.AnimalEscape:
@@ -184,7 +197,7 @@ internal sealed class EndingStage
     /// <summary>Starts starfield motion at flyaway and advances its velocity, which slows on every update.</summary>
     private void StepFlyawayStars(EndingSprite stars, EndingStarsMotion motion)
     {
-        CinematicActor sprite = stars.Sprite;
+        ICinematicActor<EndingSceneCue> sprite = stars.Sprite;
         switch (motion)
         {
             case EndingStarsMotion.WaitingForFlyaway:

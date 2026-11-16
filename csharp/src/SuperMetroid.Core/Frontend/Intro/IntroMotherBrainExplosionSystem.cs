@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
@@ -57,15 +58,15 @@ internal sealed class IntroMotherBrainExplosionSystem
     internal sealed class ExplosionActor
     {
         /// <summary>The cinematic actor running the explosion's animation.</summary>
-        private readonly CinematicActor sprite;
+        private readonly CinematicActor<IntroMotherBrainExplosionAnimation, CinematicSpritePose, NoAnimationCue> sprite;
 
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
             Offset16<ScreenPixels> position,
-            CinematicSpriteSegment segment,
+            IntroMotherBrainExplosionAnimation animation,
             int startDelay)
         {
-            sprite = new CinematicActor(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), segment);
+            sprite = new(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), IntroMotherBrainAnimations.Explosions, animation);
             sprite.DelayFirstStep(startDelay);
         }
 
@@ -73,13 +74,13 @@ internal sealed class IntroMotherBrainExplosionSystem
         public Offset16<ScreenPixels> Position => sprite.ScreenPlace;
 
         /// <summary>The pose the explosion's animation shows; null before its first frame and after deletion.</summary>
-        public CinematicSpritePose? Pose => sprite.Pose;
+        public CinematicSpritePose? Pose => sprite.Shown;
 
         /// <summary>Cleared by the animation's delete after the later crossfade or animation completion.</summary>
         public bool IsActive => sprite.IsActive;
 
         /// <summary>Starts an explosion running <paramref name="animation"/> at <paramref name="placement"/>.</summary>
-        public static ExplosionActor Create(IntroMotherBrainExplosionPlacement placement, CinematicSpriteSegment animation) =>
+        public static ExplosionActor Create(IntroMotherBrainExplosionPlacement placement, IntroMotherBrainExplosionAnimation animation) =>
             new(IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset, animation, placement.StartDelayFrames);
 
         /// <summary>Runs one cinematic update of the explosion.</summary>

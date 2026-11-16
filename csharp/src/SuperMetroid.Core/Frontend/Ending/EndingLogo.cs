@@ -16,9 +16,9 @@ internal sealed class EndingLogo
     /// <summary>The lower S half.</summary>
     private readonly MovingHalf lowerS;
     /// <summary>The upper circle.</summary>
-    private readonly CinematicActor upperCircle;
+    private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> upperCircle;
     /// <summary>The lower circle.</summary>
-    private readonly CinematicActor lowerCircle;
+    private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> lowerCircle;
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; private set; }
     /// <summary>Number of crossfade steps already shown.</summary>
@@ -41,7 +41,7 @@ internal sealed class EndingLogo
     }
 
     /// <summary>The actors in the order they spawned, which is the order they step and draw in.</summary>
-    private IEnumerable<CinematicActor> Actors => [upperS.Actor, lowerS.Actor, upperCircle, lowerCircle];
+    private IEnumerable<CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue>> Actors => [upperS.Actor, lowerS.Actor, upperCircle, lowerCircle];
 
     /// <summary>Shows the pending crossfade step before moving actors and running their next cues.</summary>
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
@@ -65,11 +65,16 @@ internal sealed class EndingLogo
     }
 
     /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>
-    private void HandleCue(CinematicSpriteCueKind cue)
+    private void HandleCue(EndingLogoCue cue)
     {
-        if (cue != CinematicSpriteCueKind.GreyOut)
-            throw new InvalidOperationException($"The logo's animations publish no {cue} cue.");
-        CrossfadeStarted = true;
+        switch (cue)
+        {
+            case EndingLogoCue.GreyOut:
+                CrossfadeStarted = true;
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EndingLogoCue)} {cue}.");
+        }
     }
 
     /// <summary>Places active logo actors as the supplied sprite entries.</summary>
@@ -77,13 +82,13 @@ internal sealed class EndingLogo
     {
         Ensure.NotNull(destination);
         if (!Completed)
-            foreach (CinematicActor actor in Actors)
+            foreach (CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> actor in Actors)
                 actor.Draw(destination, installedArt, EndingLogoDefinitions.Camera);
     }
 
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>
-    private static CinematicActor Create(EndingLogoActorDefinition definition) =>
-        new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), definition.Animation);
+    private static CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Create(EndingLogoActorDefinition definition) =>
+        new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), EndingLogoAnimations.Logo, definition.Animation);
 
     /// <summary>
     /// An S half accelerating diagonally toward its landing point: the upper half down and left, the lower half up and
@@ -93,7 +98,7 @@ internal sealed class EndingLogo
     /// <param name="Landing">Where the half comes to rest.</param>
     /// <param name="Direction">The half's horizontal direction: minus one moves it left and down, one right and up.</param>
     /// <param name="Landed">Called as the half lands, or null for none.</param>
-    private sealed record MovingHalf(CinematicActor Actor, Offset16<ScreenPixels> Landing, int Direction, Action? Landed)
+    private sealed record MovingHalf(CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Actor, Offset16<ScreenPixels> Landing, int Direction, Action? Landed)
     {
         /// <summary>The half's speed on each axis, in pixels per update.</summary>
         private int speed = EndingLogoDefinitions.InitialSpeed;

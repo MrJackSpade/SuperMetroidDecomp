@@ -109,6 +109,10 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var completionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        // The typed texts' steps come first, then the digits and the colon, as the editable file lists them.
+        foreach (EndingTypedStepDefinition step in EndingCompletionTextSpriteDefinitions.Typings)
+            completionFrames.Add(step.Name, IntroCinematicSpriteFrameExtractor.Extract(
+                bus, CinematicSpritemapSources.Of(step.Typed), step.StockPartCount, step.Name));
         foreach (CinematicSpriteFrameDefinition definition in
             EndingCompletionTextSpriteDefinitions.Frames)
             completionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(

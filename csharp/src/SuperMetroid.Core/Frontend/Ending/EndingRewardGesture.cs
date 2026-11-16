@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingRewardGesture
 {
     /// <summary>Reward actor set in spawn order, advanced before inactive actors are removed.</summary>
-    private readonly List<CinematicActor> actors = [];
+    private readonly List<CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue>> actors = [];
     /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
     public bool JumpRequested { get; private set; }
 
@@ -25,7 +25,7 @@ internal sealed class EndingRewardGesture
     public void Step()
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
-        foreach (CinematicActor actor in actors)
+        foreach (CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> actor in actors)
             actor.Step(HandleCue);
         actors.RemoveAll(actor => !actor.IsActive);
     }
@@ -34,61 +34,20 @@ internal sealed class EndingRewardGesture
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
-        foreach (CinematicActor actor in actors)
+        foreach (CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> actor in actors)
             actor.Draw(destination, installedArt: installedArt);
     }
 
     /// <summary>Converts the jump cue into a suited or suitless handoff.</summary>
-    private void HandleCue(CinematicSpriteCueKind cue)
+    private void HandleCue(EndingRewardGestureCue cue)
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.SpawnSuitlessJump:
+            case EndingRewardGestureCue.StartJump:
                 JumpRequested = true;
                 return;
-            case CinematicSpriteCueKind.SpawnSuitedJump:
-                JumpRequested = true;
-                return;
-            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
-            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
-            case CinematicSpriteCueKind.StartRepeatingExplosions:
-            case CinematicSpriteCueKind.WaitForFlyaway:
-            case CinematicSpriteCueKind.StartBodyFlight:
-            case CinematicSpriteCueKind.StartHeadFlight:
-            case CinematicSpriteCueKind.EndZebesExplosion:
-            case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionColours:
-            case CinematicSpriteCueKind.FadeInZebesText:
-            case CinematicSpriteCueKind.FadeOutZebesText:
-            case CinematicSpriteCueKind.GreyOut:
-            case CinematicSpriteCueKind.Launch:
-            case CinematicSpriteCueKind.LaunchHead:
-            case CinematicSpriteCueKind.PrepareHead:
-            case CinematicSpriteCueKind.Shoot:
-            case CinematicSpriteCueKind.SpawnClearTime:
-            case CinematicSpriteCueKind.SpawnColon:
-            case CinematicSpriteCueKind.SpawnCompletedText:
-            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
-            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
-            case CinematicSpriteCueKind.SpawnHoursTens:
-            case CinematicSpriteCueKind.SpawnHoursUnits:
-            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
-            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
-            case CinematicSpriteCueKind.SpawnMinutesTens:
-            case CinematicSpriteCueKind.SpawnMinutesUnits:
-            case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
-            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
-            case CinematicSpriteCueKind.StartFlyingToZebes:
-            case CinematicSpriteCueKind.StartIntroPage2:
-            case CinematicSpriteCueKind.StartIntroPage3:
-            case CinematicSpriteCueKind.StartIntroPage4:
-            case CinematicSpriteCueKind.StartIntroPage5:
-            case CinematicSpriteCueKind.StartRinkaMoving:
-            case CinematicSpriteCueKind.StartZebesExplosion:
-            case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The reward gesture's animations publish no {cue} cue.");
+                throw new InvalidOperationException($"Undefined {nameof(EndingRewardGestureCue)} {cue}.");
         }
     }
 
@@ -96,9 +55,10 @@ internal sealed class EndingRewardGesture
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
-        var actor = new CinematicActor(
+        var actor = new CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue>(
             authored.Start.Position,
             EndingShades.Drawn(authored.Start.Colouring),
+            EndingRewardAnimations.Gesture,
             authored.Animation);
         actors.Add(actor);
     }

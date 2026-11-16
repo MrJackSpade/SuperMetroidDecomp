@@ -1,19 +1,27 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic actor: its position and colouring, playing one of the typed cinematic sprite animations (#641,
-/// #1600) where every cinematic sprite's update ran its animation.
+/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197)
+/// where every cinematic sprite's update ran its animation.
 /// </summary>
 /// <remarks>
 /// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue
-/// fails rather than being skipped.
+/// fails rather than being skipped. The cues are the family's own, so an owner is handed only the cues it acts on.
 /// </remarks>
-internal sealed class CinematicActor
+/// <typeparam name="TAnimation">The family's animation identity.</typeparam>
+/// <typeparam name="TFrame">What the family's actors show.</typeparam>
+/// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
+internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
+    where TAnimation : struct, Enum
+    where TFrame : struct
+    where TCue : notnull
 {
+    /// <summary>The family's animations, which the actor plays.</summary>
+    private readonly CinematicAnimations<TAnimation, TFrame, TCue> animations;
+
     /// <summary>
     /// Updates before the animation plays on to its next frame, one or more while it plays; setup may stagger the first
     /// frame (#1974).
@@ -24,17 +32,20 @@ internal sealed class CinematicActor
     private bool held;
 
     /// <summary>
-    /// Creates an actor at a whole-pixel screen place with the drawn shade of the colouring it starts drawing in (#1512) and
-    /// its animation.
+    /// Creates an actor at a whole-pixel screen place with the drawn shade of the colouring it starts drawing in (#1512),
+    /// playing <paramref name="animation"/> of its family's <paramref name="animations"/>.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
     public CinematicActor(
         Offset16<ScreenPixels> place,
         PictureShade colouring,
-        CinematicSpriteSegment segment)
+        CinematicAnimations<TAnimation, TFrame, TCue> animations,
+        TAnimation animation)
     {
+        this.animations = Ensure.NotNull(animations);
         Position = FixedVector<ScreenPixels>.FromWholePixels(place);
         Colouring = colouring;
-        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        Playback = new AnimationPlayback<TAnimation>(animations.StartingWith(animation), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Cleared when the animation's end retires the actor.</summary>
@@ -50,28 +61,29 @@ internal sealed class CinematicActor
     /// The whole pixels of <see cref="Position"/> (#1974, #2000): a place left of or above the screen has a negative
     /// coordinate. Assigning replaces them and keeps both fractions.
     /// </summary>
-    internal Offset16<ScreenPixels> ScreenPlace
+    public Offset16<ScreenPixels> ScreenPlace
     {
         get => Position.Whole;
         set => Position = Position.WithWhole(value);
     }
 
-    /// <summary>The drawn shade of the colouring the current pose's recolourable parts draw in (#1512).</summary>
+    /// <summary>The drawn shade of the colouring the current frame's recolourable parts draw in (#1512).</summary>
     public PictureShade Colouring { get; private set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
 
-    /// <summary>The pose the animation most recently showed; null before its first frame and after deletion.</summary>
-    internal CinematicSpritePose? Pose { get; private set; }
+    /// <summary>What the animation most recently showed; null before its first frame and after deletion.</summary>
+    internal TFrame? Shown { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<CinematicSpriteSegment> Playback { get; private set; }
+    internal AnimationPlayback<TAnimation> Playback { get; private set; }
 
-    /// <summary>Starts the animation of <paramref name="segment"/> on the sprite's next update, discarding the old frame countdown.</summary>
-    public void Start(CinematicSpriteSegment segment)
+    /// <summary>Starts <paramref name="animation"/> on the actor's next update, discarding the old frame countdown.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
+    public void Start(TAnimation animation)
     {
-        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        Playback = new AnimationPlayback<TAnimation>(animations.StartingWith(animation), AnimationPlace.StartOfAnimation);
         frameHold = 1;
         held = false;
     }
@@ -92,35 +104,39 @@ internal sealed class CinematicActor
     public void Delete()
     {
         IsActive = false;
-        Pose = null;
+        Shown = null;
     }
 
     /// <summary>
-    /// Advances the cinematic sprite by one update: when the frame expires, plays the animation on until it shows a
-    /// frame, holds or ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner
-    /// fails.
+    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
+    /// ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner fails.
     /// </summary>
-    public void Step(Action<CinematicSpriteCueKind>? ownerCue = null)
+    public void Step(Action<TCue>? ownerCue = null)
     {
         if (!IsActive || held || --frameHold > 0)
             return;
 
-        Animation<CinematicSpriteSegment> animation = Playback.Animation;
+        Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<CinematicSpriteSegment, CinematicSpritePose> shown = CinematicSpriteAnimations.Segments.PlayToNextFrame(
+        AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
             animation, ref place, cue => ApplyCue(cue, ownerCue));
-        Playback = new AnimationPlayback<CinematicSpriteSegment>(animation, place);
+        Playback = new AnimationPlayback<TAnimation>(animation, place);
         switch (shown)
         {
-            case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Frame frame:
+            case AnimationShown<TAnimation, TFrame>.Frame frame:
                 frameHold = frame.Duration;
-                Pose = frame.Shown;
+                Shown = frame.Shown;
                 return;
-            case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Held:
+            case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
+                // A held frame shows from now on: the animation plays on no further until its owner starts another.
+                Shown = rested.Shown;
+                held = true;
+                return;
+            case AnimationShown<TAnimation, TFrame>.Held:
                 // A held animation rests on its last frame for good: playing it on again would only hold again.
                 held = true;
                 return;
-            case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Ended:
+            case AnimationShown<TAnimation, TFrame>.Ended:
                 Delete();
                 return;
             default:
@@ -129,10 +145,10 @@ internal sealed class CinematicActor
     }
 
     /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
+    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
     {
         (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.Animation.Phases[Playback.Place.Phase].Segment} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
+            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
     }
 
     /// <summary>
@@ -162,16 +178,13 @@ internal sealed class CinematicActor
     private static int AlongLoop(int x, int loop) => ((x % loop) + loop) % loop;
 
     /// <summary>
-    /// Draws the current frame at the screen place minus <paramref name="scroll"/>, wherever that lies: the display clips
-    /// a frame off the screen (#1587).
+    /// What the actor shows and where on the screen, at its screen place minus <paramref name="scroll"/> wherever that lies
+    /// (the display clips a frame off the screen, #1587); none for an actor that is deleted or has shown nothing yet.
     /// </summary>
-    public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt,
-        Offset16<ScreenPixels> scroll = default)
+    internal CinematicActorDrawing<TFrame>? Drawing(Offset16<ScreenPixels> scroll = default)
     {
-        Ensure.NotNull(installedArt);
-        // The blank pose draws nothing.
-        if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
-            return;
+        if (!IsActive || Shown is not { } shown)
+            return null;
         Offset16<ScreenPixels> placed = ScreenPlace + -scroll;
         if (HorizontalLoopWidth is int loop)
         {
@@ -179,6 +192,6 @@ internal sealed class CinematicActor
             int alongLoop = AlongLoop(placed.X, loop);
             placed = new Offset16<ScreenPixels>(alongLoop < loop / 2 ? alongLoop : alongLoop - loop, placed.Y);
         }
-        installedArt.Draw(pose, screenSprites, placed, Colouring);
+        return new CinematicActorDrawing<TFrame>(shown, placed, Colouring);
     }
 }

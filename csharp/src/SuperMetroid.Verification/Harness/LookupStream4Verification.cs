@@ -134,10 +134,10 @@ internal static class LookupStream4Verification
             ticks++;
         }
         AssertEqual(rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
-        AssertEqual(rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Segments.Beats(CinematicSpriteSegment.ZebesExplosionRightStars)[0] switch
+        AssertEqual(rom.ReadCartridgeWord(0x8beb71), EndingSceneAnimations.Pictures.Segments.Beats(EndingSceneAnimation.ExplosionRightStars)[0] switch
         {
-            AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame frame => frame.Duration,
-            AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Pause pause => pause.Duration,
+            AnimationBeat<CinematicSpritePose, EndingSceneCue>.Frame frame => frame.Duration,
+            AnimationBeat<CinematicSpritePose, EndingSceneCue>.Pause pause => pause.Duration,
             var other => throw new InvalidOperationException($"The stars' first beat {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");

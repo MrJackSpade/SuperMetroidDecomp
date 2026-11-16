@@ -1,3 +1,6 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
@@ -21,13 +24,6 @@ namespace SuperMetroid.Verification.Frontend;
 /// </summary>
 internal static class TypedTextGlyphsVerification
 {
-    /// <summary>The ending's typed texts: the programs that type THE OPERATION WAS, COMPLETED SUCCESSFULLY and CLEAR TIME.</summary>
-    private static readonly CinematicSpriteSegment[] EndingTypedPrograms =
-    [
-        EndingActorDefinitions.OperationWasText.Animation, EndingActorDefinitions.CompletedSuccessfullyText.Animation,
-        EndingActorDefinitions.ClearTimeText.Animation,
-    ];
-
     /// <summary>Fails, naming every typed step the title or ending explosion sheet pictures as a whole frame.</summary>
     internal static void VerifyTypedStepsNotPicturedWhole()
     {
@@ -47,20 +43,23 @@ internal static class TypedTextGlyphsVerification
         SpriteSheet titleSheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.Title);
         foreach (string frame in titleSheet.frames.Keys.Concat(titleSheet.blanks).Where(frame => !titleFrames.Contains(frame)))
             findings.Add($"{SpriteSheetId.Title} pictures {frame}, which is no whole composition or letter");
-        foreach (CinematicSpriteSegment program in EndingTypedPrograms)
+        // The ending's result text family holds its digits and colon whole and each typed text's letters (#2195); any other
+        // frame of the family would picture a typing step whole.
+        var resultFrames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (CinematicSpriteFrameDefinition whole in EndingCompletionTextSpriteDefinitions.Frames)
+            resultFrames.Add(CinematicSpriteSheet.FrameName(EndingTextAnimations.Family, whole.Pose));
+        foreach (EndingTypedText text in Enum.GetValues<EndingTypedText>())
         {
-            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
+            foreach (EndingTextTyping step in EndingTextAnimations.Typings(text))
             {
-                if (pose != CinematicSpritePose.Blank)
-                    typed.Add(new(SpriteSheetId.EndingExplosionSprites, CinematicSpriteSheet.FrameName(CinematicSpriteFamily.EndingCompletionText, pose)));
+                resultFrames.Add(EndingTypedTextDrawing.LetterFrameName(step));
+                typed.Add(new(SpriteSheetId.EndingExplosionSprites, EndingTypedTextDrawing.LetterFrameName(step)));
             }
         }
-        foreach (TypedStepFrame step in typed.Distinct())
-        {
-            SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(step.Sheet);
-            if (sheet.frames.ContainsKey(step.Frame) || sheet.blanks.Contains(step.Frame))
-                findings.Add($"{step.Sheet} pictures typed step {step.Frame} as a whole frame");
-        }
+        SpriteSheet explosionSheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingExplosionSprites);
+        foreach (string frame in explosionSheet.frames.Keys.Concat(explosionSheet.blanks)
+            .Where(frame => frame.StartsWith($"{EndingTextAnimations.Family}.", StringComparison.Ordinal) && !resultFrames.Contains(frame)))
+            findings.Add($"{SpriteSheetId.EndingExplosionSprites} pictures {frame}, which is no whole digit, colon or letter");
         // Each glyph a typed step adds is held, as a picture or as one that shows nothing (a space).
         var glyphs = new List<TypedStepFrame>();
         foreach (TitleCardDefinition card in TitleCards.All)
@@ -68,11 +67,7 @@ internal static class TypedTextGlyphsVerification
             foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
                 glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.LetterFrameName(step)));
         }
-        foreach (CinematicSpriteSegment text in EndingTypedTexts.Texts.Texts)
-        {
-            for (int glyph = 0; glyph < EndingTypedTexts.Texts.Steps(text).Count; glyph++)
-                glyphs.Add(new(SpriteSheetId.EndingExplosionSprites, TypedTextSpriteSheet.GlyphFrameName(EndingTypedTexts.Family, text, glyph)));
-        }
+        glyphs.AddRange(typed);
         foreach (TypedStepFrame glyph in glyphs)
         {
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(glyph.Sheet);
@@ -81,7 +76,7 @@ internal static class TypedTextGlyphsVerification
         }
         AssertTrue(findings.Count == 0,
             $"{findings.Count} typed text steps are pictured whole:{Environment.NewLine}{string.Join(Environment.NewLine, findings)}");
-        Console.WriteLine($"  Typed text: none of {typed.Distinct().Count()} typed steps of the title and the ending is pictured whole, and each of their {glyphs.Count} glyphs is held.");
+        Console.WriteLine($"  Typed text: no typed step of the title's cards or the ending's {typed.Count} letters is pictured whole, and each of their {glyphs.Count} letters is held.");
     }
 
     /// <summary>A typed step's whole frame on a sheet.</summary>

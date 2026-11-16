@@ -9,16 +9,16 @@ internal static class IntroRinkaDefinitions
     /// first, second and third pictures for ten updates each. Its movement begins on the update after it starts moving,
     /// since the Rinka moves before its animation steps.
     /// </remarks>
-    public static CinematicActorDefinition RinkaActor =>
-        new(CinematicSpriteSegment.IntroRinka);
+    public static CinematicActorDefinition<IntroRinkaAnimation> RinkaActor =>
+        new(IntroRinkaAnimation.Rinka);
 
     /// <summary>The invisible Rinka spawner's actor: the spawner's animation. The spawner does not move.</summary>
     /// <remarks>
     /// The animation waits 74 updates, launches <see cref="StrikingPair"/>, waits 128 updates, launches
     /// <see cref="MissingPair"/>, then deletes the spawner.
     /// </remarks>
-    public static CinematicActorDefinition SpawnerActor =>
-        new(CinematicSpriteSegment.IntroRinkaSpawner);
+    public static CinematicActorDefinition<IntroRinkaAnimation> SpawnerActor =>
+        new(IntroRinkaAnimation.Spawner);
 
     /// <summary>The first pair the spawner launches, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
     internal static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =

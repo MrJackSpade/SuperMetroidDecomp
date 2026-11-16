@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggSlimeDrop
 {
     /// <summary>Discovery sprite owning this drop's position and impact animation.</summary>
-    internal readonly CinematicActor sprite;
+    internal readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
     /// <summary>How the drop flies: its sideways drift and its vertical speed for each update it has flown.</summary>
     private readonly IntroEggSlimeLaunch launch;
     /// <summary>
@@ -22,14 +23,12 @@ internal sealed class IntroEggSlimeDrop
     /// <summary>Starts a drop at the confused Baby's position, flying as <paramref name="launch"/> says.</summary>
     public IntroEggSlimeDrop(Offset16<ScreenPixels> babyPosition, IntroEggSlimeLaunch launch)
     {
-        CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
+        CinematicActorDefinition<IntroEggEffectAnimation> definition = IntroEggEffectDefinitions.SlimeDrop;
         this.launch = launch;
 
         // Every drop starts where the confused Baby is.
-        sprite = new CinematicActor(
-            babyPosition,
-            colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            segment: definition.Animation);
+        sprite = new(babyPosition, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroEggEffectAnimations.Effects,
+            definition.Animation);
     }
 
     /// <summary>
@@ -50,7 +49,7 @@ internal sealed class IntroEggSlimeDrop
             {
                 // Landing changes the animation and stops the drop, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.
-                sprite.Start(CinematicSpriteSegment.MetroidEggSlimeImpact);
+                sprite.Start(IntroEggEffectAnimation.SlimeImpact);
                 motionEnabled = false;
             }
             else

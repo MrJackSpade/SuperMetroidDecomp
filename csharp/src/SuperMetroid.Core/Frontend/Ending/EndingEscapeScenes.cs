@@ -81,7 +81,7 @@ internal sealed class EndingEscapeScenes
     {
         foreach (EndingSprite wrapper in sprites)
         {
-            CinematicActor sprite = wrapper.Sprite;
+            ICinematicActor<EndingSceneCue> sprite = wrapper.Sprite;
             EndingCloudMotion.Step(wrapper, _stage.FloorZoom);
             sprite.Step();
         }
@@ -108,28 +108,28 @@ internal sealed class EndingEscapeScenes
     }
 
     /// <summary>Carries out the ending sprite animations' cues that spawn actors, start the stars' wait, trigger colour effects or advance the cinematic phase.</summary>
-    private void HandleSpriteCue(EndingSprite wrapper, CinematicSpriteCueKind cue)
+    private void HandleSpriteCue(EndingSprite wrapper, EndingSceneCue cue)
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.WaitForFlyaway:
+            case EndingSceneCue.WaitForFlyaway:
                 // The right-hand stars wait for the flyaway to carry them away.
                 wrapper.StarsMotion = EndingStarsMotion.WaitingForFlyaway;
                 return;
 
-            case CinematicSpriteCueKind.FadeExplosionColours:
+            case EndingSceneCue.FadeExplosionColours:
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, SamusEquipmentFlags.None);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
 
-            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
+            case EndingSceneCue.SpawnExplosionSilhouette:
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
                 screen.Colours.Flash(EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor);
                 return;
 
-            case CinematicSpriteCueKind.StartZebesExplosion:
+            case EndingSceneCue.StartZebesExplosion:
                 ExplosionBurstDisplay = true;
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.Supernova, SamusEquipmentFlags.None);
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.Explosion, SamusEquipmentFlags.None);
@@ -142,7 +142,7 @@ internal sealed class EndingEscapeScenes
                     EndingSpriteRole.ExplosionStarsLeft);
                 return;
 
-            case CinematicSpriteCueKind.ExplosionFinale:
+            case EndingSceneCue.ExplosionFinale:
                 ExplosionFinaleDisplay = true;
                 _stage.ColourEffects.Start(EndingColourEffectDefinitions.SupernovaFinale, SamusEquipmentFlags.None);
                 _stage.SpawnSprite(
@@ -150,7 +150,7 @@ internal sealed class EndingEscapeScenes
                     EndingSpriteRole.ExplosionAfterglow);
                 return;
 
-            case CinematicSpriteCueKind.EndZebesExplosion:
+            case EndingSceneCue.EndZebesExplosion:
                 // The scene hides the sprite layer without deleting the actors: the stars must still
                 // advance and become visible again when the flyaway starts.
                 screen.Colours.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
@@ -158,73 +158,47 @@ internal sealed class EndingEscapeScenes
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
 
-            case CinematicSpriteCueKind.SpawnCompletedText:
-                _stage.SpawnSprite(
+            case EndingSceneCue.SpawnCompletedText:
+                _stage.SpawnText(
                     EndingActorDefinitions.CompletedSuccessfullyText,
                     EndingSpriteRole.CompletedSuccessfullyText);
                 return;
 
-            case CinematicSpriteCueKind.SpawnClearTime:
-                _stage.SpawnSprite(
+            case EndingSceneCue.SpawnClearTime:
+                _stage.SpawnText(
                     EndingActorDefinitions.ClearTimeText,
                     EndingSpriteRole.ClearTimeText);
                 return;
 
-            case CinematicSpriteCueKind.SpawnHoursTens:
+            case EndingSceneCue.SpawnHoursTens:
                 SpawnDigit(gameTimeHours / 10, EndingResultTextLayout.HoursTensX);
                 return;
 
-            case CinematicSpriteCueKind.SpawnHoursUnits:
+            case EndingSceneCue.SpawnHoursUnits:
                 SpawnDigit(gameTimeHours % 10, EndingResultTextLayout.HoursUnitsX);
                 return;
 
-            case CinematicSpriteCueKind.SpawnColon:
+            case EndingSceneCue.SpawnColon:
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ClearTimeColon,
                     EndingSpriteRole.ClearTimeDigit);
                 return;
 
-            case CinematicSpriteCueKind.SpawnMinutesTens:
+            case EndingSceneCue.SpawnMinutesTens:
                 SpawnDigit(gameTimeMinutes / 10, EndingResultTextLayout.MinutesTensX);
                 return;
 
-            case CinematicSpriteCueKind.SpawnMinutesUnits:
+            case EndingSceneCue.SpawnMinutesUnits:
                 SpawnDigit(gameTimeMinutes % 10, EndingResultTextLayout.MinutesUnitsX);
                 return;
 
-            case CinematicSpriteCueKind.TransitionToCredits:
+            case EndingSceneCue.TransitionToCredits:
                 _stage.StartFastFade();
                 _stage.Phase = EndingCreditsPhase.FadeOutToCredits;
                 return;
 
-            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
-            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
-            case CinematicSpriteCueKind.StartRepeatingExplosions:
-            case CinematicSpriteCueKind.StartBodyFlight:
-            case CinematicSpriteCueKind.StartHeadFlight:
-            case CinematicSpriteCueKind.FadeInZebesText:
-            case CinematicSpriteCueKind.FadeOutZebesText:
-            case CinematicSpriteCueKind.GreyOut:
-            case CinematicSpriteCueKind.Launch:
-            case CinematicSpriteCueKind.LaunchHead:
-            case CinematicSpriteCueKind.PrepareHead:
-            case CinematicSpriteCueKind.Shoot:
-            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
-            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
-            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
-            case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
-            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
-            case CinematicSpriteCueKind.SpawnSuitedJump:
-            case CinematicSpriteCueKind.SpawnSuitlessJump:
-            case CinematicSpriteCueKind.StartFlyingToZebes:
-            case CinematicSpriteCueKind.StartIntroPage2:
-            case CinematicSpriteCueKind.StartIntroPage3:
-            case CinematicSpriteCueKind.StartIntroPage4:
-            case CinematicSpriteCueKind.StartIntroPage5:
-            case CinematicSpriteCueKind.StartRinkaMoving:
             default:
-                throw new InvalidOperationException($"The ending escape scenes' animations publish no {cue} cue.");
+                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
         }
     }
 
@@ -240,7 +214,7 @@ internal sealed class EndingEscapeScenes
     }
 
     /// <summary>The animation showing clear-time <paramref name="digit"/>.</summary>
-    private static CinematicSpriteSegment ClearTimeDigitAnimation(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitAnimations.Length
+    private static EndingSceneAnimation ClearTimeDigitAnimation(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitAnimations.Length
         ? EndingCreditsState.ClearTimeDigitAnimations[digit]
         : throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9.");
 

@@ -26,8 +26,8 @@ internal static class EndingExplosionSlotOrderVerification
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Stage.Phase, "native flyaway handoff reached");
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingActorDefinitions.ExplosionAfterglow;
-        var afterglow = new CinematicActor(new(definition.Position.X, definition.Position.Y),
-            EndingShades.Drawn(definition.Colouring), definition.Animation);
+        var afterglow = new CinematicActor<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue>(new(definition.Position.X, definition.Position.Y),
+            EndingShades.Drawn(definition.Colouring), EndingSceneAnimations.Pictures, definition.Animation);
         afterglow.Step();
         var expected = ScreenSpritesFixtures.Blank();
         expected.BeginFrame();

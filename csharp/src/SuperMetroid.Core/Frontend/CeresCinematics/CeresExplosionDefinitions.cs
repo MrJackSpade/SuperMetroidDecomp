@@ -31,23 +31,23 @@ internal static class CeresExplosionDefinitions
     internal const int RepeatingCountdownSeed = 1;
     /// <summary>First delayed small-explosion actor.</summary>
     /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
-    public static CinematicActorDefinition InitialActor =>
-        new(CinematicSpriteSegment.CeresSmallExplosion);
+    public static CinematicActorDefinition<CeresAnimation> InitialActor =>
+        new(CeresAnimation.SmallExplosion);
 
     /// <summary>Cyclic repeating small-explosion actor.</summary>
     /// <remarks>Its animation repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
-    public static CinematicActorDefinition RepeatingActor =>
-        new(CinematicSpriteSegment.CeresRepeatingSmallExplosion);
+    public static CinematicActorDefinition<CeresAnimation> RepeatingActor =>
+        new(CeresAnimation.RepeatingSmallExplosion);
 
     /// <summary>Final delayed large-explosion actor.</summary>
     /// <remarks>Its animation repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
-    public static CinematicActorDefinition FinalWaveActor =>
-        new(CinematicSpriteSegment.CeresLargeExplosion);
+    public static CinematicActorDefinition<CeresAnimation> FinalWaveActor =>
+        new(CeresAnimation.LargeExplosion);
 
     /// <summary>Final station blast actor created as the station explodes.</summary>
     /// <remarks>Its animation displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
-    public static CinematicActorDefinition StationBlastActor =>
-        new(CinematicSpriteSegment.CeresStationBlast);
+    public static CinematicActorDefinition<CeresAnimation> StationBlastActor =>
+        new(CeresAnimation.StationBlast);
 
     /// <summary>
     /// The first wave's five small blasts, in the order they appear: one at each corner of a square around the turning

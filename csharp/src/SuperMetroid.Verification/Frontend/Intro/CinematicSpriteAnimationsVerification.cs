@@ -1,21 +1,26 @@
-using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Animation;
-using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddresses;
-using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.TestSupport.MovieReplay;
+using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddresses;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>
-/// #1290, #1600: every typed cinematic sprite segment and animation against the retail bank-$8B lists. Each segment must
-/// match its native list beat by beat (durations, poses, pre-instructions and owner cues), each animation the lists'
-/// counters, branches, runs on and ends, and each animation must then play through the real
-/// <see cref="CinematicActor"/> exactly as an independent reader of the native list does, update by update.
+/// #1290, #1600, #2196, #2197: every typed cinematic animation an actor starts against the retail bank-$8B lists it
+/// replaces. Each family's animations play through the real <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> exactly as
+/// an independent reader of the native lists does, update by update: the actor's liveness, the picture or typed text it
+/// shows, the plays a counted phase has left and the family's own cues. The typed segments are written as the game shows
+/// them, a still picture held and an entry and its loop one animation, so they are compared by what they play, not by the
+/// lists' layout.
 /// </summary>
 internal static class CinematicSpriteAnimationsVerification
 {
-    /// <summary>Updates each program is played for, enough for every list's loops and deletions.</summary>
+    /// <summary>Updates each animation is played for, enough for every list's loops and deletions.</summary>
     private const int PlaybackUpdates = 1200;
 
     /// <summary>The shared cinematic sprite instructions, by what they do.</summary>
@@ -46,174 +51,95 @@ internal static class CinematicSpriteAnimationsVerification
         [(ushort)CinematicSpriteInstruction.SetTimer] = SharedWord.SetCounter,
     };
 
-    /// <summary>
-    /// Every segment matches its native list, every animation the lists' control flow and the lists' layout, and every
-    /// animation plays as its list does.
-    /// </summary>
+    /// <summary>Every family's animations play as their native lists do, and every native start is an animation an actor starts.</summary>
     internal static void VerifyCinematicSpriteAnimations(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<CinematicSpriteSegment>().Length, Entries.Length, "every cinematic sprite segment has a native entry");
-        for (int index = 0; index < Entries.Length; index++)
-            AssertEqual(Enum.GetValues<CinematicSpriteSegment>()[index], Entries[index].Program, "the cinematic sprite segments are declared in authored order");
-        AssertTrue(Entries.Zip(Entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native cinematic sprite entries ascend");
-
-        Dictionary<CinematicSpriteSegment, NativeEnemyList<CinematicSpriteSegment>> lists =
-            Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry));
-        // A counted animation starts at its counted segment (#1978), which the shared comparison takes for a body no
-        // animation starts in; it is compared below from its native counter load.
-        HashSet<CinematicSpriteSegment> preambled = [.. CounterPreambles.Select(preamble => preamble.Program)];
-        NativeEnemyAnimationOracle.CompareAnimations(lists,
-            CinematicSpriteAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value));
-        foreach (CinematicSpriteNativeListAddressesEntry preamble in CounterPreambles)
-        {
-            AssertEqual(SharedWord.SetCounter, SharedWords[Word(cartridge, preamble.Entry)], $"{preamble.Program}'s native start loads the counter");
-            AssertEqual(Entry(preamble.Program), (ushort)(preamble.Entry + 4), $"{preamble.Program}'s counter load runs on into its list");
-            (List<AnimationPhase<CinematicSpriteSegment>> phases, AnimationEnd end) =
-                NativeEnemyAnimationOracle.Linearize(lists, preamble.Program, Word(cartridge, (ushort)(preamble.Entry + 2)));
-            Animation<CinematicSpriteSegment> typed = CinematicSpriteAnimations.StartingWith(preamble.Program);
-            AssertTrue(typed.Phases.SequenceEqual(phases), $"{preamble.Program}'s phases follow its counter load and native lists");
-            AssertEqual(end, typed.End, $"{preamble.Program}'s end follows its native lists");
-        }
-        // Each list that runs on into the list authored next is followed by that list wherever an animation plays on
-        // from it (#1978): the animation names it as its next phase.
-        foreach (CinematicSpriteSegment segment in NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists))
-        {
-            CinematicSpriteSegment? next = lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target;
-            foreach (Animation<CinematicSpriteSegment> animation in CinematicSpriteAnimations.StartingAt.Values)
-            {
-                for (int phase = 0; phase + 1 < animation.Phases.Count; phase++)
-                {
-                    if (animation.Phases[phase].Segment == segment && animation.Phases[phase + 1].Segment != segment)
-                        AssertEqual(next, (CinematicSpriteSegment?)animation.Phases[phase + 1].Segment, $"{segment} runs on into the list authored next");
-                }
-            }
-        }
-        int beats = lists.Values.Sum(list => list.BeatAddresses.Length), updates = 0;
-        foreach (CinematicSpriteNativeListAddressesEntry item in Entries.Where(item => CinematicSpriteAnimations.StartingAt.ContainsKey(item.Program)))
-            updates += ComparePlayback(cartridge, item.Program, Start(item.Program));
-        Console.WriteLine($"  cinematic sprite animations: {Entries.Length} segments ({beats} beats, {updates} played updates) match bank $8B.");
+        var compared = new List<Enum>();
+        int updates = 0;
+        updates += CompareFamily(cartridge, IntroMotherBrainAnimations.MotherBrain, MotherBrainCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroMotherBrainAnimations.Explosions, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroBabyAnimations.Discovery, DiscoveryCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroBabyAnimations.Laboratory, LaboratoryCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroEggEffectAnimations.Effects, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroRinkaAnimations.Rinka, RinkaCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroRinkaAnimations.Spawner, RinkaSpawnerCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroNarrationAnimations.Narration, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
+        updates += CompareFamily(cartridge, CeresAnimations.Scenes, CeresCues, Pictures, compared);
+        updates += CompareFamily(cartridge, CeresAnimations.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
+        updates += CompareFamily(cartridge, EndingSceneAnimations.Pictures, EndingSceneCues, Pictures, compared);
+        updates += CompareFamily(cartridge, EndingTextAnimations.Texts, EndingSceneCues, TypedTexts, compared);
+        updates += CompareFamily(cartridge, EndingRewardAnimations.Gesture, RewardGestureCues, Pictures, compared);
+        updates += CompareFamily(cartridge, EndingRewardAnimations.Jump, RewardJumpCues, Pictures, compared);
+        updates += CompareFamily(cartridge, EndingLogoAnimations.Logo, LogoCues, Pictures, compared);
+        AssertEqual(compared.Count, compared.Distinct().Count(), "no animation is compared twice");
+        AssertTrue(Starts.Keys.All(compared.Contains) && compared.All(Starts.ContainsKey),
+            "every native start is an animation an actor of some family starts, and every such animation has its native start");
+        Console.WriteLine($"  cinematic sprite animations: {compared.Count} animations ({updates} played updates) match bank $8B.");
     }
 
-    /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    private static CinematicSpriteSegment? ProgramAt(ushort address) =>
-        Entries.Any(item => item.Entry == address) ? Entries.Single(item => item.Entry == address).Program : null;
+    /// <summary>Whether the native spritemap word <paramref name="native"/> draws <paramref name="pose"/>.</summary>
+    private static bool Pictures(CinematicSpritePose? pose, ushort native) => CinematicSpritePoseSpritemaps.Shows(pose, native);
+
+    /// <summary>Whether the native spritemap word <paramref name="native"/> is the step that shows <paramref name="typed"/>.</summary>
+    private static bool TypedTexts(EndingTextTyping? typed, ushort native) =>
+        typed is { } shown ? CinematicSpritemapSources.Of(shown) == native : native == 0;
+
+    /// <summary>Plays every animation an actor of <paramref name="animations"/>' family starts against its native list; returns the updates.</summary>
+    private static int CompareFamily<TAnimation, TFrame, TCue>(IImportCartridgeSource cartridge, CinematicAnimations<TAnimation, TFrame, TCue> animations,
+        NativeCinematicCues<TCue> cues, Func<TFrame?, ushort, bool> shows, List<Enum> compared)
+        where TAnimation : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
+        int updates = 0;
+        foreach (TAnimation animation in animations.Starts)
+        {
+            compared.Add(animation);
+            updates += ComparePlayback(cartridge, animations, cues, shows, animation);
+        }
+        return updates;
+    }
 
     /// <summary>Reads one native list word.</summary>
     private static ushort Word(IImportCartridgeSource cartridge, ushort address) =>
         cartridge.ReadCartridgeWord((int)new SnesAddress(Bank, address));
 
     /// <summary>
-    /// Reads one segment's native list, comparing its beats with the segment's: each beat's native address, and each
-    /// control instruction with its address and the beat it follows.
-    /// </summary>
-    private static NativeEnemyList<CinematicSpriteSegment> ReadList(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
-    {
-        IReadOnlyList<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>> beats = CinematicSpriteAnimations.Segments.Beats(program);
-        var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<CinematicSpriteSegment>>();
-        ushort cursor = entry;
-        AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Next(string what)
-        {
-            AssertTrue(addresses.Count < beats.Count, $"{program} has a beat for native {what} at $8B:{cursor:X4}");
-            addresses.Add(cursor);
-            return beats[addresses.Count - 1];
-        }
-        while (true)
-        {
-            string at = $"{program} at $8B:{cursor:X4}";
-            if (cursor != entry && ProgramAt(cursor) is { } following)
-            {
-                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, following, null, cursor));
-                break;
-            }
-            ushort word = Word(cartridge, cursor);
-            ushort operand = Word(cartridge, unchecked((ushort)(cursor + 2)));
-            if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
-            {
-                var frame = AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>(Next("frame"), $"{at}: frame");
-                AssertEqual(word, frame.Duration, $"{at}: duration");
-                AssertTrue(CinematicSpritePoseSpritemaps.Shows(frame.Shown, operand), $"{at}: spritemap ${operand:X4} draws {frame.Shown}");
-                cursor = unchecked((ushort)(cursor + 4));
-                continue;
-            }
-            if (OwnerInstructions.TryGetValue(word, out CinematicSpriteCueKind kind))
-            {
-                var raised = AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event>(Next("owner instruction"), $"{at}: owner instruction");
-                AssertEqual(new CinematicSpriteCue(kind), raised.Raised, $"{at}: owner cue");
-                cursor = unchecked((ushort)(cursor + 2));
-                continue;
-            }
-            AssertTrue(SharedWords.TryGetValue(word, out SharedWord shared), $"{at}: native word ${word:X4} is known");
-            switch (shared)
-            {
-                case SharedWord.Delete:
-                    controls.Add(new(NativeEnemyControlKind.Stop, addresses.Count, null, null, cursor));
-                    break;
-                case SharedWord.Sleep:
-                    controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
-                    break;
-                case SharedWord.GoTo:
-                    controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, SegmentAt(operand, at), null, cursor));
-                    break;
-                case SharedWord.SetFrameBehavior:
-                    var install = AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event>(Next(shared.ToString()), $"{at}: pre-instruction install");
-                    AssertTrue(CinematicActorNativeMotions.CueInstalling.TryGetValue(operand, out CinematicSpriteCueKind starting), $"{at}: routine ${operand:X4} starts a named motion");
-                    AssertEqual(starting, install.Raised.Kind, $"{at}: the cue starting the routine's motion");
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                case SharedWord.SetCounter:
-                    controls.Add(new(NativeEnemyControlKind.SetCounter, addresses.Count, null, operand, cursor));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                case SharedWord.RepeatWhileCounting:
-                    CinematicSpriteSegment repeated = SegmentAt(operand, at);
-                    AssertEqual(program, repeated, $"{at}: a counted repeat replays its own list");
-                    controls.Add(new(NativeEnemyControlKind.Repeat, addresses.Count, repeated, null, cursor));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    continue;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(SharedWord)} {shared}.");
-            }
-            break;
-        }
-        AssertEqual(beats.Count, addresses.Count, $"{program}: its native list holds each of its beats");
-        return new NativeEnemyList<CinematicSpriteSegment>([.. addresses], [.. controls]);
-    }
-
-    /// <summary>The segment whose native list starts at <paramref name="address"/>, failing when none does.</summary>
-    private static CinematicSpriteSegment SegmentAt(ushort address, string at) =>
-        ProgramAt(address) ?? throw new InvalidDataException($"{at}: ${address:X4} is no segment's native entry.");
-
-    /// <summary>
-    /// Plays the animation of <paramref name="program"/> through the real actor beside an independent reader of its native list, comparing
-    /// liveness, the shown spritemap, the plays a repeated phase has left (#2006) and each update's owner cues, a routine install
+    /// Plays <paramref name="animation"/> through the real actor beside an independent reader of its native list, comparing
+    /// liveness, the shown frame, the plays a repeated phase has left (#2006) and each update's owner cues, a routine install
     /// among them; returns the updates.
     /// </summary>
-    private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
+    private static int ComparePlayback<TAnimation, TFrame, TCue>(IImportCartridgeSource cartridge, CinematicAnimations<TAnimation, TFrame, TCue> animations,
+        NativeCinematicCues<TCue> cues, Func<TFrame?, ushort, bool> shows, TAnimation animation)
+        where TAnimation : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
     {
-        var actor = new CinematicActor(default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), program);
-        var native = new NativeReader(cartridge, entry);
-        var cues = new List<CinematicSpriteCueKind>();
+        var actor = new CinematicActor<TAnimation, TFrame, TCue>(default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), animations, animation);
+        var native = new NativeReader<TCue>(cartridge, Start(animation), cues);
+        var raised = new List<TCue>();
         for (int update = 0; update < PlaybackUpdates; update++)
         {
-            cues.Clear();
-            actor.Step(cues.Add);
+            raised.Clear();
+            actor.Step(raised.Add);
             native.Step();
-            string at = $"{program} update {update}";
+            string at = $"{animation} update {update}";
             AssertEqual(native.Active, actor.IsActive, $"{at}: liveness");
             if (!native.Active)
                 return update + 1;
-            AssertTrue(CinematicSpritePoseSpritemaps.Shows(actor.Pose, native.Spritemap), $"{at}: spritemap ${native.Spritemap:X4} draws {actor.Pose}");
+            AssertTrue(shows(actor.Shown, native.Spritemap), $"{at}: spritemap ${native.Spritemap:X4} draws {actor.Shown}");
             if (NativeEnemyAnimationOracle.NativePlaysLeft(actor.Playback) is { } playsLeft)
                 AssertEqual<int>(native.Timer.RawValue, playsLeft, $"{at}: plays left");
-            AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");
+            AssertTrue(native.Cues.SequenceEqual(raised), $"{at}: owner cues");
         }
         return PlaybackUpdates;
     }
 
     /// <summary>An independent reader of a native bank-$8B list with the generic cinematic sprite handler's timer gate.</summary>
-    private sealed class NativeReader(IImportCartridgeSource cartridge, ushort cursor)
+    /// <typeparam name="TCue">The cues of the list's family.</typeparam>
+    private sealed class NativeReader<TCue>(IImportCartridgeSource cartridge, ushort cursor, NativeCinematicCues<TCue> cues)
+        where TCue : notnull
     {
         /// <summary>The next native word.</summary>
         private ushort cursor = cursor;
@@ -225,8 +151,8 @@ internal static class CinematicSpriteAnimationsVerification
         internal ushort Spritemap { get; private set; }
         /// <summary>The goto timer word.</summary>
         internal WrappingCountdown Timer { get; private set; }
-        /// <summary>The owner instructions the latest update ran.</summary>
-        internal List<CinematicSpriteCueKind> Cues { get; } = [];
+        /// <summary>The owner instructions the latest update ran, as the family's cues.</summary>
+        internal List<TCue> Cues { get; } = [];
 
         /// <summary>Runs one generic handler call.</summary>
         internal void Step()
@@ -248,13 +174,14 @@ internal static class CinematicSpriteAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     return;
                 }
-                if (OwnerInstructions.TryGetValue(word, out CinematicSpriteCueKind kind))
+                if (cues.Instructions.TryGetValue(word, out TCue? cue))
                 {
-                    Cues.Add(kind);
+                    Cues.Add(cue);
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 }
-                switch (SharedWords[word])
+                AssertTrue(SharedWords.TryGetValue(word, out SharedWord shared), $"native word ${word:X4} at $8B:{cursor:X4} is the family's or shared");
+                switch (shared)
                 {
                     case SharedWord.Delete:
                         Active = false;
@@ -264,7 +191,9 @@ internal static class CinematicSpriteAnimationsVerification
                         return;
                     case SharedWord.SetFrameBehavior:
                         // Installing a routine starts its motion, which the actor's owner runs on the cue Core raises.
-                        Cues.Add(CinematicActorNativeMotions.CueInstalling[operand]);
+                        if (!cues.Installs.TryGetValue(operand, out TCue? starting))
+                            throw new InvalidDataException($"Routine ${operand:X4} installed at $8B:{cursor:X4} starts none of the family's motions.");
+                        Cues.Add(starting);
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case SharedWord.GoTo:
@@ -279,7 +208,7 @@ internal static class CinematicSpriteAnimationsVerification
                         cursor = !Timer.IsZero ? operand : unchecked((ushort)(cursor + 4));
                         continue;
                     default:
-                        throw new InvalidOperationException($"Undefined {nameof(SharedWord)} {SharedWords[word]}.");
+                        throw new InvalidOperationException($"Undefined {nameof(SharedWord)} {shared}.");
                 }
             }
             throw new InvalidDataException("A native cinematic sprite list ran thirty-two commands without a frame.");

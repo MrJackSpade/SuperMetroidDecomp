@@ -30,10 +30,7 @@ internal static class IntroEyeAnimations
         [
             Show(E.Closed, 64),
             Show(E.HalfOpen, 8),
-        ],
-        [P.FinalPageDeadpan] =
-        [
-            Show(E.Deadpan, 16),
+            new AnimationBeat<IntroEyeFrame, NoAnimationCue>.HeldFrame(E.Deadpan),
         ],
     });
 
@@ -41,8 +38,7 @@ internal static class IntroEyeAnimations
     internal static IReadOnlyDictionary<IntroEyeSegment, Animation<IntroEyeSegment>> StartingAt { get; } = new Dictionary<IntroEyeSegment, Animation<IntroEyeSegment>>
     {
         [P.Blinking] = new([new(P.Blinking, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FinalPageClosing] = new([new(P.FinalPageClosing, 0, 2, 1), new(P.FinalPageDeadpan, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FinalPageDeadpan] = new([new(P.FinalPageDeadpan, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FinalPageClosing] = new([new(P.FinalPageClosing, 0, 3, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -14,16 +14,16 @@ internal static class EndingRewardActors
     /// </summary>
     public static EndingRewardActorDefinition Get(EndingRewardActor definition) => definition switch
     {
-        EndingRewardActor.SuitlessUpper => new(EndingRewardStartDefinitions.Suitless, CinematicSpriteSegment.HairRelease),
-        EndingRewardActor.SuitlessLower => new(EndingRewardStartDefinitions.Suitless, CinematicSpriteSegment.HairReleaseLegs),
-        EndingRewardActor.SuitedBody => new(EndingRewardStartDefinitions.SuitedBody, CinematicSpriteSegment.GestureBody),
-        EndingRewardActor.SuitedArm => new(EndingRewardStartDefinitions.SuitedBody, CinematicSpriteSegment.GestureArm),
-        EndingRewardActor.HelmetedHead => new(EndingRewardStartDefinitions.HelmetedHead, CinematicSpriteSegment.GestureHelmet),
-        EndingRewardActor.HelmetlessHead => new(EndingRewardStartDefinitions.HelmetlessHead, CinematicSpriteSegment.GestureHead),
-        EndingRewardActor.JumpSuitlessBody => new(EndingRewardStartDefinitions.Suitless, CinematicSpriteSegment.SuitlessJump),
-        EndingRewardActor.JumpSuitedBody => new(EndingRewardStartDefinitions.SuitedBody, CinematicSpriteSegment.SuitedJump),
-        EndingRewardActor.JumpHelmetedHead => new(EndingRewardStartDefinitions.HelmetedHead, CinematicSpriteSegment.HelmetJump),
-        EndingRewardActor.JumpHelmetlessHead => new(EndingRewardStartDefinitions.HelmetlessHead, CinematicSpriteSegment.HeadJump),
+        EndingRewardActor.SuitlessUpper => new(EndingRewardStartDefinitions.Suitless, EndingRewardAnimation.HairRelease),
+        EndingRewardActor.SuitlessLower => new(EndingRewardStartDefinitions.Suitless, EndingRewardAnimation.HairReleaseLegs),
+        EndingRewardActor.SuitedBody => new(EndingRewardStartDefinitions.SuitedBody, EndingRewardAnimation.GestureBody),
+        EndingRewardActor.SuitedArm => new(EndingRewardStartDefinitions.SuitedBody, EndingRewardAnimation.GestureArm),
+        EndingRewardActor.HelmetedHead => new(EndingRewardStartDefinitions.HelmetedHead, EndingRewardAnimation.GestureHelmet),
+        EndingRewardActor.HelmetlessHead => new(EndingRewardStartDefinitions.HelmetlessHead, EndingRewardAnimation.GestureHead),
+        EndingRewardActor.JumpSuitlessBody => new(EndingRewardStartDefinitions.Suitless, EndingRewardAnimation.SuitlessJump),
+        EndingRewardActor.JumpSuitedBody => new(EndingRewardStartDefinitions.SuitedBody, EndingRewardAnimation.SuitedJump),
+        EndingRewardActor.JumpHelmetedHead => new(EndingRewardStartDefinitions.HelmetedHead, EndingRewardAnimation.HelmetJump),
+        EndingRewardActor.JumpHelmetlessHead => new(EndingRewardStartDefinitions.HelmetlessHead, EndingRewardAnimation.HeadJump),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {definition}."),
     };
 

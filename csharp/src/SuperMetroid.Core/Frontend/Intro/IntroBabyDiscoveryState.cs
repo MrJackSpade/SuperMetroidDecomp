@@ -31,13 +31,13 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
-    internal readonly CinematicActor egg;
+    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
     /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then page three's cross-fade.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
     /// <summary>How the confused baby moves: waiting for the hatch, rising out of the egg, idling, then dancing.</summary>
     private ConfusedBabyMotion babyMotion = ConfusedBabyMotion.WaitingForHatch;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
-    internal readonly CinematicActor confusedBaby;
+    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> confusedBaby;
 
     /// <summary>Sets up the scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     /// <param name="random">The session's random number generator, which the demo's Samus animation draws from.</param>
@@ -138,7 +138,7 @@ internal sealed class IntroBabyDiscoveryState
         if (eggBehavior == MetroidEggBehavior.WaitsForSamus &&
             Samus.Position.X.Whole < IntroBabyDiscoveryDefinitions.EggHatchX)
         {
-            egg.Start(CinematicSpriteSegment.MetroidEggHatching);
+            egg.Start(IntroBabyAnimation.EggHatching);
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
@@ -224,11 +224,11 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Spawns hatch particles or requests the page-three transition from the egg's animation.</summary>
-    private void HandleEggCue(CinematicSpriteCueKind cue)
+    private void HandleEggCue(IntroDiscoveryCue cue)
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.SpawnParticles:
+            case IntroDiscoveryCue.SpawnShellPieces:
                 // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
                 foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
                     eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
@@ -237,56 +237,19 @@ internal sealed class IntroBabyDiscoveryState
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);
                 return;
 
-            case CinematicSpriteCueKind.StartIntroPage3:
+            case IntroDiscoveryCue.StartPageThree:
                 // This cue switches the outer cinematic phase to page three. The state
                 // owner performs the colour transition; the actor merely reports the request.
                 PageThreeRequested = true;
                 return;
 
-            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
+            case IntroDiscoveryCue.DeleteEggAfterCrossFade:
                 // Page three's cross-fade deletes the egg once it ends.
                 eggBehavior = MetroidEggBehavior.WaitsForCrossFadeEnd;
                 return;
 
-            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
-            case CinematicSpriteCueKind.StartRepeatingExplosions:
-            case CinematicSpriteCueKind.WaitForFlyaway:
-            case CinematicSpriteCueKind.StartBodyFlight:
-            case CinematicSpriteCueKind.StartHeadFlight:
-            case CinematicSpriteCueKind.EndZebesExplosion:
-            case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionColours:
-            case CinematicSpriteCueKind.FadeInZebesText:
-            case CinematicSpriteCueKind.FadeOutZebesText:
-            case CinematicSpriteCueKind.GreyOut:
-            case CinematicSpriteCueKind.Launch:
-            case CinematicSpriteCueKind.LaunchHead:
-            case CinematicSpriteCueKind.PrepareHead:
-            case CinematicSpriteCueKind.Shoot:
-            case CinematicSpriteCueKind.SpawnClearTime:
-            case CinematicSpriteCueKind.SpawnColon:
-            case CinematicSpriteCueKind.SpawnCompletedText:
-            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
-            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
-            case CinematicSpriteCueKind.SpawnHoursTens:
-            case CinematicSpriteCueKind.SpawnHoursUnits:
-            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
-            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
-            case CinematicSpriteCueKind.SpawnMinutesTens:
-            case CinematicSpriteCueKind.SpawnMinutesUnits:
-            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
-            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
-            case CinematicSpriteCueKind.SpawnSuitedJump:
-            case CinematicSpriteCueKind.SpawnSuitlessJump:
-            case CinematicSpriteCueKind.StartFlyingToZebes:
-            case CinematicSpriteCueKind.StartIntroPage2:
-            case CinematicSpriteCueKind.StartIntroPage4:
-            case CinematicSpriteCueKind.StartIntroPage5:
-            case CinematicSpriteCueKind.StartRinkaMoving:
-            case CinematicSpriteCueKind.StartZebesExplosion:
-            case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The Metroid egg's animations raise no {cue} cue.");
+                throw new InvalidOperationException($"Undefined {nameof(IntroDiscoveryCue)} {cue}.");
         }
     }
 
@@ -298,7 +261,7 @@ internal sealed class IntroBabyDiscoveryState
             case ConfusedBabyMotion.WaitingForHatch:
                 // The confused baby starts rising on the update the egg first shows its burst shell, after this
                 // update's egg step.
-                if (egg.Pose is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
+                if (egg.Shown is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
                 {
                     babyMotion = ConfusedBabyMotion.Rising;
                     BabyVelocity = BabyVelocity.WithY(default);
@@ -360,7 +323,7 @@ internal sealed class IntroBabyDiscoveryState
             targetY,
             BabyVelocity.Y,
             limit: VerticalSpeedLimit));
-        AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
+        confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Vertical, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. The baby
         // then holds before enabling the two-axis dance around Samus.
@@ -401,7 +364,7 @@ internal sealed class IntroBabyDiscoveryState
         SamusDisplay = BabyVelocity.X.IsNegative
             ? IntroSamusDisplay.ActorsFirst
             : IntroSamusDisplay.SamusFirst;
-        AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
+        confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Horizontal, BabyVelocity.X);
 
         int targetY = Samus.Position.Y.Whole - IntroBabyDiscoveryDefinitions.DanceHeightAboveSamus;
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
@@ -409,7 +372,7 @@ internal sealed class IntroBabyDiscoveryState
             targetY,
             BabyVelocity.Y,
             limit: VerticalSpeedLimit));
-        AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
+        confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Vertical, BabyVelocity.Y);
     }
 
     /// <summary>The hatched baby's fastest vertical speed either way.</summary>
@@ -435,26 +398,15 @@ internal sealed class IntroBabyDiscoveryState
             ? SignedEightEight.Min(limit, current + BabyAcceleration)
             : SignedEightEight.Max(-limit, current - BabyAcceleration);
 
-    /// <summary>Integrates one 1/256-pixel velocity component into the actor's subpixel position.</summary>
-    private static void AddEightEightVelocity(
-        CinematicActor sprite,
-        Axis axis,
-        SignedEightEight velocity)
-    {
-        sprite.Position = axis == Axis.Horizontal
-            ? sprite.Position.WithX(IntroCinematicMotion.AddEightEight(sprite.Position.X, velocity))
-            : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
-    }
+    /// <summary><paramref name="position"/> with one 1/256-pixel velocity component integrated into its subpixel position.</summary>
+    private static FixedVector<ScreenPixels> WithEightEightVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedEightEight velocity) =>
+        axis == Axis.Horizontal
+            ? position.WithX(IntroCinematicMotion.AddEightEight(position.X, velocity))
+            : position.WithY(IntroCinematicMotion.AddEightEight(position.Y, velocity));
 
     /// <summary>Instantiates a cinematic actor with its authored position, colouring and animation.</summary>
-    private static CinematicActor CreateActor(IntroBabyActorDefinition definition)
-    {
-        var actor = new CinematicActor(
-            definition.Position,
-            IntroShades.Drawn(definition.Colouring),
-            definition.Animation);
-        return actor;
-    }
+    private static CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> CreateActor(IntroBabyActorDefinition definition) =>
+        new(definition.Position, IntroShades.Drawn(definition.Colouring), IntroBabyAnimations.Discovery, definition.Animation);
 
     /// <summary>Creates the discovery room: collision only, which the scene's own pictures show.</summary>
     private static RoomLevelData CreateLevel() => RoomLevelData.CollisionOnly(

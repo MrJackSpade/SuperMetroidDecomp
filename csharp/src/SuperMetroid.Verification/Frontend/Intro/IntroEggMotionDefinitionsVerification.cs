@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -84,7 +85,7 @@ internal static class IntroEggMotionDefinitionsVerification
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
                 object actor = fragment ? new IntroEggParticle(fragments[actorIndex], pastCurve) : new IntroEggSlimeDrop(new(128, 96), IntroEggMotionDefinitions.SlimeLaunches[actorIndex]);
-                CinematicActor sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
+                CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
                 uint x = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.X), fraction);
                 uint y = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.Y), fraction);

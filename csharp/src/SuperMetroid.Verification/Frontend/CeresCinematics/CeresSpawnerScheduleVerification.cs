@@ -17,7 +17,8 @@ internal static class CeresSpawnerScheduleVerification
         foreach (int reseedFrame in new[] { 1, 211, 273 })
         foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
         {
-            var native = new CinematicActor(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteSegment.CeresExplosionSpawner);
+            var native = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue>(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions),
+                CeresAnimations.ExplosionSpawner, CeresAnimation.ExplosionSpawner);
             ushort countdown = 0;
             int actualCountdown = 0;
             bool disabled = false;
@@ -54,47 +55,10 @@ internal static class CeresSpawnerScheduleVerification
                 {
                     expected = cue switch
                     {
-                        CinematicSpriteCueKind.StartRepeatingExplosions => StartRepeating(expected),
-                        CinematicSpriteCueKind.SpawnInitialExplosionWave => expected with { Initial = true },
-                        CinematicSpriteCueKind.SpawnFinalExplosionWave => expected with { Final = true },
-                        CinematicSpriteCueKind.StartMotherBrainCrossFade or
-                            CinematicSpriteCueKind.DeleteEggAfterCrossFade or
-                            CinematicSpriteCueKind.WaitForFlyaway or
-                            CinematicSpriteCueKind.StartBodyFlight or
-                            CinematicSpriteCueKind.StartHeadFlight or
-                            CinematicSpriteCueKind.EndZebesExplosion or
-                            CinematicSpriteCueKind.ExplosionFinale or
-                            CinematicSpriteCueKind.FadeExplosionColours or
-                            CinematicSpriteCueKind.FadeInZebesText or
-                            CinematicSpriteCueKind.FadeOutZebesText or
-                            CinematicSpriteCueKind.GreyOut or
-                            CinematicSpriteCueKind.Launch or
-                            CinematicSpriteCueKind.LaunchHead or
-                            CinematicSpriteCueKind.PrepareHead or
-                            CinematicSpriteCueKind.Shoot or
-                            CinematicSpriteCueKind.SpawnClearTime or
-                            CinematicSpriteCueKind.SpawnColon or
-                            CinematicSpriteCueKind.SpawnCompletedText or
-                            CinematicSpriteCueKind.SpawnExplosionSilhouette or
-                            CinematicSpriteCueKind.SpawnHoursTens or
-                            CinematicSpriteCueKind.SpawnHoursUnits or
-                            CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded or
-                            CinematicSpriteCueKind.SpawnMinutesTens or
-                            CinematicSpriteCueKind.SpawnMinutesUnits or
-                            CinematicSpriteCueKind.SpawnParticles or
-                            CinematicSpriteCueKind.SpawnStrikingRinkaPair or
-                            CinematicSpriteCueKind.SpawnMissingRinkaPair or
-                            CinematicSpriteCueKind.SpawnSuitedJump or
-                            CinematicSpriteCueKind.SpawnSuitlessJump or
-                            CinematicSpriteCueKind.StartFlyingToZebes or
-                            CinematicSpriteCueKind.StartIntroPage2 or
-                            CinematicSpriteCueKind.StartIntroPage3 or
-                            CinematicSpriteCueKind.StartIntroPage4 or
-                            CinematicSpriteCueKind.StartIntroPage5 or
-                            CinematicSpriteCueKind.StartRinkaMoving or
-                            CinematicSpriteCueKind.StartZebesExplosion or
-                            CinematicSpriteCueKind.TransitionToCredits => throw new InvalidOperationException($"The Ceres explosion spawner program publishes no {cue} cue."),
-                        _ => throw new InvalidOperationException($"The Ceres explosion spawner program publishes no {cue} cue."),
+                        CeresExplosionSpawnerCue.StartRepeatingExplosions => StartRepeating(expected),
+                        CeresExplosionSpawnerCue.SpawnInitialWave => expected with { Initial = true },
+                        CeresExplosionSpawnerCue.SpawnFinalWave => expected with { Final = true },
+                        _ => throw new InvalidOperationException($"Undefined {nameof(CeresExplosionSpawnerCue)} {cue}."),
                     };
                 });
                 AssertEqual(expected, CeresExplosions.EventsAtFrame(frame, frame < departure, ref actualCountdown),

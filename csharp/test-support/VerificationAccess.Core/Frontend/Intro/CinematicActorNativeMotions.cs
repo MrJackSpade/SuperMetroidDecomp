@@ -124,17 +124,6 @@ internal static class CinematicActorNativeMotions
     /// <summary>The suited reward Samus's head's flight.</summary>
     internal const ushort RewardHeadFlight = 0xf57f;
 
-    /// <summary>The cue a cinematic animation raises where the cartridge's list installs each routine.</summary>
-    internal static readonly IReadOnlyDictionary<ushort, CinematicSpriteCueKind> CueInstalling = new Dictionary<ushort, CinematicSpriteCueKind>
-    {
-        [MotherBrainCrossFade] = CinematicSpriteCueKind.StartMotherBrainCrossFade,
-        [MetroidEgg[MetroidEggBehavior.WaitsForCrossFadeEnd]] = CinematicSpriteCueKind.DeleteEggAfterCrossFade,
-        [CeresRepeatingExplosions] = CinematicSpriteCueKind.StartRepeatingExplosions,
-        [FlyawayStars[EndingStarsMotion.WaitingForFlyaway]] = CinematicSpriteCueKind.WaitForFlyaway,
-        [RewardBody[EndingRewardBodyMotion.Rising]] = CinematicSpriteCueKind.StartBodyFlight,
-        [RewardHeadFlight] = CinematicSpriteCueKind.StartHeadFlight,
-    };
-
     /// <summary>Every bank-$8B routine the table names.</summary>
     internal static IEnumerable<ushort> NativeAddresses =>
     [

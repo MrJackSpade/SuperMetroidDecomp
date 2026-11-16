@@ -119,7 +119,7 @@ internal sealed class EndingFlyaway
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitZoom)
         {
             _stage.LoadColours(EndingColourLoad.FinalGunship);
-            _stage.SpawnSprite(
+            _stage.SpawnText(
                 EndingActorDefinitions.OperationWasText,
                 EndingSpriteRole.OperationWasText);
             _stage.Phase = EndingCreditsPhase.OperationSuccessfulText;

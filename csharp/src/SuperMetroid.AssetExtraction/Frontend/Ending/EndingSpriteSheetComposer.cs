@@ -49,12 +49,12 @@ internal static class EndingSpriteSheetComposer
         var frames = new List<ColouredFrame<EndingSpriteColouring>>();
         var blank = new List<string>();
         foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, page.Families.Select(objects.SpritesOf), draws))
-            AddFamily(frames, blank, family, draws, characters, sizes);
+            AddFamily(frames, blank, family, draws, objects.CompletionTextSprites.Typings, characters, sizes);
         if (page.Logo)
         {
             SpriteArtwork logo = Characters(LogoTransfers, transferArtwork, objectSelection);
             foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, [objects.SpritesOf(CinematicSpriteFamily.EndingLogo)], draws))
-                AddFamily(frames, blank, family, draws, logo, sizes);
+                AddFamily(frames, blank, family, draws, objects.CompletionTextSprites.Typings, logo, sizes);
         }
         if (draws.Stars)
         {
@@ -87,8 +87,7 @@ internal static class EndingSpriteSheetComposer
         EndingSheetDraws draws = EndingSceneActors.Of(sheet);
         IEnumerable<CinematicSpriteFamily> families = page.Logo ? page.Families.Append(CinematicSpriteFamily.EndingLogo) : page.Families;
         IEnumerable<string> names = families.SelectMany(family => ShownPoses(sheet, family, draws)
-            .Where(pose => family != EndingTypedTexts.Family || EndingTypedTexts.Texts.Find(pose) is null)
-            .Select(pose => CinematicSpriteSheet.FrameName(family, pose)).Concat(GlyphNames(family)));
+            .Select(pose => CinematicSpriteSheet.FrameName(family, pose)).Concat(LetterNames(family, draws)));
         return draws.Stars ? names.Concat(StarSheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : names;
     }
 
@@ -119,48 +118,45 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>
     /// Adds each of <paramref name="family"/>'s poses over <paramref name="characters"/>, its palette-inheriting parts in the
-    /// sprite set of the colouring the pose is first drawn in, with every colouring the scene draws it in.
+    /// sprite set of the colouring the pose is first drawn in, with every colouring the scene draws it in; the result text's
+    /// family also adds the letters of each text the scene types, pictured from <paramref name="typings"/> (#2195).
     /// </summary>
     private static void AddFamily(List<ColouredFrame<EndingSpriteColouring>> frames, List<string> blank, ICinematicSpriteFrames family,
-        EndingSheetDraws draws, SpriteArtwork characters, ScreenObjectSizes sizes)
+        EndingSheetDraws draws, IReadOnlyDictionary<EndingTextTyping, SpriteComposition> typings, SpriteArtwork characters, ScreenObjectSizes sizes)
     {
         Dictionary<CinematicSpritePose, List<EndingSpriteColouring>> poses = draws.Poses(family.Family);
         foreach ((CinematicSpritePose pose, SpriteComposition composition) in family.Frames.OrderBy(pair => CinematicSpritemapSources.CartridgeOrder(pair.Key)))
         {
-            if (family.Family == EndingTypedTexts.Family && EndingTypedTexts.Texts.Find(pose) is not null)
-                continue;
             string name = CinematicSpriteSheet.FrameName(family.Family, pose);
             EndingSpriteColouring[] colourings = [.. poses[pose]];
             frames.Add(new ColouredFrame<EndingSpriteColouring>(
                 new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings));
         }
-        if (family.Family != EndingTypedTexts.Family)
+        if (family.Family != EndingTextAnimations.Family)
             return;
-        // Each typed text's glyphs, each the parts its step adds, drawn in every colouring a later step is drawn in.
-        foreach (CinematicSpriteSegment text in EndingTypedTexts.Texts.Texts)
+        // Each typed text's letters, each the parts its step adds, drawn in every colouring the scene types the text in.
+        foreach ((EndingTypedText text, List<EndingSpriteColouring> colourings) in draws.Texts)
         {
-            IReadOnlyList<CinematicSpritePose> steps = EndingTypedTexts.Texts.Steps(text);
-            SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(text.ToString(), [.. steps.Select(pose => family.Frames[pose].ToFrame(text.ToString(), 0, sizes))],
+            IReadOnlyList<EndingTextTyping> steps = EndingTextAnimations.Typings(text);
+            SpriteFramePart[][] letters = TypedTextGlyphs.Of(text.ToString(), [.. steps.Select(step => typings[step].ToFrame(text.ToString(), 0, sizes))],
                 Offset16<ScreenPixels>.Zero);
-            for (int glyph = 0; glyph < glyphs.Length; glyph++)
+            for (int letter = 0; letter < letters.Length; letter++)
             {
-                string name = TypedTextSpriteSheet.GlyphFrameName(family.Family, text, glyph);
-                if (glyphs[glyph].Length == 0)
+                string name = EndingTypedTextDrawing.LetterFrameName(steps[letter]);
+                if (letters[letter].Length == 0)
                 {
                     blank.Add(name);
                     continue;
                 }
-                EndingSpriteColouring[] colourings = [.. steps.Skip(glyph).SelectMany(pose => poses[pose]).Distinct()];
-                frames.Add(new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name, new SpriteFrame(name, [.. glyphs[glyph]]), characters,
-                    EndingScreenInks.SpriteSet(colourings[0])), colourings));
+                frames.Add(new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name, new SpriteFrame(name, [.. letters[letter]]), characters,
+                    EndingScreenInks.SpriteSet(colourings[0])), [.. colourings]));
             }
         }
     }
 
-    /// <summary>The names of the glyph frames of every text typed in <paramref name="family"/>; none for a family that types no text.</summary>
-    private static IEnumerable<string> GlyphNames(CinematicSpriteFamily family) => family == EndingTypedTexts.Family
-        ? EndingTypedTexts.Texts.Texts.SelectMany(text => Enumerable.Range(0, EndingTypedTexts.Texts.Steps(text).Count)
-            .Select(glyph => TypedTextSpriteSheet.GlyphFrameName(family, text, glyph)))
+    /// <summary>The names of the letter frames of every text the scene types in <paramref name="family"/>; none for another family.</summary>
+    private static IEnumerable<string> LetterNames(CinematicSpriteFamily family, EndingSheetDraws draws) => family == EndingTextAnimations.Family
+        ? draws.Texts.Keys.SelectMany(text => EndingTextAnimations.Typings(text).Select(EndingTypedTextDrawing.LetterFrameName))
         : [];
 
     /// <summary>

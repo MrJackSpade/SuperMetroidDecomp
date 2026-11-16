@@ -11,15 +11,15 @@ internal static class IntroEggEffectDefinitions
     ];
 
     /// <summary>The animation each piece of the shell shows.</summary>
-    internal static IReadOnlyDictionary<IntroEggShellFragment, CinematicSpriteSegment> ShellFragmentAnimations { get; } =
-        new Dictionary<IntroEggShellFragment, CinematicSpriteSegment>
+    internal static IReadOnlyDictionary<IntroEggShellFragment, IntroEggEffectAnimation> ShellFragmentAnimations { get; } =
+        new Dictionary<IntroEggShellFragment, IntroEggEffectAnimation>
         {
-            [IntroEggShellFragment.UpperLeft] = CinematicSpriteSegment.MetroidEggShellUpperLeft,
-            [IntroEggShellFragment.UpperRight] = CinematicSpriteSegment.MetroidEggShellUpperRight,
-            [IntroEggShellFragment.Left] = CinematicSpriteSegment.MetroidEggShellLeft,
-            [IntroEggShellFragment.Centre] = CinematicSpriteSegment.MetroidEggShellCentre,
-            [IntroEggShellFragment.Right] = CinematicSpriteSegment.MetroidEggShellRight,
-            [IntroEggShellFragment.Lower] = CinematicSpriteSegment.MetroidEggShellLower,
+            [IntroEggShellFragment.UpperLeft] = IntroEggEffectAnimation.ShellUpperLeft,
+            [IntroEggShellFragment.UpperRight] = IntroEggEffectAnimation.ShellUpperRight,
+            [IntroEggShellFragment.Left] = IntroEggEffectAnimation.ShellLeft,
+            [IntroEggShellFragment.Centre] = IntroEggEffectAnimation.ShellCentre,
+            [IntroEggShellFragment.Right] = IntroEggEffectAnimation.ShellRight,
+            [IntroEggShellFragment.Lower] = IntroEggEffectAnimation.ShellLower,
         };
 
     /// <summary>The screen height a falling slime drop lands at, where its puddle plays in place.</summary>
@@ -29,6 +29,6 @@ internal static class IntroEggEffectDefinitions
     /// <remarks>
     /// A landed drop shows the four pictures of its puddle instead, each in the egg's colours in front of the scene.
     /// </remarks>
-    public static CinematicActorDefinition SlimeDrop =>
-        new(CinematicSpriteSegment.MetroidEggSlimeDrop);
+    public static CinematicActorDefinition<IntroEggEffectAnimation> SlimeDrop =>
+        new(IntroEggEffectAnimation.SlimeDrop);
 }

@@ -52,12 +52,12 @@ internal static class CeresExplosionDefinitionsVerification
         static void VerifyActor(
             CartridgeImportAddressSpace source,
             ushort definitionPointer,
-            CinematicActorDefinition definition,
+            CinematicActorDefinition<CeresAnimation> definition,
             string name)
         {
             // The six-byte header's first word (initialization callback) has no compiled owner.
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
-            ushort motion = definition.Animation == CinematicSpriteSegment.CeresExplosionSpawner
+            ushort motion = definition.Animation == CeresAnimation.ExplosionSpawner
                 ? CinematicActorNativeMotions.NoMotion : CinematicActorNativeMotions.CeresExplosion;
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), motion,
                 $"{name} routine: the spawner holds still, a blast drifts with the fleeing gunship");

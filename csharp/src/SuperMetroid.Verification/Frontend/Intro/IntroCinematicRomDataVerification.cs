@@ -82,12 +82,12 @@ internal static class IntroCinematicRomDataVerification
             .Concat(Enum.GetValues<TitleCardCue>().Select(TitleNativeWords.Instructions.Word))
             .Concat(CinematicActorNativeMotions.NativeAddresses)
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
-            .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)
+            .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions)
             .Where(pointer => pointer != 0)
             .Distinct()
             .ToArray();
-        // The native list of every typed cinematic sprite program (#641).
-        ushort[] bank8BLists = [.. CinematicSpriteNativeListAddresses.Entries.Select(entry => entry.Entry)];
+        // The native start of every typed cinematic animation an actor starts (#641, #2197).
+        ushort[] bank8BLists = [.. CinematicSpriteNativeListAddresses.Starts.Values];
         // The narration pages' lists are named by the narration script definitions, not by loose constants.
         ushort[] bank8CLists =
         [

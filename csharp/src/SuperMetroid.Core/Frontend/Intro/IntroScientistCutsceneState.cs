@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroScientistCutsceneState
 {
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
-    internal readonly CinematicActor baby;
+    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor animation.</summary>
     private IntroScientistCutsceneState(IntroLaboratoryScene scene)
@@ -19,10 +19,7 @@ internal sealed class IntroScientistCutsceneState
             : IntroBabyActorDefinitions.ExaminedBaby;
 
         // The delivered and examined babies' definitions use separate laboratory pages and mirrored pan axes.
-        baby = new CinematicActor(
-            definition.Position,
-            IntroShades.Drawn(definition.Colouring),
-            definition.Animation);
+        baby = new(definition.Position, IntroShades.Drawn(definition.Colouring), IntroBabyAnimations.Laboratory, definition.Animation);
         Background = delivery ? IntroLaboratoryDefinitions.DeliveryPageScroll : IntroLaboratoryDefinitions.ExaminationPageStartScroll;
     }
 
@@ -89,58 +86,20 @@ internal sealed class IntroScientistCutsceneState
         baby.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>Requests the next intro page when the Baby's animation reaches its page cue.</summary>
-    private void HandleCue(CinematicSpriteCueKind cue)
+    private void HandleCue(IntroLaboratoryCue cue)
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.StartIntroPage4:
+            case IntroLaboratoryCue.StartPageFour:
                 // The delivery loop ends by selecting page four.
                 PageFourRequested = true;
                 return;
-            case CinematicSpriteCueKind.StartIntroPage5:
+            case IntroLaboratoryCue.StartPageFive:
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
                 return;
-            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
-            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
-            case CinematicSpriteCueKind.StartRepeatingExplosions:
-            case CinematicSpriteCueKind.WaitForFlyaway:
-            case CinematicSpriteCueKind.StartBodyFlight:
-            case CinematicSpriteCueKind.StartHeadFlight:
-            case CinematicSpriteCueKind.EndZebesExplosion:
-            case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionColours:
-            case CinematicSpriteCueKind.FadeInZebesText:
-            case CinematicSpriteCueKind.FadeOutZebesText:
-            case CinematicSpriteCueKind.GreyOut:
-            case CinematicSpriteCueKind.Launch:
-            case CinematicSpriteCueKind.LaunchHead:
-            case CinematicSpriteCueKind.PrepareHead:
-            case CinematicSpriteCueKind.Shoot:
-            case CinematicSpriteCueKind.SpawnClearTime:
-            case CinematicSpriteCueKind.SpawnColon:
-            case CinematicSpriteCueKind.SpawnCompletedText:
-            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
-            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
-            case CinematicSpriteCueKind.SpawnHoursTens:
-            case CinematicSpriteCueKind.SpawnHoursUnits:
-            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
-            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
-            case CinematicSpriteCueKind.SpawnMinutesTens:
-            case CinematicSpriteCueKind.SpawnMinutesUnits:
-            case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
-            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
-            case CinematicSpriteCueKind.SpawnSuitedJump:
-            case CinematicSpriteCueKind.SpawnSuitlessJump:
-            case CinematicSpriteCueKind.StartFlyingToZebes:
-            case CinematicSpriteCueKind.StartIntroPage2:
-            case CinematicSpriteCueKind.StartIntroPage3:
-            case CinematicSpriteCueKind.StartRinkaMoving:
-            case CinematicSpriteCueKind.StartZebesExplosion:
-            case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The scientist scene Baby's animations publish no {cue} cue.");
+                throw new InvalidOperationException($"Undefined {nameof(IntroLaboratoryCue)} {cue}.");
         }
     }
 }

@@ -49,6 +49,26 @@ public static class IntroCinematicDefinitions
         public const int FinishFade = 1;
     }
 
+    /// <summary>The narration's holds, in updates.</summary>
+    public static class Timing
+    {
+        /// <summary>The first line's hold after it fades in, before the captivity line's song.</summary>
+        public const int FirstLineHold = 60;
+        /// <summary>The captivity line's hold before the galaxy-at-peace line's music.</summary>
+        public const int CaptivityLineHold = 200;
+        /// <summary>The four-second hold after the galaxy-at-peace line's music.</summary>
+        public const int FourSecondHold = 240;
+    }
+
+    /// <summary>Samus as the flashback to her fight with Mother Brain sets her up.</summary>
+    public static class Flashback
+    {
+        /// <summary>Where Samus stands, facing left, in Mother Brain's room.</summary>
+        public static Position16<RoomPixels> SamusPosition => new(155, 115);
+        /// <summary>The Missiles she carries, and her capacity for them.</summary>
+        public const int Missiles = 900;
+    }
+
     /// <summary>The actors' sounds.</summary>
     public static class Sounds
     {

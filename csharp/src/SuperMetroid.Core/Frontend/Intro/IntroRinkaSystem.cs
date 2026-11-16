@@ -163,17 +163,17 @@ internal sealed class IntroRinkaSystem
             case IntroRinkaFlight.StrikesSamus:
                 Drift(sprite, rinka.Drift);
 
-                // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
+                // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding step.
-                if (sprite.ScreenPlace.X + 8 < samus.Position.X.Whole - 5)
+                if (sprite.ScreenPlace.X + IntroRinkaDefinitions.StrikingEdge < samus.Position.X.Whole - IntroRinkaDefinitions.SamusStruckReach)
                 {
                     if (motherBrainExploding)
                         sprite.Delete();
                     return;
                 }
 
-                samus.InvincibilityTimer = WrappingCountdown.Start(11);
-                samus.KnockbackTimer = 11;
+                samus.InvincibilityTimer = WrappingCountdown.Start(IntroRinkaDefinitions.StrikeKnockbackUpdates);
+                samus.KnockbackTimer = IntroRinkaDefinitions.StrikeKnockbackUpdates;
                 samus.KnockbackXDirection = Samus.Movement.KnockbackHorizontalDirection.Right;
                 sprite.Delete();
                 return;
@@ -181,7 +181,7 @@ internal sealed class IntroRinkaSystem
             case IntroRinkaFlight.MissesSamus:
                 Drift(sprite, rinka.Drift);
                 int y = sprite.ScreenPlace.Y;
-                if (y < 16 || y >= 208 || motherBrainExploding)
+                if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
                     sprite.Delete();
                 return;
 

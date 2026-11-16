@@ -11,7 +11,7 @@ public static class FileSelectMapLoadAnchors
     /// <summary>Projects a valid saved station from compiled placement and room metadata.</summary>
     /// <remarks>
     /// Take the whole room screens of Samus's placement at the station, add the room's map
-    /// cell and multiply by eight. A map square and a room's screens are small
+    /// cell and scale by a map square's pixels. A map square and a room's screens are small
     /// counts, so the result is an ordinary map pixel and nothing wraps. The thirty-four supported station identities retain the
     /// existing marker-validity guard.
     /// Only fixed compiled room metadata is needed, never room-state selection,
@@ -23,7 +23,7 @@ public static class FileSelectMapLoadAnchors
         LoadStationPlacement placement = station.Placement;
         RoomDefinition room = placement.Room;
         Position16<RoomPixels> samus = placement.SamusPosition;
-        return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * 8,
-            (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y)) * 8);
+        return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * FileSelectMapDefinitions.MapSquarePixels,
+            (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y)) * FileSelectMapDefinitions.MapSquarePixels);
     }
 }

@@ -67,6 +67,8 @@ internal static class CeresDestructionSceneDefinitions
     /// <summary>Authored holds, in updates.</summary>
     internal static class Timing
     {
+        /// <summary>Calls a slow fade waits between brightness steps: it steps on every second call.</summary>
+        internal const int SlowFadeDelay = 1;
         /// <summary>Updates the completed Ceres explosion stays shown.</summary>
         internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
@@ -127,10 +129,20 @@ internal static class CeresDestructionSceneDefinitions
         internal static RotationAngle ApproachAngle => RotationAngle.FromSteps(32);
     }
 
-    /// <summary>The approach's starting scroll.</summary>
+    /// <summary>The floor's scroll over the station and on the approach to Zebes, and where the reveal's actors leave.</summary>
     internal static class Sprites
     {
+        /// <summary>The floor's starting horizontal scroll over Ceres, in pixels.</summary>
+        internal const int CeresInitialBackgroundX = -44;
+        /// <summary>The floor's vertical scroll over Ceres, and again as the gunship flies toward Zebes, in pixels.</summary>
+        internal const int CeresAndFlightBackgroundY = -112;
         /// <summary>The Zebes approach's starting horizontal scroll, in pixels.</summary>
         internal const int ZebesInitialBackgroundX = 128;
+        /// <summary>The Zebes approach's starting vertical scroll, in pixels.</summary>
+        internal const int ZebesInitialBackgroundY = -104;
+        /// <summary>The horizontal scroll, in pixels, the turn toward Zebes passes to close in on the planet.</summary>
+        internal const int TurnTowardZebesEndX = -128;
+        /// <summary>The screen row a sliding reveal actor rises above before it deletes itself.</summary>
+        internal const int RevealActorExitY = -128;
     }
 }

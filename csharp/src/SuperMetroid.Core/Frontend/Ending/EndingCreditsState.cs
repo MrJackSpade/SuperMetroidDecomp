@@ -128,21 +128,21 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 {
                     Stage.ColourEffects.Start(EndingColourEffectDefinitions.Lava, 0);
                     Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, 0);
-                    Stage.Brightness = 0;
+                    Stage.Brightness = EndingScreenDefinitions.Dark;
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeInSideCloudEscape;
                 }
                 break;
 
             case EndingCreditsPhase.FadeInSideCloudEscape:
-                StepAtmosphericTransform(2);
+                StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeIn())
                     Stage.Phase = EndingCreditsPhase.SideCloudEscape;
                 break;
 
             case EndingCreditsPhase.SideCloudEscape:
-                StepAtmosphericTransform(2);
+                StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
@@ -152,21 +152,21 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.FadeOutSideCloudEscape:
-                StepAtmosphericTransform(2);
+                StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeOut())
                     EscapeScenes.SetupTopAndBottomCloudEscape();
                 break;
 
             case EndingCreditsPhase.FadeInTopAndBottomCloudEscape:
-                StepAtmosphericTransform(3);
+                StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeIn())
                     Stage.Phase = EndingCreditsPhase.TopAndBottomCloudEscape;
                 break;
 
             case EndingCreditsPhase.TopAndBottomCloudEscape:
-                StepAtmosphericTransform(3);
+                StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
@@ -176,7 +176,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.FadeOutTopAndBottomCloudEscape:
-                StepAtmosphericTransform(3);
+                StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.StepFastFadeOut())
                     Explosion.SetupZebesExplosion();
@@ -287,10 +287,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // The backdrop wait's end shows the complete result panel before the following 180-frame hold.
+                    // The backdrop wait's end shows the complete result panel before its hold.
                     _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
                     InstalledArtwork.PostCreditsText.ShowResultPanel();
-                    Stage.PhaseTimer = 180;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.ResultPanelHoldFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
                 }
                 break;
@@ -384,7 +384,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 PostCreditsTyping.Step();
                 if (PostCreditsTyping.RequestedItemPercentageScroll && PostCreditsTyping.Completed)
                 {
-                    Stage.PhaseTimer = 40;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.ItemPercentageDropCalls;
                     Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
                 }
                 break;

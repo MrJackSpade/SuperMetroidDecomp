@@ -38,6 +38,18 @@ public static class EndingSequenceDefinitions
         /// <summary>The copyright panel's hold.</summary>
         public const int CopyrightHoldFrames = 180;
 
+        /// <summary>The blank screen's hold as the post-credits scenes start.</summary>
+        public const int PostCreditsBlankFrames = 60;
+
+        /// <summary>The complete result panel's hold before the waiting Samus.</summary>
+        public const int ResultPanelHoldFrames = 180;
+
+        /// <summary>The calls the item-percentage text moves down the screen for.</summary>
+        public const int ItemPercentageDropCalls = 40;
+
+        /// <summary>The explosion's whiteout holds this long, waiting for the planet escape's music, before the flyaway.</summary>
+        public const int PlanetEscapeMusicWaitFrames = 120;
+
         /// <summary>The waiting backdrop fade's steps: 32 additions of target-component / 32 in 256ths.</summary>
         public const int WaitingBackdropFadeFrames = 32;
 

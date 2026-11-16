@@ -36,7 +36,9 @@ internal sealed class IntroCeresFlightState
     private SignedEightEight starsVelocity = CeresFlightActorDefinitions.FrontStars.InitialVelocity;
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
-    private FixedVector<FloorPixels> background = new(SignedSixteenSixteen.FromWholePixels(-72), SignedSixteenSixteen.FromWholePixels(-104));
+    private FixedVector<FloorPixels> background = new(
+        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialBackgroundX),
+        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialBackgroundY));
     /// <summary>
     /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
     /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
@@ -44,7 +46,7 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     private FloorZoom zoom = CeresFlightRenderDefinitions.FrontInitialZoom;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
-    private RotationAngle angle = RotationAngle.FromSteps(224);
+    private RotationAngle angle = CeresFlightSceneDefinitions.FrontInitialAngle;
     /// <summary>
     /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
     /// lowered one level every other update in the final fade, stopping at zero.
@@ -136,7 +138,7 @@ internal sealed class IntroCeresFlightState
                 // The approach enables the display once the music queue is empty.
                 if (!audio.HasQueuedMusic)
                 {
-                    brightness = 15;
+                    brightness = CeresFlightSceneDefinitions.FullBrightness;
                     Phase = IntroCeresFlightPhase.FlyingIntoCamera;
                 }
                 break;
@@ -273,8 +275,9 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
-        background = new(SignedSixteenSixteen.FromWholePixels(-32), SignedSixteenSixteen.FromWholePixels(-128));
-        angle = RotationAngle.FromSteps(32);
+        background = new(SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewBackgroundX),
+            SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewBackgroundY));
+        angle = CeresFlightSceneDefinitions.RearViewAngle;
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply behaviour identity,
@@ -334,7 +337,7 @@ internal sealed class IntroCeresFlightState
         spaceColonyHoldStarted = false;
         JapaneseCaptionShown = false;
         CaptionLettersShown++;
-        spaceColonyTimer = 16;
+        spaceColonyTimer = CeresFlightSceneDefinitions.CaptionLetterDelay;
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 
@@ -347,7 +350,7 @@ internal sealed class IntroCeresFlightState
         if (CaptionLettersShown < SpaceColonyCaptionDefinitions.LetterCount)
         {
             CaptionLettersShown++;
-            spaceColonyTimer = 16;
+            spaceColonyTimer = CeresFlightSceneDefinitions.CaptionLetterDelay;
             return;
         }
 
@@ -356,20 +359,19 @@ internal sealed class IntroCeresFlightState
         if (japaneseText && !JapaneseCaptionShown)
         {
             JapaneseCaptionShown = true;
-            spaceColonyTimer = 1;
+            spaceColonyTimer = CeresFlightSceneDefinitions.JapaneseCaptionDelay;
             return;
         }
 
-        // The caption's final step holds the completed caption for 128 frames before
-        // the fade step installs the ordinary fade owner.
+        // The caption's final step holds the completed caption before the fade step installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {
             spaceColonyHoldStarted = true;
-            spaceColonyTimer = 128;
+            spaceColonyTimer = CeresFlightSceneDefinitions.CaptionHold;
             return;
         }
 
-        fadeDelay = 1;
+        fadeDelay = CeresFlightSceneDefinitions.FadeDelay;
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
@@ -380,7 +382,7 @@ internal sealed class IntroCeresFlightState
         // other frame and ends with the screen blanked.
         if (fadeDelay-- > 0)
             return;
-        fadeDelay = 1;
+        fadeDelay = CeresFlightSceneDefinitions.FadeDelay;
         brightness = Math.Max(0, brightness - 1);
         if (brightness == 0)
             Phase = IntroCeresFlightPhase.StartGameAtCeres;

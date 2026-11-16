@@ -119,10 +119,10 @@ internal sealed class EndingRewardJump
                 Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return;
             case CinematicSpriteCueKind.PrepareHead:
-                RequireHead().ScreenPlace = new(helmeted ? 118 : 120, 120);
+                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
                 return;
             case CinematicSpriteCueKind.LaunchHead:
-                RequireHead().ScreenPlace = new(helmeted ? 120 : 121, helmeted ? 114 : 116);
+                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
                 return;
             case ShootCue:
                 body.SetColouring(EndingShades.Drawn(ShootingColouring));

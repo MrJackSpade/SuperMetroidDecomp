@@ -47,7 +47,7 @@ internal sealed class EndingEscapeScenes
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
-        _stage.Brightness = 0;
+        _stage.Brightness = EndingScreenDefinitions.Dark;
         _artwork.PostCreditsText.Drop = 0;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
@@ -70,7 +70,7 @@ internal sealed class EndingEscapeScenes
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
-        _stage.Brightness = 0;
+        _stage.Brightness = EndingScreenDefinitions.Dark;
         _stage.RestartFadeCadence();
         _stage.Phase = EndingCreditsPhase.FadeInTopAndBottomCloudEscape;
     }
@@ -153,7 +153,7 @@ internal sealed class EndingEscapeScenes
                 // The scene hides the sprite layer without deleting the actors: the stars must still
                 // advance and become visible again when the flyaway starts.
                 screen.Colours.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
-                _stage.PhaseTimer = 120;
+                _stage.PhaseTimer = EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
 

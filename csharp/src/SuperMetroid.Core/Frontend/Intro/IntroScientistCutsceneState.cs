@@ -23,7 +23,7 @@ internal sealed class IntroScientistCutsceneState
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
             definition.Animation);
-        Background = delivery ? new(32, 8) : new(0, -24);
+        Background = delivery ? IntroLaboratoryDefinitions.DeliveryPageScroll : IntroLaboratoryDefinitions.ExaminationPageStartScroll;
     }
 
     /// <summary>The laboratory page's scroll.</summary>
@@ -72,10 +72,10 @@ internal sealed class IntroScientistCutsceneState
                 baby.ScreenPlace += new Offset16<ScreenPixels>(1, 0);
             }
             else if (Scene == IntroLaboratoryScene.Examination &&
-                Background.Y < 8)
+                Background.Y < IntroLaboratoryDefinitions.ExaminationPageEndY)
             {
-                // The examination scene moves the second laboratory page down from -24 to +8 while the
-                // examined baby rises by the same 32 pixels.
+                // The examination scene moves the second laboratory page down to its end scroll while the
+                // examined baby rises by the same distance.
                 Background += new Offset16<PlanePixels>(0, 1);
                 baby.ScreenPlace += new Offset16<ScreenPixels>(0, -1);
             }

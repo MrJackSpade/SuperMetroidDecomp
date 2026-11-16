@@ -110,7 +110,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly bool japaneseText;
 
     /// <summary>Signed 1/65536-pixel camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
-    internal FixedVector<FloorPixels> Background { get; private set; } = new(SignedSixteenSixteen.FromWholePixels(-44), SignedSixteenSixteen.FromWholePixels(-112));
+    internal FixedVector<FloorPixels> Background { get; private set; } = new(
+        SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Sprites.CeresInitialBackgroundX),
+        SignedSixteenSixteen.FromWholePixels(CeresDestructionSceneDefinitions.Sprites.CeresAndFlightBackgroundY));
     /// <summary>
     /// The floor's zoom. Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit"/> plus one fast step, and the only decrease
@@ -123,7 +125,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     [IntegerQuantity("screen brightness level, zero through fifteen")]
     private int brightness;
     /// <summary>Alternating-call delay between brightness changes.</summary>
-    private int fadeCounter = 1;
+    private int fadeCounter = CeresDestructionSceneDefinitions.Timing.SlowFadeDelay;
     /// <summary>Phase-specific hold countdown.</summary>
     private int phaseTimer;
     /// <summary>
@@ -310,7 +312,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.HoldAfterExplosion:
                 if (--phaseTimer <= 0)
                 {
-                    fadeCounter = 1;
+                    fadeCounter = CeresDestructionSceneDefinitions.Timing.SlowFadeDelay;
                     Phase = CeresDestructionPhase.FadeOutCeres;
                 }
                 break;
@@ -361,7 +363,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.TurningTowardZebes:
                 Background = Background.WithY(Background.Y + CeresDestructionSceneDefinitions.Motion.EighthPixel);
                 Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel);
-                if (Background.X.WholePixels < -128)
+                if (Background.X.WholePixels < CeresDestructionSceneDefinitions.Sprites.TurnTowardZebesEndX)
                 {
                     Phase = CeresDestructionPhase.ClosingInOnZebes;
                 }
@@ -474,7 +476,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         angle = RotationAngle.Zero;
         Zoom = FloorZoom.OwnSize;
         brightness = 0;
-        fadeCounter = 1;
+        fadeCounter = CeresDestructionSceneDefinitions.Timing.SlowFadeDelay;
         revealBlockWidth = CeresDestructionSceneDefinitions.RevealPixelation.StartingBlockWidth;
         usesFloor = false;
     }
@@ -484,7 +486,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         usesFloor = true;
         Background = new(Background.X.WithWholePixels(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
-            Background.Y.WithWholePixels(-104));
+            Background.Y.WithWholePixels(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundY));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
         Zoom = FloorZoom.OwnSize;
         actors.Clear();
@@ -511,7 +513,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         if (fadeCounter-- > 0)
             return;
-        fadeCounter = 1;
+        fadeCounter = CeresDestructionSceneDefinitions.Timing.SlowFadeDelay;
         brightness = Math.Min(15, brightness + 1);
     }
 
@@ -520,7 +522,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         if (fadeCounter-- > 0)
             return false;
-        fadeCounter = 1;
+        fadeCounter = CeresDestructionSceneDefinitions.Timing.SlowFadeDelay;
         brightness = Math.Max(0, brightness - 1);
         return brightness == 0;
     }
@@ -700,7 +702,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + slideAcceleration;
                 slideSpeeds[actor] = slideSpeed;
                 actor.Position = actor.Position.WithY(actor.Position.Y - slideSpeed.ToSixteenSixteenDelta());
-                if (actor.ScreenPlace.Y < -128)
+                if (actor.ScreenPlace.Y < CeresDestructionSceneDefinitions.Sprites.RevealActorExitY)
                 {
                     // Each reveal object deletes itself before its screen Y,
                     // 0 through 255, can wrap below the screen. Only the lower-right stars
@@ -758,7 +760,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // The title actor, not a separate timer, publishes the camera flight exactly
                 // where its animation reaches the flight step.
                 Background = new(Background.X.WithWholePixels(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    Background.Y.WithWholePixels(-112));
+                    Background.Y.WithWholePixels(CeresDestructionSceneDefinitions.Sprites.CeresAndFlightBackgroundY));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
                 Phase = CeresDestructionPhase.FlyingTowardZebes;

@@ -33,9 +33,9 @@ public sealed class BotwoonEnemyState
     public int RingIndex { get; internal set; }
     /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
     public int SegmentSpacingEntries { get; internal set; }
-    /// <summary>Frames left of the opening delay, seeded to 256 and counted down to zero before normal traversal begins.</summary>
+    /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
     public int InitialDelayTimer { get; internal set; }
-    /// <summary>Frames left of the spit-action cooldown, seeded to 48 for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
+    /// <summary>Frames left of the spit-action cooldown, seeded from <see cref="BotwoonFightDefinitions.HiddenSpitCooldown"/> for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
     public int AttackTimer { get; internal set; }
     /// <summary>
     /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
@@ -135,6 +135,6 @@ public sealed class BotwoonEnemyState
     /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];
 
-    /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
-    internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
+    /// <summary>The head's delayed positions, newest first, the oldest of which chooses the visible head orientation.</summary>
+    internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[BotwoonFightDefinitions.HeadHistoryLength];
 }

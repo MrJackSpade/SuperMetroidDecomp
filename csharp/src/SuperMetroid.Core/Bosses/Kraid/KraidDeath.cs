@@ -98,9 +98,9 @@ internal sealed class KraidDeath
             case KraidDeathPhase.StartSinking:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.DeathPhase = KraidDeathPhase.Sink;
-                state.DeathSoundTimer = 43;
+                state.DeathSoundTimer = KraidArenaDefinitions.SinkFirstSoundUpdates;
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 256);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.SinkShakeUpdates);
                 _access.StartKraidPartAnimation(state, _parts.Arm, KraidPartSegment.ArmRisingOrSinking);
                 _access.StartKraidPartAnimation(state, _parts.Foot, KraidPartSegment.FootInitial);
                 state.FootState.Phase = KraidFootPhase.Resting;
@@ -186,11 +186,11 @@ internal sealed class KraidDeath
         if (--state.DeathSoundTimer == 0)
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
-            state.DeathSoundTimer = 30;
+            state.DeathSoundTimer = KraidArenaDefinitions.SinkSoundIntervalUpdates;
         }
         TakeKraidSinkStep(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, 608) < 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, KraidArenaDefinitions.SunkY) < 0)
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
@@ -219,10 +219,10 @@ internal sealed class KraidDeath
         // rolls Kraid's drop chances.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Kraid,
-            count: 16,
-            xBase: 128,
+            count: KraidArenaDefinitions.DeathDropCount,
+            xBase: KraidArenaDefinitions.DeathDropOrigin.X,
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
-            yBase: 352,
+            yBase: KraidArenaDefinitions.DeathDropOrigin.Y,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
             samus: samus);
         // The death continues into redrawing Kraid's room background, which restarts the shared fade step count.
@@ -236,7 +236,7 @@ internal sealed class KraidDeath
             return;
         RoomObjectSpawnRequest<KraidRoomMutation> request = KraidObjects.ForSinkStep(step);
         // Each sinking rock starts at the left pixel edge of the removed block.
-        _background.SpawnKraidCeilingRock(request.Block.X * 16);
+        _background.SpawnKraidCeilingRock(request.Block.ToRoomPixels().X);
         _frameResults.KraidObjects.Add(request);
     }
 }

@@ -44,7 +44,7 @@ internal sealed class KraidHead
             return;
         if (--state.HurtFrameTimer == 0)
         {
-            state.HurtFrameTimer = 2;
+            state.HurtFrameTimer = KraidArenaDefinitions.HurtFlashStepUpdates;
             state.StepHurtFrameDown();
             UpdateKraidHealthColours(body, state);
         }
@@ -88,9 +88,7 @@ internal sealed class KraidHead
     internal void SetupKraidFirstPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
     {
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-        _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
-        _parts.MiddleLint.Position = _parts.MiddleLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
-        _parts.BottomLint.Position = _parts.BottomLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
+        _parts.PlaceLintsAtBodyHeights(body);
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
@@ -100,7 +98,7 @@ internal sealed class KraidHead
         if (AdvanceKraidHeadAnimation(state) == KraidHeadAnimationResult.AnimationEnded)
         {
             SetupKraidFirstPhaseThinking(body, state);
-            state.BodyState.HeadTimer = 90;
+            state.BodyState.HeadTimer = KraidArenaDefinitions.MouthClosedHeadDelayUpdates;
 
             // The reopen latch and the pending reopen count are set by body/mouth shot handling. Keep
             // the game's order exactly so adding collision cannot change sequencing.
@@ -110,7 +108,7 @@ internal sealed class KraidHead
                 if (state.PendingMouthReopens != 0)
                 {
                     state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
-                    state.BodyState.PhaseTimer = 64;
+                    state.BodyState.PhaseTimer = KraidArenaDefinitions.EyeGlowDelayUpdates;
                     return;
                 }
             }
@@ -195,14 +193,14 @@ internal sealed class KraidHead
         if (AdvanceKraidHeadAnimation(state) != KraidHeadAnimationResult.AnimationEnded)
             return;
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-        state.BodyState.HeadTimer = 90;
+        state.BodyState.HeadTimer = KraidArenaDefinitions.MouthClosedHeadDelayUpdates;
         if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)
             {
                 state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
-                state.BodyState.PhaseTimer = 64;
+                state.BodyState.PhaseTimer = KraidArenaDefinitions.EyeGlowDelayUpdates;
                 return;
             }
         }

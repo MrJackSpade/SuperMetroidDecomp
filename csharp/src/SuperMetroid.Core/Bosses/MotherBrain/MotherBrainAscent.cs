@@ -59,7 +59,7 @@ internal sealed class MotherBrainAscent
         // bit deliberately selects her brain and articulated neck's own draw.
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
-        state.Head.Health = 18000;
+        state.Head.Health = MotherBrainFightDefinitions.SecondPhaseHealth;
         state.AscentPhase = MotherBrainAscentPhase.PauseForSuspense;
         state.PhaseTimer.Count = 128;
 
@@ -140,7 +140,7 @@ internal sealed class MotherBrainAscent
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
+        state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
         // From here her body is placed at her (#1949, #2031).
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
@@ -153,7 +153,7 @@ internal sealed class MotherBrainAscent
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.Crouched);
         state.Head.AnimationClock.StepOnNextUpdate();
         state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
-        state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
+        state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.MotherBrainBattle), MusicQueueDelay.Shortest);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 256);
@@ -173,12 +173,12 @@ internal sealed class MotherBrainAscent
             return;
 
         SpawnMotherBrainAscentDust(state);
-        state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole - 2);
+        state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole - MotherBrainFightDefinitions.RiseStepPixels);
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
-        if (state.Body.Position.Y.Whole >= 189)
+        if (state.Body.Position.Y.Whole > MotherBrainFightDefinitions.RisenY)
             return;
 
-        state.Body.Position = state.Body.Position.WithWholeY(188);
+        state.Body.Position = state.Body.Position.WithWholeY(MotherBrainFightDefinitions.RisenY);
         _earthquake.Stop();
         state.RisingFloorClipActive = false;
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterCrouchSlow);

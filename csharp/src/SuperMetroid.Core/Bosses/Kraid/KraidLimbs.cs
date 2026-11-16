@@ -115,16 +115,16 @@ internal sealed class KraidLimbs
                 return null;
             case KraidPartCue.LowerBodyAndShake:
                 body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 10);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.StepShakeUpdates);
                 return null;
             case KraidPartCue.StepSound:
                 _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
                 return null;
             case KraidPartCue.StepLeft:
-                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - 3);
+                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - KraidArenaDefinitions.StepPixels);
                 return null;
             case KraidPartCue.StepRight:
-                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole + 3);
+                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole + KraidArenaDefinitions.StepPixels);
                 return null;
             case KraidPartCue.SlowArmBelowHalfHealth:
                 return SelectKraidArmSpeedAnimation(state);
@@ -151,12 +151,12 @@ internal sealed class KraidLimbs
             return false;
 
         state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
-        state.BodyState.PhaseTimer = 180;
+        state.BodyState.PhaseTimer = KraidArenaDefinitions.GrowthHeadAnimationUpdates;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth;
         state.HeadPlayback = KraidHeadAnimations.GrowthResumePlayback(resume);
         state.BodyState.HeadTimer = KraidHeadAnimations.GrowthResumeDelay(resume);
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 340);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.GrowthShakeUpdates);
 
         RoomEnemyPlace foot = _parts.Foot;
         _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootInitial);
@@ -182,12 +182,12 @@ internal sealed class KraidLimbs
     internal void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
     {
         RoomEnemyPlace body = _parts.Body;
-        arm.Position = arm.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole - 44)));
+        arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);
 
-        // The arm hides only when its anchor leaves the 224-line gameplay
+        // The arm hides only when its anchor leaves the screen's gameplay
         // viewport. This is actor visibility, not background priority, so preserve the hide-drawing property.
         bool onScreen = CoordinateAxis.Difference(arm.Position.Y.Whole, cameraY) >= 0 &&
-            CoordinateAxis.Difference(arm.Position.Y.Whole - cameraY, 224) < 0;
+            CoordinateAxis.Difference(arm.Position.Y.Whole - cameraY, ScreenGeometry.ScreenHeightPixels) < 0;
         arm.Presence = onScreen
             ? arm.Presence.Without(EnemyPresence.Hidden)
             : arm.Presence.With(EnemyPresence.Hidden);
@@ -203,9 +203,9 @@ internal sealed class KraidLimbs
     {
         KraidEnemyState state = part.Kraid;
         RoomEnemyPlace body = _parts.Body;
-        foot.Position = foot.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 100)));
+        foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
         bool onScreen = CoordinateAxis.Difference(foot.Position.Y.Whole, cameraY) >= 0 &&
-            CoordinateAxis.Difference(foot.Position.Y.Whole - 224, cameraY) < 0;
+            CoordinateAxis.Difference(foot.Position.Y.Whole - ScreenGeometry.ScreenHeightPixels, cameraY) < 0;
         foot.Presence = onScreen
             ? foot.Presence.Without(EnemyPresence.Hidden)
             : foot.Presence.With(EnemyPresence.Hidden);
@@ -244,7 +244,7 @@ internal sealed class KraidLimbs
                 RunKraidSecondPhaseWalkToStart(body, foot, part);
                 return;
             case KraidFootPhase.SecondPhaseInitialize:
-                SetKraidWalking(foot, part, targetX: 352, thinkTimer: 180, direction: HorizontalDirection.Right);
+                SetKraidWalking(foot, part, targetX: KraidMovementChoices.StartingX, thinkTimer: KraidArenaDefinitions.SecondPhaseFirstThinkUpdates, direction: HorizontalDirection.Right);
                 return;
             case KraidFootPhase.SecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, foot, part);
@@ -283,11 +283,11 @@ internal sealed class KraidLimbs
     {
         if (TryBeginKraidGrowth(body, part.Kraid))
             return;
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 92) < 0)
-            body.Position = body.Position.WithWholeX(92);
+        if (CoordinateAxis.Difference(body.Position.X.Whole, KraidArenaDefinitions.LungeReachX) < 0)
+            body.Position = body.Position.WithWholeX(KraidArenaDefinitions.LungeReachX);
         if (!FootShowsLastFrameOf(part, KraidPartSegment.FootLungeForward))
             return;
-        if (body.Position.X.Whole == 92)
+        if (body.Position.X.Whole == KraidArenaDefinitions.LungeReachX)
         {
             part.Phase = KraidFootPhase.WaitBeforeRetreat;
             part.PhaseTimer = 1;
@@ -309,17 +309,17 @@ internal sealed class KraidLimbs
         KraidEnemyState state = part.Kraid;
         if (TryBeginKraidGrowth(body, state))
             return;
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 176) >= 0)
-            body.Position = body.Position.WithWholeX(176);
+        if (CoordinateAxis.Difference(body.Position.X.Whole, KraidArenaDefinitions.FirstPhaseX) >= 0)
+            body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
         if (!FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingBackward))
             return;
-        if (body.Position.X.Whole == 176)
+        if (body.Position.X.Whole == KraidArenaDefinitions.FirstPhaseX)
         {
             RoomEnemyPlace arm = _parts.Arm;
             _access.StartKraidPartAnimation(state, arm, KraidPartSegment.ArmNormal);
             _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootNeutral);
             part.Phase = KraidFootPhase.FirstPhaseThinking;
-            part.PhaseTimer = 300;
+            part.PhaseTimer = KraidArenaDefinitions.LungeDelayUpdates;
         }
         else
         {
@@ -343,7 +343,7 @@ internal sealed class KraidLimbs
         if (!FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingBackward))
             return;
         part.Phase = KraidFootPhase.WaitBeforeSecondPhase;
-        part.PhaseTimer = 180;
+        part.PhaseTimer = KraidArenaDefinitions.SecondPhaseStartDelayUpdates;
         _access.StartKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootNeutral);
     }
 

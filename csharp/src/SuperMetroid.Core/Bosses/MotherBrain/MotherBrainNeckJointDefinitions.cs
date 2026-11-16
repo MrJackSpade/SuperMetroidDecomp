@@ -18,8 +18,17 @@ internal static class MotherBrainNeckJointDefinitions
     /// <summary>Joint 2: the last lower joint, from which the upper joints hang.</summary>
     internal const int UpperAnchor = 2;
 
-    /// <summary>Joint 4: the articulated head follows its X and its Y less twenty-one pixels.</summary>
+    /// <summary>Joint 4: the articulated head follows it, raised by <see cref="BrainAboveAnchor"/>.</summary>
     internal const int BrainAnchor = 4;
+
+    /// <summary>Where the articulated head sits on <see cref="BrainAnchor"/>: twenty-one pixels above it.</summary>
+    internal static readonly Offset16<RoomPixels> BrainAboveAnchor = new(0, -21);
+
+    /// <summary>The lower-neck angle the main tube's landing gives the neck.</summary>
+    internal static readonly RotationAngle InitialLowerAngle = RotationAngle.FromSteps(72);
+
+    /// <summary>The upper-neck angle the main tube's landing gives the neck.</summary>
+    internal static readonly RotationAngle InitialUpperAngle = RotationAngle.FromSteps(80);
 
     /// <summary>The joints the neck hitboxes test: joint 0 is buried in the body and joint 4 is covered by the brain rectangles.</summary>
     internal static Range CollisionJoints { get; } = 1..4;

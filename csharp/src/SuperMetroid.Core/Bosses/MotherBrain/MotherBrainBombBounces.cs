@@ -11,7 +11,7 @@ internal static class MotherBrainBombBounces
     /// once it has landed from its last bounce and expires.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="bounces"/> is not a bounce the bomb makes or expires after.</exception>
-    internal static int? YAcceleration(int bounces)
+    internal static SignedEightEight? YAcceleration(int bounces)
     {
         if (bounces == Count + 1)
             return null;

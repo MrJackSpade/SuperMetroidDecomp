@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Earthquakes;
 
@@ -109,7 +110,7 @@ internal sealed class MotherBrainBody
         if (glassDestroyed)
         {
             state.BrainMainShakeTimer = _earthquake.RemainingFrames;
-            if (samus.Position.X.Whole < 236 && state.Head.Health == 0)
+            if (samus.Position.X.Whole < MotherBrainFightDefinitions.FirstPhaseExitSamusX && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following
                 // step remains a phase of its own so the next frame
@@ -124,10 +125,10 @@ internal sealed class MotherBrainBody
                 // Sealing the wall creates both dust puffs before its
                 // two identical fixed room objects. Requests remain ordered because the room-object
                 // allocator searches the same descending pool for each call.
-                _projectiles.SpawnDustOrExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
-                _projectiles.SpawnDustOrExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
-                _access.RequestMotherBrainObject(new(15, 4), MotherBrainRoomMutation.FillWall);
-                _access.RequestMotherBrainObject(new(15, 9), MotherBrainRoomMutation.FillWall);
+                foreach (Position16<RoomPixels> dust in MotherBrainFightDefinitions.SealedWallDust)
+                    _projectiles.SpawnDustOrExplosion(dust, MiscDustAnimation.SmallDustCloud);
+                foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> wall in MotherBrainFightDefinitions.SealedWall)
+                    _access.RequestMotherBrainObject(wall.Block, wall.RoomObject);
                 state.DescentPhase = MotherBrainDescentPhase.InitialPause;
             }
         }
@@ -279,18 +280,18 @@ internal sealed class MotherBrainBody
             if (xOverlap < 0)
                 continue;
 
-            // Clamps shallow contact UP to four pixels. The resulting displacement is
+            // Clamps shallow contact up to the push's least distance. The resulting displacement is
             // consumed by Samus movement later in the frame, so overwrite rather than add.
-            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(Math.Max(xOverlap, 4), 4));
-            samus.InvincibilityTimer = WrappingCountdown.Start(96);
-            samus.KnockbackTimer = 5;
+            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(Math.Max(xOverlap, MotherBrainFightDefinitions.BodyPush.X), MotherBrainFightDefinitions.BodyPush.Y));
+            samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates);
+            samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
             samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
-            if (CoordinateAxis.Difference(samus.Position.Y.Whole, 192) < 0)
+            if (CoordinateAxis.Difference(samus.Position.Y.Whole, MotherBrainFightDefinitions.BodyPushDownAboveY) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
-            // Only contact to the right of body X+24 hurts Samus. Contact
+            // Only contact to the right of the hurting touch's edge hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.
-            if (CoordinateAxis.AsSigned(state.Body.Position.X.Whole + 24 - samus.Position.X.Whole) < 0)
+            if (CoordinateAxis.AsSigned(state.Body.Position.X.Whole + MotherBrainFightDefinitions.HurtingTouchRightOfBody - samus.Position.X.Whole) < 0)
             {
                 // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
                 // knockback away from her body.
@@ -303,7 +304,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Runs the hand beam's charging initializer. The body—not the articulated
-    /// head—is the source: its frame puts the hand at (+64,-48).
+    /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
         MotherBrainEnemyState state,
@@ -321,7 +322,7 @@ internal sealed class MotherBrainBody
         beam.Velocity = EightEightVector<RoomPixels>.Zero;
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.Graphics = SpriteGraphics.SharedIn(state.Colours.OwnShading);
-        beam.Position = beam.Position.WithWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 48)));
+        beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 

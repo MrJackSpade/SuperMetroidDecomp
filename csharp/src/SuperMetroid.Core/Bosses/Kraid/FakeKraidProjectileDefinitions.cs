@@ -35,6 +35,17 @@ internal static class FakeKraidProjectileDefinitions
     internal static readonly SignedEightEight SpikeSpeed = SignedEightEight.FromPixels(2);
 
     /// <summary>
+    /// The updates, beyond his random starting delay, before each body port's first spike, in the order his setup starts
+    /// their clocks: the top port's after 64, the middle's after 96 and the bottom's after 48.
+    /// </summary>
+    internal static IReadOnlyList<KeyValuePair<FakeKraidSpikeRow, int>> SpikeStartDelays { get; } =
+    [
+        new(FakeKraidSpikeRow.Top, 64),
+        new(FakeKraidSpikeRow.Middle, 96),
+        new(FakeKraidSpikeRow.Bottom, 48),
+    ];
+
+    /// <summary>
     /// The fixed body launch offsets: the top, middle and bottom ports are 2 pixels above, 12 below
     /// and 24 below body Y. This is port selection, not an interpolated motion curve.
     /// </summary>

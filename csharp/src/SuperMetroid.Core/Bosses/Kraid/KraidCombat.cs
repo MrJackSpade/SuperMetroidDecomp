@@ -84,7 +84,7 @@ internal sealed class KraidCombat
         // Writes only the whole pixels of the displacement, so preserve both
         // fractions exactly as they were before contact.
         KraidEnemyState state = KraidEntity.EncounterOf(context.Place);
-        context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
+        context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         state.BottomLintState.Phase = KraidLintPhase.Fire;
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
     }
@@ -157,10 +157,10 @@ internal sealed class KraidCombat
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
-                    body.FlashTimer = body.HurtFlashFrames + 8;
+                    body.FlashTimer = body.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
                     body.AiStates = body.AiStates | EnemyAiStates.Hurt;
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = 16;
+                        body.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
                 }
                 else
                 {
@@ -176,8 +176,8 @@ internal sealed class KraidCombat
 
         if (mouthHits != 0)
         {
-            state.HurtFrame = 6;
-            state.HurtFrameTimer = 2;
+            state.HurtFrame = KraidArenaDefinitions.HurtFlashSteps;
+            state.HurtFrameTimer = KraidArenaDefinitions.HurtFlashStepUpdates;
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 && state.BodyState.Fights)
@@ -289,7 +289,7 @@ internal sealed class KraidCombat
             new Offset16<RoomPixels>(0, KraidContactDefinitions.BodyEjection);
         samus.Position = samus.Position.WithWholeY(CoordinateAxis.Precedes(ejected.Y, state.EjectionLimitY)
             ? state.EjectionLimitY : ejected.Y);
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(KraidContactDefinitions.ExtraX, KraidContactDefinitions.ExtraY));
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         if (samus.InvincibilityTimer.IsZero)
             _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
     }

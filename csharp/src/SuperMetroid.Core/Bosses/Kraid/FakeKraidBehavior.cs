@@ -98,9 +98,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int seedDelay = KraidRandomDefinitions.FakeKraidStartDelay.Of(random) + KraidRandomDefinitions.FakeKraidStartDelayBase;
         state.WalkStepTimer = seedDelay;
         state.SpitDecisionTimer = seedDelay;
-        state.SpikeTimers[FakeKraidSpikeRow.Top] = seedDelay + 64;
-        state.SpikeTimers[FakeKraidSpikeRow.Middle] = seedDelay + 96;
-        state.SpikeTimers[FakeKraidSpikeRow.Bottom] = seedDelay + 48;
+        foreach ((FakeKraidSpikeRow row, int delay) in FakeKraidProjectileDefinitions.SpikeStartDelays)
+            state.SpikeTimers[row] = seedDelay + delay;
         state.NextSpikeRow = FakeKraidSpikeRow.Top;
 
         place.Processing = place.Processing.With(EnemyProcessing.Animates);

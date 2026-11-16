@@ -42,8 +42,10 @@ internal static class DraygonAnimationsVerification
         // An animation started through a counter preamble (#1938) starts at its counted segment, which the shared
         // comparison takes for a body no animation starts in; it is compared below from the preamble's count.
         HashSet<DraygonSegment> preambled = [.. CounterPreambles.Select(preamble => preamble.Program)];
+        // The body's dying cry is no animation of its own (#2175): the arms' dying runs on into it, and no owner starts it.
         NativeEnemyAnimationOracle.CompareAnimations(lists,
-            DraygonAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value));
+            DraygonAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value),
+            onlyRunOnInto: new HashSet<DraygonSegment> { DraygonSegment.BodyDying });
         foreach (DraygonNativeListAddressesEntry preamble in CounterPreambles)
         {
             int address = (BodyBankNumber << 16) | preamble.Entry;

@@ -548,16 +548,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         RunBotwoonHeadAction(head, state, samus);
     }
 
-    /// <summary>Restarts the head animation timer only when its selected animation changes.</summary>
+    /// <summary>Starts the head animation beginning at <paramref name="segment"/> unless it plays, restarting its frame timer.</summary>
     private static void StartBotwoonHeadAnimation(
         RoomEnemyPlace head,
         BotwoonEnemyState state,
-        BotwoonHeadAnimationSegment segment)
-    {
-        if (segment == state.HeadAnimation)
-            return;
-        state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(segment));
-    }
+        BotwoonHeadAnimationSegment segment) =>
+        state.HeadPlayback = EnemyAnimationPlayback.StartUnlessPlaying(head, state.HeadPlayback, BotwoonAnimations.HeadStartingWith(segment));
 
     /// <summary>Advances Botwoon's typed animation.</summary>
     internal void AdvanceBotwoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
@@ -593,13 +589,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         switch (cue)
         {
-            case BotwoonHeadCue.ApplyFacingRadius:
-                head.Radius = BotwoonAnimations.HeadRadius(state.HeadAnimation.Facing);
+            case BotwoonHeadCue.ApplyFacingRadius radius:
+                head.Radius = BotwoonAnimations.HeadRadius(radius.Facing);
                 return;
-            case BotwoonHeadCue.QueueSpitSound:
+            case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.QueueSpitSound }:
                 RequestBotwoonSound(BotwoonSoundDefinitions.Spit);
                 return;
-            case BotwoonHeadCue.ReachSpitFrame:
+            case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.ReachSpitFrame }:
                 state.SpitFrameReached = true;
                 return;
             default:

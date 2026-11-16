@@ -2,11 +2,14 @@
 #:package Microsoft.CodeAnalysis.CSharp.Workspaces@5.9.0
 #:package Microsoft.Bcl.AsyncInterfaces@10.0.1
 #:property PublishAot=false
+#:property ServerGarbageCollection=true
+#:project ../../csharp/src/SuperMetroid.ReachabilityAudit/SuperMetroid.ReachabilityAudit.csproj
+#:project ../../csharp/src/SuperMetroid.ArchitectureAudit/SuperMetroid.ArchitectureAudit.csproj
 
 // Applies the code fixes of the automatically fixed rules (csharp/.editorconfig names them) to a whole solution, the
 // way the asynchronous cleanup needs them applied (tools/cleanup/README.md).
 //
-// It loads every project of a .slnx (or one .csproj) into one MSBuildWorkspace, runs each project's own analyzers for
+// It loads every project of a .slnx (or one .csproj) into one workspace (WorkspaceLoad), runs each project's own analyzers for
 // the requested rules with the project's own configuration, and applies each rule's fixer from the assembly RuleOrder
 // names: Roslyn's code-style fixers (the same fixers `dotnet format style` uses) from the code-style package the
 // projects reference, or the repository's own fixers from SuperMetroid.EnsureAnalyzer.CodeFixes.dll, which the
@@ -26,10 +29,11 @@
 // the repository's fixer for it. A project that compiled when the run started and has compiler errors after a pass
 // is recorded as a problem, naming the errors, and its files are left alone from then on; the run goes on.
 //
-// IDE0079 (unnecessary suppression) has no command-line analyzer either. When it is requested, the runner runs every
-// analyzer of each project with the whole cleanup group enabled in its scope and suppressed diagnostics reported, and
-// finds each #pragma warning disable code and [SuppressMessage] that suppressed nothing (UnnecessarySuppressions). Only
-// a suppression of a rule enabled in its file is judged; one of an unknown or disabled rule is left alone.
+// IDE0079 (unnecessary suppression) has no command-line analyzer either. When it is requested, the runner runs, with
+// the whole cleanup group enabled in its scope and suppressed diagnostics reported, every analyzer that reports an id one
+// of the project's suppressions names and every diagnostic suppressor (SuppressionEvidence), and finds each #pragma
+// warning disable code and [SuppressMessage] that suppressed nothing (UnnecessarySuppressions). Only a suppression of a
+// rule enabled in its file is judged; one of an unknown or disabled rule is left alone.
 //
 // A file compiled into several projects (test-support through .projitems, or a <Compile Link>) is edited only where
 // every project compiling it reports the same finding at the same place, and not at all while any of them has a
@@ -58,7 +62,15 @@
 //
 // Usage: dotnet run tools/cleanup/CodeFixRunner.cs -- <solution.slnx | project.csproj> <summary.json> <rule,rule,...> [--dry-run]
 // --dry-run prints every finding with all its locations and writes nothing.
+//
+// With --cleanup it runs the asynchronous cleanup's whole fix and prune loop and its inventories in this one process, on
+// one load of the solution (CleanupLoop): the code fixes, the reachability audit's prune of dead code and the
+// architecture audit's prune of stale reviews take turns, each handed the solution as the steps before it left it, and
+// the outcome is written as JSON for tools/cleanup/run.ps1's commit message. The audits are referenced as projects:
+//   dotnet run tools/cleanup/CodeFixRunner.cs -- --cleanup <solution.slnx> <artifacts directory> <outcome.json> <rule,rule,...>
+//     <prune categories> <prune path prefix> <prune destination> <max rounds>
 
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -72,6 +84,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Text;
 
@@ -87,6 +100,11 @@ internal static class CodeFixRun
     [DllImport("kernel32.dll")]
     private static extern uint SetErrorMode(uint mode);
 
+    /// <summary>The usage line.</summary>
+    private const string Usage = "usage: CodeFixRunner <solution.slnx | project.csproj> <summary.json> <rule,rule,...> [--dry-run]\n" +
+        "   or: CodeFixRunner --cleanup <solution.slnx> <artifacts directory> <result.json> <rule,rule,...> " +
+        "<prune categories> <prune path prefix> <prune destination> <max rounds>";
+
     /// <summary>Runs the fixes behind the no-dialog boundary; any failure is written in full with a nonzero exit.</summary>
     public static async Task<int> RunAsync(string[] args)
     {
@@ -94,14 +112,22 @@ internal static class CodeFixRun
             _ = SetErrorMode(NoDialogs);
         try
         {
+            if (args is ["--cleanup", var solution, var artifacts, var result, var ruleList, var categories, var prefix, var destination, var rounds])
+            {
+                var loop = new CleanupLoop(Path.GetFullPath(solution), Path.GetFullPath(artifacts), Rules(ruleList), categories, prefix,
+                    Path.GetFullPath(destination), int.Parse(rounds, System.Globalization.CultureInfo.InvariantCulture));
+                CleanupOutcome outcome = await loop.RunAsync();
+                File.WriteAllText(Path.GetFullPath(result),
+                    JsonSerializer.Serialize(outcome, new JsonSerializerOptions { WriteIndented = true }), new UTF8Encoding(false));
+                return 0;
+            }
             bool dryRun = args.Length == 4 && args[3] == "--dry-run";
             if (args.Length != 3 && !dryRun)
-                throw new ArgumentException("usage: CodeFixRunner <solution.slnx | project.csproj> <summary.json> <rule,rule,...> [--dry-run]");
-            string[] rules = args[2].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (rules.Length == 0)
-                throw new ArgumentException("No rules named.");
-            var fixer = new SolutionFixer(Path.GetFullPath(args[0]), rules, dryRun);
-            CleanupSummary summary = await fixer.RunAsync();
+                throw new ArgumentException(Usage);
+            string target = Path.GetFullPath(args[0]);
+            using var workspace = await WorkspaceLoad.LoadAsync(target);
+            var fixer = new SolutionFixer(WorkspaceLoad.RepositoryRoot(target), Rules(args[2]), dryRun);
+            (_, CleanupSummary summary) = await fixer.RunAsync(workspace.CurrentSolution);
             File.WriteAllText(Path.GetFullPath(args[1]),
                 JsonSerializer.Serialize(summary, new JsonSerializerOptions { WriteIndented = true }), new UTF8Encoding(false));
             return 0;
@@ -111,6 +137,656 @@ internal static class CodeFixRun
             Console.Error.WriteLine(exception.ToString());
             return 1;
         }
+    }
+
+    /// <summary>The rules of a comma-separated list, of which there must be at least one.</summary>
+    private static string[] Rules(string list)
+    {
+        string[] rules = list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return rules.Length == 0 ? throw new ArgumentException("No rules named.") : rules;
+    }
+}
+
+/// <summary>
+/// Opens a .slnx's projects, or one project, in the configuration MSBuildWorkspace opens by default (Debug). A solution's
+/// projects are loaded in one batch (<see cref="MSBuildProjectLoader.LoadSolutionInfoAsync"/>), which reads their
+/// design-time builds together, instead of opening one project after another, each its own design-time build in turn;
+/// they are then placed in the order opening them one at a time gives (<see cref="OpeningOrder"/>), since the audits
+/// take the first project that compiles a shared file.
+/// </summary>
+internal static class WorkspaceLoad
+{
+    /// <summary>Opens the target: every project a .slnx lists, or one project; any load failure fails.</summary>
+    public static async Task<Workspace> LoadAsync(string target)
+    {
+        using var msbuild = MSBuildWorkspace.Create();
+        var failures = new List<string>();
+        msbuild.RegisterWorkspaceFailedHandler(e =>
+        {
+            if (e.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure)
+                failures.Add(e.Diagnostic.Message);
+        });
+        SolutionInfo loaded;
+        List<string> listed;
+        if (target.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+        {
+            loaded = SolutionInfo.Create(SolutionId.CreateNewId(), VersionStamp.Create(), null,
+                await new MSBuildProjectLoader(msbuild).LoadProjectInfoAsync(target));
+            listed = [Path.GetFullPath(target)];
+        }
+        else if (target.EndsWith(".slnx", StringComparison.OrdinalIgnoreCase))
+        {
+            loaded = await new MSBuildProjectLoader(msbuild).LoadSolutionInfoAsync(target);
+            string directory = Path.GetDirectoryName(target)!;
+            listed = [.. XDocument.Load(target).Descendants("Project")
+                .Select(p => Path.GetFullPath(Path.Combine(directory,
+                    (string?)p.Attribute("Path") ?? throw new InvalidOperationException($"{target} lists a project without a Path."))))];
+        }
+        else
+        {
+            throw new ArgumentException($"{target} is neither a .slnx nor a .csproj.");
+        }
+        if (failures.Count > 0)
+            throw new InvalidOperationException("Workspace load failed:\n" + string.Join('\n', failures));
+        var ordered = await OpeningOrder(loaded.Projects, listed);
+        var workspace = new AdhocWorkspace(MSBuildMefHostServices.DefaultServices);
+        workspace.AddSolution(SolutionInfo.Create(loaded.Id, loaded.Version, loaded.FilePath, ordered, loaded.AnalyzerReferences));
+        return workspace;
+    }
+
+    /// <summary>
+    /// The projects in the order opening the listed projects one at a time puts them: each listed project, followed by
+    /// the projects its project references (evaluated, in their order, analyzer references included) reach that are not
+    /// placed yet, depth first. Every loaded project must be placed exactly once.
+    /// </summary>
+    private static async Task<List<ProjectInfo>> OpeningOrder(IReadOnlyList<ProjectInfo> projects, List<string> listed)
+    {
+        var byPath = projects.ToDictionary(project => project.FilePath
+            ?? throw new InvalidOperationException($"{project.Name} has no project file."), StringComparer.OrdinalIgnoreCase);
+        var references = await ProjectItems.EvaluateAsync([.. byPath.Keys]);
+        var ordered = new List<ProjectInfo>();
+        var placed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        void Place(string path)
+        {
+            if (!byPath.TryGetValue(path, out ProjectInfo? project) || !placed.Add(path))
+                return;
+            ordered.Add(project);
+            foreach (string reference in references[path].ProjectReferences)
+                Place(reference);
+        }
+        foreach (string path in listed)
+            Place(path);
+        if (ordered.Count != projects.Count)
+            throw new InvalidOperationException("The load holds projects the solution neither lists nor reaches: " +
+                string.Join(", ", projects.Where(project => !placed.Contains(project.FilePath!)).Select(project => project.Name)));
+        return ordered;
+    }
+
+    /// <summary>The nearest directory at or above the target's that holds .git, or the target's own directory outside a
+    /// repository.</summary>
+    public static string RepositoryRoot(string target)
+    {
+        string start = Path.GetDirectoryName(target) ?? throw new ArgumentException($"{target} has no directory.");
+        for (var directory = new DirectoryInfo(start); directory is not null; directory = directory.Parent)
+        {
+            if (Directory.Exists(Path.Combine(directory.FullName, ".git")) || File.Exists(Path.Combine(directory.FullName, ".git")))
+                return directory.FullName;
+        }
+        return start;
+    }
+}
+
+/// <summary>A project's evaluated source items and project references, in order.</summary>
+/// <param name="Compile">The full paths of its Compile items.</param>
+/// <param name="ProjectReferences">The full paths of the projects its ProjectReference items name.</param>
+internal sealed record ProjectItems(List<string> Compile, List<string> ProjectReferences)
+{
+    /// <summary>Every given project's items, evaluated in parallel (<c>dotnet msbuild -getItem</c>), by project path.</summary>
+    public static async Task<Dictionary<string, ProjectItems>> EvaluateAsync(IReadOnlyList<string> projects)
+    {
+        var items = await Task.WhenAll(projects.Select(project => Task.Run(() => Evaluate(project))));
+        return projects.Select((project, index) => (project, items[index]))
+            .ToDictionary(entry => entry.project, entry => entry.Item2, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>One project's items, as <c>dotnet msbuild -getItem:Compile -getItem:ProjectReference</c> evaluates them.</summary>
+    private static ProjectItems Evaluate(string project)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo("dotnet")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        foreach (string argument in new[] { "msbuild", project, "-getItem:Compile", "-getItem:ProjectReference", "-nologo" })
+            start.ArgumentList.Add(argument);
+        using var process = System.Diagnostics.Process.Start(start) ?? throw new InvalidOperationException("dotnet msbuild did not start.");
+        Task<string> error = process.StandardError.ReadToEndAsync();
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException($"dotnet msbuild {project} -getItem failed (exit {process.ExitCode}): {output}{error.Result}");
+        using JsonDocument document = JsonDocument.Parse(output);
+        JsonElement found = document.RootElement.GetProperty("Items");
+        List<string> Paths(string item) => found.TryGetProperty(item, out JsonElement list)
+            ? [.. list.EnumerateArray().Select(entry => entry.GetProperty("FullPath").GetString()
+                ?? throw new InvalidOperationException($"{project} has a {item} item without a path."))]
+            : [];
+        return new ProjectItems(Paths("Compile"), Paths("ProjectReference"));
+    }
+}
+
+/// <summary>What the cleanup's fix and prune loop and its inventories did, for tools/cleanup/run.ps1's commit message.</summary>
+/// <param name="CodeFixes">Sites fixed per rule over every code-fix step.</param>
+/// <param name="Kept">Findings per rule the last code-fix step left in files compiled by several projects that do not
+/// all report them, or by a project that does not compile.</param>
+/// <param name="ProjectsWithCompilerErrors">Projects a code-fix step found with compiler errors, whose files it left alone.</param>
+/// <param name="Unfixed">Every site no fixer could fix, with the reason.</param>
+/// <param name="Problems">Every problem the run carried on past, in order.</param>
+/// <param name="FixedPaths">Repository-relative paths the code-fix steps changed.</param>
+/// <param name="PrunedPaths">Paths the dead-code prunes changed.</param>
+/// <param name="PrunedSummaries">The prunes' own summary lines.</param>
+/// <param name="RetiredFields">The instance fields the prunes retired.</param>
+/// <param name="ReviewPaths">Paths the stale-review prunes changed.</param>
+/// <param name="StaleReviews">Each stale review removed.</param>
+/// <param name="InventoryPaths">Paths the inventories changed.</param>
+/// <param name="Tree">The git tree the run leaves in the working copy.</param>
+/// <param name="Steps">Each step's kind, duration and changed file count, in order.</param>
+/// <param name="BuildExit">tools/build.ps1's exit code when the solution was built while the inventories were written
+/// (its full output is the build log it leaves in the temporary folder), or null when it was not built.</param>
+internal sealed record CleanupOutcome(
+    SortedDictionary<string, int> CodeFixes,
+    SortedDictionary<string, int> Kept,
+    List<string> ProjectsWithCompilerErrors,
+    List<string> Unfixed,
+    List<string> Problems,
+    List<string> FixedPaths,
+    List<string> PrunedPaths,
+    List<string> PrunedSummaries,
+    List<string> RetiredFields,
+    List<string> ReviewPaths,
+    List<string> StaleReviews,
+    List<string> InventoryPaths,
+    string Tree,
+    List<CleanupStep> Steps,
+    int? BuildExit);
+
+/// <summary>One step of the loop, or the inventories, as the log and the result report it.</summary>
+/// <param name="Number">The step's number; the inventories have none.</param>
+/// <param name="Kind">fix, prune, reviews, inventories or build.</param>
+/// <param name="Seconds">How long the step took.</param>
+/// <param name="ChangedFiles">How many files it changed.</param>
+internal sealed record CleanupStep(int? Number, string Kind, double Seconds, int ChangedFiles);
+
+/// <summary>
+/// The asynchronous cleanup's fix and prune loop and its inventories (tools/cleanup/README.md), in one process on one
+/// load of the solution. The code fixes, the reachability prune of dead code and the architecture audit's prune of stale
+/// reviews take turns until one of each in a row changes nothing; then the inventories are written. Each step is handed
+/// the solution as the previous steps left it: the code fixes return theirs, and what a prune writes is read back from
+/// the files git reports it changed (<see cref="SourceFiles"/>), so no step loads the solution again.
+/// </summary>
+/// <remarks>The owner's ruling (2026-11-15): the cleanup never fails over what it does. A failed prune, review prune or
+/// inventory step, steps that do not settle and steps that undo each other are each recorded as a problem and the run
+/// goes on; only a failure to load the solution or the analyzers, or an unusable command line, fails it.</remarks>
+internal sealed class CleanupLoop(string solutionPath, string artifacts, string[] rules, string pruneCategories, string prunePrefix,
+    string pruneDestination, int maxRounds)
+{
+    /// <summary>The steps the loop takes turns at.</summary>
+    private static readonly string[] StepKinds = ["fix", "prune", "reviews"];
+
+    /// <summary>The line the stale-review prune prints for each review it removes.</summary>
+    private const string StaleReviewLine = "Removed stale review: ";
+
+    /// <summary>The reachability prune's summary lines.</summary>
+    private static readonly Regex PruneSummaryLine = new(@"^(Removed|Moved|Relocated|Deleted)\b", RegexOptions.CultureInvariant);
+
+    /// <summary>Runs the loop and the inventories; returns what they did.</summary>
+    public async Task<CleanupOutcome> RunAsync()
+    {
+        string root = WorkspaceLoad.RepositoryRoot(solutionPath);
+        var git = new Git(root);
+        var codeFixes = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        var kept = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        var broken = new SortedSet<string>(StringComparer.Ordinal);
+        var unfixed = new SortedSet<string>(StringComparer.Ordinal);
+        var problems = new List<string>();
+        var fixedPaths = new SortedSet<string>(StringComparer.Ordinal);
+        var prunedPaths = new SortedSet<string>(StringComparer.Ordinal);
+        var prunedSummaries = new List<string>();
+        var retiredFields = new List<string>();
+        var reviewPaths = new SortedSet<string>(StringComparer.Ordinal);
+        var staleReviews = new List<string>();
+        var steps = new List<CleanupStep>();
+        void Problem(string text)
+        {
+            problems.Add(text);
+            Console.WriteLine($"problem: {text}");
+        }
+
+        Heading("load the solution, once for every step");
+        var loading = System.Diagnostics.Stopwatch.StartNew();
+        using Workspace workspace = await WorkspaceLoad.LoadAsync(solutionPath);
+        Solution solution = workspace.CurrentSolution;
+        SourceFiles files = await SourceFiles.CreateAsync(solution, root);
+        Console.WriteLine($"--- load {solution.ProjectIds.Count} projects after {loading.Elapsed.TotalSeconds:F0} s");
+        string tree = git.TreeId();
+        string initial = tree;
+        string synced = tree;
+        // The solution with every file the steps have written so far: what git reports changed since the solution was
+        // last brought up to date is read back into it.
+        async Task<Solution> CurrentAsync()
+        {
+            string now = git.TreeId();
+            if (now != synced)
+            {
+                solution = await files.SyncAsync(solution, git.Changes(synced, now));
+                synced = now;
+            }
+            return solution;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal) { tree };
+        int unchangedInARow = 0;
+        int maxSteps = maxRounds * StepKinds.Length;
+        for (int step = 1; unchangedInARow < StepKinds.Length; step++)
+        {
+            if (step > maxSteps)
+            {
+                Problem($"The fix and prune steps did not settle within {maxSteps} steps; the run keeps the tree it has.");
+                break;
+            }
+            string kind = StepKinds[(step - 1) % StepKinds.Length];
+            var started = System.Diagnostics.Stopwatch.StartNew();
+            if (kind == "fix")
+            {
+                Heading($"step {step}: code fixes ({string.Join(", ", rules)})");
+                var fixer = new SolutionFixer(root, rules, dryRun: false);
+                (solution, CleanupSummary summary) = await fixer.RunAsync(await CurrentAsync());
+                File.WriteAllText(Path.Combine(artifacts, $"code-fixes-{step}.json"),
+                    JsonSerializer.Serialize(summary, new JsonSerializerOptions { WriteIndented = true }), new UTF8Encoding(false));
+                foreach (var (rule, count) in summary.Fixed)
+                    codeFixes[rule] = codeFixes.GetValueOrDefault(rule) + count;
+                kept = summary.Kept;
+                if (summary.ProjectsWithCompilerErrors.Count > 0)
+                    Console.WriteLine($"projects with compiler errors, whose files were left alone: {string.Join(", ", summary.ProjectsWithCompilerErrors)}");
+                broken.UnionWith(summary.ProjectsWithCompilerErrors);
+                unfixed.UnionWith(summary.Unfixed);
+                foreach (string problem in summary.Problems)
+                    problems.Add($"Code fixes, step {step}: {problem}");
+            }
+            else if (kind == "prune")
+            {
+                Heading($"step {step}: reachability prune of dead code");
+                string retired = Path.Combine(artifacts, $"retired-fields-{step}.txt");
+                File.WriteAllText(retired, "");
+                int exit;
+                using (var capture = new ConsoleCapture())
+                {
+                    exit = await ExitOfAsync(() => SuperMetroid.ReachabilityAudit.Program.PruneKeepingVerificationUsedAsync(
+                        CurrentAsync, root, pruneCategories, prunePrefix, pruneDestination, retired));
+                    prunedSummaries.AddRange(capture.Lines().Where(line => PruneSummaryLine.IsMatch(line)));
+                }
+                Console.WriteLine($"--- reachability prune exit {exit}");
+                // The prune validates every edit before writing any, so a failed prune leaves the tree as it was.
+                if (exit != 0)
+                    Problem($"The reachability prune failed (exit {exit}) at step {step}; see the log.");
+                retiredFields.AddRange(File.ReadAllLines(retired).Where(line => line.Length > 0));
+            }
+            else
+            {
+                Heading($"step {step}: stale architecture reviews (ArchitectureAudit --prune-stale-reviews)");
+                int exit;
+                using (var capture = new ConsoleCapture())
+                {
+                    exit = await ExitOfAsync(async () => await SuperMetroid.ArchitectureAudit.Program.RunAsync(
+                        await CurrentAsync(), root, SuperMetroid.ArchitectureAudit.AuditMode.PruneStaleReviews));
+                    staleReviews.AddRange(capture.Lines().Where(line => line.StartsWith(StaleReviewLine, StringComparison.Ordinal))
+                        .Select(line => line[StaleReviewLine.Length..]));
+                }
+                Console.WriteLine($"--- stale review prune exit {exit}");
+                if (exit != 0)
+                    Problem($"The stale review prune failed (exit {exit}) at step {step}; see the log.");
+            }
+            string next = git.TreeId();
+            if (next == tree)
+            {
+                unchangedInARow++;
+                steps.Add(new CleanupStep(step, kind, started.Elapsed.TotalSeconds, 0));
+                Console.WriteLine($"no change ({started.Elapsed.TotalSeconds:F0} s)");
+                continue;
+            }
+            var paths = git.ChangedPaths(tree, next);
+            (kind == "fix" ? fixedPaths : kind == "prune" ? prunedPaths : reviewPaths).UnionWith(paths);
+            steps.Add(new CleanupStep(step, kind, started.Elapsed.TotalSeconds, paths.Count));
+            Console.WriteLine($"changed {paths.Count} files ({started.Elapsed.TotalSeconds:F0} s)");
+            tree = next;
+            if (!seen.Add(next))
+            {
+                Problem($"Step {step} returned the tree to an earlier state ({next}): the fixes and the prunes undo each other; the run keeps that tree.");
+                break;
+            }
+            unchangedInARow = 0;
+        }
+
+        // The code the run commits is final once the loop ends: the inventories write only docs/, which no build reads.
+        // When the loop changed anything, the solution is built while they are written; otherwise run.ps1 builds after
+        // them, when they changed anything.
+        Task<BuildResult>? build = null;
+        if (tree != initial)
+        {
+            Heading("build (tools/build.ps1, the whole solution), while the inventories are written");
+            build = BuildAsync(root, solutionPath);
+        }
+        Heading("inventories (ArchitectureAudit --write)");
+        var inventory = System.Diagnostics.Stopwatch.StartNew();
+        int inventoryExit = await ExitOfAsync(async () => await SuperMetroid.ArchitectureAudit.Program.RunAsync(
+            await CurrentAsync(), root, SuperMetroid.ArchitectureAudit.AuditMode.Write));
+        Console.WriteLine($"--- inventories exit {inventoryExit}");
+        if (inventoryExit != 0)
+            Problem($"The inventories were not regenerated (exit {inventoryExit}); see the log.");
+        string inventoried = git.TreeId();
+        var inventoryPaths = git.ChangedPaths(tree, inventoried);
+        steps.Add(new CleanupStep(null, "inventories", inventory.Elapsed.TotalSeconds, inventoryPaths.Count));
+        Console.WriteLine($"inventories changed {inventoryPaths.Count} files ({inventory.Elapsed.TotalSeconds:F0} s)");
+        string final = inventoried;
+        BuildResult? built = null;
+        if (build is not null)
+        {
+            built = await build;
+            foreach (string line in built.Output)
+                Console.WriteLine(line);
+            steps.Add(new CleanupStep(null, "build", built.Seconds, 0));
+            final = git.TreeId();
+            // tools/build.ps1 never changes a tracked file; the inventories change only docs/.
+            var changedByBuild = git.ChangedPaths(tree, final).Where(path => !inventoryPaths.Contains(path)).ToList();
+            if (final != inventoried || changedByBuild.Count > 0)
+                throw new InvalidOperationException($"The build changed the tree, which tools/build.ps1 never does: {string.Join(", ", changedByBuild)}");
+        }
+        return new CleanupOutcome(codeFixes, kept, [.. broken], [.. unfixed], problems, [.. fixedPaths], [.. prunedPaths], prunedSummaries,
+            retiredFields, [.. reviewPaths], staleReviews, inventoryPaths, final, steps, built?.Exit);
+    }
+
+    /// <summary>What tools/build.ps1 printed and how it exited.</summary>
+    /// <param name="Exit">Its exit code.</param>
+    /// <param name="Output">Every line it printed.</param>
+    /// <param name="Seconds">How long it took.</param>
+    private sealed record BuildResult(int Exit, List<string> Output, double Seconds);
+
+    /// <summary>Builds the solution with tools/build.ps1 in a process of its own, which keeps the build's full output
+    /// in its log, as run.ps1 does.</summary>
+    private static Task<BuildResult> BuildAsync(string root, string solution) => Task.Run(() =>
+    {
+        var started = System.Diagnostics.Stopwatch.StartNew();
+        var start = new System.Diagnostics.ProcessStartInfo("pwsh")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            WorkingDirectory = root,
+        };
+        foreach (string argument in new[] { "-NoProfile", "-NonInteractive", "-File", Path.Combine(root, "tools", "build.ps1"), solution })
+            start.ArgumentList.Add(argument);
+        using var process = System.Diagnostics.Process.Start(start) ?? throw new InvalidOperationException("tools/build.ps1 did not start.");
+        Task<string> error = process.StandardError.ReadToEndAsync();
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        var lines = (output + error.Result).Replace("\r", "").Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+        return new BuildResult(process.ExitCode, lines, started.Elapsed.TotalSeconds);
+    });
+
+    /// <summary>
+    /// A step's exit code as its command line gave it: what the step returns, or 1 when it throws, after writing the
+    /// exception in full to the log. The owner's ruling (2026-11-15): a failed prune or inventory step is a problem the
+    /// run records and carries on past, as it was when each step was a process of its own.
+    /// </summary>
+    private static async Task<int> ExitOfAsync(Func<Task<int>> step)
+    {
+        try
+        {
+            return await step();
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine(exception.ToString());
+            return 1;
+        }
+    }
+
+    /// <summary>A step that returns nothing exits 0 when it does not throw.</summary>
+    private static Task<int> ExitOfAsync(Func<Task> step) => ExitOfAsync(async () =>
+    {
+        await step();
+        return 0;
+    });
+
+    /// <summary>Prints a step's heading as run.ps1 prints its own.</summary>
+    private static void Heading(string text)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"=== {DateTime.UtcNow:yyyy-MM-ddTHH:mm:ssZ} {text}");
+    }
+}
+
+/// <summary>The git commands the loop runs in the repository: tree ids of the working copy and the paths between them.</summary>
+internal sealed class Git(string root)
+{
+    /// <summary>The tree the working copy holds now, including new and deleted files.</summary>
+    public string TreeId()
+    {
+        _ = Run("add", "--all");
+        return Run("write-tree");
+    }
+
+    /// <summary>The paths that differ between two trees, as <c>git diff --name-only</c> lists them.</summary>
+    public List<string> ChangedPaths(string from, string to) =>
+        [.. Run("diff", "--name-only", from, to).Split('\n', StringSplitOptions.RemoveEmptyEntries)];
+
+    /// <summary>Each path added (A), modified (M) or deleted (D) between two trees, without rename detection.</summary>
+    public List<(char Status, string Path)> Changes(string from, string to) =>
+        [.. Run("diff", "--name-status", "--no-renames", from, to).Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Split('\t', 2) is [var status, var path] ? (status[0], path)
+                : throw new InvalidOperationException($"Unexpected git diff line: {line}"))];
+
+    /// <summary>Runs git in the repository; a nonzero exit fails with git's output.</summary>
+    private string Run(params string[] arguments)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo("git")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        start.ArgumentList.Add("-C");
+        start.ArgumentList.Add(root);
+        foreach (string argument in arguments)
+            start.ArgumentList.Add(argument);
+        using var process = System.Diagnostics.Process.Start(start) ?? throw new InvalidOperationException("git did not start.");
+        Task<string> error = process.StandardError.ReadToEndAsync();
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException($"git {string.Join(' ', arguments)} failed (exit {process.ExitCode}): {output}{error.Result}");
+        return output.Replace("\r", "").Trim();
+    }
+}
+
+/// <summary>
+/// Keeps the loaded solution in step with the files the steps write, as a fresh load would see them. A changed file's
+/// text is read back where it differs. When files are added or deleted, or a project file changes, every project's
+/// source list is evaluated again (<c>dotnet msbuild -getItem:Compile</c>, the items a load takes before the build adds
+/// its generated files), and each project gets exactly those files, in that order, followed by the generated files it
+/// was loaded with. <see cref="CreateAsync"/> confirms the load holds that shape, so the rule reproduces a load.
+/// </summary>
+internal sealed class SourceFiles
+{
+    private readonly string _root;
+
+    /// <summary>Each project's documents a load adds after its evaluated source items (generated files under obj/).</summary>
+    private readonly Dictionary<ProjectId, List<string>> _generated;
+
+    private SourceFiles(string root, Dictionary<ProjectId, List<string>> generated)
+    {
+        _root = root;
+        _generated = generated;
+    }
+
+    /// <summary>Records each project's generated documents, failing unless every project's documents are its evaluated
+    /// source items, in order, followed by them.</summary>
+    public static async Task<SourceFiles> CreateAsync(Solution solution, string root)
+    {
+        var evaluated = await EvaluateAsync(solution);
+        var generated = new Dictionary<ProjectId, List<string>>();
+        foreach (Project project in solution.Projects)
+        {
+            var documents = project.Documents.Select(document => document.FilePath
+                ?? throw new InvalidOperationException($"{project.Name} has a document without a file.")).ToList();
+            List<string> items = evaluated[project.Id];
+            if (documents.Count < items.Count || !documents.Take(items.Count).SequenceEqual(items, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"{project.Name}'s loaded documents are not its evaluated source items in order, so " +
+                    "files the steps add or delete cannot be placed as a load would place them.");
+            generated[project.Id] = documents.Skip(items.Count).ToList();
+        }
+        return new SourceFiles(root, generated);
+    }
+
+    /// <summary>The solution with the given changes (git's status and repository-relative path) read back.</summary>
+    public async Task<Solution> SyncAsync(Solution solution, IReadOnlyList<(char Status, string Path)> changes)
+    {
+        bool reevaluate = false;
+        foreach (var (status, relative) in changes)
+        {
+            string path = Path.GetFullPath(Path.Combine(_root, relative));
+            string extension = Path.GetExtension(path);
+            if (status != 'M' || extension is not ".cs")
+                reevaluate |= extension is ".cs" or ".csproj" or ".projitems" or ".props" or ".targets";
+            if (status != 'M')
+                continue;
+            var ids = solution.GetDocumentIdsWithFilePath(path);
+            if (ids.IsEmpty)
+                continue;
+            SourceText text = Read(path);
+            if ((await solution.GetDocument(ids[0])!.GetTextAsync()).ContentEquals(text))
+                continue;
+            foreach (DocumentId id in ids)
+                solution = solution.WithDocumentText(id, text);
+        }
+        return reevaluate ? await PlaceAsync(solution) : solution;
+    }
+
+    /// <summary>Gives every project exactly its evaluated source items, in order, followed by its generated files.</summary>
+    private async Task<Solution> PlaceAsync(Solution solution)
+    {
+        var evaluated = await EvaluateAsync(solution);
+        foreach (ProjectId projectId in solution.ProjectIds)
+        {
+            Project project = solution.GetProject(projectId)!;
+            var wanted = evaluated[projectId].Concat(_generated[projectId]).ToList();
+            var wantedSet = wanted.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            foreach (Document document in project.Documents.Where(document => !wantedSet.Contains(document.FilePath!)))
+                solution = solution.RemoveDocument(document.Id);
+            var present = solution.GetProject(projectId)!.Documents
+                .ToDictionary(document => document.FilePath!, document => document.Id, StringComparer.OrdinalIgnoreCase);
+            foreach (string path in wanted.Where(path => !present.ContainsKey(path)))
+            {
+                DocumentId id = DocumentId.CreateNewId(projectId, path);
+                solution = solution.AddDocument(DocumentInfo.Create(id, Path.GetFileName(path), Folders(project, path), SourceCodeKind.Regular,
+                    TextLoader.From(TextAndVersion.Create(Read(path), VersionStamp.Create(), path)), path));
+                present[path] = id;
+            }
+            var order = wanted.Select(path => present[path]).ToImmutableList();
+            if (!solution.GetProject(projectId)!.DocumentIds.SequenceEqual(order))
+                solution = solution.WithProjectDocumentsOrder(projectId, order);
+        }
+        return solution;
+    }
+
+    /// <summary>A new document's folders: its directory's path below the project's, or none outside it.</summary>
+    private static IEnumerable<string> Folders(Project project, string path)
+    {
+        string relative = Path.GetRelativePath(Path.GetDirectoryName(project.FilePath!)!, Path.GetDirectoryName(path)!);
+        return relative == "." || relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative)
+            ? [] : relative.Split(Path.DirectorySeparatorChar);
+    }
+
+    /// <summary>A file's text as a load reads it.</summary>
+    private static SourceText Read(string path)
+    {
+        using FileStream stream = File.OpenRead(path);
+        return SourceText.From(stream, encoding: null, checksumAlgorithm: SourceHashAlgorithm.Sha256);
+    }
+
+    /// <summary>Every project's evaluated source items, in order, evaluated in parallel.</summary>
+    private static async Task<Dictionary<ProjectId, List<string>>> EvaluateAsync(Solution solution)
+    {
+        var projects = solution.Projects.ToList();
+        var items = await ProjectItems.EvaluateAsync([.. projects.Select(project => project.FilePath!)]);
+        return projects.ToDictionary(project => project.Id, project => items[project.FilePath!].Compile);
+    }
+}
+
+/// <summary>Copies everything written to the console while it is open, so a step's own output lines can be read back;
+/// the output still reaches the log.</summary>
+internal sealed class ConsoleCapture : IDisposable
+{
+    private readonly TextWriter _out = Console.Out;
+    private readonly TextWriter _error = Console.Error;
+    private readonly StringBuilder _captured = new();
+    private readonly Lock _gate = new();
+
+    /// <summary>Starts copying standard output and standard error.</summary>
+    public ConsoleCapture()
+    {
+        Console.SetOut(new Tee(_out, this));
+        Console.SetError(new Tee(_error, this));
+    }
+
+    /// <summary>The lines written so far.</summary>
+    public List<string> Lines()
+    {
+        lock (_gate)
+            return [.. _captured.ToString().Replace("\r", "").Split('\n')];
+    }
+
+    /// <summary>Stops copying.</summary>
+    public void Dispose()
+    {
+        Console.SetOut(_out);
+        Console.SetError(_error);
+    }
+
+    /// <summary>Writes to one console stream and to the capture.</summary>
+    private sealed class Tee(TextWriter target, ConsoleCapture capture) : TextWriter
+    {
+        public override Encoding Encoding => target.Encoding;
+
+        public override void Write(char value)
+        {
+            lock (capture._gate)
+            {
+                target.Write(value);
+                capture._captured.Append(value);
+            }
+        }
+
+        public override void Write(string? value)
+        {
+            lock (capture._gate)
+            {
+                target.Write(value);
+                capture._captured.Append(value);
+            }
+        }
+
+        public override void WriteLine(string? value)
+        {
+            lock (capture._gate)
+            {
+                target.WriteLine(value);
+                capture._captured.Append(value).Append('\n');
+            }
+        }
+
+        public override void Flush() => target.Flush();
     }
 }
 
@@ -239,7 +915,6 @@ internal sealed class SolutionFixer
     /// rather than IDE0005 itself.</summary>
     private const string UnusedUsingFixable = "RemoveUnnecessaryImportsFixable";
 
-    private readonly string _target;
     private readonly HashSet<string> _rules;
     private readonly bool _dryRun;
     private readonly string _root;
@@ -251,10 +926,9 @@ internal sealed class SolutionFixer
     /// <summary>What went wrong in the run as a whole and was carried on past, in the order it happened.</summary>
     private readonly List<string> _problems = [];
 
-    /// <summary>Creates a fixer for a solution or project file and the rules to fix.</summary>
-    public SolutionFixer(string target, string[] rules, bool dryRun)
+    /// <summary>Creates a fixer for the rules to fix in the repository at <paramref name="root"/>.</summary>
+    public SolutionFixer(string root, string[] rules, bool dryRun)
     {
-        _target = target;
         _rules = rules.ToHashSet(StringComparer.Ordinal);
         foreach (string rule in _rules)
         {
@@ -262,24 +936,12 @@ internal sealed class SolutionFixer
                 throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder.Select(r => r.Id))}.");
         }
         _dryRun = dryRun;
-        _root = FindRepositoryRoot(Path.GetDirectoryName(target) ?? throw new ArgumentException($"{target} has no directory."));
+        _root = root;
     }
 
-    /// <summary>Runs the passes and writes the changed files.</summary>
-    public async Task<CleanupSummary> RunAsync()
+    /// <summary>Runs the passes on a loaded solution and writes the changed files; returns the solution as written.</summary>
+    public async Task<(Solution Fixed, CleanupSummary Summary)> RunAsync(Solution original)
     {
-        using var workspace = MSBuildWorkspace.Create();
-        var failures = new List<string>();
-        workspace.RegisterWorkspaceFailedHandler(e =>
-        {
-            if (e.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure)
-                failures.Add(e.Diagnostic.Message);
-        });
-        await LoadAsync(workspace);
-        if (failures.Count > 0)
-            throw new InvalidOperationException("Workspace load failed:\n" + string.Join('\n', failures));
-
-        Solution original = workspace.CurrentSolution;
         Solution solution = original;
         var fixedCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
         var keptCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
@@ -301,8 +963,10 @@ internal sealed class SolutionFixer
                 pass--;
                 break;
             }
+            var passWatch = System.Diagnostics.Stopwatch.StartNew();
             await AnalyzeAsync(solution, analyses, changedSinceAnalysis, pass == 1);
             changedSinceAnalysis.Clear();
+            double analysisSeconds = passWatch.Elapsed.TotalSeconds;
             if (pass == 1)
                 compiledAtStart.UnionWith(analyses.Values.Where(a => a.CompilerErrors.Count == 0).Select(a => a.Project.Id));
             foreach (ProjectAnalysis newlyBroken in analyses.Values.Where(a =>
@@ -313,18 +977,22 @@ internal sealed class SolutionFixer
             if (_dryRun)
             {
                 PrintFindings(analyses.Values);
-                return new CleanupSummary(pass, fixedCounts, keptCounts, [], [.. broken], Unfixed(), [.. _problems]);
+                return (solution, new CleanupSummary(pass, fixedCounts, keptCounts, [], [.. broken], Unfixed(), [.. _problems]));
             }
             var passKept = new SortedDictionary<string, int>(StringComparer.Ordinal);
             var touched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             bool cycled = false;
             int applied = 0;
-            foreach (string path in analyses.Values.SelectMany(a => a.Findings.Keys).Distinct(StringComparer.OrdinalIgnoreCase)
-                         .Order(StringComparer.OrdinalIgnoreCase).ToList())
+            var paths = analyses.Values.SelectMany(a => a.Findings.Keys).Distinct(StringComparer.OrdinalIgnoreCase)
+                .Order(StringComparer.OrdinalIgnoreCase).ToList();
+            Solution analyzed = solution;
+            var plans = await PlanAsync(analyzed, paths, analyses);
+            _passProblems = [];
+            foreach (string path in paths)
             {
                 if (touched.Contains(path))
                     continue;
-                FileFix? fix = await FixFileAsync(solution, path, analyses, fixedCounts, passKept, touched);
+                FileFix? fix = await FixFileAsync(solution, analyzed, path, plans[path], analyses, fixedCounts, passKept, touched);
                 if (fix is null)
                     continue;
                 solution = fix.Solution;
@@ -346,7 +1014,16 @@ internal sealed class SolutionFixer
                     }
                 }
             }
-            Console.WriteLine($"pass {pass}: fixed {applied} files; kept {Format(passKept)}");
+            // The pass's problems are recorded in the order they arose; the compiler-error checks of its fixes ran while
+            // the pass went on.
+            var passProblems = _passProblems;
+            _passProblems = null;
+            foreach (Task<List<string>> problems in passProblems)
+            {
+                foreach (string problem in await problems)
+                    Problem(problem);
+            }
+            Console.WriteLine($"pass {pass}: fixed {applied} files; kept {Format(passKept)} (analysis {analysisSeconds:F0} s, fixes {passWatch.Elapsed.TotalSeconds - analysisSeconds:F0} s)");
             if (applied == 0 || cycled)
             {
                 foreach (var (rule, count) in passKept)
@@ -360,12 +1037,21 @@ internal sealed class SolutionFixer
             + (_unfixed.Count > 0 ? $"; {_unfixed.Count} sites unfixed" : ""));
         foreach (string unfixed in Unfixed())
             Console.WriteLine($"unfixed: {unfixed}");
-        return new CleanupSummary(pass, fixedCounts, keptCounts, changed, [.. broken], Unfixed(), [.. _problems]);
+        return (solution, new CleanupSummary(pass, fixedCounts, keptCounts, changed, [.. broken], Unfixed(), [.. _problems]));
     }
 
-    /// <summary>Records a problem the run carries on past, and prints it to the log at once.</summary>
+    /// <summary>The problems of the pass applying its fixes, in the order they arise; null outside that loop.</summary>
+    private List<Task<List<string>>>? _passProblems;
+
+    /// <summary>Records a problem the run carries on past, and prints it to the log: at once, or, while a pass applies
+    /// its fixes, when the pass ends, in the order the problems arose.</summary>
     private void Problem(string text)
     {
+        if (_passProblems is { } pending)
+        {
+            pending.Add(Task.FromResult<List<string>>([text]));
+            return;
+        }
         _problems.Add(text);
         Console.WriteLine($"problem: {text}");
     }
@@ -380,38 +1066,25 @@ internal sealed class SolutionFixer
     /// <summary>The unfixed sites as lines for the summary.</summary>
     private List<string> Unfixed() => [.. _unfixed.Select(entry => $"{entry.Key}: {entry.Value}")];
 
-    /// <summary>Opens the target: every project a .slnx lists, or one project.</summary>
-    private async Task LoadAsync(MSBuildWorkspace workspace)
-    {
-        if (_target.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
-        {
-            await workspace.OpenProjectAsync(_target);
-            return;
-        }
-        if (!_target.EndsWith(".slnx", StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"{_target} is neither a .slnx nor a .csproj.");
-        string directory = Path.GetDirectoryName(_target)!;
-        foreach (string path in XDocument.Load(_target).Descendants("Project")
-                     .Select(p => Path.GetFullPath(Path.Combine(directory,
-                         (string?)p.Attribute("Path") ?? throw new InvalidOperationException($"{_target} lists a project without a Path.")))))
-        {
-            if (workspace.CurrentSolution.Projects.Any(p => string.Equals(p.FilePath, path, StringComparison.OrdinalIgnoreCase)))
-                continue;
-            await workspace.OpenProjectAsync(path);
-        }
-    }
-
     /// <summary>Analyzes every project on the first pass, then only the projects that compile a changed file. The
     /// fixes never change what another project can see (they change a file's own code, private members, or the files
     /// of one type, and an added file joins every project compiling its origin), so a project with no changed file
     /// keeps its findings.</summary>
+    /// <remarks>The projects are analyzed in parallel, each on its own compilation, and their results and log lines
+    /// taken in name order, so the outcome and the log do not depend on which finishes first. Their analyzers are
+    /// loaded first, one project at a time, since a load failure is reported through an event of the analyzer
+    /// reference, which projects share.</remarks>
     private async Task AnalyzeAsync(Solution solution, Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> changed, bool all)
     {
-        foreach (Project project in solution.Projects.OrderBy(p => p.Name, StringComparer.Ordinal))
+        var projects = solution.Projects.OrderBy(p => p.Name, StringComparer.Ordinal)
+            .Where(project => all || project.Documents.Any(d => d.FilePath is { } path && changed.Contains(path))).ToList();
+        var loaded = projects.Select(LoadedAnalyzers).ToList();
+        var results = await Task.WhenAll(projects.Select((project, index) => Task.Run(() => AnalyzeProjectAsync(project, loaded[index]))));
+        foreach (var (analysis, log) in results)
         {
-            if (!all && !project.Documents.Any(d => d.FilePath is { } path && changed.Contains(path)))
-                continue;
-            analyses[project.Id] = await AnalyzeProjectAsync(project);
+            foreach (string line in log)
+                Console.WriteLine(line);
+            analyses[analysis.Project.Id] = analysis;
         }
     }
 
@@ -455,10 +1128,13 @@ internal sealed class SolutionFixer
 
     /// <summary>Compiles one project with the requested rules enabled as warnings where their scope allows, and runs
     /// its analyzers for the requested analyzer rules; the compiler's own rules come with the compilation. When
-    /// IDE0079 is requested, every analyzer runs, with the whole cleanup group enabled and suppressed diagnostics
-    /// reported, so that a suppression's use can be seen.</summary>
-    private async Task<ProjectAnalysis> AnalyzeProjectAsync(Project project)
+    /// IDE0079 is requested, the whole cleanup group is enabled, suppressed diagnostics are reported, and every analyzer
+    /// that can show a suppression of the project to be needed runs too (<see cref="SuppressionEvidence"/>). Returns the
+    /// analysis and the lines it logs.</summary>
+    private async Task<(ProjectAnalysis Analysis, List<string> Log)> AnalyzeProjectAsync(Project project, ImmutableArray<DiagnosticAnalyzer> loaded)
     {
+        var log = new List<string>();
+        var watch = System.Diagnostics.Stopwatch.StartNew();
         Compilation configured = await project.GetCompilationAsync()
             ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
         SyntaxTreeOptionsProvider treeOptions = configured.Options.SyntaxTreeOptionsProvider
@@ -473,10 +1149,10 @@ internal sealed class SolutionFixer
             new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, scope));
         var analyzerRules = RuleOrder.Where(rule => rule.Findings == FindingSource.Analyzer && _rules.Contains(rule.Id))
             .Select(rule => rule.Id).ToHashSet(StringComparer.Ordinal);
-        var loaded = LoadedAnalyzers(project);
-        var analyzers = suppressions
-            ? loaded
-            : loaded.Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id))).ToImmutableArray();
+        var ruleAnalyzers = loaded.Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id)))
+            .ToImmutableArray();
+        var (evidence, suppressors) = suppressions ? SuppressionEvidence.Analyzers(configured, loaded, ruleAnalyzers) : ([], []);
+        var analyzers = ruleAnalyzers.AddRange(evidence).AddRange(suppressors);
         var supported = loaded.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).ToHashSet(StringComparer.Ordinal);
         // A project is held to the rules its own analyzers report, as its build is: the analyzer projects do not load the
         // repository analyzer (Directory.Build.targets) and, as netstandard2.0 projects, not the .NET analyzers either, so
@@ -484,8 +1160,8 @@ internal sealed class SolutionFixer
         // missing here is outside the project, not lost to a misconfigured workspace.
         var outside = analyzerRules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
         if (outside.Count > 0)
-            Console.WriteLine($"  {project.Name} has no analyzer for {string.Join(", ", outside)}; its build never reports them, so neither does this run");
-        if (suppressions && analyzers.IsEmpty)
+            log.Add($"  {project.Name} has no analyzer for {string.Join(", ", outside)}; its build never reports them, so neither does this run");
+        if (suppressions && loaded.IsEmpty)
             throw new InvalidOperationException($"{project.Name} references no analyzer, so its suppressions' use cannot be seen.");
         // The compiler reports its own rules (CS0168, ...) while it binds; with the rule enabled in the per-file options
         // above, they are among the compilation's diagnostics, which the analyzer run includes.
@@ -497,15 +1173,22 @@ internal sealed class SolutionFixer
         }
         else
         {
-            // Analysis runs serially. Run concurrently over Core with the whole analyzer set, it intermittently lost the
-            // repository analyzers' diagnostics: in one of four runs the suppressed SME6426 findings in StationObjectDraws
-            // did not come back, so their needed [SuppressMessage]s looked unused and IDE0079 removed them (the cleanup run
-            // at 549a352794 failed its build on this); five serial runs all reported them. A lost finding also skips a fix
-            // (the SME6391 fixture once found nothing).
+            // The requested rules' analyzers run concurrently: each of them declares concurrent execution and keeps no
+            // state between callbacks, and the options the runner answers them from (RuleScope) are safe to read from
+            // several threads. Run concurrently over Core with the whole analyzer set, diagnostics were once
+            // intermittently lost: in one of four runs the suppressed SME6426 findings in StationObjectDraws did not come
+            // back, so their needed [SuppressMessage]s looked unused and IDE0079 removed them (the cleanup run at
+            // 549a352794 failed its build on this). RuleScope's per-file cache was then a plain dictionary, written from
+            // the analysis threads; a lost entry turned a rule off for a file. An analyzer that runs only as evidence for
+            // a suppression still runs serially with the rest.
             var withAnalyzers = compilation.WithAnalyzers(analyzers, new CompilationWithAnalyzersOptions(analyzerOptions,
-                onAnalyzerException: null, concurrentAnalysis: false, logAnalyzerExecutionTime: false, reportSuppressedDiagnostics: suppressions));
+                onAnalyzerException: null, concurrentAnalysis: evidence.IsEmpty, logAnalyzerExecutionTime: false,
+                reportSuppressedDiagnostics: suppressions));
             diagnostics = await withAnalyzers.GetAllDiagnosticsAsync();
             analyzed = withAnalyzers.Compilation;
+            // An analyzer that throws reports AD0001 instead of its findings; the log shows it.
+            foreach (Diagnostic failure in diagnostics.Where(d => d.Id == "AD0001"))
+                log.Add($"  {project.Name}: {failure}");
         }
         var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && !d.IsSuppressed && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
         var findings = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
@@ -552,48 +1235,101 @@ internal sealed class SolutionFixer
                 list.Add(unnecessary);
             }
         }
-        Console.WriteLine($"  analyzed {project.Name}: {findings.Values.Sum(l => l.Count)} findings"
+        log.Add($"  analyzed {project.Name} in {watch.Elapsed.TotalSeconds:F0} s: {findings.Values.Sum(l => l.Count)} findings"
             + (errors.Count > 0 ? $", {errors.Count} compiler errors (its files are left alone)" : ""));
-        return new ProjectAnalysis(project, errors, findings, fixable);
+        return (new ProjectAnalysis(project, errors, findings, fixable), log);
     }
 
-    /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed in this
-    /// pass: a fix that would change a file another fix of this pass changed waits for the next pass.</summary>
-    private async Task<FileFix?> FixFileAsync(Solution solution, string path, Dictionary<ProjectId, ProjectAnalysis> analyses,
-        SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept, HashSet<string> touched)
+    /// <summary>
+    /// What one file's fix will be computed from: the projects compiling it, what each reports, the findings they agree
+    /// on, the document of the first, and the fixers' results for its rules in order, up to the first that changes
+    /// anything. The results are computed for every file at once, on all processors, from the solution the pass analyzed.
+    /// Each pass fixes at most one rule per file and a fix that would change a file another fix of the pass changed waits
+    /// for the next pass, so the file a fix is computed for holds the same text as in that solution when the fix is applied.
+    /// </summary>
+    private sealed record FilePlan(List<ProjectAnalysis> Compilers, List<List<Diagnostic>> Reported, HashSet<string> Agreed,
+        Document? Document, List<(string Rule, FixAttempt Attempt)> Attempts);
+
+    /// <summary>Plans every file of the pass, on all processors; the plans are used in path order.</summary>
+    private async Task<Dictionary<string, FilePlan>> PlanAsync(Solution solution, List<string> paths, Dictionary<ProjectId, ProjectAnalysis> analyses)
+    {
+        var plans = await Task.WhenAll(paths.Select(path => Task.Run(() => PlanFileAsync(solution, path, analyses))));
+        return paths.Select((path, index) => (path, plans[index])).ToDictionary(entry => entry.path, entry => entry.Item2, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>One file's plan (<see cref="FilePlan"/>); a file a project with compiler errors compiles has no document.</summary>
+    private async Task<FilePlan> PlanFileAsync(Solution solution, string path, Dictionary<ProjectId, ProjectAnalysis> analyses)
     {
         var compilers = solution.GetDocumentIdsWithFilePath(path)
             .Select(id => analyses[id.ProjectId]).OrderBy(a => a.Project.Name, StringComparer.Ordinal).ToList();
         var reported = compilers.Select(a => a.Findings.GetValueOrDefault(path) ?? []).ToList();
+        var agreed = reported.Select(l => l.Select(Key).ToHashSet(StringComparer.Ordinal))
+            .Aggregate((left, right) => { left.IntersectWith(right); return left; });
+        var attempts = new List<(string Rule, FixAttempt Attempt)>();
         if (compilers.Any(a => a.CompilerErrors.Count > 0))
+            return new FilePlan(compilers, reported, agreed, null, attempts);
+        ProjectAnalysis chosen = compilers[0];
+        Document document = solution.GetDocument(solution.GetDocumentIdsWithFilePath(path).Single(id => id.ProjectId == chosen.Project.Id))!;
+        foreach (CleanupRule cleanupRule in RuleOrder)
+        {
+            var diagnostics = reported[0].Where(d => d.Id == cleanupRule.Id && agreed.Contains(Key(d))).ToList();
+            if (diagnostics.Count == 0)
+                continue;
+            FixAttempt attempt = await AttemptAsync(document, chosen, cleanupRule, diagnostics);
+            attempts.Add((cleanupRule.Id, attempt));
+            if (attempt.Changed is not null)
+                break;
+        }
+        return new FilePlan(compilers, reported, agreed, document, attempts);
+    }
+
+    /// <summary>The fixer's result for one rule's agreed findings in a document.</summary>
+    private async Task<FixAttempt> AttemptAsync(Document document, ProjectAnalysis chosen, CleanupRule cleanupRule, List<Diagnostic> diagnostics)
+    {
+        string path = document.FilePath!;
+        return cleanupRule.Id != UnusedUsing
+            ? await ApplyFixAllAsync(document, cleanupRule, cleanupRule.Id, diagnostics)
+            : chosen.FixerOnly.GetValueOrDefault(path) is { } fixable
+                ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, fixable)
+                : new FixAttempt(null, $"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}.");
+    }
+
+    /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed in this
+    /// pass: a fix that would change a file another fix of this pass changed waits for the next pass. The fix comes from
+    /// the file's plan, computed from <paramref name="analyzed"/>, and is applied to <paramref name="solution"/>, which
+    /// holds the fixes applied before it in this pass.</summary>
+    private async Task<FileFix?> FixFileAsync(Solution solution, Solution analyzed, string path, FilePlan plan,
+        Dictionary<ProjectId, ProjectAnalysis> analyses, SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept,
+        HashSet<string> touched)
+    {
+        var (compilers, reported, agreed, planned, attempts) = plan;
+        if (planned is not { } document)
         {
             Count(kept, reported.SelectMany(l => l).DistinctBy(Key));
             return null;
         }
-        var agreed = reported.Select(l => l.Select(Key).ToHashSet(StringComparer.Ordinal))
-            .Aggregate((left, right) => { left.IntersectWith(right); return left; });
         Count(kept, reported.SelectMany(l => l).Where(d => !agreed.Contains(Key(d))).DistinctBy(Key));
         ProjectAnalysis chosen = compilers[0];
-        Document document = solution.GetDocument(solution.GetDocumentIdsWithFilePath(path).Single(id => id.ProjectId == chosen.Project.Id))!;
         var own = reported[0];
+        int next = 0;
         foreach (CleanupRule cleanupRule in RuleOrder)
         {
             string rule = cleanupRule.Id;
             var diagnostics = own.Where(d => d.Id == rule && agreed.Contains(Key(d))).ToList();
             if (diagnostics.Count > 0)
             {
-                FixAttempt attempt = rule != UnusedUsing
-                    ? await ApplyFixAllAsync(document, cleanupRule, rule, diagnostics)
-                    : chosen.FixerOnly.GetValueOrDefault(path) is { } fixable
-                        ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, fixable)
-                        : new FixAttempt(null, $"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}.");
+                // The plan holds the results up to the first that changes anything; a later rule is reached only when
+                // that change is refused, and is computed here from the same solution.
+                FixAttempt attempt = next < attempts.Count && attempts[next].Rule == rule
+                    ? attempts[next++].Attempt
+                    : await AttemptAsync(document, chosen, cleanupRule, diagnostics);
                 if (attempt.Changed is not { } changed)
                 {
                     // The owner's ruling (2026-11-15): a site no fixer can fix is recorded and the file's other rules go on.
                     RecordUnfixed(rule, diagnostics, attempt.Refusal!);
                     continue;
                 }
-                FixDecision decision = await AcceptAsync(solution, changed, document, rule, analyses, touched);
+                FixDecision decision = await AcceptAsync(solution, analyzed, changed, document, rule, analyses, touched);
                 if (decision.Refusal is { } refusal)
                 {
                     RecordUnfixed(rule, diagnostics, refusal);
@@ -636,7 +1372,7 @@ internal sealed class SolutionFixer
     /// commit broken code rather than fail). An added file joins every project that compiles the finding's file; it must
     /// not exist yet. A fix that changes anything but source documents is refused, and its findings recorded as unfixed.
     /// </summary>
-    private async Task<FixDecision> AcceptAsync(Solution solution, Solution changed, Document document, string rule,
+    private async Task<FixDecision> AcceptAsync(Solution solution, Solution analyzed, Solution changed, Document document, string rule,
         Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> touched)
     {
         string source = document.FilePath!;
@@ -644,7 +1380,9 @@ internal sealed class SolutionFixer
         var texts = new SortedDictionary<string, SourceText>(StringComparer.OrdinalIgnoreCase);
         var added = new SortedDictionary<string, Document>(StringComparer.OrdinalIgnoreCase);
         var removed = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-        SolutionChanges changes = changed.GetChanges(solution);
+        // The fix was computed from the solution the pass analyzed; what it changed is read against that solution and
+        // applied to the current one.
+        SolutionChanges changes = changed.GetChanges(analyzed);
         if (changes.GetAddedProjects().Any() || changes.GetRemovedProjects().Any())
             return Refused($"{fix} adds or removes projects.");
         foreach (ProjectChanges project in changes.GetProjectChanges())
@@ -675,7 +1413,7 @@ internal sealed class SolutionFixer
             }
             foreach (DocumentId id in project.GetRemovedDocuments())
             {
-                if (solution.GetDocument(id)!.FilePath is not { } path)
+                if (analyzed.GetDocument(id)!.FilePath is not { } path)
                     return Refused($"{fix} removed a document without a file.");
                 removed.Add(path);
             }
@@ -713,29 +1451,34 @@ internal sealed class SolutionFixer
             foreach (DocumentId id in result.GetDocumentIdsWithFilePath(path))
                 result = result.RemoveDocument(id);
         }
-        await RecordCompilerErrorsAsync(result, affected, fix);
+        // The solution after this fix is checked for compiler errors while the pass goes on; its problems are recorded
+        // in their place when the pass ends.
+        Solution checkedSolution = result;
+        _passProblems!.Add(Task.Run(() => CompilerErrorProblemsAsync(checkedSolution, affected, fix)));
         return new FixDecision(new FileFix(result, paths, added.Keys.ToDictionary(path => path, _ => source, StringComparer.OrdinalIgnoreCase)), false);
     }
 
     /// <summary>A refused fix: its findings are recorded as unfixed and the run goes on.</summary>
     private static FixDecision Refused(string reason) => new(null, false, reason);
 
-    /// <summary>Records a problem for each project with a compiler error in the given solution; the fix is kept (the
-    /// owner's ruling, 2026-11-15: commit broken code rather than fail).</summary>
-    private async Task RecordCompilerErrorsAsync(Solution solution, IEnumerable<ProjectId> projects, string fix)
+    /// <summary>A problem for each project with a compiler error in the given solution; the fix is kept (the owner's
+    /// ruling, 2026-11-15: commit broken code rather than fail).</summary>
+    private static async Task<List<string>> CompilerErrorProblemsAsync(Solution solution, IEnumerable<ProjectId> projects, string fix)
     {
+        var problems = new List<string>();
         foreach (ProjectId id in projects)
         {
             Project project = solution.GetProject(id)!;
             if (await project.GetCompilationAsync() is not { } compilation)
             {
-                Problem($"{fix} leaves {project.Name} with no compilation; the fix is kept.");
+                problems.Add($"{fix} leaves {project.Name} with no compilation; the fix is kept.");
                 continue;
             }
             var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
             if (errors.Count > 0)
-                Problem($"{fix} leaves {project.Name} with compiler errors; the fix is kept:\n" + string.Join('\n', errors.Take(20)));
+                problems.Add($"{fix} leaves {project.Name} with compiler errors; the fix is kept:\n" + string.Join('\n', errors.Take(20)));
         }
+        return problems;
     }
 
     /// <summary>A file's text in a solution, or null when no project compiles that file.</summary>
@@ -798,8 +1541,13 @@ internal sealed class SolutionFixer
                      .Where(p => p is not null && IsFixerAssembly(Path.GetFileName(p), source))
                      .Select(p => p!))
         {
-            if (!_fixerAssemblies.TryGetValue(path, out var loaded))
-                _fixerAssemblies[path] = loaded = LoadProviders(path, project.Language);
+            List<CodeFixProvider>? loaded;
+            // Files are planned on several threads at once; each fixer assembly is loaded once.
+            lock (_fixerAssemblies)
+            {
+                if (!_fixerAssemblies.TryGetValue(path, out loaded))
+                    _fixerAssemblies[path] = loaded = LoadProviders(path, project.Language);
+            }
             providers.AddRange(loaded.Where(provider => provider.FixableDiagnosticIds.Contains(rule)));
         }
         return providers;
@@ -982,17 +1730,8 @@ internal sealed class SolutionFixer
     private static string Format(SortedDictionary<string, int> counts) =>
         counts.Count == 0 ? "none" : string.Join(", ", counts.Select(p => $"{p.Key} {p.Value}"));
 
-    /// <summary>The nearest directory at or above the start that holds .git, or the start itself outside a repository.</summary>
-    private static string FindRepositoryRoot(string start)
-    {
-        for (var directory = new DirectoryInfo(start); directory is not null; directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, ".git")) || File.Exists(Path.Combine(directory.FullName, ".git")))
-                return directory.FullName;
-        }
-        return start;
-    }
 }
+
 
 /// <summary>The asynchronous cleanup's group in an analyzer configuration file: the
 /// <c>dotnet_diagnostic.&lt;rule&gt;.severity = none</c> lines directly under the comment that names the cleanup, read
@@ -1045,7 +1784,12 @@ internal static class CleanupGroup
 internal sealed class RuleScope
 {
     private readonly AnalyzerConfigSet _configuration;
-    private readonly Dictionary<string, AnalyzerConfigOptionsResult> _byPath = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Each file's options, read once. The compiler and the analyzers ask from several threads at once when a
+    /// project is analyzed concurrently, so the cache is a concurrent one: a plain dictionary written from several
+    /// threads loses entries and answers, and a lost answer turned a rule off for a file, which is how whole projects'
+    /// findings went missing in concurrent runs.</summary>
+    private readonly ConcurrentDictionary<string, AnalyzerConfigOptionsResult> _byPath = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Creates the scope from the project's configuration.</summary>
     private RuleScope(AnalyzerConfigSet configuration, IReadOnlySet<string> rules)
@@ -1081,8 +1825,7 @@ internal sealed class RuleScope
     /// <summary>Whether the requested rule is enabled in the file at <paramref name="path"/>.</summary>
     public bool IsEnabled(string path, string rule)
     {
-        if (!_byPath.TryGetValue(path, out AnalyzerConfigOptionsResult options))
-            _byPath[path] = options = _configuration.GetOptionsForSourcePath(path);
+        AnalyzerConfigOptionsResult options = _byPath.GetOrAdd(path, _configuration.GetOptionsForSourcePath);
         return options.TreeOptions.TryGetValue(rule, out ReportDiagnostic severity) && severity != ReportDiagnostic.Suppress;
     }
 }
@@ -1288,13 +2031,63 @@ internal static class UnnecessarySuppressions
         root.DescendantTrivia(span).Any(trivia => trivia.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisabledTextTrivia));
 
     /// <summary>The diagnostic id a pragma code names: an identifier as written, or a number as its compiler warning.</summary>
-    private static string CodeOf(ExpressionSyntax code) => code switch
+    internal static string CodeOf(ExpressionSyntax code) => code switch
     {
         LiteralExpressionSyntax { Token.Value: int number } => $"CS{number:D4}",
         _ => code.ToString().Trim(),
     };
 }
 
+/// <summary>
+/// The analyzers beyond the requested rules' own that IDE0079 needs in one project. A suppression is needed only when it
+/// suppresses a diagnostic of the id it names, so only an analyzer that reports an id one of the project's suppressions
+/// names (a <c>#pragma warning disable</c> code, or a <c>[SuppressMessage]</c> or <c>[UnconditionalSuppressMessage]</c>
+/// check id) can show one to be needed; the compiler reports its own ids anyway. Every diagnostic suppressor runs too,
+/// since it decides what is suppressed, as it did when every analyzer ran. Any other analyzer's diagnostics are
+/// neither findings nor evidence, so leaving it out changes nothing the run decides, and spares the run the whole
+/// analyzer set over every project. When an attribute's check id is not a string literal, every analyzer runs.
+/// </summary>
+internal static class SuppressionEvidence
+{
+    /// <summary>The evidence analyzers (not among <paramref name="ruleAnalyzers"/>) and every diagnostic suppressor.</summary>
+    public static (ImmutableArray<DiagnosticAnalyzer> Evidence, ImmutableArray<DiagnosticAnalyzer> Suppressors) Analyzers(
+        Compilation compilation, ImmutableArray<DiagnosticAnalyzer> loaded, ImmutableArray<DiagnosticAnalyzer> ruleAnalyzers)
+    {
+        HashSet<string>? ids = SuppressedIds(compilation);
+        var others = loaded.Where(analyzer => !ruleAnalyzers.Contains(analyzer)).ToList();
+        return ([.. others.Where(analyzer => analyzer is not DiagnosticSuppressor &&
+                    (ids is null || analyzer.SupportedDiagnostics.Any(descriptor => ids.Contains(descriptor.Id))))],
+            [.. others.OfType<DiagnosticSuppressor>()]);
+    }
+
+    /// <summary>Every id a suppression in the compilation's source names, or null when an attribute names one this
+    /// cannot read without binding.</summary>
+    private static HashSet<string>? SuppressedIds(Compilation compilation)
+    {
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (SyntaxTree tree in compilation.SyntaxTrees)
+        {
+            SyntaxNode root = tree.GetRoot();
+            foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: true))
+            {
+                if (trivia.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PragmaWarningDirectiveTrivia) &&
+                    trivia.GetStructure() is PragmaWarningDirectiveTriviaSyntax pragma &&
+                    pragma.DisableOrRestoreKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.DisableKeyword))
+                    ids.UnionWith(pragma.ErrorCodes.Select(UnnecessarySuppressions.CodeOf));
+            }
+            foreach (AttributeSyntax attribute in root.DescendantNodes().OfType<AttributeSyntax>())
+            {
+                if (!attribute.Name.ToString().Contains("SuppressMessage", StringComparison.Ordinal) ||
+                    attribute.ArgumentList is not { Arguments.Count: >= 2 } arguments)
+                    continue;
+                if (arguments.Arguments[1].Expression is not LiteralExpressionSyntax { Token.Value: string checkId })
+                    return null;
+                ids.Add(checkId.Split(':')[0].Trim());
+            }
+        }
+        return ids;
+    }
+}
 /// <summary>
 /// Keeps the explicit source lists in step with the files the fixes create and delete: a project file's or an imported
 /// <c>.projitems</c> file's single-line <c>&lt;Compile Include="..."/&gt;</c> item that names a file by path (no

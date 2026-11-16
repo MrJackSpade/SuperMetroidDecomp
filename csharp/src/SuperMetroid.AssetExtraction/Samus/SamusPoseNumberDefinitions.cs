@@ -7,8 +7,9 @@ internal static class SamusPoseNumberDefinitions
 {
     /// <summary>
     /// Every pose in the order the game numbers them, from zero: the 253 records in the pose tables, then the three
-    /// numbers past them that read adjacent code. A record no gameplay path gives Samus, whether by input, animation,
-    /// a frame read past a program's end or an outside write, has no pose and is null (#1517).
+    /// numbers past them that read adjacent code. A record no gameplay path gives Samus, whether by input, animation
+    /// or an outside write, has no pose and is null (#1517, #2048); a read past an earlier animation reaching its animation
+    /// does not give Samus the record's pose (<see cref="AnimationsOfRecordsWithoutPose"/>).
     /// </summary>
     internal static readonly SamusPoseId?[] ByNumber =
     [
@@ -25,8 +26,8 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.MovingLeftNormalPose,
         SamusPoseId.MovingRightGunExtendedPose,
         SamusPoseId.MovingLeftGunExtendedPose,
-        SamusPoseId.RunningAimUpRightPose,
-        SamusPoseId.RunningAimUpLeftPose,
+        null,
+        null,
         SamusPoseId.RunningAimDiagonalUpRightPose,
         SamusPoseId.RunningAimDiagonalUpLeftPose,
         SamusPoseId.RunningAimDiagonalDownRightPose,
@@ -69,14 +70,14 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.CrouchingTransitionLeftPose,
         SamusPoseId.MorphingTransitionRightPose,
         SamusPoseId.MorphingTransitionLeftPose,
-        SamusPoseId.GlitchBallMorphingRightPose,
-        SamusPoseId.GlitchBallMorphingLeftPose,
+        null,
+        null,
         SamusPoseId.StandingTransitionRightPose,
         SamusPoseId.StandingTransitionLeftPose,
         SamusPoseId.UnmorphingTransitionRightPose,
         SamusPoseId.UnmorphingTransitionLeftPose,
-        SamusPoseId.InstantMorphingRightPose,
-        SamusPoseId.InstantMorphingLeftPose,
+        null,
+        null,
         SamusPoseId.MorphBallGroundLeftPose,
         SamusPoseId.GlitchBallLeftPose,
         SamusPoseId.TurningRightToLeftCrouchingPose,
@@ -111,10 +112,10 @@ internal static class SamusPoseNumberDefinitions
         null,
         null,
         null,
-        SamusPoseId.CompactAirborneRightPose,
-        SamusPoseId.CompactAirborneLeftPose,
-        SamusPoseId.CompactAirborneFallingRightPose,
-        SamusPoseId.CompactAirborneFallingLeftPose,
+        null,
+        null,
+        null,
+        null,
         SamusPoseId.FallingGunExtendedRightPose,
         SamusPoseId.FallingGunExtendedLeftPose,
         SamusPoseId.NormalJumpAimDiagonalUpRightPose,
@@ -184,11 +185,11 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.GrappleStandingLeftPose,
         SamusPoseId.GrappleStandingDownRightPose,
         SamusPoseId.GrappleStandingDownLeftPose,
-        SamusPoseId.GrappleAirborneGunExtendedRightPose,
         null,
-        SamusPoseId.GrappleAirborneAimDownRightPose,
         null,
-        SamusPoseId.GrappleAirborneAimDiagonalDownRightPose,
+        null,
+        null,
+        null,
         null,
         SamusPoseId.GrappleSwingRightPose,
         SamusPoseId.GrappleSwingLeftPose,
@@ -210,7 +211,7 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
         SamusPoseId.MoonwalkTurnJumpAimDownRightPose,
         null,
-        SamusPoseId.DraygonGrabbingLeftPose,
+        null,
         SamusPoseId.ShinesparkWindupRightPose,
         SamusPoseId.ShinesparkWindupLeftPose,
         SamusPoseId.ShinesparkHorizontalRightPose,
@@ -231,9 +232,9 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.DeathSequenceLeftPose,
         SamusPoseId.XrayingCrouchingRightPose,
         SamusPoseId.XrayingCrouchingLeftPose,
-        SamusPoseId.CompactMorphingRightPose,
-        SamusPoseId.DraygonHeldMorphingLeftPose,
-        SamusPoseId.CompactStandingUpRightPose,
+        null,
+        null,
+        null,
         SamusPoseId.DraygonHeldStandingUpLeftPose,
         SamusPoseId.DraygonHeldBallLeftPose,
         SamusPoseId.LandingAimUpRightPose,
@@ -269,4 +270,28 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.ForwardStandingPose,
         SamusPoseId.ForwardStillCrouchHeightPose,
     ];
+
+    /// <summary>
+    /// The records no gameplay path gives Samus whose animation a frame read past an earlier animation still reaches, by
+    /// number, with the animation each plays (#2048): the import lays these animations out among the others, though no
+    /// pose names their records.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<int, SamusAnimationName> AnimationsOfRecordsWithoutPose = new Dictionary<int, SamusAnimationName>
+    {
+        [57] = SamusAnimationName.GlitchBallMorphingRight,
+        [58] = SamusAnimationName.GlitchBallMorphingLeft,
+        [63] = SamusAnimationName.InstantMorphingRight,
+        [64] = SamusAnimationName.InstantMorphingLeft,
+        [99] = SamusAnimationName.CompactAirborneRight,
+        [100] = SamusAnimationName.CompactAirborneLeft,
+        [101] = SamusAnimationName.CompactAirborneFalling,
+        [102] = SamusAnimationName.CompactAirborneFalling,
+        [172] = SamusAnimationName.GrappleAirborneGunExtendedRight,
+        [174] = SamusAnimationName.GrappleAirborneAimDownRight,
+        [176] = SamusAnimationName.GrappleAirborneAimDiagonalDownRight,
+        [198] = SamusAnimationName.DraygonGrabbingLeft,
+        [219] = SamusAnimationName.CompactMorphingRight,
+        [220] = SamusAnimationName.DraygonHeldMorphingLeft,
+        [221] = SamusAnimationName.CompactStandingUpRight,
+    };
 }

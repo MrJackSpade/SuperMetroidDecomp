@@ -12,7 +12,10 @@ internal enum SamusAnimationSegmentName
     /// <summary>The run's stride, which the running cadence times while she has momentum.</summary>
     Run,
 
-    /// <summary>A segment no path of the game starts or reaches by its own playback; only a read past it reaches it.</summary>
+    /// <summary>
+    /// A segment no path of the game starts or reaches by its own playback; only a frame read past an earlier animation, or a
+    /// named place landing in it, reaches it.
+    /// </summary>
     Unreached,
 
     /// <summary>A second segment no path of the game starts or reaches by its own playback.</summary>

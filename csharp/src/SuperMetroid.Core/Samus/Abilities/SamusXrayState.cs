@@ -226,7 +226,7 @@ public sealed class SamusXrayState
         SamusPresentation.InitializeAnimation(samus);
 
         // X-ray's activation pose immediately overrides the freshly selected
-        // delay with frame two and a 63-tick timer, takes her pose input and movement, starts the
+        // delay with its level aim and the activation's hold, takes her pose input and movement, starts the
         // visor shade, clears beam-flare state, and plays the X-ray's starting sound.
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.XrayActivation, timer: XrayScopeDefinitions.Holds.Activation);
         _colouring.Take(SamusSpecialColouringKind.Xray);
@@ -310,7 +310,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Runs X-ray's own pose input, including the exact
-    /// standing/crouching turn bodies and the frame-two/timer-one completion gate.
+    /// standing/crouching turn bodies and the turn-end/timer-one completion gate.
     /// </summary>
     public void HandlePoseInput(
         SamusState samus,
@@ -359,7 +359,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Executes the X-ray scope's movement: turning does nothing, while
-    /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
+    /// stable X-ray poses force the aim's hold and one of the five aims the angle selects.
     /// </summary>
     internal SamusAnimationTarget? StepMovement(SamusState samus)
     {

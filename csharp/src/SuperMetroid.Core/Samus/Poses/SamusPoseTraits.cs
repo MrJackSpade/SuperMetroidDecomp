@@ -26,7 +26,6 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingAimDiagonalDownLeftPose or
         SamusPoseId.MovingLeftNormalPose or
         SamusPoseId.MovingLeftGunExtendedPose or
-        SamusPoseId.RunningAimUpLeftPose or
         SamusPoseId.RunningAimDiagonalUpLeftPose or
         SamusPoseId.RunningAimDiagonalDownLeftPose or
         SamusPoseId.NormalJumpGunExtendedLeftPose or
@@ -45,10 +44,8 @@ internal static class SamusPoseTraits
         SamusPoseId.GlitchBallKnockbackLeftPose or
         SamusPoseId.CrouchingTransitionLeftPose or
         SamusPoseId.MorphingTransitionLeftPose or
-        SamusPoseId.GlitchBallMorphingLeftPose or
         SamusPoseId.StandingTransitionLeftPose or
         SamusPoseId.UnmorphingTransitionLeftPose or
-        SamusPoseId.InstantMorphingLeftPose or
         SamusPoseId.MorphBallGroundLeftPose or
         SamusPoseId.GlitchBallLeftPose or
         SamusPoseId.TurningRightToLeftCrouchingPose or
@@ -61,8 +58,6 @@ internal static class SamusPoseTraits
         SamusPoseId.NormalJumpTransitionAimUpLeftPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
-        SamusPoseId.CompactAirborneLeftPose or
-        SamusPoseId.CompactAirborneFallingLeftPose or
         SamusPoseId.FallingGunExtendedLeftPose or
         SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
         SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
@@ -109,7 +104,6 @@ internal static class SamusPoseTraits
         SamusPoseId.MoonwalkTurnJumpLeftPose or
         SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-        SamusPoseId.DraygonGrabbingLeftPose or
         SamusPoseId.ShinesparkWindupLeftPose or
         SamusPoseId.ShinesparkHorizontalLeftPose or
         SamusPoseId.ShinesparkVerticalLeftPose or
@@ -120,7 +114,6 @@ internal static class SamusPoseTraits
         SamusPoseId.XrayingStandingLeftPose or
         SamusPoseId.DeathSequenceLeftPose or
         SamusPoseId.XrayingCrouchingLeftPose or
-        SamusPoseId.DraygonHeldMorphingLeftPose or
         SamusPoseId.DraygonHeldStandingUpLeftPose or
         SamusPoseId.DraygonHeldBallLeftPose or
         SamusPoseId.LandingAimUpLeftPose or
@@ -141,7 +134,6 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingAimDiagonalDownRightPose or
         SamusPoseId.MovingRightNormalPose or
         SamusPoseId.MovingRightGunExtendedPose or
-        SamusPoseId.RunningAimUpRightPose or
         SamusPoseId.RunningAimDiagonalUpRightPose or
         SamusPoseId.RunningAimDiagonalDownRightPose or
         SamusPoseId.NormalJumpGunExtendedRightPose or
@@ -162,10 +154,8 @@ internal static class SamusPoseTraits
         SamusPoseId.GlitchBallKnockbackRightPose or
         SamusPoseId.CrouchingTransitionRightPose or
         SamusPoseId.MorphingTransitionRightPose or
-        SamusPoseId.GlitchBallMorphingRightPose or
         SamusPoseId.StandingTransitionRightPose or
         SamusPoseId.UnmorphingTransitionRightPose or
-        SamusPoseId.InstantMorphingRightPose or
         SamusPoseId.TurningLeftToRightCrouchingPose or
         SamusPoseId.MoonwalkFacingLeftPose or
         SamusPoseId.NeutralJumpTransitionRightPose or
@@ -176,8 +166,6 @@ internal static class SamusPoseTraits
         SamusPoseId.NormalJumpTransitionAimUpRightPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
-        SamusPoseId.CompactAirborneRightPose or
-        SamusPoseId.CompactAirborneFallingRightPose or
         SamusPoseId.FallingGunExtendedRightPose or
         SamusPoseId.NormalJumpAimDiagonalUpRightPose or
         SamusPoseId.NormalJumpAimDiagonalDownRightPose or
@@ -212,9 +200,6 @@ internal static class SamusPoseTraits
         SamusPoseId.SpinLandingRightPose or
         SamusPoseId.GrappleStandingRightPose or
         SamusPoseId.GrappleStandingDownRightPose or
-        SamusPoseId.GrappleAirborneGunExtendedRightPose or
-        SamusPoseId.GrappleAirborneAimDownRightPose or
-        SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
         SamusPoseId.GrappleSwingRightPose or
         SamusPoseId.GrappleCrouchingRightPose or
         SamusPoseId.GrappleCrouchingDownRightPose or
@@ -232,8 +217,6 @@ internal static class SamusPoseTraits
         SamusPoseId.XrayingStandingRightPose or
         SamusPoseId.DeathSequenceRightPose or
         SamusPoseId.XrayingCrouchingRightPose or
-        SamusPoseId.CompactMorphingRightPose or
-        SamusPoseId.CompactStandingUpRightPose or
         SamusPoseId.LandingAimUpRightPose or
         SamusPoseId.LandingAimDiagonalUpRightPose or
         SamusPoseId.LandingAimDiagonalDownRightPose or
@@ -301,8 +284,6 @@ internal static class SamusPoseTraits
         SamusPoseId.MovingLeftNormalPose or
         SamusPoseId.MovingRightGunExtendedPose or
         SamusPoseId.MovingLeftGunExtendedPose or
-        SamusPoseId.RunningAimUpRightPose or
-        SamusPoseId.RunningAimUpLeftPose or
         SamusPoseId.RunningAimDiagonalUpRightPose or
         SamusPoseId.RunningAimDiagonalUpLeftPose or
         SamusPoseId.RunningAimDiagonalDownRightPose or
@@ -371,10 +352,6 @@ internal static class SamusPoseTraits
         SamusPoseId.KnockbackLeftPose or
         SamusPoseId.DeathSequenceRightPose or
         SamusPoseId.DeathSequenceLeftPose => SamusMovementType.Knockback,
-        SamusPoseId.CompactAirborneRightPose or
-        SamusPoseId.CompactAirborneLeftPose or
-        SamusPoseId.CompactAirborneFallingRightPose or
-        SamusPoseId.CompactAirborneFallingLeftPose => SamusMovementType.CompactAirborne,
         SamusPoseId.TurningRightToLeftPose or
         SamusPoseId.TurningLeftToRightPose or
         SamusPoseId.TurningRightToLeftCrouchingPose or
@@ -395,17 +372,10 @@ internal static class SamusPoseTraits
         SamusPoseId.CrouchingTransitionLeftPose or
         SamusPoseId.MorphingTransitionRightPose or
         SamusPoseId.MorphingTransitionLeftPose or
-        SamusPoseId.GlitchBallMorphingRightPose or
-        SamusPoseId.GlitchBallMorphingLeftPose or
         SamusPoseId.StandingTransitionRightPose or
         SamusPoseId.StandingTransitionLeftPose or
         SamusPoseId.UnmorphingTransitionRightPose or
         SamusPoseId.UnmorphingTransitionLeftPose or
-        SamusPoseId.InstantMorphingRightPose or
-        SamusPoseId.InstantMorphingLeftPose or
-        SamusPoseId.CompactMorphingRightPose or
-        SamusPoseId.DraygonHeldMorphingLeftPose or
-        SamusPoseId.CompactStandingUpRightPose or
         SamusPoseId.DraygonHeldStandingUpLeftPose or
         SamusPoseId.CrouchingTransitionAimUpRightPose or
         SamusPoseId.CrouchingTransitionAimUpLeftPose or
@@ -445,9 +415,6 @@ internal static class SamusPoseTraits
         SamusPoseId.GrappleStandingLeftPose or
         SamusPoseId.GrappleStandingDownRightPose or
         SamusPoseId.GrappleStandingDownLeftPose or
-        SamusPoseId.GrappleAirborneGunExtendedRightPose or
-        SamusPoseId.GrappleAirborneAimDownRightPose or
-        SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
         SamusPoseId.GrappleSwingRightPose or
         SamusPoseId.GrappleSwingLeftPose or
         SamusPoseId.GrappleCrouchingRightPose or
@@ -485,7 +452,6 @@ internal static class SamusPoseTraits
         SamusPoseId.DraygonGrabbedFiringLeftPose or
         SamusPoseId.DraygonGrabbedAimDownLeftPose or
         SamusPoseId.DraygonGrabbedMovingLeftPose or
-        SamusPoseId.DraygonGrabbingLeftPose or
         SamusPoseId.DraygonHeldBallLeftPose or
         SamusPoseId.DraygonGrabbedNeutralRightPose or
         SamusPoseId.DraygonGrabbedAimUpRightPose or
@@ -531,7 +497,6 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingAimDiagonalDownRightPose or
         SamusPoseId.MovingRightNormalPose or
         SamusPoseId.MovingRightGunExtendedPose or
-        SamusPoseId.RunningAimUpRightPose or
         SamusPoseId.RunningAimDiagonalUpRightPose or
         SamusPoseId.RunningAimDiagonalDownRightPose or
         SamusPoseId.MoonwalkFacingRightPose or
@@ -541,7 +506,6 @@ internal static class SamusPoseTraits
         SamusPoseId.StandingAimDiagonalDownLeftPose or
         SamusPoseId.MovingLeftNormalPose or
         SamusPoseId.MovingLeftGunExtendedPose or
-        SamusPoseId.RunningAimUpLeftPose or
         SamusPoseId.RunningAimDiagonalUpLeftPose or
         SamusPoseId.RunningAimDiagonalDownLeftPose or
         SamusPoseId.MoonwalkFacingLeftPose or
@@ -574,14 +538,11 @@ internal static class SamusPoseTraits
         SamusPoseId.GrappleCrouchingLeftPose or
         SamusPoseId.GrappleCrouchingDownLeftPose => SamusPoseId.CrouchingLeftPose,
         SamusPoseId.FallingAimUpRightPose or
-        SamusPoseId.CompactAirborneFallingRightPose or
         SamusPoseId.FallingAimDiagonalUpRightPose or
         SamusPoseId.FallingAimDiagonalDownRightPose => SamusPoseId.FallingRightPose,
         SamusPoseId.FallingAimUpLeftPose or
-        SamusPoseId.CompactAirborneFallingLeftPose or
         SamusPoseId.FallingAimDiagonalUpLeftPose or
         SamusPoseId.FallingAimDiagonalDownLeftPose => SamusPoseId.FallingLeftPose,
-        SamusPoseId.GrappleAirborneAimDownRightPose => SamusPoseId.FallingAimDownRightPose,
         SamusPoseId.MorphBallMovingLeftPose => SamusPoseId.MorphBallGroundLeftPose,
         SamusPoseId.DamageBoostRightPose => SamusPoseId.NeutralJumpRightPose,
         SamusPoseId.DamageBoostLeftPose => SamusPoseId.NeutralJumpLeftPose,
@@ -591,8 +552,6 @@ internal static class SamusPoseTraits
         SamusPoseId.NormalJumpAimUpLeftPose or
         SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
         SamusPoseId.NormalJumpAimDiagonalDownLeftPose => SamusPoseId.NormalJumpForwardLeftPose,
-        SamusPoseId.GrappleAirborneGunExtendedRightPose => SamusPoseId.FallingGunExtendedRightPose,
-        SamusPoseId.GrappleAirborneAimDiagonalDownRightPose => SamusPoseId.FallingAimDiagonalDownRightPose,
         SamusPoseId.SpringBallMovingRightPose => SamusPoseId.SpringBallGroundRightPose,
         SamusPoseId.SpringBallMovingLeftPose => SamusPoseId.SpringBallGroundLeftPose,
         SamusPoseId.RanIntoWallAimUpRightPose or
@@ -638,14 +597,10 @@ internal static class SamusPoseTraits
         SamusPoseId.CrouchingTransitionLeftPose or
         SamusPoseId.MorphingTransitionRightPose or
         SamusPoseId.MorphingTransitionLeftPose or
-        SamusPoseId.GlitchBallMorphingRightPose or
-        SamusPoseId.GlitchBallMorphingLeftPose or
         SamusPoseId.StandingTransitionRightPose or
         SamusPoseId.StandingTransitionLeftPose or
         SamusPoseId.UnmorphingTransitionRightPose or
         SamusPoseId.UnmorphingTransitionLeftPose or
-        SamusPoseId.InstantMorphingRightPose or
-        SamusPoseId.InstantMorphingLeftPose or
         SamusPoseId.MorphBallGroundLeftPose or
         SamusPoseId.GlitchBallLeftPose or
         SamusPoseId.TurningRightToLeftCrouchingPose or
@@ -664,8 +619,6 @@ internal static class SamusPoseTraits
         SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
         SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
-        SamusPoseId.CompactAirborneRightPose or
-        SamusPoseId.CompactAirborneLeftPose or
         SamusPoseId.FallingGunExtendedRightPose or
         SamusPoseId.FallingGunExtendedLeftPose or
         SamusPoseId.SpringBallGroundRightPose or
@@ -712,7 +665,6 @@ internal static class SamusPoseTraits
         SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
         SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
-        SamusPoseId.DraygonGrabbingLeftPose or
         SamusPoseId.ShinesparkWindupRightPose or
         SamusPoseId.ShinesparkWindupLeftPose or
         SamusPoseId.ShinesparkHorizontalRightPose or
@@ -729,9 +681,6 @@ internal static class SamusPoseTraits
         SamusPoseId.DeathSequenceLeftPose or
         SamusPoseId.XrayingCrouchingRightPose or
         SamusPoseId.XrayingCrouchingLeftPose or
-        SamusPoseId.CompactMorphingRightPose or
-        SamusPoseId.DraygonHeldMorphingLeftPose or
-        SamusPoseId.CompactStandingUpRightPose or
         SamusPoseId.DraygonHeldStandingUpLeftPose or
         SamusPoseId.DraygonHeldBallLeftPose or
         SamusPoseId.LandingAimUpRightPose or

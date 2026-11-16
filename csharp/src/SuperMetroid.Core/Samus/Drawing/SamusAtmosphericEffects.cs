@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.Core.Samus.Drawing.SamusAtmosphericEffectDefinitions;
 
 namespace SuperMetroid.Core.Samus.Drawing;
@@ -29,12 +30,17 @@ internal static class SamusAtmosphericEffects
         };
     }
 
-    /// <summary>One contact at phase two of each five-frame running step.</summary>
-    internal static bool IsRunningFootContact(int animationFrame)
+    /// <summary>
+    /// Whether <paramref name="strideFrame"/>, a frame of the run's stride, is one of its two foot contacts
+    /// (<see cref="SamusAnimationFrames.RunFirstFootContact"/>, <see cref="SamusAnimationFrames.RunSecondFootContact"/>).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The frame is not one of the stride's pictures.</exception>
+    internal static bool IsRunningFootContact(SamusAnimationTarget strideFrame)
     {
-        if (animationFrame >= 10)
-            throw new InvalidDataException($"Running animation frame {animationFrame} is outside the ten running frames.");
-        return animationFrame % 5 == 2;
+        if (strideFrame.Segment != SamusAnimationSegmentName.Run ||
+            (uint)strideFrame.Frame >= (uint)SamusAnimationDelayDefinitions.RunningAnimation.Segment(SamusAnimationSegmentName.Run).Delays.Count)
+            throw new InvalidDataException($"Running animation frame {strideFrame} is outside the run's stride.");
+        return strideFrame == SamusAnimationFrames.RunFirstFootContact || strideFrame == SamusAnimationFrames.RunSecondFootContact;
     }
 
     /// <summary>A Crateria room's atmospheric effect on landings and footsteps, or null for a room the policy does not name.</summary>

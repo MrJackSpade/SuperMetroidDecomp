@@ -763,7 +763,6 @@ internal sealed class SamusFramePhases
                 break;
             case SamusPoseId.MovingRightNormalPose:
             case SamusPoseId.MovingRightGunExtendedPose:
-            case SamusPoseId.RunningAimUpRightPose:
             case SamusPoseId.RunningAimDiagonalUpRightPose:
             case SamusPoseId.RunningAimDiagonalDownRightPose:
                 _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
@@ -776,7 +775,6 @@ internal sealed class SamusFramePhases
                 break;
             case SamusPoseId.MovingLeftNormalPose:
             case SamusPoseId.MovingLeftGunExtendedPose:
-            case SamusPoseId.RunningAimUpLeftPose:
             case SamusPoseId.RunningAimDiagonalUpLeftPose:
             case SamusPoseId.RunningAimDiagonalDownLeftPose:
                 _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
@@ -999,8 +997,6 @@ internal sealed class SamusFramePhases
             case SamusPoseId.TallStillRightPose:
             case SamusPoseId.ForwardStandingPose:
             case SamusPoseId.ForwardStillCrouchHeightPose:
-            case SamusPoseId.CompactAirborneFallingRightPose:
-            case SamusPoseId.CompactAirborneFallingLeftPose:
             case SamusPoseId.ShinesparkWindupRightPose:
             case SamusPoseId.ShinesparkWindupLeftPose:
             case SamusPoseId.ShinesparkHorizontalRightPose:
@@ -1017,9 +1013,6 @@ internal sealed class SamusFramePhases
             case SamusPoseId.DeathSequenceLeftPose:
             case SamusPoseId.XrayingCrouchingRightPose:
             case SamusPoseId.XrayingCrouchingLeftPose:
-            case SamusPoseId.CompactMorphingRightPose:
-            case SamusPoseId.DraygonHeldMorphingLeftPose:
-            case SamusPoseId.CompactStandingUpRightPose:
             case SamusPoseId.DrainedCrouchingRightPose:
             case SamusPoseId.DrainedCrouchingLeftPose:
             case SamusPoseId.DrainedStandingRightPose:
@@ -1036,16 +1029,6 @@ internal sealed class SamusFramePhases
             case SamusPoseId.GrappleCrouchingDownLeftPose:
             case SamusPoseId.GrappleWallContactLeftPose:
             case SamusPoseId.GrappleWallContactRightPose:
-            case SamusPoseId.GlitchBallMorphingRightPose:
-            case SamusPoseId.GlitchBallMorphingLeftPose:
-            case SamusPoseId.InstantMorphingRightPose:
-            case SamusPoseId.InstantMorphingLeftPose:
-            case SamusPoseId.CompactAirborneRightPose:
-            case SamusPoseId.CompactAirborneLeftPose:
-            case SamusPoseId.GrappleAirborneGunExtendedRightPose:
-            case SamusPoseId.GrappleAirborneAimDownRightPose:
-            case SamusPoseId.GrappleAirborneAimDiagonalDownRightPose:
-            case SamusPoseId.DraygonGrabbingLeftPose:
             default:
                 // Every pose reachable from the retail input, animation,
                 // enemy-grab, death, drained, grapple, Morph Ball, and shinespark

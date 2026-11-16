@@ -257,14 +257,13 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Takes the cue that closes the run for an equipped Speed Booster when the running
-    /// animation reaches it. True means this call took the cue and restarted the run at
-    /// frame zero on the new boost stage's cadence.
+    /// animation reaches it. True means this call took the cue: the run restarts on its first frame, which the
+    /// new boost stage's cadence times.
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running takes this cue.</param>
     /// <param name="controllerInput">Current held actions; Dash must be held.</param>
     /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
-    /// <param name="animationFrame">Current animation frame, reset to zero only when this call takes the cue.</param>
     /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="requestEchoSound">
     /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
@@ -275,7 +274,6 @@ public sealed class SamusHorizontalSpeedState
         SamusMovementType movementType,
         GameplayAction controllerInput,
         int animationFrameBuffer,
-        ref int animationFrame,
         out int animationFrameTimer,
         Func<SoundQueueAdmission> requestEchoSound)
     {
@@ -309,7 +307,6 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
         SpeedBoostCounter = SpeedBoostCounter.WithCountdown(SamusRunningCadences.CountdownAfterAdvance(cadence));
 
-        animationFrame = 0;
         animationFrameTimer = WrappingCountdown.Start(animationFrameBuffer)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
         // Animation runs after movement. Stage advancement changes cadence

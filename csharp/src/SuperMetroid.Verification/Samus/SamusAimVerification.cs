@@ -55,6 +55,9 @@ internal static void VerifySamusStandingAimMovement()
     // synthetic frame-zero delay is deliberately identical.
     for (int pose = 1; pose <= 0x12; pose++)
     {
+        // The running poses aimed straight up name no pose: no path gives Samus them (#2048).
+        if (!SamusPoseNumbering.NamesPose(pose))
+            continue;
         ushort stream = unchecked((ushort)(0xc100 + pose * 0x10));
         WritePoseAnimationDelays(bus, SamusPoseNumbering.FromNumber(pose), stream, [0x0a, 0xf6]);
     }
@@ -104,7 +107,6 @@ level, samus, frameCounter: 0, controllerInput: 0, roomObjects: SamusRoomObjectF
     uint rightRunSpeed = samus.HorizontalSpeed.BaseSpeed.RawValue;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.RunningAimDiagonalDownRightPose);
     AssertEqual(rightRunSpeed, samus.HorizontalSpeed.BaseSpeed.RawValue, "right running aim change preserves speed");
-    SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.RunningAimUpRightPose);
     SamusGroundedMovement.StepRunning(level, samus, frameCounter: 1, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.StandingAimUpRightPose);
     SamusGroundedMovement.StepStanding(level, samus, frameCounter: 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -143,7 +145,6 @@ level, leftSamus, frameCounter: 1, controllerInput: 0, roomObjects: SamusRoomObj
     uint leftRunSpeed = leftSamus.HorizontalSpeed.BaseSpeed.RawValue;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimDiagonalDownLeftPose);
     AssertEqual(leftRunSpeed, leftSamus.HorizontalSpeed.BaseSpeed.RawValue, "left running aim change preserves speed");
-    SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimUpLeftPose);
     SamusGroundedMovement.StepRunning(level, leftSamus, frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
     SamusGroundedMovement.StepStanding(level, leftSamus, frameCounter: 1, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);

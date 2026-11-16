@@ -24,13 +24,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// morph's cue values as delays into the glitch-ball morphing animation's transition and becomes the right-facing glitch
 /// ball; the left-facing stand and both unmorphs frozen for the Hyper Beam reach the Draygon-held morphing animation's
 /// transition and become the Draygon-held ball; other reads end in the ordinary poses a later animation's transition names.
-/// The transition poses whose animations these reads run through are never held themselves: their animations run under the
-/// pose that read into them.
+/// The animations these reads run through belong to no pose Samus holds: they run under the pose that read into them.
 /// </para>
 /// </remarks>
 /// <typeparam name="TAnimation">
-/// The identity of an animation. Samus's animations are named by a pose that animates by each, so the identity keeps its
-/// equality when a session is restored.
+/// The identity of an animation. Samus's animations each have a name of their own, whatever poses animate by them, so an
+/// animation only a read past an earlier one reaches needs no pose to name it, and the identity keeps its equality when a
+/// session is restored.
 /// </typeparam>
 /// <typeparam name="TFrame">A named frame of an animation.</typeparam>
 /// <typeparam name="TPlace">The name of a frame paths write onto, or compare with, whatever animation they meet.</typeparam>

@@ -21,8 +21,8 @@ public sealed class SamusArmCannonPlacement
 
     /// <summary>Creates a pose's placement.</summary>
     /// <param name="drawOrder">Whether the pose draws the cover, and before or after Samus's body.</param>
-    /// <param name="firstDirection">The aim direction shown at animation frame zero, or at every frame when <paramref name="laterDirection"/> is null.</param>
-    /// <param name="laterDirection">The aim direction shown at every animation frame after zero, or null when the pose shows one direction throughout.</param>
+    /// <param name="firstDirection">The aim direction shown at the animation's first frame, or at every frame when <paramref name="laterDirection"/> is null.</param>
+    /// <param name="laterDirection">The aim direction shown at every animation frame after the first, or null when the pose shows one direction throughout.</param>
     /// <param name="offsets">The cover's displacement from Samus at each animation frame with one, by frame of the pose's animation.</param>
     public SamusArmCannonPlacement(SamusArmCannonDrawOrder drawOrder, SamusProjectileDirection firstDirection,
         SamusProjectileDirection? laterDirection, IReadOnlyDictionary<SamusAnimationFrame, Offset16<RoomPixels>> offsets)
@@ -36,10 +36,10 @@ public sealed class SamusArmCannonPlacement
     /// <summary>Whether the pose draws the cover, and before or after Samus's body.</summary>
     public SamusArmCannonDrawOrder DrawOrder { get; }
 
-    /// <summary>The aim direction shown at animation frame zero, or at every frame when <see cref="LaterDirection"/> is null.</summary>
+    /// <summary>The aim direction shown at the animation's first frame, or at every frame when <see cref="LaterDirection"/> is null.</summary>
     public SamusProjectileDirection FirstDirection { get; }
 
-    /// <summary>The aim direction shown at every animation frame after zero, or null when the pose shows one direction throughout.</summary>
+    /// <summary>The aim direction shown at every animation frame after the first, or null when the pose shows one direction throughout.</summary>
     public SamusProjectileDirection? LaterDirection { get; }
 
     /// <summary>The cover's displacement at each animation frame with one, in animation-frame order.</summary>

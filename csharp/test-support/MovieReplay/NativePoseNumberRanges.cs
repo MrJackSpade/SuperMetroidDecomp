@@ -17,6 +17,13 @@ internal static class NativePoseNumberRanges
     /// <summary>Whether <paramref name="pose"/>'s number is below <paramref name="bound"/>'s, as the cartridge compares pose numbers.</summary>
     internal static bool Precedes(SamusPoseId pose, SamusPoseId bound) => SamusPoseNumbers.Number(pose) < SamusPoseNumbers.Number(bound);
 
+    /// <summary>
+    /// Whether <paramref name="pose"/>'s number is below that of the record no pose names that plays
+    /// <paramref name="boundAnimation"/>, as the cartridge compares pose numbers (#2048).
+    /// </summary>
+    internal static bool PrecedesRecordOf(SamusPoseId pose, SamusAnimationName boundAnimation) =>
+        SamusPoseNumbers.Number(pose) < SamusPoseNumberDefinitions.AnimationsOfRecordsWithoutPose.Single(record => record.Value == boundAnimation).Key;
+
     /// <summary>How many pose numbers <paramref name="pose"/> lies past <paramref name="first"/>, for tables indexed from a family's first pose.</summary>
     internal static int Offset(SamusPoseId pose, SamusPoseId first) => SamusPoseNumbers.Number(pose) - SamusPoseNumbers.Number(first);
 }

@@ -13,11 +13,12 @@ internal sealed class SamusPoseAnimation
     /// <summary>The segments, in order.</summary>
     private readonly SamusAnimationSegment[] segments;
 
-    /// <summary>Keeps <paramref name="segments"/>, in the order the animation plays them.</summary>
+    /// <summary>Keeps the animation's <paramref name="name"/> and <paramref name="segments"/>, in the order the animation plays them.</summary>
     /// <exception cref="ArgumentException">There is no segment, or two segments share a name.</exception>
-    internal SamusPoseAnimation(IReadOnlyList<SamusAnimationSegment> segments)
+    internal SamusPoseAnimation(SamusAnimationName name, IReadOnlyList<SamusAnimationSegment> segments)
     {
         Ensure.NotNull(segments);
+        Name = name;
         if (segments.Count == 0)
             throw new ArgumentException("An animation holds at least one segment.", nameof(segments));
         if (segments.Select(segment => segment.Name).Distinct().Count() != segments.Count)
@@ -25,8 +26,17 @@ internal sealed class SamusPoseAnimation
         this.segments = [.. segments];
     }
 
+    /// <summary>The animation's name, which the installation keys its outcomes by.</summary>
+    internal SamusAnimationName Name { get; }
+
     /// <summary>The segments, in order.</summary>
     internal IReadOnlyList<SamusAnimationSegment> Segments => segments;
+
+    /// <summary>The segment named <paramref name="name"/>.</summary>
+    /// <exception cref="ArgumentException">The animation has no such segment.</exception>
+    internal SamusAnimationSegment Segment(SamusAnimationSegmentName name) =>
+        Array.Find(segments, candidate => candidate.Name == name) ??
+        throw new ArgumentException($"Animation {Name} has no segment {name}.", nameof(name));
 
     /// <summary>Frame <paramref name="frame"/> of the segment named <paramref name="segment"/>.</summary>
     /// <exception cref="ArgumentException">The animation has no such segment, or the frame lies past a segment that is not its last.</exception>

@@ -32,9 +32,8 @@ internal static class SpeedBoosterEchoStopVerification
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-        int animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
-            0, ref animation, out _, () => queue.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal));
+            0, out _, () => queue.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal));
         var words = new RoomTerrainBlock[256];
         for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
@@ -98,10 +97,9 @@ internal static class SpeedBoosterEchoStopVerification
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-        int animation = 0;
         int echoRequests = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
-            0, ref animation, out _, () =>
+            0, out _, () =>
             {
                 echoRequests++;
                 // The echo is admitted behind as many requests as the boost's full stage, which restarts on that stage's cadence.

@@ -28,24 +28,21 @@ internal static class SpeedBoosterWordRangeVerification
         })
         {
             var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = before };
-            int frame = 7;
             bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
-                animationFrameBuffer: 0, ref frame, out _, requestEchoSound: NoEcho);
+                animationFrameBuffer: 0, out _, requestEchoSound: NoEcho);
             AssertTrue(!advanced, $"counter {before}: a borrowing countdown leaves a nonzero cadence, so no stage advances");
             AssertEqual(expected, speed.SpeedBoostCounter, $"counter {before}: the countdown borrows a stage");
         }
 
         // Stage zero with no cadence has no stage to borrow from.
         var empty = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0) };
-        int emptyFrame = 7;
         AssertThrows<InvalidOperationException>(() => empty.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running,
-            GameplayAction.Dash, animationFrameBuffer: 0, ref emptyFrame, out _, requestEchoSound: NoEcho), "a stage-zero counter with no cadence cannot borrow");
+            GameplayAction.Dash, animationFrameBuffer: 0, out _, requestEchoSound: NoEcho), "a stage-zero counter with no cadence cannot borrow");
 
         // A cadence of one reaching zero advances the stage and reloads the cadence.
         var advancing = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
-        int advancingFrame = 7;
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
-            animationFrameBuffer: 0, ref advancingFrame, out _, requestEchoSound: NoEcho), "cadence one expires and advances the stage");
+            animationFrameBuffer: 0, out _, requestEchoSound: NoEcho), "cadence one expires and advances the stage");
         AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage2)), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");
 

@@ -1099,8 +1099,6 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MovingLeftNormalPose or
                 SamusPoseId.MovingRightGunExtendedPose or
                 SamusPoseId.MovingLeftGunExtendedPose or
-                SamusPoseId.CompactAirborneFallingRightPose or
-                SamusPoseId.CompactAirborneFallingLeftPose or
                 SamusPoseId.MoonwalkFacingLeftPose or
                 SamusPoseId.MoonwalkFacingRightPose or
                 SamusPoseId.MoonwalkAimUpLeftPose or
@@ -1129,9 +1127,6 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.DeathSequenceLeftPose or
                 SamusPoseId.XrayingCrouchingRightPose or
                 SamusPoseId.XrayingCrouchingLeftPose or
-                SamusPoseId.CompactMorphingRightPose or
-                SamusPoseId.DraygonHeldMorphingLeftPose or
-                SamusPoseId.CompactStandingUpRightPose or
                 SamusPoseId.DraygonHeldStandingUpLeftPose or
                 SamusPoseId.DraygonHeldBallLeftPose or
                 SamusPoseId.DrainedCrouchingRightPose or
@@ -1226,8 +1221,6 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.StandingAimDiagonalUpLeftPose or
                 SamusPoseId.StandingAimDiagonalDownRightPose or
                 SamusPoseId.StandingAimDiagonalDownLeftPose or
-                SamusPoseId.RunningAimUpRightPose or
-                SamusPoseId.RunningAimUpLeftPose or
                 SamusPoseId.RunningAimDiagonalUpRightPose or
                 SamusPoseId.RunningAimDiagonalUpLeftPose or
                 SamusPoseId.RunningAimDiagonalDownRightPose or
@@ -1310,17 +1303,7 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.SpinLandingRightPose or
                 SamusPoseId.SpinLandingLeftPose or
                 SamusPoseId.GlitchBallRightPose or
-                SamusPoseId.GlitchBallMorphingRightPose or
-                SamusPoseId.GlitchBallMorphingLeftPose or
-                SamusPoseId.InstantMorphingRightPose or
-                SamusPoseId.InstantMorphingLeftPose or
-                SamusPoseId.GlitchBallLeftPose or
-                SamusPoseId.CompactAirborneRightPose or
-                SamusPoseId.CompactAirborneLeftPose or
-                SamusPoseId.GrappleAirborneGunExtendedRightPose or
-                SamusPoseId.GrappleAirborneAimDownRightPose or
-                SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
-                SamusPoseId.DraygonGrabbingLeftPose => SamusPoseId.TurningRightToLeftPose,
+                SamusPoseId.GlitchBallLeftPose => SamusPoseId.TurningRightToLeftPose,
             SamusPoseId.TallStillRightPose or
                 SamusPoseId.ForwardStandingPose or
                 SamusPoseId.ForwardStillCrouchHeightPose => SamusPoseId.TurningRightToLeftPose,
@@ -1360,8 +1343,6 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MovingLeftNormalPose or
                 SamusPoseId.MovingRightGunExtendedPose or
                 SamusPoseId.MovingLeftGunExtendedPose or
-                SamusPoseId.CompactAirborneFallingRightPose or
-                SamusPoseId.CompactAirborneFallingLeftPose or
                 SamusPoseId.MoonwalkFacingLeftPose or
                 SamusPoseId.MoonwalkFacingRightPose or
                 SamusPoseId.MoonwalkAimUpLeftPose or
@@ -1390,9 +1371,6 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.DeathSequenceLeftPose or
                 SamusPoseId.XrayingCrouchingRightPose or
                 SamusPoseId.XrayingCrouchingLeftPose or
-                SamusPoseId.CompactMorphingRightPose or
-                SamusPoseId.DraygonHeldMorphingLeftPose or
-                SamusPoseId.CompactStandingUpRightPose or
                 SamusPoseId.DraygonHeldStandingUpLeftPose or
                 SamusPoseId.DraygonHeldBallLeftPose or
                 SamusPoseId.DrainedCrouchingRightPose or
@@ -1487,8 +1465,6 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.StandingAimDiagonalUpLeftPose or
                 SamusPoseId.StandingAimDiagonalDownRightPose or
                 SamusPoseId.StandingAimDiagonalDownLeftPose or
-                SamusPoseId.RunningAimUpRightPose or
-                SamusPoseId.RunningAimUpLeftPose or
                 SamusPoseId.RunningAimDiagonalUpRightPose or
                 SamusPoseId.RunningAimDiagonalUpLeftPose or
                 SamusPoseId.RunningAimDiagonalDownRightPose or
@@ -1571,17 +1547,7 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.SpinLandingRightPose or
                 SamusPoseId.SpinLandingLeftPose or
                 SamusPoseId.GlitchBallRightPose or
-                SamusPoseId.GlitchBallMorphingRightPose or
-                SamusPoseId.GlitchBallMorphingLeftPose or
-                SamusPoseId.InstantMorphingRightPose or
-                SamusPoseId.InstantMorphingLeftPose or
-                SamusPoseId.GlitchBallLeftPose or
-                SamusPoseId.CompactAirborneRightPose or
-                SamusPoseId.CompactAirborneLeftPose or
-                SamusPoseId.GrappleAirborneGunExtendedRightPose or
-                SamusPoseId.GrappleAirborneAimDownRightPose or
-                SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
-                SamusPoseId.DraygonGrabbingLeftPose => SamusPoseId.TurningLeftToRightPose,
+                SamusPoseId.GlitchBallLeftPose => SamusPoseId.TurningLeftToRightPose,
             SamusPoseId.TallStillRightPose or
                 SamusPoseId.ForwardStandingPose or
                 SamusPoseId.ForwardStillCrouchHeightPose => SamusPoseId.TurningLeftToRightPose,

@@ -208,17 +208,16 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// True for all five live running, right-moving poses. The gun-extended running pose
+    /// True for all four live running, right-moving poses. The gun-extended running pose
     /// belongs here even though its name describes firing: the game moves its body
     /// through exactly the same running physics as the unaimed and aimed running poses.
     /// </summary>
     public static bool IsRightFacingRunningPose(SamusPoseId pose) => pose is
         SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingRightGunExtendedPose or
-        SamusPoseId.RunningAimUpRightPose or
         SamusPoseId.RunningAimDiagonalUpRightPose or
         SamusPoseId.RunningAimDiagonalDownRightPose;
 
-    /// <summary>True for all five live left-moving <see cref="SamusMovementType.Running"/> poses.</summary>
+    /// <summary>True for all four live left-moving <see cref="SamusMovementType.Running"/> poses.</summary>
     public static bool IsLeftFacingRunningPose(SamusPoseId pose) => IsRightFacingRunningPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
@@ -336,7 +335,6 @@ internal static class SamusPoseMetadata
         SamusPoseId.StandingAimUpRightPose or SamusPoseId.StandingAimUpLeftPose or
         SamusPoseId.StandingAimDiagonalUpRightPose or SamusPoseId.StandingAimDiagonalUpLeftPose or
         SamusPoseId.StandingAimDiagonalDownRightPose or SamusPoseId.StandingAimDiagonalDownLeftPose or
-        SamusPoseId.RunningAimUpRightPose or SamusPoseId.RunningAimUpLeftPose or
         SamusPoseId.RunningAimDiagonalUpRightPose or SamusPoseId.RunningAimDiagonalUpLeftPose or
         SamusPoseId.RunningAimDiagonalDownRightPose or SamusPoseId.RunningAimDiagonalDownLeftPose or
         SamusPoseId.CrouchingAimUpRightPose or SamusPoseId.CrouchingAimUpLeftPose or
@@ -495,13 +493,13 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Every pose some path of the game gives Samus: each pose except the three unauthored poses
-    /// (<see cref="SamusUnauthoredPoseDefinitions.Poses"/>) and <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
-    /// Among them are the glitch balls, their knockbacks, the Draygon-held ball and its stand-up, which the Baby's Hyper
-    /// Beam freeze and rainbow stop reach by a frame read past a transition's animation (#1535).
+    /// (<see cref="SamusUnauthoredPoseDefinitions.Poses"/>) (#1513, #2048). Among them are the glitch balls, their
+    /// knockbacks, the Draygon-held ball and its stand-up, which the Baby's Hyper Beam freeze and rainbow stop reach by a
+    /// frame read past a transition's animation (#1535). A pose no path gives Samus has no identity at all: an animation only
+    /// a read past an earlier one reaches has its own name and needs no pose to name it (#2048).
     /// </summary>
     internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
-        [.. Enum.GetValues<SamusPoseId>().Where(pose => !SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out _))
-            .Except(SamusUnreachablePoseDefinitions.Poses)];
+        [.. Enum.GetValues<SamusPoseId>().Where(pose => !SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out _))];
 
     /// <summary>True for the four drained crouching and standing bodies that Mother Brain's controllers install.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is

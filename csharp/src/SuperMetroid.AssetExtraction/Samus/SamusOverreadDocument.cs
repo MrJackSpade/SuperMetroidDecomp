@@ -6,18 +6,18 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 /// <param name="Version">The schema revision, <see cref="SamusOverreadFormat.Version"/>.</param>
 /// <param name="AnimationCueValueSteps">
-/// For every pose with an animation program, the step the animation reads at each frame of its program that lands on a
-/// value one of its cues carries rather than on a step of its own, by the frame's name in the pose's animation: its
-/// segment's name and the frame within the segment (#1535, #2048). A place whose read would name a record no gameplay path
+/// For every animation, by its name, the step it reads at each frame of its program that lands on a value one of its cues
+/// carries rather than on a step of its own, by the frame's name in the animation: its segment's name and the frame
+/// within the segment (#1535, #2048). A place whose read would name a record no gameplay path
 /// gives Samus has no entry.
 /// </param>
 /// <param name="AnimationReadsPast">
-/// For every pose with an animation program, what each frame past its animation's end that the animation can reach reads,
-/// by the frame's name in the pose's animation (#2048).
+/// For every animation, by its name, what each frame past its end that the animation can reach reads, by the frame's name
+/// in the animation (#2048).
 /// </param>
 /// <param name="AnimationPlaceLandings">
-/// For every named place of Samus's animations, the frame it lands on in the animation of every pose with an animation
-/// program that does not animate by the place's own animation, by place name, then by pose name (#2048).
+/// For every named place of Samus's animations, the frame it lands on in every animation other than the place's own, by
+/// place name, then by animation name (#2048).
 /// </param>
 /// <param name="SpaceTimeOverwrites">
 /// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by slot
@@ -41,13 +41,13 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyDictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures)
 {
     /// <summary>What a frame past an animation's end reads: a frame of an animation laid out after it (#2048).</summary>
-    /// <param name="Pose">The name of a pose that animates by the later animation.</param>
+    /// <param name="Animation">The name of the later animation.</param>
     /// <param name="Frame">The name of the frame of the later animation the read reaches, which names a step of it or a value one of its cues carries.</param>
     /// <param name="Moves">
     /// For each frame of the later animation the cue read there names, by that frame's name, the name of the frame of the
     /// animation read past that the cue moves it to; empty when the step read names no frame.
     /// </param>
-    internal sealed record ReadPast(string Pose, string Frame, IReadOnlyDictionary<string, string> Moves);
+    internal sealed record ReadPast(string Animation, string Frame, IReadOnlyDictionary<string, string> Moves);
 
     /// <summary>The step the animation reads at a cue value's place: what the game does on reaching that frame (#1535).</summary>
     /// <param name="Kind">What the step does.</param>

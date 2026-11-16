@@ -24,9 +24,10 @@ internal static class SamusOverreadFormat
     /// under <c>animation</c> (#1624); revision twenty-one names each animation program's successor under <c>animationSuccessors</c> (#1758);
     /// revision twenty-two holds named outcomes in place of the programs' layout: the cue-value steps by the frame's name, what
     /// each reachable frame past an animation reads, and where each named place lands in every other animation (#2048); revision twenty-three names the special attack animations
-    /// for the move (#2122).
+    /// for the move (#2122); revision twenty-four keys every animation's outcomes by the animation's own name, and a read
+    /// past an animation names the later animation rather than a pose kept to name it (#2048).
     /// </summary>
-    internal const int Version = 23;
+    internal const int Version = 24;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

@@ -254,8 +254,8 @@ internal sealed class SamusPresentation
             int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.RunFrame)
-                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.RunFrame)
+                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.RunStrideFrame.Frame)
+                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.RunStrideFrame.Frame)
                 : delay.Ticks;
             samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
@@ -271,13 +271,11 @@ internal sealed class SamusPresentation
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
                 // Taking the cue restarts the run on its first frame; otherwise the frame stays where it is.
-                int stagedFrame = 0;
                 if (samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
                     samus.UnauthoredBoostCadence,
                     movementType: SamusMovementType.Running,
                     controllerInput,
                     samus.AnimationFrameBuffer,
-                    ref stagedFrame,
                     out int stagedTimer,
                     // The echo joins Samus's audio requests, whose queue's answer selects the boost's cadence.
                     () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))

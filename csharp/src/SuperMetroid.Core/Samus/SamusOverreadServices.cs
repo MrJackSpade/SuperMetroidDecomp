@@ -20,7 +20,7 @@ public sealed class SamusOverreadServices
     /// <param name="projectiles">The services Samus's projectiles consult where they read past their data.</param>
     /// <param name="straddledTerrain">The terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</param>
     internal SamusOverreadServices(
-        FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
+        FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
         SamusProjectileOverreads projectiles,
         StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
@@ -33,7 +33,7 @@ public sealed class SamusOverreadServices
     /// What a Samus animation frame that names no step of its pose's animation reads, and where a named place lands in an
     /// animation it does not belong to, by a pose that animates by each animation.
     /// </summary>
-    internal FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
+    internal FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
 
     /// <summary>The services Samus's projectiles consult where their glitch paths read past their data.</summary>

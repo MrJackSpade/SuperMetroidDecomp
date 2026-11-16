@@ -39,12 +39,6 @@ public enum SamusPoseId
     /// <summary>This pose is the left-moving mirror of <see cref="MovingRightGunExtendedPose"/>.</summary>
     MovingLeftGunExtendedPose,
 
-    /// <summary>A right-facing compact airborne pose whose animation repeats; with no input it falls facing right.</summary>
-    CompactAirborneFallingRightPose,
-
-    /// <summary>The left-facing partner of <see cref="CompactAirborneFallingRightPose"/>; with no input it falls facing left.</summary>
-    CompactAirborneFallingLeftPose,
-
     /// <summary>
     /// This pose visually faces left while moonwalking right. Its pose X direction is deliberately
     /// eight: horizontal movement follows travel direction, not the artwork's facing.
@@ -135,15 +129,6 @@ public enum SamusPoseId
 
     /// <summary>Left-facing crouching X-ray body.</summary>
     XrayingCrouchingLeftPose,
-
-    /// <summary>A right-facing compact posture transition that morphs into the ball, or the Spring Ball, on the ground or falling.</summary>
-    CompactMorphingRightPose,
-
-    /// <summary>A left-facing compact posture transition that ends in <see cref="DraygonHeldBallLeftPose"/>.</summary>
-    DraygonHeldMorphingLeftPose,
-
-    /// <summary>A right-facing posture transition at standing height that ends standing facing right.</summary>
-    CompactStandingUpRightPose,
 
     /// <summary>A left-facing posture transition at standing height that ends grabbed by Draygon facing left.</summary>
     DraygonHeldStandingUpLeftPose,
@@ -436,12 +421,6 @@ public enum SamusPoseId
     /// <summary>This pose is stationary, facing left, and aiming diagonally down-left.</summary>
     StandingAimDiagonalDownLeftPose,
 
-    /// <summary>This pose is the unused right-moving straight-up aim pose.</summary>
-    RunningAimUpRightPose,
-
-    /// <summary>This pose is the unused left-moving straight-up aim pose.</summary>
-    RunningAimUpLeftPose,
-
     /// <summary>This pose moves right while aiming diagonally up-right.</summary>
     RunningAimDiagonalUpRightPose,
 
@@ -704,38 +683,8 @@ public enum SamusPoseId
     /// <summary>A right-facing ball with the glitch-ball movement; it takes no input and keeps its pose without one.</summary>
     GlitchBallRightPose,
 
-    /// <summary>A right-facing posture transition that ends at once in <see cref="GlitchBallRightPose"/>.</summary>
-    GlitchBallMorphingRightPose,
-
-    /// <summary>A left-facing posture transition that ends at once in <see cref="GlitchBallLeftPose"/>.</summary>
-    GlitchBallMorphingLeftPose,
-
-    /// <summary>A right-facing posture transition that morphs at once into the grounded ball, or the Spring Ball.</summary>
-    InstantMorphingRightPose,
-
-    /// <summary>The left-facing partner of <see cref="InstantMorphingRightPose"/>.</summary>
-    InstantMorphingLeftPose,
-
     /// <summary>The left-facing partner of <see cref="GlitchBallRightPose"/>.</summary>
     GlitchBallLeftPose,
-
-    /// <summary>A right-facing compact airborne pose whose animation repeats and which keeps its pose without input.</summary>
-    CompactAirborneRightPose,
-
-    /// <summary>The left-facing partner of <see cref="CompactAirborneRightPose"/>.</summary>
-    CompactAirborneLeftPose,
-
-    /// <summary>A right-facing grappling pose aimed right; with no input it falls facing right with the gun extended.</summary>
-    GrappleAirborneGunExtendedRightPose,
-
-    /// <summary>A right-facing grappling pose aimed down; with no input it falls facing right aimed down.</summary>
-    GrappleAirborneAimDownRightPose,
-
-    /// <summary>A right-facing grappling pose aimed diagonally down; with no input it falls aimed diagonally down.</summary>
-    GrappleAirborneAimDiagonalDownRightPose,
-
-    /// <summary>A left-facing Draygon-held pose whose animation ends grabbed by Draygon facing left.</summary>
-    DraygonGrabbingLeftPose,
 
     /// <summary>
     /// An unauthored pose facing right in which no movement runs, so Samus holds still with a 138-pixel vertical radius;

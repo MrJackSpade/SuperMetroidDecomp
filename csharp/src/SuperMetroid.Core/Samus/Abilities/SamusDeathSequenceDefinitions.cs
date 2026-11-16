@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -20,34 +21,41 @@ public static class SamusDeathSequenceDefinitions
     /// <summary>The updates the death pose's starting picture shows for: the delay every death pose's frames share.</summary>
     public const int InitialFrameHold = 2;
 
-    /// <summary>The death-pose animation frame each movement type starts the death pose on; InitialFrame looks it up.</summary>
-    public static readonly IReadOnlyDictionary<SamusMovementType, int> InitialFrames = new Dictionary<SamusMovementType, int>
+    /// <summary>The death pose's first frame, which the glitch-ball movements start it on.</summary>
+    internal static SamusAnimationTarget GlitchBallStart { get; } = new(SamusAnimationSegmentName.Main, 0);
+    /// <summary>The death pose's ball frame, which the Morph Ball and Spring Ball movements start it on.</summary>
+    internal static SamusAnimationTarget BallStart { get; } = new(SamusAnimationSegmentName.Main, 1);
+    /// <summary>The death pose's upright frame, which its repeat holds and every other movement starts it on.</summary>
+    internal static SamusAnimationTarget UprightStart { get; } = new(SamusAnimationSegmentName.Main, 5);
+
+    /// <summary>The death pose's frame each movement type starts it on; InitialFrame looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<SamusMovementType, SamusAnimationTarget> InitialFrames = new Dictionary<SamusMovementType, SamusAnimationTarget>
     {
-        [SamusMovementType.MorphBallGround] = 1,
-        [SamusMovementType.MorphBallFalling] = 1,
-        [SamusMovementType.SpringBallGround] = 1,
-        [SamusMovementType.SpringBallInAir] = 1,
-        [SamusMovementType.SpringBallFalling] = 1,
-        [SamusMovementType.GlitchBall] = 0,
-        [SamusMovementType.GlitchBallKnockback] = 0,
-        [SamusMovementType.Standing] = 5,
-        [SamusMovementType.Running] = 5,
-        [SamusMovementType.NormalJumping] = 5,
-        [SamusMovementType.SpinJumping] = 5,
-        [SamusMovementType.Crouching] = 5,
-        [SamusMovementType.Falling] = 5,
-        [SamusMovementType.Knockback] = 5,
-        [SamusMovementType.CompactAirborne] = 5,
-        [SamusMovementType.TurningOnGround] = 5,
-        [SamusMovementType.PostureTransition] = 5,
-        [SamusMovementType.Moonwalking] = 5,
-        [SamusMovementType.WallJumping] = 5,
-        [SamusMovementType.RanIntoWall] = 5,
-        [SamusMovementType.Grappling] = 5,
-        [SamusMovementType.TurningWhileJumping] = 5,
-        [SamusMovementType.TurningWhileFalling] = 5,
-        [SamusMovementType.DamageBoost] = 5,
-        [SamusMovementType.DraygonHeld] = 5,
-        [SamusMovementType.Special] = 5,
+        [SamusMovementType.MorphBallGround] = BallStart,
+        [SamusMovementType.MorphBallFalling] = BallStart,
+        [SamusMovementType.SpringBallGround] = BallStart,
+        [SamusMovementType.SpringBallInAir] = BallStart,
+        [SamusMovementType.SpringBallFalling] = BallStart,
+        [SamusMovementType.GlitchBall] = GlitchBallStart,
+        [SamusMovementType.GlitchBallKnockback] = GlitchBallStart,
+        [SamusMovementType.Standing] = UprightStart,
+        [SamusMovementType.Running] = UprightStart,
+        [SamusMovementType.NormalJumping] = UprightStart,
+        [SamusMovementType.SpinJumping] = UprightStart,
+        [SamusMovementType.Crouching] = UprightStart,
+        [SamusMovementType.Falling] = UprightStart,
+        [SamusMovementType.Knockback] = UprightStart,
+        [SamusMovementType.CompactAirborne] = UprightStart,
+        [SamusMovementType.TurningOnGround] = UprightStart,
+        [SamusMovementType.PostureTransition] = UprightStart,
+        [SamusMovementType.Moonwalking] = UprightStart,
+        [SamusMovementType.WallJumping] = UprightStart,
+        [SamusMovementType.RanIntoWall] = UprightStart,
+        [SamusMovementType.Grappling] = UprightStart,
+        [SamusMovementType.TurningWhileJumping] = UprightStart,
+        [SamusMovementType.TurningWhileFalling] = UprightStart,
+        [SamusMovementType.DamageBoost] = UprightStart,
+        [SamusMovementType.DraygonHeld] = UprightStart,
+        [SamusMovementType.Special] = UprightStart,
     };
 }

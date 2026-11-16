@@ -564,10 +564,10 @@ internal static class SamusAerialPoseTransitions
              SamusPoseId.NormalJumpTransitionAimUpLeftPose or
                 SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
                 SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) or
-            (SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingRightGunExtendedPose or SamusPoseId.RunningAimUpRightPose or
+            (SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingRightGunExtendedPose or
                 SamusPoseId.RunningAimDiagonalUpRightPose or SamusPoseId.RunningAimDiagonalDownRightPose,
              SamusPoseId.SpinJumpRightPose) or
-            (SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or SamusPoseId.RunningAimUpLeftPose or
+            (SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or
                 SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
              SamusPoseId.SpinJumpLeftPose) or
             // Turning-on-ground uses its own pose input, but a Jump

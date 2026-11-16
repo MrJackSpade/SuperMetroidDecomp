@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -22,8 +22,6 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         _room = room;
     }
 
-    /// <summary>Maximum horizontal Samus distance, in pixels, that triggers an attack from circular flight.</summary>
-    private const int FlyAttackHorizontalRange = 112;
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemyPlace place)
@@ -60,7 +58,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 MoveFlyAccordingToVelocities(place, state);
                 if (--state.RetreatTimer < 0)
                 {
-                    state.RetreatTimer = 24;
+                    state.RetreatTimer = FlyMotionDefinitions.AttackCooldown;
                     state.Action = FlyAction.ClockwiseCircle;
                 }
                 return;
@@ -82,7 +80,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RetreatTimer--;
         }
         else if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) <
-            FlyAttackHorizontalRange)
+            FlyMotionDefinitions.AttackHorizontalRange)
         {
             SetFlyToAttackSamus(place, state, samus);
             return;
@@ -128,12 +126,12 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The dive toward Samus along <paramref name="angle"/>, the mirrored trigonometry angle of her bearing: two pixels per update
-    /// along its sine across and four along its sine a quarter turn behind (the negative cosine) down.
+    /// The dive toward Samus along <paramref name="angle"/>, the mirrored trigonometry angle of her bearing: the dive's speed
+    /// across along its sine and its speed down along its sine a quarter turn behind (the negative cosine).
     /// </summary>
     internal static EightEightVector<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
-        EnemyMath.SineVelocity(angle, 2),
-        EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 4));
+        EnemyMath.SineVelocity(angle, FlyMotionDefinitions.DiveAcrossSpeed),
+        EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), FlyMotionDefinitions.DiveDownSpeed));
 
     /// <summary>
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its

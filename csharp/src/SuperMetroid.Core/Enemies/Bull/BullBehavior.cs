@@ -128,7 +128,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Decelerate();
     }
 
-    /// <summary>Starts braking when the signed angle difference reaches 48.</summary>
+    /// <summary>Starts braking when the turn to Samus's bearing reaches <see cref="BullMovementDefinitions.OffTargetTurn"/>.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
         RoomEnemyPlace place,
         BullEnemyState state,
@@ -137,8 +137,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngleToSamus = CalculateBullAngleToSamus(place, samus);
 
         // The off-target test measures the turn from the heading to Samus's bearing as the game reckons it
-        // (BullOffTargetTurn). A turn of 48 of the angle's 256ths or more is off target.
-        if (BullOffTargetTurn.Of(state.Angle, state.AngleToSamus.ToTrigonometryAngle()) < 48)
+        // (BullOffTargetTurn).
+        if (BullOffTargetTurn.Of(state.Angle, state.AngleToSamus.ToTrigonometryAngle()) < BullMovementDefinitions.OffTargetTurn)
             return;
 
         state.Action = BullAction.Decelerating;

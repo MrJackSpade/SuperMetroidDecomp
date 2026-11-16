@@ -6,6 +6,9 @@ public static class KiHunterMotionDefinitions
     /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>
     public const int SwoopTriggerDistance = 96;
 
+    /// <summary>How far below a flying Ki-Hunter, in pixels, Samus must be at least for it to swoop at her.</summary>
+    public const int SwoopLeastDepth = 32;
+
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(14);
     /// <summary>A flying Ki-Hunter's first velocity: a pixel an update left and a pixel an update down.</summary>

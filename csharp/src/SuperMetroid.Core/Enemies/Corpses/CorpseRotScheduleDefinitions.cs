@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>The pacing every corpse's rot schedule shares (#1472): Mother Brain's, the dead Torizo's and every dead monster's.</summary>
 internal static class CorpseRotScheduleDefinitions
 {
+    /// <summary>
+    /// The AI calls a dead Torizo, dead sidehopper or other Tourian corpse waits, once Samus has stood on it, before it starts
+    /// to rot.
+    /// </summary>
+    internal const int PreRotDelayCalls = 16;
+
     /// <summary>The rot calls each row waits longer than the row below it before it starts falling.</summary>
     internal const int DelayCallsPerRow = 2;
 

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kzan;
@@ -79,7 +79,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         FollowKzanTop(place);
     }
 
-    /// <summary>Keeps the lower actor twelve pixels below the top on every enemy update.</summary>
+    /// <summary>Keeps the lower actor below the top on every enemy update.</summary>
     internal void RunKzanBottomMain(RoomEnemyPlace place) => FollowKzanTop(place);
 
     /// <summary>
@@ -89,7 +89,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private void FollowKzanTop(RoomEnemyPlace bottom)
     {
         RoomEnemyPlace top = _tops.Of(bottom);
-        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, CoordinateAxis.Wrap(top.Position.Y.Whole + 12)));
+        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, CoordinateAxis.Wrap(top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop)));
     }
 
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
@@ -186,7 +186,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Kzan's private copy of the check whether an enemy touches Samus from below. Its only
-    /// difference from the common helper is the five-pixel shifted Y sample. Horizontal
+    /// difference from the common helper is the shifted Y sample (<see cref="KzanMotionDefinitions.TouchSampleDrop"/>). Horizontal
     /// overlap is strict; vertical tangency is accepted after the shifted center test.
     /// </summary>
     private static bool IsKzanTouchingSamusFromBelow(
@@ -197,7 +197,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (xDistance >= samus.Kinematics.Radius.X + place.Radius.X)
             return false;
 
-        int shiftedYDelta = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) + 5;
+        int shiftedYDelta = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) + KzanMotionDefinitions.TouchSampleDrop;
         if (shiftedYDelta >= 0)
             return false;
 

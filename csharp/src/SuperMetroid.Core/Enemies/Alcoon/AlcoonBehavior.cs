@@ -68,10 +68,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Maximum horizontal distance for activation, after the landing-height check.</summary>
-    private const int AlcoonEmergeXDistance = 80;
-    /// <summary>Distance from spawn that causes an emerged Alcoon to jump back underground.</summary>
-    private const int AlcoonHideXDistance = 112;
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
@@ -153,11 +149,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= 32)
+        if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= AlcoonMotionDefinitions.EmergeYDistance)
             return;
 
         int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
-        if (Math.Abs(signedXDistance) >= AlcoonEmergeXDistance)
+        if (Math.Abs(signedXDistance) >= AlcoonMotionDefinitions.EmergeXDistance)
             return;
 
         SetupAlcoonJumpMovement(state);
@@ -230,12 +226,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is a real two-pixel downward move, not merely a floor probe. On ordinary
         // floors it collides and keeps Alcoon aligned; if the floor vanishes it lets the
         // walking actor fall by the same amount before the remainder of main AI runs.
-        _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(2));
+        _terrain.MoveEnemyVertically(level, place, AlcoonMotionDefinitions.FloorPress);
 
-        if (CoordinateAxis.Distance(state.SpawnPosition.X, place.Position.X.Whole) >= AlcoonHideXDistance)
+        if (CoordinateAxis.Distance(state.SpawnPosition.X, place.Position.X.Whole) >= AlcoonMotionDefinitions.HideXDistance)
         {
             state.Action = AlcoonAction.HidingRising;
-            state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(-4);
+            state.VerticalVelocity = AlcoonMotionDefinitions.HideJumpVelocity;
             StartAlcoonAnimation(
                 place,
                 state,
@@ -291,8 +287,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
         state.WalkingDirection = null;
-        state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(-12);
-        state.YAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
+        state.VerticalVelocity = AlcoonMotionDefinitions.EmergeJumpVelocity;
+        state.YAcceleration = AlcoonMotionDefinitions.Gravity;
     }
 
     /// <summary>Adds the Alcoon's acceleration to its vertical velocity.</summary>
@@ -330,7 +326,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Action = AlcoonAction.WalkingAndFiring;
         int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
-        state.StepCounter = count == 0 ? 2 : count;
+        state.StepCounter = count == 0 ? AlcoonWalkDefinitions.StepsForZeroSample : count;
         return FacesLeft(state)
             ? AlcoonSegment.WalkingLeft
             : AlcoonSegment.WalkingRight;
@@ -398,13 +394,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<AlcoonSegment>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Initial horizontal fireball speed, four pixels per update.</summary>
-    private static readonly SignedEightEight AlcoonFireballLaunchHorizontalSpeed = SignedEightEight.FromParts(4, 0);
-    /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
-    private static readonly SignedEightEight AlcoonFireballTerminalHorizontalSpeed = SignedEightEight.FromParts(2, 0);
-    /// <summary>Horizontal speed reduction applied per fireball update, a quarter pixel per update.</summary>
-    private static readonly SignedEightEight AlcoonFireballHorizontalDeceleration = SignedEightEight.FromParts(0, 64);
-
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
     internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
     {
@@ -425,10 +414,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             Fireball,
             SpriteGraphics.SpawnedBy(alcoon));
         projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Initial));
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
+        Offset16<RoomPixels> muzzle = AlcoonFireballLaunchDefinitions.MuzzleFacingRight;
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(alcoon.Position.Whole + (movingLeft ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithX(movingLeft
-            ? -AlcoonFireballLaunchHorizontalSpeed
-            : AlcoonFireballLaunchHorizontalSpeed);
+            ? -AlcoonFireballLaunchDefinitions.LaunchSpeed
+            : AlcoonFireballLaunchDefinitions.LaunchSpeed);
         projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
 
@@ -452,15 +442,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight velocity = projectile.Velocity.X;
         if (velocity.IsNegative)
         {
-            velocity += AlcoonFireballHorizontalDeceleration;
-            if (velocity >= -AlcoonFireballTerminalHorizontalSpeed)
-                velocity = -AlcoonFireballTerminalHorizontalSpeed;
+            velocity += AlcoonFireballLaunchDefinitions.Deceleration;
+            if (velocity >= -AlcoonFireballLaunchDefinitions.TerminalSpeed)
+                velocity = -AlcoonFireballLaunchDefinitions.TerminalSpeed;
         }
         else
         {
-            velocity -= AlcoonFireballHorizontalDeceleration;
-            if (velocity < AlcoonFireballTerminalHorizontalSpeed)
-                velocity = AlcoonFireballTerminalHorizontalSpeed;
+            velocity -= AlcoonFireballLaunchDefinitions.Deceleration;
+            if (velocity < AlcoonFireballLaunchDefinitions.TerminalSpeed)
+                velocity = AlcoonFireballLaunchDefinitions.TerminalSpeed;
         }
         projectile.Velocity = projectile.Velocity.WithX(velocity);
     }

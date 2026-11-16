@@ -9,6 +9,9 @@ internal static class AlcoonWalkDefinitions
     /// </summary>
     internal static readonly RandomSampleField StepCount = new(0, 2);
 
+    /// <summary>The steps an Alcoon takes when <see cref="StepCount"/> reads zero.</summary>
+    internal const int StepsForZeroSample = 2;
+
     /// <summary>How far an Alcoon walking either way moves each movement step: two pixels.</summary>
     internal static SignedSixteenSixteen StepDistance { get; } = SignedSixteenSixteen.FromWholePixels(2);
 }

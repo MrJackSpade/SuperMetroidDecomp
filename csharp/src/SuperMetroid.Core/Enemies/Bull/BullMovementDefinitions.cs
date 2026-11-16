@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <summary>Immutable authored Bull shot-reaction angles; live timers remain enemy state.</summary>
 public static class BullMovementDefinitions
 {
+    /// <summary>The turn from a Bull's heading to Samus's bearing, in 256ths of a turn, from which it is off target and brakes.</summary>
+    internal const int OffTargetTurn = 48;
+
     /// <summary>
     /// The compass angle a shot in each direction moves the Bull at: up and down whichever way Samus faces, and each
     /// distinct direction an eighth of a turn (32 of the angle's 256ths) from its neighbours.

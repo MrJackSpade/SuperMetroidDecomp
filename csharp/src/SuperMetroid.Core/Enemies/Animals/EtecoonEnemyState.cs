@@ -16,13 +16,14 @@ public sealed class EtecoonEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The updates the current behaviour still waits, 0 through 256: every behaviour that waits starts its wait on entry
-    /// and moves on in the update its wait reaches zero, so the wait never runs past zero.
+    /// The updates the current behaviour still waits, 0 through <see cref="EtecoonTimingDefinitions.FlexDuration"/>:
+    /// every behaviour that waits starts its wait on entry and moves on in the update its wait reaches zero, so the wait
+    /// never runs past zero.
     /// </summary>
     public int ActionTimer
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, 256, value);
+        internal set => field = Ensure.BetweenInclusive(0, EtecoonTimingDefinitions.FlexDuration, value);
     }
 
     /// <summary>

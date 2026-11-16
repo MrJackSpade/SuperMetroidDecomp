@@ -45,7 +45,7 @@ internal sealed class FallingSparksBehavior
             Spark,
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource), source.Position.Y.Fraction));
 
         // The initializer zeros both ordinary velocities, then takes a random number. The
         // authored launches are one short of the eight selections; the last selection drifts by
@@ -56,17 +56,6 @@ internal sealed class FallingSparksBehavior
         projectile.State = new FallingSparkState(launch);
     }
 
-    /// <summary>How many times faster a spark drifts sideways once it has hit the floor.</summary>
-    private const int FallingSparkImpactDriftScale = 4;
-
-    /// <summary>The fraction of a pixel a falling spark's vertical speed gains each falling update: a quarter pixel.</summary>
-    private static readonly SignedSixteenSixteen FallingSparkGravity = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64);
-
-    /// <summary>The whole-pixel vertical speed a falling spark's speed stops rising at.</summary>
-    private const int FallingSparkTerminalWholeSpeed = 4;
-
-    /// <summary>The vertical speed a spark bounces up at when it hits the floor: half a pixel upward.</summary>
-    private static readonly SignedSixteenSixteen FallingSparkImpactBounce = -SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>Moves the falling spark one update.</summary>
     internal void FallFallingSpark(
@@ -88,11 +77,11 @@ internal sealed class FallingSparksBehavior
 
             // Gravity adds a quarter pixel to the speed's fraction; a fraction that passes a whole pixel raises the
             // whole speed by one.
-            SignedSixteenSixteen accelerated = spark.VerticalSpeed + FallingSparkGravity;
+            SignedSixteenSixteen accelerated = spark.VerticalSpeed + FallingSparkMotionDefinitions.Gravity;
 
             // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
             // increment, giving the slightly asymmetric cap.
-            spark.VerticalSpeed = accelerated.WholePixels < FallingSparkTerminalWholeSpeed
+            spark.VerticalSpeed = accelerated.WholePixels < FallingSparkMotionDefinitions.TerminalWholeSpeed
                 ? accelerated
                 : accelerated.WithWholePixels(spark.VerticalSpeed.WholePixels);
         }
@@ -116,7 +105,7 @@ internal sealed class FallingSparksBehavior
 
     /// <summary>
     /// Switches a falling spark to its floor-impact animation and scales its stored
-    /// horizontal delta by four, the fraction's overflow passing into the whole.
+    /// horizontal delta, the fraction's overflow passing into the whole.
     /// </summary>
     internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {
@@ -125,12 +114,12 @@ internal sealed class FallingSparksBehavior
         // The impact quadruples the sideways drift, wrapping round past the largest drift: the unauthored launch the last
         // random selection reads can be any drift, so its quadruple can pass the largest the drift holds.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
-        spark.HorizontalStep *= FallingSparkImpactDriftScale;
+        spark.HorizontalStep *= FallingSparkMotionDefinitions.ImpactDriftScale;
 
-        // Half a pixel upward. Because the whole part is negative, later frames skip collision and gravity while the
+        // Because the bounce's whole part is negative, later frames skip collision and gravity while the
         // impact spark arcs upward through its eleven-frame blinking animation.
-        spark.VerticalSpeed = FallingSparkImpactBounce;
-        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 2);
+        spark.VerticalSpeed = FallingSparkMotionDefinitions.ImpactBounce;
+        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - FallingSparkMotionDefinitions.ImpactLift);
     }
 
     /// <summary>Spawns a trail object at the spark's current whole-pixel position.</summary>

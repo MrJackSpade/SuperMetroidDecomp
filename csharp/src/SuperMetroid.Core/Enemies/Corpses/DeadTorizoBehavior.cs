@@ -55,7 +55,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
         {
             Playback = playback,
-            Velocity = new(default, SignedEightEight.FromParts(0, 8)),
+            Velocity = new(default, DeadTorizoCorpseDefinitions.StartingFallSpeed),
         });
     }
 
@@ -81,7 +81,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case DeadTorizoPhase.PreRot:
                 state.PreRotDelayCounter++;
-                if (state.PreRotDelayCounter >= 16)
+                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayCalls)
                 {
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                     state.Phase = DeadTorizoPhase.Rotting;
@@ -102,13 +102,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>The rotting corpse's downward acceleration per update, one 256th of a pixel per update.</summary>
-    private static readonly SignedEightEight DeadTorizoRotGravity = SignedEightEight.FromParts(0, 1);
 
     /// <summary>Advances the corpse's fall and runs one rot call of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoRotGravity);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoCorpseDefinitions.RotGravity);
         place.Position = place.Position.MovedBy(state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
@@ -149,10 +147,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             int overlap = kinematics.Radius.X + horizontalReach - Math.Abs(horizontalOffset);
             if (overlap < 0)
                 continue;
-            if (overlap < 4)
-                overlap = 4;
-
-            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(overlap, 4));
+            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(
+                Math.Max(overlap, DeadTorizoTouchDefinitions.LeastSidewaysPush),
+                DeadTorizoTouchDefinitions.DownwardPush));
             return true;
         }
 

@@ -225,7 +225,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole);
         int absoluteXDistance = Math.Abs(signedXDistance);
         int samusDepth = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
-        if (absoluteXDistance >= KiHunterMotionDefinitions.SwoopTriggerDistance || samusDepth < 32)
+        if (absoluteXDistance >= KiHunterMotionDefinitions.SwoopTriggerDistance || samusDepth < KiHunterMotionDefinitions.SwoopLeastDepth)
             return;
 
         state.AngularVelocity = AngularSpeed.Zero;

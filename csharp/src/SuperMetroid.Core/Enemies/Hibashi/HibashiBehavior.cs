@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
@@ -130,7 +130,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
-    /// half-height, and the first step its eight-pixel half-width.
+    /// half-height, and the first step its half-width.
     /// </summary>
     internal void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEruptionStep step)
     {
@@ -140,7 +140,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             state.SpawnY - step.YOffset);
         hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
         if (step.Width == HibashiStepWidth.Restored)
-            hitbox.Radius = hitbox.Radius.WithX(8);
+            hitbox.Radius = hitbox.Radius.WithX(HibashiDefinitions.RestoredHalfWidth);
     }
 
     /// <summary>Animation cue: finishes the activity.</summary>

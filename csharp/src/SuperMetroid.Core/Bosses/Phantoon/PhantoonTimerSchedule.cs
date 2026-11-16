@@ -28,9 +28,6 @@ public sealed class PhantoonTimerSchedule
     /// <summary>The length each pick takes, in pick order.</summary>
     internal ImmutableArray<PhantoonTimerLength> Picks { get; }
 
-    /// <summary>The number of picks, eight.</summary>
-    public int Count => Picks.Length;
-
     /// <summary>The duration, in updates, that pick <paramref name="pick"/>, zero through seven, takes.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pick"/> is outside zero through seven.</exception>
     public int this[int pick] => Picks[Ensure.BetweenInclusive(0, PickCount - 1, pick)] switch

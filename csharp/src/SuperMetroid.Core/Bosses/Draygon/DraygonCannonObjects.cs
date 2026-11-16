@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonCannonObjects
 {
     /// <summary>The enemy effects room objects trigger.</summary>
-    private readonly IRoomObjectEnemyEffects? _enemies;
+    private readonly IRoomObjectEnemyEffects _enemies;
 
     /// <summary>Where the lower half of the cannon's core lies from its core block: the block below.</summary>
     private static readonly Offset16<RoomBlocks> CoreLowerHalf = new(0, 1);
 
     /// <summary>Connects the cannons to the active room's enemy services.</summary>
-    internal DraygonCannonObjects(IRoomObjectEnemyEffects? enemies)
+    internal DraygonCannonObjects(IRoomObjectEnemyEffects enemies)
     {
         _enemies = enemies;
     }
@@ -42,7 +42,7 @@ internal sealed class DraygonCannonObjects
 
     /// <summary>Stops Draygon's firing of <paramref name="cannon"/>, as its wall cannon is destroyed.</summary>
     internal void DisableCannon(DraygonWallCannon cannon) =>
-        (_enemies ?? throw new InvalidOperationException("Draygon's cannons have no wall-cannon disabler.")).DisableDraygonCannon(cannon);
+        _enemies.DisableDraygonCannon(cannon);
 
     /// <summary>Changes both blocks of the cannon's core at <paramref name="block"/> to destroyed terrain.</summary>
     internal static void WriteDestroyedTerrain(RoomLevelData level, Position16<RoomBlocks> block)

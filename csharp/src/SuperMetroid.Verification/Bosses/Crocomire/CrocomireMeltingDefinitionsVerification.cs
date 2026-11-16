@@ -175,7 +175,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).
-        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
+        BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {

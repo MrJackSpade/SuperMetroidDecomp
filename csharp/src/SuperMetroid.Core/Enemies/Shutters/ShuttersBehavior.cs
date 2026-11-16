@@ -4,10 +4,12 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The Shutters species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -51,15 +53,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
 
-    /// <summary>The growing shutter, a shootable vertical shutter or the Kamer that reuses it, or a destroyable vertical shutter (#2146).</summary>
+    /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
     /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.ShutterGrowing)
             return new GrowingShutterEntity(this, place, common);
-        if (definition is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer)
+        if (definition == EnemyDefinitionId.ShutterShootable)
             return new ShootableShutterEntity(this, place, common);
+        if (definition == EnemyDefinitionId.Kamer)
+            return new KamerEntity(this, place, common);
         if (definition == EnemyDefinitionId.ShutterDestroyable)
             return new DestroyableShutterEntity(this, place, common);
         throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
@@ -71,30 +75,30 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
         // The initializer selects its first action from the way it grows and what it waits for.
-        bool growsUp = settings.Growth switch
+        VerticalDirection growth = settings.Growth switch
         {
-            GrowingShutterGrowth.Down => false,
-            GrowingShutterGrowth.Up => true,
+            GrowingShutterGrowth.Down => VerticalDirection.Down,
+            GrowingShutterGrowth.Up => VerticalDirection.Up,
             _ => throw new InvalidOperationException($"Growing shutter growth {settings.Growth} is not a direction."),
         };
         GrowingShutterAction action = settings.Wait switch
         {
-            GrowingShutterWait.Timer => growsUp
+            GrowingShutterWait.Timer => growth == VerticalDirection.Up
                 ? GrowingShutterAction.WaitToGrowUpForTimer
                 : GrowingShutterAction.WaitToGrowDownForTimer,
-            GrowingShutterWait.SamusNear => growsUp
+            GrowingShutterWait.SamusNear => growth == VerticalDirection.Up
                 ? GrowingShutterAction.WaitToGrowUpForProximity
                 : GrowingShutterAction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
-        var state = new GrowingShutterEnemyState(action)
+        // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
+        var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, growth)
         {
             ActivationTimer = settings.ActivationWait,
             ActivationDistance = settings.ActivationDistance,
         };
         place.SetSpeciesState(state);
 
-        state.PlaceSectionOrigins(place.Position.Y.Whole, growsUp);
         state.GrowthLevel = 0;
 
         state.GrowthSpeed = settings.GrowthSpeed;
@@ -201,7 +205,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.GrowthLevel >= 4)
             return;
 
-        state.PreviousPosition = place.Position.Whole;
+        state.PreviousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
         int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterDefinitions.SectionLength);
         if (CoordinateAxis.Precedes(targetY, place.Position.Y.Whole))
@@ -230,7 +234,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
-        int wholeDelta = (place.Position.Whole - state.PreviousPosition).Y;
+        int wholeDelta = CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY);
         if (wholeDelta < 0)
         {
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, wholeDelta);
@@ -293,11 +297,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ShutterActivationSound =
         EnemySoundEffectDefinitions.ShutterActivationSound;
 
-    /// <summary>Includes shootable, destroyable, and Kamer definitions in the shared vertical AI.</summary>
-    internal static bool IsVerticalShutterDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or
-        EnemyDefinitionId.Kamer;
-
     /// <summary>
     /// The shared idle-shutter contact test: Samus's solid-enemy contacts this update name this shutter, as
     /// <see cref="SolidContactPlaceCombination"/> combines the room's places of the enemies she met, and her
@@ -358,8 +357,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = PlayShutterAnimation(place, state.Playback);
     }
 
-    /// <summary>Advances ShutterShootable's typed animation.</summary>
-    internal static void AdvanceShutterShootableTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    /// <summary>Advances a vertical shutter's typed animation: a shootable or destroyable shutter's, or the Kamer's.</summary>
+    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
@@ -377,8 +376,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Runs ShutterShootable's main AI.</summary>
-    internal void RunShutterShootableMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    /// <summary>Runs a vertical shutter's main AI: a shootable or destroyable shutter's, or the Kamer's.</summary>
+    internal void RunVerticalShutterMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunVerticalShutterMain(
             place,
@@ -417,15 +416,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The touch reaction does not enter common contact damage. Body overlap is itself the trigger, and the reaction test decides
         // whether this population mode may start moving.
         ReactVerticalShutter(context.Place, context.Camera);
-    /// <summary>Initializes a vertical shutter through either initializer and their shared tail.</summary>
-    internal static void InitializeVerticalShutter(RoomEnemyPlace place)
+    /// <summary>Initializes a vertical shutter, which shows <paramref name="pose"/>: its entity names it (#2179).</summary>
+    internal static void InitializeVerticalShutter(RoomEnemyPlace place, ShutterSegment pose)
     {
-        if (!IsVerticalShutterDefinition(place.DefinitionId))
-        {
-            throw new InvalidDataException(
-                $"Definition {place.DefinitionId} does not use vertical-shutter initialization.");
-        }
-
         ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();
         var state = new VerticalShutterEnemyState(InitialAction(settings.TriggerMode));
         place.SetSpeciesState(state);
@@ -446,24 +439,20 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WaitTime = settings.WaitTime;
         state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
 
-        Position16<RoomPixels> spawn = place.Position.Whole;
-        var travel = new Offset16<RoomPixels>(0, state.TravelDistance);
-        state.UpperEndpoint = spawn;
-        state.LowerEndpoint = spawn + travel;
+        int spawnY = place.Position.Y.Whole;
+        state.UpperEndpointY = spawnY;
+        state.LowerEndpointY = CoordinateAxis.Wrap(spawnY + state.TravelDistance);
         if (state.PrimaryDirection == ShutterHeading.LeftOrUp)
         {
-            state.LowerEndpoint = spawn;
-            state.UpperEndpoint = spawn - travel;
+            state.LowerEndpointY = spawnY;
+            state.UpperEndpointY = CoordinateAxis.Wrap(spawnY - state.TravelDistance);
         }
 
         state.MovingSamus = false;
         state.ShotActivated = false;
         place.CollidesByFrameHitboxes = false;
         place.AnimationClock.ShowsNewFrame = false;
-        StartVerticalShutterAnimation(
-            place,
-            state,
-            place.DefinitionId == EnemyDefinitionId.Kamer ? ShutterSegment.KamerPlatform : ShutterSegment.FortyPixels);
+        StartVerticalShutterAnimation(place, state, pose);
     }
 
     /// <summary>Runs the vertical shutter's main AI.</summary>
@@ -564,14 +553,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         VerticalDirection direction)
     {
-        state.PreviousPosition = place.Position.Whole;
+        state.PreviousY = place.Position.Y.Whole;
         state.MovingSamus = EnemyCollision.IsSamusStandingOn(place, samus);
         place.Position = place.Position.AdvanceY(direction == VerticalDirection.Up ? state.UpVelocity : state.DownVelocity);
         CarrySamusVertically(place, state, samus);
 
         int beforeEndpoint = direction == VerticalDirection.Up
-            ? (state.UpperEndpoint - place.Position.Whole).Y
-            : -(state.LowerEndpoint - place.Position.Whole).Y;
+            ? CoordinateAxis.Difference(state.UpperEndpointY, place.Position.Y.Whole)
+            : -CoordinateAxis.Difference(state.LowerEndpointY, place.Position.Y.Whole);
         if (beforeEndpoint < 0)
             return;
         StopVerticalShutter(state, direction == VerticalDirection.Up);
@@ -586,7 +575,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.MovingSamus)
             return;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
-            (place.Position.Whole - state.PreviousPosition).Y);
+            CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY));
     }
 
     /// <summary>Enters a timed rest or permanent stop at the upper or lower endpoint.</summary>

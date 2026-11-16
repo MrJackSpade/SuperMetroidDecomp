@@ -174,15 +174,13 @@ internal static class BotwoonAnimationsVerification
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // Botwoon is loaded, as his initializer leaves him, before his body segments animate: they show his body's colours.
-        var state = new BotwoonEnemyState();
-        enemies.BotwoonBehavior.AttachBotwoon(enemies.Places.InUpdateOrder[0], state);
+        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
+        var state = new BotwoonEnemyState(body: []);
+        head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
-        var segment = new EnemyProjectile(1, default)
-        {
-            Kind = RoomEnemyProjectileKind.BotwoonBody,
-            State = new BotwoonSegmentState(BotwoonSegmentSelectorCodec.Program(0)),
-        };
+        Action<EnemyProjectile, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
+        var segment = new EnemyProjectile(1, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
+        segment.State = new BotwoonSegmentState(head, 1, segment, BotwoonSegmentSelectorCodec.Program(0));
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentSelectorCodec.Program(0)));
         Pass(segment);
         Pass(segment);
@@ -196,17 +194,17 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Action<RoomEnemyPlace, BotwoonEnemyState, int> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        spawnBody(head, state, 1);
+        BotwoonSegmentState spawned = spawnBody(head, 1);
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
+        AssertTrue(ReferenceEquals(spawned.Projectile, body), "the real body producer returns the segment it spawned");
         AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");
         // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update
         // it has not landed; the whole rows of its place before the update choose the speed it falls by.
         body.Position = body.Position.WithWholeY(0);
-        state.SegmentPhases[1] = BotwoonBodyPhase.Falling;
+        spawned.Phase = BotwoonBodyPhase.Falling;
         FixedPosition<RoomPixels> expected = body.Position;
         foreach ((int update, int rows) in new[] { (1, 0), (2, 0), (3, 1), (4, 2) })
         {
@@ -220,7 +218,7 @@ internal static class BotwoonAnimationsVerification
         runBody(body, 0);
         // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
         // X-velocity slot.
-        AssertEqual(BotwoonBodyPhase.Landed, state.SegmentPhases[1], "a landed body enters its inert landed phase");
+        AssertEqual(BotwoonBodyPhase.Landed, spawned.Phase, "a landed body enters its inert landed phase");
         AssertTrue(body.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.BigExplosion },
             "a landed body runs the shared misc-dust big explosion");
         Pass(body);
@@ -234,8 +232,8 @@ internal static class BotwoonAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
-        var state = new BotwoonEnemyState();
-        enemies.BotwoonBehavior.AttachBotwoon(head, state);
+        var state = new BotwoonEnemyState(body: []);
+        head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }
 

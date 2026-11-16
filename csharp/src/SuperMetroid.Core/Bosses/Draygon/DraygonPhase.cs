@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 public enum DraygonPhase
 {
-    /// <summary>A body whose fight has not begun is in no phase.</summary>
-    None,
     /// <summary>Loads four Evir sprites, then waits 256 gameplay frames.</summary>
     IntroInitialDelay,
     /// <summary>Advances the opening Evir movement for 1,232 frames before the first swoop.</summary>

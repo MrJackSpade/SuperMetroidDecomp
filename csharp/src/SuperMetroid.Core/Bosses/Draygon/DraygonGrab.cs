@@ -45,7 +45,7 @@ internal sealed class DraygonGrab
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         // Attached goop actors own this divisor. Once the final actor disappears, retail
         // abandons the chase immediately and exits through the same upward flight used
         // after a completed grab.
@@ -70,7 +70,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             state.Arms,
             state.FacingRight
                 ? DraygonSegment.ArmsFacingRightGrab
@@ -120,7 +120,7 @@ internal sealed class DraygonGrab
         if (reachedTarget)
         {
             state.Phase = DraygonPhase.FlailWithSamus;
-            _parts.StartDraygonAnimation(
+            DraygonParts.StartDraygonAnimation(
                 body,
                 state.FacingRight
                     ? DraygonSegment.BodyFacingRightRoar
@@ -203,7 +203,7 @@ internal sealed class DraygonGrab
 
         if (state.TailWhipTimer == DraygonBehavior.DraygonTailWhipStartFrame)
         {
-            _parts.StartDraygonAnimation(
+            DraygonParts.StartDraygonAnimation(
                 state.Tail,
                 state.FacingRight
                     ? DraygonSegment.TailFacingRightWhip
@@ -215,7 +215,7 @@ internal sealed class DraygonGrab
     internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState samus)
     {
         MoveSamusWithDraygon(state, samus);
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             state.Tail,
             state.FacingRight
                 ? DraygonSegment.TailFacingRightFinalWhips
@@ -246,7 +246,7 @@ internal sealed class DraygonGrab
 
         state.Phase = DraygonPhase.FlyStraightUp;
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             state.Tail,
             state.FacingRight
                 ? DraygonSegment.TailFacingRightFlail

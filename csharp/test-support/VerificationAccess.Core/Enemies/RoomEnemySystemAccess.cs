@@ -103,9 +103,6 @@ internal static class RoomEnemySystemAccess
                 self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
         }
 
-        /// <summary>Botwoon's live state while its room is loaded.</summary>
-        internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior.BotwoonState;
-
         /// <summary>Per-place Evir states, indexed by enemy place.</summary>
         internal IReadOnlyList<EvirBodyState?> EvirStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<EvirBodyState>())];

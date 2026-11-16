@@ -117,7 +117,7 @@ internal static class DraygonCannonObjectsVerification
     private static void StepDraygonCannonObjects(
         RoomObjectSystem roomObjects,
         RoomLevelData level) =>
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Requires both cannon cells to become spike blocks with the destroyed-cannon behaviour.</summary>
     private static void AssertDestroyedCannon(

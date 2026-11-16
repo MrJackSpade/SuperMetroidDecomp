@@ -171,7 +171,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.ClimbDirection = state.ClimbDirection == WallSpacePirateClimbDirection.Down
             ? WallSpacePirateClimbDirection.Up
             : WallSpacePirateClimbDirection.Down;
-        return SelectWallSpacePirateClimbList(wall == HorizontalDirection.Right, state.ClimbDirection);
+        return ClimbAnimation(new WallSpacePirateClimb(wall, state.ClimbDirection));
     }
 
     /// <summary>Consumes one random value and returns the chosen up or down climb to continue at.</summary>
@@ -182,24 +182,22 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.ClimbDirection = SpacePirateDecisions.ClimbUp.IsSetIn(_room.Random.Generate())
             ? WallSpacePirateClimbDirection.Up
             : WallSpacePirateClimbDirection.Down;
-        return SelectWallSpacePirateClimbList(wall == HorizontalDirection.Right, state.ClimbDirection);
+        return ClimbAnimation(new WallSpacePirateClimb(wall, state.ClimbDirection));
     }
 
-    /// <summary>Selects the climb animation for a wall side and vertical climb direction.</summary>
-    private static WallSpacePirateSegment SelectWallSpacePirateClimbList(
-        bool onRightWall,
-        WallSpacePirateClimbDirection direction) => new WallSpacePirateClimb(onRightWall, direction) switch
+    /// <summary>The animation of <paramref name="climb"/>: the way it climbs, on the wall it clings to.</summary>
+    private static WallSpacePirateSegment ClimbAnimation(WallSpacePirateClimb climb) => climb switch
     {
-        (false, WallSpacePirateClimbDirection.Down) =>
+        (HorizontalDirection.Left, WallSpacePirateClimbDirection.Down) =>
             WallSpacePirateSegment.MovingDownLeftWall,
-        (false, WallSpacePirateClimbDirection.Up) =>
+        (HorizontalDirection.Left, WallSpacePirateClimbDirection.Up) =>
             WallSpacePirateSegment.MovingUpLeftWall,
-        (true, WallSpacePirateClimbDirection.Down) =>
+        (HorizontalDirection.Right, WallSpacePirateClimbDirection.Down) =>
             WallSpacePirateSegment.MovingDownRightWall,
-        (true, WallSpacePirateClimbDirection.Up) =>
+        (HorizontalDirection.Right, WallSpacePirateClimbDirection.Up) =>
             WallSpacePirateSegment.MovingUpRightWall,
         _ => throw new InvalidOperationException(
-            $"Wall Pirate climb direction {direction} is not binary."),
+            $"Wall Pirate climb {climb} names no wall or climb direction."),
     };
 
     /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from the jump span.</summary>
@@ -209,7 +207,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         HorizontalDirection direction)
     {
         int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
-        _ = direction == HorizontalDirection.Right ? span : -span;
         int signedHalfSpan = direction == HorizontalDirection.Right
             ? span / 2
             : -(span / 2);

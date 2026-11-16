@@ -71,14 +71,14 @@ internal static class EnemyEffectMechanicsVerification
             CrocomireDeathPhase phase = fixture.Actor.DeathPhase;
             for (int band = 0; band <= bands; band++)
             {
-                fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
+                fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
                 AssertEqual(band == bands ? phase.Next() : phase, fixture.Actor.DeathPhase,
                     "only the update after the last band advances the phase");
                 if (band < bands)
                     AssertEqual(0, fixture.MeltBandStep(band), "each band shows the unerased image on its own update");
             }
 
-            fixture.Call(c => c.Melting.BeginCrocomireMelting);
+            fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);
             phase = fixture.Actor.DeathPhase;
             // The cartridge's BG2 vertical-scroll table, from the first gameplay line, levelled as the melt starts.
             var nativeScrolls = new ushort[256];

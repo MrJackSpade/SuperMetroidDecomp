@@ -27,7 +27,7 @@ internal sealed class DraygonIntro
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (state.IntroFrames < 256)
         {
             if (state.IntroFrames == 0)
@@ -61,7 +61,7 @@ internal sealed class DraygonIntro
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (state.IntroFrames >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Phase = DraygonPhase.SwoopSetup;

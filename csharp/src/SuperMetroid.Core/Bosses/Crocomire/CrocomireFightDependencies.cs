@@ -34,9 +34,12 @@ internal sealed record CrocomireFightDependencies
     /// <summary>Updates boss completion and room-state flags.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     public required CrocomireEncounterAccess Access { get; init; }
 
     /// <summary>Crocomire's combat, whose projectile behaviour the mouth's shot is bound to.</summary>
     public required CrocomireCombat Combat { get; init; }
+
+    /// <summary>The room's enemy places, among which the tongue finds the body listed before it.</summary>
+    public required EnemyPlaces Places { get; init; }
 }

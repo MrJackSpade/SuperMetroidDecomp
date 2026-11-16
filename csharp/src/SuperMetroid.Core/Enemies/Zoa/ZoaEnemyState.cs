@@ -17,10 +17,10 @@ public sealed class ZoaEnemyState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>
-    /// Whether the Zoa faces right: toward Samus as it wakes, rising and then shooting that way; at rest, and again once a
-    /// shot ends off screen, it faces left (#2145).
+    /// The way the Zoa faces: toward Samus as it wakes, rising and then shooting that way; at rest, and again once a shot
+    /// ends off screen, it faces left (#2145).
     /// </summary>
-    public bool FacesRight { get; internal set; }
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
     /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen

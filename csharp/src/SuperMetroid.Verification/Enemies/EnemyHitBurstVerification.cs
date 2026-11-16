@@ -132,7 +132,10 @@ internal static class EnemyHitBurstVerification
             (gold, SpacePirateReactions.GoldNinjaVulnerableHitboxShot, false),
         })
         {
-            AssertEqual(shows, PirateHitboxShotActions.ShowsHitBurst(pirate, reaction), $"{pirate.DefinitionId} through {reaction} shows the burst");
+            bool shown = pirate.Entity is GoldNinjaSpacePirateEntity
+                ? PirateHitboxShotActions.GoldNinjaShowsHitBurst(reaction)
+                : PirateHitboxShotActions.ShowsHitBurst(reaction);
+            AssertEqual(shows, shown, $"{pirate.DefinitionId} through {reaction} shows the burst");
         }
         Console.WriteLine("  Pirate hit burst: the common and Pirate reactions show it, but not on the gold Ninja nor through the Ninja body reactions.");
     }

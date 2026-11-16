@@ -24,8 +24,7 @@ internal static class BotwoonPositionHistoryVerification
 
         RoomEnemyPlace head = runtime.Enemies.Places.InUpdateOrder.Single(place =>
             place.DefinitionId == EnemyDefinitionId.Botwoon);
-        BotwoonEnemyState state = runtime.Enemies.Botwoon
-            ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
+        BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
         AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),
             "Botwoon's position history starts as Initialise_Enemies' zeroed RAM");
         AssertTrue(state.HeadHistory.All(position => position == head.Position.Whole),
@@ -38,7 +37,7 @@ internal static class BotwoonPositionHistoryVerification
             "InitAI_Botwoon hides the head from collision with property $0400");
         head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
         head.Health = 0;
-        runtime.Enemies.BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head);
+        BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head);
         AssertTrue(head.Contact.HasAny(EnemyContact.IgnoresSamus) &&
             !head.Contact.HasAny(EnemyContact.SolidToSamus),
             "a lethal hit makes the head intangible with property $0400");

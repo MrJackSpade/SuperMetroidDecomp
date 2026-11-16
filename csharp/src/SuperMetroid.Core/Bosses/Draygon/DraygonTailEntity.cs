@@ -14,6 +14,9 @@ internal sealed class DraygonTailEntity(DraygonBehavior species, RoomEnemyPlace 
     /// <inheritdoc/>
     public override void Initialize() => Species.Parts.InitializeDraygonTail(Place);
 
+    /// <summary>The encounter the tail joined as it set up.</summary>
+    internal override DraygonEnemyState Encounter => Place.RequireSpeciesState<DraygonPartState>().Draygon;
+
     /// <summary>Takes no action of its own; his body's fight animates the tail.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override void RunMainAi(IEnemyAiFrame frame)

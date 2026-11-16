@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// One shutter: the growing shutter (<see cref="GrowingShutterEntity"/>), or a vertical shutter, shootable (or the Kamer
-/// that reuses it, <see cref="ShootableShutterEntity"/>) or destroyable (<see cref="DestroyableShutterEntity"/>). Each runs
+/// One shutter: the growing shutter (<see cref="GrowingShutterEntity"/>), or a vertical shutter, shootable
+/// (<see cref="ShootableShutterEntity"/>, or the Kamer that reuses it, <see cref="KamerEntity"/>) or destroyable
+/// (<see cref="DestroyableShutterEntity"/>). Each runs
 /// the vertical shutters' own touch and Power Bomb reaction where its definition leaves them to it.
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>

@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// A work robot, powered (<see cref="PoweredWorkRobotEntity"/>) or unpowered (<see cref="UnpoweredWorkRobotEntity"/>):
-/// both set up and animate as work robots do and run their own touch, shot and bomb reactions where their definitions
-/// leave them to them.
+/// A work robot, its power decided once as it is placed (#2179): powered (<see cref="PoweredWorkRobotEntity"/>), the
+/// powered robot's definition without power (<see cref="PowerlessWorkRobotEntity"/>) or unpowered
+/// (<see cref="UnpoweredWorkRobotEntity"/>). Each runs its own touch, shot and bomb reactions where its definition leaves
+/// them to it.
 /// </summary>
 /// <param name="species">The work robot species owner.</param>
 /// <param name="place">The place the robot occupies.</param>
@@ -15,13 +16,13 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlac
     protected WorkRobotBehavior Species => species;
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeWorkRobot(Place);
+    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWorkRobotTypedAnimation(Place, context);
+    public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
 
     /// <summary>Whether the Work Robot's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -37,15 +38,18 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlac
     }
 
     /// <summary>The Work Robot's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.WorkRobotShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The Work Robot's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
-    /// <summary>The robot's own stages around a bomb's common damage: the powered robot's rejection, or the unpowered robot's recoil alone.</summary>
+    /// <summary>The robot's own stages around a bomb's common damage, as its power decides them.</summary>
     protected abstract EnemyBombReaction OwnBombReaction { get; }
+
+    /// <summary>The robot's own shot reaction, as its power decides it.</summary>
+    protected abstract EnemyShotReaction OwnShotReaction { get; }
 
     /// <summary>The Work Robot's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

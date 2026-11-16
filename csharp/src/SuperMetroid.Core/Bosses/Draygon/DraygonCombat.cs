@@ -33,23 +33,13 @@ internal sealed class DraygonCombat
         EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or
         EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms;
 
-    /// <summary>Returns the encounter state owned by <paramref name="body"/>; each part property requires its linked place when read.</summary>
-    internal DraygonEnemyState RequireCompleteDraygonState(RoomEnemyPlace body)
-    {
-        DraygonEnemyState state = _parts.Draygon ??
-            throw new InvalidDataException("Draygon body has no encounter state.");
-        if (!ReferenceEquals(state.Body, body))
-            throw new InvalidDataException("Draygon's encounter state belongs to a different body place.");
-        return state;
-    }
-
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
     internal EnemyBombReaction DraygonBombReaction => field ??= new()
     {
         RunsGenericDeath = false,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        BeforeCommon = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
+        BeforeCommon = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
     };
 
@@ -119,7 +109,7 @@ internal sealed class DraygonCombat
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
     internal void ResolveDraygonReaction(RoomEnemyPlace body, SamusState samus)
     {
-        DraygonEnemyState state = RequireCompleteDraygonState(body);
+        DraygonEnemyState state = DraygonEntity.EncounterOf(body);
         if (body.Health != 0)
         {
             UpdateDraygonHealthBand(state);
@@ -138,12 +128,12 @@ internal sealed class DraygonCombat
     {
         RoomEnemyPlace body = state.Body;
         samus.Grapple.Phase = GrapplePhase.Dropped;
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             body,
             state.FacingRight
                 ? DraygonSegment.ArmsFacingRightDying
                 : DraygonSegment.ArmsFacingLeftDying);
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             state.Eye,
             state.FacingRight
                 ? DraygonSegment.EyeFacingRightDying
@@ -205,7 +195,7 @@ internal sealed class DraygonCombat
             }
             return false;
         },
-        AfterImpact = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
+        AfterImpact = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
         ExemptFromGenericDeath = true,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,

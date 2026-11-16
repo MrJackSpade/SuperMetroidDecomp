@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -17,6 +18,15 @@ internal sealed class DraygonTurrets
     /// <summary>The goop and turret shots, whose turret behaviour the turrets' shots are bound to.</summary>
     private readonly DraygonShots _shots;
 
+    /// <summary>
+    /// The room's wall cannons whose room objects were destroyed or set up destroyed (#2177): their turrets no longer fire.
+    /// The cannons belong to the room, which keeps them whether or not Draygon is alive in it.
+    /// </summary>
+    private readonly HashSet<DraygonWallCannon> _disabledCannons = [];
+
+    /// <summary>Stops the turret of <paramref name="cannon"/> firing, as its wall cannon is destroyed.</summary>
+    internal void DisableCannon(DraygonWallCannon cannon) => _disabledCannons.Add(cannon);
+
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal DraygonTurrets(EnemyRoomBinding room, EnemyProjectileEngine projectiles, DraygonShots shots)
     {
@@ -27,7 +37,6 @@ internal sealed class DraygonTurrets
 
     /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
     internal void ObserveDraygonTurretCadence(
-        DraygonEnemyState state,
         SamusState samus,
         int frameCounter)
     {
@@ -37,19 +46,18 @@ internal sealed class DraygonTurrets
         // The turret cadence tests the frame counter, then advances the room RNG even when the
         // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
         int random = _room.Random.Generate();
-        SpawnDraygonWallTurret(state, samus, random);
+        SpawnDraygonWallTurret(samus, random);
     }
 
     /// <summary>Fires a wall turret and runs the wall turret projectile's initializer.</summary>
     internal void SpawnDraygonWallTurret(
-        DraygonEnemyState state,
         SamusState samus,
         int random)
     {
         if (DraygonCannonData.FiringOrder[DraygonRandomDefinitions.TurretChoice.Of(random)] is not { } cannon)
             return;
         DraygonCannonTarget target = DraygonCannonData.FiringTarget(cannon);
-        if (state.DisabledCannons.Contains(target.Cannon))
+        if (_disabledCannons.Contains(target.Cannon))
             return;
 
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();

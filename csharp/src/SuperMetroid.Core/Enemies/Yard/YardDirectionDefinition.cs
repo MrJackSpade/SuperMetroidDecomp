@@ -9,6 +9,6 @@ internal readonly record struct YardDirectionDefinition(
     YardSegment CrawlingAnimation,
     CrawlerSurfaceOrientation BlockSide,
     YardSegment HidingAnimation,
-    YardAirborneFacing AirborneFacingDirection,
+    HorizontalDirection AirborneFacingDirection,
     YardDirection OppositeDirection,
     YardMovement Movement);

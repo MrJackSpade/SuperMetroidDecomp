@@ -44,10 +44,11 @@ internal static class WorkRobotBombRejectionVerification
                 bool rejects = reaction.Rejects?.Invoke(context) ?? false;
                 AssertEqual(powered && !phantoonDefeated, rejects,
                     $"{robot}'s own bomb reaction with Phantoon {(phantoonDefeated ? "defeated" : "alive")}");
-                AssertTrue(reaction.AfterCommon is not null, $"{robot}'s own bomb reaction recoils after the common damage");
+                AssertEqual(powered && phantoonDefeated, reaction.AfterCommon is not null,
+                    $"{robot}'s own bomb reaction recoils after the common damage only once powered");
             }
         }
-        Console.WriteLine("  Work Robot bomb rejection: the powered robot rejects bombs until Phantoon is defeated and the unpowered one never does.");
+        Console.WriteLine("  Work Robot bomb rejection: the powered robot rejects bombs until Phantoon is defeated and recoils after, and the unpowered one never rejects or recoils.");
     }
 
     /// <summary>Runs the Work Robot bomb rejection check.</summary>

@@ -110,25 +110,18 @@ public sealed class BotwoonEnemyState
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>The thirteen body segments, from the tail (zero) to the segment behind the head (twelve).</summary>
-    public EnemyProjectile?[] BodySegments { get; } =
-        new EnemyProjectile?[13];
-
-    /// <summary>The spawned body segment at <paramref name="index"/>; body movement runs only after all thirteen spawn.</summary>
-    internal EnemyProjectile Segment(int index) => BodySegments[index] ??
-        throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile place.");
-
-    /// <summary>
-    /// Whether each body segment is inside a hole: true means that body point is travelling inside the
-    /// wall/hole; crossing the head's saved ring offset toggles it.
-    /// </summary>
-    internal bool[] SegmentInsideHole { get; } = new bool[13];
+    /// <summary>Starts Botwoon's state with his <paramref name="body"/>, which his initializer spawns.</summary>
+    /// <param name="body">
+    /// His body segments from the tail to the segment behind the head (#2178): all
+    /// <see cref="BotwoonFightDefinitions.BodySegments"/> of them, or none for a Botwoon already defeated, who spawns no body.
+    /// </param>
+    internal BotwoonEnemyState(IReadOnlyList<BotwoonSegmentState> body) => Body = Ensure.NotNull(body);
 
     /// <summary>
-    /// Each body segment's phase, by segment index (#1413). The game kept it in the segment projectile's horizontal
-    /// velocity, which no body motion reads; the phase is the segment's own state here.
+    /// His body segments, from the tail (zero) to the segment behind the head: each segment's projectile, its phase and
+    /// whether it travels inside the wall are its own (<see cref="BotwoonSegmentState"/>).
     /// </summary>
-    internal BotwoonBodyPhase[] SegmentPhases { get; } = new BotwoonBodyPhase[13];
+    internal IReadOnlyList<BotwoonSegmentState> Body { get; }
 
     /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];

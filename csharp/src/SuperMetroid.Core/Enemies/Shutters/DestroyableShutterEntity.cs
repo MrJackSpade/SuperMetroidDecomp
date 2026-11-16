@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : VerticalShutterEntity(species, place, common)
 {
+    /// <summary>A destroyable shutter shows forty pixels of shutter.</summary>
+    protected override ShutterSegment Pose => ShutterSegment.FortyPixels;
+
     /// <summary>The destroyable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;
 

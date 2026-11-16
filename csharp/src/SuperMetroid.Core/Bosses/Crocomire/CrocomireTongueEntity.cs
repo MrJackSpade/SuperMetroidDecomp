@@ -15,6 +15,9 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     /// <inheritdoc/>
     public override void Initialize() => Species.Fight.InitializeCrocomireTongue(Place);
 
+    /// <summary>The encounter the tongue joined as it set up.</summary>
+    internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireTongueState>().Crocomire;
+
     /// <summary>Takes no action of its own; the tongue follows the body through its animation and frames.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override void RunMainAi(IEnemyAiFrame frame)
@@ -22,7 +25,7 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     }
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Fight.AdvanceCrocomireTongueAnimation(Place);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrocomireFight.AdvanceCrocomireTongueAnimation(Place);
 
     /// <summary>No probe overlaps the tongue: its frames carry no hitboxes.</summary>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)

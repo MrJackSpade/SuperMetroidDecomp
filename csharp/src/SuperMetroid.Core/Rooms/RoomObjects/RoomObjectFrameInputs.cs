@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 public readonly record struct RoomObjectFrameInputs
 {
     /// <summary>Scrolls.</summary>
-    public required RoomScrollGrid? Scrolls { get; init; }
+    public required RoomScrollGrid Scrolls { get; init; }
 
     /// <summary>The enemies killed in the room so far (<see cref="Enemies.EnemyRoomStatus.EnemiesKilled"/>).</summary>
     public required int EnemyDeaths { get; init; }

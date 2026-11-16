@@ -318,7 +318,7 @@ internal static class DownwardGateObjectsVerification
     internal static void StepDownwardGateObject(
         RoomObjectSystem roomObjects,
         RoomLevelData level) =>
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Seeds exact bank-$86 closed/moving actor definitions and their shared movement instruction span.</summary>
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)

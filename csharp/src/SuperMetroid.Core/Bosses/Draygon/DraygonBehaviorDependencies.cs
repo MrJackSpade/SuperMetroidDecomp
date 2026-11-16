@@ -15,6 +15,9 @@ internal sealed record DraygonBehaviorDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
+    /// <summary>The room's enemy places, among which his parts find his body.</summary>
+    public required EnemyPlaces Places { get; init; }
+
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
 

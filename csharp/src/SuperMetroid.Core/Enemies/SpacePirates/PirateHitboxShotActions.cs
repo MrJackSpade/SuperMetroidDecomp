@@ -7,25 +7,42 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class PirateHitboxShotActions
 {
     /// <summary>
-    /// Runs the common and Pirate-specific shot reactions of hitboxes. Only the
-    /// gold Ninja gives the two Ninja body reactions special meaning; every other Pirate deliberately falls
-    /// through to normal shot AI even when it shows one of the frames it shares with the Ninja.
+    /// Runs the common and Pirate-specific shot reactions of hitboxes on every Pirate but the gold Ninja
+    /// (<see cref="SelectGoldNinjaHitboxShotAction"/>), which alone gives the two Ninja body reactions special meaning:
+    /// every other Pirate deliberately falls through to normal shot AI even when it shows one of the frames it shares
+    /// with the Ninja.
     /// </summary>
-    internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
-        RoomEnemyPlace enemy,
-        SamusProjectile projectile,
-        EnemyReaction? hitboxShot)
+    internal static PirateHitboxShotAction SelectPirateHitboxShotAction(EnemyReaction? hitboxShot)
     {
-        // The empty frame still has a real point hitbox for a pirate. Its common reaction
-        // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
-        if ((hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.NormalEnemyShot))
-            return PirateHitboxShotAction.Normal;
-        if ((hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot))
+        RequirePirateShotReaction(hitboxShot);
+        return PirateHitboxShotAction.Normal;
+    }
+
+    /// <summary>
+    /// Fails for a reaction no Pirate hitbox names. The empty frame still has a real point hitbox for a pirate, whose
+    /// common reaction bypasses the Ninja-specific armor tests; it is not rejected as unknown.
+    /// </summary>
+    private static void RequirePirateShotReaction(EnemyReaction? hitboxShot)
+    {
+        if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != EnemyReaction.NormalEnemyShot &&
+            hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             throw new InvalidDataException(
                 $"Space Pirate has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
         }
-        if (enemy.DefinitionId != EnemyDefinitionId.PirateGoldNinja)
+    }
+
+    /// <summary>
+    /// Runs the gold Ninja's hitbox shot reactions: its two body reactions reflect or ignore what does it no damage, and
+    /// the common and Pirate reactions run normal shot AI.
+    /// </summary>
+    internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
+        RoomEnemyPlace enemy,
+        SamusProjectile projectile,
+        EnemyReaction? hitboxShot)
+    {
+        RequirePirateShotReaction(hitboxShot);
+        if (hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.NormalEnemyShot)
             return PirateHitboxShotAction.Normal;
 
         SamusProjectileFamily family = projectile.Type.Family;
@@ -62,38 +79,35 @@ internal static class PirateHitboxShotActions
     }
 
     /// <summary>
-    /// Runs a normal bomb through the same three component
-    /// reactions as the ordinary projectile path. Non-gold Pirates always jump to normal
-    /// Pirate shot handling. Gold Ninjas return from both body reactions because a
-    /// normal bomb's family sorts after the Power Bomb family; consequently bombs neither damage
-    /// nor reflect from either authored body region.
+    /// Fails for a reaction no Pirate hitbox gives a normal bomb. A normal bomb reaches the gold Ninja's three component
+    /// reactions as the ordinary projectile path does, and all three return because a normal bomb's family sorts after
+    /// the Power Bomb family: bombs neither damage nor reflect from any authored region of the gold Ninja.
     /// </summary>
-    internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
-        RoomEnemyPlace enemy,
-        EnemyReaction? hitboxShot)
+    internal static void RequireGoldNinjaNormalBombReaction(EnemyReaction? hitboxShot)
     {
-        if ((hitboxShot != SpacePirateReactions.Shot && hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot))
+        if (hitboxShot != SpacePirateReactions.Shot && hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             throw new InvalidDataException(
                 $"Space Pirate has no response to normal-bomb reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
         }
-
-        return enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja
-            ? PirateHitboxShotAction.Ignore
-            : PirateHitboxShotAction.Normal;
     }
 
     /// <summary>
-    /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts <paramref name="pirate"/> while
-    /// it is not frozen shows the enemy-hit burst: the common reaction (a Pirate's empty frame) and the Pirates' own show
-    /// it, except on the gold Ninja, whose own reaction, like both Ninja body reactions on every Pirate, runs the Pirates'
-    /// damage that shows none.
+    /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts a Pirate other than the gold
+    /// Ninja while it is not frozen shows the enemy-hit burst: the common reaction (a Pirate's empty frame) and the
+    /// Pirates' own show it, while both Ninja body reactions run the Pirates' damage that shows none.
     /// </summary>
-    /// <param name="pirate">The Pirate hit.</param>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
-    internal static bool ShowsHitBurst(RoomEnemyPlace pirate, EnemyReaction? reaction) =>
-        reaction == EnemyReaction.NormalEnemyShot ||
-        reaction == SpacePirateReactions.Shot && Ensure.NotNull(pirate).DefinitionId != EnemyDefinitionId.PirateGoldNinja;
+    internal static bool ShowsHitBurst(EnemyReaction? reaction) =>
+        reaction == EnemyReaction.NormalEnemyShot || reaction == SpacePirateReactions.Shot;
+
+    /// <summary>
+    /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts the gold Ninja while it is not
+    /// frozen shows the enemy-hit burst: only the common reaction (its empty frame) shows it, since its own reaction, like
+    /// both Ninja body reactions, runs the Pirates' damage that shows none.
+    /// </summary>
+    /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Ninja collides by its radius.</param>
+    internal static bool GoldNinjaShowsHitBurst(EnemyReaction? reaction) => reaction == EnemyReaction.NormalEnemyShot;
 
     /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
     private static bool IsBeamOrMissile(SamusProjectileFamily family) =>

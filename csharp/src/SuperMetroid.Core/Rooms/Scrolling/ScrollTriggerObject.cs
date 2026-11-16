@@ -38,8 +38,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
         Ensure.NotNull(place);
         if (!Triggered)
             return;
-        RoomScrollGrid scrolls = context.Frame.Scrolls ?? throw new InvalidOperationException(
-            "A touched scroll trigger requires the active scroll grid.");
+        RoomScrollGrid scrolls = context.Frame.Scrolls;
         if (Change is { } change)
             RoomObjectScrollChanges.Apply(change, scrolls.SetScreen);
         else

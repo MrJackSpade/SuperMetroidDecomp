@@ -36,7 +36,7 @@ internal sealed class DraygonGoop
         // Only the rightward setup fires a wall turret; the leftward setup omits it.
         // That asymmetry changes the random seed and is therefore material.
         if (direction == HorizontalDirection.Right)
-            _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+            _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
 
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
@@ -44,9 +44,9 @@ internal sealed class DraygonGoop
         state.GoopYOscillationAngle = RotationAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm animation before
         // the body's reset cue replaces all four animations. Preserve the literal write.
-        _parts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
+        DraygonParts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
         state.Phase = DraygonPhase.GoopApproach;
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             body,
             direction == HorizontalDirection.Right
                 ? DraygonSegment.BodyFacingRightReset
@@ -61,7 +61,7 @@ internal sealed class DraygonGoop
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         if (CoordinateAxis.Distance(state.Body.Position.X.Whole, samus.Position.X.Whole) < 208)
         {
@@ -81,7 +81,7 @@ internal sealed class DraygonGoop
     {
         // The right-facing shot runs the turret's step; the left-facing one does not.
         if (direction == HorizontalDirection.Right)
-            _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+            _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (samus.XSpeedDivisor != 0)
         {
             state.Phase = DraygonPhase.TryGrabSamus;
@@ -95,7 +95,7 @@ internal sealed class DraygonGoop
                 FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
                 return;
             }
-            _parts.StartDraygonAnimation(
+            DraygonParts.StartDraygonAnimation(
                 state.Body,
                 direction == HorizontalDirection.Right
                     ? DraygonSegment.BodyFacingRightFireGoop
@@ -112,9 +112,9 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
-    private void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
+    private static void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
     {
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             state.Arms,
             movingRight
                 ? DraygonSegment.ArmsFacingRightIdle

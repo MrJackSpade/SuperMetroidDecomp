@@ -17,6 +17,9 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     /// <inheritdoc/>
     public override void Initialize() => Species.Parts.InitializeDraygonBody(Place);
 
+    /// <summary>The encounter the body set up.</summary>
+    internal override DraygonEnemyState Encounter => Place.RequireSpeciesState<DraygonEnemyState>();
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);
 
@@ -33,7 +36,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.Combat.ApplyDraygonHurt(Place, Species.Combat.RequireCompleteDraygonState(Place), frame.Samus);
+        Species.Combat.ApplyDraygonHurt(Place, Encounter, frame.Samus);
         return true;
     }
 

@@ -155,7 +155,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeRiseStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
+            CrocomireBridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.FirstHopSink, state.DeathPhase, $"{name}: ends on the native frame");
@@ -243,7 +243,7 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         CrocomireBehavior behavior = enemies.CrocomireBehavior;
-        CrocomireDeathState death = behavior.Access.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
+        CrocomireDeathState death = state.Death;
         ushort fraction = 0;
         ushort whole = 0;
         state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
@@ -260,7 +260,7 @@ internal static class CrocomireStateQuantitiesVerification
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             if (frame == delay)
                 fraction = 0;
-            behavior.Skeleton.RunCrocomireWallBreakDelay(state);
+            CrocomireSkeleton.RunCrocomireWallBreakDelay(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton drift frame {frame}");
         }
         AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena, state.DeathPhase, "the drift ends with its delay");
@@ -322,8 +322,8 @@ internal static class CrocomireStateQuantitiesVerification
         fixture.InitializeMap(CrocomireMeltingIllustration.First);
         fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First));
         for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandCount; band++)
-            fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
-        fixture.Call(c => c.Melting.BeginCrocomireMelting);
+            fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
+        fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);
         AssertEqual(0, fixture.Effect.MeltShakeCounter.RawValue, "the melt shake counter starts from zero");
 
         int startX = fixture.Effect.BodyXBeforeMelting;
@@ -347,9 +347,9 @@ internal static class CrocomireStateQuantitiesVerification
         body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Access.Crocomire = state;
+        body.SetSpeciesState(state);
         // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).
-        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
+        BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);

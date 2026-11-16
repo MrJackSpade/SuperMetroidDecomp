@@ -20,7 +20,7 @@ public sealed class YardEnemyState
     /// <summary>
     /// Airborne animation facing, selected from the eight surface directions.
     /// </summary>
-    public YardAirborneFacing AirborneFacingDirection { get; internal set; }
+    public HorizontalDirection AirborneFacingDirection { get; internal set; }
 
     /// <summary>The hidden-shell animation for the current orientation; none, the empty-behaviour sentinel, suppresses the look-at hiding transition.</summary>
     internal YardSegment? HidingAnimation { get; set; }

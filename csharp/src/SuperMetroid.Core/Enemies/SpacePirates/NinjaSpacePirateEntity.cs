@@ -1,12 +1,18 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>One ninja Space Pirate occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// One ninja Space Pirate occupant: its own AI, with the shared reactions. The silver Ninja is this entity; the gold
+/// Ninja's armour is its own (<see cref="GoldNinjaSpacePirateEntity"/>, #2179).
+/// </summary>
 /// <param name="species">The ninja Space Pirate species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
+    /// <summary>The ninja Space Pirate species owner.</summary>
+    protected NinjaSpacePirateBehavior Species => species;
+
     /// <inheritdoc/>
     public void Initialize() => NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(Place);
 
@@ -44,20 +50,6 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
 
     /// <summary>The Pirates' own shot reaction where the definition leaves shots to them, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.Walking.SpacePirateShotReaction : base.ShotReaction;
-
-    /// <summary>
-    /// Runs the gold ninja Pirate's own reaction to a bomb its frames' hitboxes meet with one of the Pirates' own
-    /// reactions, before the ignoring check.
-    /// </summary>
-    /// <param name="context">The bomb contact.</param>
-    public override bool TryReactToBomb(EnemyBombContext context)
-    {
-        if (Place.DefinitionId != EnemyDefinitionId.PirateGoldNinja || !context.UsesFrameHitboxes ||
-            context.SelectedShot == EnemyReaction.NormalEnemyShot)
-            return base.TryReactToBomb(context);
-        NinjaSpacePirateBehavior.ReactToGoldNinjaPirateBomb(context);
-        return true;
-    }
 
     /// <summary>The Pirates' own stages around the common bomb damage every bomb that reaches an ordinary Pirate runs.</summary>
     /// <param name="context">The bomb contact.</param>

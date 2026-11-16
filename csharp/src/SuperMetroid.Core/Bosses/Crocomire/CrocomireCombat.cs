@@ -35,19 +35,18 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
-    internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body)
+    internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
         bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
-        (_access.Crocomire ?? throw new InvalidOperationException("Crocomire's hurt flash runs once Crocomire is loaded."))
-            .Colours.ShowBody(white);
+        state.Colours.ShowBody(white);
     }
 
     /// <summary>Runs the component-specific reaction a bomb's hitbox selects, before the check for an ignoring reaction.</summary>
     internal void ReactToCrocomireBomb(EnemyBombContext c) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
+        ResolveCrocomireHitboxShot(CrocomireEntity.EncounterOf(c.Enemy), c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot, c.Camera);
 
     /// <summary>
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
@@ -196,7 +195,7 @@ internal sealed class CrocomireCombat
             if (!c.UsesFrameHitboxes)
                 throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
             c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-            ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+            ResolveCrocomireHitboxShot(CrocomireEntity.EncounterOf(c.Enemy), c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
             return true;
         },
     };
@@ -226,13 +225,12 @@ internal sealed class CrocomireCombat
     /// camera as the shot or bomb pass runs.
     /// </summary>
     private void ResolveCrocomireHitboxShot(
+        CrocomireEnemyState state,
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
         EnemyReaction? reaction,
         Position16<RoomPixels> camera)
     {
-        CrocomireEnemyState state = _access.Crocomire ??
-            throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemyPlace body = state.Body;
 
         // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust.
@@ -327,16 +325,16 @@ internal sealed class CrocomireCombat
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile)
     {
-        MiscDustAnimation animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
+        MiscDustAnimation dust = projectileType.Family != SamusProjectileFamily.SuperMissile
             ? MiscDustAnimation.DudShotTinyExplosion
             : MiscDustAnimation.BigExplosion;
-        _projectiles.SpawnDustOrExplosion(projectile, animationIndex);
+        _projectiles.SpawnDustOrExplosion(projectile, dust);
     }
 
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
-    private void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body)
+    private static void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body)
     {
-        CrocomireEnemyState state = _access.RequireCrocomire(body);
+        CrocomireEnemyState state = CrocomireEntity.EncounterOf(body);
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
 
@@ -400,12 +398,14 @@ internal sealed class CrocomireCombat
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + CrocomireBridgeFragmentDefinitions.Gravity);
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on the body's frame, or null when the frame has no body hitboxes;
+    /// only his body's entity asks (#2179).
+    /// </summary>
     internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-            CrocomireBodyCollision.HasFrame(enemy.Frame)))
+        if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
             return null;
 
         // Physical body components and their hitbox lists are compiled

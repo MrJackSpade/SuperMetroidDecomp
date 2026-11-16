@@ -12,12 +12,6 @@ internal static class SpacePirateMotionDefinitions
     /// <summary>How much a ninja's divekick speed falls each update, a quarter of a pixel.</summary>
     internal static SignedEightEight NinjaDiveSpeedChange { get; } = SignedEightEight.FromParts(0, 64);
 
-    /// <summary>
-    /// The widest half-span between a ninja's posts, in pixels: the spin's distance then stays below half the counting
-    /// range as it accumulates. Every retail ninja's posts lie 0 or 192 pixels apart (#1620).
-    /// </summary>
-    internal const int NinjaLongestPostHalfSpan = 127;
-
     /// <summary>How close horizontally Samus comes, in pixels, for an idle ninja to activate.</summary>
     internal const int NinjaActivationDistance = 128;
 

@@ -104,8 +104,7 @@ internal static class CrocomireCutsceneVerification
         var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(1480, 144));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Access.Crocomire = state;
-        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
+        body.SetSpeciesState(state);
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemyPlace, SamusState, Position16<RoomPixels>> run = (crocomire, samus, camera) =>

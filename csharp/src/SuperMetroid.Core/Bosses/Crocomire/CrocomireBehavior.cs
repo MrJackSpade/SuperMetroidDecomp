@@ -35,7 +35,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Crocomire's setup, its body and tongue animations and their cues, and the invisible wall that holds Samus back.</summary>
     internal CrocomireFight Fight { get; }
 
-    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     internal CrocomireEncounterAccess Access { get; }
 
     /// <summary>Crocomire's hitboxes, touch, projectiles and hurt flash, and what Samus's weapons do to it.</summary>
@@ -62,7 +62,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Access = dependencies.Access;
         BodyLayer = dependencies.BodyLayer;
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, CameraDistance = dependencies.CameraDistance, RoomStatus = dependencies.RoomStatus, Access = Access, Combat = Combat });
+        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, CameraDistance = dependencies.CameraDistance, RoomStatus = dependencies.RoomStatus, Access = Access, Combat = Combat, Places = dependencies.Places });
         BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.CameraDistance, BodyLayer, Access, Combat);
         Melting = new CrocomireMelting(BodyLayer, Access, _bossArtwork);
         Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.CameraDistance, Access, Combat);
@@ -99,7 +99,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera)
     {
-        CrocomireEnemyState state = Access.RequireCrocomire(place);
+        CrocomireEnemyState state = place.RequireSpeciesState<CrocomireEnemyState>();
 
         if (state.DeathPhase == CrocomireDeathPhase.Fighting)
         {
@@ -120,7 +120,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         Fight.HandleCrocomireInvisibleWall(place, state, samus, pseudoScrew);
-        Combat.ApplyCrocomireHurtFlash(place);
+        Combat.ApplyCrocomireHurtFlash(place, state);
     }
 
     /// <summary>Number of dust puffs emitted across the bridge-collapse path.</summary>
@@ -134,34 +134,34 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.DeathPhase)
         {
             case CrocomireDeathPhase.CrumbleBridgeAndSink:
-                BridgeCollapse.SpawnNextCrocomireBridgeFragment();
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.SpawnNextCrocomireBridgeFragment(state.Death);
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 BridgeCollapse.RunCrocomireSinkingComposite(state, camera);
                 return;
             case CrocomireDeathPhase.FirstSubmergedPause:
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 CrocomireBodyLayer.PlaceCrocomireTongue(state);
                 CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.FirstHopRise:
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 BridgeCollapse.RunCrocomireRisingComposite(state);
                 return;
             case CrocomireDeathPhase.FirstHopSink:
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 BridgeCollapse.RunCrocomireSinkingComposite(state, camera);
                 return;
             case CrocomireDeathPhase.SecondSubmergedPause:
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 CrocomireBodyLayer.PlaceCrocomireTongue(state);
                 CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.SecondHopRise:
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 BridgeCollapse.RunCrocomireRisingComposite(state);
                 return;
             case CrocomireDeathPhase.SecondHopSink:
-                BridgeCollapse.RunCrocomireAcidSoundTimer();
+                BridgeCollapse.RunCrocomireAcidSoundTimer(state.Death);
                 BridgeCollapse.RunCrocomireSinkingComposite(state, camera);
                 return;
             case CrocomireDeathPhase.InstallFirstMeltImage:
@@ -171,14 +171,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First);
                 return;
             case CrocomireDeathPhase.ShowFirstMeltBands:
-                Melting.ShowNextCrocomireMeltBand(state);
+                CrocomireMelting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.ThirdHopRise:
                 BridgeCollapse.RunCrocomireRisingComposite(state);
                 return;
             case CrocomireDeathPhase.StartFirstDissolve:
                 Access.RequestCrocomireSound(CrocomireSoundDefinitions.FirstMeltDissolve);
-                Melting.BeginCrocomireMelting(state);
+                CrocomireMelting.BeginCrocomireMelting(state);
                 return;
             case CrocomireDeathPhase.DissolveFirstImage:
                 Melting.RunCrocomireMelting(state);
@@ -214,7 +214,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Second);
                 return;
             case CrocomireDeathPhase.ShowSecondMeltBands:
-                Melting.ShowNextCrocomireMeltBand(state);
+                CrocomireMelting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.WaitBeforeSixthHopRise:
                 state.DeathPhase = state.DeathPhase.Next();
@@ -222,11 +222,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.SixthHopRise:
                 CrocomireBridgeCollapse.SelectCrocomireRisingAnimation(state);
                 BodyLayer.SpawnCrocomireAcidSmoke(state);
-                BridgeCollapse.RunCrocomireRise(state);
+                CrocomireBridgeCollapse.RunCrocomireRise(state);
                 return;
             case CrocomireDeathPhase.StartSecondDissolve:
                 Access.RequestCrocomireSound(CrocomireSoundDefinitions.SecondMeltDissolve);
-                Melting.BeginCrocomireMelting(state);
+                CrocomireMelting.BeginCrocomireMelting(state);
                 return;
             case CrocomireDeathPhase.DissolveSecondImage:
                 Melting.RunCrocomireMelting(state);
@@ -247,7 +247,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
                 return;
             case CrocomireDeathPhase.DelaySkeletonFall:
-                Skeleton.RunCrocomireWallBreakDelay(state);
+                CrocomireSkeleton.RunCrocomireWallBreakDelay(state);
                 return;
             case CrocomireDeathPhase.ArcSkeletonIntoArena:
                 Skeleton.RunCrocomireSkeletonArc(state);

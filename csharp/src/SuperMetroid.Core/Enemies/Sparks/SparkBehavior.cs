@@ -51,14 +51,14 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeSpark(RoomEnemyPlace place)
     {
         SparkMovementDefinition definition = place.SpawnSettings<SparkSpawnSettings>().Start;
-        var state = new SparkEnemyState(definition.Action);
+        var state = new SparkEnemyState(definition.Action,
+            new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation));
         place.SetSpeciesState(state);
 
         state.BaseActionTime = place.SpawnSettings<SparkSpawnSettings>().BaseActionTime;
         SetSparkActionTimer(state, additionalTime: 0);
 
         place.AnimationClock.StepOnNextUpdate();
-        state.Playback = new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation);
         // Spark keeps its population properties: the initializer's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
@@ -143,8 +143,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!place.AnimationClock.Expire())
             return;
         SparkEnemyState state = place.RequireSpeciesState<SparkEnemyState>();
-        AnimationPlayback<SparkSegment> playback = state.Playback ?? throw new InvalidOperationException(
-            "Spark animation runs before the Spark is initialized.");
+        AnimationPlayback<SparkSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, SparkAnimations.Segments, ref playback,
             cue =>
             {

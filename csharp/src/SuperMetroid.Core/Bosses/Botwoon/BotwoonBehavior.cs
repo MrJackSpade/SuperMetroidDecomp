@@ -733,7 +733,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// current traversal. The head and thirteen body actors remain alive until the tail has
     /// crossed the next hole, exactly as the death tail requires.
     /// </summary>
-    internal void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head)
+    internal static void ResolveBotwoonCombatAfterCommon(RoomEnemyPlace head)
     {
         if (head.Health != 0)
             return;

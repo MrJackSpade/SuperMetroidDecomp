@@ -1705,9 +1705,10 @@ internal static class LookupStream4Verification
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
                 new Action<RoomEnemyPlace>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.Places.InUpdateOrder[0]);
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
-                LayDraygonShading(actual, selected, (enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Colours);
+                DraygonEnemyState initialized = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.");
+                LayDraygonShading(actual, selected, initialized.Colours);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
-                AssertEqual(DraygonPhase.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Phase,"Actual initializer phase");
+                AssertEqual(DraygonPhase.IntroInitialDelay,initialized.Phase,"Actual initializer phase");
             }
         }
         foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");

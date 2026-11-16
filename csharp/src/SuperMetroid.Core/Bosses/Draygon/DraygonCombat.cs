@@ -128,12 +128,12 @@ internal sealed class DraygonCombat
     {
         RoomEnemyPlace body = state.Body;
         samus.Grapple.Phase = GrapplePhase.Dropped;
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             body,
             state.FacingRight
                 ? DraygonSegment.ArmsFacingRightDying
                 : DraygonSegment.ArmsFacingLeftDying);
-        _parts.StartDraygonAnimation(
+        DraygonParts.StartDraygonAnimation(
             state.Eye,
             state.FacingRight
                 ? DraygonSegment.EyeFacingRightDying

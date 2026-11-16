@@ -25,7 +25,7 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     }
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Fight.AdvanceCrocomireTongueAnimation(Place);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => CrocomireFight.AdvanceCrocomireTongueAnimation(Place);
 
     /// <summary>No probe overlaps the tongue: its frames carry no hitboxes.</summary>
     public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)

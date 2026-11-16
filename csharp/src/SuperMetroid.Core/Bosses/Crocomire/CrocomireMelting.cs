@@ -53,7 +53,7 @@ internal sealed class CrocomireMelting
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
-        _bodyLayer.LevelCrocomireMeltDistortion(state);
+        CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingTwoTopRow);
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
     }
@@ -88,7 +88,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = state.Death;
         _ = RequireCrocomireMeltingImage(pass);
-        _bodyLayer.LevelCrocomireMeltDistortion(state);
+        CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.DeathPhase = state.DeathPhase.Next();
         death.DistortionStep = CrocomireMeltingDefinitions.FirstDistortionSlope;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
@@ -103,7 +103,7 @@ internal sealed class CrocomireMelting
     /// Shows the pass's next band at its image before any column is erased, one band an update; the update after the
     /// last band moves to the next death phase and starts the bands over.
     /// </summary>
-    internal void ShowNextCrocomireMeltBand(CrocomireEnemyState state)
+    internal static void ShowNextCrocomireMeltBand(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
         if (death.NextMeltBand == BandCount(death.MeltPass))
@@ -131,11 +131,11 @@ internal sealed class CrocomireMelting
     private static void ShowMeltBand(CrocomireDeathState death, int band) => death.MeltBandSteps[band] = death.MeltColumnsErased;
 
     /// <summary>Starts Crocomire's dissolve once his melt image shows.</summary>
-    internal void BeginCrocomireMelting(CrocomireEnemyState state)
+    internal static void BeginCrocomireMelting(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
         death.MeltingScrollActive = true;
-        _bodyLayer.LevelCrocomireMeltDistortion(state);
+        CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
 
         state.DeathPhase = state.DeathPhase.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
@@ -224,7 +224,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>Ends the current dissolve and selects the next death-scene phase.</summary>
-    internal void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
+    internal static void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
         death.MeltingScrollActive = false;

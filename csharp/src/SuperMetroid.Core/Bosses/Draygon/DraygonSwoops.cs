@@ -33,10 +33,10 @@ internal sealed class DraygonSwoops
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         BuildDraygonSwoopYPositions(state, samus);
         state.Phase = DraygonPhase.SwoopDescending;
-        _parts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
+        DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
         state.FacingRight = true;
     }
 
@@ -82,12 +82,12 @@ internal sealed class DraygonSwoops
         int frameCounter,
         DraygonBehavior.DraygonSwoopSide side)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemyPlace body = state.Body;
         int entry = state.SwoopEntry;
         if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
-            _parts.StartDraygonAnimation(state.Arms, side.ArmsNearApex);
+            DraygonParts.StartDraygonAnimation(state.Arms, side.ArmsNearApex);
 
         body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
         state.SwoopEntry = entry - 1;
@@ -105,7 +105,7 @@ internal sealed class DraygonSwoops
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
         int distance = CoordinateAxis.Wrap(672 - body.Position.X.Whole);
@@ -124,13 +124,13 @@ internal sealed class DraygonSwoops
         int frameCounter,
         DraygonBehavior.DraygonSwoopSide side)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (side.Direction != HorizontalDirection.Right)
             _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemyPlace body = state.Body;
         int entry = state.SwoopEntry;
         if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
-            _parts.StartDraygonAnimation(state.Arms, side.ArmsIdle);
+            DraygonParts.StartDraygonAnimation(state.Arms, side.ArmsIdle);
 
         DraygonSwoopPath path = PathOf(state);
         body.Position = body.Position.WithWholeY(path.HeightAt(entry));
@@ -173,14 +173,14 @@ internal sealed class DraygonSwoops
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         int frameCount = PathOf(state).EntryCount;
 
         int distance = CoordinateAxis.Distance(
             state.RightSideReset.X, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopDescending;
-        _parts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingLeftReset);
+        DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingLeftReset);
         state.FacingRight = false;
         state.SwoopEntry = frameCount;
     }
@@ -191,7 +191,7 @@ internal sealed class DraygonSwoops
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
         int distance = CoordinateAxis.Wrap(body.Position.X.Whole - state.LeftSideReset.X);
@@ -217,7 +217,7 @@ internal sealed class DraygonSwoops
         SamusState samus,
         int frameCounter)
     {
-        _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
+        _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 4);
         if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)

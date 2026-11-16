@@ -35,7 +35,7 @@ internal static class CrocomireMeltFrameSelectionVerification
             CrocomireDeathPhase showing = fixture.Actor.DeathPhase;
             for (int update = 1; update <= bands + 1; update++)
             {
-                fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
+                fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
                 updates++;
                 if (update <= bands)
                     expected[update - 1] = (pass, 0);
@@ -44,7 +44,7 @@ internal static class CrocomireMeltFrameSelectionVerification
                 AssertBands(fixture, expected, $"{pass} band update {update}");
             }
 
-            fixture.Call(c => c.Melting.BeginCrocomireMelting);
+            fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);
             CrocomireDeathPhase dissolving = fixture.Actor.DeathPhase;
             int step = 0;
             while (fixture.Actor.DeathPhase == dissolving)

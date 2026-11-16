@@ -163,7 +163,7 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>Holds the broken-wall pose before launching the skeleton arc.</summary>
-    internal void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
+    internal static void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
         if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 224) < 0)

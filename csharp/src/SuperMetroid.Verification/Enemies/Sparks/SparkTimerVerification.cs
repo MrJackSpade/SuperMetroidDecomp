@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Sparks;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Harness;
 

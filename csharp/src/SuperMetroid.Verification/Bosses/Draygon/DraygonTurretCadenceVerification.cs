@@ -61,7 +61,7 @@ internal static class DraygonTurretCadenceVerification
             return velocity;
         }
         var beforeTurret = SpawnGoop();
-        runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(boss, runtime.Player.IntroducedSamus, 0);
+        runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(runtime.Player.IntroducedSamus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
         AssertEqual(EnemyMath.AbsoluteCosineSpeed(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.HorizontalSpeed,

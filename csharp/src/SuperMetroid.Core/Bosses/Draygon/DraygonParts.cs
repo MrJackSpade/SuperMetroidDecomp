@@ -143,7 +143,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Restarts a linked Draygon part's animation on its next update, as starting an animation does.</summary>
-    internal void StartDraygonAnimation(RoomEnemyPlace part, DraygonSegment segment)
+    internal static void StartDraygonAnimation(RoomEnemyPlace part, DraygonSegment segment)
     {
         DraygonEntity.EncounterOf(part).StartAnimation(part, segment);
         part.AnimationClock.StepOnNextUpdate();

@@ -211,7 +211,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Crocomire's exact fixed-point sinking fall, with the camera his main update runs with.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
-        _bodyLayer.LevelCrocomireMeltDistortion(state);
+        CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.DamageReactionPending = false;
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
         RoomEnemyPlace body = state.Body;
@@ -245,9 +245,9 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Runs Crocomire's fixed-point rise exactly as the game does.</summary>
-    internal void RunCrocomireRise(CrocomireEnemyState state)
+    internal static void RunCrocomireRise(CrocomireEnemyState state)
     {
-        _bodyLayer.LevelCrocomireMeltDistortion(state);
+        CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         RoomEnemyPlace body = state.Body;
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
         {

@@ -171,14 +171,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First);
                 return;
             case CrocomireDeathPhase.ShowFirstMeltBands:
-                Melting.ShowNextCrocomireMeltBand(state);
+                CrocomireMelting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.ThirdHopRise:
                 BridgeCollapse.RunCrocomireRisingComposite(state);
                 return;
             case CrocomireDeathPhase.StartFirstDissolve:
                 Access.RequestCrocomireSound(CrocomireSoundDefinitions.FirstMeltDissolve);
-                Melting.BeginCrocomireMelting(state);
+                CrocomireMelting.BeginCrocomireMelting(state);
                 return;
             case CrocomireDeathPhase.DissolveFirstImage:
                 Melting.RunCrocomireMelting(state);
@@ -214,7 +214,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Second);
                 return;
             case CrocomireDeathPhase.ShowSecondMeltBands:
-                Melting.ShowNextCrocomireMeltBand(state);
+                CrocomireMelting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.WaitBeforeSixthHopRise:
                 state.DeathPhase = state.DeathPhase.Next();
@@ -222,11 +222,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.SixthHopRise:
                 CrocomireBridgeCollapse.SelectCrocomireRisingAnimation(state);
                 BodyLayer.SpawnCrocomireAcidSmoke(state);
-                BridgeCollapse.RunCrocomireRise(state);
+                CrocomireBridgeCollapse.RunCrocomireRise(state);
                 return;
             case CrocomireDeathPhase.StartSecondDissolve:
                 Access.RequestCrocomireSound(CrocomireSoundDefinitions.SecondMeltDissolve);
-                Melting.BeginCrocomireMelting(state);
+                CrocomireMelting.BeginCrocomireMelting(state);
                 return;
             case CrocomireDeathPhase.DissolveSecondImage:
                 Melting.RunCrocomireMelting(state);
@@ -247,7 +247,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
                 return;
             case CrocomireDeathPhase.DelaySkeletonFall:
-                Skeleton.RunCrocomireWallBreakDelay(state);
+                CrocomireSkeleton.RunCrocomireWallBreakDelay(state);
                 return;
             case CrocomireDeathPhase.ArcSkeletonIntoArena:
                 Skeleton.RunCrocomireSkeletonArc(state);

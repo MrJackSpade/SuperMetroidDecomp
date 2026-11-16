@@ -332,7 +332,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
-    private void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body)
+    private static void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body)
     {
         CrocomireEnemyState state = CrocomireEntity.EncounterOf(body);
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)

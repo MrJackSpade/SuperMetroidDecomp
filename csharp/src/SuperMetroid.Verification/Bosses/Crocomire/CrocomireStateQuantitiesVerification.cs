@@ -155,7 +155,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 0; frame < 400; frame++)
         {
             bool moving = NativeRiseStep(ref acceleration, ref speed, ref subposition, ref y);
-            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
+            CrocomireBridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
                 AssertEqual(CrocomireDeathPhase.FirstHopSink, state.DeathPhase, $"{name}: ends on the native frame");
@@ -260,7 +260,7 @@ internal static class CrocomireStateQuantitiesVerification
             position = position.WithX(NativeAdvance(position.X, fraction, whole));
             if (frame == delay)
                 fraction = 0;
-            behavior.Skeleton.RunCrocomireWallBreakDelay(state);
+            CrocomireSkeleton.RunCrocomireWallBreakDelay(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton drift frame {frame}");
         }
         AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena, state.DeathPhase, "the drift ends with its delay");
@@ -322,8 +322,8 @@ internal static class CrocomireStateQuantitiesVerification
         fixture.InitializeMap(CrocomireMeltingIllustration.First);
         fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First));
         for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandCount; band++)
-            fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
-        fixture.Call(c => c.Melting.BeginCrocomireMelting);
+            fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
+        fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);
         AssertEqual(0, fixture.Effect.MeltShakeCounter.RawValue, "the melt shake counter starts from zero");
 
         int startX = fixture.Effect.BodyXBeforeMelting;

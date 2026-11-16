@@ -27,7 +27,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// The state of his death (#2177): the bridge's collapse, his melting in the acid and his skeleton's return, which his
-    /// body's death sequence runs and the room's main routine and his body layer read.
+    /// body's death sequence runs and the room's main update and his body layer read.
     /// </summary>
     public CrocomireDeathState Death { get; } = new();
 

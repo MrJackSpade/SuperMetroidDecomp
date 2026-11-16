@@ -56,7 +56,7 @@ internal sealed class CrocomireBodyLayer
         _presentation.RequireBossBody().ShowAbove(roomRow - state.Body.Position.Y.Whole);
 
     /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>
-    internal void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>
+    internal static void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>
         state.Death.MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
 
     /// <summary>

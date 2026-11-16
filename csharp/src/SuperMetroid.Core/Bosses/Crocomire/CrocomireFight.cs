@@ -58,7 +58,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// The room's Crocomire as the room's display and main routine see it (#2177): set as his body sets up and kept for
+    /// The room's Crocomire as the room's display and main update see it (#2177): set as his body sets up and kept for
     /// the room, or none in a room without him. His parts never read it: each holds its encounter from its setup.
     /// </summary>
     internal CrocomireEnemyState? Encounter { get; private set; }
@@ -145,7 +145,7 @@ internal sealed class CrocomireFight
     /// Runs the tongue's animation where the shared enemy animation runs, with the timer gate
     /// and new-frame flag.
     /// </summary>
-    internal void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue)
+    internal static void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue)
     {
         CrocomireEnemyState state = tongue.RequireSpeciesState<CrocomireTongueState>().Crocomire;
         if (!tongue.AnimationClock.Expire())

@@ -25,7 +25,7 @@ internal static class OwtchNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, OwtchNativeListAddressesInstruction> Instructions = new()
     {
-        [0xa56d] = new OwtchNativeListAddressesInstruction(OwtchCueKind.SetMovingLeft, ""),
-        [0xa571] = new OwtchNativeListAddressesInstruction(OwtchCueKind.SetMovingRight, ""),
+        [0xa56d] = new OwtchNativeListAddressesInstruction(new(HorizontalDirection.Left), ""),
+        [0xa571] = new OwtchNativeListAddressesInstruction(new(HorizontalDirection.Right), ""),
     };
 }

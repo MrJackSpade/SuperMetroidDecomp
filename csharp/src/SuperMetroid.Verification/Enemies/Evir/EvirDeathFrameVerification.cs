@@ -18,11 +18,13 @@ internal static class EvirDeathFrameVerification
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
-        Action<RoomEnemyPlace, SamusState> initialize = enemies.EvirBehavior.InitializeEvir;
-        Action<RoomEnemyPlace> initializeProjectile = enemies.EvirBehavior.InitializeEvirProjectile;
         for (int index = 6; index <= 8; index++)
         {
             var place = enemies.Places.InUpdateOrder[index];
+            // The body and its arms are placed as their room places them, whose settings name the part each is (#2146).
+            place.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
+            // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
+            if (index == 6) place.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
             place.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, place.Definition);
             place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
             place.Position = place.Position.WithWhole(new(128, 128));
@@ -32,10 +34,12 @@ internal static class EvirDeathFrameVerification
             place.Contact = index == 6 ? EnemyContact.None : EnemyContact.IgnoresSamus;
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.None;
-            place.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
-            // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
-            if (index == 6) place.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
-            if (index == 8) initializeProjectile(place); else initialize(place, samus);
+            if (index == 8)
+                enemies.EvirBehavior.InitializeEvirProjectile(place);
+            else if (index == 7)
+                enemies.EvirBehavior.InitializeEvirArms(place);
+            else
+                enemies.EvirBehavior.InitializeEvirBody(place, samus);
         }
         var body = enemies.Places.InUpdateOrder[6];
         var arms = enemies.Places.InUpdateOrder[7];
@@ -60,7 +64,7 @@ internal static class EvirDeathFrameVerification
         AssertEqual(EnemyDefinitionId.None, arms.DefinitionId, "next frame removes deleted arms");
         AssertEqual(EnemyDefinitionId.None, projectile.DefinitionId, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemies.Count, "no orphan Evir remains active");
-        AssertThrows<InvalidDataException>(() => initialize(arms, samus),
+        AssertThrows<InvalidDataException>(() => enemies.EvirBehavior.InitializeEvirArms(arms),
             "initialization still rejects a missing body");
         Console.WriteLine("Evir death frame: real contact kill, cleared-slot arm/spit reads, single death and next-frame removal confirmed.");
     }

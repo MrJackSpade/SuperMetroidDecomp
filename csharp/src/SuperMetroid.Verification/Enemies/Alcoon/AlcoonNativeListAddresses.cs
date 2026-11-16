@@ -31,11 +31,11 @@ internal static class AlcoonNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, AlcoonNativeListAddressesInstruction> Instructions = new()
     {
-        [0xdf1c] = new AlcoonNativeListAddressesInstruction(AlcoonCueKind.FireUpward, ""),
-        [0xdf33] = new AlcoonNativeListAddressesInstruction(AlcoonCueKind.FireHorizontally, ""),
-        [0xdf39] = new AlcoonNativeListAddressesInstruction(AlcoonCueKind.FireDownward, ""),
-        [0xdf3f] = new AlcoonNativeListAddressesInstruction(AlcoonCueKind.StartWalking, ""),
-        [0xdf63] = new AlcoonNativeListAddressesInstruction(AlcoonCueKind.Step, ""),
-        [0xdf71] = new AlcoonNativeListAddressesInstruction(AlcoonCueKind.Move, ""),
+        [0xdf1c] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Upward), ""),
+        [0xdf33] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Level), ""),
+        [0xdf39] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Downward), ""),
+        [0xdf3f] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.StartWalking), ""),
+        [0xdf63] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.Step), ""),
+        [0xdf71] = new AlcoonNativeListAddressesInstruction(new AlcoonCue.Signal(AlcoonCueKind.Move), ""),
     };
 }

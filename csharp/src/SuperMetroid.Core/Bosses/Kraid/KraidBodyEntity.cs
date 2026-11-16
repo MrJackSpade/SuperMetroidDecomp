@@ -1,0 +1,32 @@
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.Core.Bosses.Kraid;
+
+/// <summary>
+/// Kraid's body (#2146): his rise and fight. His body is drawn by his fight rather than by a typed animation, and only
+/// shots meet his frames' hitboxes.
+/// </summary>
+/// <param name="species">The Kraid species owner.</param>
+/// <param name="place">The place the body occupies.</param>
+/// <param name="common">The shared participation.</param>
+internal sealed class KraidBodyEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : KraidEntity(species, place, common, species.Parts.BodyReference)
+{
+    /// <inheritdoc/>
+    protected override void SetUp() => Species.Rise.InitializeKraidBody(Place);
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidMainAi(Place, frame);
+
+    /// <summary>
+    /// The shared Power Bomb reaction; Kraid's body leaves the blast to the species, which has no reaction to it, and fails
+    /// loudly if a blast reaches him.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
+        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
+        : base.PowerBombReaction;
+
+    /// <summary>Only shots meet Kraid's body's frames' hitboxes.</summary>
+    public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
+}

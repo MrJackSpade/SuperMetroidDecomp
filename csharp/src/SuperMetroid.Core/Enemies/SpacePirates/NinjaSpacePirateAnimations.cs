@@ -18,7 +18,7 @@ internal static class NinjaSpacePirateAnimations
     {
         [P.ClawAttackLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 5),
             Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 5),
             Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, 5),
@@ -44,7 +44,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.SpinJumpLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 5),
             Show(EnemyFrameId.NinjaPirateClawsReadyFacingLeft, 5),
             Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingLeft, 5),
@@ -57,9 +57,9 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingLeft, 2),
             Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingLeft, 2),
             Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 8),
-            Cue(new NinjaSpacePirateCue.Signal(K.SpinJumpLeft)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.SpinJumpLeftRising)),
         ],
         [P.SpinJumpLeftLoop] =
         [
@@ -75,7 +75,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.ActiveFacingLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.ChooseAttack)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.Active)),
         ],
         [P.ActiveFacingLeftLoop] =
         [
@@ -83,20 +83,20 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateReadyFacingLeftFeetApart, 10),
             Show(EnemyFrameId.NinjaPirateReadyFacingLeftFeetWide, 10),
             Show(EnemyFrameId.NinjaPirateReadyFacingLeftFeetApart, 10),
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Cue(new NinjaSpacePirateCue.Signal(K.StartActive)),
         ],
         [P.FlinchFacingLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateFlinchFacingLeft, 16),
         ],
         [P.DivekickLeftJump] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateLeapCrouchFacingLeft, 8),
             Cue(new NinjaSpacePirateCue.Signal(K.StartDivekick)),
-            Cue(new NinjaSpacePirateCue.Signal(K.JumpToDivekickLeft)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickLeftJump)),
         ],
         [P.DivekickLeftJumpLoop] =
         [
@@ -108,13 +108,13 @@ internal static class NinjaSpacePirateAnimations
         [P.DivekickLeftDive] =
         [
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.GoldWallFlash)),
-            Cue(new NinjaSpacePirateCue.Signal(K.DiveLeft)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickLeftDive)),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
             Show(EnemyFrameId.NinjaPirateDiveKickFacingLeft, 1),
         ],
         [P.WalkToLeftPost] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.WalkBackToLeftPost)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickLeftWalkToPost)),
         ],
         [P.WalkToLeftPostLoop] =
         [
@@ -129,7 +129,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.InitialFacingLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.WaitForSamus)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.Initial)),
         ],
         [P.InitialFacingLeftLoop] =
         [
@@ -142,12 +142,12 @@ internal static class NinjaSpacePirateAnimations
         [P.LandFacingLeft] =
         [
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.Stance)),
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateStandingFacingLeft, 4),
             Show(EnemyFrameId.NinjaPirateLookingAtViewerFacingLeft, 8),
             Show(EnemyFrameId.NinjaPirateFacingViewer, 4),
             Show(EnemyFrameId.NinjaPirateStandingFacingRight, 4),
-            Cue(new NinjaSpacePirateCue.Signal(K.ReadyDivekick)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.ReadyToDivekick)),
         ],
         [P.LandFacingLeftLoop] =
         [
@@ -158,7 +158,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.KickFacingLeft] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateKickChamberedFacingLeft, 4),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
             Show(EnemyFrameId.NinjaPirateKickExtendingFacingLeft, 4),
@@ -167,7 +167,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.ClawAttackRight] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 5),
             Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 5),
             Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, 5),
@@ -193,7 +193,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.SpinJumpRight] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 5),
             Show(EnemyFrameId.NinjaPirateClawsReadyFacingRight, 5),
             Show(EnemyFrameId.NinjaPirateClawDrawnBackFacingRight, 5),
@@ -206,9 +206,9 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateClawsSweptDownFacingRight, 2),
             Show(EnemyFrameId.NinjaPirateUprightClawsLoweredFacingRight, 2),
             Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 8),
-            Cue(new NinjaSpacePirateCue.Signal(K.SpinJumpRight)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.SpinJumpRightRising)),
         ],
         [P.SpinJumpRightLoop] =
         [
@@ -224,7 +224,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.ActiveFacingRight] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.ChooseAttack)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.Active)),
         ],
         [P.ActiveFacingRightLoop] =
         [
@@ -232,20 +232,20 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateReadyFacingRightFeetApart, 10),
             Show(EnemyFrameId.NinjaPirateReadyFacingRightFeetWide, 10),
             Show(EnemyFrameId.NinjaPirateReadyFacingRightFeetApart, 10),
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Cue(new NinjaSpacePirateCue.Signal(K.StartActive)),
         ],
         [P.FlinchFacingRight] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateFlinchFacingRight, 16),
         ],
         [P.DivekickRightJump] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateLeapCrouchFacingRight, 8),
             Cue(new NinjaSpacePirateCue.Signal(K.StartDivekick)),
-            Cue(new NinjaSpacePirateCue.Signal(K.JumpToDivekickRight)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickRightJump)),
         ],
         [P.DivekickRightJumpLoop] =
         [
@@ -257,13 +257,13 @@ internal static class NinjaSpacePirateAnimations
         [P.DivekickRightDive] =
         [
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.GoldWallFlash)),
-            Cue(new NinjaSpacePirateCue.Signal(K.DiveRight)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickRightDive)),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
             Show(EnemyFrameId.NinjaPirateDiveKickFacingRight, 1),
         ],
         [P.WalkToRightPost] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.WalkBackToRightPost)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickRightWalkToPost)),
         ],
         [P.WalkToRightPostLoop] =
         [
@@ -278,7 +278,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.InitialFacingRight] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.WaitForSamus)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.Initial)),
         ],
         [P.InitialFacingRightLoop] =
         [
@@ -291,12 +291,12 @@ internal static class NinjaSpacePirateAnimations
         [P.LandFacingRight] =
         [
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.Stance)),
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateStandingFacingRight, 4),
             Show(EnemyFrameId.NinjaPirateLookingAtViewerFacingRight, 8),
             Show(EnemyFrameId.NinjaPirateFacingViewer, 4),
             Show(EnemyFrameId.NinjaPirateStandingFacingLeft, 4),
-            Cue(new NinjaSpacePirateCue.Signal(K.ReadyDivekick)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.ReadyToDivekick)),
         ],
         [P.LandFacingRightLoop] =
         [
@@ -307,7 +307,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.KickFacingRight] =
         [
-            Cue(new NinjaSpacePirateCue.Signal(K.StandStill)),
+            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateKickChamberedFacingRight, 4),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.Attack)),
             Show(EnemyFrameId.NinjaPirateKickExtendingFacingRight, 4),

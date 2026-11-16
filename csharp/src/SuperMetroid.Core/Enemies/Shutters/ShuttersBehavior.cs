@@ -50,10 +50,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ShuttersPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ShuttersEntity(this, place, common);
+    /// <summary>The growing shutter, a shootable vertical shutter or the Kamer that reuses it, or a destroyable vertical shutter (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.ShutterGrowing)
+            return new GrowingShutterEntity(this, place, common);
+        if (definition is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer)
+            return new ShootableShutterEntity(this, place, common);
+        if (definition == EnemyDefinitionId.ShutterDestroyable)
+            return new DestroyableShutterEntity(this, place, common);
+        throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
     private const int GrowingShutterSectionLength = 16;

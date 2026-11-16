@@ -41,20 +41,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private AlcoonSegment? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
-        switch (cue.Kind)
+        if (cue is AlcoonCue.Fire fire)
         {
-            case AlcoonCueKind.FireUpward:
-                SpawnAlcoonFireball(place, AlcoonFireballLaunchDefinitions.Upward);
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
-                return null;
-            case AlcoonCueKind.FireHorizontally:
-                SpawnAlcoonFireball(place, AlcoonFireballLaunchDefinitions.Level);
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
-                return null;
-            case AlcoonCueKind.FireDownward:
-                SpawnAlcoonFireball(place, AlcoonFireballLaunchDefinitions.Downward);
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
-                return null;
+            SpawnAlcoonFireball(place, fire.Launch);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
+            return null;
+        }
+        AlcoonCueKind kind = ((AlcoonCue.Signal)cue).Kind;
+        switch (kind)
+        {
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
             case AlcoonCueKind.Step:
@@ -64,7 +59,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonCueKind.Move:
                 return MoveAlcoonHorizontally(place, state, level);
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AlcoonCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(AlcoonCueKind)} {kind}.");
         }
     }
 

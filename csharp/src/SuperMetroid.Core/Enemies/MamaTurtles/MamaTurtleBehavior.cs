@@ -15,10 +15,19 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. MamaTurtlePartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MamaTurtleEntity(this, place, common);
+    /// <summary>The mama turtle, or one of her babies (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.MamaTurtle)
+            return new MamaTurtleEntity(this, place, common);
+        if (definition == EnemyDefinitionId.BabyTurtle)
+            return new BabyTurtleEntity(this, place, common);
+        throw new InvalidOperationException($"The mama turtle species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;
@@ -49,17 +58,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
     private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue)
     {
-        switch (cue.Kind)
+        if (cue is MamaTurtleCue.RiseToHover rise)
+        {
+            StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: rise.Direction);
+            return MamaTurtleSegment.MamaSpinning;
+        }
+        MamaTurtleCueKind kind = ((MamaTurtleCue.Signal)cue).Kind;
+        switch (kind)
         {
             case MamaTurtleCueKind.EnterShell:
                 StartMamaTurtleEnteringShell(place.RequireSpeciesState<MamaTurtleEnemyState>());
                 return null;
-            case MamaTurtleCueKind.RiseToHoverRightwards:
-                StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Right);
-                return MamaTurtleSegment.MamaSpinning;
-            case MamaTurtleCueKind.RiseToHoverLeftwards:
-                StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Left);
-                return MamaTurtleSegment.MamaSpinning;
             case MamaTurtleCueKind.PlaySpinningSound:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
@@ -69,7 +78,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleCueKind.LoopOrTurnAround:
             case MamaTurtleCueKind.SetSpinningStoppable:
             default:
-                throw new InvalidOperationException($"The Mama Turtle's animations have no {cue.Kind} cue.");
+                throw new InvalidOperationException($"The Mama Turtle's animations have no {kind} cue.");
         }
     }
 
@@ -79,7 +88,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private MamaTurtleSegment? ApplyBabyTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue, SamusState samus, RoomLevelData level)
     {
-        switch (cue.Kind)
+        if (cue is not MamaTurtleCue.Signal { Kind: var kind })
+            throw new InvalidOperationException($"A baby turtle's animations have no {cue} cue.");
+        switch (kind)
         {
             case MamaTurtleCueKind.Crawl:
                 ProcessBabyTurtleCrawlAnimation(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus, level);
@@ -97,10 +108,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
             case MamaTurtleCueKind.EnterShell:
-            case MamaTurtleCueKind.RiseToHoverLeftwards:
-            case MamaTurtleCueKind.RiseToHoverRightwards:
             default:
-                throw new InvalidOperationException($"A baby turtle's animations have no {cue.Kind} cue.");
+                throw new InvalidOperationException($"A baby turtle's animations have no {kind} cue.");
         }
     }
 

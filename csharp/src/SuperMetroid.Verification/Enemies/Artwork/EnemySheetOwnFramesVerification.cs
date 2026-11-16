@@ -219,7 +219,11 @@ internal static class EnemySheetOwnFramesVerification
         ];
         KiHunterSegment[] wings = [KiHunterSegment.WingsLeft, KiHunterSegment.WingsRight, KiHunterSegment.DetachedWings];
         return new("Ki-Hunter", KiHunterAnimations.Segments.Frames.ToHashSet(),
-            KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Segments, KiHunterAnimations.StartingAt,
+            new[]
+            {
+                EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRed,
+                EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings,
+            }.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Segments, KiHunterAnimations.StartingAt,
                 KiHunterBehaviorConstants.IsKiHunterBodyDefinition(definition) ? body
                     : KiHunterBehaviorConstants.IsKiHunterWingDefinition(definition) ? wings
                     : throw new InvalidDataException($"{definition} is neither a Ki-Hunter body nor its wings."))));

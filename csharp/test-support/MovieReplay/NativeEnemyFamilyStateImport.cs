@@ -766,7 +766,7 @@ internal static class NativeEnemyFamilyStateImport
             // Only the phase word's low byte is ever read.
             waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
             waver.SpinFinished = words.E != 0;
-            waver.Facing = WaverAnimationChoices.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
+            waver.Facing = WaverAnimationChoicesConstants.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
         }
         if (enemy.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
         {

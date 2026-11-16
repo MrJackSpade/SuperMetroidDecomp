@@ -1348,8 +1348,8 @@ internal static class LookupStream3Verification
         }
         CheckRevival(stock);
         CheckRainbow(stock);
-        foreach (int invalid in new[] { -1, 10, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
+        // Her rainbow holds ten images, and no other can be named (#2259).
+        AssertEqual(10, MotherBrainRainbowImage.All.Count, "stream 3 rainbow bounds");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new SnesCgram(), invalid), "stream 3 drain bounds");
@@ -1579,7 +1579,7 @@ internal static class LookupStream3Verification
         // rear legs on her sprite sheets, and of her body on the room's background, from the installed health palette.
         static (RgbColor[] Brain, RgbColor[] RearLegs, RgbColor[] Body) Shown(MotherBrainHealthPalettePresentation health, int band)
         {
-            PictureShade shade = MotherBrainShades.Health(band);
+            PictureShade shade = MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[band]);
             SheetShade sprites = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthSprites(health).Single(candidate => candidate.Shade == shade);
             SheetShade background = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthBackground(health).Single(candidate => candidate.Shade == shade);
             const int count = MotherBrainRainbowPaletteGeometry.ColorCount;

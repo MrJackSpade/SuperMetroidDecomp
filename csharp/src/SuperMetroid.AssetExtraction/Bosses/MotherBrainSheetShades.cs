@@ -158,7 +158,7 @@ internal static class MotherBrainSheetShades
         for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
         {
             int shown = band;
-            shades.Add(BrainAndLegs(MotherBrainShades.Health(shown), LegsRow + FirstColour,
+            shades.Add(BrainAndLegs(MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[shown]), LegsRow + FirstColour,
                 Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour)),
                 Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.backLegs.Colour(shown, colour))));
         }
@@ -174,7 +174,7 @@ internal static class MotherBrainSheetShades
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
-            shades.Add(Phase(MotherBrainShades.Rainbow(frame), rainbow.rainbow[frame]));
+            shades.Add(Phase(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), rainbow.rainbow[frame]));
         shades.Add(Phase(MotherBrainShades.Restored, rainbow.normal));
         for (int frame = 0; frame < rainbow.toGrey.Length; frame++)
         {
@@ -212,7 +212,7 @@ internal static class MotherBrainSheetShades
         for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
         {
             int shown = band;
-            shades.Add(Body(MotherBrainShades.Health(shown), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour))));
+            shades.Add(Body(MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[shown]), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour))));
         }
         return shades;
     }
@@ -225,7 +225,7 @@ internal static class MotherBrainSheetShades
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
         {
             InstalledMotherBrainRainbowPalette.PaletteFrame phase = rainbow.rainbow[frame];
-            shades.Add(Body(MotherBrainShades.Rainbow(frame), Colours(phase.Body.Length, colour => phase.Body[colour])));
+            shades.Add(Body(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), Colours(phase.Body.Length, colour => phase.Body[colour])));
         }
         shades.Add(Body(MotherBrainShades.Restored, Colours(rainbow.normal.Body.Length, colour => rainbow.normal.Body[colour])));
         for (int frame = 0; frame < rainbow.toGrey.Length; frame++)
@@ -264,14 +264,14 @@ internal static class MotherBrainSheetShades
         for (int frame = 0; frame < MotherBrainRoomFlashDefinitions.FlashFrameCount; frame++)
         {
             int shown = frame;
-            shades.Add(Flash(MotherBrainShades.Flash(shown), colour => room.flash.Colour(shown, colour)));
+            shades.Add(Flash(MotherBrainShades.Flash(MotherBrainRoomFlashImage.All[shown]), colour => room.flash.Colour(shown, colour)));
         }
         shades.Add(Flash(MotherBrainShades.FinalRoom, colour => room.finalRoom.Colour(colour)));
         shades.Add(Lights(MotherBrainShades.LightsOut, _ => RgbColor.Black));
         for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
         {
             int shown = frame;
-            shades.Add(Lights(MotherBrainShades.RecoveryLights(shown), colour => room.recoveryLights.Colour(shown, colour)));
+            shades.Add(Lights(MotherBrainShades.RecoveryLights(MotherBrainRecoveryLights.All[shown]), colour => room.recoveryLights.Colour(shown, colour)));
         }
         return shades;
     }
@@ -291,7 +291,7 @@ internal static class MotherBrainSheetShades
         for (int phase = 0; phase < ShitroidColorDefinitions.NormalFrameCount; phase++)
         {
             int shown = phase;
-            shades.Add(SheetShade.Run(ShitroidShades.Membrane(shown), AttackRow + MembraneFirstColour,
+            shades.Add(SheetShade.Run(ShitroidShades.Membrane(ShitroidMembranePulse.All[shown]), AttackRow + MembraneFirstColour,
                 Colours(ShitroidColorDefinitions.NormalColorsPerFrame, colour => shitroid.NormalColor(shown, colour))));
         }
         return shades;
@@ -303,7 +303,7 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(bosses);
         ZebetiteColorCatalog zebetites = bosses.ZebetiteColors ?? throw Missing("the Zebetites' colours");
-        return [.. Enumerable.Range(0, ZebetiteColorFormat.FrameCount).Select(frame => SheetShade.Run(ZebetiteShades.Pulse(frame),
+        return [.. Enumerable.Range(0, ZebetiteColorFormat.FrameCount).Select(frame => SheetShade.Run(ZebetiteShades.Pulse(ZebetitePulse.All[frame]),
             AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(frame, colour))))];
     }
 

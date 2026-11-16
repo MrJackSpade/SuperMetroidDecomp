@@ -275,7 +275,7 @@ internal static class NativeEnemyFamilyStateImport
                     shitroidRecord.DepartureSide = departureSide;
             }
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
+            shitroidRecord.MembranePulse = ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)];
             shitroidRecord.ColourTimer = LittleEndianBytes.HighByte(words.D);
             shitroidRecord.ColourDelay = words.E;
             shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);
@@ -396,7 +396,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (enemy.Ordinal == 0)
-            enemies.ZebetiteBehavior.SharedColourCycle = words.C;
+            enemies.ZebetiteBehavior.SharedPulse = ZebetitePulse.All[words.C];
         if (enemy.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
             chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.IsWreckedShip);

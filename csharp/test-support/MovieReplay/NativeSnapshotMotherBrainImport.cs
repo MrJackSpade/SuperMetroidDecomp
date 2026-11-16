@@ -42,8 +42,8 @@ internal static class NativeSnapshotMotherBrainImport
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
         state.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
-        state.RoomFlashFrame = flash == 0 ? null
-            : MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame;
+        state.RoomFlashImage = flash == 0 ? null
+            : MotherBrainRoomFlashImage.All[MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame];
         state.RoomFlashTimer = W(MotherBrainMemory.RoomPaletteFrameHold);
         // The sub-function word is shared: outside the tube collapse it holds the death-explosion interval timer
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
@@ -83,7 +83,7 @@ internal static class NativeSnapshotMotherBrainImport
         }
         state.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
-        state.NextRainbowFrame = DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex));
+        state.NextRainbowImage = MotherBrainRainbowImage.All[DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex))];
         state.DrawNeck = state.BrainAction == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
         for (int joint = 0; joint < MotherBrainNeckJointDefinitions.Count; joint++)
         {

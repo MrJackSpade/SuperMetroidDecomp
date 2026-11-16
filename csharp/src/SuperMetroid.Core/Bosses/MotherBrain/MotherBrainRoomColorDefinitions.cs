@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public static class MotherBrainRoomColorDefinitions
 {
-    /// <summary>The phase-three room-light images, shown after the Baby Metroid cutscene.</summary>
+    /// <summary>The phase-three room-light images (<see cref="MotherBrainRecoveryLights"/>), shown after the Baby Metroid cutscene.</summary>
     public const int RecoveryLightsFrames = 7;
 }

@@ -204,7 +204,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // The fake-death flash starts the looping room flash, drains the room's acid,
                 // arms the head's independent tube sequence, and clears both fade timers.
-                state.RoomFlashFrame = 0;
+                state.RoomFlashImage = MotherBrainRoomFlashImage.First;
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots;
@@ -249,22 +249,22 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs Mother Brain's room flash: each of its fourteen frames stays two updates, the timer counting
+    /// Runs Mother Brain's room flash: each of its fourteen images stays two updates, the timer counting
     /// up from one, and the last loops to the first.
     /// </summary>
     internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
-        if (state.RoomFlashFrame is not int frame)
+        if (state.RoomFlashImage is not { } image)
             return;
 
         if (state.RoomFlashTimer == MotherBrainRoomFlashDefinitions.FlashImageTicks)
         {
-            frame = (frame + 1) % MotherBrainRoomFlashDefinitions.FlashFrameCount;
-            state.RoomFlashFrame = frame;
+            image = image.Next;
+            state.RoomFlashImage = image;
             state.RoomFlashTimer = 0;
         }
         state.RoomFlashTimer++;
-        state.Colours.ShowRoomFlash(frame);
+        state.Colours.ShowRoomFlash(image);
     }
 
     /// <summary>Runs the phase of her rise out of the fake death her body is in, from the mural to her colours' return.</summary>

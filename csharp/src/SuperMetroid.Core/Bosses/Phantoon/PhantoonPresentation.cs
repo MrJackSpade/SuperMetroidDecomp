@@ -67,9 +67,8 @@ internal sealed class PhantoonPresentation
     /// <summary>Counts the body phase timer down and reports its expiry: reaching zero or running past it.</summary>
     internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state) => --state.PhaseTimer <= 0;
 
-    /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
-    internal static int HealthBand(RoomEnemyPlace body) =>
-        Math.Min(PhantoonColorDefinitions.HealthBandCount - 1, Math.Max(0, (body.Health - 1) / PhantoonColorDefinitions.HealthPerBand));
+    /// <summary>The health band <paramref name="body"/>'s health shows (#2259).</summary>
+    internal static PhantoonHealthBand HealthBand(RoomEnemyPlace body) => PhantoonHealthBand.Of(body.Health);
 
     /// <summary>Restarts a part's animation from its start with a one-tick timer.</summary>
     internal static void StartPhantoonAnimation(

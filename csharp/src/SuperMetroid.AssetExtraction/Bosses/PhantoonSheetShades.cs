@@ -33,9 +33,9 @@ internal static class PhantoonSheetShades
         PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon is shaded from the installed Phantoon colours.");
         PhantoonBodyLook[] settled =
             [PhantoonBodyLook.Black, PhantoonBodyLook.White, PhantoonBodyLook.FadedOut,
-            .. Enumerable.Range(0, PhantoonColorDefinitions.HealthBandCount).Select(PhantoonBodyLook.Health)];
+            .. PhantoonHealthBandDefinitions.LowestFirst.Select(PhantoonBodyLook.Health)];
         PhantoonBodyLook[] targets =
-            [PhantoonBodyLook.FadedOut, .. Enumerable.Range(0, PhantoonColorDefinitions.HealthBandCount).Select(PhantoonBodyLook.Health)];
+            [PhantoonBodyLook.FadedOut, .. PhantoonHealthBandDefinitions.LowestFirst.Select(PhantoonBodyLook.Health)];
         var shades = new List<SheetShade>();
         foreach (PhantoonBodyLook look in settled)
             shades.Add(SheetShade.Run(PhantoonShades.Body(look), BodyFirstInk, Colours(phantoon, look)));
@@ -79,9 +79,22 @@ internal static class PhantoonSheetShades
         PhantoonBodyLookKind.Black => new RgbColor[GroupColours],
         PhantoonBodyLookKind.White => [.. Enumerable.Repeat(RgbColor.White, GroupColours)],
         PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorFormat.FadeOutCount).Select(phantoon.ResolveFadeOut)],
-        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(look.Band, colour))],
+        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(HealthRow(look), colour))],
         _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
     };
+
+    /// <summary>The installed health colours' row of <paramref name="look"/>'s band: they hold his bands lowest first (#2259).</summary>
+    /// <exception cref="InvalidDataException">The health colouring names no band.</exception>
+    private static int HealthRow(PhantoonBodyLook look)
+    {
+        PhantoonHealthBand band = look.Band ?? throw new InvalidDataException("A Phantoon health colouring names its health band.");
+        for (int row = 0; row < PhantoonHealthBandDefinitions.LowestFirst.Count; row++)
+        {
+            if (PhantoonHealthBandDefinitions.LowestFirst[row] == band)
+                return row;
+        }
+        throw new InvalidDataException($"Phantoon's installed health colours hold no row for band {band}.");
+    }
 
     /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s of values <paramref name="first"/> through <paramref name="last"/>.</summary>
     private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int denominator, int first, int last)

@@ -718,10 +718,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int phase = (state.MembranePulsePhase + 1) % 8;
-        state.MembranePulsePhase = phase;
+        ShitroidMembranePulse pulse = state.MembranePulse.Next;
+        state.MembranePulse = pulse;
         state.ColourTimer = state.ColourDelay;
-        if (phase == 5 && state.CryEnabled)
+        if (pulse == ShitroidMembranePulse.CryPhase && state.CryEnabled)
         {
             state.CryCounter++;
             if (state.CryCounter >= 4)
@@ -733,7 +733,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        state.MembraneShown = phase;
+        state.MembraneShown = pulse;
         place.Shading = state.Shading;
     }
 

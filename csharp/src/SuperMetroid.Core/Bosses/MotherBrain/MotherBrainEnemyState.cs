@@ -188,10 +188,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public int FakeDeathExplosionIndex { get; internal set; }
 
     /// <summary>
-    /// The room flash's current frame (#641), or null while no flash runs. Its timer counts upward, unlike enemy
+    /// The room flash's current image (#641, #2259), or null while no flash runs. Its timer counts upward, unlike enemy
     /// animation frame holds, because the room flash's step compares elapsed frames with each duration.
     /// </summary>
-    public int? RoomFlashFrame { get; internal set; }
+    public MotherBrainRoomFlashImage? RoomFlashImage { get; internal set; }
     /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room flash's step and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
@@ -241,11 +241,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool DrawBrain { get; internal set; }
 
     /// <summary>
-    /// The rainbow frame Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame colour
-    /// step fires, from zero to one below <see cref="Artwork.MotherBrainRainbowColourFormat.RainbowFrameCount"/>; the
-    /// step advances it and returns to the first frame after the last.
+    /// The rainbow image Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame colour
+    /// step fires (#2259); the step advances it and returns to the first image after the last.
     /// </summary>
-    public int NextRainbowFrame { get; internal set; }
+    public MotherBrainRainbowImage NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.First;
 
     /// <summary>Whether her brain's draw appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's fake-death room flash (#641): fourteen color frames shown two updates each in a loop. Play runs the
-/// typed flash by frame index; only extraction locates the frames.
+/// Mother Brain's fake-death room flash (#641): fourteen images, each a <see cref="MotherBrainRoomFlashImage"/> (#2259),
+/// shown two updates each in a loop; only extraction locates their colours.
 /// </summary>
 internal static class MotherBrainRoomFlashDefinitions
 {

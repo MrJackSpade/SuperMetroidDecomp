@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
@@ -23,7 +24,7 @@ internal static class ImportedBossLooks
     extension(InstalledMotherBrainRainbowPalette self)
     {
         /// <summary>Shows rainbow phase <paramref name="frame"/> over <paramref name="cgram"/>.</summary>
-        internal void ApplyRainbow(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Rainbow(frame));
+        internal void ApplyRainbow(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]));
 
         /// <summary>Shows her restored colours over <paramref name="cgram"/>.</summary>
         internal void ApplyNormal(IPaletteColors cgram) => self.ShowImported(cgram, MotherBrainShades.Restored);
@@ -49,7 +50,7 @@ internal static class ImportedBossLooks
     extension(MotherBrainRoomColorPresentation self)
     {
         /// <summary>Shows step <paramref name="frame"/> of the room's flash over <paramref name="cgram"/>.</summary>
-        internal void ApplyFlash(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Flash(frame));
+        internal void ApplyFlash(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Flash(MotherBrainRoomFlashImage.All[frame]));
 
         /// <summary>Shows the room's steady grey over <paramref name="cgram"/>.</summary>
         internal void ApplyFinal(IPaletteColors cgram) => self.ShowImported(cgram, MotherBrainShades.FinalRoom);
@@ -61,7 +62,7 @@ internal static class ImportedBossLooks
         internal void ApplyRoomEntry(IPaletteColors cgram) => self.ShowImported(cgram, MotherBrainShades.RoomEntry);
 
         /// <summary>Shows step <paramref name="frame"/> of the room lights' recovery over <paramref name="cgram"/>.</summary>
-        internal void ApplyRecoveryLights(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.RecoveryLights(frame));
+        internal void ApplyRecoveryLights(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.RecoveryLights(MotherBrainRecoveryLights.All[frame]));
 
         /// <summary>Lays <paramref name="shade"/> over <paramref name="cgram"/>.</summary>
         internal void ShowImported(IPaletteColors cgram, PictureShade shade) =>
@@ -73,7 +74,7 @@ internal static class ImportedBossLooks
     {
         /// <summary>Shows health band <paramref name="band"/> over <paramref name="cgram"/>.</summary>
         internal void ApplyBand(IPaletteColors cgram, int band) =>
-            Lay(cgram, MotherBrainSheetShades.HealthBackground(self), MotherBrainSheetShades.HealthSprites(self), MotherBrainShades.Health(band));
+            Lay(cgram, MotherBrainSheetShades.HealthBackground(self), MotherBrainSheetShades.HealthSprites(self), MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[band]));
     }
 
     /// <summary>Draygon's colours, as the import's shades show them.</summary>

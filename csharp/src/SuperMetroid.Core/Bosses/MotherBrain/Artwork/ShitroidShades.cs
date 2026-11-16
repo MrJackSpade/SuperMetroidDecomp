@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public static class ShitroidShades
 {
-    /// <summary>The Shitroid's membrane at pulse phase <paramref name="phase"/>, zero through seven.</summary>
-    public static PictureShade Membrane(int phase) => new("shitroid-membrane", phase);
+    /// <summary>The Shitroid's membrane at pulse phase <paramref name="pulse"/> (#2259).</summary>
+    public static PictureShade Membrane(ShitroidMembranePulse pulse) => new("shitroid-membrane", pulse.Step);
 
     /// <summary>A draw in the colours the encounter's entry loads.</summary>
     public static PictureShading InTargetColours => TourianCorpseShades.InShitroidTargetColours;

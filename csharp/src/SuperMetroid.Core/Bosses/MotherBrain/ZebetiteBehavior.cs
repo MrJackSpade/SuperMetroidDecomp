@@ -69,17 +69,17 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ZebetiteShotSound = RoomSound.MissileDoorHit;
 
     /// <summary>
-    /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the
-    /// room. It selects only the pulse the Zebetites show.
+    /// The Zebetites' shared pulse (#2259), advanced by every primary Zebetite in the room; it starts at its first frame with
+    /// the room. It selects only the pulse the Zebetites show.
     /// </summary>
-    public int SharedColourCycle { get; internal set; }
+    public ZebetitePulse SharedPulse { get; internal set; } = ZebetitePulse.First;
 
     /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
-    internal int? PulseShown { get; private set; }
+    internal ZebetitePulse? PulseShown { get; private set; }
 
     /// <summary>The shading every Zebetite draws in: the pulse frame last shown, or the sheet's own colours before it.</summary>
-    internal PictureShading PulseShading => PulseShown is int frame
-        ? PictureShading.Shaded(ZebetiteShades.Pulse(frame))
+    internal PictureShading PulseShading => PulseShown is { } pulse
+        ? PictureShading.Shaded(ZebetiteShades.Pulse(pulse))
         : PictureShading.Standard;
 
     /// <summary>Sets a Zebetite up when the room spawns it.</summary>
@@ -196,9 +196,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_fadeStepCount.IsPastStart || place.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
             return;
 
-        int colourCycle = (SharedColourCycle + 1) % ZebetiteDefinitions.ColourCycleLength;
-        SharedColourCycle = colourCycle;
-        PulseShown = colourCycle;
+        ZebetitePulse pulse = SharedPulse.Next;
+        SharedPulse = pulse;
+        PulseShown = pulse;
     }
 
     /// <summary>

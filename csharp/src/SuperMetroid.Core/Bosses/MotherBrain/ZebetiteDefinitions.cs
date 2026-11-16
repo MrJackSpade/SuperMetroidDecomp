@@ -2,12 +2,9 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Fixed generation, health-tier, and respawn definitions for Tourian's Zebetites.</summary>
+/// <summary>Fixed generation and respawn definitions for Tourian's Zebetites.</summary>
 internal static class ZebetiteDefinitions
 {
-    /// <summary>The steps of the Zebetites' shared pulse cycle before it restarts.</summary>
-    public const int ColourCycleLength = 8;
-
     /// <summary>
     /// The four barrier generations, indexed by how many Zebetites have been destroyed (#2012): large barriers and split
     /// pairs alternate twelve blocks apart from the right, all on one centre line.

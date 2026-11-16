@@ -17,7 +17,7 @@ internal sealed class DraygonCannonObjects
     /// <summary>Connects the cannons to the active room's enemy services.</summary>
     internal DraygonCannonObjects(IRoomObjectEnemyEffects enemies)
     {
-        _enemies = Ensure.NotNull(enemies);
+        _enemies = enemies;
     }
 
     /// <summary>Whether <paramref name="kind"/> is one of the room's wall cannons: the live right, destroyed right or live left cannon.</summary>

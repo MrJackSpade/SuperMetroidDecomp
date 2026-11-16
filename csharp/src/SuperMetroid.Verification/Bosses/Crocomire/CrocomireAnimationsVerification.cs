@@ -217,6 +217,7 @@ internal static class CrocomireAnimationsVerification
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
             tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.Definition);
+            tongue.SetSpeciesState(new CrocomireTongueState(state));
             state.Tongue = tongue;
             state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);
             tongue.AnimationClock.StepOnNextUpdate();

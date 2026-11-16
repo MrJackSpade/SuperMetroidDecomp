@@ -188,7 +188,10 @@ internal static class EnemySpeciesCapabilitiesVerification
                 or EnemyDefinitionId.SporeSpawnStalk))
             .Distinct();
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            services: new VerificationRoomEnemyServices(null));
+        // The powered work robot's definition decides its power as it is placed (#2179); either power answers alike.
+        enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
         int bound = 0;
         int answers = 0;

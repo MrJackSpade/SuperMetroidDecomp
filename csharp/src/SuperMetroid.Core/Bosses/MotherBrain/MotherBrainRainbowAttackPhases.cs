@@ -68,9 +68,9 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
-        // The rainbow's drain setup leaves Samus able to stand at 700 energy or above and unable to stand
+        // The rainbow's drain setup leaves Samus able to stand at its standing energy or above and unable to stand
         // below it.
-        if (samus.Health >= 700)
+        if (samus.Health >= MotherBrainLateFightDefinitions.SamusStandsInBeamHealth)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else
             samus.Drained.SetupForRainbowBeamUnableToStand(samus);
@@ -78,18 +78,18 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.RainbowPhase = MotherBrainRainbowPhase.MoveSamusTowardWall;
     }
 
-    /// <summary>Resets the phase-two head animation and starts the 256-count neck extension before beam charging.</summary>
+    /// <summary>Resets the phase-two head animation and starts the neck extension before beam charging.</summary>
     internal void BeginExtendingNeckForAttack()
     {
         // The rainbow setup resets the neutral phase-two head animation and selects the
-        // ordinary 2/4 neck geometry before beginning its first 256-count wait.
+        // ordinary 2/4 neck geometry before beginning its first wait.
         _state.SetHeadAnimation(MotherBrainHeadSegment.NeutralPhase2);
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         Encounter.NeckMovementEnabled = true;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         Encounter.RainbowPhase = MotherBrainRainbowPhase.StartCharging;
-        Encounter.PhaseTimer.Count = 256;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.NeckExtendUpdates;
     }
 
     /// <summary>Requests the slow forward body animation until its target is reached.</summary>
@@ -133,21 +133,21 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Converts the angle from the offset brain origin to Samus into the rainbow beam's orientation.</summary>
     private void AimBeamAtSamus(SamusState samus)
     {
-        // The aim step aims from brain position (+16,+4) to Samus. The angle calculation consumes
+        // The aim step aims from her beams' offset on her brain to Samus. The angle calculation consumes
         // signed offsets; the aim step converts its clockwise-up angle to the
         // rainbow beam's anti-clockwise-down convention with `-angle + half turn`.
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
-            samus.Position.Whole - (_state.BrainPosition + new Offset16<RoomPixels>(16, 4)));
+            samus.Position.Whole - (_state.BrainPosition + MotherBrainFightDefinitions.BeamOffset));
         _movement.RainbowBeamAngle = RotationAngle.HalfTurn - sourceAngle;
     }
 
-    /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown runs out.</summary>
+    /// <summary>Emits the next cyclic beam explosion offset when its countdown runs out.</summary>
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
         if (ExplosionTimer.StepKeepsRunning())
             return null;
 
-        ExplosionTimer.Count = 8;
+        ExplosionTimer.Count = MotherBrainLateFightDefinitions.BeamExplosionIntervalUpdates;
         ExplosionIndex = (ExplosionIndex + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
         return new MotherBrainRainbowExplosionRequest(
             MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[ExplosionIndex]);
@@ -159,7 +159,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // The drain step starts from -2 in both branches; the Varia test then adds one back
         // with Varia, producing -1 with Varia and -2 without it. The below-zero check then clamps
         // wrapped/below-one health to zero.
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 2;
+        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? MotherBrainLateFightDefinitions.BeamDrainWithVaria : MotherBrainLateFightDefinitions.BeamDrainWithoutVaria;
         int candidate = samus.Health - damage;
         samus.Health = candidate >= 1 ? candidate : 0;
     }
@@ -241,12 +241,12 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowRetractNeck()
     {
-        MotherBrainWalkResult retract = _state.RequestWalkBackwardReallySlow(targetX: 40);
+        MotherBrainWalkResult retract = _state.RequestWalkBackwardReallySlow(targetX: MotherBrainFightDefinitions.BackOfRoomX);
         if (retract.ReachedTarget)
         {
             _state.RetractHead();
             Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
-            Encounter.PhaseTimer.Count = 256;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.ChargeWaitUpdates;
             return true;
         }
         return false;
@@ -279,7 +279,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast; // The Japanese and North American turn; the European release turns seven steps an update.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.StartFiring;
-        Encounter.PhaseTimer.Count = 16; // The Japanese and North American value; the European release uses 12.
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.NeckLoweringUpdates;
         return true;
     }
 
@@ -339,7 +339,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // The start-draining step's countdown of zero runs out on this very call.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8);
+            requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.BeamPinShakeUpdates);
             Encounter.RainbowPhase = MotherBrainRainbowPhase.StartDrainingSamus;
         }
         return false;
@@ -351,11 +351,11 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowStartDrainingSamus(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The drain start installs draining, seeds both its timer and the earthquake with 299, and falls
+        // The drain start installs draining, seeds both its timer and the earthquake with the drain's length, and falls
         // through into the draining phase in the same enemy-processing call.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.DrainingSamus;
-        Encounter.PhaseTimer.Count = 299;
-        requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 299);
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.DrainUpdates;
+        requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.DrainUpdates);
         return true;
     }
 
@@ -442,7 +442,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // Neck positions are presentation/actor-animation state. This phase's movement-
         // relevant effect is the exact phase/timer handoff to the lower-head step.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.DecideNextAction;
-        Encounter.PhaseTimer.Count = 128;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.LowerHeadUpdates;
         return false;
     }
 
@@ -454,7 +454,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            if (samus.Health >= 400)
+            if (samus.Health >= MotherBrainLateFightDefinitions.FinishOffSamusHealth)
             {
                 Encounter.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
             }
@@ -462,9 +462,9 @@ internal sealed class MotherBrainRainbowAttackPhases
             {
                 // The lower-head step performs this call before installing the later
                 // finish-off phase. It starts one complete really-slow forward
-                // body animation when Mother Brain is standing and left of 128.
+                // body animation when Mother Brain is standing and short of the arena's front limit.
                 RequestWalkForwardReallySlow(
-                    CoordinateAxis.Wrap(_state.BodyPosition.X + 16));
+                    CoordinateAxis.Wrap(_state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX));
                 _state.BabyArrivalReadyingElapsed = 0;
                 _state.BabyMetroidSpawned = false;
                 Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;

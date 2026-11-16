@@ -53,7 +53,7 @@ internal sealed class PhantoonDeath
     {
         PhantoonPatterns.PointPhantoonEyeAtSamus(body, state, samus);
         PhantoonPatterns.MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.DeathHeight);
-        if (body.Position.X.Whole is >= 96 and < 160)
+        if (body.Position.X.Whole is >= PhantoonArenaDefinitions.DeathBandLeftX and < PhantoonArenaDefinitions.DeathBandRightX)
             state.Phase = PhantoonPhase.DyingFadeInOut;
     }
 
@@ -71,11 +71,11 @@ internal sealed class PhantoonDeath
             return;
         state.BodyFade.Complete = false;
         state.Death.FadeCycles++;
-        if (state.Death.FadeCycles < 10)
+        if (state.Death.FadeCycles < PhantoonArenaDefinitions.DyingFadeCycles)
             return;
 
         state.Phase = PhantoonPhase.DyingExplosions;
-        state.PhaseTimer = 15;
+        state.PhaseTimer = PhantoonArenaDefinitions.FirstDyingExplosionUpdates;
         state.Death.NextExplosion = 0;
         state.Death.ExplosionPasses = 0;
     }
@@ -166,7 +166,7 @@ internal sealed class PhantoonDeath
     }
 
 
-    /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the 60-frame power delay.</summary>
+    /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the power's delay.</summary>
     internal void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
@@ -174,7 +174,7 @@ internal sealed class PhantoonDeath
         state.Translucent = false;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         state.Phase = PhantoonPhase.Dead;
-        state.PhaseTimer = 60;
+        state.PhaseTimer = PhantoonArenaDefinitions.PowerReturnDelayUpdates;
         state.BodyFade.Complete = false;
 
         _presentation.RequireBossBody().Clear();
@@ -197,14 +197,14 @@ internal sealed class PhantoonDeath
         if (!AdvanceWreckedShipPowerOn(state))
             return;
 
-        // The death drops scatter sixteen room-graphics pickups over the visible boss arena.
+        // The death drops scatter room-graphics pickups over the visible boss arena.
         // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.PhantoonBody,
-            count: 16,
-            xBase: 64,
+            count: PhantoonArenaDefinitions.DeathDropCount,
+            xBase: PhantoonArenaDefinitions.DeathDropOrigin.X,
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
-            yBase: 96,
+            yBase: PhantoonArenaDefinitions.DeathDropOrigin.Y,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
             samus: samus);
         // His body and his three parts are deleted (#2257).

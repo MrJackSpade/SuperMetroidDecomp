@@ -63,11 +63,11 @@ internal sealed class RinkaSpawnReservations
     }
 
     /// <summary>
-    /// Whether <paramref name="position"/> lies on the 256 by 224 pixel screen whose top-left is
+    /// Whether <paramref name="position"/> lies on the screen whose top-left is
     /// <paramref name="camera"/>; a position above the room's top edge never does.
     /// </summary>
     private static bool IsOnScreen(Position16<RoomPixels> position, Position16<RoomPixels> camera) =>
         CoordinateAxis.AsSigned(position.Y) >= 0 &&
-        CoordinateAxis.Difference(position.Y, camera.Y) is >= 0 and < 224 &&
-        CoordinateAxis.Difference(position.X, camera.X) is >= 0 and < 256;
+        CoordinateAxis.Difference(position.Y, camera.Y) is >= 0 and < ScreenGeometry.ScreenHeightPixels &&
+        CoordinateAxis.Difference(position.X, camera.X) is >= 0 and < ScreenGeometry.ScreenWidthPixels;
 }

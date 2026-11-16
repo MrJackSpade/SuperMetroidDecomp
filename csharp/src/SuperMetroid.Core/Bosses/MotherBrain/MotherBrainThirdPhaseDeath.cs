@@ -89,13 +89,15 @@ internal sealed class MotherBrainThirdPhaseDeath
         List<MotherBrainDeathExplosionRequest> requests)
     {
         // A restarted interval runs out on the first update, so a burst after a restart is immediate; after a burst the
-        // smoky explosions wait sixteen more updates and the mixed ones eight. Each burst takes the group before the last,
+        // smoky and mixed explosions wait their own intervals. Each burst takes the group before the last,
         // continuing the place the ascent's dust left (#1872).
-        if (!_bursts.IntervalRunsOut(style == MotherBrainDeathExplosionStyle.Mixed ? 8 : 16))
+        if (!_bursts.IntervalRunsOut(style == MotherBrainDeathExplosionStyle.Mixed
+            ? MotherBrainDeathExplosionDefinitions.MixedIntervalUpdates
+            : MotherBrainDeathExplosionDefinitions.SmokyIntervalUpdates))
             return;
 
         int group = _bursts.NextPlace(MotherBrainDeathExplosionDefinitions.GroupCount);
-        int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
+        int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : MotherBrainDeathExplosionDefinitions.SmokyPerBurst;
         int pairIndex = group * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
@@ -118,9 +120,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     private DustExplosionRequest? GenerateEscapeDoorExplosion(
         Func<int> nextRandomNumber)
     {
-        // The door's dust continues the interval and the place the last death explosions left (#1872), then waits four
-        // updates between bursts.
-        if (!_bursts.IntervalRunsOut(4))
+        // The door's dust continues the interval and the place the last death explosions left (#1872), then waits its
+        // interval between bursts.
+        if (!_bursts.IntervalRunsOut(MotherBrainDeathDefinitions.EscapeDoorDustIntervalUpdates))
             return null;
 
         int place = _bursts.NextPlace(MotherBrainDeathDefinitions.EscapeDoorDustPositions.Length);
@@ -145,16 +147,16 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         // The move-to-back step makes both enemies non-interactive and disables the shared
         // hitboxes on every call, then reuses the ordinary medium-speed backward
-        // walk producer. Its target reached means X 40 has been reached/overshot; the new 128
+        // walk producer. Its target reached means the back of the room has been reached/overshot; the new
         // timer falls through so the first smoky explosion and decrement happen now.
         Encounter.Body.Contact = Encounter.Body.Contact.With(EnemyContact.IgnoresSamus);
         Encounter.Head.Contact = Encounter.Head.Contact.With(EnemyContact.IgnoresSamus);
         Encounter.HitboxesEnabled = MotherBrainHitboxParts.None;
-        MotherBrainWalkResult dyingRetreat = _state.RequestWalkBackward(40, animationDelay: 6);
+        MotherBrainWalkResult dyingRetreat = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, animationDelay: 6);
         if (dyingRetreat.ReachedTarget)
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.IdleWhilstExploding;
-            Encounter.PhaseTimer.Count = 128;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.IdleExplodingUpdates;
             return true;
         }
         return false;
@@ -179,12 +181,12 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathStumbleToMiddleOfRoom(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The stumble emits smoke before asking for a really-fast forward walk to 96.
+        // The stumble emits smoke before asking for a really-fast forward walk to the middle of the room.
         // Equality still starts a complete body animation; only signed overshoot or the
-        // independent 128 arena clamp reports the target reached and advances the death script.
+        // independent arena front limit reports the target reached and advances the death script.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
-        MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(96, animationDelay: 2);
+        MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(MotherBrainLateFightDefinitions.DyingStumbleX, animationDelay: 2);
         if (dyingAdvance.ReachedTarget)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
@@ -192,7 +194,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             Encounter.DeathPhase = MotherBrainDeathPhase.DisableBrainEffects;
-            Encounter.PhaseTimer.Count = 32;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BeforeBrainEffectsStopUpdates;
         }
         return false;
     }
@@ -249,18 +251,18 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathFadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // Body flickering runs every AI call, independently of the seventeen-call
-        // colour cadence. The fade's sixteen steps show its blackening colourings; its
-        // seventeenth shows none and completes it.
+        // colour cadence. The fade's steps show its blackening colourings; the step after
+        // them shows none and completes it.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         requests.BodyFlickers = true;
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BodyFadeStepUpdates;
             int fadeStep = Encounter.DeathBodyFade.TakeStep();
-            if (fadeStep < 16)
+            if (fadeStep < MotherBrainLateFightDefinitions.BodyFadeSteps)
                 requests.DeathFadeStep = fadeStep;
-            if (fadeStep >= 16)
+            if (fadeStep >= MotherBrainLateFightDefinitions.BodyFadeSteps)
             {
                 requests.BodyClearRequested = true;
                 RoomEnemyPlace body = Encounter.Body;
@@ -269,7 +271,7 @@ internal sealed class MotherBrainThirdPhaseDeath
                 body.CollidesByFrameHitboxes = false;
                 body.AnimationClock.ShowsNewFrame = false;
                 Encounter.DeathPhase = MotherBrainDeathPhase.FinalFewExplosions;
-                Encounter.PhaseTimer.Count = 16;
+                Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.FinalExplosionsUpdates;
             }
         }
         return false;
@@ -311,14 +313,14 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
         // The brain gains fall speed each update and falls the speed's whole pixels.
-        // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
+        // Reaching the floor clamps the head and starts the brain's landing earthquake.
         _state.BrainFallSpeed += MotherBrainDeathDefinitions.BrainFallAcceleration;
         int fallingDisplacement = _state.BrainFallSpeed.UnsignedWholePixels;
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
-        if (candidate.Y >= 196)
+        if (candidate.Y >= MotherBrainFightDefinitions.BrainFloorY)
         {
-            requests.StartEarthquake(MotherBrainDeathDefinitions.BrainLandingEarthquake, 20);
-            _state.MoveBrainTo(_state.BrainPosition.WithY(196));
+            requests.StartEarthquake(MotherBrainDeathDefinitions.BrainLandingEarthquake, MotherBrainLateFightDefinitions.BrainLandingShakeUpdates);
+            _state.MoveBrainTo(_state.BrainPosition.WithY(MotherBrainFightDefinitions.BrainFloorY));
             CorpseReadyingElapsed = 0;
             Encounter.DeathPhase = MotherBrainDeathPhase.ReadyCorpse;
         }
@@ -340,7 +342,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (CorpseReadyingElapsed == MotherBrainReadyingDefinitions.CorpseDuration)
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.SetupFadeToGrey;
-            Encounter.PhaseTimer.Count = 32;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BeforeCorpseGreyUpdates;
         }
         return false;
     }
@@ -369,16 +371,16 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             int greyStep = Encounter.CorpseGreying.TakeStep();
-            if (greyStep < 8)
+            if (greyStep < MotherBrainFightDefinitions.GreySteps)
             {
                 requests.CorpseFadeStep = greyStep;
-                Encounter.PhaseTimer.Count = 16;
+                Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
             }
             else
             {
                 _state.SetHeadAnimation(MotherBrainHeadSegment.Corpse);
                 Encounter.DeathPhase = MotherBrainDeathPhase.CorpseTipsOver;
-                Encounter.PhaseTimer.Count = 256;
+                Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.CorpseTipsOverUpdates;
             }
         }
         return false;
@@ -415,8 +417,8 @@ internal sealed class MotherBrainThirdPhaseDeath
 
         // Once the corpse has rotted away the brain becomes invisible and non-solid, stops
         // its animation and frame-hitbox collision, and queues stop + escape music through the ordinary
-        // eight-frame-delay music queue. Twenty is loaded and immediately decremented
-        // by the fallthrough into the next step, leaving observable timer nineteen now.
+        // eight-frame-delay music queue. The pause is loaded and immediately decremented
+        // by the fallthrough into the next step, leaving it one less now.
         RoomEnemyPlace brain = Encounter.Head;
         brain.Presence = brain.Presence.With(EnemyPresence.Hidden);
         brain.Processing = brain.Processing.Without(EnemyProcessing.Animates);
@@ -425,7 +427,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.MusicStopQueued = true;   // Queue the music stop.
         requests.EscapeMusicQueued = true; // Queue the escape music.
         Encounter.DeathPhase = MotherBrainDeathPhase.PauseBeforeEscape;
-        Encounter.PhaseTimer.Count = 20;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BeforeEscapeUpdates;
         return true;
     }
 
@@ -483,7 +485,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianGeneralLevelRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs);
         requests.EscapeTypewriterSetupRequested = true;
-        Encounter.PhaseTimer.Count = 32;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.EscapeTextDelayUpdates;
         Encounter.DeathPhase = frame.AlternateEscapeText
             ? MotherBrainDeathPhase.SpawnTimeBombSetSubtitle
             : MotherBrainDeathPhase.TypeOutZebesEscapeText;
@@ -497,8 +499,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathSpawnTimeBombSetSubtitle(MotherBrainRainbowBeamStepRequests requests)
     {
         // The subtitle delay steps first. Its step does *not* merely wait: it branches directly
-        // into the typing step, so the underlying typewriter advances during all 32..0
-        // subtitle-delay values. When it runs out the code installs the typing step,
+        // into the typing step, so the underlying typewriter advances during every
+        // subtitle-delay value. When it runs out the code installs the typing step,
         // spawns the persistent Japanese subtitle projectile, and falls through to
         // that same typewriter call. Keep the producer request separate because the
         //  allocator owns whether a place in the projectile pool is actually free.
@@ -522,7 +524,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (frame.TypewriterFinished)
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.DoorExplodingStartTimer;
-            Encounter.PhaseTimer.Count = 32;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.EscapeDoorCountdownUpdates;
         }
         return false;
     }
@@ -534,8 +536,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathDoorExplodingStartTimer(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The keep-earthquake-going step always runs the periodic dust producer before touching the escape
-        // countdown. The freshly loaded 32 therefore receives 33 calls (32..0,
-        // then -1) and can emit dust even on the transition call.
+        // countdown. The freshly loaded countdown therefore receives one call more than its count
+        // and can emit dust even on the transition call.
         requests.EscapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
         if (Encounter.PhaseTimer.StepKeepsRunning())
             return false;
@@ -565,7 +567,7 @@ internal sealed class MotherBrainThirdPhaseDeath
 
         Encounter.DeathPhase = MotherBrainDeathPhase.KeepEarthquakeGoing;
         requests.EscapeDoorObject = new(
-            Block: new(0, 6),
+            Block: MotherBrainDeathDefinitions.EscapeDoorBlock,
             RoomObject: MotherBrainRoomMutation.EscapeDoor);
         return false;
     }

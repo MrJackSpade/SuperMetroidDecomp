@@ -38,15 +38,15 @@ internal sealed class PhantoonOpening
 
         _ = SpawnPhantoonStartingFlame(state, PhantoonFlameSpawns.StartingFlameStart(state.StartingFlames.NextFlame));
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
-        state.PhaseTimer = 30;
+        state.PhaseTimer = PhantoonArenaDefinitions.StartingFlameIntervalUpdates;
         state.StartingFlames.NextFlame++;
-        if (state.StartingFlames.NextFlame < 8)
+        if (state.StartingFlames.NextFlame < PhantoonFlameSpawns.StartingFlameCount)
             return;
 
         state.StartingFlames.NextFlame = 0;
         state.Round.Damage = 0;
         state.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
-        state.PhaseTimer = 30;
+        state.PhaseTimer = PhantoonArenaDefinitions.StartingFlamesActivateUpdates;
         _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
     }
 
@@ -55,7 +55,7 @@ internal sealed class PhantoonOpening
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
-        state.PhaseTimer = 240;
+        state.PhaseTimer = PhantoonArenaDefinitions.StartingFlamesOrbitUpdates;
         state.StartingFlames.Orbiting = true;
         state.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
@@ -71,7 +71,7 @@ internal sealed class PhantoonOpening
         state.Translucent = true;
         state.Phase = PhantoonPhase.WavyFadeIn;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
-        state.PhaseTimer = 120;
+        state.PhaseTimer = PhantoonArenaDefinitions.WavyFadeInUpdates;
         state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         state.Wave.AmplitudeShrinking = false;
         state.BodyFade.Complete = false;
@@ -93,7 +93,7 @@ internal sealed class PhantoonOpening
         {
             state.Phase = PhantoonPhase.PickFirstRoundPattern;
             state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
-            state.PhaseTimer = 30;
+            state.PhaseTimer = PhantoonArenaDefinitions.FirstRoundPickUpdates;
             return;
         }
 
@@ -121,7 +121,7 @@ internal sealed class PhantoonOpening
         flame.Velocity = EightEightVector<RoomPixels>.Zero;
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
         flame.State = orbit;
-        PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: 48);
+        PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: PhantoonFlameMotionDefinitions.IntroCircleRadius);
         flame.StartMotion(PhantoonFlameMotion.IntroWaiting);
         return true;
     }

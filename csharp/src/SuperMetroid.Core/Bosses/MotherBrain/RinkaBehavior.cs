@@ -330,18 +330,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeldSpawnPoint = null;
     }
 
-    /// <summary>The Rinka's asymmetric (-16..271, -16..239) flight rectangle.</summary>
+    /// <summary>The Rinka's flight rectangle: the screen widened by its flight margin on every side.</summary>
     private bool RinkaIsOutsideFlightWindow(RoomEnemyPlace place)
     {
         if (CoordinateAxis.AsSigned(place.Position.Y.Whole) < 0)
             return true;
-        int relativeY = CoordinateAxis.Difference(place.Position.Y.Whole + 16, _rinkaCamera.Y);
-        if (relativeY is < 0 or >= 256)
+        int relativeY = CoordinateAxis.Difference(place.Position.Y.Whole + RinkaLifeDefinitions.FlightMargin, _rinkaCamera.Y);
+        if (relativeY is < 0 or >= RinkaLifeDefinitions.FlightWindowHeight)
             return true;
         if (CoordinateAxis.AsSigned(place.Position.X.Whole) < 0)
             return true;
-        int relativeX = CoordinateAxis.Difference(place.Position.X.Whole + 16, _rinkaCamera.X);
-        return relativeX is < 0 or >= 288;
+        int relativeX = CoordinateAxis.Difference(place.Position.X.Whole + RinkaLifeDefinitions.FlightMargin, _rinkaCamera.X);
+        return relativeX is < 0 or >= RinkaLifeDefinitions.FlightWindowWidth;
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>

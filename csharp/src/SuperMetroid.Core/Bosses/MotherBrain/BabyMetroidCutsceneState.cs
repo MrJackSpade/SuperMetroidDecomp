@@ -889,13 +889,13 @@ public sealed class BabyMetroidCutsceneState
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
             return true;
-        int relativeY = CoordinateAxis.AsSigned(Position.Y.Whole + 96 - cameraPosition.Y);
-        if (relativeY is < 0 or >= 416)
+        int relativeY = CoordinateAxis.AsSigned(Position.Y.Whole + BabyMetroidFlightWindowDefinitions.VerticalMargin - cameraPosition.Y);
+        if (relativeY is < 0 or >= BabyMetroidFlightWindowDefinitions.Height)
             return true;
         if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
             return true;
-        int relativeX = CoordinateAxis.AsSigned(Position.X.Whole + 16 - cameraPosition.X);
-        return relativeX is < 0 or >= 288;
+        int relativeX = CoordinateAxis.AsSigned(Position.X.Whole + BabyMetroidFlightWindowDefinitions.HorizontalMargin - cameraPosition.X);
+        return relativeX is < 0 or >= BabyMetroidFlightWindowDefinitions.Width;
     }
 
     /// <summary>Predicts both axis crossings and reports arrival only when X and Y reach their targets together.</summary>

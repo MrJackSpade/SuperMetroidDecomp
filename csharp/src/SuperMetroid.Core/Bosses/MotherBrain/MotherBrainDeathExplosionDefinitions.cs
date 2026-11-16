@@ -11,6 +11,15 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// <summary>Four interleaved X/Y pairs per group.</summary>
     internal const int AnchorsPerGroup = 4;
 
+    /// <summary>The smoky explosions of one burst: the first two anchors of its group.</summary>
+    internal const int SmokyPerBurst = 2;
+
+    /// <summary>The updates after a burst of smoky explosions before the next.</summary>
+    internal const int SmokyIntervalUpdates = 16;
+
+    /// <summary>The updates after a burst of mixed explosions before the next.</summary>
+    internal const int MixedIntervalUpdates = 8;
+
     /// <summary>
     /// Twenty-eight authored decorative positions read before RNG selects
     /// explosion type. The explosion's initializer adds these offsets to the moving body without

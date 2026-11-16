@@ -51,6 +51,18 @@ public static class PhantoonMotionDefinitions
     public const int ReverseSlowCap = -2;
     /// <summary>The signed whole speed at which a returning figure-eight stops surging and settles.</summary>
     public const int ReverseFastCap = -7;
+    /// <summary>The speed a forward figure-eight surges from once it has eased in: a place an update.</summary>
+    public static SignedSixteenSixteen ForwardSurgeStart { get; } = SignedSixteenSixteen.FromParts(ForwardSlowCap - 1, 0);
+    /// <summary>The speed a forward figure-eight eases in from again once it has settled: a place an update.</summary>
+    public static SignedSixteenSixteen ForwardEaseStart { get; } = SignedSixteenSixteen.FromParts(ForwardMinimum + 1, 0);
+    /// <summary>The speed a returning figure-eight surges from once it has eased in: at rest.</summary>
+    public static SignedSixteenSixteen ReverseSurgeStart { get; } = SignedSixteenSixteen.FromParts(ReverseSlowCap + 2, 0);
+    /// <summary>The speed a returning figure-eight settles from once it has surged: six places an update back.</summary>
+    public static SignedSixteenSixteen ReverseSettleStart { get; } = SignedSixteenSixteen.FromParts(ReverseFastCap + 1, 0);
+    /// <summary>The highest his swoop carries him.</summary>
+    public const int SwoopMinimumY = 64;
+    /// <summary>The lowest his swoop carries him.</summary>
+    public const int SwoopMaximumY = 216;
     /// <summary>The signed whole speed a returning figure-eight settles back to before it eases in again.</summary>
     public const int ReverseMaximum = 0;
 }

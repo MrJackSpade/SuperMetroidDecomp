@@ -27,10 +27,10 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveInanimateGrey()
     {
-        // The inanimate setup only moves to the next phase and sets its 768-frame timer. It does not
+        // The inanimate setup only moves to the next phase and sets its timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
         Encounter.RevivalPhase = MotherBrainRevivalPhase.ShowSignsOfLife;
-        Encounter.PhaseTimer.Count = 768;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.InanimateUpdates;
         return false;
     }
 
@@ -40,14 +40,14 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
-        // The count of 768 lasts 769 calls. As it runs out, revival re-enables both breath producers,
-        // seeds 224, and falls through two phase changes to the transition from grey.
+        // The inanimate count lasts one call longer than its count. As it runs out, revival re-enables both breath producers,
+        // seeds the first grey step's wait, and falls through two phase changes to the transition from grey.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.SmallPurpleBreathGenerationEnabled = true;
             Encounter.DroolGenerationEnabled = true;
             Encounter.RevivalPhase = MotherBrainRevivalPhase.TransitionFromGrey;
-            Encounter.PhaseTimer.Count = 224;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.RevivalFirstGreyStepUpdates;
             Encounter.RevivalFromGrey.Restart();
             return true;
         }
@@ -62,14 +62,14 @@ internal sealed class MotherBrainRevivalPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
 
-            // The revival reverses the same eight greying steps used by the corpse transition. Its ninth step shows no
+            // The revival reverses the same greying steps used by the corpse transition. Its ninth step shows no
             // new colours and completes the revival into her waking up.
             int greyStep = Encounter.RevivalFromGrey.TakeStep();
-            if (greyStep < 8)
+            if (greyStep < MotherBrainFightDefinitions.GreySteps)
                 requests.RevivalColourStep = greyStep;
-            if (greyStep >= 8)
+            if (greyStep >= MotherBrainFightDefinitions.GreySteps)
             {
                 Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUp;
                 return true;
@@ -95,7 +95,7 @@ internal sealed class MotherBrainRevivalPhases
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             Encounter.NeckMovementEnabled = true;
             Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUpStretch;
-            Encounter.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.WakeUpStretchUpdates;
             return true;
         }
         return false;
@@ -111,7 +111,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase3);
             Encounter.RevivalPhase = MotherBrainRevivalPhase.WalkUpToBaby;
-            Encounter.PhaseTimer.Count = 128;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BeforeWalkUpToBabyUpdates;
             return true;
         }
         return false;
@@ -123,13 +123,13 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby()
     {
-        // Once the 128-count timer runs out, it stays run out and the
-        // helper is retried after every body-animation call until X has overshot 80.
+        // Once the timer runs out, it stays run out and the
+        // helper is retried after every body-animation call until X has overshot the walk's target.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            _state.RequestWalkForward(80, 4);
-            // Past X 80 she has overshot the walk's target; the walk's limit at X 128 lies beyond it.
-            bool reachedWalkTarget = _state.BodyPosition.X > 80;
+            _state.RequestWalkForward(MotherBrainLateFightDefinitions.BabyWalkUpX, 4);
+            // Past the walk's target she has overshot it; the walk's front limit lies beyond it.
+            bool reachedWalkTarget = _state.BodyPosition.X > MotherBrainLateFightDefinitions.BabyWalkUpX;
             if (reachedWalkTarget)
             {
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Revived;
@@ -167,7 +167,7 @@ internal sealed class MotherBrainRevivalPhases
         if (stoodUp)
         {
             Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttack;
-            _state.RequestWalkForward(80, 10);
+            _state.RequestWalkForward(MotherBrainLateFightDefinitions.BabyWalkUpX, 10);
             return true;
         }
         return false;
@@ -189,7 +189,7 @@ internal sealed class MotherBrainRevivalPhases
                 ? MotherBrainHeadSegment.AttackingBabyMetroid
                 : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
             Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttackCooldown;
-            Encounter.PhaseTimer.Count = 64;
+            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BabyAttackCooldownUpdates;
         }
         return false;
     }
@@ -212,9 +212,9 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhasePrepareForFinalBabyAttack()
     {
         // This phase has no state transition. It requests stand-up and a
-        // fast backward walk toward X 64 every call until the Baby overwrites it.
+        // fast backward walk toward its retreat every call until the Baby overwrites it.
         _state.MakeBodyStandUp();
-        _state.RequestWalkBackward(64, 4);
+        _state.RequestWalkBackward(MotherBrainLateFightDefinitions.FinalBabyAttackRetreatX, 4);
         return false;
     }
 

@@ -12,11 +12,11 @@ public static class PhantoonPatternDefinitions
     [
         new(1, new(128, 96)),
         new(71, new(168, 64)),
-        new(136, new(208, 96)),
+        new(PhantoonPathDefinitions.RightAppearance, PhantoonPathDefinitions.RightAppearancePosition),
         new(201, new(168, 128)),
         new(1, new(128, 96)),
         new(334, new(88, 64)),
-        new(399, new(48, 96)),
+        new(PhantoonPathDefinitions.LeftAppearance, PhantoonPathDefinitions.LeftAppearancePosition),
         new(465, new(88, 128)),
     ];
 

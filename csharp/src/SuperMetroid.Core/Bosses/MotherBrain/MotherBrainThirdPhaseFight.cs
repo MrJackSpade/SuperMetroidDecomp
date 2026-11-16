@@ -74,28 +74,28 @@ internal sealed class MotherBrainThirdPhaseFight
             case MotherBrainPhase3WalkingPhase.TryToInchForward:
                 if (Phase3WalkCounter.IsEmpty)
                 {
-                    // Zero credit does not merely pause. The retreat chooses a point fourteen
-                    // pixels left, starts the quick-retreat phase, and falls into it.
-                    Phase3TargetXPosition = _state.BodyPosition.X - 14;
+                    // Zero credit does not merely pause. The retreat chooses a point a retreat's
+                    // step left, starts the quick-retreat phase, and falls into it.
+                    Phase3TargetXPosition = _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels;
                     Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
                     goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
                 }
 
                 // The addition and comparison are unsigned here. A wrapped counter can therefore spend
                 // more calls below 256; no integer widening or saturation belongs.
-                Phase3WalkCounter = Phase3WalkCounter.AddCredit(32);
+                Phase3WalkCounter = Phase3WalkCounter.AddCredit(MotherBrainLateFightDefinitions.Phase3CreditPerTurn);
                 if (Phase3WalkCounter.BelowStep)
                     return;
 
                 Phase3TargetXPosition = _state.BodyPosition.X + 1;
                 int forwardDelay = (randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay) ? 2 : 0) + 4;
 
-                // The forward walk reports arrival for an overshot target or at its X 128 limit. The target lies one
+                // The forward walk reports arrival for an overshot target or at the arena's front limit. The target lies one
                 // pixel ahead of her, which she has not overshot, so only the limit reports it here.
-                bool reachedForwardTarget = _state.BodyPosition.X >= 128;
+                bool reachedForwardTarget = _state.BodyPosition.X >= MotherBrainFightDefinitions.FrontLimitX;
                 if (reachedForwardTarget)
                 {
-                    Phase3WalkCounter = MotherBrainWalkCredit.Of(128);
+                    Phase3WalkCounter = MotherBrainWalkCredit.Of(MotherBrainFightDefinitions.AfterStepCredit);
                     return;
                 }
 
@@ -108,10 +108,10 @@ internal sealed class MotherBrainThirdPhaseFight
                 if (!quickRetreat.ReachedTarget)
                     return;
 
-                // Reaching the first target chooses another point fourteen pixels left but
+                // Reaching the first target chooses another point a retreat's step left but
                 // does not fall through to the slow request. That request starts only on the
                 // next standing AI call.
-                Phase3TargetXPosition = _state.BodyPosition.X - 14;
+                Phase3TargetXPosition = _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels;
                 Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatSlowly;
                 return;
 
@@ -121,9 +121,9 @@ internal sealed class MotherBrainThirdPhaseFight
                 if (!slowRetreat.ReachedTarget)
                     return;
 
-                // The inch-forward setup writes all three values: forty walk-credit, the inch-forward
+                // The inch-forward setup writes all three values: the retreat's walk credit, the inch-forward
                 // phase, and a one-pixel-ahead target used by later calls.
-                SetPhase3WalkingToTryToInchForward(64);
+                SetPhase3WalkingToTryToInchForward(MotherBrainLateFightDefinitions.Phase3AfterRetreatCredit);
                 return;
 
             default:
@@ -164,10 +164,10 @@ internal sealed class MotherBrainThirdPhaseFight
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
-                Phase3NeckRecoilTimer = 16;
+                Phase3NeckRecoilTimer = MotherBrainLateFightDefinitions.RecoilRecoveryUpdates;
 
-                // The neck step falls directly into its successor; the newly loaded sixteen is already
-                // fifteen when this single update returns.
+                // The neck step falls directly into its successor; the newly loaded recovery is already
+                // one less when this single update returns.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:
@@ -187,14 +187,14 @@ internal sealed class MotherBrainThirdPhaseFight
                 Encounter.NeckMovementEnabled = true;
                 Phase3DisableAttacks = true;
                 _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
-                Encounter.BrainMainShakeTimer = 50;
+                Encounter.BrainMainShakeTimer = MotherBrainFightDefinitions.BrainShakeUpdates;
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.HyperBeamRecoil;
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-                Phase3NeckRecoilTimer = 11;
+                Phase3NeckRecoilTimer = MotherBrainLateFightDefinitions.HyperBeamRecoilUpdates;
 
-                // Setup also falls through, making the externally visible first timer 10.
+                // Setup also falls through, making the externally visible first timer one less.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
@@ -222,13 +222,13 @@ internal sealed class MotherBrainThirdPhaseFight
     internal bool RunThirdPhaseRecoverMakeSomeDistance()
     {
         // The recovery changes form before installing the setup wait. Its backward-walk
-        // request uses target X-14 and delay index two; the ordinary helper may
+        // request steps one retreat back and uses delay index two; the ordinary helper may
         // legitimately reject it at the arena's hard left limit.
         Encounter.Form = MotherBrainForm.ThirdPhase;
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
-        Encounter.PhaseTimer.Count = 32;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.RecoverSetupUpdates;
         _state.RequestWalkBackward(
-            CoordinateAxis.Wrap(_state.BodyPosition.X - 14),
+            CoordinateAxis.Wrap(_state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels),
             animationDelay: 2);
         return false;
     }
@@ -289,7 +289,7 @@ internal sealed class MotherBrainThirdPhaseFight
         }
 
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
-        Encounter.PhaseTimer.Count = 64;
+        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.Phase3AttackCooldownUpdates;
         return false;
     }
 

@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyRoomMainHooks(CrocomireBehavior crocomire, SporeSpawnBehavior sporeSpawn, RoomCameraDistance cameraDistance) : IEnemyRoomMainHooks
 {
     /// <inheritdoc/>
-    public CrocomireEnemyState? Crocomire => crocomire.Access.Crocomire;
+    public CrocomireEnemyState? Crocomire => crocomire.Fight.Encounter;
 
     /// <inheritdoc/>
-    public CrocomireDeathState? CrocomireDeath => crocomire.Access.CrocomireDeath;
+    public CrocomireDeathState? CrocomireDeath => crocomire.Fight.Encounter?.Death;
 
     /// <inheritdoc/>
     public void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera) => sporeSpawn.RunScrollingFinishedHook(camera);

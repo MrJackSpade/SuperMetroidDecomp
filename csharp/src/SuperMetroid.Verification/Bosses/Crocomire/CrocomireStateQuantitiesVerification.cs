@@ -243,7 +243,7 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         CrocomireBehavior behavior = enemies.CrocomireBehavior;
-        CrocomireDeathState death = behavior.Access.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
+        CrocomireDeathState death = state.Death;
         ushort fraction = 0;
         ushort whole = 0;
         state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
@@ -347,9 +347,9 @@ internal static class CrocomireStateQuantitiesVerification
         body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Access.Crocomire = state;
+        body.SetSpeciesState(state);
         // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).
-        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
+        BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);

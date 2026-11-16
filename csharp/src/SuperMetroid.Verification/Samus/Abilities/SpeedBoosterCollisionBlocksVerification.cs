@@ -261,7 +261,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     private static void StepSpeedBoosterObject(
         RoomObjectSystem roomObjects,
         RoomLevelData level) =>
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Runs the focused Speed Booster collision and PLM verification from its command-line switch.</summary>
     [VerificationCommand("--speed-booster-block-plms")]

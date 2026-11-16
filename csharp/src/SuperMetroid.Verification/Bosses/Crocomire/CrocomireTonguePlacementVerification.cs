@@ -33,13 +33,12 @@ internal static class CrocomireTonguePlacementVerification
             BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(
                 CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.StepForward), AnimationPlace.StartOfAnimation),
         };
-        enemies.CrocomireBehavior.Access.Crocomire = state;
-        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
+        body.SetSpeciesState(state);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
         tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
-        tongue.SetSpeciesState(new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset });
+        tongue.SetSpeciesState(new CrocomireTongueState(state) { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset });
         state.Tongue = tongue;
         body.AnimationClock.StepOnNextUpdate();
 

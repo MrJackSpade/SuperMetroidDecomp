@@ -156,13 +156,10 @@ public sealed class DraygonEnemyState
 
 
     /// <summary>
-    /// The wall cannons disabled by a destroyed or already-destroyed room object.
-    /// This is the shared state Draygon's firing selector observes.
+    /// The body's phase; the body runs it each update before its three parts take the body's position. The fight starts
+    /// in its opening delay.
     /// </summary>
-    internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];
-
-    /// <summary>The body's phase; the body runs it each update before its three parts take the body's position.</summary>
-    public DraygonPhase Phase { get; internal set; }
+    public DraygonPhase Phase { get; internal set; } = DraygonPhase.IntroInitialDelay;
 
     /// <summary>The way Draygon's swoop or goop pass travels (#2165).</summary>
     public HorizontalDirection PassDirection { get; internal set; }

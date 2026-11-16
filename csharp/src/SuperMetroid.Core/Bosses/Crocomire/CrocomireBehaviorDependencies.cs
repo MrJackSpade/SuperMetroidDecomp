@@ -41,8 +41,11 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>Crocomire's state lookups, frame results and sound and music requests.</summary>
+    /// <summary>Crocomire's frame results and sound and music requests.</summary>
     public required CrocomireEncounterAccess Access { get; init; }
+
+    /// <summary>The room's enemy places, among which his tongue finds his body.</summary>
+    public required EnemyPlaces Places { get; init; }
 
     /// <summary>His body's sprite layer and the acid smoke that rises from his room's acid surface, built with <see cref="Access"/>.</summary>
     public required CrocomireBodyLayer BodyLayer { get; init; }

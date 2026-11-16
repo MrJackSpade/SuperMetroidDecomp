@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -19,6 +20,13 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectFixtures
 {
+    /// <summary>
+    /// A one-screen scroll grid in power-on cells for a room-object step whose objects change no scrolls: every step hands
+    /// its room objects the active room's grid, which these fixtures do not otherwise build.
+    /// </summary>
+    internal static RoomScrollGrid UnreadScrolls() =>
+        RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(1, 1), RoomScrollState.Open);
+
     /// <summary>
     /// The installed artwork each fixture was built with, so a rebound fixture draws the same way, kept in one of several
     /// tables chosen by the fixture's identity: a table takes one lock per added fixture, and a sweep building a fixture

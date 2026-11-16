@@ -31,6 +31,8 @@ internal sealed class DraygonParts
     private readonly EnemyAudioQueue _audio;
     /// <summary>The goop and turret shots, whose goop behaviour Draygon's goop is bound to.</summary>
     private readonly DraygonShots _shots;
+    /// <summary>The room's enemy places, among which each part finds the body listed before it.</summary>
+    private readonly EnemyPlaces _places;
 
     /// <summary>Builds the component from the encounter's collaborators.</summary>
     internal DraygonParts(DraygonPartsDependencies dependencies)
@@ -43,10 +45,15 @@ internal sealed class DraygonParts
         _frameContext = dependencies.FrameContext;
         _audio = dependencies.Audio;
         _shots = dependencies.Shots;
+        _places = dependencies.Places;
     }
 
-    /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
-    public DraygonEnemyState? Draygon { get; internal set; }
+    /// <summary>
+    /// The room's Draygon as the room's display sees it (#2177): set as his body sets up and kept for the room, so that
+    /// his body layer hides once his body is deleted; none in a room without him. His parts never read it: each holds
+    /// its encounter from its setup.
+    /// </summary>
+    public DraygonEnemyState? Draygon { get; private set; }
 
     /// <summary>Sets Draygon's body up when the room spawns it.</summary>
     internal void InitializeDraygonBody(RoomEnemyPlace body)
@@ -69,41 +76,42 @@ internal sealed class DraygonParts
     }
 
     /// <summary>
-    /// The encounter a part other than the body joins as it sets up, which his body has set up first; the part's animation
-    /// steps on its next update.
+    /// The encounter a part other than the body joins as it sets up, which his body, listed
+    /// <paramref name="placesAfterBody"/> places before the part, has set up first; the part's animation steps on its next
+    /// update.
     /// </summary>
-    /// <exception cref="InvalidDataException">The part sets up before his body.</exception>
-    private DraygonEnemyState JoiningPart(RoomEnemyPlace part)
+    private DraygonEnemyState JoiningPart(RoomEnemyPlace part, int placesAfterBody)
     {
-        DraygonEnemyState state = Draygon ??
-            throw new InvalidDataException("Draygon part appeared before his body.");
+        DraygonEnemyState state = _places.ListedBefore(part, placesAfterBody).RequireSpeciesState<DraygonEnemyState>();
         part.AnimationClock.StepOnNextUpdate();
         return state;
     }
 
-    /// <summary>Sets Draygon's eye up, inert until the body publishes facing AI.</summary>
+    /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
     internal void InitializeDraygonEye(RoomEnemyPlace eye)
     {
-        DraygonEnemyState state = JoiningPart(eye);
-        var eyeState = new DraygonEyeState(DraygonEyeAction.Inert);
+        DraygonEnemyState state = JoiningPart(eye, placesAfterBody: 1);
+        var eyeState = new DraygonEyeState(state, DraygonEyeAction.Inert);
         eye.SetSpeciesState(eyeState);
         state.Eye = eye;
         state.StartAnimation(eye, DraygonSegment.EyeFacingLeftIdle);
     }
 
-    /// <summary>Sets Draygon's tail up, starting with its fake whip.</summary>
+    /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
     internal void InitializeDraygonTail(RoomEnemyPlace tail)
     {
-        DraygonEnemyState state = JoiningPart(tail);
+        DraygonEnemyState state = JoiningPart(tail, placesAfterBody: 2);
+        tail.SetSpeciesState(new DraygonPartState(state));
         state.Tail = tail;
         tail.Shading = state.Colours.Sprites;
         state.StartAnimation(tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
     }
 
-    /// <summary>Sets Draygon's arms up in their idle loop.</summary>
+    /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
     internal void InitializeDraygonArms(RoomEnemyPlace arms)
     {
-        DraygonEnemyState state = JoiningPart(arms);
+        DraygonEnemyState state = JoiningPart(arms, placesAfterBody: 3);
+        arms.SetSpeciesState(new DraygonPartState(state));
         // Body init briefly writes a body phase before this part exists. Retail part init
         // clears that lost write and installs the ordinary idle loop.
         arms.Shading = state.Colours.Sprites;
@@ -137,9 +145,7 @@ internal sealed class DraygonParts
     /// <summary>Restarts a linked Draygon part's animation on its next update, as starting an animation does.</summary>
     internal void StartDraygonAnimation(RoomEnemyPlace part, DraygonSegment segment)
     {
-        DraygonEnemyState state = Draygon ??
-            throw new InvalidDataException("Draygon animation started without encounter state.");
-        state.StartAnimation(part, segment);
+        DraygonEntity.EncounterOf(part).StartAnimation(part, segment);
         part.AnimationClock.StepOnNextUpdate();
     }
 
@@ -148,10 +154,8 @@ internal sealed class DraygonParts
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
     /// part.
     /// </summary>
-    internal void AdvanceDraygonPartAnimation(RoomEnemyPlace part, SamusState samus)
+    internal void AdvanceDraygonPartAnimation(DraygonEnemyState state, RoomEnemyPlace part, SamusState samus)
     {
-        DraygonEnemyState state = Draygon ??
-            throw new InvalidDataException("Draygon part ran without encounter state.");
         if (!part.AnimationClock.Expire())
             return;
 

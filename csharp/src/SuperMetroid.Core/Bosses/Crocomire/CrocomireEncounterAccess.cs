@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and its sound and music requests.</summary>
+/// <summary>Crocomire's body animation start, room objects, dust and random numbers, and its sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class CrocomireEncounterAccess
 {
@@ -28,12 +28,6 @@ internal sealed class CrocomireEncounterAccess
         _audio = audio;
     }
 
-    /// <summary>Crocomire's state while the current room contains Crocomire.</summary>
-    public CrocomireEnemyState? Crocomire { get; internal set; }
-
-    /// <summary>Typed extended state used by Crocomire's bridge/melting/skeleton graph.</summary>
-    public CrocomireDeathState? CrocomireDeath { get; internal set; }
-
     /// <summary>Queues one of Crocomire's sounds as Crocomire makes it, after the update's earlier requests.</summary>
     internal void RequestCrocomireSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
@@ -47,18 +41,6 @@ internal sealed class CrocomireEncounterAccess
     {
         state.BodyPlayback = EnemyAnimationPlayback.Start(state.Body, CrocomireBodyAnimations.StartingWith(segment));
     }
-
-    /// <summary>Finds the Crocomire encounter owning an enemy place, failing if its room state is absent.</summary>
-    internal CrocomireEnemyState RequireCrocomire(RoomEnemyPlace place) =>
-        Crocomire is { } state && ReferenceEquals(state.Body, place)
-            ? state
-            : throw new InvalidOperationException(
-                $"Enemy place {place.Ordinal} has no initialized Crocomire body state.");
-
-    /// <summary>Requires the active death-sequence state before processing skeleton or wall cues.</summary>
-    internal CrocomireDeathState RequireCrocomireDeath() =>
-        CrocomireDeath ?? throw new InvalidOperationException(
-            "Crocomire death extension is not initialized for the current room.");
 
     /// <summary>Queues a room-object block change for later room processing.</summary>
     internal void PublishCrocomireObject(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>

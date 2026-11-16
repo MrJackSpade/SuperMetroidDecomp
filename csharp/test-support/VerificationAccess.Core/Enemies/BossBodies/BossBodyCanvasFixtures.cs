@@ -24,16 +24,13 @@ internal static class BossBodyCanvasFixtures
     }
 
     /// <summary>
-    /// Binds <paramref name="sheets"/> to <paramref name="enemies"/> and gives Crocomire what his initialization does: a
-    /// death state and a body showing nothing. Returns the death state.
+    /// Binds <paramref name="sheets"/> to <paramref name="enemies"/> and gives Crocomire the body his initialization
+    /// attaches, showing nothing; his death state is his encounter's own.
     /// </summary>
-    internal static CrocomireDeathState AttachCrocomire(RoomEnemySystem enemies, BossBodySheets sheets)
+    internal static void AttachCrocomire(RoomEnemySystem enemies, BossBodySheets sheets)
     {
         enemies.BossArtworkBinding.BodySheets = sheets;
-        var death = new CrocomireDeathState();
-        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
         enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire));
-        return death;
     }
 
     /// <summary>Whether <paramref name="first"/> and <paramref name="second"/> show the same frames, shown above the same row.</summary>

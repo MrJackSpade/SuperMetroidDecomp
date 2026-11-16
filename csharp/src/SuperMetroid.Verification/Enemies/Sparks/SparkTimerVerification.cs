@@ -11,7 +11,7 @@ internal static class SparkTimerVerification
     /// </summary>
     internal static void VerifySparkTimer()
     {
-        var state = new SparkEnemyState(SparkAction.AlwaysActive) { ActionTimer = 1 };
+        var state = new SparkEnemyState(SparkAction.AlwaysActive, new(SparkAnimations.StartingWith(SparkSegment.Active), AnimationPlace.StartOfAnimation)) { ActionTimer = 1 };
         AssertTrue(SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at one expires");
         AssertEqual(1, state.ActionTimer, "the expiring update leaves the countdown for its reset");
 

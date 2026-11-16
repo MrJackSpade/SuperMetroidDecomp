@@ -78,7 +78,7 @@ internal sealed class CrocomireSkeleton
         state.RumbleOscillation = 0;
         state.RumbleTowardExtreme = false;
 
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
+        CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
         state.DamageReactionPending = false;
@@ -89,7 +89,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Shakes the arena wall before the skeleton's break-through and advances its authored delay.</summary>
     internal void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
+        CrocomireDeathState death = state.Death;
         if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
         {
             state.DeathPhaseDelay = 128;
@@ -134,7 +134,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Bares the skeleton behind the wall while its wait runs, then replaces the wall blocks as the bones break through.</summary>
     internal void RunCrocomireSkeletonRevealAndWallBreak(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
+        CrocomireDeathState death = state.Death;
         if (state.DeathPhaseDelay != 0)
         {
             state.DeathPhaseDelay--;
@@ -157,7 +157,7 @@ internal sealed class CrocomireSkeleton
 
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
             projectile.Delete();
-        SpawnCrocomireSpikeWallPieces();
+        SpawnCrocomireSpikeWallPieces(state);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.SpikeWallBreak);
         state.DeathPhase = state.DeathPhase.Next();
     }
@@ -165,7 +165,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Holds the broken-wall pose before launching the skeleton arc.</summary>
     internal void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
+        CrocomireDeathState death = state.Death;
         if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 224) < 0)
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 128, maximumWhole: 2);
@@ -282,10 +282,8 @@ internal sealed class CrocomireSkeleton
     /// carries its place in the wall, zero for the top piece, and stands at 56 + 16 times its place, so the spawn order
     /// runs Y=168 up to 56. The melt empties the enemy projectiles just before, so every piece is spawned.
     /// </summary>
-    internal void SpawnCrocomireSpikeWallPieces()
+    internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
-        CrocomireEnemyState state = _access.Crocomire ??
-            throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.Body);
 
         for (int count = 0; count < CrocomireSpikeMotionDefinitions.PieceCount; count++)

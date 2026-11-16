@@ -114,8 +114,7 @@ internal static class CrocomireAnimationsVerification
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
         var state = new CrocomireEnemyState(body);
-        enemies.CrocomireBehavior.Access.Crocomire = state;
-        enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
+        body.SetSpeciesState(state);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);
@@ -250,14 +249,14 @@ internal static class CrocomireAnimationsVerification
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         CompareProjectile(cartridge, mouthSystem, mouth, RoomEnemyProjectileKind.CrocomireProjectile, shot: false, "mouth");
 
-        (RoomEnemySystem bridgeSystem, _) = NewCrocomire();
-        bridgeSystem.CrocomireBehavior.BridgeCollapse.SpawnNextCrocomireBridgeFragment();
+        (RoomEnemySystem bridgeSystem, CrocomireEnemyState bridgeState) = NewCrocomire();
+        bridgeSystem.CrocomireBehavior.BridgeCollapse.SpawnNextCrocomireBridgeFragment(bridgeState.Death);
         EnemyProjectile bridge = bridgeSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
         CompareProjectile(cartridge, bridgeSystem, bridge, RoomEnemyProjectileKind.CrocomireBridgeCrumbling, shot: false, "bridge");
 
-        (RoomEnemySystem spikeSystem, _) = NewCrocomire();
-        spikeSystem.CrocomireBehavior.Skeleton.SpawnCrocomireSpikeWallPieces();
+        (RoomEnemySystem spikeSystem, CrocomireEnemyState spikeState) = NewCrocomire();
+        spikeSystem.CrocomireBehavior.Skeleton.SpawnCrocomireSpikeWallPieces(spikeState);
         EnemyProjectile[] spikes = [.. spikeSystem.Projectiles.EnemyProjectiles.Where(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireSpikeWallPieces)];
         AssertEqual(8, spikes.Length, "the spike wall breaks into eight pieces");

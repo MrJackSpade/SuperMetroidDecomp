@@ -29,7 +29,18 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyPlace pl
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceDraygonTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceDraygonTypedAnimation(Encounter, Place, context);
+
+    /// <summary>The encounter the part is part of, which it holds from its setup (#2177).</summary>
+    internal abstract DraygonEnemyState Encounter { get; }
+
+    /// <summary>The encounter <paramref name="part"/> is part of, which the part's own entity holds.</summary>
+    /// <param name="part">A place holding one of Draygon's parts.</param>
+    /// <exception cref="InvalidOperationException">The place holds none of his parts.</exception>
+    internal static DraygonEnemyState EncounterOf(RoomEnemyPlace part) =>
+        Ensure.NotNull(part).Entity is DraygonEntity entity
+            ? entity.Encounter
+            : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Draygon.");
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)

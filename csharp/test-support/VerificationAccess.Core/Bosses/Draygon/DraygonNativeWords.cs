@@ -107,7 +107,7 @@ internal static class DraygonNativeWords
     /// and the swoop entry otherwise.
     /// </summary>
     internal static SharedValue MeaningOfSharedValue(DraygonPhase phase) =>
-        phase is DraygonPhase.None or DraygonPhase.IntroInitialDelay or DraygonPhase.IntroDance
+        phase is DraygonPhase.IntroInitialDelay or DraygonPhase.IntroDance
             ? SharedValue.IntroFrames
             : phase is DraygonPhase.Dying or DraygonPhase.DyingWaitForEvirs or DraygonPhase.DyingFinish
                 ? SharedValue.BurialWait

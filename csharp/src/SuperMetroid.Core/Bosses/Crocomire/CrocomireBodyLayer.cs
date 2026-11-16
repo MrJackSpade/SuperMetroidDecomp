@@ -57,7 +57,7 @@ internal sealed class CrocomireBodyLayer
 
     /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>
     internal void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>
-        _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
+        state.Death.MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
 
     /// <summary>
     /// Places the tongue at the body: a normal second enemy, it lies at its body-relative X offset, and every placement of
@@ -79,7 +79,7 @@ internal sealed class CrocomireBodyLayer
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
     internal void SpawnCrocomireAcidSmoke(CrocomireEnemyState state)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
+        CrocomireDeathState death = state.Death;
         if (--death.AcidSmokeTimer != 0)
             return;
         death.AcidSmokeTimer = 6;

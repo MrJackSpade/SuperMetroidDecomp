@@ -432,13 +432,13 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
 
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
              roomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
-            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
+            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
         AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true)).Waiting,
@@ -537,7 +537,7 @@ internal static class RoomObjectPopulationVerification
 
         for (int frame = 0; frame < 10; frame++)
         {
-            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 1, ControllerNewInput = 0, CollectedItems = 0 });
+            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 1, ControllerNewInput = 0, CollectedItems = 0 });
         }
 
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,

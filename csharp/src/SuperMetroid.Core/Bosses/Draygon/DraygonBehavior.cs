@@ -82,6 +82,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             Earthquake = dependencies.Earthquake, EffectActors = dependencies.EffectActors,
             Presentation = dependencies.Presentation, FrameContext = dependencies.FrameContext, Audio = dependencies.Audio,
             Shots = Shots,
+            Places = dependencies.Places,
         });
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles, Shots);
         Intro = new DraygonIntro(dependencies.EffectActors, Turrets);
@@ -96,7 +97,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Draygon's body per-frame behaviour.</summary>
     private void RunDraygonBodyMain(RoomEnemyPlace body, SamusState samus, int frameCounter)
     {
-        DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
+        DraygonEnemyState state = body.RequireSpeciesState<DraygonEnemyState>();
         switch (state.Phase)
         {
             case DraygonPhase.IntroInitialDelay:
@@ -171,7 +172,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.DyingFinish:
                 Death.SinkDraygonBelowTheRoom(state, frameCounter, samus);
                 break;
-            case DraygonPhase.None:
             default:
                 throw new InvalidDataException(
                     $"Draygon body has no behaviour for phase {state.Phase}.");
@@ -236,10 +236,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal const int DraygonArmsReachUpdatesFromSwoopBottom = 26;
 
-    /// <summary>Advances Draygon's typed animation.</summary>
-    internal void AdvanceDraygonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    /// <summary>Advances the typed animation of <paramref name="place"/>, one of the parts of <paramref name="draygon"/>.</summary>
+    internal void AdvanceDraygonTypedAnimation(DraygonEnemyState draygon, RoomEnemyPlace place, EnemyAnimationCueContext context)
     {
-        Parts.AdvanceDraygonPartAnimation(place, context.Samus);
+        Parts.AdvanceDraygonPartAnimation(draygon, place, context.Samus);
     }
 
     /// <summary>Runs DraygonBody's main AI.</summary>
@@ -289,7 +289,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     public void DisableDraygonCannon(DraygonWallCannon cannon)
     {
         // The defeated room still has cannon room objects even though its enemy population no
-        // longer includes Draygon; only a live Draygon reads the disabled cannons.
-        Parts.Draygon?.DisabledCannons.Add(cannon);
+        // longer includes Draygon; only a live Draygon's turrets read the disabled cannons.
+        Turrets.DisableCannon(cannon);
     }
 }

@@ -552,7 +552,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         KraidBehavior.BodyLayer.Placement
         ?? PhantoonBehavior.Combat.Phantoon?.Body.Position.Whole
         ?? DraygonBehavior.Parts.Draygon?.BodyPlacement
-        ?? CrocomireBehavior.Access.Crocomire?.Body.Position.Whole
+        ?? CrocomireBehavior.Fight.Encounter?.Body.Position.Whole
         ?? MotherBrainEncounter.MotherBrain?.BodyPlacedAt;
     /// <inheritdoc/>
     bool IEnemyDisplaySources.BossBodyHidden =>
@@ -578,7 +578,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 yield return phantoon.Colours;
             if (DraygonBehavior.Parts.Draygon is { } draygon)
                 yield return draygon.Colours;
-            if (CrocomireBehavior.Access.Crocomire is { } crocomire)
+            if (CrocomireBehavior.Fight.Encounter is { } crocomire)
                 yield return crocomire.Colours;
             if (KraidBehavior.Access.Kraid is { } kraid)
             {
@@ -714,14 +714,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, doorPassage, Audio);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, EffectActors);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
-        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
+        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Places = Places, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
         DragonBehavior = new DragonBehavior(Projectiles, Places, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, Places);
         DachoraBehavior = new DachoraBehavior(Terrain, Places, Audio);
         var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
-        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus });
+        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, Places = Places, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx, Places);
         ChootBehavior = new ChootBehavior();

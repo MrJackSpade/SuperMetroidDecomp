@@ -16,6 +16,17 @@ internal abstract class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlac
     /// <summary>The Crocomire species owner.</summary>
     protected CrocomireBehavior Species => species;
 
+    /// <summary>The encounter the part is part of, which it holds from its setup (#2177).</summary>
+    internal abstract CrocomireEnemyState Encounter { get; }
+
+    /// <summary>The encounter <paramref name="part"/> is part of, which the part's own entity holds.</summary>
+    /// <param name="part">A place holding Crocomire's body or tongue.</param>
+    /// <exception cref="InvalidOperationException">The place holds neither.</exception>
+    internal static CrocomireEnemyState EncounterOf(RoomEnemyPlace part) =>
+        Ensure.NotNull(part).Entity is CrocomireEntity entity
+            ? entity.Encounter
+            : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Crocomire.");
+
     /// <inheritdoc/>
     public abstract void Initialize();
 

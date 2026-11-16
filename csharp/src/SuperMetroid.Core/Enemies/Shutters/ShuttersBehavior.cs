@@ -4,10 +4,12 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The Shutters species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>

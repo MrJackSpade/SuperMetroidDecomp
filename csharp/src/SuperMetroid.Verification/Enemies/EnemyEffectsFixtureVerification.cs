@@ -53,16 +53,17 @@ internal static class EnemyEffectsFixtureVerification
             if (art is not null)
                 Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
             Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0]) { Tongue = Enemies.Places.InUpdateOrder[1] };
-            var tongueState = new CrocomireTongueState();
+            var tongueState = new CrocomireTongueState(Actor);
             Enemies.Places.InUpdateOrder[1].SetSpeciesState(tongueState);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
-            Effect = BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
+            BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
+            Effect = Actor.Death;
             Effect.AcidSmokeTimer = 1;
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
-            Enemies.CrocomireBehavior.Access.Crocomire = Actor;
+            Actor.Body.SetSpeciesState(Actor);
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 

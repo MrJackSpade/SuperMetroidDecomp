@@ -29,8 +29,8 @@ internal static class RetailCrocomireCaptureTests
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-        var boss = runtime.Enemies.CrocomireBehavior.Access.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
-        var death = runtime.Enemies.CrocomireBehavior.Access.CrocomireDeath;
+        var boss = runtime.Enemies.CrocomireBehavior.Fight.Encounter ?? throw new InvalidOperationException("Crocomire did not initialize.");
+        var death = boss.Death;
         // Before either melting object is spawned, BG2 must use the actor's ordinary
         // scroll register. Comparing two renderers alone missed this shared defect.
         int latchedScrollChanges = 0;

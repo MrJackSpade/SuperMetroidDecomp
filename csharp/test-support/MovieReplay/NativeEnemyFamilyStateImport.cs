@@ -230,13 +230,15 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
-            (DraygonPhase phase, HorizontalDirection? pass) = words.A == 0
-                ? (DraygonPhase.None, null)
-                : DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
-            draygonRecord.Phase = phase;
-            // Only a swoop or goop pass names the way it travels (#2165).
-            if (pass is { } passDirection)
-                draygonRecord.PassDirection = passDirection;
+            // A zero word is a fight that has not begun; the state keeps the phase it starts in.
+            if (words.A != 0)
+            {
+                (DraygonPhase phase, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
+                draygonRecord.Phase = phase;
+                // Only a swoop or goop pass names the way it travels (#2165).
+                if (pass is { } passDirection)
+                    draygonRecord.PassDirection = passDirection;
+            }
             switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:

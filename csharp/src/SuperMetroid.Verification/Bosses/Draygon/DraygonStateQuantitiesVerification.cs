@@ -201,14 +201,16 @@ internal static class DraygonStateQuantitiesVerification
             Tail = enemies.Places.InUpdateOrder[2],
             Arms = enemies.Places.InUpdateOrder[3],
         };
+        body.SetSpeciesState(state);
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
-        var eyeState = new DraygonEyeState(DraygonEyeAction.Inert);
+        var eyeState = new DraygonEyeState(state, DraygonEyeAction.Inert);
         state.Eye.SetSpeciesState(eyeState);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
+        state.Tail.SetSpeciesState(new DraygonPartState(state));
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
+        state.Arms.SetSpeciesState(new DraygonPartState(state));
         foreach (RoomEnemyPlace part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.StartAnimation(part, DraygonSegment.Rest);
-        enemies.DraygonBehavior.Parts.Draygon = state;
         // A nonzero low byte keeps the spiral from inserting a tail whip.
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;

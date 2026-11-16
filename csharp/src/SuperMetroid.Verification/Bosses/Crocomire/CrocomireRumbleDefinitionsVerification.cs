@@ -76,11 +76,6 @@ internal static class CrocomireRumbleDefinitionsVerification
         // The cartridge's code starts the rumble with ten repeats at one pixel an update: the first oscillation's.
         AssertEqual(10, CrocomireRumbleDefinitions.Oscillations[0].Repeats, "Crocomire rumble starts with the code's repeats");
         AssertEqual(1, CrocomireRumbleDefinitions.Oscillations[0].Speed, "Crocomire rumble starts at the code's speed");
-        var death = new CrocomireDeathState
-        {
-            RumbleYOffset = 0,
-            RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats,
-        };
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         var state = new CrocomireEnemyState(body)
         {
@@ -88,7 +83,9 @@ internal static class CrocomireRumbleDefinitionsVerification
             RumbleOscillation = 0,
             RumbleTowardExtreme = false,
         };
-        enemies.CrocomireBehavior.Access.CrocomireDeath = death;
+        CrocomireDeathState death = state.Death;
+        death.RumbleYOffset = 0;
+        death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.

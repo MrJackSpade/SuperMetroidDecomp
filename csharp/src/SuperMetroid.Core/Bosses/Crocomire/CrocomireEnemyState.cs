@@ -25,6 +25,12 @@ public sealed class CrocomireEnemyState
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
 
+    /// <summary>
+    /// The state of his death (#2177): the bridge's collapse, his melting in the acid and his skeleton's return, which his
+    /// body's death sequence runs and the room's main routine and his body layer read.
+    /// </summary>
+    public CrocomireDeathState Death { get; } = new();
+
     /// <summary>Crocomire's body, owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemyPlace Body { get; }
     /// <summary>The body's playing animation and where it stands; before the first start, the initial animation.</summary>

@@ -33,4 +33,7 @@ internal sealed record DraygonPartsDependencies
 
     /// <summary>The goop and turret shots, whose goop behaviour Draygon's goop is bound to.</summary>
     public required DraygonShots Shots { get; init; }
+
+    /// <summary>The room's enemy places, among which each part finds the body listed before it.</summary>
+    public required EnemyPlaces Places { get; init; }
 }

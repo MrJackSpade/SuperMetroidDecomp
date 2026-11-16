@@ -103,7 +103,7 @@ internal sealed class RoomObjectFramePhase
                 "The room objects' step requires an active room, camera, and Samus.");
         }
 
-        roomObjects.Step(_room.LevelData, new RoomObjectFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive });
+        roomObjects.Step(_room.LevelData, new RoomObjectFrameInputs { Scrolls = _room.LoadedCamera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive });
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, room.Enemies);
     }
 

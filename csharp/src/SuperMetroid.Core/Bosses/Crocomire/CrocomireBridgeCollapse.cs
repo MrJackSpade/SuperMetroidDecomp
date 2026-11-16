@@ -50,7 +50,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void HandleCrocomireBridgeThreshold(CrocomireEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        HandleCrocomireBridgeApproach(body);
+        HandleCrocomireBridgeApproach(body, state.Death);
         if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBehavior.CrocomireBridgeThreshold) < 0)
             return;
 
@@ -60,7 +60,7 @@ internal sealed class CrocomireBridgeCollapse
         state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
         body.Radius = body.Radius.WithY(16);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
+        CrocomireDeathState death = state.Death;
         death.BridgeFragmentsSpawned = 0;
         death.AcidSmokeTimer = 1;
         death.AcidSoundTimer = 1;
@@ -78,9 +78,8 @@ internal sealed class CrocomireBridgeCollapse
     /// Runs the bridge effects of the bridge approach, staged at Crocomire X 1536, 1552 and 1568.
     /// Each stage's dust lands one block ahead, and at 1584.
     /// </summary>
-    private void HandleCrocomireBridgeApproach(RoomEnemyPlace body)
+    private void HandleCrocomireBridgeApproach(RoomEnemyPlace body, CrocomireDeathState death)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1536) < 0)
         {
             death.BridgeDustAt1536Spawned = false;
@@ -187,9 +186,8 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Queues periodic acid sounds according to the death-scene timer.</summary>
-    internal void RunCrocomireAcidSoundTimer()
+    internal void RunCrocomireAcidSoundTimer(CrocomireDeathState death)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (death.AcidSoundTimer == 0)
             return;
         if (--death.AcidSoundTimer != 0)
@@ -307,13 +305,12 @@ internal sealed class CrocomireBridgeCollapse
             tongue.Presence = tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
-        _access.RequireCrocomireDeath().SkeletonBaringElapsed = 0;
+        state.Death.SkeletonBaringElapsed = 0;
     }
 
     /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's initializer.</summary>
-    internal void SpawnNextCrocomireBridgeFragment()
+    internal void SpawnNextCrocomireBridgeFragment(CrocomireDeathState death)
     {
-        CrocomireDeathState death = _access.RequireCrocomireDeath();
         int fragment = death.BridgeFragmentsSpawned;
         if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;

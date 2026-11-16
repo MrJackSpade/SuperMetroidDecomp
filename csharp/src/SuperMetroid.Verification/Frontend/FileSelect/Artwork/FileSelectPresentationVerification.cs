@@ -6,7 +6,6 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;

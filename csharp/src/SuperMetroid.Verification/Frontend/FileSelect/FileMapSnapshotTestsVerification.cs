@@ -10,7 +10,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;

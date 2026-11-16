@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend.Artwork;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;

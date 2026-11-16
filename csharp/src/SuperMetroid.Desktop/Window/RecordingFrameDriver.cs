@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Diagnostics.Recording;

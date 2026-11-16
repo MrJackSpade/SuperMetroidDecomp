@@ -4,7 +4,6 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;

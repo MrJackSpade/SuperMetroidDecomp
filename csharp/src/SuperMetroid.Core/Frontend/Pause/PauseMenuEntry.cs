@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Hud;
 

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Desktop.Window;

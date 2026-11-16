@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -124,7 +123,7 @@ internal static class MotherBrainRoomColorsVerification
     /// </summary>
     private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
     {
-        enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain));
+        enemies.Presentation.AttachBossBody(BossBodyPartsConstants.Hidden(BossBodyOwner.MotherBrain));
         return new(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
     }
 

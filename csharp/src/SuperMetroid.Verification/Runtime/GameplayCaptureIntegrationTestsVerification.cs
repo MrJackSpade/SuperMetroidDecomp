@@ -12,7 +12,6 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Runtime;
 

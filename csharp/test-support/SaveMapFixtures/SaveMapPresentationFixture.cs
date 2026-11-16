@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.TestSupport.SaveMapFixtures;
 

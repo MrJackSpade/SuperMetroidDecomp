@@ -8,11 +8,9 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Options;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Checks the options cursor's native phase selection, and that transitions draw no cursor (#1775).</summary>
 internal static class GameOptionsCursorPhasesVerification

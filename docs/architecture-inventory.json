@@ -6556,19 +6556,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Bosses.KraidBackdropShades.KraidBackdropPalettes",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Bosses/KraidBackdropShades.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Bosses.KraidBackgroundArtwork",
       "kind": "class",
       "scope": "product",
@@ -14953,32 +14940,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CinematicTypedTextSteps",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CinematicTypedTextSteps.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Frontend.CinematicTypedTextSteps.extension(SuperMetroid.Core.Frontend.Intro.Artwork.CinematicTypedTexts)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Frontend/CinematicTypedTextSteps.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Cinematics.CinematicSpritemapSource",
       "kind": "record struct",
       "scope": "product",
@@ -15048,6 +15009,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Cinematics.CinematicTypedSpritemapSource",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Cinematics/CinematicTypedSpritemapSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.CreditsGlyphKey",
@@ -16018,6 +15992,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTextRegionDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTypedStepDefinition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingTypedStepDefinition.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -38756,6 +38743,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Assets.PictureShadeFade",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/PictureShadeFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.PictureShading",
       "kind": "record",
       "scope": "product",
@@ -44774,6 +44774,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidSpit",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidSpit.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidAnimations",
       "kind": "static class",
       "scope": "product",
@@ -44955,7 +44968,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidArmState.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "stateless",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Kraid.KraidEnemyState"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBackdropColours",
@@ -44997,14 +45014,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBackdropFadeSteps",
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBackdropFadeProgress",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackdropFadeSteps.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackdropFadeProgress.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -45269,6 +45286,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyStage",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBodyStage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBodyState",
       "kind": "class",
       "scope": "product",
@@ -45279,7 +45309,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBodyState.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Kraid.KraidEnemyState"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidCadenceDefinitions",
@@ -45425,6 +45459,19 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidDeathPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidDeathPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidEncounterAccess",
       "kind": "class",
       "scope": "product",
@@ -45507,6 +45554,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidFightPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidFightPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidFootCollision",
@@ -45612,6 +45672,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidFootPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidFootPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidFootState",
       "kind": "class",
       "scope": "product",
@@ -45622,7 +45695,24 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidFootState.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Kraid.KraidEnemyState"
+      ],
+      "justified": true
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidGrowthPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidGrowthPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidHead",
@@ -45878,6 +45968,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidLintPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidLintPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidLintState",
       "kind": "class",
       "scope": "product",
@@ -45888,7 +45991,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidLintState.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Kraid.KraidEnemyState"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidLints",
@@ -46115,6 +46222,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidNailPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidNailPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidNailState",
       "kind": "class",
       "scope": "product",
@@ -46125,7 +46245,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidNailState.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Kraid.KraidEnemyState"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidNativeWords",
@@ -46141,7 +46265,7 @@
         "csharp/test-support/VerificationAccess.Core/Bosses/Kraid/KraidNativeWords.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidObjectDefinitions",
@@ -46251,7 +46375,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidPartsAccess.extension(SuperMetroid.Core.Bosses.Kraid.KraidParts)",
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidPartsAccess.extension(SuperMetroid.Core.Bosses.Kraid.KraidBehavior)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -46265,32 +46389,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidPhase",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidPhase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidPhaseGroups",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidPhaseGroups.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidPlatformMovement",
@@ -46382,6 +46480,19 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidRisePhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidRisePhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidRockAnimationAccess",
@@ -47372,7 +47483,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBehaviorDependencies.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters"
+      "disposition": "constructor-parameters",
+      "flags": [
+        "wide-dependencies"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBg2DefinitionsConstants",
@@ -47534,17 +47649,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyFrame",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyExplosionState",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBodyFrame.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBodyExplosionState.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyPhase",
@@ -47841,19 +47956,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainContactHitboxes",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainContactHitboxes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainContactPart",
       "kind": "enum",
       "scope": "product",
@@ -47862,19 +47964,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainContactPart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainContactRegion",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainContactRegion.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -47962,6 +48051,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCountdown",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainCountdown.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainDeathColorDestinations",
@@ -48238,6 +48340,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEncounterSetUp",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/MotherBrainEncounterSetUp.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEncounterSetUp.extension(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEncounter)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/MotherBrainEncounterSetUp.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState",
@@ -49140,19 +49274,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainHeadFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment",
       "kind": "enum",
       "scope": "product",
@@ -49277,6 +49398,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainMuralDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainNativeWords",
@@ -49462,6 +49596,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectileState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainProjectileState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectileType",
@@ -63287,6 +63434,22 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyPartsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/BossBodies/BossBodyPartsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.BossBodyPlacement",
       "kind": "static class",
       "scope": "product",
@@ -63355,6 +63518,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.BossBodies.IBossBodyDisplay",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/IBossBodyDisplay.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossBodies/IBossBodyShowing.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.BossBodies.ShownBossBody",
       "kind": "record",
       "scope": "product",
@@ -63379,6 +63568,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.BossShadingLayer",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossShadingLayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.BossShadings",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/BossShadings.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Boulder.Artwork.BoulderFrameToolingDefinitions",
@@ -84531,6 +84746,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Artwork.InstalledScreenContent",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Artwork/InstalledScreenContent.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Artwork.InstalledScreenContentParts",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Artwork/InstalledScreenContentParts.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Artwork.ScreenPictureSheetDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -84778,6 +85019,48 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresAnimationsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresCinematicCadenceDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -84802,6 +85085,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDeparturePhase",
@@ -85188,6 +85484,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresExplosionSpawnEvents.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresExplosionSpawnerCue",
+      "kind": "enum",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresExplosionSpawnerCue.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -85973,6 +86285,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingTypedTextDrawing",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingTypedTextDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingTypewriterDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -86412,6 +86737,45 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingLogoAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingLogoAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingLogoAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingLogoAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingLogoCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingLogoCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingLogoDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -86500,6 +86864,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingPictureSprite",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingPictureSprite.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingPostCreditsPanel",
@@ -86683,6 +87060,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingRewardAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingRewardAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardBodyMotion",
       "kind": "enum",
       "scope": "product",
@@ -86720,6 +87123,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardGestureCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingRewardGestureCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardGraphicsUploadDefinitionsConstants",
@@ -86799,6 +87215,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardJumpCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingRewardJumpCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingRewardJumpDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -86852,6 +87281,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingSceneAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingSceneAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingSceneAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingSceneAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingSceneCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingSceneCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingScreen",
@@ -87098,13 +87566,26 @@
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingSprite",
-      "kind": "record",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingSprite.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingSpriteArt",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingSpriteArt.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -87217,14 +87698,79 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.EndingTypedTexts",
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTextAnimations",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTypedTexts.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTextDefinition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTextSprite",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextSprite.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTextTyping",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextTyping.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTypedText",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTypedText.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTypedTextDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTypedTextDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -88896,32 +89442,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.CinematicTypedStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicTypedStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.CinematicTypedTexts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicTypedTexts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation",
       "kind": "interface",
       "scope": "product",
@@ -89052,20 +89572,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.TypedTextSpriteSheet",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/TypedTextSpriteSheet.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicActor",
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicActor\u003CTAnimation, TFrame, TCue\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -89078,7 +89585,7 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicActorDefinition",
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicActorDefinition\u003CTAnimation\u003E",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
@@ -89086,6 +89593,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicActorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicActorDrawing\u003CTFrame\u003E",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicActorDrawing.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -89105,6 +89625,32 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicAnimations\u003CTAnimation, TFrame, TCue\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicBeats\u003CTFrame, TCue\u003E",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicBeats.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicCodePointers",
@@ -89187,43 +89733,30 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteAnimations",
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicPlays",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteAnimations.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicPlays.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteCue",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicPoseActors",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteCue.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicPoseActors.cs"
       ],
       "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteCueKind",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteCueKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteInstruction",
@@ -89250,19 +89783,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpritePose.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteSegment",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -89318,6 +89838,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.ICinematicActor\u003CTCue\u003E",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/ICinematicActor.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroBabyActorDefinition",
@@ -89376,6 +89909,32 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroBabyAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroBabyAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroBabyAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroBabyAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroBabyDiscoveryCollision",
@@ -89718,19 +90277,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Planes",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCinematicDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Sounds",
       "kind": "static class",
       "scope": "product",
@@ -89768,22 +90314,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicDefinitionsArtworkConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitionsPlanesConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicDefinitionsPlanesConstants.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -89921,6 +90451,45 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroDiscoveryCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroDiscoveryCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroEggEffectAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroEggEffectAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroEggEffectAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroEggEffectAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroEggEffectDefinitions",
@@ -90291,6 +90860,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroLaboratoryCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroLaboratoryCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroLaboratoryDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -90317,17 +90899,30 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainActorDefinition",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainAnimation",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroMotherBrainActorDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroMotherBrainAnimation.cs"
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroMotherBrainAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCollision",
@@ -90354,6 +90949,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroMotherBrainCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainDefinitions",
@@ -90399,6 +91007,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainExplosionAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroMotherBrainExplosionAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroMotherBrainExplosionPlacement",
@@ -90514,6 +91135,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroNarrationAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroNarrationAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroNarrationAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroNarrationAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroNarrationPictures",
       "kind": "static class",
       "scope": "product",
@@ -90567,6 +91214,45 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroRinkaAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroRinkaAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroRinkaAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroRinkaAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroRinkaCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroRinkaCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroRinkaDefinitions",
@@ -90638,6 +91324,19 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroRinkaSpawnerCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroRinkaSpawnerCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroRinkaSystem",
@@ -90890,19 +91589,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationParts",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapArrowPresentation",
@@ -91599,6 +92285,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.MenuMissileFrames",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.MenuRenderSnapshotCapture",
@@ -139557,6 +140256,20 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.TestSupport.MovieReplay.KraidHeadNativePose",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/KraidHeadNativePose.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.TestSupport.MovieReplay.KraidHeadNativeRecord",
       "kind": "record struct",
       "scope": "test",
@@ -151745,19 +152458,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkKraidColorsVerification.KraidBackdropFixture",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkKraidColorsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkKraidColorsVerification.KraidPaletteConsumer",
       "kind": "enum",
       "scope": "test",
@@ -160624,6 +161324,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Frontend.Ending.EndingCompletionTextInstructionsVerification.CompletionArtwork",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/EndingCompletionTextInstructionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Verification.Frontend.Ending.EndingCompletionTextSpriteArtworkVerification",
       "kind": "static class",
       "scope": "test",
@@ -161690,7 +162403,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Frontend.Intro.CinematicSpriteAnimationsVerification.NativeReader",
+      "type": "SuperMetroid.Verification.Frontend.Intro.CinematicSpriteAnimationsVerification.NativeReader\u003CTCue\u003E",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -161727,19 +162440,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddressesEntry",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/Intro/CinematicSpriteNativeListAddressesEntry.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps",
@@ -162312,6 +163012,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Intro.NativeCinematicCues\u003CTCue\u003E",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/NativeCinematicCues.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Verification.Frontend.Intro.VerifyIntroContentIdentityCase",

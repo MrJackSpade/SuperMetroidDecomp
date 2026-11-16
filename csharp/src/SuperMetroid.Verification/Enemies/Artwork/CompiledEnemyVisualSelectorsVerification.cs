@@ -17,8 +17,9 @@ internal static class CompiledEnemyVisualSelectorsVerification
         // are the 225 bank-$B4 selectors of the sprite-object lists no spawned object reaches, whose frames #1623 deleted,
         // and the hit burst's four, whose frames are Samus's weapon effect on her projectile sheets (#1713),
         // and the 14 of Stoke and its fireball, which #1686 deleted as no room places Stoke, and the six of the Tourian
-        // Chozo's spike-clearing dust, which #2024 deleted as nothing spawns it.
-        AssertEqual(3762, CompiledEnemyVisualSelectorsTooling.Count,
+        // Chozo's spike-clearing dust, which #2024 deleted as nothing spawns it, and the eight of Shaktool's attack circles,
+        // which #2166 deleted as nothing spawns them.
+        AssertEqual(3754, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),

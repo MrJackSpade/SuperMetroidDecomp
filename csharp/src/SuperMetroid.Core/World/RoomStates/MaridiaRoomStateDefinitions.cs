@@ -68,9 +68,9 @@ public static class MaridiaRoomStateDefinitions
         new(nameof(WateringHole), RoomLevelDefinitions.WateringHole, RoomGraphicsSet.SandlessMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WateringHole, RoomEnemyPopulationDefinitions.WateringHole, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WateringHole, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WateringHole, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The N West Maridia Bug room's state.</summary>
-    public static RoomStateSettings NWestMaridiaBug { get; } =
-        new(nameof(NWestMaridiaBug), RoomLevelDefinitions.NWestMaridiaBug, RoomGraphicsSet.SandlessMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.NWestMaridiaBug, RoomEnemyPopulationDefinitions.NWestMaridiaBug, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.NWestMaridiaBug, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.NWestMaridiaBug, null, RoomSetupBehavior.None);
+    /// <summary>The Northwest Maridia Bug room's state.</summary>
+    public static RoomStateSettings NorthwestMaridiaBug { get; } =
+        new(nameof(NorthwestMaridiaBug), RoomLevelDefinitions.NorthwestMaridiaBug, RoomGraphicsSet.SandlessMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.NorthwestMaridiaBug, RoomEnemyPopulationDefinitions.NorthwestMaridiaBug, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.NorthwestMaridiaBug, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.NorthwestMaridiaBug, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Crab Shaft room's state.</summary>
@@ -108,9 +108,9 @@ public static class MaridiaRoomStateDefinitions
         new(nameof(ThreadTheNeedle), RoomLevelDefinitions.ThreadTheNeedle, RoomGraphicsSet.SandlessMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.ThreadTheNeedle, RoomEnemyPopulationDefinitions.ThreadTheNeedle, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ThreadTheNeedle, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ThreadTheNeedle, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Maridia Elev room's state.</summary>
-    public static RoomStateSettings MaridiaElev { get; } =
-        new(nameof(MaridiaElev), RoomLevelDefinitions.MaridiaElev, RoomGraphicsSet.SandlessMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.EastMaridia)), SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaElev, RoomEnemyPopulationDefinitions.MaridiaElev, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MaridiaElev, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaElev, null, RoomSetupBehavior.None);
+    /// <summary>The Maridia Elevator room's state.</summary>
+    public static RoomStateSettings MaridiaElevator { get; } =
+        new(nameof(MaridiaElevator), RoomLevelDefinitions.MaridiaElevator, RoomGraphicsSet.SandlessMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.EastMaridia)), SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaElevator, RoomEnemyPopulationDefinitions.MaridiaElevator, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MaridiaElevator, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaElevator, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Plasma Spark room's state.</summary>
@@ -208,9 +208,9 @@ public static class MaridiaRoomStateDefinitions
         new(nameof(Springball), RoomLevelDefinitions.Springball, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Springball, RoomEnemyPopulationDefinitions.Springball, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Springball, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Springball, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Below Botwoon E Tank room's state.</summary>
-    public static RoomStateSettings BelowBotwoonETank { get; } =
-        new(nameof(BelowBotwoonETank), RoomLevelDefinitions.BelowBotwoonETank, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BelowBotwoonETank, RoomEnemyPopulationDefinitions.BelowBotwoonETank, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BelowBotwoonETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BelowBotwoonETank, null, RoomSetupBehavior.None);
+    /// <summary>The Below Botwoon Energy Tank room's state.</summary>
+    public static RoomStateSettings BelowBotwoonEnergyTank { get; } =
+        new(nameof(BelowBotwoonEnergyTank), RoomLevelDefinitions.BelowBotwoonEnergyTank, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BelowBotwoonEnergyTank, RoomEnemyPopulationDefinitions.BelowBotwoonEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BelowBotwoonEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BelowBotwoonEnergyTank, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Colosseum room's state.</summary>
@@ -233,9 +233,9 @@ public static class MaridiaRoomStateDefinitions
         new(nameof(ThePreciousWhenAreaBossDead), RoomLevelDefinitions.ThePrecious, RoomGraphicsSet.SandyMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.EastMaridia)), SuperMetroid.Core.Fx.RoomFxDefinitions.ThePrecious, RoomEnemyPopulationDefinitions.ThePrecious, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ThePrecious, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ThePrecious, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Botwoon E Tank room's state.</summary>
-    public static RoomStateSettings BotwoonETank { get; } =
-        new(nameof(BotwoonETank), RoomLevelDefinitions.BotwoonETank, RoomGraphicsSet.SandyMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.EastMaridia)), SuperMetroid.Core.Fx.RoomFxDefinitions.BotwoonETank, RoomEnemyPopulationDefinitions.BotwoonETank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BotwoonETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BotwoonETank, null, RoomSetupBehavior.None);
+    /// <summary>The Botwoon Energy Tank room's state.</summary>
+    public static RoomStateSettings BotwoonEnergyTank { get; } =
+        new(nameof(BotwoonEnergyTank), RoomLevelDefinitions.BotwoonEnergyTank, RoomGraphicsSet.SandyMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.EastMaridia)), SuperMetroid.Core.Fx.RoomFxDefinitions.BotwoonEnergyTank, RoomEnemyPopulationDefinitions.BotwoonEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BotwoonEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BotwoonEnergyTank, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Draygon Save room's state.</summary>
@@ -260,7 +260,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Shaktool room's default state.</summary>
     public static RoomStateSettings ShaktoolDefault { get; } =
-        new(nameof(ShaktoolDefault), RoomLevelDefinitions.ShaktoolDefault, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Shaktool, RoomEnemyPopulationDefinitions.Shaktool, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Shaktool, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Shaktool, null, RoomSetupBehavior.SetupShaktoolRoomObject);
+        new(nameof(ShaktoolDefault), RoomLevelDefinitions.ShaktoolDefault, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Shaktool, RoomEnemyPopulationDefinitions.Shaktool, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Shaktool, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Shaktool, null, RoomSetupBehavior.SpawnShaktoolController);
 
 
     /// <summary>The Shaktool room's state once Shaktool has cleared the path.</summary>
@@ -290,7 +290,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Maridia Energy Refill room's state.</summary>
     public static RoomStateSettings MaridiaEnergyRefill { get; } =
-        new(nameof(MaridiaEnergyRefill), RoomLevelDefinitions.GTEnergyRefill, RoomGraphicsSet.BlueRefill, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaEnergyRefill, RoomEnemyPopulationDefinitions.MaridiaEnergyRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MaridiaEnergyRefill, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaEnergyRefill, null, RoomSetupBehavior.None);
+        new(nameof(MaridiaEnergyRefill), RoomLevelDefinitions.GoldenTorizoEnergyRefill, RoomGraphicsSet.BlueRefill, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaEnergyRefill, RoomEnemyPopulationDefinitions.MaridiaEnergyRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MaridiaEnergyRefill, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaEnergyRefill, null, RoomSetupBehavior.None);
 
 
     /// <summary>The West Cactus Alley room's state.</summary>

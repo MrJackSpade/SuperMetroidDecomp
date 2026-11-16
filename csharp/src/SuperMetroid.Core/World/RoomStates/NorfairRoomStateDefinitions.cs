@@ -79,34 +79,34 @@ public static class NorfairRoomStateDefinitions
         new(nameof(CrocomireEscape), RoomLevelDefinitions.CrocomireEscape, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireEscape, RoomEnemyPopulationDefinitions.CrocomireEscape, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrocomireEscape, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrocomireEscape, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Hi Jump E Tank room's state.</summary>
-    public static RoomStateSettings HiJumpETank { get; } =
-        new(nameof(HiJumpETank), RoomLevelDefinitions.HiJumpETank, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.HiJumpETank, RoomEnemyPopulationDefinitions.HiJumpETank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.HiJumpETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.HiJumpETank, null, RoomSetupBehavior.None);
+    /// <summary>The Hi Jump Energy Tank room's state.</summary>
+    public static RoomStateSettings HiJumpEnergyTank { get; } =
+        new(nameof(HiJumpEnergyTank), RoomLevelDefinitions.HiJumpEnergyTank, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.HiJumpEnergyTank, RoomEnemyPopulationDefinitions.HiJumpEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.HiJumpEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.HiJumpEnergyTank, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Post Croc Farming room's state.</summary>
-    public static RoomStateSettings PostCrocFarming { get; } =
-        new(nameof(PostCrocFarming), RoomLevelDefinitions.PostCrocFarming, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocFarming, RoomEnemyPopulationDefinitions.PostCrocFarming, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocFarming, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocFarming, null, RoomSetupBehavior.None);
+    /// <summary>The Post Crocomire Farming room's state.</summary>
+    public static RoomStateSettings PostCrocomireFarming { get; } =
+        new(nameof(PostCrocomireFarming), RoomLevelDefinitions.PostCrocomireFarming, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocomireFarming, RoomEnemyPopulationDefinitions.PostCrocomireFarming, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocomireFarming, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocomireFarming, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Post Croc Save room's state.</summary>
-    public static RoomStateSettings PostCrocSave { get; } =
-        new(nameof(PostCrocSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocSave, RoomEnemyPopulationDefinitions.PostCrocSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocSave, null, RoomSetupBehavior.None);
+    /// <summary>The Post Crocomire Save room's state.</summary>
+    public static RoomStateSettings PostCrocomireSave { get; } =
+        new(nameof(PostCrocomireSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocomireSave, RoomEnemyPopulationDefinitions.PostCrocomireSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocomireSave, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Post Croc Power Bombs room's state.</summary>
-    public static RoomStateSettings PostCrocPowerBombs { get; } =
-        new(nameof(PostCrocPowerBombs), RoomLevelDefinitions.PostCrocPowerBombs, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocPowerBombs, RoomEnemyPopulationDefinitions.PostCrocPowerBombs, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocPowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
+    /// <summary>The Post Crocomire Power Bombs room's state.</summary>
+    public static RoomStateSettings PostCrocomirePowerBombs { get; } =
+        new(nameof(PostCrocomirePowerBombs), RoomLevelDefinitions.PostCrocomirePowerBombs, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocomirePowerBombs, RoomEnemyPopulationDefinitions.PostCrocomirePowerBombs, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocomirePowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
 
 
-    /// <summary>The Post Croc Shaft room's state.</summary>
-    public static RoomStateSettings PostCrocShaft { get; } =
-        new(nameof(PostCrocShaft), RoomLevelDefinitions.PostCrocShaft, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocShaft, RoomEnemyPopulationDefinitions.PostCrocShaft, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocShaft, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernVertical, RoomSetupBehavior.None);
+    /// <summary>The Post Crocomire Shaft room's state.</summary>
+    public static RoomStateSettings PostCrocomireShaft { get; } =
+        new(nameof(PostCrocomireShaft), RoomLevelDefinitions.PostCrocomireShaft, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocomireShaft, RoomEnemyPopulationDefinitions.PostCrocomireShaft, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocomireShaft, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocomireShaft, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernVertical, RoomSetupBehavior.None);
 
 
-    /// <summary>The Post Croc Missile room's state.</summary>
-    public static RoomStateSettings PostCrocMissile { get; } =
-        new(nameof(PostCrocMissile), RoomLevelDefinitions.PostCrocMissile, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocMissile, RoomEnemyPopulationDefinitions.PostCrocMissile, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocMissile, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
+    /// <summary>The Post Crocomire Missile room's state.</summary>
+    public static RoomStateSettings PostCrocomireMissile { get; } =
+        new(nameof(PostCrocomireMissile), RoomLevelDefinitions.PostCrocomireMissile, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocomireMissile, RoomEnemyPopulationDefinitions.PostCrocomireMissile, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocomireMissile, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
 
 
     /// <summary>The Grapple Tutorial 3 room's state.</summary>
@@ -114,9 +114,9 @@ public static class NorfairRoomStateDefinitions
         new(nameof(GrappleTutorial3), RoomLevelDefinitions.GrappleTutorial3, RoomGraphicsSet.UnheatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GrappleTutorial3, RoomEnemyPopulationDefinitions.GrappleTutorial3, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GrappleTutorial3, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairSmallPatternBrownPurple, RoomSetupBehavior.None);
 
 
-    /// <summary>The Post Croc Jump room's state.</summary>
-    public static RoomStateSettings PostCrocJump { get; } =
-        new(nameof(PostCrocJump), RoomLevelDefinitions.PostCrocJump, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocJump, RoomEnemyPopulationDefinitions.PostCrocJump, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocJump, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocJump, null, RoomSetupBehavior.None);
+    /// <summary>The Post Crocomire Jump room's state.</summary>
+    public static RoomStateSettings PostCrocomireJump { get; } =
+        new(nameof(PostCrocomireJump), RoomLevelDefinitions.PostCrocomireJump, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.PostCrocomireJump, RoomEnemyPopulationDefinitions.PostCrocomireJump, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.PostCrocomireJump, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PostCrocomireJump, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Grapple Tutorial 2 room's state.</summary>
@@ -204,9 +204,9 @@ public static class NorfairRoomStateDefinitions
         new(nameof(LavaDive), RoomLevelDefinitions.LavaDive, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.LavaDive, RoomEnemyPopulationDefinitions.LavaDive, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LavaDive, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairSmallPatternBrownPurple, RoomSetupBehavior.None);
 
 
-    /// <summary>The Lower Norfair Elev room's state.</summary>
-    public static RoomStateSettings LowerNorfairElev { get; } =
-        new(nameof(LowerNorfairElev), RoomLevelDefinitions.LowerNorfairElev, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairElev, RoomEnemyPopulationDefinitions.LowerNorfairElev, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LowerNorfairElev, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Elevator room's state.</summary>
+    public static RoomStateSettings LowerNorfairElevator { get; } =
+        new(nameof(LowerNorfairElevator), RoomLevelDefinitions.LowerNorfairElevator, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairElevator, RoomEnemyPopulationDefinitions.LowerNorfairElevator, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LowerNorfairElevator, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairElevator, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernStalactites, RoomSetupBehavior.None);
 
 
     /// <summary>The Upper Norfair Farming room's state.</summary>
@@ -274,9 +274,9 @@ public static class NorfairRoomStateDefinitions
         new(nameof(CrocomireSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrocomireSave, RoomEnemyPopulationDefinitions.CrocomireSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrocomireSave, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The LN Elev Save room's state.</summary>
-    public static RoomStateSettings LNElevSave { get; } =
-        new(nameof(LNElevSave), RoomLevelDefinitions.CrateriaSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNElevSave, RoomEnemyPopulationDefinitions.LNElevSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LNElevSave, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LNElevSave, null, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Elevator Save room's state.</summary>
+    public static RoomStateSettings LowerNorfairElevatorSave { get; } =
+        new(nameof(LowerNorfairElevatorSave), RoomLevelDefinitions.CrateriaSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.UpperNorfair, RoomMusicTrack.Plays(MusicTrack.UpperNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairElevatorSave, RoomEnemyPopulationDefinitions.LowerNorfairElevatorSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LowerNorfairElevatorSave, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairElevatorSave, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Acid Statue room's state.</summary>
@@ -304,9 +304,9 @@ public static class NorfairRoomStateDefinitions
         new(nameof(FastRipper), RoomLevelDefinitions.FastRipper, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.FastRipper, RoomEnemyPopulationDefinitions.FastRipper, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FastRipper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernVerticalRuins, RoomSetupBehavior.None);
 
 
-    /// <summary>The GT Energy Refill room's state.</summary>
-    public static RoomStateSettings GTEnergyRefill { get; } =
-        new(nameof(GTEnergyRefill), RoomLevelDefinitions.GTEnergyRefill, RoomGraphicsSet.BlueRefill, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.GTEnergyRefill, RoomEnemyPopulationDefinitions.GTEnergyRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GTEnergyRefill, null, RoomSetupBehavior.None);
+    /// <summary>The Golden Torizo Energy Refill room's state.</summary>
+    public static RoomStateSettings GoldenTorizoEnergyRefill { get; } =
+        new(nameof(GoldenTorizoEnergyRefill), RoomLevelDefinitions.GoldenTorizoEnergyRefill, RoomGraphicsSet.BlueRefill, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.GoldenTorizoEnergyRefill, RoomEnemyPopulationDefinitions.GoldenTorizoEnergyRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GoldenTorizoEnergyRefill, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Ridley room's default state.</summary>
@@ -319,9 +319,9 @@ public static class NorfairRoomStateDefinitions
         new(nameof(RidleyWhenAreaBossDead), RoomLevelDefinitions.Ridley, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.Ridley, RoomEnemyPopulationDefinitions.Ridley, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Ridley, null, RoomMainBehavior.RidleyRoomShaking, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Ridley, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
 
 
-    /// <summary>The LN Farming room's state.</summary>
-    public static RoomStateSettings LNFarming { get; } =
-        new(nameof(LNFarming), RoomLevelDefinitions.LNFarming, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNFarming, RoomEnemyPopulationDefinitions.LNFarming, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LNFarming, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairRoomStatues, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Farming room's state.</summary>
+    public static RoomStateSettings LowerNorfairFarming { get; } =
+        new(nameof(LowerNorfairFarming), RoomLevelDefinitions.LowerNorfairFarming, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairFarming, RoomEnemyPopulationDefinitions.LowerNorfairFarming, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairFarming, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairRoomStatues, RoomSetupBehavior.None);
 
 
     /// <summary>The Fast Pillars Setup room's state.</summary>
@@ -354,14 +354,14 @@ public static class NorfairRoomStateDefinitions
         new(nameof(Amphitheatre), RoomLevelDefinitions.Amphitheatre, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Amphitheatre, RoomEnemyPopulationDefinitions.Amphitheatre, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Amphitheatre, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairSmallPatternBrownPurple, RoomSetupBehavior.None);
 
 
-    /// <summary>The LN Spring Ball Maze room's state.</summary>
-    public static RoomStateSettings LNSpringBallMaze { get; } =
-        new(nameof(LNSpringBallMaze), RoomLevelDefinitions.LNSpringBallMaze, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.LNSpringballMaze, RoomEnemyPopulationDefinitions.LNSpringBallMaze, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LNSpringBallMaze, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LNSpringBallMaze, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairPurplePatches, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Spring Ball Maze room's state.</summary>
+    public static RoomStateSettings LowerNorfairSpringBallMaze { get; } =
+        new(nameof(LowerNorfairSpringBallMaze), RoomLevelDefinitions.LowerNorfairSpringBallMaze, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairSpringBallMaze, RoomEnemyPopulationDefinitions.LowerNorfairSpringBallMaze, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LowerNorfairSpringBallMaze, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairSpringBallMaze, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairPurplePatches, RoomSetupBehavior.None);
 
 
-    /// <summary>The LN Escape Power Bombs room's state.</summary>
-    public static RoomStateSettings LNEscapePowerBombs { get; } =
-        new(nameof(LNEscapePowerBombs), RoomLevelDefinitions.LNEscapePowerBombs, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.LNEscapePowerBombs, RoomEnemyPopulationDefinitions.LNEscapePowerBombs, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LNEscapePowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Escape Power Bombs room's state.</summary>
+    public static RoomStateSettings LowerNorfairEscapePowerBombs { get; } =
+        new(nameof(LowerNorfairEscapePowerBombs), RoomLevelDefinitions.LowerNorfairEscapePowerBombs, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairEscapePowerBombs, RoomEnemyPopulationDefinitions.LowerNorfairEscapePowerBombs, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairEscapePowerBombs, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
 
 
     /// <summary>The Red Kihunter Shaft room's state.</summary>
@@ -384,9 +384,9 @@ public static class NorfairRoomStateDefinitions
         new(nameof(ThreeMusketeers), RoomLevelDefinitions.ThreeMusketeers, RoomGraphicsSet.HeatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.ThreeMusketeers, RoomEnemyPopulationDefinitions.ThreeMusketeers, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ThreeMusketeers, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ThreeMusketeers, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairPurplePatches, RoomSetupBehavior.None);
 
 
-    /// <summary>The Ridley E Tank room's state.</summary>
-    public static RoomStateSettings RidleyETank { get; } =
-        new(nameof(RidleyETank), RoomLevelDefinitions.RidleyETank, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyETank, RoomEnemyPopulationDefinitions.RidleyETank, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.RidleyETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
+    /// <summary>The Ridley Energy Tank room's state.</summary>
+    public static RoomStateSettings RidleyEnergyTank { get; } =
+        new(nameof(RidleyEnergyTank), RoomLevelDefinitions.RidleyEnergyTank, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.RidleyEnergyTank, RoomEnemyPopulationDefinitions.RidleyEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.RidleyEnergyTank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
 
 
     /// <summary>The Screw Attack room's state.</summary>
@@ -394,12 +394,12 @@ public static class NorfairRoomStateDefinitions
         new(nameof(ScrewAttack), RoomLevelDefinitions.ScrewAttack, RoomGraphicsSet.HeatedNorfair, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.ScrewAttack, RoomEnemyPopulationDefinitions.ScrewAttack, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ScrewAttack, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.NorfairCavernRoomPillars, RoomSetupBehavior.None);
 
 
-    /// <summary>The LN Fireflea room's state.</summary>
-    public static RoomStateSettings LNFireflea { get; } =
-        new(nameof(LNFireflea), RoomLevelDefinitions.LNFireflea, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNFireflea, RoomEnemyPopulationDefinitions.LNFireflea, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LNFireflea, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LNFireflea, null, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Fireflea room's state.</summary>
+    public static RoomStateSettings LowerNorfairFireflea { get; } =
+        new(nameof(LowerNorfairFireflea), RoomLevelDefinitions.LowerNorfairFireflea, RoomGraphicsSet.UnheatedNorfair, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairFireflea, RoomEnemyPopulationDefinitions.LowerNorfairFireflea, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.LowerNorfairFireflea, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairFireflea, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The LN Save room's state.</summary>
-    public static RoomStateSettings LNSave { get; } =
-        new(nameof(LNSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LNSave, RoomEnemyPopulationDefinitions.LNSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LNSave, null, RoomSetupBehavior.None);
+    /// <summary>The Lower Norfair Save room's state.</summary>
+    public static RoomStateSettings LowerNorfairSave { get; } =
+        new(nameof(LowerNorfairSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.LowerNorfair, RoomMusicTrack.Plays(MusicTrack.LowerNorfair)), SuperMetroid.Core.Fx.RoomFxDefinitions.LowerNorfairSave, RoomEnemyPopulationDefinitions.LowerNorfairSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.LowerNorfairSave, null, RoomSetupBehavior.None);
 }

@@ -65,7 +65,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zeela, new(128, 66), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null)),
             new(EnemyDefinitionId.Zeela, new(176, 66), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null)),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.HopperETank),
+        new(nameof(RoomEnemyPopulationDefinitions.HopperEnergyTank),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BetaPowerBomb),
@@ -76,7 +76,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.SidehopperLarge, new(368, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
             new(EnemyDefinitionId.SidehopperLarge, new(120, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.WaterwayETank),
+        new(nameof(RoomEnemyPopulationDefinitions.WaterwayEnergyTank),
         [
             new(EnemyDefinitionId.Skultera, new(320, 174), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 1, AngleDelta: 16)),
             new(EnemyDefinitionId.Puyo, new(361, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
@@ -96,7 +96,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.FaceBlock, new(232, 358), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(24, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETankWhenZebesAwake),
+        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankWhenZebesAwake),
         [
             new(EnemyDefinitionId.Zoomer, new(168, 712), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
             new(EnemyDefinitionId.Zoomer, new(216, 712), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
@@ -223,7 +223,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarSave),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETankDefault),
+        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankDefault),
         [
             new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountSide: MorphBallEyeMountSide.Right)),
             new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountSide: MorphBallEyeMountSide.Left)),
@@ -248,7 +248,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Beetom, new(144, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Beetom, new(176, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.EtecoonETank),
+        new(nameof(RoomEnemyPopulationDefinitions.EtecoonEnergyTank),
         [
             new(EnemyDefinitionId.Zebbo, new(592, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
             new(EnemyDefinitionId.Zebbo, new(752, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
@@ -271,7 +271,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.ShutterShootable, new(328, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 0, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.For(0))),
             new(EnemyDefinitionId.ShutterShootable, new(360, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 0, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.For(0))),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.WarehouseETank),
+        new(nameof(RoomEnemyPopulationDefinitions.WarehouseEnergyTank),
         [
             new(EnemyDefinitionId.Beetom, new(45, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Beetom, new(71, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),

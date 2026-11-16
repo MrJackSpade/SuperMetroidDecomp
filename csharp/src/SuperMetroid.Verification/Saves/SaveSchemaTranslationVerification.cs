@@ -137,6 +137,24 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(SamusEquipmentFlags.SpringBall, nineItems.CollectedItems, "schema nine's unused item bit is not carried among collected items");
         AssertEqual(SamusEquipmentFlags.None, nineItems.EquippedItems, "an equipped list of only the unused item bit becomes no item");
 
+        // A schema-ten save names item locations and doors after the disassembly's abbreviated room labels (#2103); the
+        // current schema's strict reader rejects those names, and the save upgrades to the rooms' spelled-out names.
+        JsonObject schemaTen = RequiredJson.Parse(json).AsObject();
+        schemaTen["schemaVersion"] = 10;
+        JsonObject tenProgression = schemaTen.Required("slots").Required(0).Required("progression").AsObject();
+        tenProgression["collectedItems"] = new JsonArray("BlueBrinstarETankExposedMissileTank");
+        tenProgression["openedDoors"] = new JsonArray("RedBinstarElevYellowDoorFacingDown");
+        JsonObject tenAsCurrent = RequiredJson.Parse(schemaTen.ToJsonString()).AsObject();
+        tenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(tenAsCurrent.ToJsonString(), "BlueBrinstarETankExposedMissileTank");
+        GameSaveJsonDocument upgradedTen = LegacyGameSaveJson.Deserialize(schemaTen.ToJsonString(), "game save", out bool migratedTen);
+        AssertTrue(migratedTen, "a schema-ten save is upgraded");
+        SaveProgressionJsonDocument tenProgress = (upgradedTen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression;
+        AssertTrue(tenProgress.CollectedItems.SequenceEqual([ItemLocationDefinitions.BlueBrinstarEnergyTankExposedMissileTank.Name]),
+            "schema ten's abbreviated item location becomes its room's spelled-out name");
+        AssertTrue(tenProgress.OpenedDoors.SequenceEqual([LockedDoorDefinitions.RedBrinstarElevatorYellowDoorFacingDown.Name]),
+            "schema ten's misspelt, abbreviated door becomes its room's spelled-out name");
+
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
         JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();

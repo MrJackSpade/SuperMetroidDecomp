@@ -24,7 +24,7 @@ internal static class RetailRoomPublicationTests
         [
             new PublishedRoom(RoomDefinitions.LandingSite, PublishedFx.Unchecked),
             new PublishedRoom(RoomDefinitions.Parlor, PublishedFx.Unchecked),
-            new PublishedRoom(RoomDefinitions.ElevToBlueBrinstar, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.ElevatorToBlueBrinstar, PublishedFx.Unchecked),
             new PublishedRoom(RoomDefinitions.GreenBrinstarMainShaft, PublishedFx.Unchecked),
             new PublishedRoom(RoomDefinitions.MorphBall, PublishedFx.Unchecked),
             new PublishedRoom(RoomDefinitions.DeadScientist, PublishedFx.Unchecked),

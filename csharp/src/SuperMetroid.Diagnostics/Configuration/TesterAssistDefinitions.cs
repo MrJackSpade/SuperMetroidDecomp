@@ -41,7 +41,7 @@ public static class TesterAssistDefinitions
         ClearedEvents = new[] { StoryEvent.ShaktoolClearedPath },
         ClearedDoors = new[]
         {
-            LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LNFarmingEyeDoorFacingRight,
+            LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight,
             LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
             LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft,
         },

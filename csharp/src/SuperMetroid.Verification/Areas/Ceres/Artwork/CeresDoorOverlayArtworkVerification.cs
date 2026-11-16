@@ -60,7 +60,7 @@ internal static class CeresDoorOverlayArtworkVerification
         AssertTrue(!EnemySheetComposer.Sources(EnemySheetFixtures.Inputs, RoomEnemyGraphicsSetLists.Of(CeresRoomStateDefinitions.CeresRidleyDefault)).Enemies
                 .Any(sheet => sheet.Enemy == EnemyDefinitionId.CeresElevatorDoor),
             "Ceres Ridley's arena, which places no blocked door, draws none");
-        (int Header, RoomStateSettings State)[] states = [(ShaftDefaultState, CeresRoomStateDefinitions.CeresElevDefault)];
+        (int Header, RoomStateSettings State)[] states = [(ShaftDefaultState, CeresRoomStateDefinitions.CeresElevatorDefault)];
         foreach ((int header, RoomStateSettings state) in states)
         {
             CeresRidleyArenaBlocksVerification.LoadedSpriteCharacters shown = CeresRidleyArenaBlocksVerification.LoadedSpriteCharacters.Of(cartridge, header);

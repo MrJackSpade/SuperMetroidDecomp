@@ -10,7 +10,7 @@ public enum RoomSetupBehavior
     /// </summary>
     None,
     /// <summary>Clears the rescued animals' exit blocks and starts shaking.</summary>
-    ClearBlocksAfterSavingAnimalsAndShakeScreen,
+    OpenRescuedAnimalsPassageAndQuake,
     /// <summary>Selects automatic escape-wall destruction during room setup.</summary>
     AutoDestroyWallDuringEscape,
     /// <summary>Creates the escape wall's shootable blocks.</summary>
@@ -23,10 +23,13 @@ public enum RoomSetupBehavior
     ScrollingSkyOcean,
     /// <summary>Starts the statue-unlocking animations during room setup.</summary>
     RunStatueUnlockingAnimations,
-    /// <summary>Spawns the pre-Phantoon room's setup projectile.</summary>
-    SpawnPrePhantoonRoomEnemyProjectile,
-    /// <summary>Creates Shaktool's room-setup room object.</summary>
-    SetupShaktoolRoomObject,
+    /// <summary>
+    /// Holds an enemy-projectile place in the pre-Phantoon room for its first projectile updates
+    /// (<see cref="SuperMetroid.Core.Compatibility.PrePhantoonRoomHeldProjectilePlace"/>).
+    /// </summary>
+    HoldPrePhantoonProjectilePlace,
+    /// <summary>Spawns Shaktool's room controller, which opens the room's first screen and closes the others.</summary>
+    SpawnShaktoolController,
     /// <summary>Marks the room's area map as collected.</summary>
     SetCollectedMap,
     /// <summary>Sets the timebomb event and starts light horizontal shaking.</summary>
@@ -41,7 +44,7 @@ public enum RoomSetupBehavior
     /// </summary>
     MediumHorizontalShakingWithRisingAcid,
     /// <summary>Seals the Ceres door and spawns haze.</summary>
-    TurnCeresDoorToSolidBlocksAndSpawnHaze,
+    SealCeresDoorAndSpawnHaze,
     /// <summary>Spawns the Ceres room haze during setup.</summary>
     SpawnCeresHaze,
     /// <summary>

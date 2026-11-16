@@ -65,7 +65,7 @@ internal static class RetailElevatorReturnTests
             Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 ||
-            runtime.Room.ActiveRoom?.Definition != RoomDefinitions.ElevToBlueBrinstar)
+            runtime.Room.ActiveRoom?.Definition != RoomDefinitions.ElevatorToBlueBrinstar)
             throw new InvalidOperationException("Elevator fixture missed its vertical door transition.");
         while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && arrivalFrames < 1200)
         {

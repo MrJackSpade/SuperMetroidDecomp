@@ -54,7 +54,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.PirateGreenWalking),
             new(EnemyDefinitionId.Beetom),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElev), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElevator), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileDefault), [
             new(EnemyDefinitionId.MorphBallEye),
@@ -107,9 +107,9 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Choot),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedBinstarElev), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarElevator), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GauntletETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.GauntletEnergyTank), [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Zebbo),
         ]),
@@ -126,9 +126,9 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayKagos), [
             new(EnemyDefinitionId.Kago),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ElevToBlueBrinstar), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ElevatorToBlueBrinstar), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElev), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElevator), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PreMapFlyway), [
             new(EnemyDefinitionId.Mellow),

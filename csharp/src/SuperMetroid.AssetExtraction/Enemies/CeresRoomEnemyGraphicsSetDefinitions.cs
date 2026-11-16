@@ -7,7 +7,7 @@ internal static class CeresRoomEnemyGraphicsSetDefinitions
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElevDefault), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElevatorDefault), [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FallingTileDefault), [
@@ -26,7 +26,7 @@ internal static class CeresRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.RidleyCeres),
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElevWhenAreaBossDead), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElevatorWhenAreaBossDead), [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FallingTileWhenAreaBossDead), [

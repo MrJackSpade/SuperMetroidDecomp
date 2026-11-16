@@ -36,8 +36,8 @@ public static class WreckedShipDoorDefinitions
     /// <summary>The door from the Wrecked Ship Main Shaft room to the Sponge Bath room.</summary>
     public static DoorDefinition WreckedShipMainShaftToSpongeBath { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToSpongeBath));
 
-    /// <summary>The door from the Wrecked Ship Main Shaft room to the WS West Super room.</summary>
-    public static DoorDefinition WreckedShipMainShaftToWSWestSuper { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToWSWestSuper));
+    /// <summary>The door from the Wrecked Ship Main Shaft room to the Wrecked Ship West Super room.</summary>
+    public static DoorDefinition WreckedShipMainShaftToWreckedShipWestSuper { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToWreckedShipWestSuper));
 
     /// <summary>The door from the Wrecked Ship Main Shaft room to the Basement room.</summary>
     public static DoorDefinition WreckedShipMainShaftToBasement { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToBasement));
@@ -45,8 +45,8 @@ public static class WreckedShipDoorDefinitions
     /// <summary>The door from the Wrecked Ship Main Shaft room to the Attic room.</summary>
     public static DoorDefinition WreckedShipMainShaftToAttic { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToAttic));
 
-    /// <summary>The door from the Wrecked Ship Main Shaft room to the WS East Super room.</summary>
-    public static DoorDefinition WreckedShipMainShaftToWSEastSuper { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToWSEastSuper));
+    /// <summary>The door from the Wrecked Ship Main Shaft room to the Wrecked Ship East Super room.</summary>
+    public static DoorDefinition WreckedShipMainShaftToWreckedShipEastSuper { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToWreckedShipEastSuper));
 
     /// <summary>The door from the Wrecked Ship Main Shaft room to the Wrecked Ship Save room.</summary>
     public static DoorDefinition WreckedShipMainShaftToWreckedShipSave { get; } = DoorDefinitions.Find(nameof(WreckedShipMainShaftToWreckedShipSave));
@@ -63,11 +63,11 @@ public static class WreckedShipDoorDefinitions
     /// <summary>The door from the Electric Death room to the Spiky Death room.</summary>
     public static DoorDefinition ElectricDeathToSpikyDeath { get; } = DoorDefinitions.Find(nameof(ElectricDeathToSpikyDeath));
 
-    /// <summary>The door from the Electric Death room to the Wrecked Ship E Tank room.</summary>
-    public static DoorDefinition ElectricDeathToWreckedShipETank { get; } = DoorDefinitions.Find(nameof(ElectricDeathToWreckedShipETank));
+    /// <summary>The door from the Electric Death room to the Wrecked Ship Energy Tank room.</summary>
+    public static DoorDefinition ElectricDeathToWreckedShipEnergyTank { get; } = DoorDefinitions.Find(nameof(ElectricDeathToWreckedShipEnergyTank));
 
-    /// <summary>The door from the Wrecked Ship E Tank room to the Electric Death room.</summary>
-    public static DoorDefinition WreckedShipETankToElectricDeath { get; } = DoorDefinitions.Find(nameof(WreckedShipETankToElectricDeath));
+    /// <summary>The door from the Wrecked Ship Energy Tank room to the Electric Death room.</summary>
+    public static DoorDefinition WreckedShipEnergyTankToElectricDeath { get; } = DoorDefinitions.Find(nameof(WreckedShipEnergyTankToElectricDeath));
 
     /// <summary>The door from the Basement room to the Wrecked Ship Main Shaft room.</summary>
     public static DoorDefinition BasementToWreckedShipMainShaft { get; } = DoorDefinitions.Find(nameof(BasementToWreckedShipMainShaft));
@@ -90,11 +90,11 @@ public static class WreckedShipDoorDefinitions
     /// <summary>The door from the Sponge Bath room to the Spiky Death room.</summary>
     public static DoorDefinition SpongeBathToSpikyDeath { get; } = DoorDefinitions.Find(nameof(SpongeBathToSpikyDeath));
 
-    /// <summary>The door from the WS West Super room to the Wrecked Ship Main Shaft room.</summary>
-    public static DoorDefinition WSWestSuperToWreckedShipMainShaft { get; } = DoorDefinitions.Find(nameof(WSWestSuperToWreckedShipMainShaft));
+    /// <summary>The door from the Wrecked Ship West Super room to the Wrecked Ship Main Shaft room.</summary>
+    public static DoorDefinition WreckedShipWestSuperToWreckedShipMainShaft { get; } = DoorDefinitions.Find(nameof(WreckedShipWestSuperToWreckedShipMainShaft));
 
-    /// <summary>The door from the WS East Super room to the Wrecked Ship Main Shaft room.</summary>
-    public static DoorDefinition WSEastSuperToWreckedShipMainShaft { get; } = DoorDefinitions.Find(nameof(WSEastSuperToWreckedShipMainShaft));
+    /// <summary>The door from the Wrecked Ship East Super room to the Wrecked Ship Main Shaft room.</summary>
+    public static DoorDefinition WreckedShipEastSuperToWreckedShipMainShaft { get; } = DoorDefinitions.Find(nameof(WreckedShipEastSuperToWreckedShipMainShaft));
 
     /// <summary>The door from the Gravity Suit room to the West Ocean room.</summary>
     public static DoorDefinition GravitySuitToWestOcean { get; } = DoorDefinitions.Find(nameof(GravitySuitToWestOcean));

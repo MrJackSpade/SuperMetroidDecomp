@@ -44,14 +44,14 @@ internal enum RoomScrollChange
     /// <summary>In the CrateriaKihunter room, closes screen 1x1; opens screen 1x0 with the camera aligned to the screen's top.</summary>
     CrateriaKihunterClosesScreen1x1OpensScreen1x0TopAligned,
 
-    /// <summary>In the ForgottenHighwayElev room, opens screen 0x0.</summary>
-    ForgottenHighwayElevOpensScreen0x0,
+    /// <summary>In the ForgottenHighwayElevator room, opens screen 0x0.</summary>
+    ForgottenHighwayElevatorOpensScreen0x0,
 
-    /// <summary>In the RedBinstarElev room, opens screen 0x0.</summary>
-    RedBinstarElevOpensScreen0x0,
+    /// <summary>In the RedBrinstarElevator room, opens screen 0x0.</summary>
+    RedBrinstarElevatorOpensScreen0x0,
 
-    /// <summary>In the GauntletETank room, opens screen 4x0 with the camera aligned to the screen's top.</summary>
-    GauntletETankOpensScreen4x0TopAligned,
+    /// <summary>In the GauntletEnergyTank room, opens screen 4x0 with the camera aligned to the screen's top.</summary>
+    GauntletEnergyTankOpensScreen4x0TopAligned,
 
     /// <summary>In the Climb room, opens screen 2x0 with the camera aligned to the screen's top.</summary>
     ClimbOpensScreen2x0TopAligned,
@@ -83,11 +83,11 @@ internal enum RoomScrollChange
     /// <summary>In the Pit room, closes screen 0x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
     PitClosesScreen0x1OpensScreen0x0TopAligned,
 
-    /// <summary>In the ElevToBlueBrinstar room, opens screen 0x0.</summary>
-    ElevToBlueBrinstarOpensScreen0x0,
+    /// <summary>In the ElevatorToBlueBrinstar room, opens screen 0x0.</summary>
+    ElevatorToBlueBrinstarOpensScreen0x0,
 
-    /// <summary>In the GreenBrinstarElev room, opens screen 0x0.</summary>
-    GreenBrinstarElevOpensScreen0x0,
+    /// <summary>In the GreenBrinstarElevator room, opens screen 0x0.</summary>
+    GreenBrinstarElevatorOpensScreen0x0,
 
     /// <summary>In the GreenPiratesShaft room, opens screen 0x3.</summary>
     GreenPiratesShaftOpensScreen0x3,
@@ -161,14 +161,14 @@ internal enum RoomScrollChange
     /// <summary>In the ConstructionZone room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
     ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
 
-    /// <summary>In the BlueBrinstarETank room, opens screen 2x1.</summary>
-    BlueBrinstarETankOpensScreen2x1,
+    /// <summary>In the BlueBrinstarEnergyTank room, opens screen 2x1.</summary>
+    BlueBrinstarEnergyTankOpensScreen2x1,
 
-    /// <summary>In the EtecoonETank room, opens screen 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
-    EtecoonETankOpensScreen1x0OpensScreens0x1And1x1TopAligned,
+    /// <summary>In the EtecoonEnergyTank room, opens screen 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
+    EtecoonEnergyTankOpensScreen1x0OpensScreens0x1And1x1TopAligned,
 
-    /// <summary>In the WaterwayETank room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    WaterwayETankOpensScreen0x0TopAligned,
+    /// <summary>In the WaterwayEnergyTank room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    WaterwayEnergyTankOpensScreen0x0TopAligned,
 
     /// <summary>In the RedTower room, opens screens 0x6 and 0x7.</summary>
     RedTowerOpensScreens0x6And0x7,
@@ -254,17 +254,17 @@ internal enum RoomScrollChange
     /// <summary>In the CrocomireSpeedway room, closes screen 11x2.</summary>
     CrocomireSpeedwayClosesScreen11x2,
 
-    /// <summary>In the HiJumpETank room, opens screens 0x0 and 0x1.</summary>
-    HiJumpETankOpensScreens0x0And0x1,
+    /// <summary>In the HiJumpEnergyTank room, opens screens 0x0 and 0x1.</summary>
+    HiJumpEnergyTankOpensScreens0x0And0x1,
 
-    /// <summary>In the HiJumpETank room, opens screens 0x0 and 0x1 and 1x1.</summary>
-    HiJumpETankOpensScreens0x0And0x1And1x1,
+    /// <summary>In the HiJumpEnergyTank room, opens screens 0x0 and 0x1 and 1x1.</summary>
+    HiJumpEnergyTankOpensScreens0x0And0x1And1x1,
 
-    /// <summary>In the HiJumpETank room, closes screen 1x1.</summary>
-    HiJumpETankClosesScreen1x1,
+    /// <summary>In the HiJumpEnergyTank room, closes screen 1x1.</summary>
+    HiJumpEnergyTankClosesScreen1x1,
 
-    /// <summary>In the HiJumpETank room, opens screen 1x1.</summary>
-    HiJumpETankOpensScreen1x1,
+    /// <summary>In the HiJumpEnergyTank room, opens screen 1x1.</summary>
+    HiJumpEnergyTankOpensScreen1x1,
 
     /// <summary>In the GreenBubblesMissiles room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
     GreenBubblesMissilesOpensScreen0x0TopAligned,
@@ -299,8 +299,8 @@ internal enum RoomScrollChange
     /// <summary>In the PurpleShaft room, opens screens 0x0 and 0x1.</summary>
     PurpleShaftOpensScreens0x0And0x1,
 
-    /// <summary>In the LowerNorfairElev room, opens screen 0x0.</summary>
-    LowerNorfairElevOpensScreen0x0,
+    /// <summary>In the LowerNorfairElevator room, opens screen 0x0.</summary>
+    LowerNorfairElevatorOpensScreen0x0,
 
     /// <summary>In the BatCave room, opens screens 0x0 and 0x1.</summary>
     BatCaveOpensScreens0x0And0x1,
@@ -353,14 +353,14 @@ internal enum RoomScrollChange
     /// <summary>In the WorstRoomInTheGame room, opens screens 0x0 and 0x1.</summary>
     WorstRoomInTheGameOpensScreens0x0And0x1,
 
-    /// <summary>In the LNSpringBallMaze room, closes screen 1x1; opens screens 1x0 and 2x0 with the camera aligned to the screen's top.</summary>
-    LNSpringBallMazeClosesScreen1x1OpensScreens1x0And2x0TopAligned,
+    /// <summary>In the LowerNorfairSpringBallMaze room, closes screen 1x1; opens screens 1x0 and 2x0 with the camera aligned to the screen's top.</summary>
+    LowerNorfairSpringBallMazeClosesScreen1x1OpensScreens1x0And2x0TopAligned,
 
-    /// <summary>In the LNSpringBallMaze room, closes screens 1x0 and 2x0; opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    LNSpringBallMazeClosesScreens1x0And2x0OpensScreen1x1TopAligned,
+    /// <summary>In the LowerNorfairSpringBallMaze room, closes screens 1x0 and 2x0; opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    LowerNorfairSpringBallMazeClosesScreens1x0And2x0OpensScreen1x1TopAligned,
 
-    /// <summary>In the LNSpringBallMaze room, opens screen 4x0; opens screen 3x0 with the camera aligned to the screen's top.</summary>
-    LNSpringBallMazeOpensScreen4x0OpensScreen3x0TopAligned,
+    /// <summary>In the LowerNorfairSpringBallMaze room, opens screen 4x0; opens screen 3x0 with the camera aligned to the screen's top.</summary>
+    LowerNorfairSpringBallMazeOpensScreen4x0OpensScreen3x0TopAligned,
 
     /// <summary>In the RedKihunterShaft room, opens screens 1x3 and 1x4.</summary>
     RedKihunterShaftOpensScreens1x3And1x4,
@@ -404,17 +404,17 @@ internal enum RoomScrollChange
     /// <summary>In the ThreeMusketeers room, closes screen 0x2.</summary>
     ThreeMusketeersClosesScreen0x2,
 
-    /// <summary>In the LNFireflea room, opens screen 2x3 with the camera aligned to the screen's top.</summary>
-    LNFirefleaOpensScreen2x3TopAligned,
+    /// <summary>In the LowerNorfairFireflea room, opens screen 2x3 with the camera aligned to the screen's top.</summary>
+    LowerNorfairFirefleaOpensScreen2x3TopAligned,
 
-    /// <summary>In the LNFireflea room, opens screens 2x3 and 1x4 and 2x4.</summary>
-    LNFirefleaOpensScreens2x3And1x4And2x4,
+    /// <summary>In the LowerNorfairFireflea room, opens screens 2x3 and 1x4 and 2x4.</summary>
+    LowerNorfairFirefleaOpensScreens2x3And1x4And2x4,
 
-    /// <summary>In the LNFireflea room, closes screen 1x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    LNFirefleaClosesScreen1x1OpensScreen0x0TopAligned,
+    /// <summary>In the LowerNorfairFireflea room, closes screen 1x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    LowerNorfairFirefleaClosesScreen1x1OpensScreen0x0TopAligned,
 
-    /// <summary>In the LNFireflea room, opens screens 1x0 and 1x1.</summary>
-    LNFirefleaOpensScreens1x0And1x1,
+    /// <summary>In the LowerNorfairFireflea room, opens screens 1x0 and 1x1.</summary>
+    LowerNorfairFirefleaOpensScreens1x0And1x1,
 
     /// <summary>In the BowlingAlley room, opens screens 2x2 and 3x2 with the camera aligned to the screen's top.</summary>
     BowlingAlleyOpensScreens2x2And3x2TopAligned,
@@ -446,8 +446,8 @@ internal enum RoomScrollChange
     /// <summary>In the Basement room, closes screen 3x0.</summary>
     BasementClosesScreen3x0,
 
-    /// <summary>In the WSEastSuper room, opens screen 3x0 with the camera aligned to the screen's top.</summary>
-    WSEastSuperOpensScreen3x0TopAligned,
+    /// <summary>In the WreckedShipEastSuper room, opens screen 3x0 with the camera aligned to the screen's top.</summary>
+    WreckedShipEastSuperOpensScreen3x0TopAligned,
 
     /// <summary>In the GlassTunnel room, opens screen 0x0.</summary>
     GlassTunnelOpensScreen0x0,
@@ -482,8 +482,8 @@ internal enum RoomScrollChange
     /// <summary>In the WateringHole room, opens screen 0x2 with the camera aligned to the screen's top.</summary>
     WateringHoleOpensScreen0x2TopAligned,
 
-    /// <summary>In the NWestMaridiaBug room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    NWestMaridiaBugOpensScreen1x1TopAligned,
+    /// <summary>In the NorthwestMaridiaBug room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    NorthwestMaridiaBugOpensScreen1x1TopAligned,
 
     /// <summary>In the CrabShaft room, opens screen 0x2; opens screen 0x3 with the camera aligned to the screen's top.</summary>
     CrabShaftOpensScreen0x2OpensScreen0x3TopAligned,

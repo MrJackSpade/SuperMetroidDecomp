@@ -63,7 +63,7 @@ internal static class RoomCallbackDefinitionsVerification
             () => RoomBehaviorDefinitions.ResolveSetup(0xffff),
             "room-setup dispatch rejects unknown native pointers");
         AssertTrue(RoomBehaviorDefinitions.CeresHazeSetups.Contains(
-                RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze),
+                RoomSetupBehavior.SealCeresDoorAndSpawnHaze),
             "Ceres solid-door callback retains its haze side effect");
         AssertTrue(!RoomBehaviorDefinitions.CeresHazeSetups.Contains(
                 RoomSetupBehavior.SetMediumHorizontalRoomShaking),

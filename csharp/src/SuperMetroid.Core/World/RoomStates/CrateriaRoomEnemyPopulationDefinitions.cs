@@ -146,7 +146,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Beetom, new(184, 984), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Beetom, new(72, 984), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 7),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarElev),
+        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarElevator),
         [
             new(EnemyDefinitionId.Elevator, new(128, 162), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
@@ -261,11 +261,11 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Waver, new(233, 117), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.Waver, new(310, 99), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
         ], 6),
-        new(nameof(RoomEnemyPopulationDefinitions.RedBinstarElev),
+        new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarElevator),
         [
             new(EnemyDefinitionId.Elevator, new(128, 194), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.GauntletETank),
+        new(nameof(RoomEnemyPopulationDefinitions.GauntletEnergyTank),
         [
             new(EnemyDefinitionId.YappingMaw, new(136, 56), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Down)),
             new(EnemyDefinitionId.Zebbo, new(136, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
@@ -302,11 +302,11 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Kago, new(80, 832), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KagoSpawnSettings(HitCount: 10)),
             new(EnemyDefinitionId.Kago, new(168, 512), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KagoSpawnSettings(HitCount: 10)),
         ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.ElevToBlueBrinstar),
+        new(nameof(RoomEnemyPopulationDefinitions.ElevatorToBlueBrinstar),
         [
             new(EnemyDefinitionId.Elevator, new(128, 162), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.ForgottenHighwayElev),
+        new(nameof(RoomEnemyPopulationDefinitions.ForgottenHighwayElevator),
         [
             new(EnemyDefinitionId.Elevator, new(128, 192), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),

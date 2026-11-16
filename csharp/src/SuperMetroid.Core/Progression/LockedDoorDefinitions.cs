@@ -58,8 +58,8 @@ public static class LockedDoorDefinitions
     /// <summary>The ForgottenHighwayElbowYellowDoorFacingUp door.</summary>
     public static LockedDoor ForgottenHighwayElbowYellowDoorFacingUp { get; } = new(nameof(ForgottenHighwayElbowYellowDoorFacingUp));
 
-    /// <summary>The RedBinstarElevYellowDoorFacingDown door.</summary>
-    public static LockedDoor RedBinstarElevYellowDoorFacingDown { get; } = new(nameof(RedBinstarElevYellowDoorFacingDown));
+    /// <summary>The RedBrinstarElevatorYellowDoorFacingDown door.</summary>
+    public static LockedDoor RedBrinstarElevatorYellowDoorFacingDown { get; } = new(nameof(RedBrinstarElevatorYellowDoorFacingDown));
 
     /// <summary>The ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft door.</summary>
     public static LockedDoor ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft { get; } = new(nameof(ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft));
@@ -166,8 +166,8 @@ public static class LockedDoorDefinitions
     /// <summary>The NoobBridgeGreenDoorFacingLeft door.</summary>
     public static LockedDoor NoobBridgeGreenDoorFacingLeft { get; } = new(nameof(NoobBridgeGreenDoorFacingLeft));
 
-    /// <summary>The EtecoonETankGreenDoorFacingRight door.</summary>
-    public static LockedDoor EtecoonETankGreenDoorFacingRight { get; } = new(nameof(EtecoonETankGreenDoorFacingRight));
+    /// <summary>The EtecoonEnergyTankGreenDoorFacingRight door.</summary>
+    public static LockedDoor EtecoonEnergyTankGreenDoorFacingRight { get; } = new(nameof(EtecoonEnergyTankGreenDoorFacingRight));
 
     /// <summary>The SporeSpawnFarmingGreenDoorFacingRight door.</summary>
     public static LockedDoor SporeSpawnFarmingGreenDoorFacingRight { get; } = new(nameof(SporeSpawnFarmingGreenDoorFacingRight));
@@ -205,8 +205,8 @@ public static class LockedDoorDefinitions
     /// <summary>The WarehouseZeelaGreyDoorFacingRight door.</summary>
     public static LockedDoor WarehouseZeelaGreyDoorFacingRight { get; } = new(nameof(WarehouseZeelaGreyDoorFacingRight));
 
-    /// <summary>The WarehouseETankGreyDoorFacingLeft door.</summary>
-    public static LockedDoor WarehouseETankGreyDoorFacingLeft { get; } = new(nameof(WarehouseETankGreyDoorFacingLeft));
+    /// <summary>The WarehouseEnergyTankGreyDoorFacingLeft door.</summary>
+    public static LockedDoor WarehouseEnergyTankGreyDoorFacingLeft { get; } = new(nameof(WarehouseEnergyTankGreyDoorFacingLeft));
 
     /// <summary>The MiniKraidGreyDoorFacingLeft door.</summary>
     public static LockedDoor MiniKraidGreyDoorFacingLeft { get; } = new(nameof(MiniKraidGreyDoorFacingLeft));
@@ -250,14 +250,14 @@ public static class LockedDoorDefinitions
     /// <summary>The CrocomireGreyDoorFacingDown door.</summary>
     public static LockedDoor CrocomireGreyDoorFacingDown { get; } = new(nameof(CrocomireGreyDoorFacingDown));
 
-    /// <summary>The HiJumpETankGreyDoorFacingLeft door.</summary>
-    public static LockedDoor HiJumpETankGreyDoorFacingLeft { get; } = new(nameof(HiJumpETankGreyDoorFacingLeft));
+    /// <summary>The HiJumpEnergyTankGreyDoorFacingLeft door.</summary>
+    public static LockedDoor HiJumpEnergyTankGreyDoorFacingLeft { get; } = new(nameof(HiJumpEnergyTankGreyDoorFacingLeft));
 
-    /// <summary>The PostCrocFarmingRedDoorFacingRight door.</summary>
-    public static LockedDoor PostCrocFarmingRedDoorFacingRight { get; } = new(nameof(PostCrocFarmingRedDoorFacingRight));
+    /// <summary>The PostCrocomireFarmingRedDoorFacingRight door.</summary>
+    public static LockedDoor PostCrocomireFarmingRedDoorFacingRight { get; } = new(nameof(PostCrocomireFarmingRedDoorFacingRight));
 
-    /// <summary>The PostCrocShaftRedDoorFacingLeft door.</summary>
-    public static LockedDoor PostCrocShaftRedDoorFacingLeft { get; } = new(nameof(PostCrocShaftRedDoorFacingLeft));
+    /// <summary>The PostCrocomireShaftRedDoorFacingLeft door.</summary>
+    public static LockedDoor PostCrocomireShaftRedDoorFacingLeft { get; } = new(nameof(PostCrocomireShaftRedDoorFacingLeft));
 
     /// <summary>The BubbleMountainGreenDoorFacingRight door.</summary>
     public static LockedDoor BubbleMountainGreenDoorFacingRight { get; } = new(nameof(BubbleMountainGreenDoorFacingRight));
@@ -286,8 +286,8 @@ public static class LockedDoorDefinitions
     /// <summary>The RidleyGreyDoorFacingRight door.</summary>
     public static LockedDoor RidleyGreyDoorFacingRight { get; } = new(nameof(RidleyGreyDoorFacingRight));
 
-    /// <summary>The LNFarmingEyeDoorFacingRight door.</summary>
-    public static LockedDoor LNFarmingEyeDoorFacingRight { get; } = new(nameof(LNFarmingEyeDoorFacingRight));
+    /// <summary>The LowerNorfairFarmingEyeDoorFacingRight door.</summary>
+    public static LockedDoor LowerNorfairFarmingEyeDoorFacingRight { get; } = new(nameof(LowerNorfairFarmingEyeDoorFacingRight));
 
     /// <summary>The MickeyMouseGreyDoorFacingRight door.</summary>
     public static LockedDoor MickeyMouseGreyDoorFacingRight { get; } = new(nameof(MickeyMouseGreyDoorFacingRight));
@@ -355,8 +355,8 @@ public static class LockedDoorDefinitions
     /// <summary>The PlasmaGreyDoorFacingRight door.</summary>
     public static LockedDoor PlasmaGreyDoorFacingRight { get; } = new(nameof(PlasmaGreyDoorFacingRight));
 
-    /// <summary>The MaridiaElevRedDoorFacingLeft door.</summary>
-    public static LockedDoor MaridiaElevRedDoorFacingLeft { get; } = new(nameof(MaridiaElevRedDoorFacingLeft));
+    /// <summary>The MaridiaElevatorRedDoorFacingLeft door.</summary>
+    public static LockedDoor MaridiaElevatorRedDoorFacingLeft { get; } = new(nameof(MaridiaElevatorRedDoorFacingLeft));
 
     /// <summary>The PlasmaSparkGreyDoorFacingLeft door.</summary>
     public static LockedDoor PlasmaSparkGreyDoorFacingLeft { get; } = new(nameof(PlasmaSparkGreyDoorFacingLeft));
@@ -455,7 +455,7 @@ public static class LockedDoorDefinitions
         CrateriaKihunterYellowDoorFacingLeft,
         CrateriaKihunterYellowDoorFacingUp,
         ForgottenHighwayElbowYellowDoorFacingUp,
-        RedBinstarElevYellowDoorFacingDown,
+        RedBrinstarElevatorYellowDoorFacingDown,
         ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft,
         ClimbDefaultOrWhenZebesAwakeGreyDoorFacingRight,
         ClimbDefaultOrWhenZebesAwakeYellowDoorFacingLeft,
@@ -491,7 +491,7 @@ public static class LockedDoorDefinitions
         MorphBallWhenZebesAwakeGreyDoorFacingRight,
         ConstructionZoneRedDoorFacingLeft,
         NoobBridgeGreenDoorFacingLeft,
-        EtecoonETankGreenDoorFacingRight,
+        EtecoonEnergyTankGreenDoorFacingRight,
         SporeSpawnFarmingGreenDoorFacingRight,
         PinkBrinstarHoppersGreyDoorFacingRight,
         PinkBrinstarHoppersGreyDoorFacingLeft,
@@ -504,7 +504,7 @@ public static class LockedDoorDefinitions
         BetaPowerBombGreyDoorFacingLeft,
         BelowSpazerGreenDoorFacingLeft,
         WarehouseZeelaGreyDoorFacingRight,
-        WarehouseETankGreyDoorFacingLeft,
+        WarehouseEnergyTankGreyDoorFacingLeft,
         MiniKraidGreyDoorFacingLeft,
         MiniKraidGreyDoorFacingRight,
         KraidEyeDoorGreenDoorFacingLeft,
@@ -519,9 +519,9 @@ public static class LockedDoorDefinitions
         BusinessCenterRedDoorFacingRight,
         CrocomireSpeedwayGreenDoorFacingUp,
         CrocomireGreyDoorFacingDown,
-        HiJumpETankGreyDoorFacingLeft,
-        PostCrocFarmingRedDoorFacingRight,
-        PostCrocShaftRedDoorFacingLeft,
+        HiJumpEnergyTankGreyDoorFacingLeft,
+        PostCrocomireFarmingRedDoorFacingRight,
+        PostCrocomireShaftRedDoorFacingLeft,
         BubbleMountainGreenDoorFacingRight,
         BubbleMountainGreenDoorFacingLeft,
         SpeedBoosterHallRedDoorFacingLeft,
@@ -531,7 +531,7 @@ public static class LockedDoorDefinitions
         GoldenTorizoGreyDoorFacingLeft,
         RidleyGreyDoorFacingLeft,
         RidleyGreyDoorFacingRight,
-        LNFarmingEyeDoorFacingRight,
+        LowerNorfairFarmingEyeDoorFacingRight,
         MickeyMouseGreyDoorFacingRight,
         RedKihunterShaftYellowDoorFacingUp,
         WastelandGreenDoorFacingRight,
@@ -554,7 +554,7 @@ public static class LockedDoorDefinitions
         CrabShaftGreenDoorFacingLeft,
         CrabHoleRedDoorFacingLeft,
         PlasmaGreyDoorFacingRight,
-        MaridiaElevRedDoorFacingLeft,
+        MaridiaElevatorRedDoorFacingLeft,
         PlasmaSparkGreyDoorFacingLeft,
         PlasmaSparkGreenDoorFacingUp,
         OasisGreenDoorFacingDown,

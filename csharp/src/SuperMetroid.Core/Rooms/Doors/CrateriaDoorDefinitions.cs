@@ -22,8 +22,8 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Gauntlet Entrance room to the Landing Site room.</summary>
     public static DoorDefinition GauntletEntranceToLandingSite { get; } = DoorDefinitions.Find(nameof(GauntletEntranceToLandingSite));
 
-    /// <summary>The door from the Gauntlet Entrance room to the Gauntlet E Tank room.</summary>
-    public static DoorDefinition GauntletEntranceToGauntletETank { get; } = DoorDefinitions.Find(nameof(GauntletEntranceToGauntletETank));
+    /// <summary>The door from the Gauntlet Entrance room to the Gauntlet Energy Tank room.</summary>
+    public static DoorDefinition GauntletEntranceToGauntletEnergyTank { get; } = DoorDefinitions.Find(nameof(GauntletEntranceToGauntletEnergyTank));
 
     /// <summary>The door from the Parlor room to the Terminator room.</summary>
     public static DoorDefinition ParlorToTerminator { get; } = DoorDefinitions.Find(nameof(ParlorToTerminator));
@@ -82,14 +82,14 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Crateria Kihunter room to the Moat room.</summary>
     public static DoorDefinition CrateriaKihunterToMoat { get; } = DoorDefinitions.Find(nameof(CrateriaKihunterToMoat));
 
-    /// <summary>The door from the Crateria Kihunter room to the Red Binstar Elev room.</summary>
-    public static DoorDefinition CrateriaKihunterToRedBinstarElev { get; } = DoorDefinitions.Find(nameof(CrateriaKihunterToRedBinstarElev));
+    /// <summary>The door from the Crateria Kihunter room to the Red Brinstar Elevator room.</summary>
+    public static DoorDefinition CrateriaKihunterToRedBrinstarElevator { get; } = DoorDefinitions.Find(nameof(CrateriaKihunterToRedBrinstarElevator));
 
-    /// <summary>The door from the Forgotten Highway Elev room to the Forgotten Highway Elbow room.</summary>
-    public static DoorDefinition ForgottenHighwayElevToForgottenHighwayElbow { get; } = DoorDefinitions.Find(nameof(ForgottenHighwayElevToForgottenHighwayElbow));
+    /// <summary>The door from the Forgotten Highway Elevator room to the Forgotten Highway Elbow room.</summary>
+    public static DoorDefinition ForgottenHighwayElevatorToForgottenHighwayElbow { get; } = DoorDefinitions.Find(nameof(ForgottenHighwayElevatorToForgottenHighwayElbow));
 
-    /// <summary>The door from the Forgotten Highway Elev room to the Maridia Elev room.</summary>
-    public static DoorDefinition ForgottenHighwayElevToMaridiaElev { get; } = DoorDefinitions.Find(nameof(ForgottenHighwayElevToMaridiaElev));
+    /// <summary>The door from the Forgotten Highway Elevator room to the Maridia Elevator room.</summary>
+    public static DoorDefinition ForgottenHighwayElevatorToMaridiaElevator { get; } = DoorDefinitions.Find(nameof(ForgottenHighwayElevatorToMaridiaElevator));
 
     /// <summary>The door from the East Ocean room to the Electric Death room.</summary>
     public static DoorDefinition EastOceanToElectricDeath { get; } = DoorDefinitions.Find(nameof(EastOceanToElectricDeath));
@@ -112,8 +112,8 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Crab Maze room to the Forgotten Highway Elbow room.</summary>
     public static DoorDefinition CrabMazeToForgottenHighwayElbow { get; } = DoorDefinitions.Find(nameof(CrabMazeToForgottenHighwayElbow));
 
-    /// <summary>The door from the Forgotten Highway Elbow room to the Forgotten Highway Elev room.</summary>
-    public static DoorDefinition ForgottenHighwayElbowToForgottenHighwayElev { get; } = DoorDefinitions.Find(nameof(ForgottenHighwayElbowToForgottenHighwayElev));
+    /// <summary>The door from the Forgotten Highway Elbow room to the Forgotten Highway Elevator room.</summary>
+    public static DoorDefinition ForgottenHighwayElbowToForgottenHighwayElevator { get; } = DoorDefinitions.Find(nameof(ForgottenHighwayElbowToForgottenHighwayElevator));
 
     /// <summary>The door from the Crateria Tube room to the Landing Site room.</summary>
     public static DoorDefinition CrateriaTubeToLandingSite { get; } = DoorDefinitions.Find(nameof(CrateriaTubeToLandingSite));
@@ -127,17 +127,17 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Moat room to the West Ocean room.</summary>
     public static DoorDefinition MoatToWestOcean { get; } = DoorDefinitions.Find(nameof(MoatToWestOcean));
 
-    /// <summary>The door from the Red Binstar Elev room to the Crateria Kihunter room.</summary>
-    public static DoorDefinition RedBinstarElevToCrateriaKihunter { get; } = DoorDefinitions.Find(nameof(RedBinstarElevToCrateriaKihunter));
+    /// <summary>The door from the Red Brinstar Elevator room to the Crateria Kihunter room.</summary>
+    public static DoorDefinition RedBrinstarElevatorToCrateriaKihunter { get; } = DoorDefinitions.Find(nameof(RedBrinstarElevatorToCrateriaKihunter));
 
-    /// <summary>The door from the Red Binstar Elev room to the Caterpillar room.</summary>
-    public static DoorDefinition RedBinstarElevToCaterpillar { get; } = DoorDefinitions.Find(nameof(RedBinstarElevToCaterpillar));
+    /// <summary>The door from the Red Brinstar Elevator room to the Caterpillar room.</summary>
+    public static DoorDefinition RedBrinstarElevatorToCaterpillar { get; } = DoorDefinitions.Find(nameof(RedBrinstarElevatorToCaterpillar));
 
-    /// <summary>The door from the Gauntlet E Tank room to the Gauntlet Entrance room.</summary>
-    public static DoorDefinition GauntletETankToGauntletEntrance { get; } = DoorDefinitions.Find(nameof(GauntletETankToGauntletEntrance));
+    /// <summary>The door from the Gauntlet Energy Tank room to the Gauntlet Entrance room.</summary>
+    public static DoorDefinition GauntletEnergyTankToGauntletEntrance { get; } = DoorDefinitions.Find(nameof(GauntletEnergyTankToGauntletEntrance));
 
-    /// <summary>The door from the Gauntlet E Tank room to the Green Pirates Shaft room.</summary>
-    public static DoorDefinition GauntletETankToGreenPiratesShaft { get; } = DoorDefinitions.Find(nameof(GauntletETankToGreenPiratesShaft));
+    /// <summary>The door from the Gauntlet Energy Tank room to the Green Pirates Shaft room.</summary>
+    public static DoorDefinition GauntletEnergyTankToGreenPiratesShaft { get; } = DoorDefinitions.Find(nameof(GauntletEnergyTankToGreenPiratesShaft));
 
     /// <summary>The door from the Pre Bowling room to the Bowling Alley Path room.</summary>
     public static DoorDefinition PreBowlingToBowlingAlleyPath { get; } = DoorDefinitions.Find(nameof(PreBowlingToBowlingAlleyPath));
@@ -163,14 +163,14 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Pit room to the Climb room.</summary>
     public static DoorDefinition PitToClimb { get; } = DoorDefinitions.Find(nameof(PitToClimb));
 
-    /// <summary>The door from the Pit room to the Elev To Blue Brinstar room.</summary>
-    public static DoorDefinition PitToElevToBlueBrinstar { get; } = DoorDefinitions.Find(nameof(PitToElevToBlueBrinstar));
+    /// <summary>The door from the Pit room to the Elevator To Blue Brinstar room.</summary>
+    public static DoorDefinition PitToElevatorToBlueBrinstar { get; } = DoorDefinitions.Find(nameof(PitToElevatorToBlueBrinstar));
 
-    /// <summary>The door from the Elev To Blue Brinstar room to the Pit room.</summary>
-    public static DoorDefinition ElevToBlueBrinstarToPit { get; } = DoorDefinitions.Find(nameof(ElevToBlueBrinstarToPit));
+    /// <summary>The door from the Elevator To Blue Brinstar room to the Pit room.</summary>
+    public static DoorDefinition ElevatorToBlueBrinstarToPit { get; } = DoorDefinitions.Find(nameof(ElevatorToBlueBrinstarToPit));
 
-    /// <summary>The door from the Elev To Blue Brinstar room to the Morph Ball room.</summary>
-    public static DoorDefinition ElevToBlueBrinstarToMorphBall { get; } = DoorDefinitions.Find(nameof(ElevToBlueBrinstarToMorphBall));
+    /// <summary>The door from the Elevator To Blue Brinstar room to the Morph Ball room.</summary>
+    public static DoorDefinition ElevatorToBlueBrinstarToMorphBall { get; } = DoorDefinitions.Find(nameof(ElevatorToBlueBrinstarToMorphBall));
 
     /// <summary>The door from the Bomb Torizo room to the Flyway room.</summary>
     public static DoorDefinition BombTorizoToFlyway { get; } = DoorDefinitions.Find(nameof(BombTorizoToFlyway));
@@ -193,17 +193,17 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Terminator room to the Parlor room.</summary>
     public static DoorDefinition TerminatorToParlor { get; } = DoorDefinitions.Find(nameof(TerminatorToParlor));
 
-    /// <summary>The door from the Green Brinstar Elev room to the Lower Mushrooms room.</summary>
-    public static DoorDefinition GreenBrinstarElevToLowerMushrooms { get; } = DoorDefinitions.Find(nameof(GreenBrinstarElevToLowerMushrooms));
+    /// <summary>The door from the Green Brinstar Elevator room to the Lower Mushrooms room.</summary>
+    public static DoorDefinition GreenBrinstarElevatorToLowerMushrooms { get; } = DoorDefinitions.Find(nameof(GreenBrinstarElevatorToLowerMushrooms));
 
-    /// <summary>The door from the Green Brinstar Elev room to the Green Brinstar Main Shaft room.</summary>
-    public static DoorDefinition GreenBrinstarElevToGreenBrinstarMainShaft { get; } = DoorDefinitions.Find(nameof(GreenBrinstarElevToGreenBrinstarMainShaft));
+    /// <summary>The door from the Green Brinstar Elevator room to the Green Brinstar Main Shaft room.</summary>
+    public static DoorDefinition GreenBrinstarElevatorToGreenBrinstarMainShaft { get; } = DoorDefinitions.Find(nameof(GreenBrinstarElevatorToGreenBrinstarMainShaft));
 
     /// <summary>The door from the Lower Mushrooms room to the Green Pirates Shaft room.</summary>
     public static DoorDefinition LowerMushroomsToGreenPiratesShaft { get; } = DoorDefinitions.Find(nameof(LowerMushroomsToGreenPiratesShaft));
 
-    /// <summary>The door from the Lower Mushrooms room to the Green Brinstar Elev room.</summary>
-    public static DoorDefinition LowerMushroomsToGreenBrinstarElev { get; } = DoorDefinitions.Find(nameof(LowerMushroomsToGreenBrinstarElev));
+    /// <summary>The door from the Lower Mushrooms room to the Green Brinstar Elevator room.</summary>
+    public static DoorDefinition LowerMushroomsToGreenBrinstarElevator { get; } = DoorDefinitions.Find(nameof(LowerMushroomsToGreenBrinstarElevator));
 
     /// <summary>The door from the Crateria Map room to the Pre Map Flyway room.</summary>
     public static DoorDefinition CrateriaMapToPreMapFlyway { get; } = DoorDefinitions.Find(nameof(CrateriaMapToPreMapFlyway));
@@ -217,8 +217,8 @@ public static class CrateriaDoorDefinitions
     /// <summary>The door from the Green Pirates Shaft room to the Statues Hallway room.</summary>
     public static DoorDefinition GreenPiratesShaftToStatuesHallway { get; } = DoorDefinitions.Find(nameof(GreenPiratesShaftToStatuesHallway));
 
-    /// <summary>The door from the Green Pirates Shaft room to the Gauntlet E Tank room.</summary>
-    public static DoorDefinition GreenPiratesShaftToGauntletETank { get; } = DoorDefinitions.Find(nameof(GreenPiratesShaftToGauntletETank));
+    /// <summary>The door from the Green Pirates Shaft room to the Gauntlet Energy Tank room.</summary>
+    public static DoorDefinition GreenPiratesShaftToGauntletEnergyTank { get; } = DoorDefinitions.Find(nameof(GreenPiratesShaftToGauntletEnergyTank));
 
     /// <summary>The door from the Crateria Super room to the Climb room, arriving at its upper doorway.</summary>
     public static DoorDefinition CrateriaSuperToClimbUpper { get; } = DoorDefinitions.Find(nameof(CrateriaSuperToClimbUpper));

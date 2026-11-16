@@ -227,7 +227,7 @@ internal static class RoomBlockWriters
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.PowerBomb } => static state => state.HoldsPowerBombBlocks,
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.SuperMissile } => static state => state.HoldsSuperMissileBlocks,
         RoomObjectFrameDraw<CrateriaMainstreetEscapePassageObjectDefinitions.Draw> =>
-            static state => state.SetupBehavior == RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen,
+            static state => state.SetupBehavior == RoomSetupBehavior.OpenRescuedAnimalsPassageAndQuake,
         RoomObjectFrameDraw<OldTourianEscapeShaftWallObjectDefinitions.Draw> =>
             static state => state.SetupBehavior == RoomSetupBehavior.AutoDestroyWallDuringEscape,
         RoomObjectFrameDraw<EscapeAnimalDraw> => BuildsEscapeAnimalWall,

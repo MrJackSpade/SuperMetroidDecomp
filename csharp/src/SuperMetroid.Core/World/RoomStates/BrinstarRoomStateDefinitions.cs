@@ -103,14 +103,14 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(ConstructionZoneWhenZebesAwake), RoomLevelDefinitions.ConstructionZone, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ConstructionZone, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ConstructionZone, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Blue Brinstar E Tank room's default state.</summary>
-    public static RoomStateSettings BlueBrinstarETankDefault { get; } =
-        new(nameof(BlueBrinstarETankDefault), RoomLevelDefinitions.BlueBrinstarETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BlueBrinstarETankDefault, RoomEnemyPopulationDefinitions.BlueBrinstarETankDefault, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
+    /// <summary>The Blue Brinstar Energy Tank room's default state.</summary>
+    public static RoomStateSettings BlueBrinstarEnergyTankDefault { get; } =
+        new(nameof(BlueBrinstarEnergyTankDefault), RoomLevelDefinitions.BlueBrinstarEnergyTank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BlueBrinstarEnergyTankDefault, RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankDefault, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarEnergyTank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Blue Brinstar E Tank room's state once Zebes is awake.</summary>
-    public static RoomStateSettings BlueBrinstarETankWhenZebesAwake { get; } =
-        new(nameof(BlueBrinstarETankWhenZebesAwake), RoomLevelDefinitions.BlueBrinstarETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.BlueBrinstarETankWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
+    /// <summary>The Blue Brinstar Energy Tank room's state once Zebes is awake.</summary>
+    public static RoomStateSettings BlueBrinstarEnergyTankWhenZebesAwake { get; } =
+        new(nameof(BlueBrinstarEnergyTankWhenZebesAwake), RoomLevelDefinitions.BlueBrinstarEnergyTank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankWhenZebesAwake, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarEnergyTank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarVariedSmallPattern, RoomSetupBehavior.None);
 
 
     /// <summary>The Noob Bridge room's state.</summary>
@@ -123,9 +123,9 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(GreenBrinstarBeetoms), RoomLevelDefinitions.GreenBrinstarBeetoms, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.GreenBrinstarBeetoms, RoomEnemyPopulationDefinitions.GreenBrinstarBeetoms, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenBrinstarBeetoms, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GreenBrinstarBeetoms, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarHorizontalGlowPatches, RoomSetupBehavior.None);
 
 
-    /// <summary>The Etecoon E Tank room's state.</summary>
-    public static RoomStateSettings EtecoonETank { get; } =
-        new(nameof(EtecoonETank), RoomLevelDefinitions.EtecoonETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EtecoonETank, RoomEnemyPopulationDefinitions.EtecoonETank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.EtecoonETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EtecoonETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarHorizontalGlowPatches, RoomSetupBehavior.None);
+    /// <summary>The Etecoon Energy Tank room's state.</summary>
+    public static RoomStateSettings EtecoonEnergyTank { get; } =
+        new(nameof(EtecoonEnergyTank), RoomLevelDefinitions.EtecoonEnergyTank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EtecoonEnergyTank, RoomEnemyPopulationDefinitions.EtecoonEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.EtecoonEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EtecoonEnergyTank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarHorizontalGlowPatches, RoomSetupBehavior.None);
 
 
     /// <summary>The Etecoon Super room's state.</summary>
@@ -143,9 +143,9 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(SporeSpawnFarming), RoomLevelDefinitions.SporeSpawnFarming, RoomGraphicsSet.GreenBlueBrinstar, new RoomMusic(MusicDataSet.GreenBrinstar, RoomMusicTrack.Plays(MusicTrack.GreenBrinstar)), SuperMetroid.Core.Fx.RoomFxDefinitions.SporeSpawnFarming, RoomEnemyPopulationDefinitions.SporeSpawnFarming, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.SporeSpawnFarming, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.SporeSpawnFarming, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Waterway E Tank room's state.</summary>
-    public static RoomStateSettings WaterwayETank { get; } =
-        new(nameof(WaterwayETank), RoomLevelDefinitions.WaterwayETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WaterwayETank, RoomEnemyPopulationDefinitions.WaterwayETank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WaterwayETank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WaterwayETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarThinHorizontalPattern, RoomSetupBehavior.None);
+    /// <summary>The Waterway Energy Tank room's state.</summary>
+    public static RoomStateSettings WaterwayEnergyTank { get; } =
+        new(nameof(WaterwayEnergyTank), RoomLevelDefinitions.WaterwayEnergyTank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WaterwayEnergyTank, RoomEnemyPopulationDefinitions.WaterwayEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WaterwayEnergyTank, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WaterwayEnergyTank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarThinHorizontalPattern, RoomSetupBehavior.None);
 
 
     /// <summary>The First Missile room's state.</summary>
@@ -158,9 +158,9 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(PinkBrinstarHoppers), RoomLevelDefinitions.PinkBrinstarHoppers, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.PinkBrinstarHoppers, RoomEnemyPopulationDefinitions.PinkBrinstarHoppers, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PinkBrinstarHoppers, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.BrinstarThinHorizontalPattern, RoomSetupBehavior.None);
 
 
-    /// <summary>The Hopper E Tank room's state.</summary>
-    public static RoomStateSettings HopperETank { get; } =
-        new(nameof(HopperETank), RoomLevelDefinitions.HopperETank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.HopperETank, RoomEnemyPopulationDefinitions.HopperETank, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.HopperETank, null, RoomSetupBehavior.None);
+    /// <summary>The Hopper Energy Tank room's state.</summary>
+    public static RoomStateSettings HopperEnergyTank { get; } =
+        new(nameof(HopperEnergyTank), RoomLevelDefinitions.HopperEnergyTank, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.HopperEnergyTank, RoomEnemyPopulationDefinitions.HopperEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.HopperEnergyTank, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Big Pink Save Room room's state.</summary>
@@ -243,9 +243,9 @@ public static class BrinstarRoomStateDefinitions
         new(nameof(WarehouseZeela), RoomLevelDefinitions.WarehouseZeela, RoomGraphicsSet.RedBrinstarKraid, new RoomMusic(null, RoomMusicTrack.PlaysAreaTheme), SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseZeela, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WarehouseZeela, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseZeela, null, RoomSetupBehavior.None);
 
 
-    /// <summary>The Warehouse E Tank room's state.</summary>
-    public static RoomStateSettings WarehouseETank { get; } =
-        new(nameof(WarehouseETank), RoomLevelDefinitions.WarehouseETank, RoomGraphicsSet.RedBrinstarKraid, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseETank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseETank, null, RoomSetupBehavior.None);
+    /// <summary>The Warehouse Energy Tank room's state.</summary>
+    public static RoomStateSettings WarehouseEnergyTank { get; } =
+        new(nameof(WarehouseEnergyTank), RoomLevelDefinitions.WarehouseEnergyTank, RoomGraphicsSet.RedBrinstarKraid, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseEnergyTank, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseEnergyTank, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Warehouse Kihunter room's state.</summary>

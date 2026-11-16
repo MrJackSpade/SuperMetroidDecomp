@@ -52,7 +52,7 @@ internal static class RoomFloorSheetsVerification
             "a state that runs the elevator shaft's room main shows the shaft's floor");
         AssertEqual(RoomTurningFloor.RidleyGetaway, RoomTurningFloors.Of(plain with { EnemyPopulation = RoomEnemyPopulationDefinitions.CeresRidleyDefault }),
             "a state whose enemies include Ceres Ridley shows his getaway's floor");
-        AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain with { MainBehavior = RoomMainBehavior.HandleCeresRidleyGetawayCutscene }),
+        AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain with { MainBehavior = RoomMainBehavior.CeresRidleyGetaway }),
             "the getaway's room main without Ridley shows no turning floor");
 
         RoomGraphicsSet[] floored = [.. RoomBlockUploads.FloorTilesets().Select(tileset => tileset.GraphicsSet).Order()];
@@ -129,7 +129,7 @@ internal static class RoomFloorSheetsVerification
         }
         AssertTrue(refused, "drawing over the floor of a room that shows none is refused");
 
-        SuperMetroidRuntime shaft = LoadRoom(RoomDefinitions.CeresElev);
+        SuperMetroidRuntime shaft = LoadRoom(RoomDefinitions.CeresElevator);
         RoomFloor floor = shaft.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The elevator shaft binds no turning floor.");
         AssertEqual(shaft.Room.LoadedScope.Assets.Tileset, floor.Sheet.Tileset, "the shaft binds its tileset's floor");
         Console.WriteLine("  Turning floors: a room that shows none binds none; the shaft binds its tileset's.");

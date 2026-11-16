@@ -91,7 +91,7 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>Ridley's fight code, with the getaway that follows Ceres Ridley's fight.</summary>
     private static readonly CommonSpawnerPresence RidleyGetaway = new()
     {
-        Enemies = Ridleys, Mains = [RoomMainBehavior.HandleCeresRidleyGetawayCutscene], Shades = [CommonSpawnerShades.RidleySprites],
+        Enemies = Ridleys, Mains = [RoomMainBehavior.CeresRidleyGetaway], Shades = [CommonSpawnerShades.RidleySprites],
     };
 
     /// <summary>Code every enemy runs: its death, its drop, its collision with shots.</summary>
@@ -137,7 +137,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(CeresRidleyBehavior)] = RidleyGetaway,
         [nameof(CrocomireEncounterAccess)] = new() { Enemies = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue] },
         [nameof(CorpseRowDust)] = new() { Enemies = Corpses },
-        [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile] },
+        [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupBehavior.HoldPrePhantoonProjectilePlace] },
     };
 
     /// <summary>The name of the enemy projectile engine's spawn service <paramref name="member"/>.</summary>

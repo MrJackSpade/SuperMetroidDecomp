@@ -724,7 +724,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LNFarming);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFarming);
         var level = runtime.Room.LoadedLevelData;
         bool found = false;
         for (int y = 0; y < level.Size.Y && !found; y++)

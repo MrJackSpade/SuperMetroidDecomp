@@ -42,16 +42,16 @@ internal sealed class EscapeRoomEffects
             RoomSetupBehavior.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
             RoomSetupBehavior.SetMediumHorizontalRoomShaking or
             RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid => ZebesEscapeDefinitions.MediumHorizontal,
-            RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeDefinitions.MainstreetQuake,
+            RoomSetupBehavior.OpenRescuedAnimalsPassageAndQuake => ZebesEscapeDefinitions.MainstreetQuake,
             RoomSetupBehavior.LandSkyWithLandingSiteQuake => ZebesEscapeDefinitions.LandingQuake,
             RoomSetupBehavior.None or RoomSetupBehavior.AutoDestroyWallDuringEscape or
                 RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape or
                 RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean or
                 RoomSetupBehavior.RunStatueUnlockingAnimations or
-                RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile or
-                RoomSetupBehavior.SetupShaktoolRoomObject or
+                RoomSetupBehavior.HoldPrePhantoonProjectilePlace or
+                RoomSetupBehavior.SpawnShaktoolController or
                 RoomSetupBehavior.SetCollectedMap or
-                RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
+                RoomSetupBehavior.SealCeresDoorAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
                 RoomSetupBehavior.SpawnCeresRidleyArenaHaze => null,
             _ => throw new InvalidOperationException($"Undefined room setup {setup}."),
         };
@@ -68,8 +68,8 @@ internal sealed class EscapeRoomEffects
         EscapeDiagonalQuakeState diagonalQuake = room.EscapeDiagonalQuake;
         if (_room.ActiveRoom is null || _room.Camera is null || _room.LevelData is null) return;
         RoomMainBehavior main = _room.ActiveRoom.State.MainBehavior;
-        bool outdoors = main is RoomMainBehavior.ScrollingSkyLandZebesTimebombSet or
-            RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions;
+        bool outdoors = main is RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions or
+            RoomMainBehavior.ShakeScreenWithRandomExplosions;
         bool light = main == RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal;
         bool medium = main == RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal;
         if (!ZebesEscapeDefinitions.ExplosionRoomMains.Contains(main))

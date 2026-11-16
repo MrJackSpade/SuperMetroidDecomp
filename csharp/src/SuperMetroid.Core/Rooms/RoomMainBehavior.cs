@@ -12,10 +12,10 @@ public enum RoomMainBehavior
     ScrollingSkyLand,
     /// <summary>Updates the ocean scrolling sky.</summary>
     ScrollingSkyOcean,
-    /// <summary>Updates the land sky and escape effects.</summary>
-    ScrollingSkyLandZebesTimebombSet,
+    /// <summary>Updates the land sky and sets off the escape's random explosions.</summary>
+    ScrollingSkyLandWithEscapeExplosions,
     /// <summary>Applies escape shaking and random explosions.</summary>
-    SetScreenShakingAndGenerateRandomExplosions,
+    ShakeScreenWithRandomExplosions,
     /// <summary>Controls the Dachora room's rightward camera scroll.</summary>
     ScrollScreenRightInDachoraRoom,
     /// <summary>Advances the Maridia elevatube room behavior.</summary>
@@ -25,11 +25,11 @@ public enum RoomMainBehavior
     /// <summary>Spawns falling debris in the Ceres pre-elevator hall.</summary>
     SpawnCeresPreElevatorHallFallingDebris,
     /// <summary>Advances Ridley's Ceres getaway cutscene.</summary>
-    HandleCeresRidleyGetawayCutscene,
+    CeresRidleyGetaway,
     /// <summary>Alternates light horizontal and medium diagonal shaking.</summary>
     ShakeScreenLightHorizontalAndMediumDiagonal,
-    /// <summary>Schedules random explosions every fourth gameplay frame.</summary>
-    GenerateRandomExplosionEveryFourthFrame,
+    /// <summary>Sets off a random explosion every fourth gameplay update.</summary>
+    RandomExplosionEveryFourthUpdate,
     /// <summary>Alternates medium horizontal and strong diagonal shaking.</summary>
     ShakeScreenMediumHorizontalAndStrongDiagonal,
     /// <summary>Applies the Crocomire room's encounter-dependent shaking.</summary>

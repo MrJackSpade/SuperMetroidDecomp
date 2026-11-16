@@ -46,7 +46,7 @@ internal static class CeresElevatorArrivalVerification
             "Ceres arrival actors draw with tile base zero, the concealer's colour cleared");
         var oam = new OamBuffer();
         oam.BeginFrame();
-        arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault),
+        arrival.DrawAsOam(oam, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault),
             camera: Position16<RoomPixels>.Zero);
         var expected = new OamBuffer();
         expected.BeginFrame();
@@ -92,7 +92,7 @@ internal static class CeresElevatorArrivalVerification
         // On the cartridge the concealer's shade clears one of the sprite colours, so in the sheet its set composes it shows black
         // exactly the colour keys whose pixels were composed as that colour. The sheet composed in-process knows the index each
         // pixel was composed as (#1544, #1633).
-        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.Of(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault);
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.Of(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault);
         SpriteImage[] composed = [.. EnemySheetFixtures.ComposedSpawnedSheets(set).Select(sheet => sheet.Image)
             .Where(image => image.Shades.ContainsKey(CeresElevatorShades.ConcealerCleared))];
         VerificationAssertions.AssertTrue(composed.Length > 0, "the Ceres elevator's graphics set composes a spawned sheet pre-coloured in the concealer's shade");
@@ -111,7 +111,7 @@ internal static class CeresElevatorArrivalVerification
         // The arrival draws the installed pictures, some of whose pixels the installed concealer's shade shows black.
         var frame = new SpriteFrameBuffer();
         frame.BeginFrame();
-        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevDefault),
+        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault),
             Position16<RoomPixels>.Zero);
         frame.FinalizeFrame();
         VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");

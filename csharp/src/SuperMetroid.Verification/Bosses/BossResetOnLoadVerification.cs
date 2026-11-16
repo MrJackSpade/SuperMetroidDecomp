@@ -48,7 +48,7 @@ internal static class BossResetOnLoadVerification
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, snapshot);
         var slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
-        LockedDoor[] eyeDoors = [LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LNFarmingEyeDoorFacingRight,
+        LockedDoor[] eyeDoors = [LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight,
             LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
             LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft];
         foreach (bool enabled in new[] { false, true })

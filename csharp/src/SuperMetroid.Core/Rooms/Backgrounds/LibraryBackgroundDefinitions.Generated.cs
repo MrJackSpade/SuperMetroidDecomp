@@ -174,8 +174,8 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The WreckedShipPanelsVentsVertical library background.</summary>
     public static LibraryBackground WreckedShipPanelsVentsVertical { get; } = new(nameof(WreckedShipPanelsVentsVertical), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The CeresElev library background.</summary>
-    public static LibraryBackground CeresElev { get; } = new(nameof(CeresElev), LibraryBackgroundView.Nothing, []);
+    /// <summary>The CeresElevator library background.</summary>
+    public static LibraryBackground CeresElevator { get; } = new(nameof(CeresElevator), LibraryBackgroundView.Nothing, []);
 
     /// <summary>The MaridiaBrownWall library background.</summary>
     public static LibraryBackground MaridiaBrownWall { get; } = new(nameof(MaridiaBrownWall), LibraryBackgroundView.Picture, []);

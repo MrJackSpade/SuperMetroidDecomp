@@ -31,7 +31,7 @@ internal static class RoomStateSetup
         Ensure.NotNull(system);
         switch (room.State.SetupBehavior)
         {
-            case RoomSetupBehavior.SetupShaktoolRoomObject:
+            case RoomSetupBehavior.SpawnShaktoolController:
                 roomObjects.Shaktool.TrySpawnShaktoolRoomController(scrolls);
                 return;
             case RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape:
@@ -44,7 +44,7 @@ internal static class RoomStateSetup
                 roomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(level);
                 return;
             // The mainstreet's escape setup spawns this room object before it starts the quake EscapeRoomEffects owns.
-            case RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen:
+            case RoomSetupBehavior.OpenRescuedAnimalsPassageAndQuake:
                 roomObjects.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(level);
                 return;
             // Tourian's first room hands Samus its area's map, as a map station would (#1799).
@@ -61,11 +61,11 @@ internal static class RoomStateSetup
             case RoomSetupBehavior.ScrollingSkyLand:
             case RoomSetupBehavior.ScrollingSkyOcean:
             case RoomSetupBehavior.RunStatueUnlockingAnimations:
-            case RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile:
+            case RoomSetupBehavior.HoldPrePhantoonProjectilePlace:
             case RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking:
             case RoomSetupBehavior.SetLightHorizontalRoomShaking:
             case RoomSetupBehavior.SetMediumHorizontalRoomShaking:
-            case RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze:
+            case RoomSetupBehavior.SealCeresDoorAndSpawnHaze:
             case RoomSetupBehavior.SpawnCeresHaze:
             case RoomSetupBehavior.SpawnCeresRidleyArenaHaze:
                 return;

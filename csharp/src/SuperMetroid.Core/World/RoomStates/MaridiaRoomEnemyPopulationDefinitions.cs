@@ -64,7 +64,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sciser, new(224, 871), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128))),
             new(EnemyDefinitionId.Sciser, new(128, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(320))),
         ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.MaridiaElev),
+        new(nameof(RoomEnemyPopulationDefinitions.MaridiaElevator),
         [
             new(EnemyDefinitionId.Elevator, new(128, 704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
             new(EnemyDefinitionId.Ripper, new(208, 788), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), Direction: HorizontalDirection.Left)),
@@ -92,7 +92,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.ThePrecious),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BotwoonETank),
+        new(nameof(RoomEnemyPopulationDefinitions.BotwoonEnergyTank),
         [
             new(EnemyDefinitionId.Puyo, new(288, 128), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 22)),
             new(EnemyDefinitionId.Puyo, new(400, 112), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 22)),
@@ -231,7 +231,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sciser, new(688, 200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
             new(EnemyDefinitionId.Sciser, new(880, 71), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128))),
         ], 6),
-        new(nameof(RoomEnemyPopulationDefinitions.NWestMaridiaBug),
+        new(nameof(RoomEnemyPopulationDefinitions.NorthwestMaridiaBug),
         [
             new(EnemyDefinitionId.Owtch, new(64, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingRight, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(4), TravelDistance: 16)),
             new(EnemyDefinitionId.Owtch, new(184, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new OwtchSpawnSettings(InitialBehavior: OwtchBehaviorState.MovingLeft, UndergroundWait: 64, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8), TravelDistance: 32)),
@@ -382,7 +382,7 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.Springball),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BelowBotwoonETank),
+        new(nameof(RoomEnemyPopulationDefinitions.BelowBotwoonEnergyTank),
         [
             new(EnemyDefinitionId.Zoa, new(696, 200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Zoa, new(456, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),

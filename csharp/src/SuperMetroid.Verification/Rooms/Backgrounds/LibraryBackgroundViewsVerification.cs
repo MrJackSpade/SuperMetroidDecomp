@@ -74,7 +74,7 @@ internal static class LibraryBackgroundViewsVerification
             "a background showing the sky's rows in a room without the sky's bands is refused");
 
         // Nothing: the Parlor's state loading the Ceres elevator shaft's cleared background.
-        RoomStateSettings cleared = pictured with { Background = LibraryBackgroundDefinitions.CeresElev };
+        RoomStateSettings cleared = pictured with { Background = LibraryBackgroundDefinitions.CeresElevator };
         AssertEqual(0, RoomBlockUploads.BackgroundNamesOf([cleared]).Count, "a cleared background installs no picture");
         AssertBindsNone(cleared.Background, "a room whose background is cleared");
 

@@ -31,13 +31,13 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.TourianStatue),
             new(UnplacedEnemyArtwork.TourianStatueGhosts),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.HopperETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.HopperEnergyTank), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BetaPowerBomb), [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.SidehopperLarge),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WaterwayETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WaterwayEnergyTank), [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Zero),
@@ -46,7 +46,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankWhenZebesAwake), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankWhenZebesAwake), [
             new(EnemyDefinitionId.FaceBlock),
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.Skree),
@@ -109,7 +109,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarSave), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankDefault), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankDefault), [
             new(EnemyDefinitionId.MorphBallEye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
@@ -119,7 +119,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarBeetoms), [
             new(EnemyDefinitionId.Beetom),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EtecoonETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.EtecoonEnergyTank), [
             new(EnemyDefinitionId.Zebbo),
             new(EnemyDefinitionId.Beetom),
         ]),
@@ -128,7 +128,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Sidehopper),
             new(EnemyDefinitionId.ShutterShootable),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseEnergyTank), [
             new(EnemyDefinitionId.Beetom),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseEntrance), [

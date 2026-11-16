@@ -42,7 +42,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Green Pirates Shaft room.</summary>
     internal static RoomEnemyGraphicsSetDefinition GreenPiratesShaft { get; } = new(nameof(GreenPiratesShaft));
     /// <summary>The enemy graphics set of the Green Brinstar Elevator room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition GreenBrinstarElev { get; } = new(nameof(GreenBrinstarElev));
+    internal static RoomEnemyGraphicsSetDefinition GreenBrinstarElevator { get; } = new(nameof(GreenBrinstarElevator));
     /// <summary>The enemy graphics set of the Final Missile room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition FinalMissileDefault { get; } = new(nameof(FinalMissileDefault));
     /// <summary>The enemy graphics set of the Crateria Map room.</summary>
@@ -74,9 +74,9 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Bowling Alley Path room.</summary>
     internal static RoomEnemyGraphicsSetDefinition BowlingAlleyPath { get; } = new(nameof(BowlingAlleyPath));
     /// <summary>The enemy graphics set of the Red Brinstar Elevator room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition RedBinstarElev { get; } = new(nameof(RedBinstarElev));
+    internal static RoomEnemyGraphicsSetDefinition RedBrinstarElevator { get; } = new(nameof(RedBrinstarElevator));
     /// <summary>The enemy graphics set of the Gauntlet Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition GauntletETank { get; } = new(nameof(GauntletETank));
+    internal static RoomEnemyGraphicsSetDefinition GauntletEnergyTank { get; } = new(nameof(GauntletEnergyTank));
     /// <summary>The enemy graphics set of the Pit room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition PitDefault { get; } = new(nameof(PitDefault));
     /// <summary>The enemy graphics set of the Crab Maze room.</summary>
@@ -86,9 +86,9 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Forgotten Highway Kagos room.</summary>
     internal static RoomEnemyGraphicsSetDefinition ForgottenHighwayKagos { get; } = new(nameof(ForgottenHighwayKagos));
     /// <summary>The enemy graphics set of the Elevator to Blue Brinstar room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition ElevToBlueBrinstar { get; } = new(nameof(ElevToBlueBrinstar));
+    internal static RoomEnemyGraphicsSetDefinition ElevatorToBlueBrinstar { get; } = new(nameof(ElevatorToBlueBrinstar));
     /// <summary>The enemy graphics set of the Forgotten Highway Elevator room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition ForgottenHighwayElev { get; } = new(nameof(ForgottenHighwayElev));
+    internal static RoomEnemyGraphicsSetDefinition ForgottenHighwayElevator { get; } = new(nameof(ForgottenHighwayElevator));
     /// <summary>The enemy graphics set of the Pre Map Flyway room.</summary>
     internal static RoomEnemyGraphicsSetDefinition PreMapFlyway { get; } = new(nameof(PreMapFlyway));
     /// <summary>The enemy graphics set of the Lower Mushrooms room.</summary>
@@ -120,15 +120,15 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Statues room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Statues { get; } = new(nameof(Statues));
     /// <summary>The enemy graphics set of the Hopper Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition HopperETank { get; } = new(nameof(HopperETank));
+    internal static RoomEnemyGraphicsSetDefinition HopperEnergyTank { get; } = new(nameof(HopperEnergyTank));
     /// <summary>The enemy graphics set of the Beta Power Bomb room.</summary>
     internal static RoomEnemyGraphicsSetDefinition BetaPowerBomb { get; } = new(nameof(BetaPowerBomb));
     /// <summary>The enemy graphics set of the Waterway Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WaterwayETank { get; } = new(nameof(WaterwayETank));
+    internal static RoomEnemyGraphicsSetDefinition WaterwayEnergyTank { get; } = new(nameof(WaterwayEnergyTank));
     /// <summary>The enemy graphics set of the Construction Zone room once Zebes is awake.</summary>
     internal static RoomEnemyGraphicsSetDefinition ConstructionZoneWhenZebesAwake { get; } = new(nameof(ConstructionZoneWhenZebesAwake));
     /// <summary>The enemy graphics set of the Blue Brinstar Energy Tank room once Zebes is awake.</summary>
-    internal static RoomEnemyGraphicsSetDefinition BlueBrinstarETankWhenZebesAwake { get; } = new(nameof(BlueBrinstarETankWhenZebesAwake));
+    internal static RoomEnemyGraphicsSetDefinition BlueBrinstarEnergyTankWhenZebesAwake { get; } = new(nameof(BlueBrinstarEnergyTankWhenZebesAwake));
     /// <summary>The enemy graphics set of the Noob Bridge room.</summary>
     internal static RoomEnemyGraphicsSetDefinition NoobBridge { get; } = new(nameof(NoobBridge));
     /// <summary>The enemy graphics set of the Morph Ball room once Zebes is awake.</summary>
@@ -168,17 +168,17 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Red Brinstar Save room.</summary>
     internal static RoomEnemyGraphicsSetDefinition RedBrinstarSave { get; } = new(nameof(RedBrinstarSave));
     /// <summary>The enemy graphics set of the Blue Brinstar Energy Tank room in its default state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition BlueBrinstarETankDefault { get; } = new(nameof(BlueBrinstarETankDefault));
+    internal static RoomEnemyGraphicsSetDefinition BlueBrinstarEnergyTankDefault { get; } = new(nameof(BlueBrinstarEnergyTankDefault));
     /// <summary>The enemy graphics set of the Green Brinstar Firefleas room.</summary>
     internal static RoomEnemyGraphicsSetDefinition GreenBrinstarFirefleas { get; } = new(nameof(GreenBrinstarFirefleas));
     /// <summary>The enemy graphics set of the Green Brinstar Beetoms room.</summary>
     internal static RoomEnemyGraphicsSetDefinition GreenBrinstarBeetoms { get; } = new(nameof(GreenBrinstarBeetoms));
     /// <summary>The enemy graphics set of the Etecoon Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition EtecoonETank { get; } = new(nameof(EtecoonETank));
+    internal static RoomEnemyGraphicsSetDefinition EtecoonEnergyTank { get; } = new(nameof(EtecoonEnergyTank));
     /// <summary>The enemy graphics set of the Pink Brinstar Hoppers room.</summary>
     internal static RoomEnemyGraphicsSetDefinition PinkBrinstarHoppers { get; } = new(nameof(PinkBrinstarHoppers));
     /// <summary>The enemy graphics set of the Warehouse Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WarehouseETank { get; } = new(nameof(WarehouseETank));
+    internal static RoomEnemyGraphicsSetDefinition WarehouseEnergyTank { get; } = new(nameof(WarehouseEnergyTank));
     /// <summary>The enemy graphics set of the Warehouse Entrance room.</summary>
     internal static RoomEnemyGraphicsSetDefinition WarehouseEntrance { get; } = new(nameof(WarehouseEntrance));
     /// <summary>The enemy graphics set of the Warehouse Kihunter room.</summary>
@@ -224,7 +224,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Grapple Tutorial 3 room.</summary>
     internal static RoomEnemyGraphicsSetDefinition GrappleTutorial3 { get; } = new(nameof(GrappleTutorial3));
     /// <summary>The enemy graphics set of the Post-Crocomire Shaft room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition PostCrocShaft { get; } = new(nameof(PostCrocShaft));
+    internal static RoomEnemyGraphicsSetDefinition PostCrocomireShaft { get; } = new(nameof(PostCrocomireShaft));
     /// <summary>The enemy graphics set of the Metal Pirates room.</summary>
     internal static RoomEnemyGraphicsSetDefinition MetalPirates { get; } = new(nameof(MetalPirates));
     /// <summary>The enemy graphics set of the Acid Statue room.</summary>
@@ -244,9 +244,9 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Fast Pillars Setup room.</summary>
     internal static RoomEnemyGraphicsSetDefinition FastPillarsSetup { get; } = new(nameof(FastPillarsSetup));
     /// <summary>The enemy graphics set of the Lower Norfair Elevator room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LowerNorfairElev { get; } = new(nameof(LowerNorfairElev));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairElevator { get; } = new(nameof(LowerNorfairElevator));
     /// <summary>The enemy graphics set of the Lower Norfair Save room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LNSave { get; } = new(nameof(LNSave));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairSave { get; } = new(nameof(LowerNorfairSave));
     /// <summary>The enemy graphics set of the Upper Norfair Refill room.</summary>
     internal static RoomEnemyGraphicsSetDefinition UpperNorfairRefill { get; } = new(nameof(UpperNorfairRefill));
     /// <summary>The enemy graphics set of the Norfair Map room.</summary>
@@ -254,23 +254,23 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Mickey Mouse room.</summary>
     internal static RoomEnemyGraphicsSetDefinition MickeyMouse { get; } = new(nameof(MickeyMouse));
     /// <summary>The enemy graphics set of the Golden Torizo Energy Refill room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition GTEnergyRefill { get; } = new(nameof(GTEnergyRefill));
+    internal static RoomEnemyGraphicsSetDefinition GoldenTorizoEnergyRefill { get; } = new(nameof(GoldenTorizoEnergyRefill));
     /// <summary>The enemy graphics set of the Ridley room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Ridley { get; } = new(nameof(Ridley));
     /// <summary>The enemy graphics set of the Post-Crocomire Power Bombs room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition PostCrocPowerBombs { get; } = new(nameof(PostCrocPowerBombs));
+    internal static RoomEnemyGraphicsSetDefinition PostCrocomirePowerBombs { get; } = new(nameof(PostCrocomirePowerBombs));
     /// <summary>The enemy graphics set of the Ice Beam room.</summary>
     internal static RoomEnemyGraphicsSetDefinition IceBeam { get; } = new(nameof(IceBeam));
     /// <summary>The enemy graphics set of the Hi-Jump Boots room.</summary>
     internal static RoomEnemyGraphicsSetDefinition HiJumpBoots { get; } = new(nameof(HiJumpBoots));
     /// <summary>The enemy graphics set of the Post-Crocomire Save room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition PostCrocSave { get; } = new(nameof(PostCrocSave));
+    internal static RoomEnemyGraphicsSetDefinition PostCrocomireSave { get; } = new(nameof(PostCrocomireSave));
     /// <summary>The enemy graphics set of the Frog Speedway room.</summary>
     internal static RoomEnemyGraphicsSetDefinition FrogSpeedway { get; } = new(nameof(FrogSpeedway));
     /// <summary>The enemy graphics set of the Rising Tide room.</summary>
     internal static RoomEnemyGraphicsSetDefinition RisingTide { get; } = new(nameof(RisingTide));
     /// <summary>The enemy graphics set of the Post-Crocomire Farming room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition PostCrocFarming { get; } = new(nameof(PostCrocFarming));
+    internal static RoomEnemyGraphicsSetDefinition PostCrocomireFarming { get; } = new(nameof(PostCrocomireFarming));
     /// <summary>The enemy graphics set of the Worst Room in the Game.</summary>
     internal static RoomEnemyGraphicsSetDefinition WorstRoomInTheGame { get; } = new(nameof(WorstRoomInTheGame));
     /// <summary>The enemy graphics set of the Double Chamber room.</summary>
@@ -284,7 +284,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Plowerhouse room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Plowerhouse { get; } = new(nameof(Plowerhouse));
     /// <summary>The enemy graphics set of the Lower Norfair Fireflea room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LNFireflea { get; } = new(nameof(LNFireflea));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairFireflea { get; } = new(nameof(LowerNorfairFireflea));
     /// <summary>The enemy graphics set of the Magdollite Tunnel room.</summary>
     internal static RoomEnemyGraphicsSetDefinition MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel));
     /// <summary>The enemy graphics set of the Lava Dive room.</summary>
@@ -294,13 +294,13 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Crocomire Escape room.</summary>
     internal static RoomEnemyGraphicsSetDefinition CrocomireEscape { get; } = new(nameof(CrocomireEscape));
     /// <summary>The enemy graphics set of the Lower Norfair Spring Ball Maze room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LNSpringBallMaze { get; } = new(nameof(LNSpringBallMaze));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairSpringBallMaze { get; } = new(nameof(LowerNorfairSpringBallMaze));
     /// <summary>The enemy graphics set of the Lower Norfair Escape Power Bombs room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LNEscapePowerBombs { get; } = new(nameof(LNEscapePowerBombs));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairEscapePowerBombs { get; } = new(nameof(LowerNorfairEscapePowerBombs));
     /// <summary>The enemy graphics set of the Purple Shaft room.</summary>
     internal static RoomEnemyGraphicsSetDefinition PurpleShaft { get; } = new(nameof(PurpleShaft));
     /// <summary>The enemy graphics set of the Ridley Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition RidleyETank { get; } = new(nameof(RidleyETank));
+    internal static RoomEnemyGraphicsSetDefinition RidleyEnergyTank { get; } = new(nameof(RidleyEnergyTank));
     /// <summary>The enemy graphics set of the Screw Attack room.</summary>
     internal static RoomEnemyGraphicsSetDefinition ScrewAttack { get; } = new(nameof(ScrewAttack));
     /// <summary>The enemy graphics set of the Green Bubbles Missiles room.</summary>
@@ -312,7 +312,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Main Hall room.</summary>
     internal static RoomEnemyGraphicsSetDefinition MainHall { get; } = new(nameof(MainHall));
     /// <summary>The enemy graphics set of the Post-Crocomire Jump room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition PostCrocJump { get; } = new(nameof(PostCrocJump));
+    internal static RoomEnemyGraphicsSetDefinition PostCrocomireJump { get; } = new(nameof(PostCrocomireJump));
     /// <summary>The enemy graphics set of the Frog Save room.</summary>
     internal static RoomEnemyGraphicsSetDefinition FrogSave { get; } = new(nameof(FrogSave));
     /// <summary>The enemy graphics set of the Crocomire Save room.</summary>
@@ -328,7 +328,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Bubble Mountain Save room.</summary>
     internal static RoomEnemyGraphicsSetDefinition BubbleMountainSave { get; } = new(nameof(BubbleMountainSave));
     /// <summary>The enemy graphics set of the Hi-Jump Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition HiJumpETank { get; } = new(nameof(HiJumpETank));
+    internal static RoomEnemyGraphicsSetDefinition HiJumpEnergyTank { get; } = new(nameof(HiJumpEnergyTank));
     /// <summary>The enemy graphics set of the Bubble Mountain room.</summary>
     internal static RoomEnemyGraphicsSetDefinition BubbleMountain { get; } = new(nameof(BubbleMountain));
     /// <summary>The enemy graphics set of the Ice Beam Acid room.</summary>
@@ -336,7 +336,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Ice Beam Tutorial room.</summary>
     internal static RoomEnemyGraphicsSetDefinition IceBeamTutorial { get; } = new(nameof(IceBeamTutorial));
     /// <summary>The enemy graphics set of the Post-Crocomire Missile room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition PostCrocMissile { get; } = new(nameof(PostCrocMissile));
+    internal static RoomEnemyGraphicsSetDefinition PostCrocomireMissile { get; } = new(nameof(PostCrocomireMissile));
     /// <summary>The enemy graphics set of the Cathedral room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Cathedral { get; } = new(nameof(Cathedral));
     /// <summary>The enemy graphics set of the Norfair Reserve Tank room.</summary>
@@ -352,7 +352,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Speed Booster room.</summary>
     internal static RoomEnemyGraphicsSetDefinition SpeedBooster { get; } = new(nameof(SpeedBooster));
     /// <summary>The enemy graphics set of the Lower Norfair Farming room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LNFarming { get; } = new(nameof(LNFarming));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairFarming { get; } = new(nameof(LowerNorfairFarming));
     /// <summary>The enemy graphics set of the Single Chamber room.</summary>
     internal static RoomEnemyGraphicsSetDefinition SingleChamber { get; } = new(nameof(SingleChamber));
     /// <summary>The enemy graphics set of the Speed Booster Hall room.</summary>
@@ -368,7 +368,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Crocomire room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Crocomire { get; } = new(nameof(Crocomire));
     /// <summary>The enemy graphics set of the Lower Norfair Elevator Save room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition LNElevSave { get; } = new(nameof(LNElevSave));
+    internal static RoomEnemyGraphicsSetDefinition LowerNorfairElevatorSave { get; } = new(nameof(LowerNorfairElevatorSave));
     /// <summary>The enemy graphics set of the Volcano room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Volcano { get; } = new(nameof(Volcano));
     /// <summary>The enemy graphics set of the Upper Norfair Farming room.</summary>
@@ -376,7 +376,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Sponge Bath room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition SpongeBathWhenAreaBossDead { get; } = new(nameof(SpongeBathWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship Energy Tank room once the area's boss is dead.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WreckedShipETankWhenAreaBossDead { get; } = new(nameof(WreckedShipETankWhenAreaBossDead));
+    internal static RoomEnemyGraphicsSetDefinition WreckedShipEnergyTankWhenAreaBossDead { get; } = new(nameof(WreckedShipEnergyTankWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship Main Shaft room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition WreckedShipMainShaftDefault { get; } = new(nameof(WreckedShipMainShaftDefault));
     /// <summary>The enemy graphics set of the Bowling Alley room in its default state.</summary>
@@ -388,7 +388,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Wrecked Ship Map room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition WreckedShipMapWhenAreaBossDead { get; } = new(nameof(WreckedShipMapWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship West Super room in its default state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WSWestSuperDefault { get; } = new(nameof(WSWestSuperDefault));
+    internal static RoomEnemyGraphicsSetDefinition WreckedShipWestSuperDefault { get; } = new(nameof(WreckedShipWestSuperDefault));
     /// <summary>The enemy graphics set of the Spiky Death room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition SpikyDeathDefault { get; } = new(nameof(SpikyDeathDefault));
     /// <summary>The enemy graphics set of the Sponge Bath room in its default state.</summary>
@@ -404,7 +404,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Phantoon room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition PhantoonWhenAreaBossDead { get; } = new(nameof(PhantoonWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship Energy Tank room in its default state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WreckedShipETankDefault { get; } = new(nameof(WreckedShipETankDefault));
+    internal static RoomEnemyGraphicsSetDefinition WreckedShipEnergyTankDefault { get; } = new(nameof(WreckedShipEnergyTankDefault));
     /// <summary>The enemy graphics set of the Gravity Suit room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition GravitySuitDefault { get; } = new(nameof(GravitySuitDefault));
     /// <summary>The enemy graphics set of the Wrecked Ship Map room in its default state.</summary>
@@ -420,11 +420,11 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Wrecked Ship Save room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition WreckedShipSaveWhenAreaBossDead { get; } = new(nameof(WreckedShipSaveWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship West Super room once the area's boss is dead.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WSWestSuperWhenAreaBossDead { get; } = new(nameof(WSWestSuperWhenAreaBossDead));
+    internal static RoomEnemyGraphicsSetDefinition WreckedShipWestSuperWhenAreaBossDead { get; } = new(nameof(WreckedShipWestSuperWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Attic room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition AtticDefault { get; } = new(nameof(AtticDefault));
     /// <summary>The enemy graphics set of the Wrecked Ship East Super room in its default state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WSEastSuperDefault { get; } = new(nameof(WSEastSuperDefault));
+    internal static RoomEnemyGraphicsSetDefinition WreckedShipEastSuperDefault { get; } = new(nameof(WreckedShipEastSuperDefault));
     /// <summary>The enemy graphics set of the Wrecked Ship Save room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition WreckedShipSaveDefault { get; } = new(nameof(WreckedShipSaveDefault));
     /// <summary>The enemy graphics set of the Electric Death room once the area's boss is dead.</summary>
@@ -432,7 +432,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Spiky Death room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition SpikyDeathWhenAreaBossDead { get; } = new(nameof(SpikyDeathWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship East Super room once the area's boss is dead.</summary>
-    internal static RoomEnemyGraphicsSetDefinition WSEastSuperWhenAreaBossDead { get; } = new(nameof(WSEastSuperWhenAreaBossDead));
+    internal static RoomEnemyGraphicsSetDefinition WreckedShipEastSuperWhenAreaBossDead { get; } = new(nameof(WreckedShipEastSuperWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Phantoon room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition PhantoonDefault { get; } = new(nameof(PhantoonDefault));
     /// <summary>The enemy graphics set of the Wrecked Ship Main Shaft room once the area's boss is dead.</summary>
@@ -446,7 +446,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Crab Shaft room.</summary>
     internal static RoomEnemyGraphicsSetDefinition CrabShaft { get; } = new(nameof(CrabShaft));
     /// <summary>The enemy graphics set of the Maridia Elevator room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition MaridiaElev { get; } = new(nameof(MaridiaElev));
+    internal static RoomEnemyGraphicsSetDefinition MaridiaElevator { get; } = new(nameof(MaridiaElevator));
     /// <summary>The enemy graphics set of the Colosseum room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Colosseum { get; } = new(nameof(Colosseum));
     /// <summary>The enemy graphics set of the Aqueduct Save room.</summary>
@@ -454,7 +454,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Precious room.</summary>
     internal static RoomEnemyGraphicsSetDefinition ThePrecious { get; } = new(nameof(ThePrecious));
     /// <summary>The enemy graphics set of the Botwoon Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition BotwoonETank { get; } = new(nameof(BotwoonETank));
+    internal static RoomEnemyGraphicsSetDefinition BotwoonEnergyTank { get; } = new(nameof(BotwoonEnergyTank));
     /// <summary>The enemy graphics set of the Draygon Save room.</summary>
     internal static RoomEnemyGraphicsSetDefinition DraygonSave { get; } = new(nameof(DraygonSave));
     /// <summary>The enemy graphics set of the Maridia Missile Refill room.</summary>
@@ -490,7 +490,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Crab Tunnel room.</summary>
     internal static RoomEnemyGraphicsSetDefinition CrabTunnel { get; } = new(nameof(CrabTunnel));
     /// <summary>The enemy graphics set of the Northwest Maridia Bug room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition NWestMaridiaBug { get; } = new(nameof(NWestMaridiaBug));
+    internal static RoomEnemyGraphicsSetDefinition NorthwestMaridiaBug { get; } = new(nameof(NorthwestMaridiaBug));
     /// <summary>The enemy graphics set of the Pseudo Plasma Spark room.</summary>
     internal static RoomEnemyGraphicsSetDefinition PseudoPlasmaSpark { get; } = new(nameof(PseudoPlasmaSpark));
     /// <summary>The enemy graphics set of the West Sand Hall Tunnel room.</summary>
@@ -522,7 +522,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Springball room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Springball { get; } = new(nameof(Springball));
     /// <summary>The enemy graphics set of the Below Botwoon Energy Tank room.</summary>
-    internal static RoomEnemyGraphicsSetDefinition BelowBotwoonETank { get; } = new(nameof(BelowBotwoonETank));
+    internal static RoomEnemyGraphicsSetDefinition BelowBotwoonEnergyTank { get; } = new(nameof(BelowBotwoonEnergyTank));
     /// <summary>The enemy graphics set of the Kassiuz room.</summary>
     internal static RoomEnemyGraphicsSetDefinition Kassiuz { get; } = new(nameof(Kassiuz));
     /// <summary>The enemy graphics set of the Forgotten Highway Save room.</summary>
@@ -596,7 +596,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Rinka Shaft room.</summary>
     internal static RoomEnemyGraphicsSetDefinition RinkaShaft { get; } = new(nameof(RinkaShaft));
     /// <summary>The enemy graphics set of the Ceres Elevator room in its default state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition CeresElevDefault { get; } = new(nameof(CeresElevDefault));
+    internal static RoomEnemyGraphicsSetDefinition CeresElevatorDefault { get; } = new(nameof(CeresElevatorDefault));
     /// <summary>The enemy graphics set of the Falling Tile room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition FallingTileDefault { get; } = new(nameof(FallingTileDefault));
     /// <summary>The enemy graphics set of the Magnet Stairs room in its default state.</summary>
@@ -608,7 +608,7 @@ internal static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Ceres Ridley room in its default state.</summary>
     internal static RoomEnemyGraphicsSetDefinition CeresRidleyDefault { get; } = new(nameof(CeresRidleyDefault));
     /// <summary>The enemy graphics set of the Ceres Elevator room once the area's boss is dead.</summary>
-    internal static RoomEnemyGraphicsSetDefinition CeresElevWhenAreaBossDead { get; } = new(nameof(CeresElevWhenAreaBossDead));
+    internal static RoomEnemyGraphicsSetDefinition CeresElevatorWhenAreaBossDead { get; } = new(nameof(CeresElevatorWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Falling Tile room once the area's boss is dead.</summary>
     internal static RoomEnemyGraphicsSetDefinition FallingTileWhenAreaBossDead { get; } = new(nameof(FallingTileWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Magnet Stairs room once the area's boss is dead.</summary>

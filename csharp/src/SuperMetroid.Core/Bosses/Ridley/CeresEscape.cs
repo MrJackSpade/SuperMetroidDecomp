@@ -175,9 +175,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
             Floor.WingBeat = (Floor.WingBeat + 1) % CeresFloorAnimationDefinitions.WingCycle.Length;
             CeresFloorAnimationFrame wing = CeresFloorAnimation.WingFrameForPhase(Floor.WingBeat);
             _room.Services.ShowFloorFrame(wing);
-            CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
-                "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");
-            _unauthoredBoostCadence.TakeDelaysLeftByWings(delays.LeftBy(wing));
+            _unauthoredBoostCadence.TakeDelaysLeftByWings(_bossArtwork.CeresRidleyGetawayBoostDelays.LeftBy(wing));
         }
     }
 
@@ -276,9 +274,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
                 if (--Warning.TextDelayTimer != 0)
                     return;
 
-                Warning.Typewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                    ? new(presentation.Get(EscapeTypewriterMessageId.Ceres))
-                    : null;
+                Warning.Typewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Ceres));
 
                 // English goes straight to typing the warning; Japanese first runs the subtitle phase.
                 Warning.Phase = _roomStatus.JapaneseText

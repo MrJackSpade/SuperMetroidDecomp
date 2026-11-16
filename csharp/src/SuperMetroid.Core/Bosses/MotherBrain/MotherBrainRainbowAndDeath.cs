@@ -103,9 +103,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeMusicTrackQueued) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
         if (step.EscapeTypewriterSetupRequested)
         {
-            state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                ? new(presentation.Get(EscapeTypewriterMessageId.Zebes))
-                : new(EscapeTypewriterMessageId.Zebes);
+            state.EscapeTypewriter = new(_bossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
             // The warning shows over the background from the room's top-left corner, where her locked arena's camera stays
             // (#1802).
             state.BodyPlacement = MotherBrainBodyPlacement.AtRoomCorner;

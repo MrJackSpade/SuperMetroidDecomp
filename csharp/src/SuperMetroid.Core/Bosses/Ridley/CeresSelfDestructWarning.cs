@@ -15,7 +15,7 @@ public sealed class CeresSelfDestructWarning
     internal CeresEscapeReadying Readying { get; set; }
     /// <summary>Gets the warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>
     public int TextDelayTimer { get; internal set; }
-    /// <summary>Gets the installed warning typewriter state, created after the initial delay when presentation data is available.</summary>
+    /// <summary>Gets the installed warning typewriter state, created after the initial delay; null before then.</summary>
     public EscapeTypewriterState? Typewriter { get; internal set; }
     /// <summary>Gets the step the warning's sixteen-step alarm shows, zero through fifteen, returning to zero after fifteen.</summary>
     public int AlarmStep { get; internal set; }

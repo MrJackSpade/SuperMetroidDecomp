@@ -212,6 +212,7 @@ internal sealed class SuperMetroidRuntime
         Freeze = new GameplayTimeFreeze(Player);
         Assists = new ActiveAssists(Player, System, assists);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
+        BossArtwork = new BossArtworkBinding(artwork.ScreenContent.CeresRidleyGetawayBoostDelays, artwork.ScreenContent.EscapeTypewriter);
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
         {
             ScreenContent = artwork.ScreenContent, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
@@ -411,7 +412,7 @@ internal sealed class SuperMetroidRuntime
     public EnemySession EnemySession { get; }
 
     /// <summary>The installed boss artwork every room's bosses read.</summary>
-    public BossArtworkBinding BossArtwork { get; } = new();
+    public BossArtworkBinding BossArtwork { get; }
 
     /// <summary>The last enemy pass's results, for readers after the frame.</summary>
     internal IEnemyFrameResults EnemyFrameResults => Room.LoadedScope.Enemies;

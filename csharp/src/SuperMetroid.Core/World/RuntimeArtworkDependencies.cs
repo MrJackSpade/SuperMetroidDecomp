@@ -17,6 +17,9 @@ internal sealed record RuntimeArtworkDependencies
     /// <summary>The installed Samus body artwork the runtime is built over.</summary>
     public required SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork SamusBodyArt { get; init; }
 
+    /// <summary>The installed frames Samus's body can show in each pose, with the picture frame each draws, the runtime is built over.</summary>
+    public required SuperMetroid.Core.Samus.Drawing.SamusShownFrames SamusShownFrames { get; init; }
+
     /// <summary>The installed grapple flare placements the runtime is built over.</summary>
     public required SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements GrappleFlarePlacement { get; init; }
 

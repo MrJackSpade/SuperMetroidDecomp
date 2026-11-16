@@ -95,7 +95,7 @@ internal static class RightFacingGateGlitchVerification
         var gameStateByColumn = new SharedGameState[gateX - firstX];
         // The shared installed fixtures every position's Samus, shots and bombs are built from load here, on the suite's
         // own thread, as timed shared fixture loads; the workers then only read them.
-        SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation = InstalledFixtures.FramesBeyondAnimation;
+        SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation = InstalledFixtures.FramesBeyondAnimation;
         _ = CreateProjectileFixture();
         _ = CreateBombFixture();
         // Each launch column runs on its own worker with its own levels and VRAM (#1532): a position reads only the

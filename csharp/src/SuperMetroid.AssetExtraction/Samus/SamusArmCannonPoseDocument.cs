@@ -14,8 +14,9 @@ public sealed record SamusArmCannonPoseDocument
     /// <summary>The aim direction whose cover picture the pose shows at every animation frame after zero, or none.</summary>
     public SamusProjectileDirection? LaterDirection { get; init; }
     /// <summary>
-    /// The cover's displacement from Samus, in pixels, at each animation frame the pose shows (0 through 255), keyed by that
-    /// animation frame: right and down are positive, and her pose's art origin is applied after it.
+    /// The cover's displacement from Samus, in pixels, at each animation frame the pose shows, keyed by that frame's name in
+    /// the pose's animation, its segment's name and the frame within the segment (#2048): right and down are positive, and
+    /// her pose's art origin is applied after it.
     /// </summary>
-    public required Dictionary<int, Offset16<RoomPixels>> Displacements { get; init; }
+    public required Dictionary<string, Offset16<RoomPixels>> Displacements { get; init; }
 }

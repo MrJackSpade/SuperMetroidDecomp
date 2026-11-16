@@ -46,9 +46,10 @@ public sealed class SamusArmCannonLayout
             content.AppendName("first direction", placement.FirstDirection.ToString());
             content.AppendName("later direction", placement.LaterDirection?.ToString() ?? string.Empty);
             content.Append("displacement count", placement.Offsets.Count);
-            foreach ((int frame, Offset16<RoomPixels> offset) in placement.Offsets)
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            foreach ((SamusAnimationFrame frame, Offset16<RoomPixels> offset) in placement.Offsets)
             {
-                content.Append("animation frame", frame);
+                content.AppendName("animation frame", animation.NameOf(frame));
                 content.Append("x", offset.X);
                 content.Append("y", offset.Y);
             }
@@ -57,8 +58,8 @@ public sealed class SamusArmCannonLayout
 
     /// <summary>Parses the installed layout document, as the player may have edited it, and validates its placements.</summary>
     /// <exception cref="InvalidDataException">
-    /// The document is malformed or has another version, the placements do not cover exactly the poses with records, or an
-    /// animation frame is outside 0 through 255.
+    /// The document is malformed or has another version, the placements do not cover exactly the poses with records, or a
+    /// displacement names no frame of its pose's animation.
     /// </exception>
     internal static SamusArmCannonLayout Read(Stream json)
     {
@@ -81,19 +82,19 @@ public sealed class SamusArmCannonLayout
                 DrawOrder = placement.DrawOrder,
                 Direction = placement.FirstDirection,
                 LaterDirection = placement.LaterDirection,
-                Displacements = placement.Offsets.ToDictionary(),
+                Displacements = placement.Offsets.ToDictionary(
+                    pair => SamusAnimationDelays.AnimationForPose(pose).NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
             };
         }),
     }, Options);
 
     /// <summary>The placement <paramref name="document"/> describes for <paramref name="pose"/>.</summary>
-    /// <exception cref="InvalidDataException">An animation frame is outside 0 through 255.</exception>
+    /// <exception cref="InvalidDataException">A displacement names no frame of the pose's animation.</exception>
     private static SamusArmCannonPlacement Placement(SamusPoseId pose, SamusArmCannonPoseDocument document)
     {
-        foreach (int frame in document.Displacements.Keys)
-            if ((uint)frame >= InstalledSamusBody.AnimationFrames)
-                throw new InvalidDataException($"Arm-cannon pose {pose} has a displacement at animation frame {frame}, outside 0 through 255.");
-        return new SamusArmCannonPlacement(document.DrawOrder, document.Direction, document.LaterDirection, document.Displacements);
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        return new SamusArmCannonPlacement(document.DrawOrder, document.Direction, document.LaterDirection,
+            document.Displacements.ToDictionary(pair => animation.FrameNamed(pair.Key), pair => pair.Value));
     }
 
     /// <summary>Strict camel-case options for loading and writing the layout document, with names for every enumeration.</summary>

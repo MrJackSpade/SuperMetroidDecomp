@@ -412,7 +412,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayStart), "X-ray startup queues its sound once");
 
-    AssertEqual(2, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Level, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     SamusPresentation.AnimateNoFx(standing, new SamusAnimationStep { Random = new SharedRandom() });
@@ -486,7 +486,7 @@ internal static void VerifySamusXray()
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(standing, (GameplayAction.Dash | GameplayAction.Up));
     AssertEqual(10, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "right X-ray upper clamp includes width");
-    AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
@@ -517,7 +517,7 @@ internal static void VerifySamusXray()
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(SamusMovementType.Standing, standing.PoseHistory.PreviousMovement, "X-ray completion publishes stable metadata");
     AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
-    AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "left near-up angle selects looking-up art");
 
     // Releasing Dash starts the beam's two-update closing; its last step then restores ordinary left

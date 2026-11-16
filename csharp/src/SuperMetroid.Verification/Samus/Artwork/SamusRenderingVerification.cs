@@ -324,7 +324,9 @@ internal static void VerifySamusRenderingSlice()
     foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedHalves, string name) in routingCases)
     {
         AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
+        // The native state holds the pose animating by its own animation at the frame the case draws.
         samus.Pose = pose;
+        samus.AnimatedPose = pose;
         samus.AnimationNumber = frame;
         oamFrame.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
@@ -353,6 +355,7 @@ internal static void VerifySamusRenderingSlice()
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values.
     samus.Pose = SamusPoseId.MorphingTransitionRightPose;
+    samus.AnimatedPose = samus.Pose;
     samus.Position = samus.Position.WithWholeY(0x0086);
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
@@ -373,6 +376,7 @@ internal static void VerifySamusRenderingSlice()
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
     samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
+    samus.AnimatedPose = samus.Pose;
     WriteSamusTileAnimationPointer(bus, samus.Pose, 0xe100);
     samus.AnimationNumber = 2;
     samus.Position = samus.Position.WithWholeY(0x0086);
@@ -396,6 +400,7 @@ internal static void VerifySamusRenderingSlice()
     WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
     WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.NormalLandingRightPose;
+    samus.AnimatedPose = samus.Pose;
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -418,6 +423,7 @@ internal static void VerifySamusRenderingSlice()
     // ordinary pose offset. A quarter turn around (1152, 128) maps (+8,+6) to (-6,+8). The body must use that
     // temporary point while collision-visible Samus coordinates remain unchanged afterward.
     samus.Pose = SamusPoseId.FacingRightNormalPose;
+    samus.AnimatedPose = samus.Pose;
     samus.AnimationNumber = 0;
     samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));
     var quarterTurn = new TurningFloorTransform(Math.PI / 2, new Position16<RoomPixels>(0x0480, 0x0080));

@@ -16,14 +16,14 @@ internal static class XrayScopeDefinitionsVerification
     {
         RotationAngle[] angleBands =
         [
-            XrayScopeDefinitions.AnimationAngles.RightFrameOne,
-            XrayScopeDefinitions.AnimationAngles.RightFrameTwo,
-            XrayScopeDefinitions.AnimationAngles.RightFrameThree,
-            XrayScopeDefinitions.AnimationAngles.RightFrameFour,
-            XrayScopeDefinitions.AnimationAngles.LeftFrameFour,
-            XrayScopeDefinitions.AnimationAngles.LeftFrameThree,
-            XrayScopeDefinitions.AnimationAngles.LeftFrameTwo,
-            XrayScopeDefinitions.AnimationAngles.LeftFrameOne,
+            XrayScopeDefinitions.AnimationAngles.RightRaisedFrom,
+            XrayScopeDefinitions.AnimationAngles.RightLevelFrom,
+            XrayScopeDefinitions.AnimationAngles.RightLoweredFrom,
+            XrayScopeDefinitions.AnimationAngles.RightDownFrom,
+            XrayScopeDefinitions.AnimationAngles.LeftDownBelow,
+            XrayScopeDefinitions.AnimationAngles.LeftLoweredBelow,
+            XrayScopeDefinitions.AnimationAngles.LeftLevelBelow,
+            XrayScopeDefinitions.AnimationAngles.LeftRaisedBelow,
         ];
         for (int index = 1; index < angleBands.Length; index++)
         {

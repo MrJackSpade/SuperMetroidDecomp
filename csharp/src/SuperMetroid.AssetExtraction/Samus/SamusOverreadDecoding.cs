@@ -32,10 +32,12 @@ internal static class SamusOverreadDecoding
     internal static SamusOverreadDocument Decode(IImportCartridgeSource cartridge)
     {
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
+        SamusAnimationLayout animations = SamusAnimationLayout.Read(cartridge);
         return new SamusOverreadDocument(
             SamusOverreadFormat.Version,
-            AnimationSuccessors(cartridge),
-            SamusAnimationCueValueDecoding.CueValueSteps(cartridge),
+            animations.DocumentCueValueSteps(),
+            animations.ReadsPast(),
+            animations.PlaceLandings(),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
             PostureAdmissions(cartridge),
@@ -44,24 +46,6 @@ internal static class SamusOverreadDecoding
             DrainedCrashDepartures(cartridge));
     }
 
-    /// <summary>
-    /// Each pose's program's successor in the cartridge's layout of the animation programs: the program whose first
-    /// frame lies nearest after its own, named by its lowest-numbered pose, and the distance between their starts.
-    /// </summary>
-    /// <exception cref="InvalidDataException">Two poses of one program start apart, or two programs start together.</exception>
-    private static Dictionary<string, SamusOverreadDocument.Successor?> AnimationSuccessors(IImportCartridgeSource cartridge)
-    {
-        SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var successors = new Dictionary<SamusPoseAnimation, SamusOverreadDocument.Successor?>();
-        for (int index = 0; index < laidOut.Length; index++)
-        {
-            successors.Add(laidOut[index].Program, index + 1 < laidOut.Length
-                ? new SamusOverreadDocument.Successor(laidOut[index + 1].NamedBy.ToString(), laidOut[index + 1].Start - laidOut[index].Start)
-                : null);
-        }
-        return SamusAnimationProgramLayout.PosesWithRecords()
-            .ToDictionary(pose => pose.ToString(), pose => successors[SamusAnimationDelays.AnimationForPose(pose)]);
-    }
 
     /// <summary>
     /// What SpaceTime's palette copy overwrites in progression for every animation position a SpaceTime shot can hold and

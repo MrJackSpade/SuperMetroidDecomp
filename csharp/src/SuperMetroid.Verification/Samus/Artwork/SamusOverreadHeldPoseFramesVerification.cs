@@ -40,15 +40,15 @@ internal static class SamusOverreadHeldPoseFramesVerification
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         SamusBodySources body = InstalledFixtures.SamusBody;
         SamusSpritemapSources spritemaps = body.Spritemaps;
-        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation);
+        SamusShownFrameAnalysis shown = InstalledFixtures.SamusShownFrameAnalysis;
         SamusShownBody[] bodies = [.. shown.Bodies(body)];
         int resolved = 0;
         foreach (SamusPoseId pose in OverreadHeldPoses)
         {
             AssertTrue(!SamusUnreachablePoseDefinitions.Poses.Contains(pose), $"{pose} is held, so it is not listed as never held");
-            AssertTrue(SamusShownFrames.Poses.Contains(pose), $"{pose} is one of the poses the body can show");
+            AssertTrue(SamusShownFrameAnalysis.Poses.Contains(pose), $"{pose} is one of the poses the body can show");
             AssertTrue(shown.Pictures(pose).Any(), $"{pose} pictures at least one frame");
-            foreach (int frame in shown.Pictures(pose).Select(picture => SamusAnimationNumbers.Number(pose, picture)))
+            foreach (int frame in shown.Pictures(pose))
             {
                 AssertTrue(body.TryPictures(pose, frame, out _), $"{pose} frame {frame} has installed pictures");
                 SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Pose == pose && SamusAnimationNumbers.Number(pose, drawn.Frame.PictureFrame) == frame)];

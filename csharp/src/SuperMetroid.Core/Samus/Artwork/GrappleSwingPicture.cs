@@ -11,5 +11,5 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public readonly record struct GrappleSwingPicture(GrappleSwingDirection DrawnFor)
 {
     /// <summary>The frame of the swing pose's animation that holds this picture: one frame for each direction, in direction order.</summary>
-    internal SamusAnimationPlace AnimationFrame => SamusAnimationDelayDefinitions.GrappleSwingAnimation.Place(SamusAnimationSegmentName.Main, DrawnFor.Number);
+    internal SamusAnimationTarget AnimationFrame => new(SamusAnimationSegmentName.Main, DrawnFor.Number);
 }

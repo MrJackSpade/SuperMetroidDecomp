@@ -18,8 +18,8 @@ public sealed class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
     internal readonly Dictionary<SamusPoseId, int> graphicsYOffsets;
-    /// <summary>Where each pose's installed animation frames place the body, or none where not installed.</summary>
-    private readonly Dictionary<SamusPoseId, IReadOnlyList<int?>> originRises;
+    /// <summary>Where each pose's installed animation frames place the body, by frame of the pose's animation.</summary>
+    private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> originRises;
 
     /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
     public SamusDeathSteps DeathSteps { get; }
@@ -73,16 +73,11 @@ public sealed class InstalledSamusBodyArtwork
     /// Where <paramref name="pose"/>'s <paramref name="animationFrame"/> places the body, when the pose has a record and the
     /// frame is installed; false for any other pair, which <see cref="OriginRise"/> rejects.
     /// </summary>
-    /// <remarks>The installation holds each pose's frames by the place each takes in the game's layout of the pose's animation.</remarks>
+    /// <remarks>The installation holds each pose's frames by the named frame of the pose's animation (#2048).</remarks>
     public bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
     {
         rise = 0;
-        if (!originRises.TryGetValue(pose, out IReadOnlyList<int?>? frames))
-            return false;
-        int place = SamusAnimationDelays.AnimationForPose(pose).OffsetOf(animationFrame);
-        if ((uint)place >= (uint)frames.Count || frames[place] is not { } installed)
-            return false;
-        rise = installed;
-        return true;
+        return originRises.TryGetValue(pose, out IReadOnlyDictionary<SamusAnimationFrame, int>? frames) &&
+            frames.TryGetValue(animationFrame, out rise);
     }
 }

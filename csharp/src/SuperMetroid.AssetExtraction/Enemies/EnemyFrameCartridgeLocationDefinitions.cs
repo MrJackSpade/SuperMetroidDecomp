@@ -1718,7 +1718,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.MotherBrainBodyCrouched] = new(0xa9, 0xa252),
         [EnemyFrameId.MotherBrainBodyUncrouching] = new(0xa9, 0xa28c),
         [EnemyFrameId.MotherBrainBodyLeaningDown] = new(0xa9, 0xa2d6),
-        [EnemyFrameId.MotherBrainBodyInitialDummy] = new(0xa9, 0xa320),
+        [EnemyFrameId.MotherBrainBrainHitArea] = new(0xa9, 0xa320),
         [EnemyFrameId.MotherBrainBodyHandCurling] = new(0xa9, 0xa384),
         [EnemyFrameId.MotherBrainBodyArmDrawnBack] = new(0xa9, 0xa3ce),
         [EnemyFrameId.MotherBrainBodyArmFlungOut] = new(0xa9, 0xa418),

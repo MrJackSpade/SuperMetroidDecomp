@@ -122,10 +122,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                     frame.Bank, frame.Pointer, new(x, y),
                     NativeSpriteGraphicsWords.PaletteBits(drawn is null ? throw new InvalidOperationException("Verification requires the drawn slot.") : drawnRow),
                     checked((ushort)drawnBase));
-                // Mother Brain's initial body frame, drawn only while her body is hidden, reads only the head artwork her
-                // room loads, so it shows nothing (#1513), though the cartridge writes its records.
-                bool shownBlank = frame.Frame == EnemyFrameId.MotherBrainBodyInitialDummy && installed.NextByteOffset == 0;
-                if (!shownBlank && !installed.StandsFor(native, apartFromPriority: true))
+                if (!installed.StandsFor(native, apartFromPriority: true))
                     differing.Add($"{frame.Name} at {x:X4},{y:X4}: native {Records(native)}, installed {Records(installed)}");
             }
         }

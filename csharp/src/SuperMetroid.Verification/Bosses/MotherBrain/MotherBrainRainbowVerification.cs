@@ -262,7 +262,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
     AssertEqual(MotherBrainFinishOffPhase.GetSamusToLowEnergy, attack.Encounter.FinishOffPhase,
         "post-drain health below $190 chooses finish-Samus chain");
-    AssertEqual(MotherBrainBodySegment.WalkForwardReallySlow, attack.Encounter.BodyPlayback.PlayingSegment,
+    AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkForwardReallySlow, attack.Encounter.BodyPlayback?.PlayingSegment,
         "low-health decision immediately requests the native forward body walk");
     SuperMetroid.Core.Animation.AnimationPlayback<MotherBrainHeadSegment>? headBeforeFinishThreshold = attack.Encounter.BrainPlayback;
     MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });

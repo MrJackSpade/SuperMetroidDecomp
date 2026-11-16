@@ -146,7 +146,7 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, program);
             for (int update = 0; update < 256; update++)
             {
-                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainPlaceAnimation(state.Body, state, RoomEnemyFrameFixtures.StandaloneSamus());
+                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainBodyAnimation(state, RoomEnemyFrameFixtures.StandaloneSamus());
                 // Every move carries her body with her (#1949, #2031): her posture changes no longer move it across.
                 AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, state.BodyPlacedAt,
                     $"{program}: her body stays placed at her");

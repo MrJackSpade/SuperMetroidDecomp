@@ -139,26 +139,27 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Plays the body's animation, or the head place's dummy, where the shared enemy animation runs: the frame
-    /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation
-    /// rests: the timer wraps from zero and the last frame stays.
+    /// Plays the body's animation where the shared enemy animation runs: the frame expires on the update its timer would,
+    /// and a newly shown frame raises the new-frame flag. A held animation rests: the timer wraps from zero and the last
+    /// frame stays. Before its first animation the body shows her brain's hit area for good (#2220).
     /// </summary>
-    internal void AdvanceMotherBrainPlaceAnimation(RoomEnemyPlace place, MotherBrainEnemyState state, SamusState samus)
+    internal void AdvanceMotherBrainBodyAnimation(MotherBrainEnemyState state, SamusState samus)
     {
-        bool body = ReferenceEquals(place, state.Body);
-        if (!place.AnimationClock.Expire())
+        RoomEnemyPlace body = state.Body;
+        if (!body.AnimationClock.Expire())
             return;
-        AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadPlayback;
-        EnemyAnimationPlayback.Play(place, MotherBrainAnimations.BodySegments, ref playback,
+        if (state.BodyPlayback is not { } playback)
+        {
+            MotherBrainHead.ShowBrainHitArea(body);
+            return;
+        }
+        EnemyAnimationPlayback.Play(body, MotherBrainAnimations.BodySegments, ref playback,
             cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);
                 return null;
             });
-        if (body)
-            state.BodyPlayback = playback;
-        else
-            state.HeadPlayback = playback;
+        state.BodyPlayback = playback;
     }
 
     /// <summary>Carries out one cue of a body animation.</summary>

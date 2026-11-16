@@ -1715,7 +1715,7 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.MotherBrainBodyCrouched] = "mother_brain_body_crouched",
         [EnemyFrameId.MotherBrainBodyUncrouching] = "mother_brain_body_uncrouching",
         [EnemyFrameId.MotherBrainBodyLeaningDown] = "mother_brain_body_leaning_down",
-        [EnemyFrameId.MotherBrainBodyInitialDummy] = "mother_brain_body_initial_dummy",
+
         [EnemyFrameId.MotherBrainBodyHandCurling] = "mother_brain_body_hand_curling",
         [EnemyFrameId.MotherBrainBodyArmDrawnBack] = "mother_brain_body_arm_drawn_back",
         [EnemyFrameId.MotherBrainBodyArmFlungOut] = "mother_brain_body_arm_flung_out",

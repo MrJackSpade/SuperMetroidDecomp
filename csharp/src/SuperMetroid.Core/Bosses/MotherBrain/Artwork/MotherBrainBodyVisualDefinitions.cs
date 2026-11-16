@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainBodyVisualDefinitions
 {
     /// <summary>
-    /// The body frames that show a picture of her body (#1466, #1949): every pose but the initial dummy, which shows only
-    /// limbs. Each picture lies where the import places its frame against her (#2031).
+    /// The body frames that show a picture of her body (#1466, #1949): every pose. Each picture lies where the import
+    /// places its frame against her (#2031).
     /// </summary>
     internal static IReadOnlySet<EnemyFrameId> BodyPictureFrames { get; } = new HashSet<EnemyFrameId>
     {
@@ -32,7 +32,7 @@ internal static class MotherBrainBodyVisualDefinitions
         EnemyFrameId.MotherBrainBodyArmReturning,
     };
 
-    /// <summary>Every body frame her animations show (#2210): her body pictures' and the initial dummy.</summary>
+    /// <summary>Every body frame her animations show (#2210).</summary>
     internal static IReadOnlyList<EnemyFrameId> AnimationFrames { get; } =
     [
         EnemyFrameId.MotherBrainBodyStanding,
@@ -47,7 +47,7 @@ internal static class MotherBrainBodyVisualDefinitions
         EnemyFrameId.MotherBrainBodyCrouched,
         EnemyFrameId.MotherBrainBodyUncrouching,
         EnemyFrameId.MotherBrainBodyLeaningDown,
-        EnemyFrameId.MotherBrainBodyInitialDummy,
+
         EnemyFrameId.MotherBrainBodyHandCurling,
         EnemyFrameId.MotherBrainBodyArmDrawnBack,
         EnemyFrameId.MotherBrainBodyArmFlungOut,

@@ -471,7 +471,6 @@ internal static class EnemyExtendedFrameDocumentOrder
         EnemyFrameId.MotherBrainBodyCrouched,
         EnemyFrameId.MotherBrainBodyUncrouching,
         EnemyFrameId.MotherBrainBodyLeaningDown,
-        EnemyFrameId.MotherBrainBodyInitialDummy,
         EnemyFrameId.MotherBrainBodyHandCurling,
         EnemyFrameId.MotherBrainBodyArmDrawnBack,
         EnemyFrameId.MotherBrainBodyArmFlungOut,

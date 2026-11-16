@@ -47,8 +47,13 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.CrouchSlow, 0x9a0a),
         new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.CrouchFast, 0x9a26),
         new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.HandBeam, 0x9a42),
-        new NativeProgramEntry<MotherBrainBodySegment>(MotherBrainBodySegment.InitialDummy, 0x9c13),
     ];
+
+    /// <summary>
+    /// The bank-$A9 words of her parts' initial list (#2220), entered and resting after its one blank brain frame: a body
+    /// recording one has had no animation yet, and her head records it for life.
+    /// </summary>
+    internal static readonly ushort[] InitialListWords = [0x9c13, 0x9c17];
 
     /// <summary>Each brain program's native entry point in bank $A9.</summary>
     internal static readonly NativeProgramEntry<MotherBrainHeadSegment>[] HeadEntries =

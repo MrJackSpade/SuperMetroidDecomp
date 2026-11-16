@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -41,8 +42,8 @@ internal sealed class MotherBrainCombat
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // Every body rectangle's shot reaction is exactly the dud shot;
-            // only the dummy root's head-reaction list could select anything else.
+            // Every body rectangle's shot reaction is exactly the dud shot; only her brain's rectangle, which her body
+            // shows before its first animation (#2220), could select anything else.
             if (c.HitboxShot != MotherBrainReactions.BodyShot)
             {
                 throw new InvalidDataException(
@@ -263,9 +264,13 @@ internal sealed class MotherBrainCombat
         if (enemy.DefinitionId is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
             return null;
 
-        // Body and head walk the same roots; the head's dummy list keeps its dummy root.
-        foreach (EnemyCollisionComponent component in
-                 MotherBrainCollision.ComponentsAt(enemy.Frame))
+        // The head is her brain, whose rectangle it owns (#2220); the body meets what its frame shows, her brain's rectangle
+        // until its first animation shows a body frame.
+        ReadOnlySpan<EnemyCollisionComponent> components =
+            enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead || enemy.Frame == EnemyFrameId.MotherBrainBrainHitArea
+                ? MotherBrainCollisionDefinitions.BrainComponents
+                : MotherBrainCollision.ComponentsAt(enemy.Frame);
+        foreach (EnemyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)

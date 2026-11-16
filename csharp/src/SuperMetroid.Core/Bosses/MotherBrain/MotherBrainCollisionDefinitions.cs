@@ -4,10 +4,9 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Owned collision for Mother Brain's frames, read by the
-/// shot and contact frame-hitbox tests for both the body and the head, whose dummy list keeps
-/// its dummy root for life. Each root lists component offsets, each with the hitbox list
-/// holding its rectangles; the sprite and body-layer art the same roots reference is replaceable.
+/// Owned collision for Mother Brain's body frames and her brain, read by the shot and contact frame-hitbox tests for
+/// the body and the head. Each root lists component offsets, each with the hitbox list holding its rectangles; the
+/// sprite and body-layer art the same roots reference is replaceable.
 /// </summary>
 internal static class MotherBrainCollisionDefinitions
 {
@@ -15,6 +14,14 @@ internal static class MotherBrainCollisionDefinitions
     internal static readonly EnemyCollisionHitbox[] BrainHitboxes =
     [
         new(-20, -21, 16, 23, MotherBrainReactions.HeadTouch, MotherBrainReactions.HeadShot),
+    ];
+
+    /// <summary>
+    /// Her brain's rectangle at the place's origin (#2220): her head's for life, and her body's until its first animation.
+    /// </summary>
+    internal static readonly EnemyCollisionComponent[] BrainComponents =
+    [
+        new(new(0, 0), BrainHitboxes),
     ];
 
     /// <summary>The leg rectangle right of the body's origin, near the floor.</summary>
@@ -162,10 +169,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(-2, 0), UpperBodyHitboxes),
             new(new(-10, 44), LeftLegHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyInitialDummy] =
-        [
-            new(new(0, 0), BrainHitboxes),
-        ],
+
         [EnemyFrameId.MotherBrainBodyHandCurling] =
         [
             new(new(18, 58), RightLegHitboxes),

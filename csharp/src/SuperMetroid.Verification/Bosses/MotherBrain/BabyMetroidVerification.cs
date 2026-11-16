@@ -165,7 +165,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(ExpectedBabyPoint(0x0040, 0xc500, 0x0048, 0xf000),
         BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");
-    AssertEqual(MotherBrainBodySegment.WalkBackwardReallyFast, motherBrain.Encounter.BodyPlayback.PlayingSegment,
+    AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkBackwardReallyFast, motherBrain.Encounter.BodyPlayback?.PlayingSegment,
         "Baby stumble uses animation-delay index two");
     AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.Encounter.DrainedPhase,
         "Baby installs Mother Brain $BE38 for the following actor turn");

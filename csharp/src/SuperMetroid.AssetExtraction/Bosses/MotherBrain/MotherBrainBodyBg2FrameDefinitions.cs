@@ -45,7 +45,7 @@ internal static class MotherBrainBodyBg2FrameDefinitions
         [EnemyFrameId.MotherBrainBodyCrouched] = 6,
     };
 
-    /// <summary>Every body frame with a BG2 stream, omitting the OAM-only initial dummy.</summary>
+    /// <summary>Every body frame with a BG2 stream.</summary>
     internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
         new(EnemyFrameId.MotherBrainBodyStanding, "mother_brain_body_bg2_standing"),

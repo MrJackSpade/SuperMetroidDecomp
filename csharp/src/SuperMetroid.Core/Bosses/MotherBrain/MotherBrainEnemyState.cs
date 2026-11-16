@@ -205,7 +205,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal MotherBrainColours Colours { get; } = new();
 
     /// <summary>
-    /// The brain's own animation (#641, #1600), separate from the head enemy's dummy animation: its place rests on the
+    /// The brain's own animation (#641, #1600), separate from the head place, which shows her brain's hit area: its place rests on the
     /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the animation
     /// setter and the draw-time runner write it.
     /// </summary>
@@ -218,13 +218,11 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public int BrainFrameTimer { get; internal set; }
 
-    /// <summary>The body enemy's animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<MotherBrainBodySegment> BodyPlayback { get; set; } =
-        new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
-
-    /// <summary>The head enemy's animation and where it stands; it keeps the initial dummy for life.</summary>
-    internal AnimationPlayback<MotherBrainBodySegment> HeadPlayback { get; set; } =
-        new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
+    /// <summary>
+    /// The body enemy's animation and where it stands (#641, #1600), or null before its first animation, while her body
+    /// shows her brain's hit area (#2220).
+    /// </summary>
+    internal AnimationPlayback<MotherBrainBodySegment>? BodyPlayback { get; set; }
 
     /// <summary>
     /// How many more of her brain's draws shake it, counted down by each draw: the glass event's earthquake loads it, and

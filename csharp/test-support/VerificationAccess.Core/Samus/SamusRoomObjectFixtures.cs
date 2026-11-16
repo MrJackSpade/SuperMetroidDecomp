@@ -31,9 +31,6 @@ internal static class SamusRoomObjectFixtures
         /// <summary>The room's places, or null when the fixture has none.</summary>
         private readonly RoomObjectPlaceList? _places = places;
 
-        /// <summary>The quicksand reactions taking <see cref="_places"/>, or null when the fixture has no places.</summary>
-        private readonly QuicksandObjects? _quicksand = places is null ? null : new QuicksandObjects(places);
-
         /// <inheritdoc/>
         public BlockReactionObjects BlockReactions => throw Missing(nameof(BlockReactions));
 
@@ -74,7 +71,7 @@ internal static class SamusRoomObjectFixtures
         public ProjectileTriggerObjects ProjectileTriggers => throw Missing(nameof(ProjectileTriggers));
 
         /// <inheritdoc/>
-        public QuicksandObjects Quicksand => _quicksand ?? throw Missing(nameof(Quicksand));
+        public QuicksandObjects Quicksand { get => field ?? throw Missing(nameof(Quicksand)); } = places is null ? null : new QuicksandObjects(places);
 
         /// <inheritdoc/>
         public IChozoStatueHand ChozoStatueHand => throw Missing(nameof(ChozoStatueHand));

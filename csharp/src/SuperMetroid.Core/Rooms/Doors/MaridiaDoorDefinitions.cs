@@ -207,6 +207,9 @@ public static class MaridiaDoorDefinitions
     /// <summary>The door from the West Sand Hall room to the Oasis room.</summary>
     public static DoorDefinition WestSandHallToOasis { get; } = DoorDefinitions.Find(nameof(WestSandHallToOasis));
 
+    /// <summary>The door from the West Sand Hall room up into the West Sand Hole room.</summary>
+    public static DoorDefinition WestSandHallToWestSandHole { get; } = DoorDefinitions.Find(nameof(WestSandHallToWestSandHole));
+
     /// <summary>The door from the Oasis room to the West Sand Hall room.</summary>
     public static DoorDefinition OasisToWestSandHall { get; } = DoorDefinitions.Find(nameof(OasisToWestSandHall));
 
@@ -221,6 +224,9 @@ public static class MaridiaDoorDefinitions
 
     /// <summary>The door from the East Sand Hall room to the Pants room.</summary>
     public static DoorDefinition EastSandHallToPants { get; } = DoorDefinitions.Find(nameof(EastSandHallToPants));
+
+    /// <summary>The door from the East Sand Hall room up into the East Sand Hole room.</summary>
+    public static DoorDefinition EastSandHallToEastSandHole { get; } = DoorDefinitions.Find(nameof(EastSandHallToEastSandHole));
 
     /// <summary>The door from the West Sand Hole room to the West Aqueduct Quicksand room.</summary>
     public static DoorDefinition WestSandHoleToWestAqueductQuicksand { get; } = DoorDefinitions.Find(nameof(WestSandHoleToWestAqueductQuicksand));

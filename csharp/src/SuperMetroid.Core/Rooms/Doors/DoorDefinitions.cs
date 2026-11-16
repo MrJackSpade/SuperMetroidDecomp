@@ -489,13 +489,13 @@ public static class DoorDefinitions
         Door(nameof(MaridiaDoorDefinitions.BugSandHoleToPlasmaSpark), RoomDefinitions.PlasmaSpark, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 54), new(3, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHallToWestSandHallTunnel), RoomDefinitions.WestSandHallTunnel, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHallToOasis), RoomDefinitions.Oasis, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(WestSandHallUnlistedThirdDoor), RoomDefinitions.WestSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(MaridiaDoorDefinitions.WestSandHallToWestSandHole), RoomDefinitions.WestSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.OasisToWestSandHall), RoomDefinitions.WestSandHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.OasisToEastSandHall), RoomDefinitions.EastSandHall, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.OasisToToilet), RoomDefinitions.Toilet, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 9), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ToiletStartsElevatubeRideFromSouth),
         Door(nameof(MaridiaDoorDefinitions.EastSandHallToOasis), RoomDefinitions.Oasis, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.EastSandHallToPants), RoomDefinitions.Pants, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.PantsClosesScreen0x2),
-        Door(nameof(EastSandHallUnlistedThirdDoor), RoomDefinitions.EastSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
+        Door(nameof(MaridiaDoorDefinitions.EastSandHallToEastSandHole), RoomDefinitions.EastSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHoleToWestAqueductQuicksand), RoomDefinitions.WestAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHoleToWestSandHall), RoomDefinitions.WestSandHall, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(MaridiaDoorDefinitions.EastSandHoleToEastAqueductQuicksand), RoomDefinitions.EastAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
@@ -620,8 +620,4 @@ public static class DoorDefinitions
         new(name, destination, orientation, roomObjectBlock, destinationScreen, samusSpeed, setup);
     /// <summary>The Landing Site's demo entry: the door no room leads through, by which the completion demo set's Gauntlet entrance, infinite bomb jump and crystal flash demonstrations enter the Landing Site.</summary>
     public static DoorDefinition LandingSiteDemoEntry { get; } = Find(nameof(LandingSiteDemoEntry));
-    /// <summary>An unused third door of the West Sand Hall room.</summary>
-    public static DoorDefinition WestSandHallUnlistedThirdDoor { get; } = Find(nameof(WestSandHallUnlistedThirdDoor));
-    /// <summary>An unused third door of the East Sand Hall room.</summary>
-    public static DoorDefinition EastSandHallUnlistedThirdDoor { get; } = Find(nameof(EastSandHallUnlistedThirdDoor));
 }

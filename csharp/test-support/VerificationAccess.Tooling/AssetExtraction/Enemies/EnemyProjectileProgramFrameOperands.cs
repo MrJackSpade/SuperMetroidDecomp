@@ -18,7 +18,7 @@ internal static class EnemyProjectileProgramFrameOperands
     /// </summary>
     private static readonly ILookup<ushort, EnemyProjectileFrameId> Frames =
         EnemyProjectileProgramFrameDefinitions.Operands.Select(pair => (Operand: pair.Value, Frame: pair.Key))
-            .Concat(EnemyProjectileProgramFrameDefinitionsConstants.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
+            .Concat(EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
             .ToLookup(entry => entry.Operand, entry => entry.Frame);
 
     /// <summary>
@@ -26,7 +26,7 @@ internal static class EnemyProjectileProgramFrameOperands
     /// for an operand that stores a frame's picture again (#2234), that frame's own operand.
     /// </summary>
     internal static ushort OwnOperand(ushort operand) =>
-        EnemyProjectileProgramFrameDefinitionsConstants.AlsoStoredAt.TryGetValue(operand, out EnemyProjectileFrameId frame)
+        EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.TryGetValue(operand, out EnemyProjectileFrameId frame)
             ? EnemyProjectileProgramFrameDefinitions.Operands[frame]
             : operand;
 

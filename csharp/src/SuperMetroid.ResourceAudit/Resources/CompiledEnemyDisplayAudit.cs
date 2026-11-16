@@ -42,6 +42,18 @@ internal static class CompiledEnemyDisplayAudit
         .OfType<MethodDeclarationSyntax>().Single(item => item.Identifier.ValueText == name);
 
     /// <summary>
+    /// The position of the prepared draw's <c>Pictured</c> parameter in its record, declared beside the draw in
+    /// <paramref name="draws"/>'s file, or null when the record no longer has one.
+    /// </summary>
+    private static int? PicturedIndex(MethodDeclarationSyntax draws)
+    {
+        RecordDeclarationSyntax? record = draws.SyntaxTree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>()
+            .SingleOrDefault(declaration => declaration.Identifier.ValueText == "PreparedEnemyDraw");
+        int index = record?.ParameterList?.Parameters.IndexOf(parameter => parameter.Identifier.ValueText == "Pictured") ?? -1;
+        return index < 0 ? null : index;
+    }
+
+    /// <summary>
     /// Recognizes only the reviewed no-op (#1513, #1603): <paramref name="resolves"/> answers a frame
     /// <c>CommonEnemyEmptyFrames.DrawsNothing</c> names as displayed without a picture, <paramref name="prepares"/> marks
     /// each prepared draw pictured exactly as that resolution says, and <paramref name="draws"/> publishes the sheet
@@ -62,7 +74,8 @@ internal static class CompiledEnemyDisplayAudit
             call.ArgumentList.Arguments[1].ToString() == "out bool pictured") &&
         prepares.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Any(creation =>
             creation.Type.ToString() == "PreparedEnemyDraw" &&
-            creation.ArgumentList?.Arguments.LastOrDefault()?.ToString() == "pictured") &&
+            PicturedIndex(draws) is int pictured &&
+            creation.ArgumentList?.Arguments.ElementAtOrDefault(pictured)?.ToString() == "pictured") &&
         draws.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
             branch.Else is null && branch.Condition.ToString() == "draw.Pictured");
 }

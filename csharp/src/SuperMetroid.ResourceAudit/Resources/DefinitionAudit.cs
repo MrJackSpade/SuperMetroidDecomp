@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
@@ -42,11 +43,25 @@ internal static class DefinitionAudit
             exports.Add(ResourceDomains.EnemyFrame, frame.Frame.ToString());
             exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         }
+        // A record that stores an installed frame's picture again shows that frame (#2210, #2234, #2249), so it is defined
+        // exactly when the frame it shows is.
+        foreach ((SnesAddress location, EnemyFrameId shown) in EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt)
+        {
+            if (exports.Contains(ResourceDomains.EnemyFrame, shown.ToString()))
+                exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(location.Bank, location.Offset));
+        }
         // The frame displays resolve the empty frame without an installed frame: it draws nothing.
         exports.Add(ResourceDomains.EnemyFrame, nameof(EnemyFrameId.Empty));
         CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(frame.Frame)));
+        // An operand that shows an installed program frame's picture again shows that frame (#2210, #2234, #2249).
+        foreach ((ushort operand, EnemyProjectileFrameId shown) in EnemyProjectileProgramFrameDefinitions.AlsoStoredAt)
+        {
+            if (exports.Contains(ResourceDomains.EnemyProjectileProgram,
+                    ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(shown))))
+                exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, operand));
+        }
         foreach (string name in EnemyProjectileSpritemapDefinitions.FrameNames)
             exports.Add(ResourceDomains.EnemyProjectileSprite, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx,
                 EnemyProjectileCompositionSources.Spritemap(EnemyProjectileFrames.Identity(name))));

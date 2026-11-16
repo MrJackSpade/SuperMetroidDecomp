@@ -203,8 +203,9 @@ internal static class AuditContractChecks
             "bool TryGetDisplay(EnemyFrameId frame, out bool pictured) { if (CommonEnemyEmptyFrames.DrawsNothing(frame)) { pictured = false; return true; } " +
             "pictured = true; return true; } " +
             "void Advance(EnemyFrameId[] frames) { foreach (EnemyFrameId shown in frames) { displays.TryGetDisplay(shown, out bool pictured); " +
-            "prepared.Add(new PreparedEnemyDraw(shown, pictured)); } } " +
-            "void Draw() { foreach (PreparedEnemyDraw draw in prepared) { if (draw.Pictured) DrawArt(); } } }";
+            "prepared.Add(new PreparedEnemyDraw(shown, pictured, null)); } } " +
+            "void Draw() { foreach (PreparedEnemyDraw draw in prepared) { if (draw.Pictured) DrawArt(); } } " +
+            "private readonly record struct PreparedEnemyDraw(EnemyFrameId Frame, bool Pictured, ActorDepth? Depth); }";
         bool Recognized(string text)
         {
             SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
@@ -214,7 +215,8 @@ internal static class AuditContractChecks
         Require(Recognized(renderer), "the precise reviewed no-op branch must be recognized");
         Require(!Recognized(renderer.Replace("if (draw.Pictured) DrawArt();", "DrawArt();", StringComparison.Ordinal)) &&
             !Recognized(renderer.Replace("{ pictured = false; return true; }", "{ pictured = true; return true; }", StringComparison.Ordinal)) &&
-            !Recognized(renderer.Replace("new PreparedEnemyDraw(shown, pictured)", "new PreparedEnemyDraw(shown, true)", StringComparison.Ordinal)) &&
+            !Recognized(renderer.Replace("new PreparedEnemyDraw(shown, pictured, null)", "new PreparedEnemyDraw(shown, true, null)", StringComparison.Ordinal)) &&
+            !Recognized(renderer.Replace("new PreparedEnemyDraw(shown, pictured, null)", "new PreparedEnemyDraw(shown, true, pictured)", StringComparison.Ordinal)) &&
             !Recognized(renderer.Replace("CommonEnemyEmptyFrames.DrawsNothing", "CommonEnemyEmptyFrames.DrawsSomething", StringComparison.Ordinal)),
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }

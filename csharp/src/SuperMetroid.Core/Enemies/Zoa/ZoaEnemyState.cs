@@ -11,8 +11,8 @@ public sealed class ZoaEnemyState
     internal ZoaEnemyState(ZoaAction action) => Action = action;
 
     /// <summary>
-    /// Whole-pixel population position captured at initialization and restored when a launch ends offscreen. Only the
-    /// whole pixels are reset: the subpixel fractions accumulated in flight survive.
+    /// The point the Zoa rose from, in whole pixels, captured at initialization; a launch that ends off screen places it
+    /// back there (<see cref="FixedPosition{TSpace}.WithWhole"/>).
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 

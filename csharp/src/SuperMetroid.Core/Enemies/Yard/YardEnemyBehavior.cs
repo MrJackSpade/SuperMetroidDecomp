@@ -558,8 +558,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = YardBehavior.BeamLaunched;
         state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(place, state);
-        // Only the whole pixels are stored; both fractions keep their previous values.
-        state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
+        state.AirborneVelocity = YardShotLaunchFractions.Launched(state.AirborneVelocity, new Offset16<RoomPixels>(
             SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? -1 : 1,
             -1));
     }

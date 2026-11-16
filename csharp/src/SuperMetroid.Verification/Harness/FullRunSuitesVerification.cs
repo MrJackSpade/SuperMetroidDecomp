@@ -34,6 +34,7 @@ using static SuperMetroid.Verification.Enemies.PipeBugs.PipeBugEmergenceRiseVeri
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardFallAccelerationVerification;
+using static SuperMetroid.Verification.Enemies.Yard.YardShotLaunchFractionsVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
@@ -1102,6 +1103,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
         new(nameof(VerifyYardAirborneSlowing), () => VerifyYardAirborneSlowing()),
         new(nameof(VerifyYardFallAcceleration), () => VerifyYardFallAcceleration()),
+        new(nameof(VerifyYardShotLaunchFractions), () => VerifyYardShotLaunchFractions()),
         new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),

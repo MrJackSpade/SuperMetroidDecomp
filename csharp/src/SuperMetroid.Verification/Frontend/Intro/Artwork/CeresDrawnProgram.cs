@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 

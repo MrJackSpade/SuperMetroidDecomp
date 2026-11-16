@@ -101,26 +101,4 @@ internal static class CeresAnimations
             [A.ZebesTitle] = CinematicPlays.Through(A.ZebesTitle, 8, AnimationEnd.Stops),
             [A.ZebesJapaneseTitle] = CinematicPlays.Through(A.ZebesJapaneseTitle, 1, AnimationEnd.Stops),
         });
-
-    /// <summary>
-    /// The explosion spawner's schedule: invisible for 128 updates, the initial wave, 80 updates before the repeating
-    /// explosions start, then 64 updates before the final wave.
-    /// </summary>
-    internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> ExplosionSpawner { get; } = new(
-        new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
-        {
-            [A.ExplosionSpawner] =
-            [
-                W.Show(S.Blank, 128),
-                W.Raise(CeresExplosionSpawnerCue.SpawnInitialWave),
-                W.Show(S.Blank, 80),
-                W.Raise(CeresExplosionSpawnerCue.StartRepeatingExplosions),
-                W.Show(S.Blank, 64),
-                W.Raise(CeresExplosionSpawnerCue.SpawnFinalWave),
-            ],
-        },
-        new Dictionary<CeresAnimation, Animation<CeresAnimation>>
-        {
-            [A.ExplosionSpawner] = CinematicPlays.Through(A.ExplosionSpawner, 6, AnimationEnd.Stops),
-        });
 }

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>One actor of the ending's assembling logo (#1979): the animation it runs and where it starts.</summary>

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What a drop of Mother Brain's drool keeps while it hangs from her mouth: the mouth point it hangs from.</summary>

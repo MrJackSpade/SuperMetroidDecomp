@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What one of Mother Brain's onion rings keeps: how long it stays at her mouth before it flies.</summary>

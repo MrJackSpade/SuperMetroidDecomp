@@ -18,7 +18,7 @@ internal static class CeresSpawnerScheduleVerification
         foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
         {
             var native = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue>(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions),
-                CeresAnimations.ExplosionSpawner, CeresAnimation.ExplosionSpawner);
+                CeresAnimationsConstants.ExplosionSpawner, CeresAnimation.ExplosionSpawner);
             ushort countdown = 0;
             int actualCountdown = 0;
             bool disabled = false;

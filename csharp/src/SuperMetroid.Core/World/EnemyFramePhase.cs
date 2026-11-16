@@ -114,8 +114,7 @@ internal sealed class EnemyFramePhase
             }
             if (!_freeze.TimeIsFrozen && room.Enemies.DisplaySources.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
             {
-                rainbowBrain.RainbowBeam.PresentationColors = room.Enemies.BossArtworkBinding.MotherBrainRainbowColors;
-                rainbowBrain.StepRainbowBeam(rainbowHead.Position.Whole);
+                rainbowBrain.StepRainbowBeam(rainbowHead.Position.Whole, room.Enemies.BossArtworkBinding.RainbowBeamColours());
             }
             if (result.CeresEscapeStarted)
             {

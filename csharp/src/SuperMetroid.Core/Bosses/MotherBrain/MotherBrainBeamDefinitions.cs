@@ -23,4 +23,9 @@ public static class MotherBrainBeamDefinitions
 
     /// <summary>The projectile cooldown, in updates, the beam leaves Samus as it ends and releases her.</summary>
     public const int BeamEndedSamusCooldown = 8;
+
+    /// <summary>
+    /// The times the beam's continuing steps queue its sound: one on each of its first seven steps, none after.
+    /// </summary>
+    public const int SoundAttempts = 7;
 }

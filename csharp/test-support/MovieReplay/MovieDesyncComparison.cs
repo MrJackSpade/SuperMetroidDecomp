@@ -26,6 +26,21 @@ internal static class MovieDesyncComparison
     /// <summary>The X word the cartridge parks a hidden n00b-tube crack or shard at, off every screen.</summary>
     private const int HiddenPieceNativeColumn = 0xee00;
 
+    /// <summary>
+    /// Where the cartridge parks Phantoon's cleared body, off his room's screen, and his parts once they follow it; the port
+    /// leaves them where he died, where nothing reads them (#2257).
+    /// </summary>
+    private static readonly Position16<RoomPixels> ClearedPhantoonNativePlace = new(384, 128);
+
+    /// <summary>The power delay clearing Phantoon's body loads, which his first dead update takes below.</summary>
+    private const int ClearedPhantoonPowerDelay = 60;
+
+    /// <summary>
+    /// The health the cartridge refills the Baby Metroid to on each of its main AI steps, though nothing damages it; the
+    /// port keeps its definition's health, which nothing reads (#2257).
+    /// </summary>
+    private const int RefilledShitroidNativeHealth = 32767;
+
     /// <summary>Prints port and native state at a converted update to diagnose the first replay divergence.</summary>
     internal static void TraceMovieSamus(SuperMetroidGame game, NativeCheckpointMemory memory, int update, ConvertedMovieUpdate step)
     {
@@ -241,12 +256,31 @@ internal static class MovieDesyncComparison
                 ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
                 : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);
             if (actor.DefinitionId == EnemyDefinitionId.None) continue;
-            Check(owner + " X", actor.Position.X.Whole, address + MovieDesyncMemory.EnemyXOffset);
+            Position16<RoomPixels> whole = NativeWholePosition(actor);
+            Check(owner + " X", whole.X, address + MovieDesyncMemory.EnemyXOffset);
             Check(owner + " X fraction", actor.Position.X.Fraction, address + MovieDesyncMemory.EnemyXFractionOffset);
-            Check(owner + " Y", actor.Position.Y.Whole, address + MovieDesyncMemory.EnemyYOffset);
+            Check(owner + " Y", whole.Y, address + MovieDesyncMemory.EnemyYOffset);
             Check(owner + " Y fraction", actor.Position.Y.Fraction, address + MovieDesyncMemory.EnemyYFractionOffset);
-            Check(owner + " health", checked((ushort)actor.Health), address + MovieDesyncMemory.EnemyHealthOffset);
+            Check(owner + " health", checked((ushort)NativeHealth(actor)), address + MovieDesyncMemory.EnemyHealthOffset);
         }
         return mismatches;
     }
+
+    /// <summary>
+    /// Where the cartridge keeps <paramref name="actor"/>'s whole position: its own, except that a cleared Phantoon's body
+    /// is parked off screen as it clears, and his parts follow it from his first dead update, when the power delay starts
+    /// counting.
+    /// </summary>
+    private static Position16<RoomPixels> NativeWholePosition(RoomEnemyPlace actor) =>
+        actor.SpeciesState<SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState>() is { Phase: SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead } phantoon &&
+        (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseTimer != ClearedPhantoonPowerDelay)
+            ? ClearedPhantoonNativePlace
+            : actor.Position.Whole;
+
+    /// <summary>
+    /// The health the cartridge keeps for <paramref name="actor"/>: its own, except that a Baby Metroid that has run its
+    /// main AI holds the refilled health.
+    /// </summary>
+    private static int NativeHealth(RoomEnemyPlace actor) =>
+        actor.DefinitionId == EnemyDefinitionId.BabyMetroid && actor.FrameCounter != 0 ? RefilledShitroidNativeHealth : actor.Health;
 }

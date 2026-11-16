@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public enum RinkaAction
 {
-    /// <summary>Counts the initially 26-update timer down until it passes zero, then samples Samus once to form signed 1/256-pixel velocities at a nominal speed of 288; movement begins on the following AI update.</summary>
+    /// <summary>Waits out the aim delay (<see cref="RinkaLifeDefinitions.AimDelay"/>), then samples Samus once to form signed 1/256-pixel velocities at a nominal speed of 288; movement begins on the following AI update.</summary>
     AimDelay,
-    /// <summary>Hidden Mother Brain variant waits for its timer to pass zero (1, 0), restores ten health, and reinitializes at a reserved spawn point.</summary>
+    /// <summary>Hidden Mother Brain variant waits out its respawn delay (<see cref="RinkaLifeDefinitions.RespawnDelay"/>), restores ten health, and reinitializes at a reserved spawn point.</summary>
     DeathRespawnDelay,
     /// <summary>Stationary initial state that recycles an actor outside the expanded camera flight rectangle; the animation's fire step, not this action's timer, starts the aim delay.</summary>
     WatchForLeavingViewport,

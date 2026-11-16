@@ -24,10 +24,10 @@ internal static class RoomEnemySlotSpawnWords
     {
         RoomEnemyPlacement current = place.Spawn.Population;
         PopulationWords blank = EnemySpawnSettingsCodec.Blank(species);
-        Type kind = EnemySpawnSettingsCodec.Decode(species, blank).GetType();
+        Type kind = EnemySpawnSettingsCodec.Decode(species, blank, current.Position).GetType();
         PopulationWords words = !current.Equals(default(RoomEnemyPlacement)) && current.SpawnSettings.GetType() == kind
             ? EnemySpawnSettingsCodec.Encode(species, current.SpawnSettings)
             : blank;
-        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words)));
+        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), current.Position));
     }
 }

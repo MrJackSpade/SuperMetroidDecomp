@@ -156,7 +156,8 @@ internal static class NativeSnapshotMotherBrainImport
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
-        sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
+        // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
+        sequence.RainbowAttack.SoundAttemptsLeft = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1;
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));

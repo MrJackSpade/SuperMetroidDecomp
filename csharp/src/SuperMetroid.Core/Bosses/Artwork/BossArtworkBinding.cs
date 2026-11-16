@@ -21,6 +21,11 @@ public sealed class BossArtworkBinding
     /// <summary>Mother Brain's installed rainbow-beam colors, bound with the map presentation.</summary>
     public MotherBrainRainbowBeamColours? MotherBrainRainbowColors { get; set; }
 
+    /// <summary>Mother Brain's installed rainbow-beam colours; a beam that shows fails when none are installed.</summary>
+    /// <exception cref="InvalidOperationException">No rainbow-beam colours are installed.</exception>
+    internal MotherBrainRainbowBeamColours RainbowBeamColours() =>
+        MotherBrainRainbowColors ?? throw new InvalidOperationException("No Mother Brain rainbow-beam colours are installed to show her beam.");
+
     /// <summary>The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, bound with the map presentation.</summary>
     public CeresRidleyGetawayBoostDelays? CeresRidleyGetawayBoostDelays { get; set; }
 

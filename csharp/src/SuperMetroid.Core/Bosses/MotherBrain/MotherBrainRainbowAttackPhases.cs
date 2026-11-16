@@ -37,8 +37,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>How far one widening or narrowing changes the width: one and a half steps.</summary>
     private static readonly RotationAngle WidthStep = RotationAngle.FromSteps(1, 128);
 
-    /// <summary>Sound queue attempts left, counted down until it runs past zero. Six produces seven queue attempts.</summary>
-    public int SoundQueueCount { get; internal set; }
+    /// <summary>The beam's sound attempts left, zero or more: each continuing beam step makes one until none are left (#2253).</summary>
+    public int SoundAttemptsLeft { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>Rainbow-beam explosion timer.</summary>
     public MotherBrainCountdown ExplosionTimer { get; } = new();
@@ -60,7 +60,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         AngularWidth = NarrowestWidth;
         ExplosionIndex = 0;
         ExplosionTimer.Count = 0;
-        SoundQueueCount = 6;
+        SoundAttemptsLeft = MotherBrainBeamDefinitions.SoundAttempts;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
@@ -69,7 +69,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
         // The rainbow's drain setup leaves Samus able to stand at 700 energy or above and unable to stand
-        // below it. The test reads the wrapped difference as signed, retained by AtLeastBySignedDifference.
+        // below it.
         if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else
@@ -113,11 +113,9 @@ internal sealed class MotherBrainRainbowAttackPhases
         MotherBrainRainbowBeamGrowth growth,
         MotherBrainRainbowBeamStepRequests requests)
     {
-        // The cry step checks the signed counter before the decrement. Starting at six therefore queues
-        // on values 6,5,4,3,2,1,0 and leaves -1 to suppress all later calls.
-        if (SoundQueueCount >= 0)
+        if (SoundAttemptsLeft > 0)
         {
-            SoundQueueCount--;
+            SoundAttemptsLeft--;
             _state.RainbowBeamSoundPlaying = true;
             requests.SoundQueued = true;
         }

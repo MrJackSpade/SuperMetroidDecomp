@@ -647,7 +647,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         CeresEscape = new CeresEscape(new CeresEscapeDependencies { FrameResults = BossFrameResults, Room = Room, Audio = Audio, Presentation = Presentation, Status = RidleyEncounter, RoomStatus = RoomStatus, BossArtwork = BossArtworkBinding, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Places = Places, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Places = Places, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio, compatibility.YardKickDistance);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, EffectActors, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();

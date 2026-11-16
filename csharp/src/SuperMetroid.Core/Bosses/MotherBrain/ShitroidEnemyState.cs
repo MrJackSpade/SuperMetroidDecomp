@@ -35,8 +35,17 @@ public sealed class ShitroidEnemyState
     /// <summary>Updates between colour-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
     public int ColourDelay { get; internal set; }
 
-    /// <summary>Gets the current AI state's general-purpose countdown.</summary>
-    public int StateTimer { get; internal set; }
+    /// <summary>
+    /// The wait of the current action that counts past zero: the entrance delay, the rises after feeding and after
+    /// draining Samus, the pause after draining her, the flights beside her and the hold before her release (#2253).
+    /// </summary>
+    public MotherBrainCountdown StateTimer { get; } = new();
+
+    /// <summary>
+    /// The updates left of the Shitroid's drain of the Sidehopper, zero or more: the drain finishes on the update it
+    /// reaches zero (#2253).
+    /// </summary>
+    public int SidehopperDrainTimer { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>The randomized vertical-follow duration left; it stops at zero.</summary>
     public int HoverTimer { get; internal set; }

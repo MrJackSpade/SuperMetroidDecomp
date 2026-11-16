@@ -1122,7 +1122,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
         new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
         new(nameof(VerifyShitroidScrollPair), () => VerifyShitroidScrollPair()),
-        new(nameof(VerifyShitroidPowerBombReadsPassCamera), () => VerifyShitroidPowerBombReadsPassCamera()),
+        new(nameof(VerifyPowerBombPassesTheShitroid), () => VerifyPowerBombPassesTheShitroid()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),

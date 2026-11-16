@@ -111,18 +111,18 @@ internal sealed class MotherBrainLateFightState
         MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallySlow);
 
     /// <summary>
-    /// Makes the body walk forwards. A signed overshoot of the target reports it reached first; at
+    /// Makes the body walk forwards. An overshoot of the target reports it reached first; at
     /// equality the walk is still requested. A body still mid-pose then reports it waiting,
     /// ahead of the 128 arena limit that also reports the target reached. Only a standing body
     /// inside both limits starts the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
     {
-        if (CoordinateAxis.Difference(targetX, BodyPosition.X) < 0)
+        if (BodyPosition.X > targetX)
             return MotherBrainWalkResult.Reached;
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (AtLeastBySignedDifference(BodyPosition.X, 128))
+        if (BodyPosition.X >= 128)
             return MotherBrainWalkResult.Reached;
         SetBodyAnimation(segment);
         return MotherBrainWalkResult.WalkInstalled;
@@ -136,11 +136,11 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
     {
-        if (CoordinateAxis.Difference(targetX, BodyPosition.X) >= 0)
+        if (BodyPosition.X <= targetX)
             return MotherBrainWalkResult.Reached;
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (CoordinateAxis.Difference(BodyPosition.X, 48) < 0)
+        if (BodyPosition.X < 48)
             return MotherBrainWalkResult.Reached;
         SetBodyAnimation(segment);
         return MotherBrainWalkResult.WalkInstalled;
@@ -178,8 +178,4 @@ internal sealed class MotherBrainLateFightState
 
         return false;
     }
-
-    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by their wrapped difference read as signed, as the game compares positions.</summary>
-    internal static bool AtLeastBySignedDifference(int value, int threshold) =>
-        CoordinateAxis.Difference(value, threshold) >= 0;
 }

@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class RinkaSpawnPointDefinitions
 {
     /// <summary>
-    /// Every spawn point with its centre, in the order a Rinka that cannot keep its own point tries them. A population
-    /// spawn at no point's centre counts as the first point.
+    /// Every spawn point with its centre, in the order a Rinka that cannot keep its own point tries them.
     /// </summary>
     internal static ImmutableArray<RinkaSpawnPointDefinition> SearchOrder { get; } =
     [

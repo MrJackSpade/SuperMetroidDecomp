@@ -68,15 +68,21 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         AssertEqual(RoomDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
         RoomEnemyPlace[] rinkas = runtime.Enemies.Places.InUpdateOrder
-            .Where(place => place.DefinitionId == EnemyDefinitionId.Rinka && place.SpawnSettings<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint)
+            .Where(place => place.DefinitionId == EnemyDefinitionId.Rinka && place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null)
             .OrderBy(place => place.Ordinal)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");
         MotherBrainRinkaDoorSpawnExpected[] expected = [new MotherBrainRinkaDoorSpawnExpected(0x03e7, 0x0026), new MotherBrainRinkaDoorSpawnExpected(0x03e7, 0x00a6), new MotherBrainRinkaDoorSpawnExpected(0x0337, 0x0036)];
+        Position16<RoomPixels>[] populated = [new(823, 54), new(823, 166), new(631, 28)];
         for (int index = 0; index < rinkas.Length; index++)
         {
             AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");
             AssertEqual(expected[index].Y, rinkas[index].Position.Y.Whole, $"Rinka {index} Y follows the loader's camera");
+            // The point a Rinka moves to becomes the spawn point it respawns at; its population entry is never rewritten (#2256).
+            RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SpawnPoint
+                ?? throw new InvalidOperationException($"Special Rinka {index} holds no spawn point.");
+            AssertEqual(rinkas[index].Position.Whole, RinkaSpawnReservations.Centre(point), $"Rinka {index} respawns at the point it moved to");
+            AssertEqual(populated[index], rinkas[index].Spawn.Population.Position, $"Rinka {index}'s population entry keeps its placement");
         }
         Console.WriteLine("Mother Brain Rinka door spawn: spawn points are chosen against the loader's scrolling camera.");
     }

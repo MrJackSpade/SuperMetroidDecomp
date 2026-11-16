@@ -95,22 +95,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Shitroid's main AI for one update.</summary>
     /// <param name="place">The Shitroid's place.</param>
     /// <param name="samus">Samus, when the update has one.</param>
-    /// <param name="camera">
-    /// The camera's position as this step runs, which the wait for the camera and the off-screen test read: the enemy
-    /// pass's camera for the main AI, the power-bomb pass's for the Power Bomb reaction.
-    /// </param>
-    /// <param name="sharedProjectiles">Samus's bomb and projectile counters, which draining Samus locks; none for the Power Bomb reaction.</param>
+    /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
+    /// <param name="sharedProjectiles">Samus's bomb and projectile counters, which draining Samus locks.</param>
     internal void RunShitroidMain(
         RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
+        Ensure.NotNull(sharedProjectiles);
         ShitroidEnemyState state = place.RequireSpeciesState<ShitroidEnemyState>();
-
-        // Shitroid's own shot response applies recoil but no health loss. The main AI
-        // redundantly restores its health every processed frame, exactly as the game does.
-        place.Health = BossHealthDefinitions.RefilledFullHealth;
         RunShitroidState(place, state, samus, camera, sharedProjectiles);
         place.Position = place.Position.MovedBy(state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
@@ -124,7 +118,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShitroidEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         switch (state.Action)
         {
@@ -138,11 +132,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAction.BeginEntranceDelay:
                 state.Action = ShitroidAction.EntranceDelay;
-                state.StateTimer = 464;
+                state.StateTimer.Count = 464;
                 goto case ShitroidAction.EntranceDelay;
 
             case ShitroidAction.EntranceDelay:
-                if (PredecrementShitroidTimerBecameNegative(state))
+                if (state.StateTimer.StepRunsOut())
                 {
                     RequestShitroidMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
                     state.Action = ShitroidAction.FlyToSidehopper;
@@ -181,12 +175,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShitroidAction.ActivateSidehopperCorpse:
                 DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(place));
                 state.Action = ShitroidAction.RiseAfterFeeding;
-                state.StateTimer = 192;
+                state.StateTimer.Count = 192;
                 goto case ShitroidAction.RiseAfterFeeding;
 
             case ShitroidAction.RiseAfterFeeding:
                 GraduallyAccelerateShitroid(place, state, ShitroidFlightDefinitions.DriftDivisor, new(place.Position.X.Whole, 104), camera);
-                if (PredecrementShitroidTimerBecameNegative(state))
+                if (state.StateTimer.StepRunsOut())
                 {
                     state.Action = ShitroidAction.HoverNearSamus;
                     state.ReactsToSamus = true;
@@ -200,16 +194,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ShitroidAction.ChaseSamus:
-            {
-                SamusState target = samus;
                 GraduallyAccelerateShitroid(
                     place,
                     state,
                     ShitroidFlightDefinitions.RushDivisor,
-                    target.Position.Whole + new Offset16<RoomPixels>(0, -32),
+                    samus.Position.Whole + new Offset16<RoomPixels>(0, -32),
                     camera);
                 return;
-            }
 
             case ShitroidAction.BeginDrainingSamus:
                 samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext;
@@ -226,28 +217,27 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAction.BeginPostDrainPause:
                 state.Action = ShitroidAction.PostDrainPause;
-                state.StateTimer = 120;
+                state.StateTimer.Count = 120;
                 goto case ShitroidAction.PostDrainPause;
 
             case ShitroidAction.PostDrainPause:
-                if (PredecrementShitroidTimerBecameNegative(state))
+                if (state.StateTimer.StepRunsOut())
                 {
                     state.Action = ShitroidAction.RiseAfterDrainingSamus;
-                    state.StateTimer = 192;
+                    state.StateTimer.Count = 192;
                     goto case ShitroidAction.RiseAfterDrainingSamus;
                 }
                 return;
 
             case ShitroidAction.RiseAfterDrainingSamus:
             {
-                SamusState target = samus;
-                GraduallyAccelerateShitroid(place, state, ShitroidFlightDefinitions.DriftDivisor, new(target.Position.X.Whole, 104), camera);
-                if (PredecrementShitroidTimerBecameNegative(state))
+                GraduallyAccelerateShitroid(place, state, ShitroidFlightDefinitions.DriftDivisor, new(samus.Position.X.Whole, 104), camera);
+                if (state.StateTimer.StepRunsOut())
                 {
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
                     state.Action = ShitroidAction.FlyBesideSamus;
                     state.DepartureSide = HorizontalDirection.Left;
-                    state.StateTimer = 88;
+                    state.StateTimer.Count = 88;
                     SetShitroidAnimation(place, ShitroidSegment.LatchedOn);
                     goto case ShitroidAction.FlyBesideSamus;
                 }
@@ -256,27 +246,26 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAction.FlyBesideSamus:
             {
-                SamusState target = samus;
                 bool toHerLeft = state.DepartureSide == HorizontalDirection.Left;
                 GraduallyAccelerateShitroid(
                     place,
                     state,
                     ShitroidFlightDefinitions.DriftDivisor,
                     toHerLeft
-                        ? new(CoordinateAxis.Wrap(target.Position.X.Whole - 64), 100)
-                        : new(CoordinateAxis.Wrap(target.Position.X.Whole + 96), 104),
+                        ? new(CoordinateAxis.Wrap(samus.Position.X.Whole - 64), 100)
+                        : new(CoordinateAxis.Wrap(samus.Position.X.Whole + 96), 104),
                     camera);
-                if (!PredecrementShitroidTimerBecameNegative(state))
+                if (!state.StateTimer.StepRunsOut())
                     return;
                 // Her left first: that flight's end turns to her right on the same update.
                 if (toHerLeft)
                 {
                     state.DepartureSide = HorizontalDirection.Right;
-                    state.StateTimer = 88;
+                    state.StateTimer.Count = 88;
                     goto case ShitroidAction.FlyBesideSamus;
                 }
                 state.Action = ShitroidAction.HoldSamusBeforeRelease;
-                state.StateTimer = 256;
+                state.StateTimer.Count = 256;
                 SetShitroidAnimation(place, ShitroidSegment.Remorse);
                 return;
             }
@@ -300,21 +289,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ShitroidAction.HoldSamusBeforeRelease:
-            {
-                SamusState target = samus;
-                if (PredecrementShitroidTimerBecameNegative(state))
+                if (state.StateTimer.StepRunsOut())
                 {
-                    target.Drained.Release(target);
+                    samus.Drained.Release(samus);
                     state.ReactsToSamus = true;
                     state.Action = ShitroidAction.ReleasedFollow;
-                    FollowReleasedSamus(place, state, target, camera);
                 }
-                else
-                {
-                    FollowReleasedSamus(place, state, target, camera);
-                }
+                FollowReleasedSamus(place, state, samus, camera);
                 return;
-            }
 
             case ShitroidAction.ReleasedFollow:
                 if (FollowReleasedSamus(place, state, samus, camera))
@@ -347,18 +329,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Gives the second and fourth screens of the Big Boy room's row of four <paramref name="highState"/>, rewriting the
-    /// first and third with the scroll they already have.
+    /// Gives the second and fourth screens of the Big Boy room's row of four <paramref name="highState"/>; the first and
+    /// third keep the scroll they have.
     /// </summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
-        var first = new Position16<RoomScreens>(0, 0);
-        var third = new Position16<RoomScreens>(2, 0);
-        RoomScrollState firstState = _room.Services.RoomScroll.Read(first);
-        RoomScrollState thirdState = _room.Services.RoomScroll.Read(third);
-        _room.Services.RoomScroll.Write(first, firstState);
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), highState);
-        _room.Services.RoomScroll.Write(third, thirdState);
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(3, 0), highState);
     }
 
@@ -383,7 +359,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = ShitroidAction.DrainSidehopper;
         state.ColourDelay = 1;
         state.ReactsToSamus = false;
-        state.StateTimer = 320;
+        state.SidehopperDrainTimer = 320;
     }
 
     /// <summary>Shakes above the victim for 320 ticks before activating its corpse sequence.</summary>
@@ -393,7 +369,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(place.FrameCounter);
         place.Position = place.Position.WithWhole(
             victim.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
-        if (--state.StateTimer == 0)
+        if (--state.SidehopperDrainTimer == 0)
         {
             state.Action = ShitroidAction.ActivateSidehopperCorpse;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
@@ -442,12 +418,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         ShitroidEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         if (samus.Health < 2)
         {
             samus.XSpeedDivisor = 0;
-            sharedProjectiles?.SetSharedBombCounter(0);
+            sharedProjectiles.SetSharedBombCounter(0);
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
@@ -459,8 +435,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        sharedProjectiles?.SetSharedCooldown(8);
-        sharedProjectiles?.SetSharedBombCounter(5);
+        sharedProjectiles.SetSharedCooldown(8);
+        sharedProjectiles.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
@@ -685,20 +661,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
     }
 
-    /// <summary>Resolves a power bomb's hit on the Shitroid.</summary>
-    private void ResolveShitroidPowerBomb(EnemyPowerBombContext context)
-    {
-        RoomEnemyPlace place = context.Enemy;
-        ShitroidEnemyState state = place.RequireSpeciesState<ShitroidEnemyState>();
-        if (state.ReactsToSamus)
-            BreakReleasedShitroidFollow(state);
-
-        // The power-bomb reaction goes straight on to run main AI. Preserve the extra state/movement/colour
-        // tick rather than reducing the power bomb to a state flag. That step reads the camera as the power-bomb pass
-        // sees it, after the enemy pass and before the main scrolling.
-        RunShitroidMain(place, context.Samus, context.Camera, null);
-    }
-
     /// <summary>Shots or contact break the released follow into the exit sequence.</summary>
     private static void BreakReleasedShitroidFollow(ShitroidEnemyState state)
     {
@@ -753,9 +715,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return victim;
     }
 
-    /// <summary>Counts the state timer down and reports whether it ran past zero.</summary>
-    private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state) => --state.StateTimer < 0;
-
     /// <summary>Uses bomb damage for recoil strength but Samus's first shot for its direction, without health loss.</summary>
     internal static void ReactToShitroidBomb(EnemyBombContext c) =>
         // The Baby's shot response reads damage from the projectile that hit it, but recoils from Samus's first shot
@@ -805,12 +764,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(ShitroidCue)} {cue}.");
         }
     }
-
-    /// <summary>Runs the private power-bomb reaction in place of common enemy damage.</summary>
-    internal EnemyPowerBombReaction ShitroidPowerBombReaction => field ??= new()
-    {
-        ReplacesCommon = ResolveShitroidPowerBomb,
-    };
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
     internal EnemyShotReaction ShitroidShotReaction => field ??= new()

@@ -110,7 +110,7 @@ internal static class PhantoonWaveVerification
         visibility.Step(boss);
         AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility, "translucency takes priority over a cleared body");
         visibility.LatchDisplay(pixelationBlockSize: 5);
-        boss.PixelationBlockSize = 6;
+        boss.Death.PixelationSize = 6;
         boss.Translucent = false;
         boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
         visibility.Step(boss);

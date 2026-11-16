@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
 
@@ -455,12 +456,13 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// Advances her rainbow beam's effect for this update from her brain at <paramref name="head"/>: it shows while the
-    /// late fight's attack holds the beam, aimed and as wide as the attack has it, and is hidden otherwise.
+    /// late fight's attack holds the beam, aimed and as wide as the attack has it, stepping through
+    /// <paramref name="colours"/>, and is hidden otherwise.
     /// </summary>
-    internal void StepRainbowBeam(Position16<RoomPixels> head)
+    internal void StepRainbowBeam(Position16<RoomPixels> head, MotherBrainRainbowBeamColours colours)
     {
         if (RainbowBeamSequence is { RainbowAttack.BeamActive: true } beam)
-            RainbowBeam.Show(head, beam.RainbowBeamAngle, beam.RainbowAttack.AngularWidth);
+            RainbowBeam.Show(head, beam.RainbowBeamAngle, beam.RainbowAttack.AngularWidth, colours);
         else
             RainbowBeam.Hide();
     }

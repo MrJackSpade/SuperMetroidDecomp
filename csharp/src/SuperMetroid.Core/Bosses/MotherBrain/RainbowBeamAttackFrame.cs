@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The frame counters, RNG and escape state one rainbow-beam attack step reads (#633).</summary>
+/// <summary>
+/// What one step of Mother Brain's late fight reads of the update it runs in (#633, #2261): the counters, the shared random
+/// sequence, the Power Bomb, the escape's text and the room's earthquake. Every member is the update's own; none has a
+/// default.
+/// </summary>
 public sealed record RainbowBeamAttackFrame
 {
     /// <summary>The enemy frame counter's current count; its place in a short repeating cycle paces the beam's colour cadence.</summary>
@@ -9,23 +13,26 @@ public sealed record RainbowBeamAttackFrame
     /// <summary>The main enemy pass counter's current count; its place in a short repeating cycle paces ammunition drain and corpse dust sounds.</summary>
     public required int MainEnemyExecutionCounter { get; init; }
 
-    /// <summary>Power bomb active.</summary>
-    public bool PowerBombActive { get; init; } = false;
+    /// <summary>Whether a Power Bomb's explosion is active, which stops the countdown to the rainbow beam's firing.</summary>
+    public required bool PowerBombActive { get; init; }
 
-    /// <summary>The room's random number as this step reads it without advancing the generator; zero unless supplied.</summary>
-    public MotherBrainRandomSample RandomNumberSeed { get; init; } = MotherBrainRandomSample.FromGenerator(0);
+    /// <summary>The room's random number as the step reads it, without advancing the generator.</summary>
+    public required MotherBrainRandomSample RandomNumberSeed { get; init; }
 
-    /// <summary>Next random number.</summary>
-    public Func<int>? NextRandomNumber { get; init; } = null;
+    /// <summary>
+    /// Advances the room's shared random sequence and returns its next number: every death explosion and escape-door burst
+    /// draws one.
+    /// </summary>
+    public required Func<int> NextRandomNumber { get; init; }
 
-    /// <summary>Alternate escape text.</summary>
-    public bool AlternateEscapeText { get; init; } = false;
+    /// <summary>Whether the game shows the escape's alternate text, the time-bomb subtitle the Japanese text adds.</summary>
+    public required bool AlternateEscapeText { get; init; }
 
-    /// <summary>Typewriter finished.</summary>
-    public bool TypewriterFinished { get; init; } = false;
+    /// <summary>Whether the escape's typewriter finished its text on this update.</summary>
+    public required bool TypewriterFinished { get; init; }
 
-    /// <summary>Whether the room's earthquake has stopped as this step observes it; false unless supplied.</summary>
-    public bool RoomEarthquakeStopped { get; init; } = false;
+    /// <summary>Whether the room's earthquake has stopped as this step observes it.</summary>
+    public required bool RoomEarthquakeStopped { get; init; }
 
     /// <summary>The session's record of what the beam's push hides from the camera, which every push writes.</summary>
     public required RainbowBeamCameraCheckpoint CameraCheckpoint { get; init; }

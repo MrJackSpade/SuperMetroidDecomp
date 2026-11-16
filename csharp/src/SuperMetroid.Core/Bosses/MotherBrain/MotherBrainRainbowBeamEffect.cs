@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class MotherBrainRainbowBeamEffect
 {
-    /// <summary>Host-owned visual colors; the beam geometry and update cadence stay logic.</summary>
-    public MotherBrainRainbowBeamColours? PresentationColors { get; set; }
     /// <summary>Whether the last simulation update showed the beam; a hidden beam shows nothing.</summary>
     public bool Active { get; private set; }
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
@@ -30,23 +28,25 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <param name="head">Head enemy's whole-pixel room position. The mouth lies fourteen pixels right of it and five below.</param>
     /// <param name="angle">Beam center aim; only its whole angle units are used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Angular width; its whole steps are halved with integer truncation to obtain each edge's displacement in steps.</param>
-    public void Show(Position16<RoomPixels> head, RotationAngle angle, RotationAngle angularWidth)
+    /// <param name="colours">The installed colour cycle the beam steps through, which the host binds (#2261).</param>
+    public void Show(Position16<RoomPixels> head, RotationAngle angle, RotationAngle angularWidth, MotherBrainRainbowBeamColours colours)
     {
+        Ensure.NotNull(colours);
         if (!Active)
         {
             Active = true;
             ColourStep = 0;
-            Color = Colours.BeamInitialColor;
+            Color = colours.BeamInitialColor;
         }
-        else if (ColourStep == Colours.BeamCycleLength)
+        else if (ColourStep == colours.BeamCycleLength)
         {
             // Past the cycle's last colour, the update that restarts it repeats colour zero without advancing.
             ColourStep = 0;
-            Color = Colours.BeamColor(0);
+            Color = colours.BeamColor(0);
         }
         else
         {
-            Color = Colours.BeamColor(ColourStep);
+            Color = colours.BeamColor(ColourStep);
             ColourStep++;
         }
         // The cone's edges lie half its whole-step width either side of its direction.
@@ -56,8 +56,4 @@ public sealed class MotherBrainRainbowBeamEffect
             angle.ToTrigonometryAngle() - halfWidth,
             angle.ToTrigonometryAngle() + halfWidth);
     }
-
-    /// <summary>The installed colour cycle; fails if rainbow presentation colours were never bound.</summary>
-    private MotherBrainRainbowBeamColours Colours => PresentationColors ?? throw new InvalidOperationException(
-        "Mother Brain rainbow beam requires installed colors.");
 }

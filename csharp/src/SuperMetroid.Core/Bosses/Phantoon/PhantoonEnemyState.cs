@@ -31,8 +31,12 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// </summary>
     public PhantoonPhase Phase { get; internal set; } = PhantoonPhase.SpawnStartingFlames;
 
-    /// <summary>The updates before the current phase moves on.</summary>
-    public int PhaseTimer { get; internal set; }
+    /// <summary>
+    /// The updates the current phase waits before it moves on, zero or more: a timed phase moves on on the update its timer
+    /// reaches zero (<see cref="PhantoonPresentation.TickPhantoonPhaseTimer"/>), and the power's return waits out its
+    /// count before it starts.
+    /// </summary>
+    public int PhaseTimer { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>Whether the eye-close animation's pattern choice takes the flame-rain branch.</summary>
     public bool FlameRainRequested { get; internal set; }
@@ -129,12 +133,6 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
     public int MaterializationSoundIndex { get; internal set; }
-
-    /// <summary>
-    /// Gets the live pixelation block size of his body in screen pixels before display latching: one (no quantization) until
-    /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
-    /// </summary>
-    public int PixelationBlockSize { get; internal set; } = 1;
 
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }

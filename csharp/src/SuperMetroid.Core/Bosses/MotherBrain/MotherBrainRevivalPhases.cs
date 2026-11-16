@@ -131,8 +131,8 @@ internal sealed class MotherBrainRevivalPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.RequestWalkForward(80, 4);
-            bool reachedWalkTarget = CoordinateAxis.Difference(80, _state.BodyPosition.X) < 0 ||
-                MotherBrainLateFightState.AtLeastBySignedDifference(_state.BodyPosition.X, 128);
+            // Past X 80 she has overshot the walk's target; the walk's limit at X 128 lies beyond it.
+            bool reachedWalkTarget = _state.BodyPosition.X > 80;
             if (reachedWalkTarget)
             {
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Revived;

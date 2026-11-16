@@ -67,9 +67,7 @@ internal sealed class PhantoonPatterns
         StepPhantoonFigureEight(body, state.FigureEight);
         StepPhantoonCasualFlameSchedule(state);
 
-        // Both reaching zero and running past it expire the timer. A timer started at zero
-        // expires on its first step, one movement/flame frame before the eye-opening handoff.
-        if (--state.Round.EyeClosedTimer > 0)
+        if (!state.Round.StepEyeClosedTimerRunsOut())
             return;
 
         state.Phase = PhantoonPhase.WaitingOnEye;
@@ -430,8 +428,7 @@ internal sealed class PhantoonPatterns
         AdvancePhantoonFadeOut(state, denominator: 12);
         StepPhantoonFigureEight(body, state.FigureEight);
         StepPhantoonCasualFlameSchedule(state);
-        // Reaching zero expires the timer, as does running past it.
-        if (--state.Round.EyeClosedTimer > 0)
+        if (!state.Round.StepEyeClosedTimerRunsOut())
             return;
 
         state.Swoop.Requested = false;

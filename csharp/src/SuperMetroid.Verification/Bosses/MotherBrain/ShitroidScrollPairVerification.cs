@@ -14,10 +14,10 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class ShitroidScrollPairVerification
 {
     /// <summary>
-    /// The original rescrolls the room's first four cells, row by row, in the Big Boy room's row of four screens: the second
-    /// and fourth take the new state and the first and third are rewritten with the state they hold. It does so when the
-    /// camera reaches the room's left half (closing them) and when the Shitroid rises after feeding (opening them with the
-    /// camera aligned to their top). The cell after the room's is never written.
+    /// The Shitroid rescrolls the Big Boy room's row of four screens: the second and fourth take the new state and the
+    /// first and third keep the state they hold (#2257). It does so when the camera reaches the room's left half (closing
+    /// them) and when the Shitroid rises after feeding (opening them with the camera aligned to their top). The cell after
+    /// the room's is never written.
     /// </summary>
     internal static void VerifyShitroidScrollPair()
     {
@@ -36,15 +36,15 @@ internal static class ShitroidScrollPairVerification
 
         Seed(scrolls, [RoomScrollState.Open, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.Open]);
         state.Action = ShitroidAction.WaitForCamera;
-        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, null);
+        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, runtime.BombProjectiles);
         AssertEqual(ShitroidAction.BeginEntranceDelay, state.Action, "the camera at X 512 starts the entrance");
         Expect(scrolls, [RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed, RoomScrollState.Open],
             "the entrance");
 
         Seed(scrolls, [RoomScrollState.Closed, RoomScrollState.Closed, RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.Closed]);
         state.Action = ShitroidAction.RiseAfterFeeding;
-        state.StateTimer = 0;
-        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, null);
+        state.StateTimer.Count = 0;
+        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, runtime.BombProjectiles);
         AssertEqual(ShitroidAction.HoverNearSamus, state.Action, "the rise's timer running out starts the hover");
         Expect(scrolls, [RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed],
             "the rise after feeding");

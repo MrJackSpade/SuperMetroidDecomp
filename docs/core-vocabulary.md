@@ -338,6 +338,28 @@ meaning (the direction is left or right, a pose faces left). Assembling a value 
 Line, a count of what is stored (`stores these as four separate flags`), a literal alone and the unverified stay
 English.
 
+Outside hardware owners SME6454 also reads, outside markup (#2152), a slot as an enemy's, a projectile's or a bomb's
+place, alone or named for what holds it (`Which Kraid occupant a slot holds`, `occupies its slot`, `the brain slot`, `the
+projectile slots`, `a bomb slot`, `the highest-free-slot search`): Core names the enemy's place in the room's list, the
+projectile's or the bomb's place in its pool, or the enemy or projectile itself. The game's save slots stay its own: a
+slot by its letter (`slot C`, `slots A and B`), a slot in a clause that names a save or a file (`a save slot`,
+`selecting an empty slot starts a new file`) and every slot in a type named for saves or files (`SaveSlotStore`,
+`FileSelectMenuState`). It reads a frame named as a map, after what the frame shows or a count of frames (`the one-frame
+hitbox map`, `the direction-specific frozen map`, `extended body maps`, `the four-map spin`); the map the player reads, a
+map station's access arm and the verb (`every pose maps to it`) stay English. It reads a subtraction's borrow in any word
+form (`the subtract/borrow formulation`, `the game's borrow chain`, `borrows from the frame`, `borrowing one whole
+pixel`); Core says what the value did, and borrowing a thing the clause names, ammunition, a round, a unit, a fuse or a
+path (`a borrowed ammo unit`, `the Chainsaw beam's borrowed fuse`), stays English. And it reads the repository's checks:
+verification and a verifier (`verification's catalog relates each member`, `the reusable head verifier`), a fixture (`a
+synthetic room fixture`) and a movie (`the recorded Ridley movie`). An assembly's name (`SuperMetroid.Verification`), a
+demo's recording and a hardware owner's cited recording stay as they are. It also reads the original's tables, indexes
+and bugs: a retail or original bug (`that retail bug`, `its original wall bug`), a retail order (`retail-ordered
+places`), a random, angle, place or linear-speed table, a table's convention, entries, samples or selections
+(`pose-table entries`, `a water/lava table selection`), identical entries, a collision or same index, the alpha pass,
+definition bits and the typed representation. Core names the places a room lists, the random choices, the enemy places,
+the speeds and the frame shown; a table alone, a speed table, an index alone and a bug that is not the original's stay
+English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

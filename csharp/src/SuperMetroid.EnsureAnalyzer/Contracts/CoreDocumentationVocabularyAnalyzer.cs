@@ -63,6 +63,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2123 adds to the review trail, in every type, anything verified, and, outside hardware owners, the host's
 /// desktop, the original's assembly loops, branches and labels, and a value stored as a number for a meaning or cited
 /// as a literal number.
+/// #2152 adds, outside hardware owners, a slot as an enemy's, a projectile's or a bomb's place, a frame named as a map,
+/// a subtraction's borrow, the repository's verification, verifiers, fixtures and movies, and the original's tables,
+/// indexes and bugs.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -764,6 +767,87 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// A slot as an enemy's, a projectile's or a bomb's place in prose (#2152), outside hardware owners and outside markup:
+    /// a slot in any number and word form, alone or named for what holds it (a slot holds an occupant, the enemy occupies
+    /// its slot, the brain slot, the projectile slots, a bomb slot, an enemy-slot index, the highest-free-slot search). The
+    /// original kept its enemies, projectiles and bombs in fixed slots; Core names the enemy's place in the room's list,
+    /// the projectile's or the bomb's place in its pool, or the enemy or projectile itself. The game's save slots stay its
+    /// own: a slot by its letter (slot C, slots A and B), a slot in a clause that names a save or a file (a save slot, the
+    /// file slot, selecting an empty slot starts a new file), and every slot in a type named for saves or files (see
+    /// <see cref="SaveTypeName"/>).
+    /// </summary>
+    private static readonly Regex EnemyPlaceSlotProse = new(
+        @"(?<!\b" + SaveWords + @"\b[^.;:!?]*)\bslots?\b(?!\s+(?-i:[A-C])\b)(?![^.;:!?]*\b" + SaveWords + @"\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>The words of a save in prose: a save, saved, saves or saving, and a file.</summary>
+    private const string SaveWords = @"(?:save[sd]?|saving|files?)";
+
+    /// <summary>
+    /// A type named for saves or files, whose slots are the game's save slots (#2152): a save or a file, read as a whole
+    /// camel-case word (<c>SaveSlotStore</c>, <c>GameSaveJsonCodec</c>, <c>FileSelectMenuState</c>; not <c>Saved</c>).
+    /// </summary>
+    private static readonly Regex SaveTypeName = new(@"(?:Save|File)s?(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A frame named as a map in prose (#2152), outside hardware owners and outside markup: the original's word for the
+    /// sprite map a frame was built from, after what the frame shows (the one-frame hitbox map, the neutral map, a frozen
+    /// map, the extended body maps, the displayed map, the last animation map, the tongue's or head's map) and after a
+    /// count of frames (the four-map spin). Core shows frames and pictures. English stays legal: the map the player reads
+    /// (the area map, the map's area labels), a map station and its access arm (an extended map access arm), and the verb
+    /// (every pose maps to it).
+    /// </summary>
+    private static readonly Regex FrameMapProse = new(
+        @"\b(?:hitbox|neutral|frozen|extended|displayed|animation|body|tongue|head)[-\s]+maps?\b(?!\s+(?:to|onto|into|access)\b)" +
+        @"|\b" + NumberWord + @"-maps?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A subtraction's borrow in prose (#2152), outside hardware owners: borrow in any word form, the processor's carry
+    /// out of a subtraction (a subtract/borrow formulation, the game's borrow chain, borrows from the frame, borrowing one
+    /// whole pixel). Core says what the value did: it passes zero, drops a whole pixel, counts down past the frame.
+    /// English stays legal: borrowing a thing in a clause that names it, ammunition or a round, a unit, a fuse or a path
+    /// (a borrowed ammo unit, the Chainsaw beam's borrowed fuse, drawing borrows this frame path).
+    /// </summary>
+    private static readonly Regex ArithmeticBorrowProse = new(
+        @"(?<!\b" + LentThings + @"\b[^.;:!?]*)\bborrow(?:s|ed|ing)?\b(?![^.;:!?]*\b" + LentThings + @"\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>What the game lends in English: ammunition or a round, a unit, a fuse or a path.</summary>
+    private const string LentThings = @"(?:ammo|ammunition|rounds?|units?|fuses?|paths?)";
+
+    /// <summary>
+    /// The repository's checks in prose (#2152), outside hardware owners: verification and a verifier in any number and
+    /// as a possessive (verification's catalog relates each member, the reusable head verifier, a constructed verifier
+    /// room), a fixture (a synthetic room fixture, standalone enemy fixtures) and a movie (the recorded Ridley movie). Core
+    /// states what the game does; which check confirms it, what a test builds and which recording a replay compares are
+    /// the repository's. A compatibility service may cite the recording that shows the behaviour it reproduces. English
+    /// stays legal: an assembly's name (<c>SuperMetroid.Verification</c>, <c>SuperMetroid.RenderVerification</c>) and a
+    /// demo's recording.
+    /// </summary>
+    private static readonly Regex RepositoryCheckProse = new(
+        @"(?<![.\w])verif(?:ications?|iers?)\b|\bfixtures?\b|\bmovies?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's tables, indexes and bugs in prose (#2152), outside hardware owners, spaced or hyphenated: a retail or
+    /// original bug, with up to one word between (that retail bug, its original wall bug, the retail arm-pump bug); a retail
+    /// order (the retail-ordered places); a random, angle, place or linear-speed table (the random-table selections, the
+    /// angle table's displacement, the place table, the common linear-speed table); a table's convention, entries, samples
+    /// or selections (in the table convention, pose-table entries, a water/lava table selection); identical entries; a
+    /// collision or same index; the alpha pass; definition bits; and the typed representation. Core says what the game does:
+    /// the places a room lists, the random choices, the enemy places, the speeds, the frame shown and the update that
+    /// follows. English stays legal: a table alone (a drop-chance table), a speed table, an index alone and a bug that is not
+    /// the original's.
+    /// </summary>
+    private static readonly Regex TableNarrationProse = new(
+        @"\b(?:retail|original)[-\s]+(?:[\w-]+\s+)?bugs?\b|\bretail[-\s]+order(?:ed)?\b" +
+        @"|\b(?:random|angle|place|linear-speed)[-\s]+tables?\b" +
+        @"|\btables?[-\s]+(?:conventions?|entr(?:y|ies)|samples?|selections?)\b|\bidentical\s+entries\b" +
+        @"|\b(?:collision|same)\s+index\b|\balpha\s+pass(?:es)?\b|\bdefinition\s+bits\b|\btyped\s+representations?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A controller button's letter used as the name of a gameplay action in prose (#2113), outside hardware owners: a
     /// letter that is an action (A is Jump, X here is the configured Shoot action, X is the default shoot binding), an
     /// action that is a letter (Jump is A), a letter before an action's button, binding or action (the B run button) and a
@@ -992,6 +1076,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : DisplayEffectProse.Match(Markup.Replace(text, " ")) is { Success: true } displayEffect ? displayEffect.Value
             : ButtonLetterActionProse.Match(Markup.Replace(text, " ")) is { Success: true } buttonLetter ? buttonLetter.Value
             : StoredValueProse.Match(Markup.Replace(text, " ")) is { Success: true } storedValue ? storedValue.Value
+            : EnemyPlaceSlotFinding(text, owner) is { } enemyPlaceSlot ? enemyPlaceSlot
+            : FrameMapProse.Match(Markup.Replace(text, " ")) is { Success: true } frameMap ? frameMap.Value
+            : ArithmeticBorrowProse.Match(Markup.Replace(text, " ")) is { Success: true } borrow ? borrow.Value
+            : RepositoryCheckProse.Match(Markup.Replace(text, " ")) is { Success: true } repositoryCheck ? repositoryCheck.Value
+            : TableNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } tableNarration ? tableNarration.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
@@ -1005,16 +1094,26 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// lies in a type named for text, whose characters are the text's.
     /// </summary>
     private static string? TileCharacterFinding(string text, SyntaxNode? owner) =>
-        TileCharacter.Match(Markup.Replace(text, " ")) is { Success: true } character && !IsInTextType(owner)
+        TileCharacter.Match(Markup.Replace(text, " ")) is { Success: true } character && !IsInTypeNamed(owner, TextTypeName)
             ? character.Value
             : null;
 
-    /// <summary>Whether a node lies in a type named for text (<see cref="TextTypeName"/>).</summary>
-    private static bool IsInTextType(SyntaxNode? node)
+    /// <summary>
+    /// The slot <paramref name="text"/>'s prose names as an enemy's, a projectile's or a bomb's place, outside its markup
+    /// (<see cref="EnemyPlaceSlotProse"/>); null when it names none or lies in a type named for saves or files, whose slots
+    /// are the game's save slots.
+    /// </summary>
+    private static string? EnemyPlaceSlotFinding(string text, SyntaxNode? owner) =>
+        EnemyPlaceSlotProse.Match(Markup.Replace(text, " ")) is { Success: true } slot && !IsInTypeNamed(owner, SaveTypeName)
+            ? slot.Value
+            : null;
+
+    /// <summary>Whether a node lies in a type whose name <paramref name="name"/> matches.</summary>
+    private static bool IsInTypeNamed(SyntaxNode? node, Regex name)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
         {
-            if (current is BaseTypeDeclarationSyntax declaration && TextTypeName.IsMatch(declaration.Identifier.ValueText))
+            if (current is BaseTypeDeclarationSyntax declaration && name.IsMatch(declaration.Identifier.ValueText))
                 return true;
         }
         return false;

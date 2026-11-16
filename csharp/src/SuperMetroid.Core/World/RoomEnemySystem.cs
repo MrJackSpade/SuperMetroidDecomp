@@ -622,16 +622,17 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <param name="breakableTerrain">
     /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.
     /// </param>
+    /// <param name="roomFx">The room's effect state, which its enemies move and read and which lives as long as the room.</param>
     internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services, AreaId area,
-        BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain)
+        BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain, RoomFxOverlayState roomFx)
     {
         Ensure.NotNull(compatibility);
         BossArtworkBinding = Ensure.NotNull(bossArtwork);
         Room = new EnemyRoomBinding(session, definitions, services, area);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
-        RoomFx = new EnemyRoomFx();
+        RoomFx = new EnemyRoomFx(roomFx);
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, compatibility.FadeStepCount);
@@ -881,7 +882,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // initialization among them.
         Room.Session.Looks.Restart();
         IRoomEnemyDefinitionSource definitions = Room.Definitions;
-        GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
+        GunshipBehavior.BeginRoomLoad(request.GunshipScenario);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
         Presentation.BindBackgrounds(request.Appearance);

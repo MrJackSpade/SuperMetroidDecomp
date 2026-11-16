@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 public enum EyeDoorProjectileDefinition
 {
-    /// <summary>The eye-door attack actor, whose initial animation later installs aimed movement and whose shot/impact animations terminate it.</summary>
-    Projectile,
     /// <summary>The falling sweat actor, launched toward the side the eye faces, with a floor-impact animation.</summary>
     Sweat,
     /// <summary>One of the randomly placed smoke puffs of the shared room-object dust actor, scattered in a box around the eye.</summary>

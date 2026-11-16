@@ -30,7 +30,7 @@ internal static class GunshipMotionDefinitionsVerification
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             // The top hull finds the bottom hull and pad listed after it as production places it.
-            enemies.GunshipBehavior.InitializeGunshipTop(top);
+            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
             top.SetSpeciesState(part);
@@ -61,7 +61,7 @@ internal static class GunshipMotionDefinitionsVerification
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             // The top hull finds the bottom hull and pad listed after it as production places it.
-            enemies.GunshipBehavior.InitializeGunshipTop(top);
+            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
             var part = new GunshipState(GunshipPhase.Idle);
             top.SetSpeciesState(part);
             part.BobPhase = phase;

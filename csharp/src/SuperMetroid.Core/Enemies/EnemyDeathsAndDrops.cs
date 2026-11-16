@@ -55,7 +55,7 @@ internal sealed class EnemyDeathsAndDrops
     internal SamusState? SamusForEnemyDrops { get; private set; }
 
     /// <summary>Binds the live Samus owner for the room load or enemy frame that follows.</summary>
-    internal void BindSamus(SamusState? samus) => SamusForEnemyDrops = samus;
+    internal void BindSamus(SamusState samus) => SamusForEnemyDrops = Ensure.NotNull(samus);
 
     /// <summary>Requests a collected drop's sound; it joins the queue only when the sound queue is idle.</summary>
     private void RequestPickupSound(SoundEffectId sound) =>

@@ -56,12 +56,10 @@ internal static class EyeDoorObjectsVerification
         var system = new SharedGameState(new SharedRandom());
         Position16<RoomBlocks> roomObjectBlock = new(7, 4);
 
-        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
-            new EyeDoorProjectileRequest(
-                EyeDoorProjectileDefinition.Projectile,
+        enemies.EyeDoorBehavior.SpawnEyeDoorAttack(
+            new EyeDoorAttackRequest(
                 Facing: EyeDoorOrientation.Left,
-                RoomObjectBlock: roomObjectBlock,
-                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
+                RoomObjectBlock: roomObjectBlock, Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             system);
         EnemyProjectile attack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
@@ -87,8 +85,7 @@ internal static class EyeDoorObjectsVerification
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Sweat,
                 Facing: EyeDoorOrientation.Right,
-                RoomObjectBlock: roomObjectBlock,
-                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
+                RoomObjectBlock: roomObjectBlock),
             system);
         EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
@@ -101,8 +98,7 @@ internal static class EyeDoorObjectsVerification
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.ScatteredSmoke,
                 Facing: EyeDoorOrientation.Left,
-                RoomObjectBlock: roomObjectBlock,
-                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
+                RoomObjectBlock: roomObjectBlock),
             system);
         EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
@@ -140,8 +136,9 @@ internal static class EyeDoorObjectsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
         };
         var effects = new List<EyeDoorProjectileRequest>();
+        var attacks = new List<EyeDoorAttackRequest>();
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = effects.Add } }),
+        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = effects.Add, EyeDoorAttack = attacks.Add } }),
             $"{orientation} eye-door population record count");
 
         AssertEqual(3, roomObjects.Places.ActiveCount, $"{orientation} eye door retains three PLM slots");
@@ -163,9 +160,9 @@ internal static class EyeDoorObjectsVerification
 
         // Three blocks in front of the eye: near enough to open it, too far to make it close.
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new((eyeX + 3) * 16 + 8, eyeY * 16 + 8));
-        for (int frame = 0; frame < 256 && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile); frame++)
+        for (int frame = 0; frame < 256 && attacks.Count == 0; frame++)
             StepEyeDoorObjects(roomObjects, level);
-        EyeDoorProjectileRequest shot = effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile);
+        EyeDoorAttackRequest shot = attacks.First();
         AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
         AssertEqual(new Position16<RoomBlocks>(eyeX, eyeY), shot.RoomObjectBlock, $"{orientation} attack leaves the eye's block");
         AssertTrue(ReferenceEquals(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(doorBit), shot.Door), $"{orientation} attack carries the door");

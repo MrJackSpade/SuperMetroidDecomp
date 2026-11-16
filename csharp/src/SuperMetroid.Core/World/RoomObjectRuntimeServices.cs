@@ -41,9 +41,13 @@ internal sealed class RoomObjectRuntimeServices(
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
         Enemies.RoomObjectSpawns.SpawnNoobTubeProjectile(request);
 
-    /// <summary>Spawns an eye-door projectile at its door's block, with the system state.</summary>
+    /// <summary>Spawns an eye-door sweat or smoke actor at its door's block, with the system state.</summary>
     public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
         Enemies.RoomObjectSpawns.SpawnEyeDoorProjectile(request, system);
+
+    /// <summary>Spawns an eye's attack at its door's block, with the system state that records the door's opening.</summary>
+    public void SpawnEyeDoorAttack(EyeDoorAttackRequest request) =>
+        Enemies.RoomObjectSpawns.SpawnEyeDoorAttack(request, system);
 
     /// <summary>Delegates the old Tourian escape shaft wall blast to its resident enemy behavior.</summary>
     public void SpawnOldTourianEscapeShaftWallExplosion() =>

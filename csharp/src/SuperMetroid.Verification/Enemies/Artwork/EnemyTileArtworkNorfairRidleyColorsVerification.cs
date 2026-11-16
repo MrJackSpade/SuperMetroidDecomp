@@ -58,9 +58,8 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         (RoomEnemySystem installed, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
         // The reveal's terminator hands the battle liquid height to the room's liquid.
-        var installedLiquid = new RoomFxOverlayState();
+        RoomFxOverlayState installedLiquid = installed.RoomFx.FxOverlay;
         installedLiquid.BindAudioRequests(GameplayAudioRequests.Standalone());
-        installed.RoomFx.BindRoomFx(installedLiquid);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         for (int call = 0; call <= NorfairRidleyRevealDefinitions.RevealStepCount * 3; call++)

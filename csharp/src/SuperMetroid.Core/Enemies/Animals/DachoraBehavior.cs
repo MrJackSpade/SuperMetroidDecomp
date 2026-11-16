@@ -124,39 +124,36 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int frameCycle)
     {
-        // Echo AI needs only the frame counter's parity. Every body state needs both the active
-        // Samus gravity values and authentic room collision, so fail loudly if the family
-        // runs without the state that code reads globally.
+        // Echo AI needs only the frame counter's parity; every body state reads Samus's gravity values and the room's
+        // collision.
         if (state.Action == DachoraAction.Echo)
         {
             RunDachoraEcho(slot, state, frameCycle);
             return;
         }
 
-        SamusState activeSamus = samus;
-        RoomLevelData activeLevel = level;
         switch (state.Action)
         {
             case DachoraAction.WaitingForSamus:
-                RunDachoraWaiting(slot, state, activeSamus, activeLevel);
+                RunDachoraWaiting(slot, state, samus, level);
                 break;
             case DachoraAction.BlinkingBeforeRun:
                 RunDachoraBlinking(slot, state);
                 break;
             case DachoraAction.RunningLeft:
-                RunDachoraLeft(slot, state, activeLevel);
+                RunDachoraLeft(slot, state, level);
                 break;
             case DachoraAction.RunningRight:
-                RunDachoraRight(slot, state, activeLevel);
+                RunDachoraRight(slot, state, level);
                 break;
             case DachoraAction.ChargingShinespark:
                 RunDachoraCharging(slot, state);
                 break;
             case DachoraAction.Shinesparking:
-                RunDachoraShinespark(slot, state, activeSamus, activeLevel);
+                RunDachoraShinespark(slot, state, samus, level);
                 break;
             case DachoraAction.Falling:
-                RunDachoraFalling(slot, state, activeSamus, activeLevel);
+                RunDachoraFalling(slot, state, samus, level);
                 break;
             case DachoraAction.Echo:
             default:

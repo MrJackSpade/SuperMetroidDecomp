@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The actors and input a room's enemy initialization reads: room terrain, Samus, the held controller mask and the
-/// camera. Samus is absent only while a new game loads Ceres's first room, before she is created.
+/// camera.
 /// </summary>
 public interface IRoomEnemyActorContext
 {
     /// <summary>Room terrain and collision data.</summary>
     RoomLevelData Level { get; }
 
-    /// <summary>Samus, or null before she is created.</summary>
-    SamusState? Samus { get; }
+    /// <summary>Samus.</summary>
+    SamusState Samus { get; }
 
     /// <summary>The gameplay actions the player holds this update.</summary>
     GameplayAction ControllerInput { get; }

@@ -15,10 +15,14 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// flashes it ten times and turns it into the cap.
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
-internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : SequencedRoomObject<EyeDoorStep>
+/// <param name="door">The eye door's door, which its attacks keep to burst once it opens.</param>
+internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, LockedDoor door) : SequencedRoomObject<EyeDoorStep>
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
+
+    /// <summary>The eye door's door, which its attacks keep to burst once it opens.</summary>
+    private readonly LockedDoor _door = door;
 
     /// <summary>What the eye is doing.</summary>
     internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Closed;
@@ -78,7 +82,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation) : Sequenc
             case EyeDoorAction.None:
                 break;
             case EyeDoorAction.Shoot:
-                eyes.Shoot(place, Orientation);
+                eyes.Shoot(place, Orientation, _door);
                 break;
             case EyeDoorAction.SpawnTwoSmoke:
                 eyes.SpawnTwoSmoke(place, Orientation);

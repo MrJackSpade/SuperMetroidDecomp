@@ -26,14 +26,16 @@ internal static class EnemySystemFixtures
     /// <param name="installedBosses">The bosses' installed artwork, or null when the check reads none of it.</param>
     /// <param name="breakableTerrain">The room objects its enemies break blocks into, or null for an empty list of its own.</param>
     /// <param name="area">The area the room is in.</param>
+    /// <param name="roomFx">The room's effect state, or null for an effect of its own with no liquid.</param>
     internal static RoomEnemySystem New(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
-        AreaId area = AreaId.Crateria)
+        AreaId area = AreaId.Crateria, RoomFxOverlayState? roomFx = null)
     {
         var system = new RoomEnemySystem(session, compatibility, definitions ?? CompiledRoomEnemyDefinitions.Instance,
             services ?? new VerificationRoomEnemyServices(null), area, new BossArtworkBinding(),
-            breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())));
+            breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
+            roomFx ?? new RoomFxOverlayState());
         system.BossArtwork = installedBosses;
         return system;
     }

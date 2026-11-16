@@ -87,8 +87,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
     {
-        // The collected items, not the equipped ones, gate both the glow and waking. A null Samus owner means no Samus has
-        // been supplied, so leaving the block dormant is the only non-invented behaviour until a gameplay update does.
+        // The collected items, not the equipped ones, gate both the glow and waking.
         if (!HasCollectedMorphBall(samus))
             return;
 
@@ -119,7 +118,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
-    private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState samus) =>
+    private static bool HasCollectedMorphBall(SamusState samus) =>
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>

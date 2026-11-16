@@ -107,8 +107,7 @@ internal sealed class DraygonGrab
     /// </summary>
     internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {
-        SamusState activeSamus = samus;
-        if (IsDraygonGrappleConnected(activeSamus))
+        if (IsDraygonGrappleConnected(samus))
         {
             MarkDraygonGrappleShock(state);
             return;
@@ -131,7 +130,7 @@ internal sealed class DraygonGrab
         }
 
         MoveDraygonToward(body, DraygonBehavior.DraygonSpiralTarget, DraygonBehavior.DraygonChaseSpeed);
-        MoveSamusWithDraygon(state, activeSamus);
+        MoveSamusWithDraygon(state, samus);
     }
 
     /// <summary>
@@ -140,8 +139,7 @@ internal sealed class DraygonGrab
     /// </summary>
     internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {
-        SamusState activeSamus = samus;
-        if (IsDraygonGrappleConnected(activeSamus))
+        if (IsDraygonGrappleConnected(samus))
         {
             MarkDraygonGrappleShock(state);
             return;
@@ -190,7 +188,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        MoveSamusWithDraygon(state, activeSamus);
+        MoveSamusWithDraygon(state, samus);
     }
 
     /// <summary>Runs the incidental 64-frame tail-whip pause.</summary>

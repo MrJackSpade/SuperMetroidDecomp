@@ -134,8 +134,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         }
 
         // The game treats a ride as arriving when either its status or its journey flags are set, so a beginning
-        // arrival counts even if a malformed journey lost the door flag. Preserve that behavior and reject only the
-        // impossible missing Samus.
+        // arrival counts even if a malformed journey lost the door flag.
         if (ElevatorStatus != ElevatorActorStatus.Inactive || ElevatorFlags != ElevatorJourneyFlag.None)
         {
             slot.Position = slot.Position.WithWholeY(slot.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);

@@ -119,31 +119,28 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SamusState activeSamus = samus;
-        RoomLevelData activeLevel = level;
-
         switch (state.Action)
         {
             case EtecoonAction.WaitingForSamus:
-                RunEtecoonWaiting(slot, state, activeSamus);
+                RunEtecoonWaiting(slot, state, samus);
                 break;
             case EtecoonAction.PreJumpCountdown:
-                RunEtecoonPreJumpCountdown(slot, state, activeSamus);
+                RunEtecoonPreJumpCountdown(slot, state, samus);
                 break;
             case EtecoonAction.InitialJump:
-                RunEtecoonInitialJump(slot, state, activeSamus, activeLevel);
+                RunEtecoonInitialJump(slot, state, samus, level);
                 break;
             case EtecoonAction.FaceSamusPause:
                 RunEtecoonFaceSamusPause(slot, state);
                 break;
             case EtecoonAction.RunLeftToWall:
-                RunEtecoonLeftToWall(slot, state, activeLevel);
+                RunEtecoonLeftToWall(slot, state, level);
                 break;
             case EtecoonAction.RunRightToWall:
-                RunEtecoonRightToWall(slot, state, activeLevel);
+                RunEtecoonRightToWall(slot, state, level);
                 break;
             case EtecoonAction.Airborne:
-                RunEtecoonAirborne(slot, state, activeSamus, activeLevel);
+                RunEtecoonAirborne(slot, state, samus, level);
                 break;
             case EtecoonAction.WallPause:
                 RunEtecoonWallPause(slot, state);
@@ -152,37 +149,37 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunEtecoonRouteAfterLanding(slot, state);
                 break;
             case EtecoonAction.MoveLeftToTeachingStart:
-                RunEtecoonMoveLeftToTeachingStart(slot, state, activeLevel);
+                RunEtecoonMoveLeftToTeachingStart(slot, state, level);
                 break;
             case EtecoonAction.MoveRightToTeachingStart:
-                RunEtecoonMoveRightToTeachingStart(slot, state, activeLevel);
+                RunEtecoonMoveRightToTeachingStart(slot, state, level);
                 break;
             case EtecoonAction.RunRightToLongJump:
-                RunEtecoonRightToLongJump(slot, state, activeLevel);
+                RunEtecoonRightToLongJump(slot, state, level);
                 break;
             case EtecoonAction.LongJump:
-                RunEtecoonLongJump(slot, state, activeSamus, activeLevel);
+                RunEtecoonLongJump(slot, state, samus, level);
                 break;
             case EtecoonAction.RunRightAfterLongJump:
-                RunEtecoonRightAfterLongJump(slot, state, activeLevel);
+                RunEtecoonRightAfterLongJump(slot, state, level);
                 break;
             case EtecoonAction.LongJumpLanding:
-                RunEtecoonLongJumpLanding(slot, state, activeSamus, activeLevel);
+                RunEtecoonLongJumpLanding(slot, state, samus, level);
                 break;
             case EtecoonAction.TeachingJump:
-                RunEtecoonTeachingJump(slot, state, activeSamus, activeLevel);
+                RunEtecoonTeachingJump(slot, state, samus, level);
                 break;
             case EtecoonAction.IdleBetweenTeachingJumps:
-                RunEtecoonIdleBetweenTeachingJumps(slot, state, activeSamus);
+                RunEtecoonIdleBetweenTeachingJumps(slot, state, samus);
                 break;
             case EtecoonAction.WaitForSamusBeforeLongRun:
-                RunEtecoonWaitForSamusBeforeLongRun(slot, state, activeSamus);
+                RunEtecoonWaitForSamusBeforeLongRun(slot, state, samus);
                 break;
             case EtecoonAction.RunRightToReturnJump:
-                RunEtecoonRightToReturnJump(slot, state, activeLevel);
+                RunEtecoonRightToReturnJump(slot, state, level);
                 break;
             case EtecoonAction.ReturnJump:
-                RunEtecoonReturnJump(slot, state, activeSamus, activeLevel);
+                RunEtecoonReturnJump(slot, state, samus, level);
                 break;
             default:
                 throw new InvalidDataException(

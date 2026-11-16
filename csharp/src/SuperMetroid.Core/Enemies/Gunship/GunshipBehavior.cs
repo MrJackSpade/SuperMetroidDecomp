@@ -47,16 +47,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         _room = room;
         _slotTable = slotTable;
     }
-    /// <summary>Room load: the placement scenario and the Samus the post-Ceres ship is placed against.</summary>
-    internal void BeginRoomLoad(GunshipLoadScenario scenario, SamusState? samus)
-    {
-        _gunshipLoadScenario = scenario;
-        _samusAtEnemyInitialization = samus;
-    }
+    /// <summary>Room load: the placement scenario.</summary>
+    internal void BeginRoomLoad(GunshipLoadScenario scenario) => _gunshipLoadScenario = scenario;
     /// <summary>Selects ordinary Landing Site placement or the high-altitude post-Ceres descent.</summary>
     private GunshipLoadScenario _gunshipLoadScenario;
-    /// <summary>Samus actor captured for the post-Ceres ship's initial placement.</summary>
-    private SamusState? _samusAtEnemyInitialization;
     /// <summary>Whether gunship restoration has requested the save message box and is awaiting <see cref="GunshipBehavior.AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
     public bool GunshipSavePromptPending { get; internal set; }
 
@@ -103,8 +97,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         _shipAnimations[slot] = playback;
     }
 
-    /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
-    internal void InitializeGunshipTop(RoomEnemySlot slot)
+    /// <summary>
+    /// Initializes the top hull and selects ordinary idle or post-Ceres descent, which places it against the loading
+    /// <paramref name="samus"/>.
+    /// </summary>
+    internal void InitializeGunshipTop(RoomEnemySlot slot, SamusState samus)
     {
         _ship = new GunshipPieces(slot, _slotTable.ListedAfter(slot, 1), _slotTable.ListedAfter(slot, 2));
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
@@ -113,9 +110,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         GunshipState ship;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
-            SamusState samus = _samusAtEnemyInitialization
-                ?? throw new InvalidOperationException(
-                    "Post-Ceres gunship initialization requires the loader's Samus actor.");
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
             // enters the high-altitude descent used only after Ceres.
             slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
@@ -148,8 +142,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             piece.Shading = glow;
     }
 
-    /// <summary>Initializes bottom hull or pad from the enemies its room lists before it.</summary>
-    internal void InitializeGunshipBottom(RoomEnemySlot slot)
+    /// <summary>
+    /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
+    /// against the loading <paramref name="samus"/>.
+    /// </summary>
+    internal void InitializeGunshipBottom(RoomEnemySlot slot, SamusState samus)
     {
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
@@ -166,9 +163,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
         {
             if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
             {
-                SamusState samus = _samusAtEnemyInitialization
-                    ?? throw new InvalidOperationException(
-                        "Post-Ceres gunship bottom initialization requires Samus.");
                 slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
             }
             else

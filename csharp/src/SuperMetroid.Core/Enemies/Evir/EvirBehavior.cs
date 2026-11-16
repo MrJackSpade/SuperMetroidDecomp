@@ -244,8 +244,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus;
-        state.Facing = CoordinateAxis.Difference(activeSamus.Position.X.Whole, body.Position.X.Whole) < 0
+        state.Facing = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0
             ? EvirFacing.Left
             : EvirFacing.Right;
         RequestEvirAnimation(
@@ -286,10 +285,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus;
         RoomEnemySlot body = RequireSpitBody(projectile);
         if (!EnemyMath.IsWithinStrictModularDistance(
-                activeSamus.Position.X.Whole,
+                samus.Position.X.Whole,
                 body.Position.X.Whole,
                 EvirActivationDistance))
         {
@@ -299,7 +297,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // The angle of Samus from the enemy is zero up and runs clockwise. The two angle
         // transforms below feed the buggy table multipliers and produce signed 1/65536-pixel speed.
         TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(activeSamus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(activeSamus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTrigonometryAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTrigonometryAngle();
         SignedSixteenSixteen x = EnemyMath.CircleCosine(
             transformedAngle,
             EvirProjectileSpeed);

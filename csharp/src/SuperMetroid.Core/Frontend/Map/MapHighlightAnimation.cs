@@ -15,9 +15,9 @@ public sealed class MapHighlightAnimation
     /// Updates remaining before the next highlight frame; starts with one update. Zero holds the animation: a step
     /// decrements only a positive count, so the value stays within zero through the longest authored hold.
     /// </summary>
-    internal int Timer { get; set; } = 1;
+    internal int Timer { get; private set; } = 1;
     /// <summary>The cycle's current frame index, below the installed cycle's frame count; the highlighted sprites show its shade.</summary>
-    internal int Frame { get; set; }
+    internal int Frame { get; private set; }
     /// <summary>The installed cycle's timing.</summary>
     private MapHighlightCycle? content;
 

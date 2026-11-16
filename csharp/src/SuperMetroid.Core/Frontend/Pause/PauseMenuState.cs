@@ -104,13 +104,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
     /// <summary>Current map-position marker frame.</summary>
-    internal int MapIndicatorAnimationFrame { get; set; }
+    internal int MapIndicatorAnimationFrame { get; private set; }
     /// <summary>Remaining updates in the map-position marker frame.</summary>
-    internal int MapIndicatorAnimationTimer { get; set; }
+    internal int MapIndicatorAnimationTimer { get; private set; }
     /// <summary>Current equipment selector sprite frame.</summary>
-    internal int ItemSelectorAnimationFrame { get; set; }
+    internal int ItemSelectorAnimationFrame { get; private set; }
     /// <summary>Remaining updates in the equipment selector frame.</summary>
-    internal int ItemSelectorAnimationTimer { get; set; }
+    internal int ItemSelectorAnimationTimer { get; private set; }
 
     /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)

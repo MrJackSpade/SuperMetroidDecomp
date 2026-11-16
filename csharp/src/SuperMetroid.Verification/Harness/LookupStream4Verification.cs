@@ -532,7 +532,7 @@ internal static class LookupStream4Verification
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(100, 0xC000));
             state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
-            state.Flyaway.ShipShake = EndingShipShakeCursor.StartOf(sequence);
+            PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), EndingShipShakeCursor.StartOf(sequence));
             Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
             int expectedAngle = 0, expectedZoom = 0xC00;
@@ -552,7 +552,7 @@ internal static class LookupStream4Verification
             for (int place = 0; place < count - 1; place++)
                 last = last.Advanced();
             state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom;
-            state.Flyaway.ShipShake = last;
+            PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), last);
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(0, 0x4000));
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
@@ -789,12 +789,12 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
             // The game shows the subtitle as its installed picture at its corner (#1467, #1555); the import pictures these words.
             var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, EndingTextSequence.ItemPercentage);
-            state.InitialPausePending = false;
-            state.TypedCount = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
+            PrivateState.Set(state, nameof(EndingTypewriter.InitialPausePending), false);
+            PrivateState.Set(state, nameof(EndingTypewriter.TypedCount), presentation.Compile(EndingTextSequence.ItemPercentage).Length);
             state.Step();
             var subtitle = new EndingShownText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
             AssertTrue(state.Shown().Contains(subtitle), "Actual ending state shows the subtitle picture at its corner");
-            state.FrameHold = 1;
+            PrivateState.Set(state, nameof(EndingTypewriter.FrameHold), 1);
             state.Step();
             AssertTrue(!state.Shown().Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");

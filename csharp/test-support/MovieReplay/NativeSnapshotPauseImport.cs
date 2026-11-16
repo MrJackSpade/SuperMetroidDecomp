@@ -32,11 +32,11 @@ internal static class NativeSnapshotPauseImport
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, MapPresentation = game.Artwork.MapPresentation, SpriteSheets = game.Artwork.SpriteSheets ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
         menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         var highlight = menu.mapHighlight;
-        highlight.Timer = memory[PauseMemory.PaletteAnimationTimer];
-        highlight.Frame = memory[PauseMemory.PaletteAnimationFrame];
+        PrivateState.Set(highlight, nameof(highlight.Timer), (int)memory[PauseMemory.PaletteAnimationTimer]);
+        PrivateState.Set(highlight, nameof(highlight.Frame), (int)memory[PauseMemory.PaletteAnimationFrame]);
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
-        menu.MapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
-        menu.MapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);
+        PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationFrame), W(PauseMemory.IndicatorAnimationFrame) / 2);
+        PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationTimer), (int)W(PauseMemory.IndicatorAnimationTimer));
         game.Session.Show(menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 

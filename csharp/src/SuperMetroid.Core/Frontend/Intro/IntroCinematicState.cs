@@ -168,9 +168,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal IntroMotherBrainSpriteState FlashbackMotherBrain => CurrentFlashbackMotherBrain ??
         throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>Explosion actors shown after the Mother Brain demo input ends.</summary>
-    internal IntroMotherBrainExplosionSystem? FlashbackMotherBrainExplosions { get; set; }
+    internal IntroMotherBrainExplosionSystem? FlashbackMotherBrainExplosions { get; private set; }
     /// <summary>Rinka actors and collision for the Mother Brain scene.</summary>
-    internal IntroRinkaSystem? FlashbackRinkas { get; set; }
+    internal IntroRinkaSystem? FlashbackRinkas { get; private set; }
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>
     internal IntroBabyDiscoveryState? CurrentBabyDiscovery { get; private set; }
     /// <summary>The Baby Metroid discovery scene, which exists while that scene runs.</summary>
@@ -182,7 +182,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal IntroScientistCutsceneState ScientistCutscene => CurrentScientistCutscene ??
         throw new InvalidOperationException("The scientist cutscene is not running.");
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
-    internal IntroCeresFlightState? CurrentCeresFlight { get; set; }
+    internal IntroCeresFlightState? CurrentCeresFlight { get; private set; }
     /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
     internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
         throw new InvalidOperationException("The Ceres flight is not running.");

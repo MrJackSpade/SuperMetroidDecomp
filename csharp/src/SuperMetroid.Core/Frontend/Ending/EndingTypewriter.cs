@@ -30,11 +30,11 @@ internal sealed class EndingTypewriter
     }
 
     /// <summary>Remaining calls until the next character or hold transition.</summary>
-    internal int FrameHold { get; set; } = 1;
+    internal int FrameHold { get; private set; } = 1;
     /// <summary>The number of characters typed so far.</summary>
-    internal int TypedCount { get; set; }
+    internal int TypedCount { get; private set; }
     /// <summary>Whether the pause before the first character is still to begin.</summary>
-    internal bool InitialPausePending { get; set; } = true;
+    internal bool InitialPausePending { get; private set; } = true;
     /// <summary>The item percentage shown from the start of the percentage hold, or null before it.</summary>
     private int? shownPercentage;
 

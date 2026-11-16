@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// The state of the Nuclear Waffle, with its projectile and effect-actor links. The seven articulated body links
-/// alternate between enemy projectiles and effect actors.
+/// alternate between enemy projectiles and effect actors; the waffle spawns them all at its room load and keeps them.
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
@@ -18,7 +18,10 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The current waiting or sweeping behaviour.</summary>
     public NuclearWaffleAction Action { get; internal set; }
 
-    /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a negative value and reloaded from the population reset.</summary>
+    /// <summary>
+    /// The wait countdown in enemy AI calls. It starts at <see cref="WaitingTimerReset"/>, at most 255, and the wait expires
+    /// on the call whose decrement takes it below zero, which reloads it; it never comes near a wrap.
+    /// </summary>
     public int WaitingTimer { get; internal set; }
 
     /// <summary>
@@ -73,16 +76,22 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The owning enemy's artwork and colours, captured at room load for the persistent body links and transient joint-turn effect actors.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
-    /// <summary>Four persistent, damaging links.</summary>
-    public EnemyProjectile?[] ProjectileSegments { get; } =
-        new EnemyProjectile?[4];
+    /// <summary>The four persistent, damaging links, each an enemy projectile, in the order the sweep walks them.</summary>
+    public required IReadOnlyList<NuclearWaffleLink<EnemyProjectile>> ProjectileLinks { get; init; }
 
-    /// <summary>Three persistent, cosmetic links interleaved with the projectiles.</summary>
-    public RoomEffectActor?[] SpriteSegments { get; } =
-        new RoomEffectActor?[3];
+    /// <summary>
+    /// The three persistent, cosmetic links interleaved with the projectile links, each an effect actor; their turns are
+    /// tracked apart from the projectile links'.
+    /// </summary>
+    public required IReadOnlyList<NuclearWaffleLink<RoomEffectActor>> SpriteLinks { get; init; }
 
-    /// <summary>Last threshold state for each damaging link; a state change spawns its joint-turn effect.</summary>
-    internal NuclearWaffleTurnState[] ProjectileOrientationStates { get; } = new NuclearWaffleTurnState[4];
-    /// <summary>Last threshold state for each cosmetic link, tracked separately from projectile links.</summary>
-    internal NuclearWaffleTurnState[] SpriteOrientationStates { get; } = new NuclearWaffleTurnState[3];
+    /// <summary>A sweep's start: the head and every link stand before both turns again.</summary>
+    internal void RestartTurns()
+    {
+        HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;
+        foreach (NuclearWaffleLink<EnemyProjectile> link in ProjectileLinks)
+            link.TurnState = NuclearWaffleTurnState.BeforeTurns;
+        foreach (NuclearWaffleLink<RoomEffectActor> link in SpriteLinks)
+            link.TurnState = NuclearWaffleTurnState.BeforeTurns;
+    }
 }

@@ -5,9 +5,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
 /// The Yapping Maw's unusually large state.
-/// Names describe the values' actual consumers; arrays keep
-/// the four identical tongue-link calculations inspectable without four copies of every
-/// property.
+/// Names describe the values' actual consumers; the four identical tongue links are one list of link records (#2162).
 /// </summary>
 public sealed class YappingMawEnemyState
 {
@@ -25,11 +23,10 @@ public sealed class YappingMawEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
-    /// Final signed offsets from the root for the four successive tongue points (Y
-    /// positive downward). Link zero is nearest the root, link
-    /// three is the mouth; the first three also position decorative body-link projectiles.
+    /// The four tongue links, root to mouth: each link's body projectile and its far end's solved offset from the root. The
+    /// last link's far end is the mouth; the first three far ends also place the next links' body projectiles.
     /// </summary>
-    public Offset16<RoomPixels>[] SegmentOffsets { get; } = new Offset16<RoomPixels>[4];
+    public required IReadOnlyList<YappingMawLink> Links { get; init; }
 
     /// <summary>
     /// Approximate distance from the root to Samus in room pixels, 0 through 32768: a single axis's magnitude
@@ -110,10 +107,6 @@ public sealed class YappingMawEnemyState
 
     /// <summary>Result of the point-based viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
-
-    /// <summary>The four physical body-link places, ordered root to mouth.</summary>
-    public EnemyProjectile?[] BodyProjectiles { get; } =
-        new EnemyProjectile?[4];
 
     /// <summary>The root/base object its attack direction selects.</summary>
     public RoomEffectActor? RootEffectActor { get; internal set; }

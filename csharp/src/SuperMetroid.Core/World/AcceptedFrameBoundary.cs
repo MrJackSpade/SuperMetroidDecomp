@@ -111,7 +111,7 @@ internal sealed class AcceptedFrameBoundary
         RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
         Displays?.Phantoon?.BodyWave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.PixelationBlockSize);
+            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.Death.PixelationSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scene);

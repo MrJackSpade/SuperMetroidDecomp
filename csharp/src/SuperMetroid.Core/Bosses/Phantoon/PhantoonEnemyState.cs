@@ -134,12 +134,6 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
     public int MaterializationSoundIndex { get; internal set; }
 
-    /// <summary>
-    /// Gets the live pixelation block size of his body in screen pixels before display latching: one (no quantization) until
-    /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
-    /// </summary>
-    public int PixelationBlockSize { get; internal set; } = 1;
-
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 

@@ -108,9 +108,7 @@ internal sealed class PhantoonDeath
     }
 
     /// <summary>Starts the distorted background and pixelation stages after the fatal swoop.</summary>
-    internal void BeginPhantoonWavyPixelatedDeath(
-        RoomEnemyPlace body,
-        PhantoonEnemyState state)
+    internal void BeginPhantoonWavyPixelatedDeath(PhantoonEnemyState state)
     {
         RoomEnemyPlace mouth = state.Mouth;
         state.Wave.Amplitude = SignedSixteenSixteen.Zero;
@@ -120,23 +118,20 @@ internal sealed class PhantoonDeath
         state.Phase = PhantoonPhase.DyingFadeOut;
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
         state.Death.PixelationFinished = false;
-        state.PixelationBlockSize = PhantoonDeathDefinitions.InitialPixelationSize;
 
-        // His body stays to show the death. His eye, tentacles and mouth take his body's contact, processing and presence,
-        // hidden, not animating and ignoring Samus.
-        EnemyContact hiddenPartContact = body.Contact.With(EnemyContact.IgnoresSamus);
-        EnemyProcessing hiddenPartProcessing = body.Processing.Without(EnemyProcessing.Animates);
-        EnemyPresence hiddenPartPresence = body.Presence.With(EnemyPresence.Hidden);
-        state.Eye.Contact = hiddenPartContact;
-        state.Eye.Processing = hiddenPartProcessing;
-        state.Eye.Presence = hiddenPartPresence;
-        state.Tentacles.Contact = hiddenPartContact;
-        state.Tentacles.Processing = hiddenPartProcessing;
-        state.Tentacles.Presence = hiddenPartPresence;
-        mouth.Contact = hiddenPartContact;
-        mouth.Processing = hiddenPartProcessing;
-        mouth.Presence = hiddenPartPresence;
+        // His body stays to show the death; his eye, tentacles and mouth are hidden (#2257).
+        HideDyingPart(state.Eye);
+        HideDyingPart(state.Tentacles);
+        HideDyingPart(mouth);
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.DyingCry);
+    }
+
+    /// <summary>Hides one of his parts as his body dissolves: it ignores Samus, stops animating and shows nothing.</summary>
+    private static void HideDyingPart(RoomEnemyPlace part)
+    {
+        part.Contact = part.Contact.With(EnemyContact.IgnoresSamus);
+        part.Processing = part.Processing.Without(EnemyProcessing.Animates);
+        part.Presence = part.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Advances death-wave and pixelation counters before room activation.</summary>
@@ -162,7 +157,6 @@ internal sealed class PhantoonDeath
             }
 
             death.PixelationSize++;
-            state.PixelationBlockSize = death.PixelationSize;
             return;
         }
 
@@ -173,18 +167,15 @@ internal sealed class PhantoonDeath
 
 
     /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the 60-frame power delay.</summary>
-    internal void ClearPhantoonDeathGraphics(
-        RoomEnemyPlace body,
-        PhantoonEnemyState state)
+    internal void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
-        state.PixelationBlockSize = 1;
+        state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
         state.Wave.Length = null;
         state.Translucent = false;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         state.Phase = PhantoonPhase.Dead;
         state.PhaseTimer = 60;
         state.BodyFade.Complete = false;
-        body.Position = body.Position.WithWhole(new(384, 128));
 
         _presentation.RequireBossBody().Clear();
     }
@@ -217,17 +208,11 @@ internal sealed class PhantoonDeath
             yBase: 96,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
             samus: samus);
-        // The body is deleted, and every other part takes the body's properties.
+        // His body and his three parts are deleted (#2257).
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
-        state.Eye.Contact = body.Contact;
-        state.Eye.Processing = body.Processing;
-        state.Eye.Presence = body.Presence;
-        state.Tentacles.Contact = body.Contact;
-        state.Tentacles.Processing = body.Processing;
-        state.Tentacles.Presence = body.Presence;
-        state.Mouth.Contact = body.Contact;
-        state.Mouth.Processing = body.Processing;
-        state.Mouth.Presence = body.Presence;
+        state.Eye.Presence = state.Eye.Presence.With(EnemyPresence.Deleted);
+        state.Tentacles.Presence = state.Tentacles.Presence.With(EnemyPresence.Deleted);
+        state.Mouth.Presence = state.Mouth.Presence.With(EnemyPresence.Deleted);
         if (!state.BossDefeatPersisted)
         {
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);

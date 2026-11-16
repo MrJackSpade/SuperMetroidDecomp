@@ -15,7 +15,10 @@ public sealed class PhantoonDeathState
     /// <summary>The passes through the repeating part of the explosion schedule he has completed.</summary>
     public int ExplosionPasses { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>His body's pixelation block size in screen pixels while the pixelation grows.</summary>
+    /// <summary>
+    /// His body's pixelation block size in screen pixels, which the display latches: one (no quantization) until the dying
+    /// fade grows it one pixel every sixteenth update up to sixteen, and one again once his body is cleared.
+    /// </summary>
     public int PixelationSize
     {
         get;

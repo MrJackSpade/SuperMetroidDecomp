@@ -453,9 +453,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            // The decapitated brain remains at the corpse coordinates for the full
-            // delay. Loading the escape-timer pictures finally parks it at (0,0) before escape-timer picture
-            // loading begins; this is a real actor-coordinate mutation, not rendering.
+            // The decapitated brain remains at the corpse coordinates for the full delay, then is parked in the room's
+            // top-left corner. The parking is gameplay-observable (#2257): the hidden brain still meets Samus's bombs by its
+            // radius, its frames' hitboxes being off, so at the corpse a bomb laid during the escape would strike it.
             _state.MoveBrainTo(Position16<RoomPixels>.Zero);
             Encounter.DeathPhase = MotherBrainDeathPhase.ReadyEscapeWarning;
         }

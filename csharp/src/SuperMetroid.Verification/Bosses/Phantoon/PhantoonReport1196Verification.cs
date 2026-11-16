@@ -66,7 +66,7 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         boss.Body.Health = 0;
         enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
-        enemies.PhantoonBehavior.Death.BeginPhantoonWavyPixelatedDeath(boss.Body, boss);
+        enemies.PhantoonBehavior.Death.BeginPhantoonWavyPixelatedDeath(boss);
         wave.Step(boss);
         wave.LatchDisplay();
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");

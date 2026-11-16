@@ -14,10 +14,10 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class ShitroidScrollPairVerification
 {
     /// <summary>
-    /// The original rescrolls the room's first four cells, row by row, in the Big Boy room's row of four screens: the second
-    /// and fourth take the new state and the first and third are rewritten with the state they hold. It does so when the
-    /// camera reaches the room's left half (closing them) and when the Shitroid rises after feeding (opening them with the
-    /// camera aligned to their top). The cell after the room's is never written.
+    /// The Shitroid rescrolls the Big Boy room's row of four screens: the second and fourth take the new state and the
+    /// first and third keep the state they hold (#2257). It does so when the camera reaches the room's left half (closing
+    /// them) and when the Shitroid rises after feeding (opening them with the camera aligned to their top). The cell after
+    /// the room's is never written.
     /// </summary>
     internal static void VerifyShitroidScrollPair()
     {

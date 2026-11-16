@@ -45,7 +45,7 @@ internal static class GrappleConnectionSpeedBoostVerification
             samus.LiquidPhysics.BeginFrameSoundRequests();
             GrappleMovementResult connected = SamusGrappleMovement.ConnectAcceptedFiring(samus, grapple, new(512, 512));
 
-            AssertTrue(connected.Phase is GrapplePhase.ConnectedLocked or GrapplePhase.ConnectedSwinging && connected.OwnsMovement,
+            AssertTrue(connected.Phase is GrapplePhase.ConnectedLocked or GrapplePhase.ConnectedSwinging && connected.PendingConnection is not null,
                 $"{running}: the beam connects and its pose is applied");
             AssertEqual(facing, SamusPoseMetadata.ReadFacingDirection(samus), $"{running}: the connected pose keeps her facing");
             AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, $"{running}: the connection ends her running momentum");

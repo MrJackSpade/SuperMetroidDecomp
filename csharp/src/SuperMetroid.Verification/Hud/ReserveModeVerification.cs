@@ -126,7 +126,7 @@ internal static class ReserveModeVerification
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+        AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "X-Ray fixture activation");
         return samus;
     }

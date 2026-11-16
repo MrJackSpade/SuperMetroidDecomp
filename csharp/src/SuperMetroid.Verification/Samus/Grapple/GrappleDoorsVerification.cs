@@ -47,7 +47,7 @@ internal static class GrappleDoorsVerification
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
             SeedStationaryGrappleCollisionProbe(samus);
             var roomObjects = RoomObjectFixtures.Unbound();
-            var result = SamusGrappleMovement.StepFiring(level, samus, GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+            var result = SamusGrappleMovement.StepFiringAndCommit(level, samus, GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
             AssertEqual(1, roomObjects.Places.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,

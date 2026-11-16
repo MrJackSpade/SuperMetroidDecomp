@@ -138,7 +138,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, 
                 _room.LevelData ?? throw new InvalidOperationException("Grapple drop requires room geometry."),
-                dropPose, _clock.Counter, roomObjects, speed: GrappleDropSpeed.Kept);
+                dropPose, _clock.Counter, roomObjects);
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
             _player.ProspectiveSamusWallCollisionPose = null;

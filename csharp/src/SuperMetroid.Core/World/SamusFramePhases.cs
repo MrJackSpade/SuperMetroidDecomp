@@ -97,8 +97,7 @@ internal sealed class SamusFramePhases
                 _player.Samus,
                 _playerActions.Current,
                 roomObjects,
-                room.Enemies.GrappleTargets.ResolveGrappleEndpoint,
-                connectionPoseChange: GrapplePoseChange.Deferred);
+                room.Enemies.GrappleTargets.ResolveGrappleEndpoint);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (_player.Samus.Grapple.Phase == GrapplePhase.CancelPending)
@@ -113,7 +112,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = roomObjects }, _player.Samus, _playerActions.Current, _playerActions.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, poseChange: GrapplePoseChange.Deferred);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = roomObjects }, _player.Samus, _playerActions.Current, _playerActions.NewlyPressed, room.Enemies.GrappleTargets.ResolveGrappleEndpoint);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
@@ -177,7 +176,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter });
     }
 
     /// <summary>
@@ -625,7 +624,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                 // Samus's environment-selected vertical acceleration pair is used
                 // as spark acceleration. The projectile step does not replace it.
                 SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-                _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
+                _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint });
                 if (_player.LastShinesparkMovement.Value.WindupTimedOut)
                 {
                     // The spark publishes an interrupted vertical pose. That

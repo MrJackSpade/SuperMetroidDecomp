@@ -115,24 +115,19 @@ public sealed class SamusCrystalFlashState
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
     /// </summary>
     /// <param name="samus">Live actor whose admission state is checked and whose pose, movement owner, shared timers, and hit state are updated on success.</param>
-    /// <param name="controllerInput">The held actions; ordinary admission requires exactly <see cref="RequiredInput"/> held.</param>
-    /// <param name="inputCheck">
-    /// True only while a title demo is ending and the game is returning from it. Ordinary
-    /// gameplay must supply the exact chord; extra held buttons make initiation fail.
-    /// </param>
+    /// <param name="controllerInput">The held actions: exactly <see cref="RequiredInput"/>; extra held buttons make initiation fail.</param>
     /// <returns>True after starting the raising phase; false when the chord or the speed, health, reserve, or ammunition preconditions reject activation.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidDataException">The Crystal Flash pose no longer has special movement.</exception>
     public bool TryBegin(
         SamusState samus,
-        GameplayAction controllerInput,
-        CrystalFlashInputCheck inputCheck = CrystalFlashInputCheck.Required)
+        GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
 
         // The chord test uses an equality comparison, not a bit test. This deliberately rejects any extra
         // held action, including Jump, Dash, item selection, or the other directions.
-        if (inputCheck != CrystalFlashInputCheck.Skipped && controllerInput != RequiredInput)
+        if (controllerInput != RequiredInput)
             return false;
 
         // The remaining preconditions are literal comparisons. Reserve energy must

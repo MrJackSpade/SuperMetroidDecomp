@@ -149,10 +149,7 @@ public sealed class SamusBombProjectileSystem
             bool crystalFlashStarted =
                 samus.Position.X.Whole == PowerBombExplosion.Position.X &&
                 samus.Position.Y.Whole == PowerBombExplosion.Position.Y &&
-                samus.CrystalFlash.TryBegin(
-                    samus,
-                    controllerInput,
-                    inputCheck: CrystalFlashInputCheck.Required);
+                samus.CrystalFlash.TryBegin(samus, controllerInput);
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
         }

@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Samus.Hud;
 internal static class SamusHudSelection
 {
     /// <summary>
-    /// Switches the HUD selection for the retail default
-    /// item-switch and item-cancel bindings.
+    /// Switches the HUD selection on the item-select and item-cancel actions.
     /// </summary>
     /// <remarks>
     /// The selected item is one of the six HUD items, not a set of them. A newly pressed item selection advances through the
@@ -19,12 +18,10 @@ internal static class SamusHudSelection
     /// <returns>Whether a cancel or select edge took effect on the now-selected item.</returns>
     public static HudSelectionOutcome HandleHudSelection(SamusState samus,
         GameplayAction controllerInput,
-        GameplayAction controllerNewInput,
-        GameplayAction itemSwitchButton = GameplayAction.ItemSelect,
-        GameplayAction itemCancelButton = GameplayAction.ItemCancel)
+        GameplayAction controllerNewInput)
     {
-        GameplayAction switchMask = itemSwitchButton;
-        GameplayAction cancelMask = itemCancelButton;
+        const GameplayAction switchMask = GameplayAction.ItemSelect;
+        const GameplayAction cancelMask = GameplayAction.ItemCancel;
         bool itemSelectionTookEffect = (controllerNewInput & (cancelMask | switchMask)) != GameplayAction.None;
 
         if ((controllerNewInput & cancelMask) != GameplayAction.None)

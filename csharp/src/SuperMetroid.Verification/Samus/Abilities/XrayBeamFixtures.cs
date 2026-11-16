@@ -22,7 +22,7 @@ internal static class XrayBeamFixtures
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        AssertTrue(samus.Xray.TryBegin(samus, previousMovementType: SamusMovementType.Standing,
+        AssertTrue(samus.Xray.TryBeginAndActivate(samus, previousMovementType: SamusMovementType.Standing,
             conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "X-ray admitted");
         return samus;
     }

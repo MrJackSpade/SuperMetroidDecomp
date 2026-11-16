@@ -369,19 +369,17 @@ internal static class SamusAerialPoseTransitions
     /// <summary>
     /// Commits the pose selected when the grapple beam drops Samus.
     /// The drop names its exact target pose and this method runs the shared
-    /// block-only pose-expansion collision before clearing grapple fall momentum.
+    /// block-only pose-expansion collision; the drop itself already cleared Samus's fall momentum.
     /// </summary>
     /// <returns>
     /// True when the requested target fits; false when the game's pose-change collision retains
     /// the source or substitutes stable crouch.
     /// </returns>
-    public static bool ApplyGrappleDropTransition(SamusState samus, 
-
+    public static bool ApplyGrappleDropTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects roomObjects,
-        GrappleDropSpeed speed = GrappleDropSpeed.Cleared)
+        ISamusRoomObjects roomObjects)
     {
 
         Ensure.NotNull(level);
@@ -429,14 +427,6 @@ internal static class SamusAerialPoseTransitions
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        // Clears the horizontal base speed and the vertical speed regardless of the
-        // pose-collision result. Extra run speed is not touched here; an ordinary
-        // connected grapple never creates it, so keeping it is the literal rule.
-        if (speed == GrappleDropSpeed.Cleared)
-        {
-            samus.HorizontalSpeed.BaseSpeed = default;
-            samus.Kinematics.YSpeed = default;
-        }
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 

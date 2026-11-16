@@ -248,10 +248,20 @@ public sealed class SamusShinesparkState
 
     /// <summary>
     /// Starts the launch the shinespark's direction selects
-    /// for <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> through <see cref="SamusPoseId.ShinesparkDiagonalLeftPose"/>.
+    /// for <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/> through <see cref="SamusPoseId.ShinesparkDiagonalLeftPose"/>,
+    /// taking its pose at once.
     /// </summary>
-    public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
-        bool deferPoseChange = false)
+    public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose)
+    {
+        BeginLaunchAwaitingPose(samus, targetPose);
+        ApplyDirectionalLaunchPose(samus, targetPose);
+    }
+
+    /// <summary>
+    /// Starts the launch <paramref name="targetPose"/> selects, leaving the pose itself for the frame's pose update
+    /// (<see cref="ApplyDirectionalLaunchPose"/>).
+    /// </summary>
+    private void BeginLaunchAwaitingPose(SamusState samus, SamusPoseId targetPose)
     {
         Ensure.NotNull(samus);
         // The launch takes Samus's movement from whoever holds it. A windup whose hold
@@ -506,8 +516,6 @@ public sealed class SamusShinesparkState
 
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
         samus.InputSnapshot.AutoJumpInputPending = false;
-        if (!deferPoseChange)
-            ApplyDirectionalLaunchPose(samus, targetPose);
         samus.HorizontalSpeed.ClearSpeedEchoes();
         AudioRequests.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High);
     }
@@ -523,7 +531,7 @@ public sealed class SamusShinesparkState
     /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
-    /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
+    /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility and the previous checkpoint (#633).</param>
     internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
 
@@ -540,9 +548,9 @@ public sealed class SamusShinesparkState
                 SamusPoseId verticalPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
-                BeginDirectionalLaunch(samus, verticalPose, frame.DeferTimeoutPoseChange);
-                if (frame.DeferTimeoutPoseChange)
-                    pendingLaunchPose = verticalPose;
+                // The launch's pose waits for the frame's pose update, so Samus's animation still sees the windup body.
+                BeginLaunchAwaitingPose(samus, verticalPose);
+                pendingLaunchPose = verticalPose;
             }
 
             return new ShinesparkMovementResult(
@@ -575,19 +583,16 @@ false);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
-        // Each axis ends by capping how far the camera's previous position trails
-        // Samus. Only a camera reads it; fixtures without one pass no checkpoint.
+        // Each axis ends by capping how far the camera's previous position trails Samus.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
             horizontal = MoveX(terrain.Level, samus, terrain.RoomObjects);
-            if (frame.PreviousCheckpoint is { } checkpoint)
-                CapPreviousX(samus, checkpoint);
+            CapPreviousX(samus, frame.PreviousCheckpoint);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
             vertical = MoveY(terrain.Level, samus, frame.FrameCounter, terrain.RoomObjects);
-            if (frame.PreviousCheckpoint is { } checkpoint)
-                CapPreviousY(samus, checkpoint);
+            CapPreviousY(samus, frame.PreviousCheckpoint);
         }
 
         // The game's X and Y movement share one collision flag. Diagonal movement runs Y

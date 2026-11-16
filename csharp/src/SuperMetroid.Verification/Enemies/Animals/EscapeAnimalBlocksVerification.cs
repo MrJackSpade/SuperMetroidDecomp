@@ -42,7 +42,7 @@ internal static class EscapeAnimalBlocksVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
             SeedStationaryGrappleCollisionProbe(samus);
             int before = roomObjects.Places.ActiveCount;
-            SamusGrappleMovement.StepFiring(level, samus,
+            SamusGrappleMovement.StepFiringAndCommit(level, samus,
                 GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");

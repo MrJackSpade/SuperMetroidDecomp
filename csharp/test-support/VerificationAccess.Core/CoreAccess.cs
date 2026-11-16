@@ -166,11 +166,19 @@ internal static class CoreAccess
     /// <summary>Invokes the internal accepted-grapple connection path with its anchor-owner arguments.</summary>
     extension(SamusGrappleMovement)
     {
-        /// <summary>Accepted grapple firing with its connection pose applied immediately, as ordinary firing does.</summary>
+        /// <summary>
+        /// Accepted grapple firing followed by the commit of the connection pose it leaves pending, as a frame whose pose
+        /// update nothing outranks commits it.
+        /// </summary>
         internal static GrappleMovementResult ConnectAcceptedFiring(SamusState samus,
             SamusGrappleState grapple, Position16<RoomPixels> previousPosition,
-            GrappleAnchorKind anchor = GrappleAnchorKind.Block) =>
-            SamusGrappleMovement.ConnectAcceptedFiringCore(samus, grapple, previousPosition, anchor, GrapplePoseChange.Immediate);
+            GrappleAnchorKind anchor = GrappleAnchorKind.Block)
+        {
+            GrappleMovementResult connection = SamusGrappleMovement.ConnectAcceptedFiringCore(samus, grapple, previousPosition, anchor);
+            if (connection.PendingConnection is { } pending)
+                SamusGrappleMovement.ApplyPendingConnectionPose(samus, pending);
+            return connection;
+        }
     }
 
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>

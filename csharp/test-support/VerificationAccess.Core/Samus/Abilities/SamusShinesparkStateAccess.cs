@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -12,6 +13,28 @@ internal static class SamusShinesparkStateAccess
         internal int ReleasedCrashEchoCount =>
             (self.FirstReleasedEcho.ShownPosition is null ? 0 : 1) +
             (self.SecondReleasedEcho.ShownPosition is null ? 0 : 1);
+
+        /// <summary>
+        /// Runs one spark step on a frame whose gameplay clock is at its second's first frame and whose camera point is
+        /// where Samus stands, then commits a timed-out windup's launch pose as the frame's pose update does when nothing
+        /// outranks it.
+        /// </summary>
+        internal ShinesparkMovementResult StepAndCommit(SamusTerrain terrain, SamusState samus, int frameCounter,
+            SamusProjectileSystem projectiles, bool samusCannotDie = false)
+        {
+            Ensure.NotNull(samus);
+            ShinesparkMovementResult step = self.Step(terrain, samus, new ShinesparkFrame
+            {
+                FrameCounter = frameCounter,
+                SamusCannotDie = samusCannotDie,
+                Projectiles = projectiles,
+                GameTimeFrames = 0,
+                PreviousCheckpoint = samus.Position,
+            });
+            if (step.PendingLaunchPose is { } launchPose)
+                SamusShinesparkState.ApplyDirectionalLaunchPose(samus, launchPose);
+            return step;
+        }
     }
 
     /// <summary>Runs the released crash echoes' shots without the rest of the projectile pass.</summary>

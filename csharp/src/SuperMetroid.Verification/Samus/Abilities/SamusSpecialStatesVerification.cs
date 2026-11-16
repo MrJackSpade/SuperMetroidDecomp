@@ -400,7 +400,7 @@ internal static void VerifySamusXray()
     SamusPresentation.InitializeAnimation(standing);
 
     AssertTrue(
-        standing.Xray.TryBegin(standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+        standing.Xray.TryBeginAndActivate(standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "standing X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingStandingRightPose, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
@@ -550,7 +550,7 @@ internal static void VerifySamusXray()
     };
     SamusPoseMetadata.RefreshCollisionRadii(crouched);
     SamusPresentation.InitializeAnimation(crouched);
-    AssertTrue(crouched.Xray.TryBegin(crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+    AssertTrue(crouched.Xray.TryBeginAndActivate(crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched X-ray radius");
@@ -582,7 +582,7 @@ internal static void VerifySamusXray()
     };
     SamusPoseMetadata.RefreshCollisionRadii(interrupted);
     SamusPresentation.InitializeAnimation(interrupted);
-    AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }, XrayActivation.Deferred),
+    AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
     AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
         "deferred setup starts beam ownership before pose-command arbitration");

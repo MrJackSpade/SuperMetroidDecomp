@@ -156,7 +156,7 @@ internal static class CollectiblesVerification
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
+        var orbHit = SamusGrappleMovement.StepFiringAndCommit(orb.Level, grappleSamus,
             GameplayAction.Shoot, orb.RoomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");

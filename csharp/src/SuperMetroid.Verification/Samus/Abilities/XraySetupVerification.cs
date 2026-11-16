@@ -43,7 +43,7 @@ internal static class XraySetupVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(support.Position.X.Whole, (ushort)(support.Position.Y.Whole - support.Radius.Y - samus.Kinematics.Radius.Y)));
         runtime.StepFrame(0);
-        AssertTrue(samus.Xray.TryBegin(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "setup fixture activates X-ray");
+        AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "setup fixture activates X-ray");
         ControllerButton held = runtime.Options.ControllerBindings.Dash;
         runtime.StepFrame(held); // Stage one, before either BG1 page is captured.
         RoomLevelData level = runtime.Room.LoadedLevelData;

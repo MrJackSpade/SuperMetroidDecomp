@@ -1,4 +1,7 @@
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -71,6 +74,69 @@ internal static class SamusGrappleMovementAccess
             // This helper represents a connection that has already passed `$9B:C79D`; publish
             // the handler-tail flag that retail would leave for the following swing frame.
             SamusGrappleMovement.RefreshLiquidPhysicsFlag(samus);
+        }
+    }
+
+    /// <summary>
+    /// Commits the pose a grapple step left pending, as the frame's pose update commits it when no higher-priority
+    /// transition outranks it: the drop pose, the release pose or the connection pose.
+    /// </summary>
+    extension(GrappleMovementResult self)
+    {
+        /// <summary>Commits the step's pending pose through the production commit the frame's pose update calls.</summary>
+        /// <returns>The camera's previous position a connection pose snaps to, or none when the step left no connection.</returns>
+        internal Position16<RoomPixels>? CommitPendingPose(SamusState samus, RoomLevelData level, int frameCounter, ISamusRoomObjects roomObjects)
+        {
+            if (self.PendingDropPose is { } dropPose)
+            {
+                SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, dropPose, frameCounter, roomObjects);
+                return null;
+            }
+            if (self.PendingReleasePose is { } releasePose)
+            {
+                SamusGrappleMovement.ApplyReleasePose(samus, releasePose);
+                return null;
+            }
+            return self.PendingConnection is { } connection
+                ? SamusGrappleMovement.ApplyPendingConnectionPose(samus, connection)
+                : null;
+        }
+    }
+
+    /// <summary>Runs one grapple step followed by the commit of the pose it leaves pending.</summary>
+    extension(SamusGrappleMovement)
+    {
+        /// <summary>
+        /// Runs <see cref="SamusGrappleMovement.StepFiring"/> and commits the connection pose it leaves pending, as a
+        /// frame whose pose update nothing outranks does.
+        /// </summary>
+        internal static GrappleMovementResult StepFiringAndCommit(
+            RoomLevelData level,
+            SamusState samus,
+            GameplayAction controllerInput,
+            ISamusRoomObjects roomObjects,
+            Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        {
+            GrappleMovementResult step = SamusGrappleMovement.StepFiring(level, samus, controllerInput, roomObjects, enemyCollision);
+            step.CommitPendingPose(samus, level, frameCounter: 0, roomObjects);
+            return step;
+        }
+
+        /// <summary>
+        /// Runs <see cref="SamusGrappleMovement.Step"/> and commits the release or drop pose it leaves pending, as a
+        /// frame whose pose update nothing outranks does.
+        /// </summary>
+        internal static GrappleMovementResult StepAndCommit(
+            SamusTerrain terrain,
+            SamusState samus,
+            GameplayAction controllerInput,
+            GameplayAction newlyPressedInput,
+            int frameCounter,
+            Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
+        {
+            GrappleMovementResult step = SamusGrappleMovement.Step(terrain, samus, controllerInput, newlyPressedInput, enemyCollision);
+            step.CommitPendingPose(samus, terrain.Level, frameCounter, terrain.RoomObjects);
+            return step;
         }
     }
 }

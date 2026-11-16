@@ -36,13 +36,6 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// The updates the collapsing bridge's tongue keeps its last frame before its hidden animation is reached, the longest
-    /// wait a timer is given, kept exact (#1627): the tongue keeps counting it down, and its frame and new-frame flag
-    /// follow that count until the hidden animation takes over.
-    /// </summary>
-    private const int TongueHideDelay = 32767;
-
-    /// <summary>
     /// Carries out the state transition. The individual bridge room objects and the
     /// subsequent melting sequence are a separate stage, but the actor/tongue state
     /// changes occur on the exact X threshold.
@@ -69,7 +62,7 @@ internal sealed class CrocomireBridgeCollapse
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Hidden, TongueHideDelay);
+            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Hidden, CrocomireBridgeCollapseDefinitions.TongueHoldsUntilHidden);
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
     }
@@ -165,10 +158,7 @@ internal sealed class CrocomireBridgeCollapse
     /// sinks (#1515, #2031): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
     private void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
-        _bodyLayer.HideCrocomireBodyBelow(state, camera.Y + SinkRowDepth);
-
-    /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>
-    private const int SinkRowDepth = 288;
+        _bodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
 
     /// <summary>Runs the body and its body layer while Crocomire sinks into acid.</summary>
     internal void RunCrocomireSinkingComposite(

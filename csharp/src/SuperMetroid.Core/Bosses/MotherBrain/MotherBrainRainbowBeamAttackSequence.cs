@@ -203,8 +203,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Runs the Baby's call to the standard backwards-walk helper using
-    /// animation-delay index two and target <c>Body.X-1</c>.
+    /// Makes Mother Brain stumble backwards as the Baby strikes her: her quickest backwards walk, toward a pixel left of
+    /// where her body stands.
     /// </summary>
     public bool RequestBabyStumbleBackward()
     {

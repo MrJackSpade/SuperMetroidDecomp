@@ -368,12 +368,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WithWholePixelsAtLeast(-MamaTurtleMotionDefinitions.LargestLeftwardCarry));
     }
 
-    /// <summary>Adds signed 1/65536-pixel hover acceleration as one 1/65536-pixel sum and caps whole speed using the old velocity's sign.</summary>
+    /// <summary>
+    /// Adds the hover acceleration to the horizontal speed, a fraction past a whole pixel carrying into the whole pixels, and
+    /// caps the whole speed using the old velocity's sign.
+    /// </summary>
     internal static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
-        // One 1/65536-pixel add: the fraction's overflow reaches the whole pixels.
+        // A fraction past a whole pixel carries into the whole pixels.
         SignedSixteenSixteen sum = velocity + state.XAcceleration;
         int oldWhole = velocity.WholePixels;
         int newWhole = sum.WholePixels;
@@ -448,7 +451,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cap compares Mama's own fall speed.
         if (state.Velocity.Y.WholePixels < MamaTurtleMotionDefinitions.FastestFall)
         {
-            // The one-eighth-pixel fraction step carries into the whole pixels; both are one 1/65536-pixel add.
+            // The one-eighth-pixel fraction step carries into the whole pixels.
             state.Velocity = state.Velocity.WithY(
                 state.Velocity.Y + MamaTurtleMotionDefinitions.FallAcceleration);
         }

@@ -1,8 +1,34 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>The choices of Botwoon's death: where its drops fall and where and how often its wall explosions burst.</summary>
+/// <summary>
+/// Botwoon's death: how long he waits before he falls and how fast he falls, how long his wall bursts, how many drops it
+/// leaves, and where his drops fall and where and how often his wall explosions burst.
+/// </summary>
 internal static class BotwoonDeathDefinitions
 {
+    /// <summary>The count Botwoon's wait before his fall starts from once his tail has finished entering its hole.</summary>
+    internal const int DeathDelayStart = 240;
+
+    /// <summary>The count of the wait at which his head starts falling.</summary>
+    internal const int DeathDelayEnd = 256;
+
+    /// <summary>
+    /// How far along the quadratic speed curve the dying head and each falling body segment move each airborne update:
+    /// three quarters of a mark.
+    /// </summary>
+    internal static readonly QuadraticSpeedCurvePlace FallAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192);
+
+    /// <summary>The updates the wall's explosions last before Botwoon is removed.</summary>
+    internal const int WallExplosionDuration = 192;
+
+    /// <summary>The update of the wall's explosions from which the explosions burst.</summary>
+    internal const int WallExplosionsBegin = 64;
+
+    /// <summary>The drops the crumbling wall leaves, each chosen by Botwoon's drop chances.</summary>
+    internal const int WallDropCount = 16;
+
     /// <summary>The left edge of the strip the death drops fall across.</summary>
     internal const int DropLeft = 64;
 

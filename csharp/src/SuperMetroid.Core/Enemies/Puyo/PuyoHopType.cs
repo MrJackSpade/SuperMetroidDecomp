@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// </summary>
 public enum PuyoHopType
 {
-    /// <summary>16-pixel height, 1/256-pixel X speed 1.0, and the short-hop behaviour; ordinary distant launches may randomize to the big hop.</summary>
+    /// <summary>A 16-pixel hop at a pixel an update sideways, the short hop; a Puyo far from Samus may follow it with the big hop at random.</summary>
     NormalSmall,
-    /// <summary>32-pixel height, 1/256-pixel X speed 1.0, and the big-hop behaviour; proximity to Samus permits random selection among the three ordinary hops.</summary>
+    /// <summary>A 32-pixel hop at a pixel an update sideways, the big hop; once Samus is near, the Puyo chooses among the three ordinary hops at random.</summary>
     NormalBig,
-    /// <summary>The third ordinary hop, reached only by chance once Samus is within the proximity radius.</summary>
+    /// <summary>A 32-pixel hop at two pixels an update sideways, the long hop: the third ordinary hop, chosen only by chance once Samus is near.</summary>
     NormalHigh,
-    /// <summary>128-pixel height and 1/256-pixel X speed 1.25, whose fraction is discarded by its movement; selected after a post-drop bounce.</summary>
+    /// <summary>A 128-pixel hop at a pixel and a quarter an update sideways, of which it moves only the whole pixel; taken after a bounce from a drop.</summary>
     Giant,
-    /// <summary>No horizontal motion and 1/256-pixel downward speed 1.0; wall or ceiling collision selects this fall before a recovery bounce.</summary>
+    /// <summary>A straight fall with no sideways motion, a pixel an update; a wall or ceiling that cuts a hop short starts it, and a bounce follows it.</summary>
     Dropping,
-    /// <summary>16-pixel post-drop bounce with 1/256-pixel X speed 1.0 and speed-curve step 448; one of two randomized recovery heights.</summary>
+    /// <summary>A 16-pixel bounce after a drop at a pixel an update sideways, a mark and three quarters along the speed curve an update; the lower of the two bounces chosen at random.</summary>
     DroppedSmall,
-    /// <summary>21-pixel post-drop bounce with 1/256-pixel X speed 1.0 and speed-curve step 448; the taller randomized recovery height.</summary>
+    /// <summary>A 21-pixel bounce after a drop at a pixel an update sideways, a mark and three quarters along the speed curve an update; the taller of the two bounces chosen at random.</summary>
     DroppedBig,
 }

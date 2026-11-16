@@ -17,4 +17,10 @@ internal static class OwtchMovementDefinitions
     /// <see cref="SinkRoll"/> reaches once advanced by the enemy's frame counter, six updates in 256.
     /// </summary>
     internal static readonly RandomChance Sinks = RandomChance.Lowest(6, SinkRoll);
+
+    /// <summary>
+    /// The deepest an Owtch sinks below its walking height, in whole pixels, before it goes underground; an Owtch placed
+    /// underground starts this deep.
+    /// </summary>
+    internal const int MaximumBurialDepth = 16;
 }

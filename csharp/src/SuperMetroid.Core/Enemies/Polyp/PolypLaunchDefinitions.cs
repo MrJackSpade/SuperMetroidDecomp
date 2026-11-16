@@ -15,8 +15,11 @@ internal static class PolypLaunchDefinitions
     /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>
     internal static readonly int[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];
 
-    /// <summary>The speed-curve place the first launch selector chooses; each following selector chooses the next.</summary>
-    internal const int FirstInitialYMark = 28;
+    /// <summary>
+    /// The place along the quadratic speed curve, mark 28, the first launch selector starts a rock's rise at; each
+    /// following selector starts it a mark further along.
+    /// </summary>
+    internal static QuadraticSpeedCurvePlace FirstLaunchPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(28);
 
     /// <summary>
     /// The horizontal velocity each launch selector chooses: the first eight push right, the second eight push left by

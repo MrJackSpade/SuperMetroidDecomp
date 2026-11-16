@@ -642,7 +642,7 @@ public static class SamusGrappleMovement
     /// <summary>Publishes rope, physical endpoint, and flare origins with the fraction's overflow from the firing offset.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
-        // Whole endpoint offsets are the signed whole parts of the two 1/65536-pixel sums. The signed halving is
+        // Whole endpoint offsets are the signed whole parts of the two summed offsets. The signed halving is
         // intentional: a left/up beam must retain sign after fractional accumulation, as the endpoint offsets
         // read as signed displacements.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;

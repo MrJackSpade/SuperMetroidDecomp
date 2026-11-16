@@ -81,15 +81,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>The gravity Mini-Kraid's spit gains each update.</summary>
-    private static readonly SignedEightEight SpitGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
-
-    /// <summary>The fastest Mini-Kraid's spit falls: four pixels an update.</summary>
-    private static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromPixels(4);
-
-    /// <summary>The speed a body spike travels horizontally, toward the side Mini-Kraid faces: two pixels an update.</summary>
-    private static readonly SignedEightEight SpikeSpeed = SignedEightEight.FromPixels(2);
-
     /// <summary>Queues one of Mini-Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
@@ -278,7 +269,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
-        projectile.Velocity = new(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft ? -SpikeSpeed : SpikeSpeed, SignedEightEight.Zero);
+        projectile.Velocity = new(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft ? -FakeKraidProjectileDefinitions.SpikeSpeed : FakeKraidProjectileDefinitions.SpikeSpeed, SignedEightEight.Zero);
         return true;
     }
 
@@ -296,9 +287,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The fall speed stops at four pixels an update: a spit falling within one step of it is set to it.
         SignedEightEight oldVelocity = projectile.Velocity.Y;
-        SignedEightEight nextVelocity = oldVelocity + SpitGravity;
-        if (!nextVelocity.IsNegative && oldVelocity >= SpitMaximumFallSpeed - SpitGravity)
-            nextVelocity = SpitMaximumFallSpeed;
+        SignedEightEight nextVelocity = oldVelocity + FakeKraidProjectileDefinitions.SpitGravity;
+        if (!nextVelocity.IsNegative && oldVelocity >= FakeKraidProjectileDefinitions.SpitMaximumFallSpeed - FakeKraidProjectileDefinitions.SpitGravity)
+            nextVelocity = FakeKraidProjectileDefinitions.SpitMaximumFallSpeed;
         projectile.Velocity = projectile.Velocity.WithY(nextVelocity);
     }
 

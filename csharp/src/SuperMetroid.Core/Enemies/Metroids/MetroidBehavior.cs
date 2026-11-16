@@ -238,7 +238,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
             {
-                // The stores produce delta/4 in signed 1/65536-pixel form.
+                // The body attack throws the Metroid away from Samus at a quarter of their distance an update.
                 StoreMetroidXVelocity(
                     state,
                     SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole)));
@@ -309,7 +309,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the shot that
-        // hit it now. Each velocity is an eighth of the distance, signed, in 1/65536 pixels.
+        // hit it now. It recoils away from that origin at an eighth of its distance from it an update.
         StoreMetroidXVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X)));
@@ -366,10 +366,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int dropIndex = 0; dropIndex < MetroidBehaviorDefinitions.FrozenDeathDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
-            // Each axis adds a random 0 to 31 minus sixteen: -16..+15 pixels.
+            // Each drop lands up to sixteen pixels before and fifteen after the origin on each axis.
             var scatter = new Offset16<RoomPixels>(
-                EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
-                EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
+                EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring,
+                EnemyDropScatterDefinitions.VerticalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring);
             _deathsAndDrops.SpawnEnemyDropFromDefinition(origin + scatter, EnemyDefinitionId.Metroid, samus);
         }
     }

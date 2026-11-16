@@ -82,17 +82,16 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedEightEight xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
 
-        int initialYSpeed = PolypLaunches.InitialYMark(_room.Random.Generate());
-        SpawnPolypRock(place, initialYSpeed, xVelocity);
+        QuadraticSpeedCurvePlace launchPlace = PolypLaunches.LaunchPlace(_room.Random.Generate());
+        SpawnPolypRock(place, launchPlace, xVelocity);
 
         state.Action = PolypAction.Cooldown;
         state.CooldownTimer = PolypLaunches.Cooldown(_room.Random.Generate());
     }
 
     /// <summary>
-    /// Recreates the signed Y-minus-X difference followed by the signed threshold comparison used by
-    /// both proximity helpers. Equality at 64 pixels is outside; the modular -32768
-    /// difference also remains outside without passing through <c>Math.Abs</c> overflow.
+    /// Whether Samus lies within the Polyp's launch reach on one axis: nearer than
+    /// <see cref="PolypLaunchDefinitions.LaunchReach"/> pixels either way, a distance of exactly that reach lying outside.
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {
@@ -117,11 +116,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
-    /// The rock draws from the Polyp's spawned-object sheet in its colours, and all four position halves are copied at allocation.
+    /// The rock draws from the Polyp's spawned-object sheet in its colours and starts at the Polyp's position, fractions included.
     /// </summary>
     internal void SpawnPolypRock(
         RoomEnemyPlace source,
-        int initialYSpeed,
+        QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -134,7 +133,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             Rock,
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.Initial));
-        projectile.State = new PolypRockState(QuadraticSpeedCurvePlace.FromMarks(initialYSpeed));
+        projectile.State = new PolypRockState(launchPlace);
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;
     }
@@ -210,7 +209,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 
-    /// <summary>Moves the rock with the game's split signed-1/256-pixel horizontal addition.</summary>
+    /// <summary>Moves the rock sideways by its horizontal speed.</summary>
     private static void MovePolypRockHorizontally(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());

@@ -108,4 +108,10 @@ internal static class RidleyExplosionDefinitions
             [new(RidleyExplosionPart.Claw, false)] = new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft),
             [new(RidleyExplosionPart.Claw, true)] = new(new(-8, 7), RidleyBreakupFrame.ClawFacingRight),
         }.ToFrozenDictionary();
+
+    /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>
+    internal static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
+
+    /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
+    internal static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
 }

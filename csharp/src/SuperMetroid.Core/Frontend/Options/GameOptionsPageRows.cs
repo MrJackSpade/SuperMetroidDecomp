@@ -2,31 +2,34 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Frontend.Options;
 
-/// <summary>Where the options screen's rows, cursors, labels, language regions, toggle boxes and headings are, from <see cref="GameOptionsDefinitions"/>.</summary>
-public static class GameOptionsLayout
+/// <summary>
+/// Each options page's rows from the top (#2206, #2225): the order the cursor moves through and the order of each page's
+/// installed cursor anchors, the controller page's action labels included.
+/// </summary>
+internal static class GameOptionsPageRows
 {
     /// <summary>The primary page's rows from the top.</summary>
-    internal static readonly GameOptionsPrimaryRow[] PrimaryRows =
+    internal static readonly GameOptionsRowOrder<GameOptionsPrimaryRow> Primary = new(
     [
         GameOptionsPrimaryRow.StartGame, GameOptionsPrimaryRow.EnglishText, GameOptionsPrimaryRow.JapaneseText,
         GameOptionsPrimaryRow.ControllerSettings, GameOptionsPrimaryRow.SpecialSettings,
-    ];
+    ]);
 
     /// <summary>The controller page's action rows from the top: the one place the menu's action order lives.</summary>
-    internal static readonly ControllerAction[] ControllerActionRows =
+    internal static readonly GameOptionsRowOrder<ControllerAction> ControllerActions = new(
     [
         ControllerAction.Shoot, ControllerAction.Jump, ControllerAction.Dash, ControllerAction.ItemSelect,
         ControllerAction.ItemCancel, ControllerAction.AimUp, ControllerAction.AimDown,
-    ];
+    ]);
 
     /// <summary>The controller page's rows from the top: a row assigning each action, then Exit and Reset.</summary>
-    internal static readonly GameOptionsControllerRow[] ControllerRows =
+    internal static readonly GameOptionsRowOrder<GameOptionsControllerRow> Controller = new(
     [
-        .. ControllerActionRows.Select(action => new GameOptionsControllerRow.AssignsAction(action)),
+        .. ControllerActions.Select(action => new GameOptionsControllerRow.AssignsAction(action)),
         GameOptionsControllerRow.Exit.Instance, GameOptionsControllerRow.Reset.Instance,
-    ];
+    ]);
 
     /// <summary>The special page's rows from the top.</summary>
-    internal static readonly GameOptionsSpecialRow[] SpecialRows =
-        [GameOptionsSpecialRow.IconCancel, GameOptionsSpecialRow.Moonwalk, GameOptionsSpecialRow.Exit];
+    internal static readonly GameOptionsRowOrder<GameOptionsSpecialRow> Special = new(
+        [GameOptionsSpecialRow.IconCancel, GameOptionsSpecialRow.Moonwalk, GameOptionsSpecialRow.Exit]);
 }

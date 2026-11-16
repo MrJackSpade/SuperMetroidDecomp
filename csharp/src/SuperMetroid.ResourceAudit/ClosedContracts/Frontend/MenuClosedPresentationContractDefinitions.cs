@@ -13,7 +13,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuMissileSpritemaps.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsLayout.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsPageRows.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsRow.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsControllerRow.cs")]),
         new("SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentation", "game-over-v1-complete-enum-domains",

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
 /// One row of the controller page (#2206): a row that assigns a button to an action, then Exit and Reset;
-/// <see cref="GameOptionsLayout.ControllerRows"/> places them from the top.
+/// <see cref="GameOptionsPageRows.Controller"/> places them from the top.
 /// </summary>
 public abstract record GameOptionsControllerRow
 {

@@ -31,8 +31,8 @@ internal static class GameOptionsMenuStateAccess
                     break;
                 case GameOptionsScreen.ControllerEnglish:
                 case GameOptionsScreen.ControllerJapanese:
-                    for (int row = 0; row < GameOptionsLayout.ControllerActionRows.Length; row++)
-                        presentation.ApplyControllerLabel(tiles, row, shown.Bindings[GameOptionsLayout.ControllerActionRows[row]]);
+                    for (int row = 0; row < GameOptionsPageRows.ControllerActions.Count; row++)
+                        presentation.ApplyControllerLabel(tiles, row, shown.Bindings[GameOptionsPageRows.ControllerActions[row]]);
                     break;
                 case GameOptionsScreen.SpecialEnglish:
                 case GameOptionsScreen.SpecialJapanese:

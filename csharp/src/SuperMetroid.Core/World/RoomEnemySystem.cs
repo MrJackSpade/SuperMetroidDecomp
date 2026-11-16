@@ -98,9 +98,9 @@ namespace SuperMetroid.Core.World;
 /// gameplay definitions are compiled; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
-/// The room keeps a fixed set of enemy slots in <see cref="EnemySlotOrder"/>, each with a stable ordinal. The ordinals
+/// The room keeps a fixed set of enemy places in <see cref="EnemyPlaceOrder"/>, each with a stable ordinal. The ordinals
 /// are gameplay: multi-part enemies find their parts by neighbouring ordinals, Samus records the ordinal of the enemy she
-/// meets, and the gunship's lower part copies fields from the slot before it. A compacted list would lose that.
+/// meets, and the gunship's lower part copies fields from the place before it. A compacted list would lose that.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
@@ -117,7 +117,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Chooses the enemies the enemy pass runs this update: those near enough the screen, in their places' order.</summary>
     internal EnemyProcessingWindow ProcessingWindow { get; }
 
-    /// <summary>Puts populations into slots and runs their AI.</summary>
+    /// <summary>Puts populations into places and runs their AI.</summary>
     internal EnemyLifecycle Lifecycle { get; }
 
     /// <summary>Samus's gunship: its landing, save prompt, boarding and exit, and its lift-offs after Ceres and the escape.</summary>
@@ -137,7 +137,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
     /// <summary>Ridley's fight in Ceres and Lower Norfair, and what his Ceres getaway hands on to the escape.</summary>
     internal RidleyEncounter RidleyEncounter { get; }
-    /// <summary>Coordinates Ridley's multipart tail through the shared slot and projectile services.</summary>
+    /// <summary>Coordinates Ridley's multipart tail through the shared place and projectile services.</summary>
     internal RidleyTail RidleyTail { get; }
     /// <summary>Raises the dust of dead monsters' fallen corpse rows through the same frame as enemy processing.</summary>
     internal CorpseRowDust CorpseRowDust { get; }
@@ -157,7 +157,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal EnemyPresentation Presentation { get; }
 
     /// <summary>The room's enemy places, in their order, and how far the population and later spawns have filled them.</summary>
-    internal EnemySlotTable SlotTable { get; }
+    internal EnemyPlaces Places { get; }
 
     /// <summary>The Zoas, which hide until Samus comes near, rise to her height and dart across the room.</summary>
     internal ZoaBehavior ZoaBehavior { get; }
@@ -525,7 +525,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
     /// <summary>The enemies' colour effect glows and flashes the room's colour effects show.</summary>
     internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(TourianEntranceStatueBehavior,
-        SlotTable);
+        Places);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
     internal IEnemyDisplaySources DisplaySources => this;
@@ -608,7 +608,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects(), FrameResults.Glow);
 
     /// <summary>
-    /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, without loading a population or binding artwork, random-number, or gameplay services.
+    /// Creates a room's enemy system: every enemy place, each with its stable ordinal, without loading a population or binding artwork, random-number, or gameplay services.
     /// </summary>
     /// <param name="dependencies">
     /// The enemy session, the room's compatibility services, enemy definitions, game-state services, area, boss artwork
@@ -630,98 +630,98 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        SlotTable = new EnemySlotTable();
+        Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
-        MorphBallEyeBehavior = new MorphBallEyeBehavior(Audio, SlotTable);
-        ProcessingWindow = new EnemyProcessingWindow(FrameContext, new MorphBallEyeBeamStep(MorphBallEyeBehavior), Room, SlotTable);
-        Lifecycle = new EnemyLifecycle(Room, SlotTable, ProcessingWindow);
-        PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Lifecycle);
+        MorphBallEyeBehavior = new MorphBallEyeBehavior(Audio, Places);
+        ProcessingWindow = new EnemyProcessingWindow(FrameContext, new MorphBallEyeBeamStep(MorphBallEyeBehavior), Room, Places);
+        Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
+        PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);
         RidleyEncounter = new RidleyEncounter(session);
         Earthquake = new RoomEarthquake();
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);
-        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
+        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, Places, FrameResults);
         Terrain = new EnemyTerrain(breakableTerrain);
         CorpseRowDust = new CorpseRowDust(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, EffectActors = EffectActors, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, EffectActors = EffectActors, Room = Room, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Places = Places, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio, compatibility.YardKickDistance);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, EffectActors, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();
-        WorkRobotBehavior = new WorkRobotBehavior(Room, Terrain, Projectiles, SlotTable, Audio);
+        WorkRobotBehavior = new WorkRobotBehavior(Room, Terrain, Projectiles, Places, Audio);
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
-        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable, Room);
+        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, Places, Room);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
-        ShuttersBehavior = new ShuttersBehavior(Audio, SlotTable);
-        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, compatibility.FadeStepCount, BossFrameResults, Audio);
-        DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, Shitroid = new ShitroidFeeding(SlotTable), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
-        ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, SlotTable, Collision, compatibility.KilledShaktoolSegment);
+        ShuttersBehavior = new ShuttersBehavior(Audio, Places);
+        ShitroidBehavior = new ShitroidBehavior(Room, Places, compatibility.FadeStepCount, BossFrameResults, Audio);
+        DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, Shitroid = new ShitroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
+        ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, Places, Collision, compatibility.KilledShaktoolSegment);
         SbugBehavior = new SbugBehavior(Room, Terrain);
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain, Audio);
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, DoorPassage = doorPassage, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, Places = Places, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, DoorPassage = doorPassage, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, DoorPassage = doorPassage, RoomFx = RoomFx, FrameContext = FrameContext });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
-        PowampBehavior = new PowampBehavior(Terrain, Projectiles, SlotTable, Collision, DeathsAndDrops);
+        PowampBehavior = new PowampBehavior(Terrain, Projectiles, Places, Collision, DeathsAndDrops);
         PolypBehavior = new PolypBehavior(Room, Projectiles);
         PlatformsBehavior = new PlatformsBehavior(Terrain);
-        PipeBugsBehavior = new PipeBugsBehavior(SlotTable);
+        PipeBugsBehavior = new PipeBugsBehavior(Places);
         PhantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding, FrameResults = BossFrameResults });
         OwtchBehavior = new OwtchBehavior(Room);
         OldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(Room, Projectiles, Audio);
         NuclearWaffleBehavior = new NuclearWaffleBehavior(Projectiles, EffectActors, Audio);
-        NorfairRioBehavior = new NorfairRioBehavior(Room, Terrain, SlotTable, Audio);
-        NorfairLavaJumpingEnemyBehavior = new NorfairLavaJumpingEnemyBehavior(Room, SlotTable, Audio);
+        NorfairRioBehavior = new NorfairRioBehavior(Room, Terrain, Places, Audio);
+        NorfairLavaJumpingEnemyBehavior = new NorfairLavaJumpingEnemyBehavior(Room, Places, Audio);
         NoobTubeBehavior = new NoobTubeBehavior(Room, Projectiles);
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, EffectActors, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
-        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Audio = Audio, SlotTable = SlotTable, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
+        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Audio = Audio, Places = Places, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
         MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, EffectActors, FrameContext, DeathsAndDrops);
         MetareeBehavior = new MetareeBehavior(Projectiles, Audio);
         MaridiaLargeSnailBehavior = new MaridiaLargeSnailBehavior(Terrain, Collision, Audio);
-        MamaTurtleBehavior = new MamaTurtleBehavior(Terrain, Earthquake, SlotTable, Collision, Audio);
-        MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, SlotTable, Collision, DeathsAndDrops, Audio);
-        LowerNorfairRioBehavior = new LowerNorfairRioBehavior(Room, Terrain, SlotTable, Audio);
-        KzanBehavior = new KzanBehavior(SlotTable, Audio);
+        MamaTurtleBehavior = new MamaTurtleBehavior(Terrain, Earthquake, Places, Collision, Audio);
+        MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, Places, Collision, DeathsAndDrops, Audio);
+        LowerNorfairRioBehavior = new LowerNorfairRioBehavior(Room, Terrain, Places, Audio);
+        KzanBehavior = new KzanBehavior(Places, Audio);
         KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance  });
-        KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, SlotTable);
+        KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, Places);
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, DeathsAndDrops, RoomStatus, Audio);
         HoppersBehavior = new HoppersBehavior(Room, Terrain, Audio);
-        HibashiBehavior = new HibashiBehavior(SlotTable, Audio);
+        HibashiBehavior = new HibashiBehavior(Places, Audio);
         GrappleBehavior = new GrappleBehavior(Lifecycle, Room, DeathsAndDrops);
         FuneNamiheBehavior = new FuneNamiheBehavior(Projectiles, Audio);
         FliesBehavior = new FliesBehavior(Room);
         FirefleaBehavior = new FirefleaBehavior(Collision, DeathsAndDrops, RoomStatus);
         FakeKraidBehavior = new FakeKraidBehavior(Room, Terrain, Projectiles, Collision, DeathsAndDrops, Audio);
         EyeDoorBehavior = new EyeDoorBehavior(Room, Projectiles);
-        EvirBehavior = new EvirBehavior(SlotTable, Collision, Audio);
+        EvirBehavior = new EvirBehavior(Places, Collision, Audio);
         EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, doorPassage, Audio);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, EffectActors);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
         DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
-        DragonBehavior = new DragonBehavior(Projectiles, SlotTable, Collision, Audio);
+        DragonBehavior = new DragonBehavior(Projectiles, Places, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Room, Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
-        DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, SlotTable);
-        DachoraBehavior = new DachoraBehavior(Terrain, SlotTable, Audio);
+        DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, Places);
+        DachoraBehavior = new DachoraBehavior(Terrain, Places, Audio);
         var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
@@ -739,7 +739,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         TorizoBehavior = new TorizoBehavior(new TorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
-        BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, doorPassage);
+        BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Places, doorPassage);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);
@@ -827,7 +827,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ];
         Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter)]);
-        SlotTable.InstallSlots(Species);
+        Places.InstallPlaces(Species);
     }
 
     /// <summary>
@@ -839,7 +839,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Leaves each enemy projectile place's whole position and velocity for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
     internal void HandOverTo(RoomHandOver handOver) => Projectiles.HandOverTo(handOver);
 
-    /// <summary>Collision values read from the current slots after their AI has run.</summary>
+    /// <summary>Collision values read from the current places after their AI has run.</summary>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>
         _interactiveCollisionBodies;
 
@@ -902,15 +902,15 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Drawing.Clear();
         ShakeWallJumpLaunchEnemy(frame.Samus);
 
-        foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
+        foreach (RoomEnemyPlace place in ProcessingWindow.ActiveEnemies)
         {
             // The enemy pass decrements tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
-            bool invincibleAtEntry = slot.InvincibilityTimer != 0;
-            if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus) && invincibleAtEntry)
-                slot.InvincibilityTimer--;
+            bool invincibleAtEntry = place.InvincibilityTimer != 0;
+            if (!place.Contact.HasAny(EnemyContact.IgnoresSamus) && invincibleAtEntry)
+                place.InvincibilityTimer--;
             // The enemy pass checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
@@ -919,31 +919,31 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // Extended collision runs projectiles before bombs/touch and
                 // before selecting hurt/main AI. In particular, a retained Plasma
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
-                if (slot.Entity is IEnemyContactHooks hooks)
+                if (place.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
                 Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles, Room.Area,
-                    frame.Samus, slot, frame.Camera);
+                    frame.Samus, place, frame.Camera);
                 // Samus's input phase has already moved her bombs. The enemy pass checks
                 // them before this enemy's touch and AI, so an escape a bomb starts begins this update.
-                Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot, frame.Camera);
-                if (slot.IsFree)
+                Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
+                if (place.IsFree)
                     continue;
-                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, slot, frame.Camera);
-                if (slot.Entity is IEnemyContactHooks contact)
+                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, place, frame.Camera);
+                if (place.Entity is IEnemyContactHooks contact)
                     contact.ResolveAfterSamusContact(frame.Samus);
-                if (slot.IsFree)
+                if (place.IsFree)
                     continue;
             }
             if (!frame.TimeIsFrozen)
             {
-                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, aiFrame);
+                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(place, aiFrame);
                 // The hurt behaviour replaces main AI while the enemy is hurt: the species' own, or the inert one its
                 // definition names. The grappled, hurt and frozen states are tried in that order, and the first one the
                 // enemy is in selects its behaviour even when that behaviour does nothing. Hurt therefore delays frozen
                 // AI until the flash's end clears the hurt state; falling through here prematurely clears flash.
                 if (!ranActorAi &&
-                    (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
-                    slot.Entity is IEnemyHurtReaction hurt &&
+                    (place.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
+                    place.Entity is IEnemyHurtReaction hurt &&
                     hurt.RunHurt(frame))
                 {
                     ranActorAi = true;
@@ -951,12 +951,12 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // The enemy pass selects the AI from the first state the enemy is in alone. A frozen
                 // clock without the frozen state (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
-                if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
+                if (!ranActorAi && (place.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
                 {
                     // A Rinka's termination clears or replaces the enemy in this place.
                     // The pass's list of active enemies was fixed before AI, so skip the rest
                     // of this departed enemy's turn exactly as its own death does.
-                    var frozen = slot.Entity as IEnemyFrozenAi;
+                    var frozen = place.Entity as IEnemyFrozenAi;
                     if (frozen?.PreemptFrozenTurn() == true)
                         continue;
 
@@ -965,20 +965,20 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     // immediately. That branch leaves the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when hurt
                     // and frozen AI coexist.
-                    slot.FlashTimer = 0;
-                    bool thaw = slot.FrozenTimer == 0 ||
+                    place.FlashTimer = 0;
+                    bool thaw = place.FrozenTimer == 0 ||
                         (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None;
                     if (!thaw)
-                        slot.FrozenTimer--;
+                        place.FrozenTimer--;
                     else
                     {
-                        slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
-                        bool stillGrappled = (slot.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
-                        bool stillHurt = (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None;
+                        place.AiStates = place.AiStates & ~EnemyAiStates.Frozen;
+                        bool stillGrappled = (place.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
+                        bool stillHurt = (place.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None;
                         ThawedFreezeLeftover.Hold hold = stillGrappled
                             ? stillHurt ? ThawedFreezeLeftover.Hold.GrappledAndHurt : ThawedFreezeLeftover.Hold.Grappled
                             : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
-                        slot.FrozenTimer = ThawedFreezeLeftover.Of(hold);
+                        place.FrozenTimer = ThawedFreezeLeftover.Of(hold);
                     }
                     frozen?.RunFrozen();
                     // The frame clock advances after every selected AI call,
@@ -987,22 +987,22 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 }
                 else if (!ranActorAi)
                 {
-                    EnemyLifecycle.RunMainAi(slot, aiFrame);
+                    EnemyLifecycle.RunMainAi(place, aiFrame);
                     ranActorAi = true;
                 }
 
                 if (ranActorAi)
                 {
-                    slot.FrameCounter = WrappingCounter.IncrementCount(slot.FrameCounter);
+                    place.FrameCounter = WrappingCounter.IncrementCount(place.FrameCounter);
                     // The enemy pass skips the animation whenever the enemy is
                     // frozen, even if the hurt state, tried first, selected an
                     // enemy-specific hurt behaviour above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // behaviour still owned the two composited outer effect actors.
-                    if ((slot.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
-                        slot.Processing.HasAny(EnemyProcessing.Animates))
+                    if ((place.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
+                        place.Processing.HasAny(EnemyProcessing.Animates))
                         EnemyAnimationPlayer.AdvanceAnimation(
-                            slot,
+                            place,
                             frame.Samus,
                             frame.Level,
                             frame.Camera,
@@ -1016,22 +1016,22 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             // clears the value a Puyo's later ceiling strike reads, consumes its shake tick and shows its boss body
             // frame, so which enemies are reached stays the game's; what is off screen is culled by the display.
             // The gunship uses the radius test.
-            bool reached = slot.CollidesByFrameHitboxes ||
-                EnemyProcessingWindow.IsWithinProcessingWindow(slot, frame.Camera);
-            if (!slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
-                Drawing.Enqueue(slot, reached);
+            bool reached = place.CollidesByFrameHitboxes ||
+                EnemyProcessingWindow.IsWithinProcessingWindow(place, frame.Camera);
+            if (!place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
+                Drawing.Enqueue(place, reached);
 
             // The enemy pass performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw colours describe the
             // frame just processed rather than the already-decremented following frame.
-            if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
+            if (!frame.TimeIsFrozen && place.FlashTimer != 0)
             {
-                slot.FlashTimer--;
+                place.FlashTimer--;
                 // The enemy pass clears the hurt AI once the decremented timer is below
                 // eight. This applies even when another AI bit remains set; omitting it
                 // would strand Metroid in custom hurt forever.
-                if (slot.FlashTimer < 8)
-                    slot.AiStates = slot.AiStates & ~EnemyAiStates.Hurt;
+                if (place.FlashTimer < 8)
+                    place.AiStates = place.AiStates & ~EnemyAiStates.Hurt;
             }
         }
 
@@ -1039,14 +1039,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // collision reads their live position and size, so publish bodies after AI has
         // had its chance to move multi-part enemies.
         _interactiveCollisionBodies.Clear();
-        foreach (RoomEnemySlot slot in ProcessingWindow.InteractiveEnemies)
+        foreach (RoomEnemyPlace place in ProcessingWindow.InteractiveEnemies)
         {
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
-                slot,
-                slot.Position.Whole,
-                new(slot.Radius.X, slot.Radius.Y),
+                place,
+                place.Position.Whole,
+                new(place.Radius.X, place.Radius.Y),
                 // A frozen enemy blocks Samus whatever its properties say.
-                slot.FrozenTimer != 0 || slot.Contact.HasAny(EnemyContact.SolidToSamus)));
+                place.FrozenTimer != 0 || place.Contact.HasAny(EnemyContact.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
         frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
@@ -1065,7 +1065,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </summary>
     internal void ShakeWallJumpLaunchEnemy(SamusState samus)
     {
-        if (SlotTable.EnemyCount == 0 || samus.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
+        if (Places.EnemyCount == 0 || samus.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
             return;
         launchedFrom.ShakeFromWallJumpLaunch();
     }
@@ -1077,8 +1077,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // on the following frame rather than retroactively changing already-emitted sprites.
         if (Earthquake.Advance(timeIsFrozen))
         {
-            foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
-                slot.ShakeTimer = RoomEarthquakeDefinitions.EnemyShakeDuration;
+            foreach (RoomEnemyPlace place in ProcessingWindow.ActiveEnemies)
+                place.ShakeTimer = RoomEarthquakeDefinitions.EnemyShakeDuration;
         }
         return Earthquake.LastRoomShake;
     }

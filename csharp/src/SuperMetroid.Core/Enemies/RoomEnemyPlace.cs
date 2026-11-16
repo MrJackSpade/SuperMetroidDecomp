@@ -7,24 +7,24 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// One of the room's enemy places and the enemy occupying it: its identity, where it is, how it collides, its health and
-/// timers, and the species state installed for it. A place is found by the slot object or its ordinal
-/// (<see cref="SlotIndex"/>); <see cref="EnemySlotOrder"/> sets how places are allocated and processed.
+/// timers, and the species state installed for it. A place is found by the place object or its ordinal
+/// (<see cref="Ordinal"/>); <see cref="EnemyPlaceOrder"/> sets how places are allocated and processed.
 /// </summary>
-public sealed class RoomEnemySlot : ISolidEnemy
+public sealed class RoomEnemyPlace : ISolidEnemy
 {
-    /// <summary>Creates the place at <paramref name="slotIndex"/> in <see cref="EnemySlotOrder"/>, before any occupant is installed.</summary>
-    internal RoomEnemySlot(int slotIndex, EnemySpeciesRegistry registry)
+    /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
+    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry)
     {
         _registry = Ensure.NotNull(registry);
-        SlotIndex = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, slotIndex);
+        Ordinal = Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, ordinal);
     }
 
     /// <summary>
-    /// The slot's ordinal in <see cref="EnemySlotOrder"/>, 0 through <see cref="EnemySlotOrder.Capacity"/> minus one,
-    /// fixed for the slot's lifetime: the place's position in allocation and processing order.
+    /// The place's ordinal in <see cref="EnemyPlaceOrder"/>, 0 through <see cref="EnemyPlaceOrder.Capacity"/> minus one,
+    /// fixed for the place's lifetime: the place's position in allocation and processing order.
     /// </summary>
-    [IntegerQuantity("position of the slot in the enemy table")]
-    public int SlotIndex { get; }
+    [IntegerQuantity("position of the place in the enemy table")]
+    public int Ordinal { get; }
     /// <summary>
     /// The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> when the place holds no enemy, whether it is
     /// free or <see cref="AwaitsRespawn"/>.
@@ -50,7 +50,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
     /// <summary>The species registry that creates the entity for each installed occupant.</summary>
     private readonly EnemySpeciesRegistry _registry;
 
-    /// <summary>The enemy occupying the slot, bound with its identity; null while the slot is empty.</summary>
+    /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
@@ -64,7 +64,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
     /// <summary>The occupant's species state, which its species installs before reading it.</summary>
     /// <exception cref="InvalidOperationException">The occupant holds no <typeparamref name="T"/>.</exception>
     internal T RequireSpeciesState<T>() where T : class =>
-        SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy slot {SlotIndex} has no {typeof(T).Name} for its occupant.");
+        SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy place {Ordinal} has no {typeof(T).Name} for its occupant.");
 
     /// <summary>The occupant's <typeparamref name="T"/> state, or null when the place holds no occupant with one.</summary>
     internal T? SpeciesState<T>() where T : class => OccupantStates.Find<T>();
@@ -96,12 +96,12 @@ public sealed class RoomEnemySlot : ISolidEnemy
     internal void AwaitRespawn()
     {
         if (DefinitionId != EnemyDefinitionId.None)
-            throw new InvalidOperationException($"Enemy slot {SlotIndex} still holds {DefinitionId}; only a killed enemy's place awaits its respawn.");
+            throw new InvalidOperationException($"Enemy place {Ordinal} still holds {DefinitionId}; only a killed enemy's place awaits its respawn.");
         AwaitsRespawn = true;
     }
 
     /// <summary>
-    /// Empties the slot's identity and drops its occupant's species states when the occupant is deleted without being
+    /// Empties the place's identity and drops its occupant's species states when the occupant is deleted without being
     /// killed. The place keeps the occupant's last position, health and timers: the enemies that read a deleted partner
     /// read what it left, through the rule that says so (<see cref="DeletedParentLeftovers"/>, <see cref="FollowUpAfterStruckPart"/>),
     /// and a partner keeps the species state it took when it was placed.
@@ -126,7 +126,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
     public EnemyContact Contact { get; internal set; }
     /// <summary>What the room's enemy passes run for the occupant, initially the population entry's.</summary>
     public EnemyProcessing Processing { get; internal set; }
-    /// <summary>Whether the occupant is drawn, still occupies the slot and returns after a kill, initially the population entry's.</summary>
+    /// <summary>Whether the occupant is drawn, still occupies the place and returns after a kill, initially the population entry's.</summary>
     public EnemyPresence Presence { get; internal set; }
     /// <summary>
     /// Whether the occupant collides by its frames' hitboxes rather than by its radius, initially the population entry's.
@@ -196,7 +196,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
     /// </summary>
     public Offset16<RoomPixels> DrawOffset { get; internal set; }
 
-    /// <summary>Empties the slot when its occupant is killed: its identity, its species states and the place's live values.</summary>
+    /// <summary>Empties the place when its occupant is killed: its identity, its species states and the place's live values.</summary>
     internal void Clear()
     {
         Unbind();

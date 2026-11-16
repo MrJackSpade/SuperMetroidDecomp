@@ -35,7 +35,7 @@ internal static class BossSpriteEntriesVerification
         EnemyTileSourceArtwork artwork = InstalledFixtures.EnemyTiles;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.CorpseTorizo);
-        SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.InitializeDeadTorizo(enemies.SlotTable.Slots[0]);
+        SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.InitializeDeadTorizo(enemies.Places.InUpdateOrder[0]);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         enemies.DeadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, DeadTorizoCamera);
@@ -99,10 +99,10 @@ internal static class BossSpriteEntriesVerification
     {
         ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(slot, "Ceres Ridley");
-        slot.Position = slot.Position.WithWhole(new(200, 100));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(place, "Ceres Ridley");
+        place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         enemies.RidleyEncounter.Ridley = new SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState
@@ -116,7 +116,7 @@ internal static class BossSpriteEntriesVerification
         };
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, slot, Position16<RoomPixels>.Zero);
+        enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, place, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         // Each tail segment is told by its place: the tip, then segments five to the base, then the wings.
         (SpriteSourceKind Kind, Offset16<ScreenPixels> Origin)[] expected =

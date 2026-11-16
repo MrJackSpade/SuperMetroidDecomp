@@ -13,8 +13,8 @@ internal sealed class EnemyLoaderHooks(RinkaBehavior rinka, PrePhantoonRoomBehav
     public bool HasDeferredRinkaLoaderTimeCameraReads => rinka.HasDeferredLoaderTimeCameraReads;
 
     /// <inheritdoc/>
-    public void CompleteRinkaLoaderTimeCameraReads(Func<int, bool> loaderInitializedSlot, Position16<RoomPixels> camera) =>
-        rinka.CompleteLoaderTimeCameraReads(loaderInitializedSlot, camera);
+    public void CompleteRinkaLoaderTimeCameraReads(Func<int, bool> loaderInitializedPlace, Position16<RoomPixels> camera) =>
+        rinka.CompleteLoaderTimeCameraReads(loaderInitializedPlace, camera);
 
     /// <inheritdoc/>
     public void SpawnPrePhantoonRoomProjectile() => prePhantoonRoom.SpawnPrePhantoonRoomProjectile();

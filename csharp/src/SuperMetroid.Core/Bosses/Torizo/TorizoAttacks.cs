@@ -218,7 +218,7 @@ internal sealed class TorizoAttacks
         /// <summary>Keeps the held super missile beside the hand of the Golden Torizo that caught it.</summary>
         private static void HoldSuperMissile(EnemyProjectile projectile)
         {
-            RoomEnemySlot torizo = projectile.StateOf<TorizoOwnedProjectileState>().Owner;
+            RoomEnemyPlace torizo = projectile.StateOf<TorizoOwnedProjectileState>().Owner;
             Offset16<RoomPixels> held = TorizoProjectilePlacementDefinitions.HeldSuperMissile;
             projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo) ? held : held.MirroredX()));
         }
@@ -258,10 +258,10 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile firstSlot = projectiles.EnemyProjectiles[0];
+                EnemyProjectile firstPlace = projectiles.EnemyProjectiles[0];
                 SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
-                    firstSlot.IsActive,
-                    firstSlot.IsActive && firstSlot.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
+                    firstPlace.IsActive,
+                    firstPlace.IsActive && firstPlace.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
                 // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))
@@ -274,12 +274,12 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
-    internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
+    internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
     /// <summary>Allocates either drool animation and consumes room RNG in the variant-specific order.</summary>
     internal void SpawnBombTorizoDrool(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         RoomEnemyProjectileKind kind)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -367,7 +367,7 @@ internal sealed class TorizoAttacks
         TorizoRandomDefinitions.LowHealthDroolAnimations[TorizoRandomDefinitions.LowHealthDroolDelay.Of(random)];
 
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
-    internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, Offset16<RoomPixels> placement)
+    internal void SpawnBombTorizoExplosiveSwipe(RoomEnemyPlace torizo, Offset16<RoomPixels> placement)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -385,7 +385,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Places a body-break explosion at the gut or face for Torizo's facing and records its impact coordinates.</summary>
-    internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, BombTorizoExplosionSite site)
+    internal void SpawnBombTorizoLowHealthExplosion(RoomEnemyPlace torizo, BombTorizoExplosionSite site)
     {
         Offset16<RoomPixels> placement =
             BombTorizoAttacks.LowHealthExplosion(
@@ -406,7 +406,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Starts a death explosion at the statue center and stores that center for its later animation frames.</summary>
-    internal void SpawnBombTorizoDeathExplosion(RoomEnemySlot torizo)
+    internal void SpawnBombTorizoDeathExplosion(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -422,7 +422,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Allocates Bomb Torizo's Chozo orb with facing-dependent placement and randomized velocity.</summary>
-    internal void SpawnBombTorizoChozoOrb(RoomEnemySlot torizo)
+    internal void SpawnBombTorizoChozoOrb(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -441,20 +441,20 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Starts Bomb Torizo's sonic-boom animation at one of two randomized body heights.</summary>
-    internal void SpawnBombTorizoSonicBoom(RoomEnemySlot torizo)
+    internal void SpawnBombTorizoSonicBoom(RoomEnemyPlace torizo)
         => SpawnTorizoSonicBoom(
             torizo,
             RoomEnemyProjectileKind.BombTorizoSonicBoom);
 
     /// <summary>Starts Golden Torizo's sonic-boom variant with the shared directional flight setup.</summary>
-    internal void SpawnGoldenTorizoSonicBoom(RoomEnemySlot torizo)
+    internal void SpawnGoldenTorizoSonicBoom(RoomEnemyPlace torizo)
         => SpawnTorizoSonicBoom(
             torizo,
             RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
 
     /// <summary>Places a sonic boom 32 pixels ahead and selects the fired-left or fired-right animation.</summary>
     private void SpawnTorizoSonicBoom(
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         RoomEnemyProjectileKind kind)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -484,7 +484,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Allocates Golden Torizo's orb using the variant's facing-specific offset and randomized speed.</summary>
-    internal void SpawnGoldenTorizoChozoOrb(RoomEnemySlot torizo)
+    internal void SpawnGoldenTorizoChozoOrb(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -503,7 +503,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Starts a Golden egg with the game's fixed 66-frame hatch timer and randomized launch speed.</summary>
-    internal void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
+    internal void SpawnGoldenTorizoEgg(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -525,7 +525,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>
-    internal void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
+    internal void SpawnGoldenTorizoSuperMissile(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -544,7 +544,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Fires an eye beam from the facing-specific offset with room-RNG angular spread.</summary>
-    internal void SpawnGoldenTorizoEyeBeam(RoomEnemySlot torizo)
+    internal void SpawnGoldenTorizoEyeBeam(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -573,7 +573,7 @@ internal sealed class TorizoAttacks
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
     internal void InitializeTorizoRandomizedProjectile(
         EnemyProjectile projectile,
-        RoomEnemySlot torizo,
+        RoomEnemyPlace torizo,
         TorizoRandomizedProjectileDefinition definition)
     {
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation));
@@ -589,7 +589,7 @@ internal sealed class TorizoAttacks
         SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
-    internal void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, HorizontalDirection foot)
+    internal void SpawnBombTorizoLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

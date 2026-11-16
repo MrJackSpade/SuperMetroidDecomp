@@ -60,15 +60,15 @@ internal static class EnemyHitBurstVerification
             ("Skree", EnemyDefinitionId.Skree, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Skree], 1000, 0, SamusBeamCombination.Power, false),
         })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health, frozenTimer);
+            (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health, frozenTimer);
             (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(beam);
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot), $"{kind}: the beam hits the enemy");
-            AssertTrue(kind == "immune" ? slot.Health == health : slot.Health < health || slot.FrozenTimer != frozenTimer,
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: place), $"{kind}: the beam hits the enemy");
+            AssertTrue(kind == "immune" ? place.Health == health : place.Health < health || place.FrozenTimer != frozenTimer,
                 $"{kind}: the hit's damage or freeze lands");
             if (kind == "frozen instead of killed")
-                AssertEqual(400, slot.FrozenTimer, "the lethal Ice hit freezes the Mellow instead of killing it");
+                AssertEqual(400, place.FrozenTimer, "the lethal Ice hit freezes the Mellow instead of killing it");
             if (kind == "killed")
-                AssertEqual(0, slot.Health, "the lethal hit kills the Mellow");
+                AssertEqual(0, place.Health, "the lethal hit kills the Mellow");
             RoomEffectActor[] bursts = Bursts(enemies);
             AssertEqual(shows ? 1 : 0, bursts.Length, $"{kind}: the bursts the hit shows");
             if (shows)
@@ -92,7 +92,7 @@ internal static class EnemyHitBurstVerification
             ("Skree", EnemyDefinitionId.Skree, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Skree], 0, false),
         })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(id, definition, health: 1000, frozenTimer);
+            (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health: 1000, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
@@ -101,8 +101,8 @@ internal static class EnemyHitBurstVerification
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
             shots.Shots[0].Type = SamusProjectileType.None;
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot), $"{kind} bomb: the bomb hits the enemy");
-            AssertEqual(kind == "immune" ? 1000 : 1000 - 30, slot.Health, $"{kind} bomb: the enemy's health after the bomb");
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: place), $"{kind} bomb: the bomb hits the enemy");
+            AssertEqual(kind == "immune" ? 1000 : 1000 - 30, place.Health, $"{kind} bomb: the enemy's health after the bomb");
             RoomEffectActor[] bursts = Bursts(enemies);
             AssertEqual(shows ? 1 : 0, bursts.Length, $"{kind} bomb: the bursts the bomb shows");
             if (shows)
@@ -119,11 +119,11 @@ internal static class EnemyHitBurstVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemySlot silver = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace silver = enemies.Places.InUpdateOrder[0];
         silver.Bind(EnemyDefinitionId.PirateSilverNinja, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PirateSilverNinja));
-        RoomEnemySlot gold = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace gold = enemies.Places.InUpdateOrder[1];
         gold.Bind(EnemyDefinitionId.PirateGoldNinja, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PirateGoldNinja));
-        foreach ((RoomEnemySlot pirate, EnemyReaction reaction, bool shows) in new[]
+        foreach ((RoomEnemyPlace pirate, EnemyReaction reaction, bool shows) in new[]
         {
             (silver, EnemyReaction.NormalEnemyShot, true),
             (gold, EnemyReaction.NormalEnemyShot, true),
@@ -147,9 +147,9 @@ internal static class EnemyHitBurstVerification
     /// </summary>
     internal static void VerifyHitBurstPlaces()
     {
-        (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
+        (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot), "the beam hurts the Mellow");
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: place), "the beam hurts the Mellow");
         RoomEffectActor burst = Bursts(enemies).Single();
         AssertEqual<int?>(EffectActorPlaces.PlaceCount - 1, enemies.EffectActors.PlaceOf(burst), "the burst takes the highest place");
 
@@ -195,9 +195,9 @@ internal static class EnemyHitBurstVerification
     /// </summary>
     internal static void VerifyHitBurstColouring()
     {
-        (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
+        (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: slot), "the beam hurts the Mellow");
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), onlyEnemy: place), "the beam hurts the Mellow");
         _ = Bursts(enemies).Single();
         var camera = new Position16<RoomPixels>(Place.X - 128, Place.Y - 112);
         // Every beam combination the game shows a beam colouring for, retail and glitched: the import's beam shades.
@@ -309,20 +309,20 @@ internal static class EnemyHitBurstVerification
     }
 
     /// <summary>A room with an enemy of <paramref name="definition"/> placed at <see cref="Place"/> among its interactive enemies.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) RoomWith(EnemyDefinitionId id, RoomEnemyDefinition definition, int health, int frozenTimer)
+    private static (RoomEnemySystem Enemies, RoomEnemyPlace Slot) RoomWith(EnemyDefinitionId id, RoomEnemyDefinition definition, int health, int frozenTimer)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(id, definition);
-        slot.Position = FixedPosition<RoomPixels>.FromWhole(Place);
-        slot.Radius = definition.Radius;
-        slot.Health = health;
-        slot.FrozenTimer = frozenTimer;
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(id, definition);
+        place.Position = FixedPosition<RoomPixels>.FromWhole(Place);
+        place.Radius = definition.Radius;
+        place.Health = health;
+        place.FrozenTimer = frozenTimer;
         // Shots reach only an enemy showing a frame.
-        slot.Frame = EnemyFrameId.EffectActorDudShotFirst;
-        ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(slot);
-        return (enemies, slot);
+        place.Frame = EnemyFrameId.EffectActorDudShotFirst;
+        ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(place);
+        return (enemies, place);
     }
 
     /// <summary>One uncharged beam of <paramref name="beam"/> at <see cref="Place"/>, flying right.</summary>

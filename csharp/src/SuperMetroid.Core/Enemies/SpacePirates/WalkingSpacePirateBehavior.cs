@@ -16,7 +16,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WalkingSpacePirateEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WalkingSpacePirateEntity(this, place, common);
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
@@ -46,23 +46,23 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState samus)
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus)
     {
         switch (cue)
         {
             case WalkingSpacePirateCue.SetAction setAction:
                 // The pirate animation does not jump to the cue's action. It stores that action
                 // for main AI to run next frame, then runs on.
-                RequireWalkingSpacePirateState(slot).Action = setAction.Action;
+                RequireWalkingSpacePirateState(place).Action = setAction.Action;
                 return null;
             case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
-                SpawnWalkingSpacePirateLaser(slot, direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
+                SpawnWalkingSpacePirateLaser(place, direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
                 return null;
             case WalkingSpacePirateCue.FireLaserRight fireLaserRight:
-                SpawnWalkingSpacePirateLaser(slot, direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
+                SpawnWalkingSpacePirateLaser(place, direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
-                return SelectWalkingSpacePirateMovement(slot, samus);
+                return SelectWalkingSpacePirateMovement(place, samus);
             default:
                 throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");
         }
@@ -107,14 +107,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         EnemyDefinitionId.PirateSilverWalking;
 
     /// <summary>Initializes the walking Space Pirate.</summary>
-    internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
+    internal static void InitializeWalkingSpacePirate(RoomEnemyPlace place)
     {
         var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.FollowingAnimation);
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The facing option alone selects the initial facing. The slow-laser option is an
         // independent projectile-flinch option and must not accidentally select right art.
-        WalkingSpacePirateSpawnSettings settings = slot.SpawnSettings<WalkingSpacePirateSpawnSettings>();
+        WalkingSpacePirateSpawnSettings settings = place.SpawnSettings<WalkingSpacePirateSpawnSettings>();
         WalkingSpacePirateOptions options = settings.Options;
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
@@ -124,13 +124,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
         // sees each post on its own side of the pirate.
-        state.RightPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.PatrolReach), 0);
-        state.LeftPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PatrolReach), 0);
+        state.RightPost = new(CoordinateAxis.Wrap(place.Position.X.Whole + settings.PatrolReach), 0);
+        state.LeftPost = new(CoordinateAxis.Wrap(place.Position.X.Whole - settings.PatrolReach), 0);
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
     private void RunWalkingSpacePirateMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -142,11 +142,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 break;
 
             case WalkingSpacePirateAction.WalkingLeft:
-                RunWalkingSpacePirateLeft(slot, state, samus, level);
+                RunWalkingSpacePirateLeft(place, state, samus, level);
                 break;
 
             case WalkingSpacePirateAction.WalkingRight:
-                RunWalkingSpacePirateRight(slot, state, samus, level);
+                RunWalkingSpacePirateRight(place, state, samus, level);
                 break;
 
             default:
@@ -156,37 +156,37 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // The slow-laser option enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace an animation selected just above.
-        if (((slot.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
+        if (((place.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
                 WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None))
-            TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
+            TryTriggerWalkingSpacePirateFlinch(place, state, samus, samusProjectiles);
     }
 
     /// <summary>Runs the asymmetric left walk.</summary>
     private void RunWalkingSpacePirateLeft(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        if (WalkingSpacePirateIsVerticallyClose(slot, samus))
+        if (WalkingSpacePirateIsVerticallyClose(place, samus))
         {
-            InstallWalkingSpacePirateAttack(slot, state, samus);
+            InstallWalkingSpacePirateAttack(place, state, samus);
             return;
         }
 
         // The first one-pixel downward move doubles as the grounded test. A move that hits
         // nothing means there was no floor, and the move itself is retained as falling.
-        if (!_terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown))
+        if (!_terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown))
             return;
 
         // Left and right are not mirrors in the game. Left probes a point 17 pixels
         // away, then walks by -14337 subpixels; right probes +16 and walks by +14336.
         // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
-        int originalX = slot.Position.X.Whole;
-        slot.Position = slot.Position.WithWrappedWholeX(
-            slot.Position.X.Whole - WalkingPirateLeftLedgeProbePixels);
-        bool floorAhead = _terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown);
-        slot.Position = slot.Position.WithWholeX(originalX);
+        int originalX = place.Position.X.Whole;
+        place.Position = place.Position.WithWrappedWholeX(
+            place.Position.X.Whole - WalkingPirateLeftLedgeProbePixels);
+        bool floorAhead = _terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown);
+        place.Position = place.Position.WithWholeX(originalX);
 
         if (floorAhead)
         {
@@ -194,62 +194,62 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // immediately overwrites, so it leaves no persistent actor-side effect.
             bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 displacement: WalkingPirateLeftStepDisplacement);
             if (!hitWall &&
-                (slot.Position.Whole - state.LeftPost).X >= 0)
+                (place.Position.Whole - state.LeftPost).X >= 0)
             {
                 return;
             }
         }
 
         StartWalkingSpacePirateAnimation(
-            slot,
+            place,
             state,
             WalkingSpacePirateSegment.LookingFacingLeft);
     }
 
     /// <summary>Runs the right walk.</summary>
     private void RunWalkingSpacePirateRight(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        if (WalkingSpacePirateIsVerticallyClose(slot, samus))
+        if (WalkingSpacePirateIsVerticallyClose(place, samus))
         {
-            InstallWalkingSpacePirateAttack(slot, state, samus);
+            InstallWalkingSpacePirateAttack(place, state, samus);
             return;
         }
 
-        if (!_terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown))
+        if (!_terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown))
             return;
 
-        int originalX = slot.Position.X.Whole;
-        slot.Position = slot.Position.WithWrappedWholeX(
-            slot.Position.X.Whole + WalkingPirateRightLedgeProbePixels);
-        bool floorAhead = _terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown);
-        slot.Position = slot.Position.WithWholeX(originalX);
+        int originalX = place.Position.X.Whole;
+        place.Position = place.Position.WithWrappedWholeX(
+            place.Position.X.Whole + WalkingPirateRightLedgeProbePixels);
+        bool floorAhead = _terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown);
+        place.Position = place.Position.WithWholeX(originalX);
 
         if (floorAhead &&
             !_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 displacement: WalkingPirateRightStepDisplacement) &&
-            (slot.Position.Whole - state.RightPost).X < 0)
+            (place.Position.Whole - state.RightPost).X < 0)
         {
             return;
         }
 
         StartWalkingSpacePirateAnimation(
-            slot,
+            place,
             state,
             WalkingSpacePirateSegment.LookingFacingRight);
     }
 
     /// <summary>Flinches when the one shot the flinch tests (<see cref="PirateFlinchFromHighestShot"/>) is close on both axes.</summary>
     private static void TryTriggerWalkingSpacePirateFlinch(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
         SamusProjectileSystem projectiles)
@@ -257,28 +257,28 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // A walking pirate reacts to any shot by its kind, not its picture.
         SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => !projectile.Type.IsNone);
         if (shot is null ||
-            CoordinateAxis.Distance(shot.Position.X.Whole, slot.Position.X.Whole) >=
+            CoordinateAxis.Distance(shot.Position.X.Whole, place.Position.X.Whole) >=
                 WalkingPirateFlinchBoxPixels ||
-            CoordinateAxis.Distance(shot.Position.Y.Whole, slot.Position.Y.Whole) >=
+            CoordinateAxis.Distance(shot.Position.Y.Whole, place.Position.Y.Whole) >=
                 WalkingPirateFlinchBoxPixels)
         {
             return;
         }
 
-        WalkingSpacePirateSegment list = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
+        WalkingSpacePirateSegment list = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0
             ? WalkingSpacePirateSegment.FlinchFacingRight
             : WalkingSpacePirateSegment.FlinchFacingLeft;
-        StartWalkingSpacePirateAnimation(slot, state, list);
+        StartWalkingSpacePirateAnimation(place, state, list);
     }
 
     /// <summary>Runs the movement cue's direct animation selection.</summary>
     private static WalkingSpacePirateSegment SelectWalkingSpacePirateMovement(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SamusState samus)
     {
         bool samusIsRightOrAligned =
-            CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0;
-        if (WalkingSpacePirateIsVerticallyClose(slot, samus))
+            CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0;
+        if (WalkingSpacePirateIsVerticallyClose(place, samus))
         {
             return samusIsRightOrAligned
                 ? WalkingSpacePirateSegment.FireLasersRight
@@ -294,36 +294,36 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>Tests signed vertical separation against the sixteen-pixel firing band.</summary>
     private static bool WalkingSpacePirateIsVerticallyClose(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SamusState samus) =>
-        CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) <
+        CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) <
             WalkingPirateFiringBandPixels;
 
     /// <summary>Chooses a left or right laser animation from Samus's current side.</summary>
     private static void InstallWalkingSpacePirateAttack(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus) =>
         StartWalkingSpacePirateAnimation(
-            slot,
+            place,
             state,
-            CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0
+            CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0
                 ? WalkingSpacePirateSegment.FireLasersRight
                 : WalkingSpacePirateSegment.FireLasersLeft);
 
     /// <summary>Arms a newly selected animation for processing on the next tick.</summary>
     private static void StartWalkingSpacePirateAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         WalkingSpacePirateSegment segment)
     {
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-        slot.AnimationClock.StepOnNextUpdate();
+        place.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs the firing cues and the laser initializer.</summary>
     private void SpawnWalkingSpacePirateLaser(
-        RoomEnemySlot source,
+        RoomEnemyPlace source,
         HorizontalDirection direction,
         int laserHeight)
     {
@@ -336,7 +336,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// same retail definition and therefore belongs in one shared implementation.
     /// </summary>
     internal bool SpawnSpacePirateLaser(
-        RoomEnemySlot source,
+        RoomEnemyPlace source,
         bool movingRight,
         int laserHeight)
     {
@@ -360,7 +360,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// The speed of a pirate's laser: the initializer reads the firing pirate's placement, where walking and wall
     /// pirates name the slow laser.
     /// </summary>
-    private static PirateLaserSpeed LaserSpeedOf(RoomEnemySlot pirate)
+    private static PirateLaserSpeed LaserSpeedOf(RoomEnemyPlace pirate)
     {
         bool slow = pirate.Spawn.Population.SpawnSettings switch
         {
@@ -384,7 +384,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <param name="movingRight">Whether the laser travels right.</param>
     /// <param name="speed">The laser's speed, which the firing enemy's placement names.</param>
     internal EnemyProjectile? SpawnPirateMotherBrainLaser(
-        RoomEnemySlot source,
+        RoomEnemyPlace source,
         Position16<RoomPixels> muzzle,
         bool movingRight,
         PirateLaserSpeed speed)
@@ -439,9 +439,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
-        RoomEnemySlot slot) =>
-        slot.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
+        RoomEnemyPlace place) =>
+        place.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
+            $"Enemy place {place.Ordinal} has no initialized walking Space Pirate state.");
 
     /// <summary>
     /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation, which installs its flight left or
@@ -488,25 +488,25 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
-    internal void RunWalkingSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunWalkingSpacePirateMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
-            slot,
-            RequireWalkingSpacePirateState(slot),
+            place,
+            RequireWalkingSpacePirateState(place),
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the walking Space Pirate's typed animation.</summary>
-    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
+    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
     {
-        if (!slot.AnimationClock.Expire())
+        if (!place.AnimationClock.Expire())
             return;
-        var state = RequireWalkingSpacePirateState(slot);
+        var state = RequireWalkingSpacePirateState(place);
         AnimationPlayback<WalkingSpacePirateSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(slot, WalkingSpacePirateAnimations.Segments, ref playback,
-            cue => ApplyWalkingSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
+        EnemyAnimationPlayback.Play(place, WalkingSpacePirateAnimations.Segments, ref playback,
+            cue => ApplyWalkingSpacePirateCue(place, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
@@ -575,7 +575,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
                 return false;
             // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
-            // slot; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
+            // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
             bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
             Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
             _deathsAndDrops.StartGenericEnemyDeath(
@@ -601,8 +601,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         // The shared Pirate touch returns before common touch AI while frozen. The overlap was
         // still found, but neither Samus nor the Pirate receives contact damage.
-        if (context.Slot.FrozenTimer != 0)
+        if (context.Place.FrozenTimer != 0)
             return;
-        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
     }
 }

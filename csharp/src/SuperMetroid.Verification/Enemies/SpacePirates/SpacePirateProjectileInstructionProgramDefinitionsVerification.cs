@@ -63,7 +63,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot source = enemies.SlotTable.Slots[0];
+            RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             source.SetSpawnParameter1(EnemyDefinitionId.PirateGreyWalking, 0);
             EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
@@ -97,7 +97,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot source = enemies.SlotTable.Slots[0];
+            RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, throwsRight: direction != 0, Offset16<RoomPixels>.Zero);
             EnemyProjectile claw = enemies.Projectiles.EnemyProjectiles.Single(
@@ -115,7 +115,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         Suite(nameof(VerifyNinjaPirateClawFlightSpeed), VerifyNinjaPirateClawFlightSpeed);
 
         RoomEnemySystem deleteSystem = NewSystem();
-        RoomEnemySlot deleteSource = deleteSystem.SlotTable.Slots[0];
+        RoomEnemyPlace deleteSource = deleteSystem.Places.InUpdateOrder[0];
         deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, throwsRight: false, Offset16<RoomPixels>.Zero);
         EnemyProjectile deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);

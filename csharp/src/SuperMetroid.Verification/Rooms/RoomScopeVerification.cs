@@ -95,7 +95,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(heatPhase, runtime.ColourEffectSession.PublishedHeatPhase,
             "the palette-FX heat phase survives the load on the session");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
-            !ReferenceEquals(source.Enemies.SlotTable, destination.Enemies.SlotTable),
+            !ReferenceEquals(source.Enemies.Places, destination.Enemies.Places),
             "the destination builds its own enemy system and slots");
         VerificationAssertions.AssertTrue(destination.Enemies.Earthquake.Shake == RoomEarthquakeDefinitions.UnshakenRoomShake && !destination.Enemies.Earthquake.IsShaking,
             "no enemy earthquake survives the load");

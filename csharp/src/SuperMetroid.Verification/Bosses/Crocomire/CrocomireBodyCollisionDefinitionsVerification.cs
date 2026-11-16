@@ -25,18 +25,18 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCrocomireTongueNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
+        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry);
+        RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
         var boundDefinition = default(RoomEnemyDefinition);
-        nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
-        compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
+        nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);
+        compiledPlace.Bind(compiledPlace.DefinitionId, boundDefinition);
         // The native side uses the independent test-side ROM walker. The
         // installed side selects Crocomire's compiled physical data.
-        compiledSlot.Bind(EnemyDefinitionId.Crocomire, compiledSlot.Definition);
-        compiledSlot.Position = compiledSlot.Position.WithWholeX(0x1000);
-        nativeSlot.Position = nativeSlot.Position.WithWholeX(0x1000);
-        compiledSlot.Position = compiledSlot.Position.WithWholeY(0x1000);
-        nativeSlot.Position = nativeSlot.Position.WithWholeY(0x1000);
+        compiledPlace.Bind(EnemyDefinitionId.Crocomire, compiledPlace.Definition);
+        compiledPlace.Position = compiledPlace.Position.WithWholeX(0x1000);
+        nativePlace.Position = nativePlace.Position.WithWholeX(0x1000);
+        compiledPlace.Position = compiledPlace.Position.WithWholeY(0x1000);
+        nativePlace.Position = nativePlace.Position.WithWholeY(0x1000);
 
         var frames = CrocomireBodyVisualDefinitionsConstants.Frames;
         AssertEqual(50, frames.Count,
@@ -75,7 +75,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     seenLists.Add(list, component.Hitboxes);
             }
 
-            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollision.Bank, frame);
+            nativePlace.Frame = compiledPlace.Frame = RoomEnemyPlaceFrameAccess.FrameAt(CrocomireBodyCollision.Bank, frame);
             foreach (short dx in new short[] { -112, -96, -64, -40, -16, 0, 16, 40, 64 })
             foreach (short dy in new short[] { -96, -64, -40, -16, 0, 16, 40, 64 })
             foreach (bool shot in new[] { false, true })
@@ -83,9 +83,9 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 ushort x = unchecked((ushort)(0x1000 + dx));
                 ushort y = unchecked((ushort)(0x1000 + dy));
                 object?[] nativeArguments =
-                    [nativeSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
+                    [nativePlace, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 object?[] compiledArguments =
-                    [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
+                    [compiledPlace, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, CrocomireBodyCollision.Bank, nativeArguments);
                 bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                 AssertEqual(nativeHit, compiledHit,

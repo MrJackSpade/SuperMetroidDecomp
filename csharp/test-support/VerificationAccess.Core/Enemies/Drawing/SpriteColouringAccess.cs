@@ -65,7 +65,7 @@ internal static class SpriteColouringAccess
     }
 
     /// <summary>Rows of an enemy's colours.</summary>
-    extension(RoomEnemySlot self)
+    extension(RoomEnemyPlace self)
     {
         /// <summary>The row the slot's draws select under the graphics set <paramref name="enemies"/>' room draws under.</summary>
         internal int PaletteRowIn(RoomEnemySystem enemies) =>

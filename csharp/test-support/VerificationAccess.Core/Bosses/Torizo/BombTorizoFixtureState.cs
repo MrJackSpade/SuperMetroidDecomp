@@ -10,7 +10,7 @@ internal static class BombTorizoFixtureState
     /// <paramref name="parameter1"/> word.
     /// </summary>
     /// <returns>The bound state.</returns>
-    internal static TorizoEnemyState BindTorizoFixtureState(this RoomEnemySlot torizo, int parameter1, bool isGolden = false)
+    internal static TorizoEnemyState BindTorizoFixtureState(this RoomEnemyPlace torizo, int parameter1, bool isGolden = false)
     {
         var state = new TorizoEnemyState(isGolden)
         {

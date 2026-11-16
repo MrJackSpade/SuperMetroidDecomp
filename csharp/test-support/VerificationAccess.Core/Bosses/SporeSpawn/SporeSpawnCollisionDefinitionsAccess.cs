@@ -21,10 +21,10 @@ internal static class SporeSpawnCollisionDefinitionsAccess
     {
         /// <summary>Whether the frame at native bank-$A5 address <paramref name="frame"/> is one of Spore Spawn's.</summary>
         internal static bool IsFrame(ushort frame) =>
-            SporeSpawnCollision.IsFrame(RoomEnemySlotFrameAccess.TryFrameAt(0xa5, frame));
+            SporeSpawnCollision.IsFrame(RoomEnemyPlaceFrameAccess.TryFrameAt(0xa5, frame));
 
         /// <summary>The components of the frame at native bank-$A5 address <paramref name="frame"/>.</summary>
         internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
-            SporeSpawnCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(0xa5, frame));
+            SporeSpawnCollision.ComponentsAt(RoomEnemyPlaceFrameAccess.TryFrameAt(0xa5, frame));
     }
 }

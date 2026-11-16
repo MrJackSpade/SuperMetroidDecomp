@@ -19,11 +19,11 @@ internal static class EnemySlotOffsets
     public const int NoEnemy = ushort.MaxValue;
 
     /// <summary>The bytes every enemy record takes together.</summary>
-    public static int TableSize => EnemySlotOrder.Capacity * RecordSize;
+    public static int TableSize => EnemyPlaceOrder.Capacity * RecordSize;
 
     /// <summary>The byte offset of slot <paramref name="slot"/>'s record.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="slot"/> is not a slot ordinal.</exception>
-    public static int OffsetOf(int slot) => Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, slot) * RecordSize;
+    public static int OffsetOf(int slot) => Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, slot) * RecordSize;
 
     /// <summary>The slot whose record starts at byte offset <paramref name="offset"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is not the start of an enemy record.</exception>

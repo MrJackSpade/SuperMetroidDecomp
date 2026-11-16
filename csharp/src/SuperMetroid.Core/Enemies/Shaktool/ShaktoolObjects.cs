@@ -16,7 +16,7 @@ internal sealed class ShaktoolObjects
     /// <summary>The room's room objects, which the controller joins.</summary>
     private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Connects Shaktool's room controller to the resident room-object slots and room owners.</summary>
+    /// <summary>Connects Shaktool's room controller to the resident room-object places and room owners.</summary>
     internal ShaktoolObjects(IRoomSamusAccess samus, IGlobalEventFlags events, RoomObjectPlaceList places)
     {
         _samus = samus;

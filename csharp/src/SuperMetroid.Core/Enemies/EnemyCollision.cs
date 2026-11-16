@@ -34,7 +34,7 @@ internal sealed class EnemyCollision
     /// <summary>Supplies the active room's area and environment to collision logic.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Defines enemy iteration order for the collision passes.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
     private readonly PowerBombRadiusAfterKill _powerBombRadius;
     /// <summary>The room's effect actors, which the burst at an enemy a shot or bomb hurts joins.</summary>
@@ -52,24 +52,24 @@ internal sealed class EnemyCollision
         _frameContext = dependencies.FrameContext;
         _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
-        _slotTable = dependencies.SlotTable;
+        _places = dependencies.Places;
     }
 
     /// <summary>
-    /// The touch reaction a touch selects when it meets <paramref name="slot"/> by its radius: the shared one its
+    /// The touch reaction a touch selects when it meets <paramref name="place"/> by its radius: the shared one its
     /// definition names, or else the species' own its hitboxes name (<see cref="IEnemyFrameHitboxes.SpeciesTouch"/>);
     /// null when neither names one.
     /// </summary>
-    internal static EnemyReaction? TouchReactionOf(RoomEnemySlot slot) =>
-        slot.Definition.Touch ?? (slot.Entity as IEnemyFrameHitboxes)?.SpeciesTouch;
+    internal static EnemyReaction? TouchReactionOf(RoomEnemyPlace place) =>
+        place.Definition.Touch ?? (place.Entity as IEnemyFrameHitboxes)?.SpeciesTouch;
 
     /// <summary>
-    /// The shot reaction a shot or bomb selects when it meets <paramref name="slot"/> by its radius: the shared one its
+    /// The shot reaction a shot or bomb selects when it meets <paramref name="place"/> by its radius: the shared one its
     /// definition names, or else the species' own its hitboxes name (<see cref="IEnemyFrameHitboxes.SpeciesShot"/>);
     /// null when neither names one.
     /// </summary>
-    internal static EnemyReaction? ShotReactionOf(RoomEnemySlot slot) =>
-        slot.Definition.Shot ?? (slot.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
+    internal static EnemyReaction? ShotReactionOf(RoomEnemyPlace place) =>
+        place.Definition.Shot ?? (place.Entity as IEnemyFrameHitboxes)?.SpeciesShot;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
@@ -81,7 +81,7 @@ internal sealed class EnemyCollision
         SamusState samus,
         GameplayAction controllerInput,
         RoomLevelData level,
-        RoomEnemySlot? onlyEnemy = null,
+        RoomEnemyPlace? onlyEnemy = null,
         Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(samus);
@@ -89,44 +89,44 @@ internal sealed class EnemyCollision
         if (bodyAttack == SamusBodyAttack.None && !samus.InvincibilityTimer.IsZero)
             return false;
 
-        foreach (RoomEnemySlot slot in _lifecycle.InteractiveEnemies)
+        foreach (RoomEnemyPlace place in _lifecycle.InteractiveEnemies)
         {
-            if (onlyEnemy is not null && slot != onlyEnemy)
+            if (onlyEnemy is not null && place != onlyEnemy)
                 continue;
             // Collision entry rejects an enemy showing no frame before resetting Samus's
             // invulnerability. Keep this per enemy: an empty interactive list or an actor
             // not yet showing a frame must not erase the timer. The reset still precedes
             // overlap testing, so a distant actor with a frame can legitimately clear it.
-            if (slot.Frame is null)
+            if (place.Frame is null)
                 continue;
-            bool usesFrameHitboxes = UsesFrameHitboxesForSamus(slot);
+            bool usesFrameHitboxes = UsesFrameHitboxesForSamus(place);
             // Frame-hitbox entry withholds the touch the definition excludes from its hitboxes before
             // resetting invulnerability. Ordinary radius entry resets first instead.
-            if (usesFrameHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
+            if (usesFrameHitboxes && place.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
                 continue;
             if (bodyAttack != SamusBodyAttack.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
             // Touch collision does not read the invisible property as a collision flag;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
-            // slot remains invisible while its animation moves a live hitbox.
+            // place remains invisible while its animation moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
             // solved tail tip. The enemy pass runs its body's collision at this same pre-AI seam;
             // tail processing checks the tip later. Do not flatten either to the definition's
             // dummy 8x8 radius here. An actor without a touch reaction is skipped.
-            if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
-                slot.Presence.HasAny(EnemyPresence.Deleted) ||
-                slot.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
+            if (place.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
+                place.Presence.HasAny(EnemyPresence.Deleted) ||
+                place.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
             {
                 continue;
             }
 
             bool overlapsSamus;
-            EnemyReaction? hitboxTouch = TouchReactionOf(slot);
+            EnemyReaction? hitboxTouch = TouchReactionOf(place);
             if (usesFrameHitboxes)
             {
                 overlapsSamus = TryFindFrameHitboxReaction(
-                    slot,
+                    place,
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
                     contactKind: HitboxContactKind.Touch,
@@ -135,8 +135,8 @@ internal sealed class EnemyCollision
             else
             {
                 overlapsSamus = RadiusBoxesOverlap(
-                    slot.Position.Whole,
-                    slot.Radius,
+                    place.Position.Whole,
+                    place.Radius,
                     samus.Position.Whole,
                     samus.Kinematics.Radius);
             }
@@ -146,14 +146,14 @@ internal sealed class EnemyCollision
 
             // On the ordinary radius path a frozen enemy never runs its touch
             // AI, except a place awaiting its enemy's respawn. The extended-hitbox path has no such gate.
-            if (!usesFrameHitboxes && slot.FrozenTimer != 0 &&
-                !slot.AwaitsRespawn)
+            if (!usesFrameHitboxes && place.FrozenTimer != 0 &&
+                !place.AwaitsRespawn)
             {
                 continue;
             }
 
             touch.ReactToTouch(new EnemyTouchContext(
-                slot,
+                place,
                 samus,
                 controllerInput,
                 level,
@@ -181,14 +181,14 @@ internal sealed class EnemyCollision
         SamusBombProjectileSystem sharedProjectiles,
         AreaId roomArea,
         SamusState samus,
-        RoomEnemySlot? onlyEnemy = null,
+        RoomEnemyPlace? onlyEnemy = null,
         Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
 
         int hitCount = 0;
-        foreach (RoomEnemySlot enemy in _lifecycle.InteractiveEnemies)
+        foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
         {
             if (onlyEnemy is not null && enemy != onlyEnemy)
                 continue;
@@ -213,9 +213,9 @@ internal sealed class EnemyCollision
 
             foreach (SamusProjectile projectile in projectiles.Shots)
             {
-                // The slot still holds the live beam or missile when the enemy's collision
+                // The place still holds the live beam or missile when the enemy's collision
                 // response selects vulnerability. Starting the impact below deliberately
-                // turns the slot into an explosion, so retain the incoming type instead of
+                // turns the place into an explosion, so retain the incoming type instead of
                 // accidentally asking the vulnerability table about the visual effect.
                 SamusProjectileType projectileType = projectile.Type;
                 int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
@@ -454,7 +454,7 @@ internal sealed class EnemyCollision
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState samus,
-        RoomEnemySlot? onlyEnemy = null,
+        RoomEnemyPlace? onlyEnemy = null,
         Position16<RoomPixels> camera = default)
     {
         Ensure.NotNull(bombs);
@@ -463,7 +463,7 @@ internal sealed class EnemyCollision
         int hitCount = 0;
         for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _lifecycle.InteractiveEnemies.Count); ordinal++)
         {
-            RoomEnemySlot enemy = onlyEnemy ?? _lifecycle.InteractiveEnemies[ordinal];
+            RoomEnemyPlace enemy = onlyEnemy ?? _lifecycle.InteractiveEnemies[ordinal];
             EnemyReaction? radiusShot = ShotReactionOf(enemy);
             bool usesCommonShot = radiusShot == EnemyReaction.NormalEnemyShot;
             bool usesIgnoringShot = radiusShot == EnemyReaction.Ignore;
@@ -584,7 +584,7 @@ internal sealed class EnemyCollision
     /// hitbox may deliberately override its definition with a different reaction.
     /// </summary>
     private static bool HasPrivateNormalBombShot(
-        RoomEnemySlot enemy,
+        RoomEnemyPlace enemy,
         EnemyReaction? reaction) =>
         enemy.Entity is IEnemyPrivateShotReaction owner &&
         owner.OwnsPrivateShotReaction(reaction);
@@ -593,14 +593,14 @@ internal sealed class EnemyCollision
     /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death tail: the
     /// part of the reaction a species' own bomb handling calls before deciding the enemy's death itself.
     /// </summary>
-    internal void ApplyNormalBombDamage(RoomEnemySlot enemy, SamusBomb bomb) => _ = HurtByNormalBomb(enemy, bomb);
+    internal void ApplyNormalBombDamage(RoomEnemyPlace enemy, SamusBomb bomb) => _ = HurtByNormalBomb(enemy, bomb);
 
     /// <summary>
     /// Damages <paramref name="enemy"/> by <paramref name="bomb"/> through its bomb vulnerability: a zero multiplier leaves
     /// the dud flash and sound instead; otherwise the enemy flashes, is hurt, cries unless frozen and loses the damage.
     /// </summary>
     /// <returns>Whether the bomb was a dud, hurt the enemy while it was frozen, or hurt it while it was not.</returns>
-    private NormalBombHit HurtByNormalBomb(RoomEnemySlot enemy, SamusBomb bomb)
+    private NormalBombHit HurtByNormalBomb(RoomEnemyPlace enemy, SamusBomb bomb)
     {
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
         int damage = vulnerability.DamageFrom(bomb.Damage);
@@ -627,7 +627,7 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>The ordinary shot reaction's death tail after a bomb's damage: a killed enemy starts its death.</summary>
-    private void StartNormalBombDeathIfKilled(RoomEnemySlot enemy)
+    private void StartNormalBombDeathIfKilled(RoomEnemyPlace enemy)
     {
         if (enemy.Health != 0)
             return;
@@ -641,7 +641,7 @@ internal sealed class EnemyCollision
     /// bomb hurt an enemy that was not frozen, shown after the damage and before the death. It is a room effect actor
     /// drawn with the room's graphics, so it takes one of the room's effect-actor places as it spawns.
     /// </summary>
-    private void ShowHitBurst(RoomEnemySlot enemy) =>
+    private void ShowHitBurst(RoomEnemyPlace enemy) =>
         _ = _effectActors.SpawnRoomEffectActor(enemy.Position.Whole, RoomEffectActorKind.EnemyHit, graphics: default);
 
     /// <summary>What a normal bomb's common damage did to the enemy it reached.</summary>
@@ -683,10 +683,10 @@ internal sealed class EnemyCollision
         int reactionCount = 0;
         _powerBombRadius.Forget();
 
-        // The blast reaches every slot in its own order, independent of the ordinary
+        // The blast reaches every place in its own order, independent of the ordinary
         // active list. That matters while a power bomb reaches off-screen actors and then
         // sets their process-off-screen property below.
-        foreach (RoomEnemySlot enemy in EnemySlotOrder.InBlastOrder(_slotTable.Slots))
+        foreach (RoomEnemyPlace enemy in EnemyPlaceOrder.InBlastOrder(_places.InUpdateOrder))
         {
             // A death inside the previous reaction resizes the horizontal reach for the rest of
             // the sweep; the vertical reach is unchanged.
@@ -760,7 +760,7 @@ internal sealed class EnemyCollision
     /// Bomb families take their own responses.
     /// </summary>
     internal static NormalShotVulnerability ReadNormalShotVulnerability(
-        RoomEnemySlot enemy,
+        RoomEnemyPlace enemy,
         SamusProjectileType projectileType)
     {
         EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
@@ -797,7 +797,7 @@ internal sealed class EnemyCollision
     /// </summary>
     /// <param name="enemy">The enemy frozen.</param>
     /// <param name="roomArea">The area of the room the enemy is in.</param>
-    internal void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, AreaId roomArea)
+    internal void FreezeEnemyFromNormalShot(RoomEnemyPlace enemy, AreaId roomArea)
     {
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
@@ -813,7 +813,7 @@ internal sealed class EnemyCollision
 
     /// <summary>Selects the enemy's response to the projectile's beam combination or weapon family.</summary>
     internal static EnemyWeaponVulnerability ReadProjectileVulnerability(
-        RoomEnemySlot enemy,
+        RoomEnemyPlace enemy,
         SamusProjectileType projectileType)
     {
         EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
@@ -860,7 +860,7 @@ internal sealed class EnemyCollision
     /// shot reactions.
     /// </summary>
     internal static bool TryFindFrameHitboxReaction(
-        RoomEnemySlot enemy,
+        RoomEnemyPlace enemy,
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
         HitboxContactKind contactKind,
@@ -908,23 +908,23 @@ internal sealed class EnemyCollision
     /// from the shot set: Phantoon's frames' hitboxes meet Samus, while his own projectile resolver owns how shots meet
     /// him.
     /// </summary>
-    internal static bool UsesFrameHitboxesForSamus(RoomEnemySlot enemy) =>
+    internal static bool UsesFrameHitboxesForSamus(RoomEnemyPlace enemy) =>
         enemy.CollidesByFrameHitboxes &&
         (Capabilities(enemy) & EnemyCapabilities.SamusFrameHitboxes) != EnemyCapabilities.None;
 
     /// <summary>
     /// Identifies actors whose contact with Samus's shots is tested against their frames' hitboxes.
-    /// <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/> alone is not sufficient: Mother Brain and several
+    /// <see cref="RoomEnemyPlace.CollidesByFrameHitboxes"/> alone is not sufficient: Mother Brain and several
     /// encounter-owned actors collide by frame hitboxes elsewhere while their shots meet a definition's radius or
     /// encounter-specific geometry. Keeping this predicate beside the step gives data-backed probes the same
     /// boundary as gameplay.
     /// </summary>
-    internal static bool UsesFrameHitboxesForProjectiles(RoomEnemySlot enemy) =>
+    internal static bool UsesFrameHitboxesForProjectiles(RoomEnemyPlace enemy) =>
         enemy.CollidesByFrameHitboxes &&
         (Capabilities(enemy) & EnemyCapabilities.ProjectileFrameHitboxes) != EnemyCapabilities.None;
 
-    /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>
-    private static EnemyCapabilities Capabilities(RoomEnemySlot enemy) =>
+    /// <summary>The bound occupant's collision capabilities; an empty place has none.</summary>
+    private static EnemyCapabilities Capabilities(RoomEnemyPlace enemy) =>
         enemy.Entity?.Capabilities ?? EnemyCapabilities.None;
 
     /// <summary>
@@ -933,7 +933,7 @@ internal sealed class EnemyCollision
     /// their own entries from the enemy's vulnerabilities and damage the actor.
     /// </summary>
     internal void ResolveNormalEnemyTouch(
-        RoomEnemySlot enemy,
+        RoomEnemyPlace enemy,
         SamusState samus,
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play)
     {
@@ -994,7 +994,7 @@ internal sealed class EnemyCollision
 
         // Rinka's touch reaction calls this common damage body explicitly, inspects the
         // resulting zero health, then chooses either generic respawn death or its private
-        // hidden two-frame Mother Brain respawn. Do not clear the slot before that tail.
+        // hidden two-frame Mother Brain respawn. Do not clear the place before that tail.
         if (deathAnimation == TouchDeathAnimation.Skip)
             return;
 
@@ -1035,7 +1035,7 @@ internal sealed class EnemyCollision
     /// Horizontal tangency is excluded; vertical tangency after the
     /// three-pixel bias is included. Both Kraid platforms and work robots call it.
     /// </summary>
-    internal static bool IsEnemyTouchingSamusFromBelow(RoomEnemySlot enemy, SamusState samus)
+    internal static bool IsEnemyTouchingSamusFromBelow(RoomEnemyPlace enemy, SamusState samus)
     {
         int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, enemy.Position.X.Whole);
         int horizontalGap = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);

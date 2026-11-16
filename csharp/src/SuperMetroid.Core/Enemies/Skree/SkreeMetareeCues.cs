@@ -7,10 +7,10 @@ internal static class SkreeMetareeCues
     /// Carries out one cue. The wind-up rests immediately after marking the attack ready; main AI consumes the flag on
     /// the following enemy frame and starts the dive, exactly matching the animation-to-AI hand-off.
     /// </summary>
-    /// <param name="slot">The enemy.</param>
+    /// <param name="place">The enemy.</param>
     /// <param name="cue">The cue the animation published.</param>
     /// <param name="markAttackReady">Sets the species state's attack-ready flag.</param>
-    internal static void Apply(RoomEnemySlot slot, SkreeMetareeCue cue, Action markAttackReady)
+    internal static void Apply(RoomEnemyPlace place, SkreeMetareeCue cue, Action markAttackReady)
     {
         switch (cue.Kind)
         {
@@ -18,7 +18,7 @@ internal static class SkreeMetareeCues
                 markAttackReady();
                 break;
             case SkreeMetareeCueKind.ProcessOffScreen:
-                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");

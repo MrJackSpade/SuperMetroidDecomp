@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies;
 /// <see cref="Capabilities"/>, and it owns no private shot reaction unless the species implements
 /// <see cref="IEnemyPrivateShotReaction"/>.
 /// </summary>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared responses.</param>
-internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
+internal abstract class CommonParticipationEnemyEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
     : IEnemyHurtReaction, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction
 {
-    /// <summary>The slot the enemy occupies; its definition names the shared responses.</summary>
-    protected RoomEnemySlot Slot { get; } = slot;
+    /// <summary>The place the enemy occupies; its definition names the shared responses.</summary>
+    protected RoomEnemyPlace Place { get; } = place;
 
     /// <summary>The shared responses.</summary>
     protected EnemyCommonParticipation Common { get; } = common;
@@ -22,17 +22,17 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, Enemy
     public virtual EnemyCapabilities Capabilities => EnemyCapabilities.None;
 
     /// <summary>Whether the definition names no shared touch reaction, leaving Samus's touch to the species.</summary>
-    protected bool LeavesTouchToSpecies => Slot.Definition.Touch is null;
+    protected bool LeavesTouchToSpecies => Place.Definition.Touch is null;
 
     /// <summary>Whether the definition names no shared shot reaction, leaving shots and bombs to the species.</summary>
-    protected bool LeavesShotToSpecies => Slot.Definition.Shot is null;
+    protected bool LeavesShotToSpecies => Place.Definition.Shot is null;
 
     /// <summary>Whether the definition names no shared Power Bomb reaction, leaving the blast to the species or to common damage.</summary>
-    protected bool LeavesPowerBombToSpecies => Slot.Definition.PowerBombReaction is null;
+    protected bool LeavesPowerBombToSpecies => Place.Definition.PowerBombReaction is null;
 
     /// <summary>The inert hurt the definition names, which does nothing; false when the definition names the species' own.</summary>
     /// <param name="frame">The enemy frame.</param>
-    public virtual bool RunHurt(RoomEnemyFrame frame) => EnemyCommonParticipation.HasInertHurt(Slot.Definition);
+    public virtual bool RunHurt(RoomEnemyFrame frame) => EnemyCommonParticipation.HasInertHurt(Place.Definition);
 
     /// <summary>No frozen tail; the common thaw follows.</summary>
     public virtual bool PreemptFrozenTurn() => false;
@@ -43,14 +43,14 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, Enemy
     }
 
     /// <summary>Whether the definition names a shared touch reaction.</summary>
-    public virtual bool ReactsToTouch => EnemyCommonParticipation.ReactsToTouch(Slot.Definition);
+    public virtual bool ReactsToTouch => EnemyCommonParticipation.ReactsToTouch(Place.Definition);
 
     /// <summary>Runs the shared touch reaction the definition names.</summary>
     /// <param name="context">The touch.</param>
     public virtual void ReactToTouch(EnemyTouchContext context) => Common.ReactToTouch(context);
 
     /// <summary>The shared shot reaction the definition names, or null.</summary>
-    public virtual EnemyShotReaction? ShotReaction => EnemyCommonParticipation.ShotReaction(Slot.Definition);
+    public virtual EnemyShotReaction? ShotReaction => EnemyCommonParticipation.ShotReaction(Place.Definition);
 
     /// <summary>No reaction of its own before the check for the ignoring reaction.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -65,5 +65,5 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, Enemy
     public virtual EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) => null;
 
     /// <summary>The shared Power Bomb reaction the definition names, or null for common Power Bomb damage.</summary>
-    public virtual EnemyPowerBombReaction? PowerBombReaction => EnemyCommonParticipation.PowerBombReaction(Slot.Definition);
+    public virtual EnemyPowerBombReaction? PowerBombReaction => EnemyCommonParticipation.PowerBombReaction(Place.Definition);
 }

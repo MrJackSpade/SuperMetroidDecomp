@@ -32,7 +32,7 @@ internal sealed class CrocomireBodyLayer
     /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
     internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
     {
-        RoomEnemySlot tongue = state.Tongue ??
+        RoomEnemyPlace tongue = state.Tongue ??
             throw new InvalidOperationException("Crocomire's tongue animation started without a tongue.");
         state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(segment), AnimationPlace.StartOfAnimation);
         tongue.AnimationClock.RestartAfter(updates);
@@ -66,7 +66,7 @@ internal sealed class CrocomireBodyLayer
     /// </summary>
     internal static void PlaceCrocomireTongue(CrocomireEnemyState state)
     {
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         if (state.Tongue is { } tongue)
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()

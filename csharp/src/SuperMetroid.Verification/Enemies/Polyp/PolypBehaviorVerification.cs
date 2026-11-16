@@ -17,17 +17,17 @@ internal static class PolypBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        enemies.PolypBehavior.InitializePolyp(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.LavaRocks, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        enemies.PolypBehavior.InitializePolyp(place);
         AssertEqual(new AnimationPlayback<PolypSegment>(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
-            (enemies.SlotTable.Slots[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Playback,
+            (enemies.Places.InUpdateOrder[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Playback,
             "real Polyp initializer starts the stationary program");
         // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypSegment.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-            EnemyInstructionRunner.ShownFrames(slot, 4), "Polyp shows its stationary frame once and holds it");
+            EnemyInstructionRunner.ShownFrames(place, 4), "Polyp shows its stationary frame once and holds it");
         Console.WriteLine("  Polyp behavior: the stationary pose shows and holds.");
     }
 

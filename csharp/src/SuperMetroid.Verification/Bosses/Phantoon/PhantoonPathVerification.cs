@@ -20,9 +20,9 @@ internal static class PhantoonPathVerification
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7e3d3 + index * 2)), delta.Y, "Exact Phantoon path Y byte");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var body = enemies.SlotTable.Slots[0];
-        var eye = enemies.SlotTable.Slots[1];
-        Action<RoomEnemySlot, PhantoonFigureEightState> step = PhantoonPatterns.StepPhantoonFigureEight;
+        var body = enemies.Places.InUpdateOrder[0];
+        var eye = enemies.Places.InUpdateOrder[1];
+        Action<RoomEnemyPlace, PhantoonFigureEightState> step = PhantoonPatterns.StepPhantoonFigureEight;
         var figureEight = new PhantoonFigureEightState();
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool reverse in new[] { false, true })

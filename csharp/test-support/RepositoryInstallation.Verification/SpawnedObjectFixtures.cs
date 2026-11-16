@@ -83,15 +83,15 @@ internal static class SpawnedObjectFixtures
 
     /// <summary>
     /// Draws <paramref name="enemies"/> under the graphics set a retail room drawing <paramref name="enemy"/> loads, as that
-    /// room's load does, so its variant's sheets draw it, and gives <paramref name="slot"/> its standard colours there.
+    /// room's load does, so its variant's sheets draw it, and gives <paramref name="place"/> its standard colours there.
     /// </summary>
-    internal static void LoadSetDrawing(RoomEnemySystem enemies, EnemyDefinitionId enemy, RoomEnemySlot? slot = null)
+    internal static void LoadSetDrawing(RoomEnemySystem enemies, EnemyDefinitionId enemy, RoomEnemyPlace? place = null)
     {
         ArgumentNullException.ThrowIfNull(enemies);
         enemies.DrawUnder(SetDrawing(enemy));
-        if (slot is null)
+        if (place is null)
             return;
-        slot.Shading = PictureShading.Standard;
+        place.Shading = PictureShading.Standard;
     }
 
     /// <summary>

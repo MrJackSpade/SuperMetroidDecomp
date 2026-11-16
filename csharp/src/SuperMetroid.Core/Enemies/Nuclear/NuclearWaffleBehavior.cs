@@ -13,7 +13,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puromi];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NuclearWaffleEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NuclearWaffleEntity(this, place, common);
 
     /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -32,14 +32,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Nuclear Waffle.</summary>
-    internal void InitializeNuclearWaffle(RoomEnemySlot slot)
+    internal void InitializeNuclearWaffle(RoomEnemyPlace place)
     {
         var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting);
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(slot, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
+        state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
 
-        NuclearWaffleSpawnSettings settings = slot.SpawnSettings<NuclearWaffleSpawnSettings>();
+        NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
         state.OrbitRadius = settings.OrbitRadius;
         state.WaitingTimerReset = settings.WaitTime;
         state.WaitingTimer = state.WaitingTimerReset;
@@ -57,26 +57,26 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         // A backward sweep turns at the placement's angular speed, negated.
         state.AngularSpeed = state.SweepsForward ? settings.AngularSpeed : -settings.AngularSpeed;
 
-        state.Origin = slot.Position.Whole;
-        PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
-        state.InitialHead = slot.Position.Whole;
-        state.Graphics = SpriteGraphics.SpawnedBy(slot);
+        state.Origin = place.Position.Whole;
+        PositionNuclearWaffleHead(place, state, state.SweepStartAngle);
+        state.InitialHead = place.Position.Whole;
+        state.Graphics = SpriteGraphics.SpawnedBy(place);
 
-        SpawnNuclearWaffleProjectileSegments(slot, state);
-        SpawnNuclearWaffleSpriteSegments(slot, state);
+        SpawnNuclearWaffleProjectileSegments(place, state);
+        SpawnNuclearWaffleSpriteSegments(place, state);
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    private void RunNuclearWaffleMain(RoomEnemySlot slot, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleMain(RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         switch (state.Action)
         {
             case NuclearWaffleAction.Waiting:
-                RunNuclearWaffleWaiting(slot, state);
+                RunNuclearWaffleWaiting(place, state);
                 return;
 
             case NuclearWaffleAction.Sweeping:
-                RunNuclearWaffleSweep(slot, state);
+                RunNuclearWaffleSweep(place, state);
                 return;
 
             default:
@@ -87,7 +87,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits before a sweep.</summary>
     private static void RunNuclearWaffleWaiting(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NuclearWaffleEnemyState state)
     {
         if (--state.WaitingTimer >= 0)
@@ -99,11 +99,11 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;
         Array.Clear(state.ProjectileOrientationStates);
         Array.Clear(state.SpriteOrientationStates);
-        slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+        place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
     }
 
     /// <summary>Runs a sweep.</summary>
-    private void RunNuclearWaffleSweep(RoomEnemySlot slot, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleSweep(RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
             state,
@@ -111,14 +111,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (headOrientation.State != state.HeadOrientationState)
         {
             SpawnNuclearWaffleTurnEffects(
-                slot.Position.Whole,
+                place.Position.Whole,
                 state.Graphics,
                 headOrientation);
             state.HeadOrientationState = headOrientation.State;
         }
 
         (NuclearWaffleSweepAngle clampedHeadAngle, _) = ClampNuclearWaffleAngle(state, state.CurrentAngle);
-        PositionNuclearWaffleHead(slot, state, clampedHeadAngle);
+        PositionNuclearWaffleHead(place, state, clampedHeadAngle);
 
         bool sweepFinished = PositionNuclearWaffleProjectileSegments(state);
         PositionNuclearWaffleSpriteSegments(state);
@@ -127,12 +127,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = NuclearWaffleAction.Waiting;
-        slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
+        place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
     }
 
     /// <summary>Allocates the four damaging projectile links in association order.</summary>
     private void SpawnNuclearWaffleProjectileSegments(
-        RoomEnemySlot owner,
+        RoomEnemyPlace owner,
         NuclearWaffleEnemyState state)
     {
         // The four spawn parameters each select one segment's association.
@@ -165,13 +165,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Allocates the noncolliding sprite links that interleave with projectile links.</summary>
     private void SpawnNuclearWaffleSpriteSegments(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NuclearWaffleEnemyState state)
     {
         for (int segmentIndex = 0; segmentIndex < state.SpriteSegments.Length; segmentIndex++)
         {
             state.SpriteSegments[segmentIndex] = _effectActors.SpawnRoomEffectActor(
-                slot.Position.Whole,
+                place.Position.Whole,
                 RoomEffectActorKind.NuclearWaffleBody,
                 state.Graphics);
         }
@@ -303,11 +303,11 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Places the head at the requested angle around its captured room origin.</summary>
     private static void PositionNuclearWaffleHead(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NuclearWaffleEnemyState state,
         NuclearWaffleSweepAngle angle)
     {
-        slot.Position = slot.Position.WithWhole(NuclearWaffleOrbitPoint(state, angle));
+        place.Position = place.Position.WithWhole(NuclearWaffleOrbitPoint(state, angle));
     }
 
     /// <summary>
@@ -322,21 +322,21 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SweepAngle += state.AngularSpeed;
 
     /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
-    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
-        if (!slot.AnimationClock.Expire())
+        if (!place.AnimationClock.Expire())
             return;
-        NuclearWaffleEnemyState state = slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
+        NuclearWaffleEnemyState state = place.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
+            $"Enemy place {place.Ordinal} has no initialized Nuclear Waffle state.");
         AnimationPlayback<NuclearWaffleSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(slot, NuclearWaffleAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(place, NuclearWaffleAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
         state.Playback = playback;
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
-    internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    internal void RunNuclearWaffleMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
     {
-        RunNuclearWaffleMain(slot, slot.RequireSpeciesState<NuclearWaffleEnemyState>());
+        RunNuclearWaffleMain(place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
     }
 }

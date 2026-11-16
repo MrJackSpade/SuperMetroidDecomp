@@ -25,8 +25,8 @@ internal static class MotherBrainBodyHitboxesVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        RoomEnemySlot body = state.Body;
-        RoomEnemySlot head = state.Head;
+        RoomEnemyPlace body = state.Body;
+        RoomEnemyPlace head = state.Head;
         AssertTrue(body.CollidesByFrameHitboxes,
             "the body is an extended-spritemap enemy");
 

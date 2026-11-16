@@ -21,7 +21,7 @@ internal static class SkreeMetareeParticles
     /// <paramref name="source"/>: the outer pair flies at 1.25 pixels outward and just over 3 up per update, the inner pair
     /// at 0.375 outward and just over 4 up, in 1/256 pixels.
     /// </summary>
-    internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemySlot source, MetalParticleBurst burst)
+    internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemyPlace source, MetalParticleBurst burst)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(burst);
@@ -47,7 +47,7 @@ internal static class SkreeMetareeParticles
     /// </summary>
     private static void SpawnParticle(
         EnemyProjectileEngine projectiles,
-        RoomEnemySlot source,
+        RoomEnemyPlace source,
         RoomEnemyProjectileKind kind,
         SkreeMetareeParticleSegment look,
         int xOffset,

@@ -9,17 +9,17 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// the enemies.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
-/// <param name="slot">The slot the wall occupies.</param>
+/// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => doors.Start(Slot, CeresDoorSegment.ElevatorRoomWall);
+    public void Initialize() => doors.Start(Place, CeresDoorSegment.ElevatorRoomWall);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Slot, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 }

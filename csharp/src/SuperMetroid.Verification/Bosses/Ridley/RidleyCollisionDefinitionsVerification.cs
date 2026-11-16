@@ -21,12 +21,12 @@ internal static class RidleyCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewRidleyCollisionNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition));
+        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry);
+        RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
+        compiledPlace.Bind(compiledPlace.DefinitionId, default(RoomEnemyDefinition));
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
-        compiledSlot.Bind(EnemyDefinitionId.Ridley, compiledSlot.Definition);
+        compiledPlace.Bind(EnemyDefinitionId.Ridley, compiledPlace.Definition);
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
 
@@ -71,14 +71,14 @@ internal static class RidleyCollisionDefinitionsVerification
                 componentsChecked++;
             }
 
-            compiledSlot.SpritemapPointer = frame;
+            compiledPlace.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
                      new VerifyRidleyCollisionDefinitionsCase[]
                      {
                          new VerifyRidleyCollisionDefinitionsCase(0x0100, 0x0100), new VerifyRidleyCollisionDefinitionsCase(0x0004, 0x0006), new VerifyRidleyCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
-                compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
+                compiledPlace.Position = compiledPlace.Position.WithWhole(new(originX, originY));
                 foreach (RidleyCollisionComponent component in components)
                 foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
                 {
@@ -109,7 +109,7 @@ internal static class RidleyCollisionDefinitionsVerification
                         ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                         ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
                         object?[] compiledArguments =
-                        [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, (ushort)0];
+                        [compiledPlace, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, (ushort)0];
                         bool nativeHit = NativeCallback(frame, new Position16<RoomPixels>(originX, originY), new Position16<RoomPixels>(xs[xi], ys[yi]),
                             new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, out ushort nativeCallback);
                         bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
@@ -126,7 +126,7 @@ internal static class RidleyCollisionDefinitionsVerification
                             bool expectedCeres = NativeCeresOverlap(frame, new Position16<RoomPixels>(originX, originY),
                                 new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             bool actualCeres = CeresRidleyHits.FrameHitboxesOverlapRectangle(
-                                compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
+                                compiledPlace, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             AssertEqual(expectedCeres, actualCeres,
                                 $"Ceres private Ridley projectile overlap $A6:{frame:X4}");
                         }

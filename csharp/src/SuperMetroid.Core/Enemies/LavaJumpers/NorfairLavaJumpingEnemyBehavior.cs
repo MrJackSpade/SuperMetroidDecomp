@@ -10,14 +10,14 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NorfairLavaJumpingEnemyEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NorfairLavaJumpingEnemyEntity(this, place, common);
 
     /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where each follower finds its parent when it is placed.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>The parent each follower found when it was placed, which its room lists right before it.</summary>
-    private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
+    private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
     /// <summary>The state of the parent each follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
     private readonly EnemyPartLinks<NorfairLavaJumpingEnemyState> _parentStates = new();
 
@@ -25,11 +25,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds lava-jumper behavior to room RNG and the room's enemies.</summary>
-    internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyAudioQueue audio)
+    internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemyPlaces places, EnemyAudioQueue audio)
     {
         _audio = audio;
         _room = room;
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>Velocity increment applied after each moving frame, 56 256ths of a pixel per update.</summary>
@@ -38,20 +38,20 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = -SignedEightEight.FromParts(4, 0);
 
     /// <summary>Initializes the Norfair lava jumper.</summary>
-    internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
+    internal void InitializeNorfairLavaJumpingEnemy(RoomEnemyPlace place)
     {
-        if (IsFollower(slot))
+        if (IsFollower(place))
         {
             // The retail population always places this cosmetic second half immediately after its moving parent, which
             // it finds when it is placed and follows from then on; a population that places anything else there is
             // refused.
-            slot.SetSpeciesState(new NorfairLavaJumperFollowerState
+            place.SetSpeciesState(new NorfairLavaJumperFollowerState
             {
                 Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
             });
-            _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
-            ValidateNorfairLavaJumpingEnemyParent(slot);
-            _parentStates.Place(slot, GetPrecedingNorfairLavaJumpingEnemySlot(slot).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
+            _parents.Place(place, _places.ListedBefore(place, 1));
+            ValidateNorfairLavaJumpingEnemyParent(place);
+            _parentStates.Place(place, GetPrecedingNorfairLavaJumpingEnemyPlace(place).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
             return;
         }
 
@@ -60,23 +60,23 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             AnimationFinished = false,
             InstalledAnimation = null,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these population coordinates after every
         // arc. Subpositions are deliberately not saved or cleared by the retail jump.
-        state.SpawnPosition = slot.Position.Whole;
+        state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Whether <paramref name="slot"/>'s placement makes it a follower, the cosmetic second half of the parent listed before it.</summary>
-    private static bool IsFollower(RoomEnemySlot slot) =>
-        slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
+    /// <summary>Whether <paramref name="place"/>'s placement makes it a follower, the cosmetic second half of the parent listed before it.</summary>
+    private static bool IsFollower(RoomEnemyPlace place) =>
+        place.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
 
     /// <summary>
     /// Runs the follower's main behaviour. Main advances the shared random numbers once for the follower as for the
     /// parent; the follower discards the number, which still affects later room actors.
     /// </summary>
-    internal void RunNorfairLavaJumperFollowerMain(RoomEnemySlot follower)
+    internal void RunNorfairLavaJumperFollowerMain(RoomEnemyPlace follower)
     {
         _room.Random.Generate();
         FollowNorfairLavaJumpingEnemyParent(follower);
@@ -87,7 +87,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// random numbers once each update.
     /// </summary>
     internal void RunNorfairLavaJumpingEnemyMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairLavaJumpingEnemyState state)
     {
         int random = _room.Random.Generate();
@@ -97,25 +97,25 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             case NorfairLavaJumpingEnemyAction.BeginJump:
                 state.YVelocity = NorfairLavaJumps.InitialVerticalVelocity(random);
                 state.Action = NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch;
-                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch:
-                MoveNorfairLavaJumpingEnemyVertically(slot, state);
+                MoveNorfairLavaJumpingEnemyVertically(place, state);
                 state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
 
                 // The flip starts once the rise has slowed to four pixels an update. Jumps start rising at about eight,
                 // so the flip always comes before the top of the arc.
                 if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {
-                    StartNorfairLavaJumpingEnemyAnimation(slot, state, NorfairLavaJumperSegment.Jump);
+                    StartNorfairLavaJumpingEnemyAnimation(place, state, NorfairLavaJumperSegment.Jump);
                     state.Action = NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal;
                 }
                 return;
 
             case NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal:
-                MoveNorfairLavaJumpingEnemyVertically(slot, state);
+                MoveNorfairLavaJumpingEnemyVertically(place, state);
                 state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
                 if (state.AnimationFinished)
                 {
@@ -125,18 +125,18 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 return;
 
             case NorfairLavaJumpingEnemyAction.FallBackIntoLava:
-                MoveNorfairLavaJumpingEnemyVertically(slot, state);
+                MoveNorfairLavaJumpingEnemyVertically(place, state);
 
                 // Reaching the bottom block row of any room screen is how the jumper knows it is back in the lava,
                 // wherever the lava lies (gameplay-observable: a jumper whose fall crosses a screen's bottom row
                 // higher up is back in the lava there). Once the actor reaches that row it snaps to its exact
                 // population origin, restores the hidden animation, and rests off-screen until the next jump begins.
-                if (RoomGridConversions.LiesOnScreensBottomBlockRow(slot.Position.Y.Whole))
+                if (RoomGridConversions.LiesOnScreensBottomBlockRow(place.Position.Y.Whole))
                 {
-                    slot.Position = slot.Position.WithWhole(state.SpawnPosition);
-                    StartNorfairLavaJumpingEnemyAnimation(slot, state, NorfairLavaJumperSegment.Hidden);
+                    place.Position = place.Position.WithWhole(state.SpawnPosition);
+                    StartNorfairLavaJumpingEnemyAnimation(place, state, NorfairLavaJumperSegment.Hidden);
                     state.Action = NorfairLavaJumpingEnemyAction.BeginJump;
-                    slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
+                    place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
                 }
                 else
                 {
@@ -159,9 +159,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>Mirrors the preceding parent's frozen timer and upward Y position into the cosmetic follower.</summary>
-    private void FollowNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
+    private void FollowNorfairLavaJumpingEnemyParent(RoomEnemyPlace follower)
     {
-        RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
+        RoomEnemyPlace parent = GetPrecedingNorfairLavaJumpingEnemyPlace(follower);
 
         // The follower reads its parent's health, freeze, vertical speed and position; a parent deleted without a kill is
         // read as it left them (DeletedParentLeftovers), and a killed parent's emptied place ends the follower.
@@ -188,66 +188,66 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
-    private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower) => _parents.Of(follower);
+    private RoomEnemyPlace GetPrecedingNorfairLavaJumpingEnemyPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
     /// <summary>Rejects a follower population entry without a same-species parent directly before it.</summary>
-    private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
+    private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemyPlace follower)
     {
-        RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
+        RoomEnemyPlace parent = GetPrecedingNorfairLavaJumpingEnemyPlace(follower);
         if (parent.DefinitionId != EnemyDefinitionId.Squeept ||
             parent.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower)
         {
             throw new InvalidDataException(
-                $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +
+                $"Norfair lava-jumping follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition. " +
-                $"Preceding slot: definition={parent.DefinitionId}, " +
+                $"Preceding place: definition={parent.DefinitionId}, " +
                 $"health={parent.Health}, spawn={parent.Spawn.Population.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
     }
 
     /// <summary>Advances position by the parent's signed 1/256-pixel vertical velocity.</summary>
     private static void MoveNorfairLavaJumpingEnemyVertically(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairLavaJumpingEnemyState state)
     {
-        slot.Position = slot.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
+        place.Position = place.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
     /// <summary>Starts an animation without restarting an unchanged one.</summary>
     private static void StartNorfairLavaJumpingEnemyAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairLavaJumpingEnemyState state,
         NorfairLavaJumperSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
+        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(NorfairLavaJumperAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>Runs the Norfair lava-jumping enemy's main AI.</summary>
-    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
+    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
     {
-        if (IsFollower(slot))
+        if (IsFollower(place))
         {
-            RunNorfairLavaJumperFollowerMain(slot);
+            RunNorfairLavaJumperFollowerMain(place);
             return;
         }
         RunNorfairLavaJumpingEnemyMain(
-            slot,
-            slot.RequireSpeciesState<NorfairLavaJumpingEnemyState>());
+            place,
+            place.RequireSpeciesState<NorfairLavaJumpingEnemyState>());
     }
 
     /// <summary>Advances the Norfair lava-jumping enemy's typed animation: the parent's jump, or the follower's loop.</summary>
-    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
-        if (IsFollower(slot))
+        if (IsFollower(place))
         {
-            EnemyAnimationPlayback.Advance(slot, NorfairLavaJumperAnimations.Segments,
+            EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
                 static (NorfairLavaJumperFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
                 static (_, cue) => throw new InvalidOperationException($"The Squeept follower's animation raised {cue}."));
             return;
         }
-        EnemyAnimationPlayback.Advance(slot, NorfairLavaJumperAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

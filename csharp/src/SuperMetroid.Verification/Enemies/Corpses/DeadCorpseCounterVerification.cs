@@ -18,19 +18,19 @@ internal static class DeadCorpseCounterVerification
     internal static void VerifyDeadSidehopperPreRotDelay()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PreRotDelay);
 
         state.Action = DeadSidehopperAction.PreRotDelay;
         for (int call = 1; call < 16; call++)
-            enemies.DeadSidehopperBehavior.RunDeadSidehopperState(slot, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
+            enemies.DeadSidehopperBehavior.RunDeadSidehopperState(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
         AssertEqual(15, state.PreRotDelayCounter, "fifteen pre-rot calls");
         AssertEqual(DeadSidehopperAction.PreRotDelay, state.Action, "the delay holds below sixteen");
-        AssertTrue(!slot.Contact.HasAny(EnemyContact.IgnoresSamus), "the delay keeps Samus collision");
-        enemies.DeadSidehopperBehavior.RunDeadSidehopperState(slot, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
+        AssertTrue(!place.Contact.HasAny(EnemyContact.IgnoresSamus), "the delay keeps Samus collision");
+        enemies.DeadSidehopperBehavior.RunDeadSidehopperState(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
         AssertEqual(16, state.PreRotDelayCounter, "the sixteenth call");
         AssertEqual(DeadSidehopperAction.Rotting, state.Action, "the sixteenth call starts rotting");
-        AssertTrue(slot.Contact.HasAny(EnemyContact.IgnoresSamus), "rotting stops further Samus collision");
+        AssertTrue(place.Contact.HasAny(EnemyContact.IgnoresSamus), "rotting stops further Samus collision");
         Console.WriteLine("  Dead sidehopper pre-rot delay: the sixteenth call through the real dispatcher starts the rot.");
     }
 
@@ -38,7 +38,7 @@ internal static class DeadCorpseCounterVerification
     internal static void VerifyDeadTourianPreRotDelay()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var state = new DeadTourianCorpseEnemyState(DeadTourianCorpseSpecies.Zoomer,
             new CorpseRotSchedule(DeadTourianCorpses.For(DeadTourianCorpseSpecies.Zoomer, 0).RowCount), DeadTourianCorpsePhase.PreRotDelay);
 

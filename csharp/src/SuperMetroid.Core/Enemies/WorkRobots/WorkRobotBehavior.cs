@@ -17,7 +17,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. WorkRobotPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WorkRobotEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WorkRobotEntity(this, place, common);
 
     /// <summary>Checks Phantoon's defeat flag and samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
@@ -25,8 +25,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The room's enemy slots, whose powered robots all show the shared glow.</summary>
-    private readonly EnemySlotTable _slotTable;
+    /// <summary>The room's enemy places, whose powered robots all show the shared glow.</summary>
+    private readonly EnemyPlaces _places;
 
     /// <summary>Whether Phantoon is defeated, which powers the work robots.</summary>
     internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
@@ -35,13 +35,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds robot locomotion, power state, lasers, and the glow to room services.</summary>
-    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyAudioQueue audio)
+    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPlaces places, EnemyAudioQueue audio)
     {
         _audio = audio;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>How fast a robot's laser flies the way the robot faces: two pixels per update.</summary>
@@ -75,15 +75,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         definitionId is EnemyDefinitionId.WorkRobot or EnemyDefinitionId.UnpoweredWorkRobot;
 
     /// <summary>Initializes the Robot.</summary>
-    internal void InitializeWorkRobot(RoomEnemySlot slot)
+    internal void InitializeWorkRobot(RoomEnemyPlace place)
     {
         var state = new WorkRobotEnemyState();
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
         bool areaBossDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
-        if (slot.DefinitionId != EnemyDefinitionId.WorkRobot || !areaBossDefeated)
+        if (place.DefinitionId != EnemyDefinitionId.WorkRobot || !areaBossDefeated)
         {
-            InitializeWorkUnpoweredWorkRobot(slot, state);
+            InitializeWorkUnpoweredWorkRobot(place, state);
             return;
         }
 
@@ -91,9 +91,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer sets the animating property and one more unnamed but observable property.
         // Population entries already carry process-off-screen in retail rooms.
-        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
-        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
-        slot.AnimationClock.RestartAfter(4);
+        place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        place.AnimationClock.RestartAfter(4);
         state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation);
         state.Facing = HorizontalDirection.Left;
         state.LaserCooldown = WrappingCountdown.Start(0);
@@ -101,7 +101,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The room has one glow, not one per robot: every powered robot's initialization restarts it. Every powered
         // robot, and only a powered robot, shows it (#1512).
         RestartGlow();
-        slot.Shading = Glow;
+        place.Shading = Glow;
     }
 
     /// <summary>
@@ -115,14 +115,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the unpowered Work Robot.</summary>
-    internal void InitializeWorkUnpoweredWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state)
+    internal void InitializeWorkUnpoweredWorkRobot(RoomEnemyPlace place, WorkRobotEnemyState state)
     {
         state.Powered = false;
 
         // The placement names the unpowered pose the robot holds.
-        state.Playback = new(WorkRobotAnimations.StartingWith(slot.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation);
-        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
-        slot.AnimationClock.Restart();
+        state.Playback = new(WorkRobotAnimations.StartingWith(place.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation);
+        place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
+        place.AnimationClock.Restart();
 
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
@@ -132,16 +132,16 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the robot's gravity-only main behaviour.</summary>
     private void RunWorkRobotMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         WorkRobotEnemyState state,
         RoomLevelData level)
     {
-        if (_terrain.MoveEnemyVertically(level, slot, state.FallVelocity))
+        if (_terrain.MoveEnemyVertically(level, place, state.FallVelocity))
             return;
 
         // Enemy animation processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
-        slot.AnimationClock.Extend(1);
+        place.AnimationClock.Extend(1);
         // The fraction carries into the whole pixels, which wrap, as the game's paired additions do.
         state.FallVelocity += WorkRobotGravity;
     }
@@ -150,7 +150,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge, the two walk redirections, and
     /// a laser that fires continue the animation elsewhere, as the cues replace the segment.
     /// </summary>
-    private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemySlot slot, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
+    private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
     {
         SamusState samus = context.Samus;
         RoomLevelData level = context.Level;
@@ -158,57 +158,57 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case WorkRobotCueKind.LeftForwardWatchingLedges:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallAnimation = WorkRobotSegment.ApproachingFallLeft, FallFacing = HorizontalDirection.Right });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallAnimation = WorkRobotSegment.ApproachingFallLeft, FallFacing = HorizontalDirection.Right });
             case WorkRobotCueKind.LeftForward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
             case WorkRobotCueKind.LeftBackwardWatchingLedges:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallAnimation = WorkRobotSegment.ApproachingFallRight, FallFacing = HorizontalDirection.Left });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallAnimation = WorkRobotSegment.ApproachingFallRight, FallFacing = HorizontalDirection.Left });
             case WorkRobotCueKind.LeftBackward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
             case WorkRobotCueKind.WalkRight:
                 return WorkRobotSegment.FacingRightWalkingForwards;
             case WorkRobotCueKind.RightForwardWatchingLedges:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallAnimation = WorkRobotSegment.ApproachingFallRight, FallFacing = HorizontalDirection.Left });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallAnimation = WorkRobotSegment.ApproachingFallRight, FallFacing = HorizontalDirection.Left });
             case WorkRobotCueKind.RightForward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
             case WorkRobotCueKind.RightBackwardWatchingLedges:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallAnimation = WorkRobotSegment.ApproachingFallLeft, FallFacing = HorizontalDirection.Right });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallAnimation = WorkRobotSegment.ApproachingFallLeft, FallFacing = HorizontalDirection.Right });
             case WorkRobotCueKind.RightBackward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
+                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
             case WorkRobotCueKind.Footstep:
-                if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
+                if (IsWorkRobotOriginStrictlyOnScreen(place, camera))
                     _audio.QueueEnemySound(WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
                 return null;
             case WorkRobotCueKind.WalkLeft:
                 return WorkRobotSegment.FacingLeftWalkingForwards;
             case WorkRobotCueKind.TryLaserUpRight:
                 return TryFireWorkRobotLaser(
-                    slot, state, WorkRobotLaser.UpRight,
+                    place, state, WorkRobotLaser.UpRight,
                     WorkRobotSegment.FacingRightShotLaserUpRight,
                     camera);
             case WorkRobotCueKind.TryLaserUpLeft:
                 return TryFireWorkRobotLaser(
-                    slot, state, WorkRobotLaser.UpLeft,
+                    place, state, WorkRobotLaser.UpLeft,
                     WorkRobotSegment.FacingLeftShotLaserUpLeft,
                     camera);
             case WorkRobotCueKind.TryLaserRight:
                 return TryFireWorkRobotLaser(
-                    slot, state, WorkRobotLaser.Horizontal,
+                    place, state, WorkRobotLaser.Horizontal,
                     WorkRobotSegment.FacingRightShotLaserRight,
                     camera);
             case WorkRobotCueKind.TryLaserLeft:
                 return TryFireWorkRobotLaser(
-                    slot, state, WorkRobotLaser.Horizontal,
+                    place, state, WorkRobotLaser.Horizontal,
                     WorkRobotSegment.FacingLeftShotLaserLeft,
                     camera);
             case WorkRobotCueKind.TryLaserDownRight:
                 return TryFireWorkRobotLaser(
-                    slot, state, WorkRobotLaser.DownRight,
+                    place, state, WorkRobotLaser.DownRight,
                     WorkRobotSegment.FacingRightShotLaserDownRight,
                     camera);
             case WorkRobotCueKind.TryLaserDownLeft:
                 return TryFireWorkRobotLaser(
-                    slot, state, WorkRobotLaser.DownLeft,
+                    place, state, WorkRobotLaser.DownLeft,
                     WorkRobotSegment.FacingLeftShotLaserDownLeft,
                     camera);
             case WorkRobotCueKind.CountDownLaserCooldown:
@@ -220,20 +220,20 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall animations when support ends.</summary>
-    private WorkRobotSegment? MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState samus, RoomLevelData level, WorkRobotMoveStep step)
+    private WorkRobotSegment? MoveWorkRobot(RoomEnemyPlace place, WorkRobotEnemyState state, SamusState samus, RoomLevelData level, WorkRobotMoveStep step)
     {
         DecrementWorkRobotLaserCooldown(state);
         state.Facing = step.Facing;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 SignedSixteenSixteen.FromWholePixels(step.HorizontalPixels)))
         {
             state.LaserCooldown = state.LaserCooldown.AddFrames(8);
             return step.WallAnimation;
         }
 
-        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(slot, samus))
+        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(place, samus))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(step.HorizontalPixels), 0));
         }
@@ -243,11 +243,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The game moves only whole X/Y pixels for this temporary foot probe. In particular,
         // the downward move's collision-produced Y subposition survives after Y is restored.
-        Position16<RoomPixels> walkingPosition = slot.Position.Whole;
-        slot.Position = slot.Position.WithWrappedWholeX(
-            slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2);
-        bool floorFound = _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
-        slot.Position = slot.Position.WithWhole(walkingPosition);
+        Position16<RoomPixels> walkingPosition = place.Position.Whole;
+        place.Position = place.Position.WithWrappedWholeX(
+            place.Position.X.Whole + step.LedgeProbeDirection * place.Radius.X * 2);
+        bool floorFound = _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
+        place.Position = place.Position.WithWhole(walkingPosition);
         if (floorFound)
             return null;
 
@@ -258,7 +258,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Checks the robot origin against the screen rectangle with exclusive top and left edges.</summary>
     private static bool IsWorkRobotOriginStrictlyOnScreen(
-        RoomEnemySlot robot,
+        RoomEnemyPlace robot,
         Position16<RoomPixels> camera) =>
         CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
         CoordinateAxis.AsSigned(camera.X + EnemyView.Extent - robot.Position.X.Whole) >= 0 &&
@@ -267,7 +267,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Uses the existing random number to reset cooldown and starts the firing animation when ready.</summary>
     private WorkRobotSegment? TryFireWorkRobotLaser(
-        RoomEnemySlot robot,
+        RoomEnemyPlace robot,
         WorkRobotEnemyState state,
         WorkRobotLaser projectileDefinition,
         WorkRobotSegment firingSegment,
@@ -294,7 +294,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the robot's custom touch. Work Robots are moving solids: body contact publishes a
     /// four-pixel external push away from their center and deliberately deals no touch damage.
     /// </summary>
-    private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
+    private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
             robot.Position.X.Whole < samus.Position.X.Whole ? 4 : -4, 0));
@@ -305,7 +305,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// indestructible vulnerability table leaves health unchanged, but the accepted impact
     /// still chooses an ahead/behind recoil animation and delays the next laser by 64 frames.
     /// </summary>
-    private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState samus)
+    private void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, SamusState samus)
     {
         if (robot.DefinitionId != EnemyDefinitionId.WorkRobot || robot.Health == 0)
             return;
@@ -343,7 +343,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         GlowStep = (GlowStep + 1) % WorkRobotGlowDefinitions.StepCount;
         PictureShading glow = Glow;
-        foreach (RoomEnemySlot robot in _slotTable.Slots)
+        foreach (RoomEnemyPlace robot in _places.InUpdateOrder)
         {
             if (robot.SpeciesState<WorkRobotEnemyState>() is { Powered: true })
                 robot.Shading = glow;
@@ -368,16 +368,16 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs WorkRobot's main AI.</summary>
-    internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunWorkRobotMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunWorkRobotMain(slot, slot.RequireSpeciesState<WorkRobotEnemyState>(), frame.Level);
+        RunWorkRobotMain(place, place.RequireSpeciesState<WorkRobotEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances WorkRobot's typed animation.</summary>
-    internal void AdvanceWorkRobotTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(slot, WorkRobotAnimations.Segments,
+    internal void AdvanceWorkRobotTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
             static (WorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyWorkRobotCue(slot, state, context, cue) is { } continuesAt
+            (state, cue) => ApplyWorkRobotCue(place, state, context, cue) is { } continuesAt
                 ? new AnimationContinuation<WorkRobotSegment>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
@@ -389,14 +389,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
     internal static void ReactToWorkRobotTouch(EnemyTouchContext context) =>
-        ResolveWorkRobotTouch(context.Slot, context.Samus);
+        ResolveWorkRobotTouch(context.Place, context.Samus);
 
     /// <summary>
     /// Allocates one of the five Work Robot laser definitions. Horizontal left/right
     /// share one definition; the sign in the owner's laser velocity supplies the sixth direction.
     /// </summary>
     internal void SpawnWorkRobotLaser(
-        RoomEnemySlot robot,
+        RoomEnemyPlace robot,
         WorkRobotEnemyState state,
         WorkRobotLaser definition,
         Position16<RoomPixels> camera)

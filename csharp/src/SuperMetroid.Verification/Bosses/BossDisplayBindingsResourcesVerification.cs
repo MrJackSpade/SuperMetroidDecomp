@@ -70,13 +70,13 @@ internal static class BossDisplayBindingsResourcesVerification
     private static BossDisplayFixture NewTentacleFixture(ImportEnemyArtwork artwork)
     {
         var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
-        RoomEnemySlot body = fixture.Enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = fixture.Enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         var state = new PhantoonEnemyState(body)
         {
-            Eye = fixture.Enemies.SlotTable.Slots[1],
+            Eye = fixture.Enemies.Places.InUpdateOrder[1],
             Tentacles = fixture.Actor,
-            Mouth = fixture.Enemies.SlotTable.Slots[3],
+            Mouth = fixture.Enemies.Places.InUpdateOrder[3],
         };
         fixture.Enemies.PhantoonBehavior.Combat.Phantoon = state;
         fixture.SetFrame(0, false);

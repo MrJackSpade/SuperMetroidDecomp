@@ -4,25 +4,25 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>One SporeSpawn occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The SporeSpawn species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeSporeSpawn(Slot);
+    public void Initialize() => species.InitializeSporeSpawn(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceSporeSpawnAnimation(Slot);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceSporeSpawnAnimation(Place);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        return SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Slot, probe, out reaction);
+        return SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe, out reaction);
     }
 
     /// <summary>Spore Spawn's touch reaction, which its definition leaves to it.</summary>

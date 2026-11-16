@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Assets;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -55,8 +56,6 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private int pendingFrames;
     /// <summary>The screen's brightness: fully lit, and one level darker on every update of the exit fades, stopping at black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
-    /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
-    private AreaMapPresentation? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
     /// <param name="audio">Owner receiving menu confirmation, scroll, colour-loop, and transition sound requests.</param>
@@ -83,7 +82,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         InstalledSpriteSheets sheets = Ensure.NotNull(spriteSheets);
         areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation, sheets);
         roomGraphics = new FileSelectRoomMapGraphics(system, area, mapPresentation, sheets);
-        this.mapPresentation = mapPresentation;
+        InstalledMapPresentation = mapPresentation;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(station, mapPresentation.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
@@ -103,7 +102,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
-        mapPresentation = catalog;
+        InstalledMapPresentation = catalog;
         navigation.BindLabels(catalog?.Labels);
         areaGraphics.BindMapPresentation(catalog);
         animations.BindHighlight(catalog?.HighlightCycle);
@@ -114,8 +113,10 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 
     /// <summary>The installed map artwork, which the game binds before the map draws or moves.</summary>
     /// <exception cref="InvalidOperationException">The game was rebound to no map artwork.</exception>
-    private AreaMapPresentation InstalledMapPresentation => mapPresentation ?? throw new InvalidOperationException(
-        "File-select map requires installed map presentation assets.");
+    [AllowNull]
+    private AreaMapPresentation InstalledMapPresentation { get => field ?? throw new InvalidOperationException(
+        "File-select map requires installed map presentation assets."); set;
+    }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
     private MapScroll CreateScrollForCurrentContent()

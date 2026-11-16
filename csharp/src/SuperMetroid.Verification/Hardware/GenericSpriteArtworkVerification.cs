@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title.Artwork;

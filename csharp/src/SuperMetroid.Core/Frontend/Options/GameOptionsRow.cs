@@ -52,16 +52,6 @@ public abstract record GameOptionsRow
         internal override int Place => PlaceOf(GameOptionsLayout.SpecialRows, Row);
     }
 
-    /// <summary>The rows of <paramref name="page"/> from the top.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The page is not one of the three options pages.</exception>
-    internal static IReadOnlyList<GameOptionsRow> OnPage(GameOptionsPage page) => page switch
-    {
-        GameOptionsPage.Primary => [.. GameOptionsLayout.PrimaryRows.Select(row => new OnPrimaryPage(row))],
-        GameOptionsPage.Controller => [.. GameOptionsLayout.ControllerRows.Select(row => new OnControllerPage(row))],
-        GameOptionsPage.Special => [.. GameOptionsLayout.SpecialRows.Select(row => new OnSpecialPage(row))],
-        _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Options rows exist only on the three menu pages."),
-    };
-
     /// <summary>How many of <paramref name="rows"/> stand above <paramref name="row"/>.</summary>
     /// <exception cref="InvalidDataException">The row is not one of the page's rows.</exception>
     private static int PlaceOf<TRow>(IReadOnlyList<TRow> rows, TRow row)

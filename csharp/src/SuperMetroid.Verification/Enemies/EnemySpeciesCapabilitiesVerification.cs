@@ -182,6 +182,10 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Concat(capabilities.Keys)
             .Concat(privateReactions.Keys)
             .Where(definition => definition != EnemyDefinitionId.None)
+            // The Torizo orbs and Spore Spawn's stalk are enemy projectiles: their definitions are read only for the drops
+            // they leave, so no species binds them.
+            .Where(definition => definition is not (EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb
+                or EnemyDefinitionId.SporeSpawnStalk))
             .Distinct();
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());

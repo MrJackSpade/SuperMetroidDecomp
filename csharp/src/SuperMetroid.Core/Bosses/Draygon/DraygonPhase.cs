@@ -12,38 +12,28 @@ public enum DraygonPhase
     IntroInitialDelay,
     /// <summary>Advances the opening Evir movement for 1,232 frames before the first swoop.</summary>
     IntroDance,
-    /// <summary>Plans the swoop's path of heights, aims horizontal velocity at Samus, and faces Draygon right.</summary>
-    SwoopRightSetup,
-    /// <summary>Follows the swoop's path down, from its last height to its first, while moving right toward the bottom of the swoop.</summary>
-    SwoopRightDescending,
-    /// <summary>Recalculates horizontal velocity toward the right exit for the ascending half.</summary>
-    SwoopRightApex,
-    /// <summary>Follows the swoop's path back up and selects a leftward swoop or goop pass from the current random number.</summary>
-    SwoopRightAscending,
-    /// <summary>Reuses the planned path of heights, aims leftward velocity at Samus, and faces Draygon left.</summary>
-    SwoopLeftSetup,
-    /// <summary>Follows the swoop's path down while moving left toward the bottom of the swoop.</summary>
-    SwoopLeftDescending,
-    /// <summary>Recalculates horizontal velocity toward the left reset position for the ascending half.</summary>
-    SwoopLeftApex,
-    /// <summary>Completes the leftward ascent, resets X, and selects a rightward swoop or goop pass from the current random number.</summary>
-    SwoopLeftAscending,
-    /// <summary>Starts the one-pixel-per-frame rightward goop path at X=-80, Y=384.</summary>
-    GoopRightSetup,
+    /// <summary>
+    /// Starts a swoop its pass's way (<see cref="DraygonEnemyState.PassDirection"/>): rightward it plans the swoop's path of
+    /// heights, leftward it reuses the planned path; either aims horizontal velocity at Samus and faces Draygon that way.
+    /// </summary>
+    SwoopSetup,
+    /// <summary>Follows the swoop's path down, from its last height to its first, while moving its pass's way toward the bottom of the swoop.</summary>
+    SwoopDescending,
+    /// <summary>Recalculates horizontal velocity for the ascending half: toward the right exit, or the left reset position.</summary>
+    SwoopApex,
+    /// <summary>
+    /// Follows the swoop's path back up and selects a swoop or goop pass the other way from the current random number; the
+    /// leftward ascent first resets X.
+    /// </summary>
+    SwoopAscending,
+    /// <summary>Starts the one-pixel-per-frame goop path its pass's way: rightward at X=-80, leftward at the right reset X, at Y=384.</summary>
+    GoopSetup,
     /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
-    GoopRight,
-    /// <summary>Requests right-facing goop animations from RNG samples and begins chasing when goop slows Samus.</summary>
-    GoopRightTail,
-    /// <summary>Finishes the rightward oscillating exit without firing goop.</summary>
-    GoopRightRecovery,
-    /// <summary>Starts the one-pixel-per-frame leftward goop path at the right reset X and Y=384.</summary>
-    GoopLeftSetup,
-    /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
-    GoopLeft,
-    /// <summary>Requests left-facing goop animations from RNG samples and begins chasing when goop slows Samus.</summary>
-    GoopLeftTail,
-    /// <summary>Completes the leftward exit, still allowing attached goop to trigger a chase.</summary>
-    GoopLeftRecovery,
+    GoopApproach,
+    /// <summary>Requests goop animations facing its pass's way from RNG samples and begins chasing when goop slows Samus.</summary>
+    GoopTail,
+    /// <summary>Finishes the oscillating exit without firing goop; leftward, attached goop can still trigger a chase.</summary>
+    GoopRecovery,
     /// <summary>Moves toward goop-slowed Samus at two pixels per frame and checks the eight-pixel claw window.</summary>
     TryGrabSamus,
     /// <summary>Repels a grapple beam that caught Draygon as he reached Samus: drops the beam and releases her without a grab (#1939).</summary>

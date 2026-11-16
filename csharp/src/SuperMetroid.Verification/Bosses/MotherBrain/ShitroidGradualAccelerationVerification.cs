@@ -109,18 +109,19 @@ internal static class ShitroidGradualAccelerationVerification
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemyPlace victim = behavior.RequireShitroidVictim(shitroid);
 
-        var flights = new (ShitroidAction Action, int TablePosition, Func<Position16<RoomPixels>> Target)[]
+        // The departing flight goes to Samus's left, then her right (#2165); the other flights have no side.
+        var flights = new (ShitroidAction Action, HorizontalDirection? Side, int TablePosition, Func<Position16<RoomPixels>> Target)[]
         {
-            (ShitroidAction.FlyToSidehopper, 15, () => new(584, 74)),
-            (ShitroidAction.ChaseSidehopper, 15, () => victim.Position.Whole + new Offset16<RoomPixels>(0, -32)),
-            (ShitroidAction.RiseAfterFeeding, 0, () => new(shitroid.Position.X.Whole, 104)),
-            (ShitroidAction.ChaseSamus, 15, () => samus.Position.Whole + new Offset16<RoomPixels>(0, -32)),
-            (ShitroidAction.RiseAfterDrainingSamus, 0, () => new(samus.Position.X.Whole, 104)),
-            (ShitroidAction.FlyLeft, 0, () => new(CoordinateAxis.Wrap(samus.Position.X.Whole - 64), 100)),
-            (ShitroidAction.FlyRight, 0, () => new(CoordinateAxis.Wrap(samus.Position.X.Whole + 96), 104)),
-            (ShitroidAction.Exit, 0, () => Position16<RoomPixels>.Wrapped(-128, 64)),
-            (ShitroidAction.HoverNearSamus, 10, () => samus.Position.Whole),
-            (ShitroidAction.ReleasedFollow, 8, () => samus.Position.Whole - new Offset16<RoomPixels>(0, 18)),
+            (ShitroidAction.FlyToSidehopper, null, 15, () => new(584, 74)),
+            (ShitroidAction.ChaseSidehopper, null, 15, () => victim.Position.Whole + new Offset16<RoomPixels>(0, -32)),
+            (ShitroidAction.RiseAfterFeeding, null, 0, () => new(shitroid.Position.X.Whole, 104)),
+            (ShitroidAction.ChaseSamus, null, 15, () => samus.Position.Whole + new Offset16<RoomPixels>(0, -32)),
+            (ShitroidAction.RiseAfterDrainingSamus, null, 0, () => new(samus.Position.X.Whole, 104)),
+            (ShitroidAction.FlyBesideSamus, HorizontalDirection.Left, 0, () => new(CoordinateAxis.Wrap(samus.Position.X.Whole - 64), 100)),
+            (ShitroidAction.FlyBesideSamus, HorizontalDirection.Right, 0, () => new(CoordinateAxis.Wrap(samus.Position.X.Whole + 96), 104)),
+            (ShitroidAction.Exit, null, 0, () => Position16<RoomPixels>.Wrapped(-128, 64)),
+            (ShitroidAction.HoverNearSamus, null, 10, () => samus.Position.Whole),
+            (ShitroidAction.ReleasedFollow, null, 8, () => samus.Position.Whole - new Offset16<RoomPixels>(0, 18)),
         };
         var velocities = new[]
         {
@@ -135,6 +136,8 @@ internal static class ShitroidGradualAccelerationVerification
         foreach (Position16<RoomPixels> camera in cameras)
         {
             state.Action = flight.Action;
+            if (flight.Side is { } side)
+                state.DepartureSide = side;
             state.Velocity = velocity;
             state.StateTimer = 100;
             state.HoverTimer = 4;
@@ -150,8 +153,8 @@ internal static class ShitroidGradualAccelerationVerification
 
             behavior.RunShitroidMain(shitroid, samus, camera, null);
 
-            AssertEqual(expectedX, state.Velocity.X, $"{flight.Action} from {velocity} with the camera at {camera}: X velocity");
-            AssertEqual(expectedY, state.Velocity.Y, $"{flight.Action} from {velocity} with the camera at {camera}: Y velocity");
+            AssertEqual(expectedX, state.Velocity.X, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: X velocity");
+            AssertEqual(expectedY, state.Velocity.Y, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: Y velocity");
             checks++;
         }
         Console.WriteLine($"  Shitroid flight pulls: {checks} flights steer with the original's divisor and off-screen kick.");

@@ -59,6 +59,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 // frame, as the animation runs on.
                 RequireWalkingSpacePirateState(place).Action = begin.Action;
                 return null;
+            case WalkingSpacePirateCue.BeginHeading begin:
+                // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
+                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(place);
+                walker.Action = begin.Action;
+                walker.Heading = begin.Heading;
+                return null;
             default:
                 throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");
         }
@@ -128,11 +134,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             case WalkingSpacePirateAction.StandingStill:
                 break;
 
-            case WalkingSpacePirateAction.WalkingLeft:
+            case WalkingSpacePirateAction.Walking when state.Heading == HorizontalDirection.Left:
                 RunWalkingSpacePirateLeft(place, state, samus, level);
                 break;
 
-            case WalkingSpacePirateAction.WalkingRight:
+            case WalkingSpacePirateAction.Walking:
                 RunWalkingSpacePirateRight(place, state, samus, level);
                 break;
 

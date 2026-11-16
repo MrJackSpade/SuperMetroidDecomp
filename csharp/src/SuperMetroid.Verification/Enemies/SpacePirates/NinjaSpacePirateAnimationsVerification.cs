@@ -40,7 +40,12 @@ internal static class NinjaSpacePirateAnimationsVerification
                         },
                         'S' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset.X),
                         'Y' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset.Y),
-                        'E' => SpacePiratesNativeWords.NinjaSpacePirateActions.Word(AssertIs<NinjaSpacePirateCue.Begin>(cue, $"{at}: cue").Action),
+                        'E' => SpacePiratesNativeWords.NinjaSpacePirateActions.Word(cue switch
+                        {
+                            NinjaSpacePirateCue.Begin begin => (begin.Action, null),
+                            NinjaSpacePirateCue.BeginHeading begin => (begin.Action, begin.Heading),
+                            _ => throw new InvalidOperationException($"{at}: {cue} begins no action."),
+                        }),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }));

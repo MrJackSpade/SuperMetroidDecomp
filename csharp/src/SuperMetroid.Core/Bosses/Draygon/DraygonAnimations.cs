@@ -18,13 +18,13 @@ internal static class DraygonAnimations
         [P.BodyFacingLeftReset] =
         [
             Cue(new DraygonCue.StartPartAnimations(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
-            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingLeft)),
+            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
             Show(F.BodyFacingLeftReset, 1),
         ],
         [P.BodyFacingRightReset] =
         [
             Cue(new DraygonCue.StartPartAnimations(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
-            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingRight)),
+            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Right)),
             Show(F.BodyFacingRightReset, 1),
         ],
         [P.ArmsFacingLeftIdle] =
@@ -63,7 +63,7 @@ internal static class DraygonAnimations
         ],
         [P.BodyFacingLeftIdle] =
         [
-            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingLeft)),
+            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
             Show(F.BodyFacingLeftReset, 1),
         ],
         [P.BodyDying] =
@@ -131,7 +131,7 @@ internal static class DraygonAnimations
             Show(F.EyeFacingLeftIdleThird, 5),
             Show(F.EyeFacingLeftIdleSecond, 5),
             Show(F.EyeFacingLeftIdleFirst, 5),
-            Cue(new DraygonCue.SetOwnEyeAction(DraygonEyeAction.FacingLeft)),
+            Cue(new DraygonCue.TrackWithOwnEye(HorizontalDirection.Left)),
         ],
         [P.EyeFacingLeftDying] =
         [
@@ -314,7 +314,7 @@ internal static class DraygonAnimations
         ],
         [P.BodyFacingRightIdle] =
         [
-            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingRight)),
+            Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Right)),
             Show(F.BodyFacingRightReset, 1),
         ],
         [P.BodyFacingRightFireGoop] =
@@ -354,7 +354,7 @@ internal static class DraygonAnimations
             Show(F.EyeFacingRightIdleThird, 5),
             Show(F.EyeFacingRightIdleSecond, 5),
             Show(F.EyeFacingRightIdleFirst, 5),
-            Cue(new DraygonCue.SetOwnEyeAction(DraygonEyeAction.FacingLeft)),
+            Cue(new DraygonCue.TrackWithOwnEye(HorizontalDirection.Left)),
         ],
         [P.EyeFacingRightDying] =
         [

@@ -132,17 +132,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateAction.Active:
                 RunNinjaPirateActive(place, state, samus, samusProjectiles);
                 return;
-            case NinjaSpacePirateAction.SpinJumpLeftRising:
-                StepNinjaPirateSpinJump(place, state, direction: HorizontalDirection.Left, vertical: VerticalDirection.Up);
+            case NinjaSpacePirateAction.SpinJumpRising:
+                StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Up);
                 return;
-            case NinjaSpacePirateAction.SpinJumpLeftFalling:
-                StepNinjaPirateSpinJump(place, state, direction: HorizontalDirection.Left, vertical: VerticalDirection.Down);
-                return;
-            case NinjaSpacePirateAction.SpinJumpRightRising:
-                StepNinjaPirateSpinJump(place, state, direction: HorizontalDirection.Right, vertical: VerticalDirection.Up);
-                return;
-            case NinjaSpacePirateAction.SpinJumpRightFalling:
-                StepNinjaPirateSpinJump(place, state, direction: HorizontalDirection.Right, vertical: VerticalDirection.Down);
+            case NinjaSpacePirateAction.SpinJumpFalling:
+                StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Down);
                 return;
             case NinjaSpacePirateAction.ReadyToDivekick:
                 RunNinjaPirateReadyToDivekick(
@@ -151,23 +145,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     samus,
                     samusProjectiles);
                 return;
-            case NinjaSpacePirateAction.DivekickLeftJump:
-                StepNinjaPirateDiveJump(place, state, direction: HorizontalDirection.Left);
+            case NinjaSpacePirateAction.DivekickJump:
+                StepNinjaPirateDiveJump(place, state, state.Heading);
                 return;
-            case NinjaSpacePirateAction.DivekickRightJump:
-                StepNinjaPirateDiveJump(place, state, direction: HorizontalDirection.Right);
+            case NinjaSpacePirateAction.DivekickDive:
+                StepNinjaPirateDive(place, state, level, state.Heading);
                 return;
-            case NinjaSpacePirateAction.DivekickLeftDive:
-                StepNinjaPirateDive(place, state, level, direction: HorizontalDirection.Left);
-                return;
-            case NinjaSpacePirateAction.DivekickRightDive:
-                StepNinjaPirateDive(place, state, level, direction: HorizontalDirection.Right);
-                return;
-            case NinjaSpacePirateAction.DivekickLeftWalkToPost:
-                StepNinjaPirateWalkToPost(place, state, direction: HorizontalDirection.Left);
-                return;
-            case NinjaSpacePirateAction.DivekickRightWalkToPost:
-                StepNinjaPirateWalkToPost(place, state, direction: HorizontalDirection.Right);
+            case NinjaSpacePirateAction.DivekickWalkToPost:
+                StepNinjaPirateWalkToPost(place, state, state.Heading);
                 return;
             default:
                 throw new InvalidDataException(
@@ -365,9 +350,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 : CoordinateAxis.Precedes(place.Position.X.Whole, state.PostsMidpointX);
             if (crossedMidpoint)
             {
-                state.Action = direction == HorizontalDirection.Right
-                    ? NinjaSpacePirateAction.SpinJumpRightFalling
-                    : NinjaSpacePirateAction.SpinJumpLeftFalling;
+                state.Action = NinjaSpacePirateAction.SpinJumpFalling;
             }
             return;
         }
@@ -405,9 +388,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.Speed.IsNegative)
             return;
 
-        state.Action = direction == HorizontalDirection.Right
-            ? NinjaSpacePirateAction.DivekickRightDive
-            : NinjaSpacePirateAction.DivekickLeftDive;
+        state.Action = NinjaSpacePirateAction.DivekickDive;
+        state.Heading = direction;
         StartNinjaPirateAnimation(
             place,
             state,
@@ -439,9 +421,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!landed)
             return;
 
-        state.Action = direction == HorizontalDirection.Right
-            ? NinjaSpacePirateAction.DivekickRightWalkToPost
-            : NinjaSpacePirateAction.DivekickLeftWalkToPost;
+        state.Action = NinjaSpacePirateAction.DivekickWalkToPost;
+        state.Heading = direction;
         StartNinjaPirateAnimation(
             place,
             state,
@@ -574,6 +555,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 // The animation does not jump to the move it begins: main AI runs it from the next update, as the
                 // animation runs on.
                 state.Action = begin.Action;
+                return null;
+            case NinjaSpacePirateCue.BeginHeading begin:
+                // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
+                state.Action = begin.Action;
+                state.Heading = begin.Heading;
                 return null;
             default:
                 throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue} cue.");

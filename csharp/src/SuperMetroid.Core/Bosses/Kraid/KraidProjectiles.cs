@@ -217,10 +217,9 @@ internal sealed class KraidProjectiles
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalking:
             case KraidPhase.FootSecondPhaseWalkToStart:
             case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.FootSecondPhaseWalkingLeft:
             case KraidPhase.MainAttackWithMouthOpen:
             case KraidPhase.FootPrepareFirstPhaseLunge:
             case KraidPhase.FootFirstPhaseLunge:
@@ -358,10 +357,9 @@ internal sealed class KraidProjectiles
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalking:
             case KraidPhase.FootSecondPhaseWalkToStart:
             case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.FootSecondPhaseWalkingLeft:
             case KraidPhase.MainAttackWithMouthOpen:
             case KraidPhase.FingernailInitialize:
             case KraidPhase.FingernailFire:

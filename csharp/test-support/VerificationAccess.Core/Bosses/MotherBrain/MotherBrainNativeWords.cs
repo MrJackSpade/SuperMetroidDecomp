@@ -188,32 +188,36 @@ internal static class MotherBrainNativeWords
         [0xf466] = 16,
     };
 
-    /// <summary>The bank-$A9 routine word naming each <see cref="ShitroidAction"/>.</summary>
-    internal static readonly NativeWordIdentities<ShitroidAction> ShitroidActions = new(new Dictionary<ShitroidAction, ushort>
+    /// <summary>
+    /// The bank-$A9 routine word naming each <see cref="ShitroidAction"/> and, for its departing flight, the side of Samus it
+    /// flies to (#2165), the cartridge giving each side a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(ShitroidAction Action, HorizontalDirection? Side)> ShitroidActions =
+        new(new Dictionary<(ShitroidAction Action, HorizontalDirection? Side), ushort>
     {
-        [ShitroidAction.Dormant] = 0xefdf,
-        [ShitroidAction.WaitForCamera] = 0xefe6,
-        [ShitroidAction.BeginEntranceDelay] = 0xf02b,
-        [ShitroidAction.EntranceDelay] = 0xf037,
-        [ShitroidAction.FlyToSidehopper] = 0xf049,
-        [ShitroidAction.ChaseSidehopper] = 0xf06d,
-        [ShitroidAction.AttachToSidehopper] = 0xf094,
-        [ShitroidAction.DrainSidehopper] = 0xf0e6,
-        [ShitroidAction.ActivateSidehopperCorpse] = 0xf125,
-        [ShitroidAction.RiseAfterFeeding] = 0xf138,
-        [ShitroidAction.HoverNearSamus] = 0xf180,
-        [ShitroidAction.ChaseSamus] = 0xf1fa,
-        [ShitroidAction.BeginDrainingSamus] = 0xf20e,
-        [ShitroidAction.DrainSamus] = 0xf21b,
-        [ShitroidAction.BeginPostDrainPause] = 0xf2a2,
-        [ShitroidAction.PostDrainPause] = 0xf2ae,
-        [ShitroidAction.RiseAfterDrainingSamus] = 0xf2c0,
-        [ShitroidAction.FlyLeft] = 0xf2fb,
-        [ShitroidAction.FlyRight] = 0xf324,
-        [ShitroidAction.BeginExit] = 0xf360,
-        [ShitroidAction.Exit] = 0xf36d,
-        [ShitroidAction.HoldSamusBeforeRelease] = 0xf3a3,
-        [ShitroidAction.ReleasedFollow] = 0xf3be,
+        [(ShitroidAction.Dormant, null)] = 0xefdf,
+        [(ShitroidAction.WaitForCamera, null)] = 0xefe6,
+        [(ShitroidAction.BeginEntranceDelay, null)] = 0xf02b,
+        [(ShitroidAction.EntranceDelay, null)] = 0xf037,
+        [(ShitroidAction.FlyToSidehopper, null)] = 0xf049,
+        [(ShitroidAction.ChaseSidehopper, null)] = 0xf06d,
+        [(ShitroidAction.AttachToSidehopper, null)] = 0xf094,
+        [(ShitroidAction.DrainSidehopper, null)] = 0xf0e6,
+        [(ShitroidAction.ActivateSidehopperCorpse, null)] = 0xf125,
+        [(ShitroidAction.RiseAfterFeeding, null)] = 0xf138,
+        [(ShitroidAction.HoverNearSamus, null)] = 0xf180,
+        [(ShitroidAction.ChaseSamus, null)] = 0xf1fa,
+        [(ShitroidAction.BeginDrainingSamus, null)] = 0xf20e,
+        [(ShitroidAction.DrainSamus, null)] = 0xf21b,
+        [(ShitroidAction.BeginPostDrainPause, null)] = 0xf2a2,
+        [(ShitroidAction.PostDrainPause, null)] = 0xf2ae,
+        [(ShitroidAction.RiseAfterDrainingSamus, null)] = 0xf2c0,
+        [(ShitroidAction.FlyBesideSamus, HorizontalDirection.Left)] = 0xf2fb,
+        [(ShitroidAction.FlyBesideSamus, HorizontalDirection.Right)] = 0xf324,
+        [(ShitroidAction.BeginExit, null)] = 0xf360,
+        [(ShitroidAction.Exit, null)] = 0xf36d,
+        [(ShitroidAction.HoldSamusBeforeRelease, null)] = 0xf3a3,
+        [(ShitroidAction.ReleasedFollow, null)] = 0xf3be,
     });
 
     /// <summary>The glass-shard spawn parameter (the emitter's byte offset into the placement tables) naming each <see cref="MotherBrainGlassShard"/>.</summary>

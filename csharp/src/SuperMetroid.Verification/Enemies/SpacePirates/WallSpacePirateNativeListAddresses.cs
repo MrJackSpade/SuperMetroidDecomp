@@ -41,7 +41,9 @@ internal static class WallSpacePirateNativeListAddresses
         [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Left)),
         [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.FireLaser(HorizontalDirection.Left)),
         [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.FireLaser(HorizontalDirection.Right)),
-        [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.Begin>("E"),
+        // The routine setter begins an action, a cling or a jump with its wall (#2165).
+        [0xef83] = new NativeCueShape<WallSpacePirateCue>(nameof(WallSpacePirateCue.Begin),
+            cue => cue is WallSpacePirateCue.Begin or WallSpacePirateCue.BeginOnWall, "E"),
         [0xef93] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PlayAttackSound)),
     };
 }

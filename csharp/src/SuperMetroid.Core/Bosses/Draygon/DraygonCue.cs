@@ -8,11 +8,13 @@ internal abstract record DraygonCue
     /// <summary>Starts an animation on each of the four parts: body, eye, tail and arms.</summary>
     internal sealed record StartPartAnimations(DraygonSegment Body, DraygonSegment Eye, DraygonSegment Tail, DraygonSegment Arms) : DraygonCue;
 
-    /// <summary>Gives the eye its tracking action.</summary>
-    internal sealed record SetEyeAction(DraygonEyeAction Action) : DraygonCue;
+    /// <summary>Sets the eye tracking Samus facing the cue's way (#2165).</summary>
+    /// <param name="Facing">The way the eye faces.</param>
+    internal sealed record TrackWithEye(HorizontalDirection Facing) : DraygonCue;
 
-    /// <summary>Gives the part running the animation (the eye) its tracking action.</summary>
-    internal sealed record SetOwnEyeAction(DraygonEyeAction Action) : DraygonCue;
+    /// <summary>Sets the part running the animation (the eye) tracking Samus facing the cue's way (#2165).</summary>
+    /// <param name="Facing">The way the eye faces.</param>
+    internal sealed record TrackWithOwnEye(HorizontalDirection Facing) : DraygonCue;
 
     /// <summary>Shifts the body's picture against the body while the tail whips.</summary>
     internal sealed record ShiftBodyPicture(Offset16<RoomPixels> Shift) : DraygonCue;

@@ -35,7 +35,7 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         BuildDraygonSwoopYPositions(state, samus);
-        state.Phase = DraygonPhase.SwoopRightDescending;
+        state.Phase = DraygonPhase.SwoopDescending;
         _parts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
         state.FacingRight = true;
     }
@@ -93,7 +93,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = entry - 1;
         if (state.SwoopEntry == 0)
         {
-            state.Phase = side.Apex;
+            state.Phase = DraygonPhase.SwoopApex;
             return;
         }
         DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
@@ -110,7 +110,7 @@ internal sealed class DraygonSwoops
         int frameCount = PathOf(state).EntryCount;
         int distance = CoordinateAxis.Wrap(672 - body.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
-        state.Phase = DraygonBehavior.RightSwoop.Ascending;
+        state.Phase = DraygonPhase.SwoopAscending;
     }
 
     /// <summary>
@@ -146,8 +146,9 @@ internal sealed class DraygonSwoops
             state.SwoopEntry = 0;
             int random = _room.Random.Read();
             state.Phase = DraygonRandomDefinitions.SwoopRatherThanGoop.IsSetIn(random)
-                ? DraygonPhase.SwoopLeftSetup
-                : DraygonPhase.GoopLeftSetup;
+                ? DraygonPhase.SwoopSetup
+                : DraygonPhase.GoopSetup;
+            state.PassDirection = HorizontalDirection.Left;
             return;
         }
 
@@ -157,12 +158,13 @@ internal sealed class DraygonSwoops
         {
             state.SwoopEntry = 0;
             body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);
-            state.Phase = DraygonPhase.SwoopRightSetup;
+            state.Phase = DraygonPhase.SwoopSetup;
         }
         else
         {
-            state.Phase = DraygonPhase.GoopRightSetup;
+            state.Phase = DraygonPhase.GoopSetup;
         }
+        state.PassDirection = HorizontalDirection.Right;
     }
 
     /// <summary>Runs the mirrored left-swoop setup.</summary>
@@ -177,7 +179,7 @@ internal sealed class DraygonSwoops
         int distance = CoordinateAxis.Distance(
             state.RightSideReset.X, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
-        state.Phase = DraygonPhase.SwoopLeftDescending;
+        state.Phase = DraygonPhase.SwoopDescending;
         _parts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingLeftReset);
         state.FacingRight = false;
         state.SwoopEntry = frameCount;
@@ -194,7 +196,7 @@ internal sealed class DraygonSwoops
         int frameCount = PathOf(state).EntryCount;
         int distance = CoordinateAxis.Wrap(body.Position.X.Whole - state.LeftSideReset.X);
         SetDraygonSwoopVelocity(state, distance, frameCount);
-        state.Phase = DraygonBehavior.LeftSwoop.Ascending;
+        state.Phase = DraygonPhase.SwoopAscending;
     }
 
     /// <summary>The path of the swoop Draygon is flying, which its setup planned.</summary>
@@ -222,7 +224,8 @@ internal sealed class DraygonSwoops
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        state.Phase = DraygonPhase.SwoopRightSetup;
+        state.Phase = DraygonPhase.SwoopSetup;
+        state.PassDirection = HorizontalDirection.Right;
         state.SwoopEntry = 0;
         body.Position = body.Position.WithWhole(state.LeftSideReset);
     }

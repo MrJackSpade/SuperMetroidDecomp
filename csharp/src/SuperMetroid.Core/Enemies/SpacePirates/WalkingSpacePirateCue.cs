@@ -19,6 +19,11 @@ internal abstract record WalkingSpacePirateCue
     /// <param name="Action">The action main AI then runs.</param>
     internal sealed record Begin(WalkingSpacePirateAction Action) : WalkingSpacePirateCue;
 
+    /// <summary>Begins the walk the Pirate's main AI then runs the cue's way, from the next update, as the animation runs on (#2165).</summary>
+    /// <param name="Action">The action main AI then runs.</param>
+    /// <param name="Heading">The way the Pirate walks.</param>
+    internal sealed record BeginHeading(WalkingSpacePirateAction Action, HorizontalDirection Heading) : WalkingSpacePirateCue;
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(WalkingSpacePirateCueKind Kind) : WalkingSpacePirateCue;

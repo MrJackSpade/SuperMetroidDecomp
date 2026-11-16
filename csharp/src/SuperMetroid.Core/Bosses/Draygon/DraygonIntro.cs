@@ -64,7 +64,8 @@ internal sealed class DraygonIntro
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (state.IntroFrames >= DraygonIntroDanceDefinitions.DurationFrames)
         {
-            state.Phase = DraygonPhase.SwoopRightSetup;
+            state.Phase = DraygonPhase.SwoopSetup;
+            state.PassDirection = HorizontalDirection.Right;
             state.IntroFrames = 0;
             return;
         }

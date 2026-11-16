@@ -15,7 +15,7 @@ internal static class TorizoSharedSteps
     /// <summary>Bomb Torizo's step left on its right leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftRightLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Left)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -40,7 +40,7 @@ internal static class TorizoSharedSteps
     /// <summary>Bomb Torizo's step left on its left leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftLeftLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -104,7 +104,7 @@ internal static class TorizoSharedSteps
     /// <summary>Faceless Bomb Torizo's step left on its right leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftFacelessRightLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Left)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -125,7 +125,7 @@ internal static class TorizoSharedSteps
     /// <summary>Faceless Bomb Torizo's step left on its left leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingLeftFacelessLeftLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -146,7 +146,7 @@ internal static class TorizoSharedSteps
     /// <summary>Bomb Torizo's step right on its left leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightLeftLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedRightWithRightFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Right)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -172,7 +172,7 @@ internal static class TorizoSharedSteps
     /// <summary>Bomb Torizo's step right on its right leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightRightLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -236,7 +236,7 @@ internal static class TorizoSharedSteps
     /// <summary>Faceless Bomb Torizo's step right on its left leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightFacelessLeftLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedRightWithRightFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Right)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -257,7 +257,7 @@ internal static class TorizoSharedSteps
     /// <summary>Faceless Bomb Torizo's step right on its right leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] FacingRightFacelessRightLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
@@ -278,7 +278,7 @@ internal static class TorizoSharedSteps
     /// <summary>Golden Torizo's step left on its right leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingLeftRightLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Left)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -303,7 +303,7 @@ internal static class TorizoSharedSteps
     /// <summary>Golden Torizo's step left on its left leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingLeftLeftLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -329,7 +329,7 @@ internal static class TorizoSharedSteps
     /// <summary>Golden Torizo's step right on its left leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingRightLeftLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedRightWithRightFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Right)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -354,7 +354,7 @@ internal static class TorizoSharedSteps
     /// <summary>Golden Torizo's step right on its right leg.</summary>
     internal static readonly AnimationBeat<EnemyFrameId, TorizoCue>[] GoldenFacingRightRightLegStep =
     [
-        Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
+        Cue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left)),
         Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.GoldenActive)),
         Cue(new TorizoCue.Signal(K.StartWalking)),
         Cue(new TorizoCue.Signal(K.PlayFootstepSound)),

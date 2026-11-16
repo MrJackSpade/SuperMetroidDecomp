@@ -16,6 +16,9 @@ public sealed class NorfairPipeBugState
     /// <summary>The current action, one of the Norfair actions.</summary>
     public NorfairPipeBugAction Action { get; internal set; }
 
+    /// <summary>The way a departed member flies (#2165), chosen toward Samus as it departs.</summary>
+    public HorizontalDirection FlightDirection { get; internal set; }
+
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 

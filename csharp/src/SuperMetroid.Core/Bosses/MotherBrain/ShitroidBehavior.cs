@@ -260,47 +260,39 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
-                    state.Action = ShitroidAction.FlyLeft;
+                    state.Action = ShitroidAction.FlyBesideSamus;
+                    state.DepartureSide = HorizontalDirection.Left;
                     state.StateTimer = 88;
                     SetShitroidAnimation(place, ShitroidSegment.LatchedOn);
-                    goto case ShitroidAction.FlyLeft;
+                    goto case ShitroidAction.FlyBesideSamus;
                 }
                 return;
             }
 
-            case ShitroidAction.FlyLeft:
+            case ShitroidAction.FlyBesideSamus:
             {
                 SamusState target = samus;
+                bool toHerLeft = state.DepartureSide == HorizontalDirection.Left;
                 GraduallyAccelerateShitroid(
                     place,
                     state,
                     ShitroidFlightDefinitions.DriftDivisor,
-                    new(CoordinateAxis.Wrap(target.Position.X.Whole - 64), 100),
+                    toHerLeft
+                        ? new(CoordinateAxis.Wrap(target.Position.X.Whole - 64), 100)
+                        : new(CoordinateAxis.Wrap(target.Position.X.Whole + 96), 104),
                     camera);
-                if (PredecrementShitroidTimerBecameNegative(state))
+                if (!PredecrementShitroidTimerBecameNegative(state))
+                    return;
+                // Her left first: that flight's end turns to her right on the same update.
+                if (toHerLeft)
                 {
-                    state.Action = ShitroidAction.FlyRight;
+                    state.DepartureSide = HorizontalDirection.Right;
                     state.StateTimer = 88;
-                    goto case ShitroidAction.FlyRight;
+                    goto case ShitroidAction.FlyBesideSamus;
                 }
-                return;
-            }
-
-            case ShitroidAction.FlyRight:
-            {
-                SamusState target = samus;
-                GraduallyAccelerateShitroid(
-                    place,
-                    state,
-                    ShitroidFlightDefinitions.DriftDivisor,
-                    new(CoordinateAxis.Wrap(target.Position.X.Whole + 96), 104),
-                    camera);
-                if (PredecrementShitroidTimerBecameNegative(state))
-                {
-                    state.Action = ShitroidAction.HoldSamusBeforeRelease;
-                    state.StateTimer = 256;
-                    SetShitroidAnimation(place, ShitroidSegment.Remorse);
-                }
+                state.Action = ShitroidAction.HoldSamusBeforeRelease;
+                state.StateTimer = 256;
+                SetShitroidAnimation(place, ShitroidSegment.Remorse);
                 return;
             }
 

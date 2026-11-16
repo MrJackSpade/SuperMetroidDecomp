@@ -84,6 +84,14 @@ internal abstract record TorizoCue
     /// <param name="Look">The look a <see cref="ShowArtwork"/> cue shows.</param>
     internal sealed record ShowArtwork(TorizoArtworkLook Look) : TorizoCue;
 
+    /// <summary>
+    /// Records a step the cue's way on the cue's foot (#2165): the posture faces that way, with the opposite leg forward when
+    /// the foot is not on that side, and the step counts toward the next decision.
+    /// </summary>
+    /// <param name="Direction">The way the body stepped.</param>
+    /// <param name="Foot">The foot it stepped on.</param>
+    internal sealed record Stepped(HorizontalDirection Direction, HorizontalDirection Foot) : TorizoCue;
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(TorizoCueKind Kind) : TorizoCue;

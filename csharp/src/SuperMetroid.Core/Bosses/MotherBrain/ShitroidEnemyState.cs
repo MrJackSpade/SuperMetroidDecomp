@@ -16,6 +16,9 @@ public sealed class ShitroidEnemyState
     /// <summary>Gets the Shitroid's current action.</summary>
     public ShitroidAction Action { get; internal set; }
 
+    /// <summary>The side of Samus the departing Shitroid flies to (#2165).</summary>
+    public HorizontalDirection DepartureSide { get; internal set; }
+
     /// <summary>Signed 1/256-pixel velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 

@@ -111,22 +111,26 @@ internal sealed class DraygonParts
         state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftIdle);
     }
 
+    /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
+    private static void Track(DraygonEyeState eye, HorizontalDirection facing)
+    {
+        eye.Action = DraygonEyeAction.Tracking;
+        eye.Facing = facing;
+    }
+
     /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
     internal void RunDraygonEyeMain(RoomEnemyPlace part, SamusState samus)
     {
-        DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action;
-        switch (action)
+        DraygonEyeState eye = part.RequireSpeciesState<DraygonEyeState>();
+        switch (eye.Action)
         {
             case DraygonEyeAction.Inert:
                 return;
-            case DraygonEyeAction.FacingLeft:
-                TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Left);
-                return;
-            case DraygonEyeAction.FacingRight:
-                TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Right);
+            case DraygonEyeAction.Tracking:
+                TrackSamusWithDraygonEye(part, samus, eye.Facing);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined Draygon eye action {action}.");
+                throw new InvalidOperationException($"Undefined Draygon eye action {eye.Action}.");
         }
     }
 
@@ -204,11 +208,11 @@ internal sealed class DraygonParts
                 state.Eye.AnimationClock.StepOnNextUpdate();
                 state.Body.AnimationClock.StepOnNextUpdate();
                 return;
-            case DraygonCue.SetEyeAction eyeAction:
-                (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Action = eyeAction.Action;
+            case DraygonCue.TrackWithEye track:
+                Track(RequirePart(state.Eye).RequireSpeciesState<DraygonEyeState>(), track.Facing);
                 return;
-            case DraygonCue.SetOwnEyeAction ownAction:
-                part.RequireSpeciesState<DraygonEyeState>().Action = ownAction.Action;
+            case DraygonCue.TrackWithOwnEye track:
+                Track(part.RequireSpeciesState<DraygonEyeState>(), track.Facing);
                 return;
             case DraygonCue.ShiftBodyPicture shift:
                 state.BodyPictureShift = shift.Shift;

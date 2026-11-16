@@ -18,11 +18,11 @@ public sealed class RoomEffectActor
         Kind = kind;
         Position = FixedPosition<RoomPixels>.FromWhole(position);
         Graphics = graphics;
-        Playback = new(RoomEffectActorAnimations.StartingWith(RoomEffectActorDefinitions.Animations[kind]), AnimationPlace.StartOfAnimation);
+        Playback = new(RoomEffectActorAnimations.StartingWith(kind), AnimationPlace.StartOfAnimation);
         AdvanceAnimation();
     }
 
-    /// <summary>What the object is, as its spawner chose it.</summary>
+    /// <summary>What the object shows, as its spawner chose it, which is also the animation it plays.</summary>
     public RoomEffectActorKind Kind { get; }
 
     /// <summary>Whether the object still runs its animation; once it ends it never runs or shows again.</summary>
@@ -39,7 +39,7 @@ public sealed class RoomEffectActor
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
-    internal AnimationPlayback<RoomEffectActorSegment>? Playback { get; private set; }
+    internal AnimationPlayback<RoomEffectActorKind>? Playback { get; private set; }
 
     /// <summary>Updates left showing <see cref="Frame"/> before the animation moves on; not counted while the object <see cref="Holds"/>.</summary>
     public int Timer { get; private set; }
@@ -71,25 +71,25 @@ public sealed class RoomEffectActor
     /// </summary>
     private void AdvanceAnimation()
     {
-        AnimationPlayback<RoomEffectActorSegment> playback = Playback ?? throw new InvalidOperationException(
+        AnimationPlayback<RoomEffectActorKind> playback = Playback ?? throw new InvalidOperationException(
             $"Effect actor {Kind} has no animation to play.");
-        Animation<RoomEffectActorSegment> animation = playback.Animation;
+        Animation<RoomEffectActorKind> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
+        AnimationShown<RoomEffectActorKind, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
             ref animation, ref place,
             raised => throw new InvalidOperationException($"Effect actor {Kind}'s event-free animation raised {raised}."));
         switch (shown)
         {
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Frame frame:
+            case AnimationShown<RoomEffectActorKind, RoomEffectActorPicture>.Frame frame:
                 Playback = new(animation, place);
                 Frame = frame.Shown;
                 Timer = frame.Duration;
                 return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Held:
+            case AnimationShown<RoomEffectActorKind, RoomEffectActorPicture>.Held:
                 Playback = new(animation, place);
                 Holds = true;
                 return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended:
+            case AnimationShown<RoomEffectActorKind, RoomEffectActorPicture>.Ended:
                 End();
                 return;
             default:
@@ -98,16 +98,15 @@ public sealed class RoomEffectActor
     }
 
     /// <summary>
-    /// Starts the animation beginning at <paramref name="segment"/> from its first frame, as a spawn starts one (#2047):
-    /// the frozen Metroid shell restarts its animation in its frozen colours.
+    /// Restarts the object's own animation from its first frame, as its spawn started it (#2047): a frozen Metroid's
+    /// electricity and shell restart theirs in their frozen colours.
     /// </summary>
-    /// <param name="segment">The segment whose animation the object plays from now on.</param>
-    internal void StartAnimation(RoomEffectActorSegment segment)
+    internal void RestartAnimation()
     {
         if (!IsActive)
             throw new InvalidOperationException($"Effect actor {Kind} has ended and shows no frame.");
         Holds = false;
-        Playback = new(RoomEffectActorAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        Playback = new(RoomEffectActorAnimations.StartingWith(Kind), AnimationPlace.StartOfAnimation);
         AdvanceAnimation();
     }
 }

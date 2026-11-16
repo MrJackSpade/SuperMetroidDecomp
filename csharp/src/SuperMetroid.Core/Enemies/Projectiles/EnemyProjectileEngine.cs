@@ -658,7 +658,7 @@ internal sealed class EnemyProjectileEngine
     {
         _ = _effectActors.SpawnRoomEffectActor(
             projectile.Position.Whole,
-            RoomEffectActorKind.EnemyProjectileDud,
+            RoomEffectActorKind.DudShot,
             graphics: default);
         QueueDudSound(SoundRequestPriority.Low);
         projectile.IsSpent = true;
@@ -672,7 +672,7 @@ internal sealed class EnemyProjectileEngine
     {
         _ = _effectActors.SpawnRoomEffectActor(
             Ensure.NotNull(bomb).Position.Whole,
-            RoomEffectActorKind.EnemyProjectileDud,
+            RoomEffectActorKind.DudShot,
             graphics: default);
         QueueDudSound(SoundRequestPriority.Low);
     }

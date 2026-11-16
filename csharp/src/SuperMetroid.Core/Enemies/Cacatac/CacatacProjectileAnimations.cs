@@ -16,7 +16,7 @@ internal static class CacatacProjectileAnimations
     {
         [P.LeftFacingUp] =
         [
-            Show(EnemyProjectileFrameId.CacatacSpikeLeftFacingUp, 1),
+            Show(EnemyProjectileFrameId.CacatacSpikeLeftHigh, 1),
         ],
         [P.UpLeft] =
         [
@@ -32,11 +32,11 @@ internal static class CacatacProjectileAnimations
         ],
         [P.RightFacingUp] =
         [
-            Show(EnemyProjectileFrameId.CacatacSpikeRightFacingUp, 1),
+            Show(EnemyProjectileFrameId.CacatacSpikeRightHigh, 1),
         ],
         [P.LeftFacingDown] =
         [
-            Show(EnemyProjectileFrameId.CacatacSpikeLeftFacingDown, 1),
+            Show(EnemyProjectileFrameId.CacatacSpikeLeftLow, 1),
         ],
         [P.DownLeft] =
         [
@@ -52,7 +52,7 @@ internal static class CacatacProjectileAnimations
         ],
         [P.RightFacingDown] =
         [
-            Show(EnemyProjectileFrameId.CacatacSpikeRightFacingDown, 1),
+            Show(EnemyProjectileFrameId.CacatacSpikeRightLow, 1),
         ],
     });
 

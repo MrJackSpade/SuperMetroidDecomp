@@ -20,10 +20,10 @@ internal static class AlcoonFireballFrameToolingDefinitions
     /// <summary>The bank-$8D spritemap each frame's native operand selects.</summary>
     private static readonly Dictionary<EnemyProjectileFrameId, ushort> Spritemaps = new()
     {
-        [EnemyProjectileFrameId.AlcoonFireballInitialFirst] = 0x8404,
-        [EnemyProjectileFrameId.AlcoonFireballInitialSecond] = 0x840b,
-        [EnemyProjectileFrameId.AlcoonFireballInitialThird] = 0x8412,
-        [EnemyProjectileFrameId.AlcoonFireballInitialFourth] = 0x8419,
+        [EnemyProjectileFrameId.AlcoonFireballTurned0] = 0x8404,
+        [EnemyProjectileFrameId.AlcoonFireballTurned90] = 0x840b,
+        [EnemyProjectileFrameId.AlcoonFireballTurned180] = 0x8412,
+        [EnemyProjectileFrameId.AlcoonFireballTurned270] = 0x8419,
     };
 
     /// <summary>The frame whose program frame is stored at bank-$86 operand <paramref name="key"/>, if one is.</summary>

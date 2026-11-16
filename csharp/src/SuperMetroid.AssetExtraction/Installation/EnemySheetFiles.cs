@@ -33,9 +33,9 @@ public static class EnemySheetFiles
     /// record shades to the gunship's top hull and entrance sheets (#1733); 37 installs no Stoke and lists no spawned objects
     /// for an enemy no room places, the Reflec, the second dead Sidehopper and the Tourian statue ghost (#1686); 38 names the
     /// Torizos' artwork looks for what each shows, not by swap numbers (#1761); 39 keys every enemy frame by what its
-    /// picture shows (#2069).
+    /// picture shows (#2069); 40 keys every enemy projectile frame by what its picture shows (#2154).
     /// </summary>
-    public const int ManifestVersion = 39;
+    public const int ManifestVersion = 40;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

@@ -638,7 +638,7 @@ internal sealed class EnemyCollision
     /// drawn with the room's graphics, so it takes one of the room's effect-actor places as it spawns.
     /// </summary>
     private void ShowHitBurst(RoomEnemyPlace enemy) =>
-        _ = _effectActors.SpawnRoomEffectActor(enemy.Position.Whole, RoomEffectActorKind.EnemyHit, graphics: default);
+        _ = _effectActors.SpawnRoomEffectActor(enemy.Position.Whole, RoomEffectActorKind.HitBurst, graphics: default);
 
     /// <summary>What a normal bomb's common damage did to the enemy it reached.</summary>
     private enum NormalBombHit

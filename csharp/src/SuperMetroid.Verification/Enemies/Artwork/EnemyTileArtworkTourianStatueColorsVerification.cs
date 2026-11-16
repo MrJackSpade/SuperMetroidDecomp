@@ -61,8 +61,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         SpriteImage statueSheet = scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueBaseDecoration)).Sheet;
         foreach (EnemyProjectileFrameId scene in new[]
         {
-            EnemyProjectileFrameId.TourianStatueParticleFirst, EnemyProjectileFrameId.TourianStatueTailFirst,
-            EnemyProjectileFrameId.TourianStatueBaseDecorationLoop, EnemyProjectileFrameId.TourianStatueRidley, EnemyProjectileFrameId.TourianStatuePhantoon,
+            EnemyProjectileFrameId.TourianStatueParticleTurned0, EnemyProjectileFrameId.TourianStatueTailBright,
+            EnemyProjectileFrameId.TourianStatueBaseDecorationTwin, EnemyProjectileFrameId.TourianStatueRidley, EnemyProjectileFrameId.TourianStatuePhantoon,
         })
         {
             AssertEqual(statueSheet.Name, scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(scene)).Sheet.Name,

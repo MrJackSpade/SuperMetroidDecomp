@@ -16,7 +16,7 @@ internal static class PolypRockAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.PolypRockInitial, 1),
+            Show(EnemyProjectileFrameId.PolypRock, 1),
         ],
     });
 

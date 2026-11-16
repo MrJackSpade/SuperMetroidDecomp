@@ -102,8 +102,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? -YappingMawAttackDefinitions.RootDistance
                 : YappingMawAttackDefinitions.RootDistance))),
             place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? RoomEffectActorKind.YappingMawRootFacingDown
-                : RoomEffectActorKind.YappingMawRootFacingUp,
+                ? RoomEffectActorKind.YappingMawBaseFacingDown
+                : RoomEffectActorKind.YappingMawBaseFacingUp,
             SpriteGraphics.SpawnedBy(place));
     }
 

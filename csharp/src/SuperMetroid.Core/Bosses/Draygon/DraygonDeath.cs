@@ -48,7 +48,7 @@ internal sealed class DraygonDeath
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
-                RoomEffectActorKind.DraygonSpiralFoam,
+                RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
 
@@ -142,7 +142,7 @@ internal sealed class DraygonDeath
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = new(DraygonRandomDefinitions.DeathSmokeX.Of(random) + 192, DraygonRandomDefinitions.DeathSmokeY.Of(random) + 400);
-        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.DustCloud, graphics: default);
+        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: default);
     }
 
     /// <summary>Ends every room effect actor and spawns six burial Evirs, each carrying the definition that moves it.</summary>
@@ -189,8 +189,8 @@ internal sealed class DraygonDeath
         {
             RoomEffectActor sprite = evir.Sprite;
             if (!sprite.IsActive || sprite.Kind is not (
-                    RoomEffectActorKind.DraygonIntroEvir or
-                    RoomEffectActorKind.DraygonDeathEvirFacingRight))
+                    RoomEffectActorKind.EvirFacingLeft or
+                    RoomEffectActorKind.EvirFacingRight))
             {
                 throw new InvalidDataException(
                     $"Draygon burial movement expected the burial Evir that started at {evir.Definition.Start} to be live.");

@@ -169,7 +169,7 @@ internal sealed class KraidCombat
                 else
                 {
                     RoomEffectActor dud = _effectActors.SpawnRoomEffectActor(
-                        shot.Position, RoomEffectActorKind.EnemyProjectileDud, graphics: default);
+                        shot.Position, RoomEffectActorKind.DudShot, graphics: default);
                     bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }

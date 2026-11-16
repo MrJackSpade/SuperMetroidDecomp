@@ -26,18 +26,18 @@ internal static class SporeSpawnProjectileAnimations
         ],
         [P.SpawnerRelease] =
         [
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFirst, 1),
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerReleaseSecond, 6),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosedTwin, 1),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpening, 6),
             Cue(C.SpawnSpore),
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerReleaseThird, 16),
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFourth, 6),
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFifth, 1),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpen, 16),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpeningTwin, 6),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosedTwinB, 1),
         ],
         [P.Spore] =
         [
-            Show(EnemyProjectileFrameId.SporeSpawnSporeFirst, 5),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeSecond, 5),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeThird, 5),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeGlowing, 5),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeDim, 5),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeSparkling, 5),
         ],
         [P.Stalk] =
         [
@@ -45,15 +45,15 @@ internal static class SporeSpawnProjectileAnimations
         ],
         [P.SporeShot] =
         [
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotFirst, 1),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstSpark, 1),
             Cue(C.SetImpactProperties),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotSecond, 3),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotThird, 6),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotFourth, 5),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstSparkTwin, 3),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstFireballSmall, 6),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstFireballLarge, 5),
             Cue(C.QueueKilledSound),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotFifth, 5),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotSixth, 5),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeShotSeventh, 6),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstFlamingRing, 5),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstStarburst, 5),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstEmbers, 6),
             Cue(C.RequestDrop),
             Cue(C.Delete),
         ],

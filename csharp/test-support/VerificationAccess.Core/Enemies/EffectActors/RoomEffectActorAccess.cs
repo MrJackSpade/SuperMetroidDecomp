@@ -20,10 +20,10 @@ internal static class RoomEffectActorAccess
         _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
     };
 
-    /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="segment"/>.</summary>
-    internal static ushort RecordAddress(RoomEffectActorSegment segment, int beat) =>
-        checked((ushort)(RoomEffectActorProgramAddresses.Entries[segment] +
-            RoomEffectActorAnimations.Segments.Beats(segment).Take(beat).Sum(BeatBytes)));
+    /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="kind"/>'s segment.</summary>
+    internal static ushort RecordAddress(RoomEffectActorKind kind, int beat) =>
+        checked((ushort)(RoomEffectActorProgramAddresses.Entries[kind] +
+            RoomEffectActorAnimations.Segments.Beats(kind).Take(beat).Sum(BeatBytes)));
 
     /// <summary>Native views of a sprite object.</summary>
     extension(RoomEffectActor self)
@@ -57,12 +57,4 @@ internal static class RoomEffectActorAccess
         /// <summary>The native disable word.</summary>
         internal int DisableFlags => self.UpdatesDisabled ? 1 : 0;
     }
-
-    /// <summary>Native views of the kind selection.</summary>
-    extension(RoomEffectActorDefinitions)
-    {
-        /// <summary>The bank-$B4 list address <paramref name="kind"/> starts.</summary>
-        internal static ushort InstructionPointer(RoomEffectActorKind kind) => RoomEffectActorProgramAddresses.Entries[RoomEffectActorDefinitions.Animations[kind]];
-    }
-
 }

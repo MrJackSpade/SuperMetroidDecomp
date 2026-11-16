@@ -30,11 +30,11 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     /// <summary>The six small-explosion frames the burst shows, in order (#1817), each with how long it holds (#2044).</summary>
     internal static IReadOnlyList<OldTourianWallExplosionBeat> Beats { get; } =
     [
-        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst, 4),
-        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond, 6),
-        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird, 5),
-        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth, 5),
-        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth, 5),
-        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth, 6),
+        new(EnemyProjectileFrameId.OldTourianWallExplosionSpark, 4),
+        new(EnemyProjectileFrameId.OldTourianWallExplosionFireballSmall, 6),
+        new(EnemyProjectileFrameId.OldTourianWallExplosionFireballLarge, 5),
+        new(EnemyProjectileFrameId.OldTourianWallExplosionFlamingRing, 5),
+        new(EnemyProjectileFrameId.OldTourianWallExplosionStarburst, 5),
+        new(EnemyProjectileFrameId.OldTourianWallExplosionEmbers, 6),
     ];
 }

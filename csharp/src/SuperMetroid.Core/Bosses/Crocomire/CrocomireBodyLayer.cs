@@ -97,7 +97,7 @@ internal sealed class CrocomireBodyLayer
             : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
         _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
-            RoomEffectActorKind.CrocomireAcidSmoke,
+            RoomEffectActorKind.BigDustCloud,
             graphics: default);
     }
 }

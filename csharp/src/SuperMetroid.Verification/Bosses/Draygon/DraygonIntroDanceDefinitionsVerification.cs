@@ -110,7 +110,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         var dancers = new RoomEffectActor[DraygonIntroDanceDefinitions.EvirCount];
         for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
         {
-            dancers[dancer] = enemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180), RoomEffectActorKind.DraygonIntroEvir,
+            dancers[dancer] = enemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180), RoomEffectActorKind.EvirFacingLeft,
                 SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
             int actor = NativeDancerSlot(dancer) - 28;
             expectedX[actor] = 0x0100;
@@ -183,7 +183,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             IntroDanceStep = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0),
         };
         RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
-            RoomEffectActorKind.DraygonIntroEvir, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
+            RoomEffectActorKind.EvirFacingLeft, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
         malformedState.IntroDancers.Add(new DraygonIntroDancer(malformedSprite, DraygonIntroDance.StartDelay(0)));
         AssertThrows<InvalidDataException>(
             () => malformedRun(malformedState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1),

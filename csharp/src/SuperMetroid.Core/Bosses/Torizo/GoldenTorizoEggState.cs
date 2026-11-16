@@ -15,6 +15,6 @@ internal sealed class GoldenTorizoEggState(bool facingRight) : EnemyProjectileSt
     /// <summary>Whether the egg faces right; it turns about when it rolls into a wall, and hatches and charges that way.</summary>
     internal bool FacingRight { get; set; } = facingRight;
 
-    /// <summary>The countdown to hatching; the egg hatches on the update it passes zero.</summary>
-    internal int HatchTimer { get; set; } = TorizoMotionDefinitions.EggHatchTimer;
+    /// <summary>The countdown to hatching; the egg hatches on the update it runs out (#2233).</summary>
+    internal BossCountdown HatchTimer { get; } = new() { Count = TorizoMotionDefinitions.EggHatchTimer };
 }

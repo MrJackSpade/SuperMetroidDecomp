@@ -63,7 +63,7 @@ internal sealed class NorfairRidleyDeath
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, new Position16<RoomPixels>(128, 328),
             RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
-        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
@@ -72,13 +72,13 @@ internal sealed class NorfairRidleyDeath
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
         state.Phase = NorfairRidleyPhase.DeathExplosions;
-        state.PhaseTimer = 160;
+        state.PhaseTimer.Count = 160;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
     /// <summary>
     /// Runs the death explosions. An authored-position small explosion appears every five calls while the
-    /// acid lowers. When the 160-frame clock expires, Samus is released and Ridley's twelve
+    /// acid lowers. When its countdown of 160 runs out, Samus is released and Ridley's twelve
     /// independently moving body/tail breakup enemies are allocated from the real place pool.
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
@@ -87,7 +87,7 @@ internal sealed class NorfairRidleyDeath
         SamusState? samus)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
-        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         if (state.GrabState != RidleyGrabState.Released)
@@ -109,16 +109,16 @@ internal sealed class NorfairRidleyDeath
         state.MovementAnimationEnabled = false;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Phase = NorfairRidleyPhase.DeathWait;
-        state.PhaseTimer = 32;
+        state.PhaseTimer.Count = 32;
     }
 
-    /// <summary>The breakup's deliberate 32-frame pre-wait before the final 256 frames.</summary>
+    /// <summary>The breakup's deliberate wait, a countdown of 32, before the death's final countdown of 256.</summary>
     internal static void TickNorfairRidleyBreakupWait(NorfairRidleyState state)
     {
-        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
         state.Phase = NorfairRidleyPhase.DeathFinish;
-        state.PhaseTimer = 256;
+        state.PhaseTimer.Count = 256;
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ internal sealed class NorfairRidleyDeath
         NorfairRidleyState state,
         SamusState samus)
     {
-        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
@@ -225,7 +225,7 @@ internal sealed class NorfairRidleyDeath
             SignedEightEight.FromPixels(RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random));
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = RidleyExplosionDefinitions.GetPart(part).Lifetime,
+            Lifetime = { Count = RidleyExplosionDefinitions.GetPart(part).Lifetime },
             Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
         };
         fragment.SetSpeciesState(fragmentState);
@@ -263,7 +263,7 @@ internal sealed class NorfairRidleyDeath
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 
-        if (--fragmentState.Lifetime >= 0)
+        if (fragmentState.Lifetime.StepKeepsRunning())
             return;
 
         // The breakup actor runs the small enemy death: clear the place immediately and

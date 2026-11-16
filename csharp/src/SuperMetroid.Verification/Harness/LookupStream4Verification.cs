@@ -1957,7 +1957,7 @@ internal static class LookupStream4Verification
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
-                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
+                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer.Count = 0;
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 // The hold before take-off runs the arena reveal; the reveal's end takes him off (#2229).
@@ -1966,7 +1966,7 @@ internal static class LookupStream4Verification
                     enemies.NorfairRidleyBehavior.Body.Reveal.Run(place, state, enemies.NorfairRidleyBehavior);
                     ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
-                    AssertEqual(2 - call % 3, state.PhaseTimer, "Actual three-call producer cadence preserved");
+                    AssertEqual(2 - call % 3, state.PhaseTimer.Count, "Actual three-call producer cadence preserved");
                     AssertEqual(call < 45 ? row + 1 : NorfairRidleyRevealDefinitions.RevealStepCount + 1, state.ArenaReveal.Step, "Actual row and terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
@@ -2181,7 +2181,7 @@ internal static class LookupStream4Verification
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime, "Actual breakup preserves each unresolved native lifetime");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.Count, "Actual breakup preserves each unresolved native lifetime");
             }
             Spawn();
             AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");

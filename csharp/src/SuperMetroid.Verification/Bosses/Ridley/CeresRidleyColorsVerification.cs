@@ -89,7 +89,6 @@ internal static class CeresRidleyColorsVerification
         // The eye fade shows its sixteen shades from the darkest, then holds his own eye colours (#2247).
         for (int step = 0; step < RidleyEyeFadeDefinitions.ShadeCount + RidleyEyeFadeDefinitions.HoldUpdates; step++)
         {
-            state.PhaseTimer = 0;
             eyeTick(state);
             int row = Math.Max(0, RidleyEyeFadeDefinitions.ShadeCount - 1 - step);
             AssertEqual(new RidleyEyeFadeProgress(Math.Min(step + 1, RidleyEyeFadeDefinitions.ShadeCount), Math.Max(0, step + 1 - RidleyEyeFadeDefinitions.ShadeCount)),
@@ -102,8 +101,8 @@ internal static class CeresRidleyColorsVerification
         state.RevealPhase = RidleyRevealPhase.FadeInBody;
         for (int row = 0; row < RidleyShadeDefinitions.BodyFadeShadeCount; row++)
         {
-            state.BodyFade = new RidleyBodyFadeProgress(row);
-            state.PhaseTimer = 1;
+            // The update before each shade has passed, so this one shows it (#2233).
+            state.BodyFade = new RidleyBodyFadeProgress(row) { WaitedForShade = true };
             bodyTick(place, state);
             // The body fade keeps its own progress (#2228): the last row completes it rather than resetting a shared step.
             AssertEqual(row + 1, state.BodyFade.Shade, $"installed body fade row {row} advances to the next row");
@@ -133,7 +132,7 @@ internal static class CeresRidleyColorsVerification
         CeresRidleyState activeRidley = enemies.CeresRidley() ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Phase = CeresRidleyPhase.RetreatDelay;
-        activeRidley.PhaseTimer = 0;
+        activeRidley.PhaseTimer.Count = 0;
         activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, activeRidley, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
         AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.Phase,

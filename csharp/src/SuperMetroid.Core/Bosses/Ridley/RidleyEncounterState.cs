@@ -33,8 +33,8 @@ public abstract class RidleyEncounterState
     /// <summary>Gets whether body motion and the wing and tail updates run; Ceres's eye fade enables them, Lower Norfair's death hides them.</summary>
     public bool MovementAnimationEnabled { get; internal set; }
 
-    /// <summary>Gets the current AI phase's countdown, which times how long the phase lasts.</summary>
-    public int PhaseTimer { get; internal set; }
+    /// <summary>The current AI phase's countdown, which times how long the phase lasts (#2233).</summary>
+    public BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>Whether Ridley's tail and wings draw in the hurt flash's colours this update.</summary>
     internal bool TailAndWingsFlashing { get; set; }

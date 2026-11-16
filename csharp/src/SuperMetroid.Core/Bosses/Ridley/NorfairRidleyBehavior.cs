@@ -38,7 +38,10 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         Death = new NorfairRidleyDeath(dependencies.Lifecycle, _room, dependencies.DeathsAndDrops, dependencies.RidleyProjectiles, dependencies.RoomFx, dependencies.Audio);
     }
 
-    /// <summary>Lower Norfair Ridley waits 170 updates once Samus's door has finished before his eyes fade.</summary>
+    /// <summary>
+    /// Lower Norfair Ridley's wait once Samus's door has finished, before his eyes fade: a countdown of 170
+    /// (<see cref="BossCountdown"/>) stepped first on the update the door finishes, so his eye fade begins on its 171st step.
+    /// </summary>
     public int InitialDelay => 170;
 
     /// <summary>Lower Norfair Ridley's roar holds no updates before his arena's reveal steps.</summary>
@@ -132,7 +135,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.HoverSetup:
                 state.Phase = NorfairRidleyPhase.Hover;
-                state.PhaseTimer = 128;
+                state.PhaseTimer.Count = 128;
                 NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
                 return;
 
@@ -213,7 +216,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 state.Tail.IdealLinkSpacing = RidleyTailDefinitions.WallSweepLinkSpacing;
                 state.Tail.ExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Phase = NorfairRidleyPhase.SweepToWallBehind;
-                state.PhaseTimer = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + 32;
+                state.PhaseTimer.Count = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + 32;
                 Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
@@ -255,28 +258,28 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.CarryMoveToAnchor:
                 NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, 16);
-                if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+                if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Phase = NorfairRidleyPhase.CarryRise;
-                    state.PhaseTimer = 32;
+                    state.PhaseTimer.Count = 32;
                 }
                 return;
 
             case NorfairRidleyPhase.CarryRise:
-                if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+                if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Tail.IdealLinkSpacing = RidleyTailDefinitions.CarryReleaseLinkSpacing;
                     state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Phase = NorfairRidleyPhase.CarryRelease;
-                    state.PhaseTimer = 64;
+                    state.PhaseTimer.Count = 64;
                 }
                 else
                     NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target.WithY(256), 16);
                 return;
 
             case NorfairRidleyPhase.CarryRelease:
-                if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
+                if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Tail.IdealLinkSpacing = RidleyTailDefinitions.StandardLinkSpacing;
                     state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;

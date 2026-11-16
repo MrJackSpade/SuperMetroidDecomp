@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainDoorFragmentState : EnemyProjectileState
 {
     /// <summary>The fragment's remaining life; it turns to dust on the update it runs out.</summary>
-    internal MotherBrainCountdown Lifetime { get; } = new() { Count = MotherBrainDeathDefinitions.DoorFragmentLifetime };
+    internal BossCountdown Lifetime { get; } = new() { Count = MotherBrainDeathDefinitions.DoorFragmentLifetime };
 }

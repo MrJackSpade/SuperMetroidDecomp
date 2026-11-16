@@ -33,7 +33,6 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes, MovementAnimationEnabled = false };
         for (int update = 0; update < ScheduleUpdates; update++)
         {
-            state.PhaseTimer = 0;
             tick(state);
 
             // The colours the encounter shows are the import's shades of its installed colours, laid as the fade laid them (#1512).
@@ -51,7 +50,6 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         }
         AssertTrue(state.EyeFade.IsComplete, "production Ceres eye fade completes after its shades and its hold");
 
-        state.PhaseTimer = 0;
         tick(state);
         // Each fade keeps its own progress (#2228): the completed eye fade stays complete, and the body fade starts at black.
         AssertTrue(state.EyeFade.IsComplete,

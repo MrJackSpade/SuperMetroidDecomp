@@ -38,8 +38,9 @@ internal static class RidleyExplosionDefinitions
     ];
 
     /// <summary>
-    /// Each part's lifetime in frames: tail segments expire eight frames apart from the base, the body parts follow
-    /// the same eight-frame progression, and the torso expires last.
+    /// Each part's lifetime, the count its countdown (<see cref="BossCountdown"/>) is loaded with, so the fragment dies on
+    /// the update after that many: tail fragments die eight updates apart from the base, the body parts follow the same
+    /// eight-update progression, and the torso dies last.
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
     {

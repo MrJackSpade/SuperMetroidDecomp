@@ -880,7 +880,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(RidleyRevealPhase.InitialDelay, state.RevealPhase,
         "Ceres Ridley door-clear transition");
-    AssertEqual(511, state.PhaseTimer, "Ceres Ridley first delay decrement");
+    AssertEqual(511, state.PhaseTimer.Count, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
@@ -914,7 +914,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(RidleyRevealPhase.WaitBeforeRoar, state.RevealPhase,
         "Ceres Ridley body fade completes");
-    AssertEqual(4, state.PhaseTimer, "Ceres Ridley pre-roar timer");
+    AssertEqual(4, state.PhaseTimer.Count, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Contact.HasAny(EnemyContact.IgnoresSamus),

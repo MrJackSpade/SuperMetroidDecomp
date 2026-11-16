@@ -33,7 +33,7 @@ internal static class RidleyDeathAccelerationVerification
         {
             place.Position = new(new(unchecked((ushort)(128 + distance)), 0x8123), new(unchecked((ushort)(328 - distance)), 0x8123));
             state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)velocity)), new SignedEightEight(unchecked((ushort)velocity)));
-            state.PhaseTimer = 20;
+            state.PhaseTimer.Count = 20;
             step(place, state);
             AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), place.Position.X.Whole, 128, 16, 16), state.Flight.Velocity.X.RawValue, "Death phase native X acceleration");
             AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), place.Position.Y.Whole, 328, 16, 16), state.Flight.Velocity.Y.RawValue, "Death phase native Y acceleration");

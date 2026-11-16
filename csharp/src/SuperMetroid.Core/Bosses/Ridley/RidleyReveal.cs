@@ -40,7 +40,7 @@ internal sealed class RidleyReveal
                 if (_doorPassage.IsUnderWay)
                     return;
                 ridley.RevealPhase = RidleyRevealPhase.InitialDelay;
-                ridley.PhaseTimer = encounter.InitialDelay;
+                ridley.PhaseTimer.Count = encounter.InitialDelay;
                 TickInitialDelay(ridley);
                 return;
 
@@ -57,10 +57,10 @@ internal sealed class RidleyReveal
                 return;
 
             case RidleyRevealPhase.WaitBeforeRoar:
-                if (--ridley.PhaseTimer < 0)
+                if (ridley.PhaseTimer.StepRunsOut())
                 {
                     RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.OpeningRoar);
-                    ridley.PhaseTimer = encounter.RoarHold;
+                    ridley.PhaseTimer.Count = encounter.RoarHold;
                     ridley.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
                 }
                 return;
@@ -82,11 +82,10 @@ internal sealed class RidleyReveal
     /// <summary>Advances the opening hold before Ridley's eye fade begins.</summary>
     private static void TickInitialDelay(RidleyEncounterState ridley)
     {
-        if (--ridley.PhaseTimer >= 0)
+        if (ridley.PhaseTimer.StepKeepsRunning())
             return;
 
         ridley.RevealPhase = RidleyRevealPhase.FadeInEyes;
-        ridley.PhaseTimer = 0;
     }
 
     /// <summary>
@@ -95,12 +94,6 @@ internal sealed class RidleyReveal
     /// </summary>
     internal static void TickEyeFadeIn(RidleyEncounterState ridley)
     {
-        // The game's increment-and-test advances once per AI call for every reachable
-        // counter value, resetting that timer to zero immediately afterward.
-        if (++ridley.PhaseTimer == 0)
-            return;
-        ridley.PhaseTimer = 0;
-
         if (ridley.EyeFade.IsComplete)
         {
             ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
@@ -120,9 +113,12 @@ internal sealed class RidleyReveal
     /// </summary>
     internal void TickBodyFadeIn(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
-        if (++ridley.PhaseTimer < 2)
+        // The first of each shade's two updates only waits.
+        if (!ridley.BodyFade.WaitedForShade)
+        {
+            ridley.BodyFade = ridley.BodyFade.Waited();
             return;
-        ridley.PhaseTimer = 0;
+        }
 
         // Each step of the body fade shows the next shade, from black to the full body colours.
         if (ridley.BodyFade.IsComplete)
@@ -136,7 +132,7 @@ internal sealed class RidleyReveal
         // five updates, then begins the opening-roar animation.
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         ridley.RevealPhase = RidleyRevealPhase.WaitBeforeRoar;
-        ridley.PhaseTimer = 4;
+        ridley.PhaseTimer.Count = 4;
         // The fade queues the battle music immediately after the final body shade. It
         // intentionally continues after Ridley retreats, so omitting this single publication
         // silences both scenes.

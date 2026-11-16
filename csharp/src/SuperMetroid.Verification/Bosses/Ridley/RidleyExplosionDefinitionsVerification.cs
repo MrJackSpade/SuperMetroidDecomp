@@ -212,7 +212,7 @@ internal static class RidleyExplosionDefinitionsVerification
                     ?? throw new InvalidOperationException("The initialized fragment has no state.");
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)),
-                    fragmentState.Lifetime,
+                    fragmentState.Lifetime.Count,
                     $"Ridley breakup production lifetime ${parameter:X2}");
                 AssertEqual(unchecked((ushort)-0x0130), fragmentState.Velocity.X.RawValue,
                     "Ridley breakup production signed random velocity");

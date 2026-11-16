@@ -556,7 +556,17 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Before lift-off he runs his reveal's phases, after it his own (#2227); each table names its own words.
                 if (nativeFunctionWord != RidleyNativeWords.NorfairPhaseWord(ridleyState))
                     mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.PhaseName()}");
-                Check("Ridley AI timer", unchecked((ushort)ridleyState.PhaseTimer), NativeSnapshotMemory.RidleyFunctionTimer);
+                // The eye and body fades pace themselves, not by the phase countdown (#2233): the cartridge's timer stays at
+                // zero through the eye fade and counts the first of each body shade's two updates.
+                int expectedTimer = ridleyState.LiftedOff ? ridleyState.PhaseTimer.Count : ridleyState.RevealPhase switch
+                {
+                    RidleyRevealPhase.FadeInEyes => 0,
+                    RidleyRevealPhase.FadeInBody => ridleyState.BodyFade.WaitedForShade ? 1 : 0,
+                    RidleyRevealPhase.WaitForDoorTransition or RidleyRevealPhase.InitialDelay or RidleyRevealPhase.WaitBeforeRoar or
+                        RidleyRevealPhase.WaitBeforeLiftoff or RidleyRevealPhase.TakingOff => ridleyState.PhaseTimer.Count,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(RidleyRevealPhase)} {ridleyState.RevealPhase}."),
+                };
+                Check("Ridley AI timer", unchecked((ushort)expectedTimer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.Tail.Action), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);

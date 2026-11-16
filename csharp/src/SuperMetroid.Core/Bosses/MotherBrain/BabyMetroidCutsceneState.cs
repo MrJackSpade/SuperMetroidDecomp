@@ -69,8 +69,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
     public RotationAngle Angle { get; private set; }
 
-    /// <summary>Phase timer: each timed phase counts it down and moves on as it runs out (<see cref="MotherBrainCountdown"/>).</summary>
-    public MotherBrainCountdown PhaseTimer { get; } = new();
+    /// <summary>Phase timer: each timed phase counts it down and moves on as it runs out (<see cref="BossCountdown"/>).</summary>
+    public BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// The leg of the ceiling-to-Samus route the Baby is steering along, the route's first once it reaches the ceiling;
@@ -95,13 +95,13 @@ public sealed class BabyMetroidCutsceneState
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>Reload-eight timer producing the nine-call cadence of the Baby's fade to black.</summary>
-    public MotherBrainCountdown FadeToBlackTimer { get; } = new();
+    public BossCountdown FadeToBlackTimer { get; } = new();
 
     /// <summary>The shade the Baby's fade to black has reached; valid stored values are 0..6.</summary>
     public int FadeToBlackShade { get; private set; }
 
     /// <summary>Five-call cadence timer for the dust explosions surrounding the dying Baby.</summary>
-    public MotherBrainCountdown DeathExplosionTimer { get; } = new();
+    public BossCountdown DeathExplosionTimer { get; } = new();
 
     /// <summary>
     /// Index into the shared death-explosion scatter pattern, cycling through its ten offsets.

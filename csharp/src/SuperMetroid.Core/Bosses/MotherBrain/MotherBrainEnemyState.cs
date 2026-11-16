@@ -167,10 +167,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public MotherBrainBrainAction BrainAction { get; internal set; }
 
     /// <summary>
-    /// The body phase's timer (<see cref="MotherBrainCountdown"/>): every timed body phase counts it down and moves on as
+    /// The body phase's timer (<see cref="BossCountdown"/>): every timed body phase counts it down and moves on as
     /// it runs out.
     /// </summary>
-    public MotherBrainCountdown PhaseTimer { get; } = new();
+    public BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// Body-animation state written by private animation cues. The body AI reads this
@@ -183,7 +183,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public int GreyFadeStep { get; internal set; }
 
     /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
-    public MotherBrainCountdown FakeDeathExplosionTimer { get; } = new();
+    public BossCountdown FakeDeathExplosionTimer { get; } = new();
     /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer runs out.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }
 
@@ -198,7 +198,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>The brain's tube-collapse step, or null until her fake-death flash starts the collapse.</summary>
     public MotherBrainTubeCollapseStep? TubeCollapseStep { get; internal set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage moves on as it runs out.</summary>
-    public MotherBrainCountdown TubeCollapseTimer { get; } = new();
+    public BossCountdown TubeCollapseTimer { get; } = new();
 
 
     /// <summary>The colours the encounter has loaded over its sprites, her body layer and her room (#1512).</summary>

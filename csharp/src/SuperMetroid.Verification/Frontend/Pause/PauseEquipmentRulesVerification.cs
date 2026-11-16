@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -80,7 +81,7 @@ internal static class PauseEquipmentRulesVerification
     }
 
     /// <summary>Checks real menu toggles, first-owned selection, rendered wireframes, Start+A ordering, and reserve transfer cadence.</summary>
-    internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentation catalog)
+    internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, InstalledScreenContent catalog)
     {
         Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));
         Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));
@@ -158,7 +159,7 @@ internal static class PauseEquipmentRulesVerification
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
         // Create a pause menu backed by guarded ROM reads and the supplied Samus inventory.
-        PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
+        PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         // Equip exactly the collected bits in the beam or item field for a category fixture.
         static SamusState Inventory(PauseEquipmentBit owned) =>
             new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };

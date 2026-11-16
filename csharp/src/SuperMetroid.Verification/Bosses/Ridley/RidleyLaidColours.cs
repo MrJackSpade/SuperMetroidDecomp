@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Video;
@@ -40,7 +41,7 @@ internal static class RidleyLaidColours
     /// The colours Ceres Ridley's encounter shows over black when <paramref name="state"/> holds its laid shades, from the
     /// import's shades of the Ceres colours <paramref name="maps"/> installs.
     /// </summary>
-    internal static RgbColor[] Ceres(RidleyEnemyState state, AreaMapPresentation maps)
+    internal static RgbColor[] Ceres(RidleyEnemyState state, InstalledScreenContent maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
         CeresRidleyColorCatalog ceres = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).CeresRidleyColors;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
@@ -17,18 +18,18 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseScreenMemory
 {
     /// <summary>Character images already composed, by artwork (#1532): an artwork's characters never change once read.</summary>
-    private static readonly ConditionalWeakTable<AreaMapPresentation, byte[]> composedCharacters = new();
+    private static readonly ConditionalWeakTable<InstalledScreenContent, byte[]> composedCharacters = new();
 
     /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it: a copy the caller owns.</summary>
     [WholeImageFixture("the pause screen's character image")]
-    internal static byte[] Characters(AreaMapPresentation artwork) => (byte[])ComposedCharacters(artwork).Clone();
+    internal static byte[] Characters(InstalledScreenContent artwork) => (byte[])ComposedCharacters(artwork).Clone();
 
     /// <summary>The shared character image of <paramref name="artwork"/>, composed on first use; callers only read it.</summary>
-    private static byte[] ComposedCharacters(AreaMapPresentation artwork) => composedCharacters.GetValue(Ensure.NotNull(artwork), ComposeCharacters);
+    private static byte[] ComposedCharacters(InstalledScreenContent artwork) => composedCharacters.GetValue(Ensure.NotNull(artwork), ComposeCharacters);
 
     /// <summary>Composes the character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>
     [WholeImageFixture("the pause screen's character image")]
-    private static byte[] ComposeCharacters(AreaMapPresentation artwork)
+    private static byte[] ComposeCharacters(InstalledScreenContent artwork)
     {
         var image = new SnesVram();
         var pause = new PauseVram(image);
@@ -45,7 +46,7 @@ internal static class PauseScreenMemory
     /// fixture bound it to, with the tilemaps the cartridge lays out for what it shows over them (#1467).
     /// </summary>
     [WholeImageFixture("the pause screen's memory image")]
-    internal static byte[] Compose(PauseMenuState menu, AreaMapPresentation artwork)
+    internal static byte[] Compose(PauseMenuState menu, InstalledScreenContent artwork)
     {
         PauseScreen screen = menu.screen;
         var image = new SnesVram();
@@ -65,7 +66,7 @@ internal static class PauseScreenMemory
     /// same image without composing either; only menus that differ in one are composed and compared byte for byte. The
     /// answer is the composed comparison's in every case.
     /// </summary>
-    internal static bool SameImage(PauseMenuState left, PauseMenuState right, AreaMapPresentation artwork)
+    internal static bool SameImage(PauseMenuState left, PauseMenuState right, InstalledScreenContent artwork)
     {
         Ensure.NotNull(left);
         Ensure.NotNull(right);

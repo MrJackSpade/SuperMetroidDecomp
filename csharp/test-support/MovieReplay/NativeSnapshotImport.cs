@@ -409,7 +409,7 @@ internal static class NativeSnapshotImport
         samus.SuperMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
         samus.PowerBombs = SamusCountWords.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
         // The HUD imports as the values its native rows show, once Samus's inventory has imported (#1466).
-        runtime.Hud.ImportNative(hudWords, samus, highlightedHudItem, (runtime.Artwork.MapPresentation ?? throw new InvalidDataException(
+        runtime.Hud.ImportNative(hudWords, samus, highlightedHudItem, (runtime.Artwork.ScreenContent ?? throw new InvalidDataException(
             "The native checkpoint requires the installed HUD artwork.")).GameplayHud);
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.PlayerActions.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));

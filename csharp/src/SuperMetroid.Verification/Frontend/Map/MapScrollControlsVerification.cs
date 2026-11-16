@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
@@ -16,7 +17,7 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class MapScrollControlsVerification
 {
     /// <summary>Compares every direction combination, scroll trajectory, sound boundary, and installed menu under a guarded bus.</summary>
-    internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentation catalog)
+    internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, InstalledScreenContent catalog)
     {
         var buttons = new ControllerButton[MapScrollControls.Directions.Length];
         for (int index = 0; index < buttons.Length; index++)

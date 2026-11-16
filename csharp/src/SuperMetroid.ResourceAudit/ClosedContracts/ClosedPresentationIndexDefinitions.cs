@@ -123,7 +123,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("EndingObjectSourceArtwork", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)InstalledArtworkId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
-        ("AreaMapPresentation" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.All.Count),
+        ("AreaMapPresentation" or "InstalledScreenContent" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.All.Count),
         _ => null,
     };
 }

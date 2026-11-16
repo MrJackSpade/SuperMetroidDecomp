@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
@@ -23,7 +24,7 @@ internal static class RetailPresentationFixtureVerification
     /// The shared installation's map presentation, the same extracted content contract the
     /// playable host uses. Independent game instances still own their mutable state.
     /// </summary>
-    internal static AreaMapPresentation RetailPresentationFixture() =>
+    internal static InstalledScreenContent RetailPresentationFixture() =>
         InstalledFixtures.Maps;
 
     /// <summary>

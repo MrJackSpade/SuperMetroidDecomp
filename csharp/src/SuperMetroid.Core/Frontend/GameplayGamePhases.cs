@@ -186,7 +186,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     endingSamus.MaxPowerBombs,
                     endingSamus.CollectedItems,
                     endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(StoryEvent.CrittersEscaped) }));
-            session.ActiveEndingCredits.InstalledArtwork.BindEndingText(session.Artwork.MapPresentation?.EndingText);
+            session.ActiveEndingCredits.InstalledArtwork.BindEndingText(session.Artwork.ScreenContent?.EndingText);
             session.ActiveEndingCredits.InstalledArtwork.BindBackdrops(session.Artwork.EndingBackdrops);
             session.ActiveEndingCredits.InstalledArtwork.BindSpriteSheets(session.Artwork.SpriteSheets);
             session.GameState = SuperMetroidGameState.EndingAndCredits;

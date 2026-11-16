@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -30,7 +31,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 {
     /// <summary>Takes the catalog the game binds and the characters, colours and documents only the import reads.</summary>
-    internal ImportAreaMapPresentation(AreaMapPresentation game, ImportPresentationCharacters characters,
+    internal ImportAreaMapPresentation(InstalledScreenContent game, ImportPresentationCharacters characters,
         ImportPresentationColours colours, ImportPresentationDocuments documents)
         : base(game)
     {
@@ -82,7 +83,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>
     /// The file-select screen's pages, fields and compositions, import data (#1638), which the import composes the file-select
-    /// and menu sheets from, with the installed layout the game binds (<see cref="AreaMapPresentation.FileSelect"/>).
+    /// and menu sheets from, with the installed layout the game binds (<see cref="InstalledScreenContent.FileSelect"/>).
     /// </summary>
     public FileSelectSourcePresentation FileSelect { get; }
 
@@ -100,7 +101,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>
     /// The gameplay HUD's tiles, import data (#1638), which the import pictures every HUD image from, with the installed layout
-    /// the game binds (<see cref="AreaMapPresentation.GameplayHud"/>).
+    /// the game binds (<see cref="InstalledScreenContent.GameplayHud"/>).
     /// </summary>
     public GameplayHudArtwork GameplayHud { get; }
 
@@ -109,13 +110,13 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>
     /// The equipment selectors' frame compositions, import data (#1638), which the import composes the pause sheet from, with
-    /// the anchors and timing the installed layout holds for the game (<see cref="AreaMapPresentation.PauseSelectors"/>).
+    /// the anchors and timing the installed layout holds for the game (<see cref="InstalledScreenContent.PauseSelectors"/>).
     /// </summary>
     public PauseSelectorSourcePresentation PauseSelectors { get; }
 
     /// <summary>
     /// The reserve strip's frame compositions, import data (#1638), which the import composes the pause sheet from, with the
-    /// anchors the installed layout holds for the game (<see cref="AreaMapPresentation.PauseReserveTanks"/>).
+    /// anchors the installed layout holds for the game (<see cref="InstalledScreenContent.PauseReserveTanks"/>).
     /// </summary>
     public PauseReserveTankSourcePresentation PauseReserveTanks { get; }
 
@@ -124,7 +125,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>
     /// The options screen's pages, labels and compositions, import data (#1638), which the import composes the options and
-    /// menu sheets from, with the anchors the installed layout holds for the game (<see cref="AreaMapPresentation.GameOptions"/>).
+    /// menu sheets from, with the anchors the installed layout holds for the game (<see cref="InstalledScreenContent.GameOptions"/>).
     /// </summary>
     public GameOptionsSourcePresentation GameOptions { get; }
 
@@ -160,7 +161,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     /// <summary>
     /// Mother Brain's rainbow, drain, revival, fake-death and restoration colours, which the import pre-colours her sheets
     /// and body layer from (#1512). The game works with her beam backdrop's colours alone, installed by purpose
-    /// (<see cref="AreaMapPresentation.MotherBrainRainbowBeamColours"/>, #1637).
+    /// (<see cref="InstalledScreenContent.MotherBrainRainbowBeamColours"/>, #1637).
     /// </summary>
     public InstalledMotherBrainRainbowPalette MotherBrainRainbowColours { get; }
 

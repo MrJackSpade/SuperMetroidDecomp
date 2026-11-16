@@ -12,7 +12,7 @@ internal static class SuperMetroidGameAccess
     extension(SuperMetroidGame self)
     {
         /// <summary>Identity of the installed area-map presentation, if present.</summary>
-        internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
+        internal string? MapPresentationIdentity => self.Artwork.ScreenContent?.ContentIdentity;
 
         /// <summary>Random word retained by the frontend dispatcher.</summary>
         internal int DispatcherRandomNumber => self.Session.Random.Read();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveAnchorsVerification;
@@ -17,7 +18,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseReserveTankAssetsVerification
 {
     /// <summary>Compares native menu OAM and pixels with installed reserve art.</summary>
-    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, AreaMapPresentation catalog)
+    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, InstalledScreenContent catalog)
     {
         var guard = NewReserveTankAssetReadGuard(bus);
         Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
@@ -68,9 +69,9 @@ internal static class PauseReserveTankAssetsVerification
             }
             return samples;
         }
-        static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentation content)
+        static PauseMenuState Create(ISnesAddressSpace source, SamusState state, InstalledScreenContent content)
         {
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = state, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             return pause;
         }

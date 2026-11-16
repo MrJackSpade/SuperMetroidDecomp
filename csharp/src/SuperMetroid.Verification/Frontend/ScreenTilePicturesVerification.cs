@@ -42,7 +42,7 @@ internal static class ScreenTilePicturesVerification
     /// </summary>
     internal static void VerifyMenuScreenTilePictures()
     {
-        AreaMapPresentation maps = InstalledFixtures.Maps;
+        InstalledScreenContent maps = InstalledFixtures.Maps;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         var explored = new SharedGameState(new SharedRandom());
         explored.Progress.ExploreEveryCell();
@@ -60,7 +60,7 @@ internal static class ScreenTilePicturesVerification
                     && (added.GlowsOver is null) == (math == AreaMapBackgroundGlow.WholeScreen),
                     $"{shownArea} world map shows its foreground and its background glowing over it ({math})");
             }
-            var room = new FileSelectRoomMapGraphics(explored, shownArea, mapPresentation: maps, sheets: sheets);
+            var room = new FileSelectRoomMapGraphics(explored, shownArea, screenContent: maps, sheets: sheets);
             LayeredScene roomScene = room.CaptureRenderSnapshot();
             // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
             // its installed picture.
@@ -250,12 +250,12 @@ internal static class ScreenTilePicturesVerification
     /// </summary>
     internal static void VerifyPauseScreenTilePictures()
     {
-        AreaMapPresentation maps = InstalledFixtures.Maps;
+        InstalledScreenContent maps = InstalledFixtures.Maps;
         var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {
-            Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = maps,
+            Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
         int layers = AssertPauseDrawnFromVram(pause, maps, "pause map");
@@ -296,7 +296,7 @@ internal static class ScreenTilePicturesVerification
     /// scene's own VRAM characters in its colours, at the layer's scroll, every tile drawn, decoded on the CPU;
     /// returns the pictured layers checked. <paramref name="maps"/> is the map presentation the fixture bound it to.
     /// </summary>
-    private static int AssertPauseDrawnFromVram(PauseMenuState pause, AreaMapPresentation maps, string name)
+    private static int AssertPauseDrawnFromVram(PauseMenuState pause, InstalledScreenContent maps, string name)
     {
         LayeredScene scene = pause.CaptureRenderSnapshot();
         byte[] vram = pause.ShownVram(maps);

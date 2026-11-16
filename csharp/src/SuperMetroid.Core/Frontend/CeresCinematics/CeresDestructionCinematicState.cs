@@ -31,7 +31,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
             BindGlowColors(artwork.InstalledPowerBombGlowColors);
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);

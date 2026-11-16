@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -24,7 +25,7 @@ internal static class ChargeFlareProductionVerification
     /// <summary>Compares normal and Hyper flare frames with native OAM and checks drawing leaves projectile state intact.</summary>
     internal static void VerifyChargeFlareProduction(CartridgeImportAddressSpace bus,
         SamusBodySources body, MapPresentationInstalledRoomAssets roomAssets,
-        AreaMapPresentation maps)
+        InstalledScreenContent maps)
     {
         var placement = ChargeFlarePlacementFile.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         int ticks = 0;
@@ -73,7 +74,7 @@ internal static class ChargeFlareProductionVerification
         var random = new SharedRandom();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
-        runtime.Artwork.MapPresentation = maps;
+        runtime.Artwork.ScreenContent = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

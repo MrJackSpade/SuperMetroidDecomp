@@ -30,8 +30,8 @@ namespace SuperMetroid.Core.Runtime;
 [ArchitectureReview("context-bag", "The installed artwork set a gameplay runtime is built over, as one value; every member is an immutable artwork catalog, not a service.")]
 internal sealed record GameplayArtwork
 {
-    /// <summary>Area maps with the pause, HUD, title, intro and ending text and colours that share their installation.</summary>
-    public required IGameplayPresentationContent MapPresentation { get; init; }
+    /// <summary>The installed content of the screens, scenes and HUD (#2203): the area maps, the menus, the title, the opening and ending text and the scenes' colours.</summary>
+    public required IGameplayPresentationContent ScreenContent { get; init; }
 
     /// <summary>Samus body pictures, colours and death colours.</summary>
     public required InstalledSamusBodyArtwork SamusBodyArt { get; init; }

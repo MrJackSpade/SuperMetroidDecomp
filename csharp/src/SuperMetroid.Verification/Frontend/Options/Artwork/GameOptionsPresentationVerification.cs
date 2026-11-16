@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,7 +18,7 @@ internal static class GameOptionsPresentationVerification
     /// <summary>Compares menu frames, audio, and controller changes with native output.</summary>
     internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         _ = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
@@ -25,9 +26,9 @@ internal static class GameOptionsPresentationVerification
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
         var native = new GameOptionsMenuState(nativeAudio,
-            mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
+            screenContent: original, spriteSheets: MenuSheetFixtures.For(original));
         var installed = new GameOptionsMenuState(
-            installedAudio, mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
+            installedAudio, screenContent: original, spriteSheets: MenuSheetFixtures.For(original));
         int comparedFrames = 0;
 
         Until(GameOptionsPhase.Main);

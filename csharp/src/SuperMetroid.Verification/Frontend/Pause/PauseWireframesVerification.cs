@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -21,7 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseWireframesVerification
 {
     /// <summary>Compares all four native patches, page transitions, equipment toggles, and restored-content rebinding.</summary>
-    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, AreaMapPresentation original)
+    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, InstalledScreenContent original)
     {
         var guard = NewPauseWireframeReadGuard(bus);
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
@@ -41,8 +42,8 @@ internal static class PauseWireframesVerification
             {
                 SamusEquipmentFlags equipped = SamusEquipmentWordCodec.FromEquipmentWord(items) | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
                 var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
-                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(new SharedRandom()), Area = AreaId.Maridia, RoomMapPosition = new(5, 6), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Maridia, RoomMapPosition = new(5, 6), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(new SharedRandom()), Area = AreaId.Maridia, RoomMapPosition = new(5, 6), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Maridia, RoomMapPosition = new(5, 6), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 // Every tick compares the complete render inputs; the pixels are compared once each page change settles,
                 // drawing the two frames only when their descriptions differ (#1532).
                 void StepBoth(ControllerButton input)
@@ -68,7 +69,7 @@ internal static class PauseWireframesVerification
         // Exercise selection through real menu actions, not only a direct bit fixture.
         var toggledSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
             EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
-        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.PowerSuitHiJump);
         toggles.Step(0, ControllerButton.Down);
@@ -84,7 +85,7 @@ internal static class PauseWireframesVerification
 
         static void EnterEquipment(PauseMenuState pause)
         { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }
-        static void AssertPage(PauseMenuState pause, AreaMapPresentation catalog, PauseWireframeKind kind)
+        static void AssertPage(PauseMenuState pause, InstalledScreenContent catalog, PauseWireframeKind kind)
         {
             BackgroundTile[] actual = BackgroundTileWordBytes.Tiles(pause.ShownVram(catalog).AsSpan(0x6000, 0x800));
             BackgroundTile[] expected = actual.ToArray(); InstalledFixtures.ImportOf(catalog).Pause.Wireframes.ApplyTo(expected, kind);

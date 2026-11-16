@@ -30,7 +30,7 @@ internal static class PauseMapAreaLabelsVerification
             var system = new SharedGameState(new SharedRandom());
             var labels = new FileSelectMapIcons(system, area);
             var presentation = RetailPresentationFixture();
-            labels.BindLandmarks(presentation.Landmarks);
+            labels.BindLandmarks(presentation.Maps.Landmarks);
             labels.BindSprites(MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(presentation).Sprites));
             var gated = ScreenSpritesFixtures.Blank(); gated.BeginFrame();
             labels.DrawElevatorLabels(gated, new(0, 0));

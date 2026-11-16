@@ -21,7 +21,7 @@ internal static class PauseScreenHudPlane
         /// <paramref name="artwork"/> was read with (#1616).
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the screen to.</param>
-        internal BackgroundTile[] Bg3Tiles(SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation artwork)
+        internal BackgroundTile[] Bg3Tiles(SuperMetroid.Core.Frontend.Artwork.InstalledScreenContent artwork)
         {
             var tiles = new BackgroundTile[PlaneCells];
             tiles.AsSpan().Fill(PauseHudPlaneDefinitions.ClearedCell);

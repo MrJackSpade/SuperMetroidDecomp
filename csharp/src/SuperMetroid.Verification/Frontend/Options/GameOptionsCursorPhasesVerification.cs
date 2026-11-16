@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -73,7 +74,7 @@ internal static class GameOptionsCursorPhasesVerification
 
         GameOptionsMenuState NewMenu()
         {
-            var menu = new GameOptionsMenuState(mapPresentation: installed, spriteSheets: MenuSheetFixtures.For(installed));
+            var menu = new GameOptionsMenuState(screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed));
             for (int frame = 0; frame < 20 && menu.Phase != GameOptionsPhase.Main; frame++)
                 menu.Step(0);
             AssertEqual(GameOptionsPhase.Main, menu.Phase, "options reaches primary page");
@@ -93,7 +94,7 @@ internal static class GameOptionsCursorPhasesVerification
     /// installed from <paramref name="presentation"/>, among the menu's sprite draws. A transition draws none (#1775), where
     /// the cartridge parks the cursor off screen.
     /// </summary>
-    internal static bool DrawsCursor(GameOptionsMenuState menu, AreaMapPresentation presentation)
+    internal static bool DrawsCursor(GameOptionsMenuState menu, InstalledScreenContent presentation)
     {
         menu.CaptureRenderSnapshot();
         SpriteSheet sheet = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.GameOptions);

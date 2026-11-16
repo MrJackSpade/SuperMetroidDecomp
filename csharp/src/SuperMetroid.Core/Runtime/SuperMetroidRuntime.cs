@@ -215,7 +215,7 @@ internal sealed class SuperMetroidRuntime
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
         {
-            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
+            ScreenContent = artwork.ScreenContent, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
             GrappleFlarePlacement = artwork.GrappleFlarePlacement, GrappleSwingFrames = artwork.GrappleSwingFrames,
             ProjectileFrameBindings = artwork.ProjectileFrameBindings, ChargeFlarePlacement = artwork.ChargeFlarePlacement,
             RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
@@ -264,7 +264,7 @@ internal sealed class SuperMetroidRuntime
     /// runtime being built, or one restored from a saved state), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
-    /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
+    /// The screen content binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
     /// rebinds the queued artwork that later catalogs' setters may read.
     /// </remarks>
     /// <param name="artwork">The catalogs to bind.</param>
@@ -287,7 +287,7 @@ internal sealed class SuperMetroidRuntime
                 bind(value);
         }
 
-        Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
+        Bind(a => a.ScreenContent, value => Artwork.ScreenContent = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
         Bind(a => a.SamusShownFrames, value => Artwork.SamusShownFrames = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
@@ -885,7 +885,7 @@ internal sealed class SuperMetroidRuntime
             BackgroundPhase.UpdateBackgroundScrollingFromCamera(Freeze.TimeIsFrozen);
 
             // The minimap updates in Samus's normal movement phase from her room position, not the camera's.
-            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation.Get(roomGeometry.Area) });
+            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.ScreenContent.Get(roomGeometry.Area) });
         }
     }
 
@@ -919,7 +919,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (escapeTimerRuns && EscapeTimer.IsActive)
         {
-            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, Artwork.MapPresentation.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
+            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, Artwork.ScreenContent.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
         }
     }
 
@@ -1042,7 +1042,7 @@ internal sealed class SuperMetroidRuntime
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
-            Artwork.MapPresentation.CeresHaze,
+            Artwork.ScreenContent.CeresHaze,
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, Room.Scope?.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,

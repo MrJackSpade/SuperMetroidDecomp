@@ -34,9 +34,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            NarrationPresentation = artwork.MapPresentation?.IntroNarration;
+            NarrationPresentation = artwork.ScreenContent?.IntroNarration;
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindCharacterArtwork(artwork.IntroCinematicArt);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -35,8 +36,8 @@ public sealed record GameArtwork
     /// <summary>No catalog bound: the state of a new game, or of a restored one before its host rebinds.</summary>
     public static GameArtwork Unbound { get; } = new();
 
-    /// <summary>Area maps with the pause, HUD, title, intro and ending text and colours that share their installation.</summary>
-    public AreaMapPresentation? MapPresentation { get; init; }
+    /// <summary>The installed content of the screens, scenes and HUD (#2203): the area maps, the menus, the title, the opening and ending text and the scenes' colours.</summary>
+    public InstalledScreenContent? ScreenContent { get; init; }
 
     /// <summary>The opening's and the Ceres scenes' backdrops and actor placements; their pictures are the sprite sheets (#1616).</summary>
     public IntroCinematicArtwork? IntroCinematicArt { get; init; }
@@ -196,7 +197,7 @@ public sealed record GameArtwork
     /// <exception cref="InvalidOperationException">A catalog gameplay needs is not installed.</exception>
     internal GameplayArtwork Gameplay => new()
     {
-        MapPresentation = Installed(MapPresentation),
+        ScreenContent = Installed(ScreenContent),
         SamusBodyArt = Installed(SamusBodyArt),
         SamusShownFrames = Installed(SamusShownFrames),
         RoomBlockSheets = Installed(RoomBlockSheets),
@@ -247,8 +248,8 @@ public sealed record GameArtwork
     };
 
     /// <summary>The installed Power Bomb glow colours, which the Ceres station's blast and the flashbacks' bombs glow in.</summary>
-    /// <exception cref="InvalidOperationException">No map presentation is installed.</exception>
-    internal InstalledPowerBombGlowColors InstalledPowerBombGlowColors => Installed(MapPresentation).PowerBombGlowColors;
+    /// <exception cref="InvalidOperationException">No screen content is installed.</exception>
+    internal InstalledPowerBombGlowColors InstalledPowerBombGlowColors => Installed(ScreenContent).PowerBombGlowColors;
 
     /// <summary>The installed Samus artwork the opening cinematic's flashback Samus draws from (#2049).</summary>
     /// <exception cref="InvalidOperationException">A catalog Samus draws from is not installed.</exception>

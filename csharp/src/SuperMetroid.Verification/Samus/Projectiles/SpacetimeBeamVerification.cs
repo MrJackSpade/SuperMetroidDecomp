@@ -239,7 +239,7 @@ internal static class SpacetimeBeamVerification
                 renderGameplayFrames: false);
             game.BindArtwork(game.Artwork with
             {
-                MapPresentation = RetailPresentationFixture(),
+                ScreenContent = RetailPresentationFixture(),
             });
             return game;
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -21,7 +22,7 @@ internal static class PauseSelectorsVerification
     /// Compares the selectors' anchors, durations and compositions with the cartridge's, and confirms every one of the sixteen
     /// selectors keeps its animation across a saved-state round trip.
     /// </summary>
-    internal static void VerifyPauseSelectors(ISnesAddressSpace bus, AreaMapPresentation catalog)
+    internal static void VerifyPauseSelectors(ISnesAddressSpace bus, InstalledScreenContent catalog)
     {
         PaletteRowWords.AssertSelectsOnlyPaletteRow(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Markers), "the map caller's colouring selects the native word's sprite set");
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
@@ -59,7 +60,7 @@ internal static class PauseSelectorsVerification
             }
         }
         Console.WriteLine("Pause selectors: sixteen anchors, 672 native OAM cases and the selectors' restored animation pass.");
-        static PauseMenuState Create(AreaMapPresentation content, PauseEquipmentControl control)
+        static PauseMenuState Create(InstalledScreenContent content, PauseEquipmentControl control)
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             if (control is not PauseUpgradeControl upgrade) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
@@ -69,7 +70,7 @@ internal static class PauseSelectorsVerification
                 samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
                 samus.CollectedItems = samus.EquippedItems = bit.Item;
             }
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             if (control == PauseEquipmentControls.ReserveTransfer) pause.Step(0, ControllerButton.Down);
             return pause;

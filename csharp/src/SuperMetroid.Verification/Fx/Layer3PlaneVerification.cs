@@ -61,7 +61,7 @@ internal static class Layer3PlaneVerification
     internal static void VerifyWaterEffectPlane()
     {
         var runtime = CreateRetailRuntimeFixture();
-        var presentation = runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("The retail fixture installs the FX artwork.");
+        var presentation = runtime.Artwork.ScreenContent ?? throw new InvalidOperationException("The retail fixture installs the FX artwork.");
         RoomEffectDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { LiquidStartLevel = 0x0080 };
         RoomFxOverlayState water = RoomFxOverlayState.ForDefinition(record, 0);

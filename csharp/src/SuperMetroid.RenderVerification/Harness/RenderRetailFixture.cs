@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
@@ -11,7 +12,7 @@ using SuperMetroid.Core.Audio;
 internal static class RenderRetailFixture
 {
     /// <summary>Uses the shared installed map presentation in retail render captures.</summary>
-    internal static AreaMapPresentation Maps => InstalledFixtures.Maps;
+    internal static InstalledScreenContent Maps => InstalledFixtures.Maps;
 
     /// <summary>Creates a retail-backed game over <paramref name="saves"/> with the requested gameplay-frame capture setting.</summary>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,

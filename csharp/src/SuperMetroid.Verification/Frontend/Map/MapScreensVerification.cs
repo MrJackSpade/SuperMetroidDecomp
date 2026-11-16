@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -15,7 +16,7 @@ internal static class MapScreensVerification
     /// opened world map of that area shows it. Both sides are built from the one installed catalog; the world and room
     /// screens are not compared with a second screen built the same way, which would compare a screen with itself.
     /// </summary>
-    internal static void VerifyMapScreens(AreaMapPresentation original)
+    internal static void VerifyMapScreens(InstalledScreenContent original)
     {
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {
@@ -27,7 +28,7 @@ internal static class MapScreensVerification
         }
         Console.WriteLine("Map screen resources: reselecting each of the six areas reloads its authored world background.");
 
-        static FileSelectAreaMapGraphics World(AreaMapPresentation catalog, int area) =>
+        static FileSelectAreaMapGraphics World(InstalledScreenContent catalog, int area) =>
             new(AreaIds.Zebes[area], catalog.Backdrops, MenuSheetFixtures.ForFileSelectMap(InstalledFixtures.ImportOf(catalog)));
     }
 }

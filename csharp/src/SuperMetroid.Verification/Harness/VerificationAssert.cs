@@ -2280,7 +2280,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map window motion oracle revision");
-        var labels = RetailPresentationFixture().Labels;
+        var labels = RetailPresentationFixture().Maps.Labels;
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(rom, labels));
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(rom, labels));
         Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(rom));

@@ -37,7 +37,7 @@ namespace SuperMetroid.Desktop.Window;
 public sealed class PlayableGameControl : UserControl
 {
     /// <summary>Installed map art used for file loading and save-file migration.</summary>
-    private SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation? mapPresentation;
+    private SuperMetroid.Core.Frontend.Artwork.InstalledScreenContent? screenContent;
     /// <summary>Installed projectile display data selected at session restart.</summary>
     private SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation? projectilePresentation;
     /// <summary>Installed artwork and audio, bound to every game this control composes or restores.</summary>
@@ -252,7 +252,7 @@ public sealed class PlayableGameControl : UserControl
         // exact options with which the debugger-visible session was constructed.
         var installation = new GameInstallation(playerDataDirectory);
         installation.RequireExtractedContent();
-        mapPresentation = installation.LoadMaps();
+        screenContent = installation.LoadMaps();
         InstalledClipAudioLibrary selectedAudioAssets = installation.LoadAudioClips();
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
@@ -260,7 +260,7 @@ public sealed class PlayableGameControl : UserControl
         InstalledEnemyArtwork enemyArtwork = installation.LoadEnemyTiles();
         InstalledSamusBody samusBody = installation.LoadSamusBody();
         GameArtwork artwork = installation.LoadGameArtwork(
-            mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
+            screenContent ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation, enemyArtwork, samusBody);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
@@ -268,7 +268,7 @@ public sealed class PlayableGameControl : UserControl
         Console.WriteLine($"Projectile compositions: {projectilePresentation.ContentSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
-            mapPresentation,
+            screenContent,
             projectilePresentation,
             InstalledArtworkIdentity.Create(artwork, enemyArtwork, samusBody));
         Console.WriteLine(
@@ -282,7 +282,7 @@ public sealed class PlayableGameControl : UserControl
         // A driven session's game comes from its timeline, and its saves are never written back.
         game = driver is null
             ? GameSessionComposer.Create(LoadSavesFromDisk(), hostOptions.Game.ToAssists(), content, saveFile)
-            : driver.Start(new HostSessionStart(content, hostOptions.Game.ToAssists(), mapPresentation, installedContentIdentity));
+            : driver.Start(new HostSessionStart(content, hostOptions.Game.ToAssists(), screenContent, installedContentIdentity));
         // The previous session's queued door autosave finishes before a new store can write the same slot.
         if (stateStore is not null)
             stateStore.Dispose();
@@ -407,7 +407,7 @@ public sealed class PlayableGameControl : UserControl
         return ControllerInputRecorder.StartInstalled(
             playerDataDirectory,
             SaveRamCodec.Encode(game.Saves,
-                mapPresentation ?? throw new InvalidOperationException("Recording saves requires installed maps.")),
+                screenContent ?? throw new InvalidOperationException("Recording saves requires installed maps.")),
             hostOptions.Game,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
@@ -423,7 +423,7 @@ public sealed class PlayableGameControl : UserControl
         GameSaveLoadResult result = GameSaveFileStore.LoadOrMigrate(
             saveFilePath,
             legacySaveRamPath,
-            mapPresentation ?? throw new InvalidOperationException("Save loading requires installed maps."));
+            screenContent ?? throw new InvalidOperationException("Save loading requires installed maps."));
         if (result.MigratedLegacySram)
         {
             Console.WriteLine(

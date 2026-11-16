@@ -57,7 +57,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var options = new GameOptionsMenuState(screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
         options.SkipToPhase(GameOptionsPhase.StartGame);
         game.Session.Show(options);
         game.Session.LoadingExistingSave = true;
@@ -118,7 +118,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var reloadOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var reloadOptions = new GameOptionsMenuState(screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
         reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
         reload.Session.Show(reloadOptions);
         reload.Session.LoadingExistingSave = true;
@@ -147,7 +147,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var probeOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var probeOptions = new GameOptionsMenuState(screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
         probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
         gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.LoadingExistingSave = true;
@@ -211,9 +211,9 @@ internal static class CeresSaveStartupVerification
         var unmodified = new SuperMetroidGame(saves);
         unmodified.BindArtwork(unmodified.Artwork with
         {
-            MapPresentation = maps,
+            ScreenContent = maps,
         });
-        var oldOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var oldOptions = new GameOptionsMenuState(screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
         oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
         unmodified.Session.Show(oldOptions);
         unmodified.Session.LoadingExistingSave = true;

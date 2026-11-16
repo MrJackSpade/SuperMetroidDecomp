@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -12,8 +13,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 public class InstalledAreaMapPresentation
 {
     /// <summary>Takes the catalog the game binds.</summary>
-    internal InstalledAreaMapPresentation(AreaMapPresentation game) => Game = Ensure.NotNull(game);
+    internal InstalledAreaMapPresentation(InstalledScreenContent game) => Game = Ensure.NotNull(game);
 
     /// <summary>The catalog the game binds: only what the game reads of the installed presentation (#1616).</summary>
-    public AreaMapPresentation Game { get; }
+    public InstalledScreenContent Game { get; }
 }

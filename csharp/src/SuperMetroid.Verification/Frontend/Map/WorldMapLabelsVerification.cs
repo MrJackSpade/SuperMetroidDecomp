@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;
@@ -14,16 +15,16 @@ namespace SuperMetroid.Verification.Frontend.Map;
 internal static class WorldMapLabelsVerification
 {
     /// <summary>Verifies stock output with ROM coordinates blocked.</summary>
-    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, AreaMapPresentation original)
+    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, InstalledScreenContent original)
     {
-        Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
-        Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
+        Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Maps.Labels));
+        Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Maps.Labels));
         var guard = NewWorldLabelReadGuard(bus);
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, SuperMetroid.Core.Progression.AreaIds.Zebes.Count).ToArray();
         var native = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
         var installed = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
-        native.BindLabels(original.Labels);
-        installed.BindLabels(original.Labels);
+        native.BindLabels(original.Maps.Labels);
+        installed.BindLabels(original.Maps.Labels);
         foreach (SuperMetroid.Core.Progression.AreaId areaId in SuperMetroid.Core.Progression.AreaIds.Zebes)
         {
             int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);
@@ -31,8 +32,8 @@ internal static class WorldMapLabelsVerification
             // The two scenes' pixels are compared through their descriptions, drawn only when those differ (#1532).
             AssertTrue(ScenePixels.Same(native.Scene(used), installed.Scene(used)), "stock label pixels with position ROM blocked");
             var nativeWindow = new FileSelectMapWindow(areaId,
-                ReadCartridgeMapWindowMotion(bus, area), original.Labels);
-            var installedWindow = new FileSelectMapWindow(areaId, original.Labels);
+                ReadCartridgeMapWindowMotion(bus, area), original.Maps.Labels);
+            var installedWindow = new FileSelectMapWindow(areaId, original.Maps.Labels);
             while (!nativeWindow.IsComplete)
             {
                 AssertEqual(new VerifyWorldMapLabelsCase(nativeWindow.Left, nativeWindow.Top, nativeWindow.Right, nativeWindow.Bottom),

@@ -108,13 +108,13 @@ internal static class ExploredMapPackingDefinitionsVerification
         var game = new SuperMetroidGame(saves);
         game.BindArtwork(game.Artwork with
         {
-            MapPresentation = original,
+            ScreenContent = original,
         });
         // The installed content, the map presentation among it, is named by path through the shared index, which
         // every round trip of the process reuses, instead of indexing all loaded content again for this game (#1532).
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         var restoredSaves = restored.Saves;
-        AssertTrue(ReferenceEquals(original, restored.Artwork.MapPresentation), "debugger graph names its bound map provider");
+        AssertTrue(ReferenceEquals(original, restored.Artwork.ScreenContent), "debugger graph names its bound map provider");
         AssertTrue(restoredSaves.ReadSlot(SaveSlot.A) is not null, "the restored graph keeps the decoded slot");
         restoredSaves.SaveSlot(SaveSlot.A, snapshot);
         AssertTrue((restoredSaves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(SaveSlot.A).")).Progression.SameAs((saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")).Progression),

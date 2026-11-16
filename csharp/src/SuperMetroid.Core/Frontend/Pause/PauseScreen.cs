@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
@@ -16,7 +17,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal sealed class PauseScreen
 {
     /// <summary>Installs the map, pause interface, HUD and menu sprite artwork, and the sheets its backgrounds draw from.</summary>
-    public PauseScreen(AreaMapPresentation artwork, InstalledSpriteSheets? sheets)
+    public PauseScreen(InstalledScreenContent artwork, InstalledSpriteSheets? sheets)
     {
         Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
         Sprites = new ScreenSprites();
@@ -132,7 +133,7 @@ internal sealed class PauseScreen
     public ScreenSprites Sprites { get; }
 
     /// <summary>Rebinds the backdrop the installed artwork names, keeping the sprites.</summary>
-    public void BindArtwork(AreaMapPresentation artwork) => Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
+    public void BindArtwork(InstalledScreenContent artwork) => Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
 
     /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
     internal FramePaint Paint() => new(Backdrop);

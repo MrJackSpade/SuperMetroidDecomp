@@ -26,7 +26,7 @@ internal sealed class RuntimeArtwork
     private readonly HudState _hud;
 
     /// <summary>The map presentation's backing value, installed from the start.</summary>
-    private IGameplayPresentationContent _mapPresentation;
+    private IGameplayPresentationContent _screenContent;
 
     /// <summary>The sprite sheets' backing value, installed from the start.</summary>
     private InstalledSpriteSheets _spriteSheets;
@@ -38,7 +38,7 @@ internal sealed class RuntimeArtwork
     internal void BindProjectiles(SamusBombProjectileSystem bombs)
     {
         Ensure.NotNull(bombs);
-        bombs.PowerBombExplosion.Blast.PresentationColors = MapPresentation.PowerBombGlowColors;
+        bombs.PowerBombExplosion.Blast.PresentationColors = ScreenContent.PowerBombGlowColors;
     }
 
     /// <summary>Captures the runtime owners that consume host-installed visual assets and the catalogs the runtime is built over.</summary>
@@ -49,7 +49,7 @@ internal sealed class RuntimeArtwork
         _room = dependencies.Room;
         _hud = dependencies.Hud;
         RuntimeArtworkDependencies installed = dependencies;
-        _mapPresentation = installed.MapPresentation;
+        _screenContent = installed.ScreenContent;
         _spriteSheets = installed.SpriteSheets;
         ProjectileSheets = SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(installed.SpriteSheets);
         SamusArtwork = new SamusArtworkBinding(installed.SamusBodyArt, installed.SamusShownFrames, installed.SpriteSheets, installed.GrappleFlarePlacement,
@@ -62,12 +62,12 @@ internal sealed class RuntimeArtwork
 
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
     /// <remarks>Binding rebinds the presentation owners. The HUD shows the HUD sheet's pictures, so binding has no HUD artwork to show again.</remarks>
-    public IGameplayPresentationContent MapPresentation
+    public IGameplayPresentationContent ScreenContent
     {
-        get => _mapPresentation;
+        get => _screenContent;
         set
         {
-            _mapPresentation = Ensure.NotNull(value);
+            _screenContent = Ensure.NotNull(value);
             _hud.BindPresentation(value.GameplayHud);
             _bossArtwork.EscapeTypewriterPresentation = value.EscapeTypewriter;
             _bossArtwork.MotherBrainRainbowColors = value.MotherBrainRainbowBeamColours;

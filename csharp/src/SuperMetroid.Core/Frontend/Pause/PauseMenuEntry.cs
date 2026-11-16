@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -31,8 +32,8 @@ internal sealed record PauseMenuEntry
     /// <summary>How much of each area map the map assist shows.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;
 
-    /// <summary>The installed map presentation the pause screens draw, or null while none is bound.</summary>
-    public AreaMapPresentation? MapPresentation { get; init; } = null;
+    /// <summary>The installed screen content the pause screens draw their maps and selectors from, or null while none is bound.</summary>
+    public InstalledScreenContent? ScreenContent { get; init; } = null;
 
     /// <summary>The installed sprite sheets the map's sprites draw from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; } = null;

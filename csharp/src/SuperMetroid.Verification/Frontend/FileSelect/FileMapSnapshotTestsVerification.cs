@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
@@ -69,14 +70,14 @@ internal static class FileMapSnapshotTestsVerification
             return saves;
         }
         var game = CreateRetailGameFixture(Saves()); var capturedGame = CreateRetailGameFixture(Saves());
-        AreaMapPresentation presentation = RetailPresentationFixture();
+        InstalledScreenContent presentation = RetailPresentationFixture();
         game.BindArtwork(game.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         capturedGame.BindArtwork(capturedGame.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         bool sawMap = false;
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)

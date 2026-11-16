@@ -34,7 +34,7 @@ internal static class SuperMetroidRuntimeVramAccess
             {
                 BgArtworkBytes artwork = self.BackgroundArtwork();
                 var bindings = new BgArtworkBindings();
-                if (self.Artwork.MapPresentation is not null)
+                if (self.Artwork.ScreenContent is not null)
                     bindings.Bind(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0,
                         BgCharacterSet.Layer3.CharactersIn(SuperMetroid.AssetExtraction.Hud.HudTileAtlasFormat.CharacterByteCount));
                 if (self.Room.Scope is { } scope)
@@ -63,7 +63,7 @@ internal static class SuperMetroidRuntimeVramAccess
             var artwork = new BgArtworkBytes();
             artwork.WithRoomCharacters(self.Artwork.RoomCharacterArt);
             // The HUD's characters are import data no installation holds; they are the cartridge-derived extraction's (#1636).
-            if (self.Artwork.MapPresentation is not null)
+            if (self.Artwork.ScreenContent is not null)
                 artwork.WithHud(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.Characters.Hud);
             // Kraid's backdrop is the installation's, which the runtime's installed sheets are composed from (#1583).
             if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork.KraidBackground is { } kraid)

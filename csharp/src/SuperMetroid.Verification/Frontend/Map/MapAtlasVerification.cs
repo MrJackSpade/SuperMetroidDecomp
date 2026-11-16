@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -12,7 +13,7 @@ internal static class MapAtlasVerification
 {
     /// <summary>Compares stock tile bytes with ROM and the installed atlas's pause pixels with native.</summary>
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
         var vram = new SnesVram();

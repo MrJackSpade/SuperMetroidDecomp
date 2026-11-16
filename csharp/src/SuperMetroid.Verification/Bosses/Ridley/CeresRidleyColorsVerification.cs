@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -26,7 +27,7 @@ internal static class CeresRidleyColorsVerification
 {
     /// <summary>Verifies extracted colors, installed palette effects, and guarded ROM access.</summary>
     internal static void VerifyCeresRidleyColors(string stockDirectory,
-        AreaMapPresentation original, ISnesAddressSpace rom,
+        InstalledScreenContent original, ISnesAddressSpace rom,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(rom);
@@ -70,7 +71,7 @@ internal static class CeresRidleyColorsVerification
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Ridley colors are null.");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        runtime.Artwork.MapPresentation = original;
+        runtime.Artwork.ScreenContent = original;
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];

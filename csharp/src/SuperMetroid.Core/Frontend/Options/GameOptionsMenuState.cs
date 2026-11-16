@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -30,7 +31,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
-    private AreaMapPresentation? mapPresentation;
+    private InstalledScreenContent? screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
     internal ShownOptionsPage ShownPage { get; private set; }
     /// <summary>Page whose input and cursor policy currently apply.</summary>
@@ -50,7 +51,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
     /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
-    /// <param name="mapPresentation">Required installed menu presentation assets.</param>
+    /// <param name="screenContent">Required installed screen content, whose options part the screen draws.</param>
     /// <param name="spriteSheets">Required installed sprite sheets, which the headings and cursor draw from.</param>
     [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
@@ -59,13 +60,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         bool iconCancelEnabled = false,
         bool moonwalkEnabled = false,
         bool japaneseText = false,
-        AreaMapPresentation? mapPresentation = null,
+        InstalledScreenContent? screenContent = null,
         InstalledSpriteSheets? spriteSheets = null)
     {
         this.audio = audio;
-        this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
+        this.screenContent = screenContent ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, spriteSheets);
+        screen = new MenuScreen(screenContent.Backdrops.Menus, spriteSheets);
         BindSpriteSheets(spriteSheets);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
@@ -78,11 +79,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Binds the installed menu art when the game is bound to its installed content.</summary>
-    public void BindMapPresentation(AreaMapPresentation? catalog)
+    public void BindScreenContent(InstalledScreenContent? catalog)
     {
-        mapPresentation = catalog ?? throw new InvalidOperationException(
+        screenContent = catalog ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        screen.Backdrop = catalog.Backdrops.FileSelect;
+        screen.Backdrop = catalog.Backdrops.Menus;
         LoadVisiblePage();
     }
 
@@ -125,7 +126,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // The selection missile is spawned while the menu loads; it then animates
         // after every step's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
-            missile.Step((mapPresentation ?? throw new InvalidOperationException(
+            missile.Step((screenContent ?? throw new InvalidOperationException(
                 "Game options require installed menu presentation assets.")).GameOptions.CursorFrameDuration);
 
         switch (Phase)
@@ -229,7 +230,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
-        var content = mapPresentation ?? throw new InvalidOperationException(
+        var content = screenContent ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);

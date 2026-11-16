@@ -905,7 +905,7 @@ internal sealed class RoomLoader
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ResetProjectileEchoStorage();
-        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.MapPresentation.PowerBombGlowColors, _artwork.SamusArtwork);
+        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.ScreenContent.PowerBombGlowColors, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork);
@@ -1146,7 +1146,7 @@ internal sealed class RoomLoader
         // The locked Ceres start's frame publishes the initial minimap itself, so the HUD shows Ceres's room from the
         // descent's first frame; later frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation.Get(roomGeometry.Area) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.ScreenContent.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup locks her movement until the elevator's arrival ends.
         _player.GroundedSamusMovementEnabled = false;

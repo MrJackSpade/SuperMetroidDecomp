@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
@@ -57,7 +58,7 @@ internal static class PauseMenuStateAccess
         /// equipment page over the first while the equipment page shows, for comparison with native VRAM.
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the menu to.</param>
-        internal BackgroundTile[] ShownBg1Tiles(AreaMapPresentation artwork)
+        internal BackgroundTile[] ShownBg1Tiles(InstalledScreenContent artwork)
         {
             BackgroundTile[] tiles = ShownAreaMapTiles.Of(self.ShownMap);
             if (self.ScreenMode != PauseScreenMode.Map)
@@ -71,7 +72,7 @@ internal static class PauseMenuStateAccess
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the menu to.</param>
         /// <param name="cell">The map cell.</param>
-        internal BackgroundTile ShownBg1Tile(AreaMapPresentation artwork, Position16<MapTiles> cell)
+        internal BackgroundTile ShownBg1Tile(InstalledScreenContent artwork, Position16<MapTiles> cell)
         {
             int index = AreaMapPages.GetTilemapWordIndex(cell);
             if (self.ScreenMode != PauseScreenMode.Map && index < PauseEquipmentBaseDefinitions.Cells)
@@ -84,7 +85,7 @@ internal static class PauseMenuStateAccess
         /// the shade the highlight shows it in, laid out from the import's sources of the frame's pictures.
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the menu to.</param>
-        internal BackgroundTile[] ShownBg2Tiles(AreaMapPresentation artwork) => PausePictureSheetConstants.Frame(artwork, self.area, self.ButtonHighlight);
+        internal BackgroundTile[] ShownBg2Tiles(InstalledScreenContent artwork) => PausePictureSheetConstants.Frame(artwork, self.area, self.ButtonHighlight);
 
         /// <summary>
         /// Reads one native $7E:3000-relative button-label word as the shown BG2 rows hold it, proving the bottom pause
@@ -92,7 +93,7 @@ internal static class PauseMenuStateAccess
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the menu to.</param>
         /// <param name="nativeWordIndex">The label word's index from the start of the native BG2 rows.</param>
-        internal ushort ReadPauseButtonLabelWord(AreaMapPresentation artwork, int nativeWordIndex)
+        internal ushort ReadPauseButtonLabelWord(InstalledScreenContent artwork, int nativeWordIndex)
         {
             const int firstUploadedNativeWordIndex = 0x0320;
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
@@ -106,7 +107,7 @@ internal static class PauseMenuStateAccess
         /// out the way the import lays out a shown page.
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the menu to.</param>
-        internal BackgroundTile[] ShownEquipmentTiles(AreaMapPresentation artwork) => PauseEquipmentPageLayout.LayOut(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(artwork), self.EquipmentPage);
+        internal BackgroundTile[] ShownEquipmentTiles(InstalledScreenContent artwork) => PauseEquipmentPageLayout.LayOut(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(artwork), self.EquipmentPage);
 
         /// <summary>
         /// Reads one of the three reserve-supply digits as the equipment page shows it (#1467, #1515): the tile the import
@@ -114,7 +115,7 @@ internal static class PauseMenuStateAccess
         /// </summary>
         /// <param name="artwork">The map presentation the fixture bound the menu to.</param>
         /// <param name="digitIndex">The digit, from the hundreds.</param>
-        internal SnesBgTilemapWord ReadReserveSupplyDigit(AreaMapPresentation artwork, int digitIndex)
+        internal SnesBgTilemapWord ReadReserveSupplyDigit(InstalledScreenContent artwork, int digitIndex)
         {
             if ((uint)digitIndex >= PauseMenuLayoutConstants.ReserveSupplyDigitCount)
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));

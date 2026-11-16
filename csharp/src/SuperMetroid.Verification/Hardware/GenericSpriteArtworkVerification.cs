@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -40,7 +41,7 @@ internal static class GenericSpriteArtworkVerification
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         // The title's and the intro's characters are import data no installation holds: the cartridge-derived extraction's (#1636).
         ImportAreaMapPresentation installedMaps = InstalledFixtures.ImportMaps;
-        AreaMapPresentation maps = installedMaps.Game;
+        InstalledScreenContent maps = installedMaps.Game;
         ImportIntroCinematicArtwork introArtwork = InstalledFixtures.IntroArtwork;
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         InstalledSamusBodyArtwork body = installation.LoadSamusBody().Gameplay;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -13,5 +14,5 @@ namespace SuperMetroid.Desktop.Window;
 internal sealed record HostSessionStart(
     IInstalledSessionContent Content,
     GameplayAssists Assists,
-    AreaMapPresentation Maps,
+    InstalledScreenContent Maps,
     GameContentIdentity ContentIdentity);

@@ -693,7 +693,7 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>The installed characters of the animated-tile frames <paramref name="runtime"/>'s room <paramref name="room"/> can show.</summary>
     private static RoomFxBlockAnimationAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
-        runtime.Artwork.MapPresentation is null ? throw new InvalidOperationException($"{room}: the runtime has no installed presentation.")
+        runtime.Artwork.ScreenContent is null ? throw new InvalidOperationException($"{room}: the runtime has no installed presentation.")
             // The animated tiles' characters are import data no installation holds: the cartridge-derived extraction's (#1636).
             : SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.BlockAnimationAtlas;
 

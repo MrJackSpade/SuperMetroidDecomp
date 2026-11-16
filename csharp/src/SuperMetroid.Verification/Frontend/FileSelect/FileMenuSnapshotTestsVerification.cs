@@ -27,7 +27,7 @@ internal static class FileMenuSnapshotTestsVerification
         // Use private in-memory saves. Copy/clear validation must never edit player saves.
         foreach (bool clear in new[] { false, true })
         {
-            var menu = new FileSelectMenuState(saveRam, mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+            var menu = new FileSelectMenuState(saveRam, screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             void Tick(ControllerButton input = ControllerButton.None) => Check(menu.CaptureRenderSnapshot, () => menu.Step(input));
             void Press(ControllerButton input) { Tick(); Tick(input); }
             void Until(FileSelectPhase phase)
@@ -49,7 +49,7 @@ internal static class FileMenuSnapshotTestsVerification
             Tick();
         }
 
-        var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+        var options = new GameOptionsMenuState(screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
         void OptionTick(ControllerButton input = 0) => Check(options.CaptureRenderSnapshot, () => options.Step(input));
         void OptionPress(ControllerButton input) { OptionTick(); OptionTick(input); }
         void OptionUntil(GameOptionsPhase phase)

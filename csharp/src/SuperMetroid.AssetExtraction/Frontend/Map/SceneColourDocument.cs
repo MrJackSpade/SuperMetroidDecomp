@@ -17,8 +17,8 @@ public sealed record SceneColourDocument
     /// <summary>The pause screen's backdrop.</summary>
     public required PaletteRgb5 PauseBackdrop { get; init; }
 
-    /// <summary>The backdrop of file select, its room maps, the options screens and the game-over screen.</summary>
-    public required PaletteRgb5 FileSelectBackdrop { get; init; }
+    /// <summary>The backdrop file select, its room maps, the options screens and the game-over screen share.</summary>
+    public required PaletteRgb5 MenusBackdrop { get; init; }
 
     /// <summary>The world map's backdrop while each Zebes area is selected, keyed by area name.</summary>
     public required Dictionary<string, PaletteRgb5> WorldMapBackdrops { get; init; }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
@@ -182,7 +183,7 @@ internal static class GameSaveJsonVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
             throw new FileNotFoundException("Selected-slot decode verification requires the private retail ROM.", romPath);
-        AreaMapPresentation presentation = RetailPresentationFixture();
+        InstalledScreenContent presentation = RetailPresentationFixture();
         const ushort AllBits = ushort.MaxValue;
         const ushort SignBit = 1 << 15;
         GameSaveJsonCase[] cases =
@@ -213,7 +214,7 @@ internal static class GameSaveJsonVerification
             SaveSlotStore decoded = SaveRamCodec.Decode(image, presentation);
 
             AssertEqual(SaveSlots.All[expected], decoded.ReadSelectedSlot(), $"{label}: SRAM decode matches the cartridge");
-            AssertEqual(FileSelectItemRows.ForSaveSlot(SaveSlots.All[expected]), new FileSelectMenuState(decoded, mapPresentation: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
+            AssertEqual(FileSelectItemRows.ForSaveSlot(SaveSlots.All[expected]), new FileSelectMenuState(decoded, screenContent: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
                 $"{label}: file-select initial cursor matches $81:9ED8");
             AssertEqual(expected, GameSaveJsonCodec.Capture(decoded).SelectedSlot,
                 $"{label}: JSON capture keeps the cartridge-selected slot");
@@ -232,7 +233,7 @@ internal static class GameSaveJsonVerification
     /// </summary>
     internal static void VerifyWidenedSlotFieldsJsonRoundTrip()
     {
-        AreaMapPresentation maps = RetailPresentationFixture();
+        InstalledScreenContent maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
         var system = new SharedGameState(new SharedRandom());
@@ -283,7 +284,7 @@ internal static class GameSaveJsonVerification
     /// </summary>
     internal static void VerifyUsedStationNumbersWithoutStation()
     {
-        AreaMapPresentation maps = RetailPresentationFixture();
+        InstalledScreenContent maps = RetailPresentationFixture();
         string SavedJson(LoadStation used)
         {
             var store = new SaveSlotStore(maps);
@@ -354,7 +355,7 @@ internal static class GameSaveJsonVerification
     /// </summary>
     internal static void VerifyPowerOnHistoryJsonRoundTrip()
     {
-        AreaMapPresentation maps = RetailPresentationFixture();
+        InstalledScreenContent maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
         AssertTrue(!store.DetermineCompletionDemoSetUnlocked(), "a boot with no valid save leaves the completion demo set out");
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "a boot with no valid save keeps it in the history");

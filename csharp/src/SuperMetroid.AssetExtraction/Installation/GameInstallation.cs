@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -291,14 +292,14 @@ public sealed record GameInstallation(string Root)
     /// Loads the installed maps, exploration masks and menu presentation without a cartridge address space: the catalog the
     /// game binds, after the whole installed presentation has been read and validated (#1616).
     /// </summary>
-    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory).Game;
+    public InstalledScreenContent LoadMaps() => MapPresentationFiles.Load(MapDirectory).Game;
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation, enemy
     /// directory and Samus body they already hold for content identity and save persistence; of the body, the frontend
     /// binds what the game reads.
     /// </summary>
-    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies,
+    public GameArtwork LoadGameArtwork(InstalledScreenContent maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies,
         InstalledSamusBody samusBody)
     {
         Ensure.NotNull(maps);
@@ -307,7 +308,7 @@ public sealed record GameInstallation(string Root)
         Ensure.NotNull(samusBody);
         return new GameArtwork
         {
-            MapPresentation = maps,
+            ScreenContent = maps,
             IntroCinematicArt = LoadIntroCinematic(),
             SamusBodyArt = samusBody.Gameplay,
             SamusShownFrames = samusBody.ShownFrames,

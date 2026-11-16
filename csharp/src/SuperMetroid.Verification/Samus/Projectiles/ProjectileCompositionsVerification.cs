@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -182,12 +183,12 @@ internal static class ProjectileCompositionsVerification
     /// rebound sheet set reaches them, and that saved graphs exclude the sheets and draw alike once rebound.
     /// </summary>
     private static void VerifyRuntimeProjectileSheets(ushort sprite, InstalledSpriteSheets sheets,
-        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentation maps)
+        MapPresentationInstalledRoomAssets roomAssets, InstalledScreenContent maps)
     {
         var random = new SharedRandom();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
-        runtime.Artwork.MapPresentation = maps;
+        runtime.Artwork.ScreenContent = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.SpriteSheets = sheets;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -14,7 +15,7 @@ internal static class MapStaticPalettesVerification
 {
     /// <summary>Compares stock palettes with the cartridge and the six stock world selections.</summary>
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         var palette = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Artwork.PauseColors);
@@ -23,7 +24,7 @@ internal static class MapStaticPalettesVerification
         AssertEqual(palette.Colors[0], original.Backdrops.Pause, "the pause backdrop is the cartridge's backdrop colour");
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);
         AssertTrue(palette.Colors.SequenceEqual(installed.FileSelect), "all static file-select colors match cartridge");
-        AssertEqual(palette.Colors[0], original.Backdrops.FileSelect, "the file-select backdrop is the cartridge's backdrop colour");
+        AssertEqual(palette.Colors[0], original.Backdrops.Menus, "the file-select backdrop is the cartridge's backdrop colour");
         var nativeWorld = new FileSelectAreaMapGraphics(AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
         var world = new FileSelectAreaMapGraphics(AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
         foreach (AreaId area in AreaIds.Zebes)

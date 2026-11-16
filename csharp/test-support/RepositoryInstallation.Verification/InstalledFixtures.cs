@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -241,7 +242,7 @@ internal static class InstalledFixtures
         Shared<SuperMetroid.Core.Audio.ClipAudioLibrary>("audio clips", () => RepositoryInstallation.Installation.LoadAudioClips().Clips);
 
     /// <summary>The installation's stock map and presentation catalog the game binds, loaded once per process.</summary>
-    internal static AreaMapPresentation Maps => maps.Value.Game;
+    internal static InstalledScreenContent Maps => maps.Value.Game;
 
     /// <summary>
     /// The installation's stock map presentation as the import reads it, loaded once per process: <see cref="Maps"/> beside the
@@ -250,7 +251,7 @@ internal static class InstalledFixtures
     internal static ImportAreaMapPresentation ImportMaps => maps.Value;
 
     /// <summary>Fixture presentations a check built as the import reads them, by the game catalog each holds (#1616).</summary>
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<AreaMapPresentation, ImportAreaMapPresentation> fixtureImports = new();
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<InstalledScreenContent, ImportAreaMapPresentation> fixtureImports = new();
 
     /// <summary>
     /// Records a fixture presentation a check built as the import reads it, so checks that hold only the game catalog it
@@ -276,12 +277,12 @@ internal static class InstalledFixtures
     /// <exception cref="InvalidOperationException">The catalog is neither the installation's nor a recorded fixture's.</exception>
     internal static ImportAreaMapPresentation ImportOf(SuperMetroid.Core.Gameplay.IGameplayPresentationContent game) =>
         ReferenceEquals(SuperMetroid.Core.Ensure.NotNull(game), Maps) || IsRepositoryCatalog(game) ? ImportMaps
-        : game is AreaMapPresentation catalog && fixtureImports.TryGetValue(catalog, out ImportAreaMapPresentation? recorded) ? recorded
+        : game is InstalledScreenContent catalog && fixtureImports.TryGetValue(catalog, out ImportAreaMapPresentation? recorded) ? recorded
         : throw new InvalidOperationException("The map presentation is neither the repository installation's nor a recorded fixture's; record the import's read of it.");
 
     /// <summary>Whether <paramref name="game"/> is the map catalog the repository installation's own artwork binds.</summary>
     private static bool IsRepositoryCatalog(SuperMetroid.Core.Gameplay.IGameplayPresentationContent game) =>
-        RepositoryInstallation.ArtworkLoader.IsValueCreated && ReferenceEquals(game, RepositoryInstallation.Artwork.MapPresentation);
+        RepositoryInstallation.ArtworkLoader.IsValueCreated && ReferenceEquals(game, RepositoryInstallation.Artwork.ScreenContent);
 
     /// <summary>The stock enemy artwork as the import reads it, loaded once per process from the cartridge-derived extraction (#1636).</summary>
     internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
@@ -480,7 +481,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>
-        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, Area = entry.Area, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayHud = entry.GameplayHud, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps, SpriteSheets = SpriteSheets });
+        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, Area = entry.Area, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayHud = entry.GameplayHud, MapRevealMode = entry.MapRevealMode, ScreenContent = Maps, SpriteSheets = SpriteSheets });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

@@ -91,16 +91,16 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     if (session.Demo.Cancelled)
                         session.Show(TitleSequenceState.ReturnFromDemo(
                             session.audio,
-                            session.Artwork.MapPresentation?.TitleGradient,
-                            session.Artwork.MapPresentation?.TitleBackdrop,
+                            session.Artwork.ScreenContent?.TitleGradient,
+                            session.Artwork.ScreenContent?.TitleBackdrop,
                             session.Artwork.SpriteSheets));
                     else
                     {
                         session.audio.QueueMusic(MusicRequest.Stop);
                         session.Show(new TitleSequenceState(
                             session.audio,
-                            session.Artwork.MapPresentation?.TitleGradient,
-                            session.Artwork.MapPresentation?.TitleBackdrop,
+                            session.Artwork.ScreenContent?.TitleGradient,
+                            session.Artwork.ScreenContent?.TitleBackdrop,
                             session.Artwork.SpriteSheets));
                     }
                     session.GameState = SuperMetroidGameState.OpeningCinematic;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
@@ -12,9 +13,9 @@ internal static class MapPaletteCycleVerification
 {
     /// <summary>Checks the installed arrows' palette and highlight cycle's frame count against the cartridge.</summary>
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
-        var arrows = new FileSelectMapAnimations(original.Arrows);
+        var arrows = new FileSelectMapAnimations(original.Maps.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();
         arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, arrows.HighlightShading, MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites)); arrowOam.FinishFrame();
@@ -22,7 +23,7 @@ internal static class MapPaletteCycleVerification
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual(LittleEndianBytes.HighByte(nativeArrowPalette), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
-        AssertEqual(MapAnimationNativeSources.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
+        AssertEqual(MapAnimationNativeSources.PaletteFrameCount, original.Maps.HighlightCycle.FrameCount, "imported native highlight frame count");
         Console.WriteLine("Map palette cycle: the arrows use the cartridge's animated palette and the highlight cycle has the cartridge's frame count.");
     }
 }

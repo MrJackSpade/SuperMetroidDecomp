@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -19,7 +20,7 @@ internal static class GameplayHudPresentationVerification
 {
     /// <summary>Compares stock HUD tiles with native data without live ROM reads.</summary>
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
         GameplayHudArtwork presentation = GameplayHudPresentationFile.Read(new MemoryStream(extracted));
@@ -38,7 +39,7 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, HudSourceDefinitions.AutoReserve, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
         var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        topRowRuntime.Artwork.MapPresentation = original;
+        topRowRuntime.Artwork.ScreenContent = original;
         // The HUD draws its images over the BG3 plane's top rows (#1466): its current images, as the installed artwork lays
         // their tiles out, show the installed HUD row.
         _ = topRowRuntime.Hud.Presentation ?? throw new InvalidOperationException("The runtime binds the HUD layout.");

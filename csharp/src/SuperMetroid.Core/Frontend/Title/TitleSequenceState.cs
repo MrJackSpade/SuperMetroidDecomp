@@ -26,10 +26,10 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            BindTitleGradient(artwork.MapPresentation?.TitleGradient);
-            BindTitleBackdrop(artwork.MapPresentation?.TitleBackdrop);
+            BindTitleGradient(artwork.ScreenContent?.TitleGradient);
+            BindTitleBackdrop(artwork.ScreenContent?.TitleBackdrop);
         }
         BindSpriteSheets(artwork.SpriteSheets);
     }

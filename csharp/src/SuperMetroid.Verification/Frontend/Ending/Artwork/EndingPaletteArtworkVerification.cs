@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -120,7 +121,7 @@ internal static class EndingPaletteArtworkVerification
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         EndingBackdrops backdrops = installation.LoadEndingBackdrops();
-        AreaMapPresentation maps = installation.LoadMaps();
+        InstalledScreenContent maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (EndingBackdropScene scene in new[]
         {

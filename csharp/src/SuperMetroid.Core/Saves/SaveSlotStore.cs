@@ -17,11 +17,11 @@ public sealed class SaveSlotStore
     private SaveSlot selectedSlot;
 
     /// <summary>Installed stock map rules that pack and unpack explored maps; the host binds them with its artwork.</summary>
-    private IAreaMapSource? mapPresentation;
+    private IAreaMapSource? maps;
 
     /// <summary>Creates an empty store: no saved slot, slot A selected, no history.</summary>
-    /// <param name="mapPresentation">Installed stock map rules; saving a slot requires them.</param>
-    public SaveSlotStore(IAreaMapSource? mapPresentation = null) => this.mapPresentation = mapPresentation;
+    /// <param name="maps">Installed stock map rules; saving a slot requires them.</param>
+    public SaveSlotStore(IAreaMapSource? maps = null) => this.maps = maps;
 
     /// <summary>A store imported from a save file a host decoded: its slots, the menu's selection and the file's history.</summary>
     /// <param name="saved">The slots holding a save, each in the slot it names; a slot not among them is empty or invalid.</param>
@@ -52,7 +52,7 @@ public sealed class SaveSlotStore
     public SaveFileHistory History { get; private set; }
 
     /// <summary>Installs map rules when the host binds artwork.</summary>
-    internal void BindMapPresentation(IAreaMapSource? maps) => mapPresentation = maps;
+    internal void BindMaps(IAreaMapSource? maps) => this.maps = maps;
 
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(SaveSlot slot)
@@ -68,7 +68,7 @@ public sealed class SaveSlotStore
     public void SaveSlot(SaveSlot slot, SuperMetroidSaveSnapshot snapshot)
     {
         RequireSlot(slot);
-        slots[slot] = SaveSlotRetention.Retain(snapshot, slot, mapPresentation);
+        slots[slot] = SaveSlotRetention.Retain(snapshot, slot, maps);
     }
 
     /// <summary>Copies a save as the file-select menu's data copy does: the destination receives the source's save.</summary>

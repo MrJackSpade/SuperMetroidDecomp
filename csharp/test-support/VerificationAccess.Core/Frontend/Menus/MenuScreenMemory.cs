@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -23,7 +24,7 @@ internal static class MenuScreenMemory
     /// sheets are composed from (#1583), with the installation's map characters and sprite page; a copy the caller owns.
     /// </summary>
     [WholeImageFixture("the menu's character image")]
-    internal static byte[] Characters(AreaMapPresentation maps) =>
+    internal static byte[] Characters(InstalledScreenContent maps) =>
         (byte[])composedCharacters.GetValue(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).WorldCharacters, ComposeCharacters).Clone();
 
     /// <summary>
@@ -49,7 +50,7 @@ internal static class MenuScreenMemory
     /// shows (#1467).
     /// </summary>
     [WholeImageFixture("the menu's 64 KiB memory image")]
-    internal static byte[] Compose(AreaMapPresentation maps, ReadOnlySpan<BackgroundTile> tilemaps)
+    internal static byte[] Compose(InstalledScreenContent maps, ReadOnlySpan<BackgroundTile> tilemaps)
     {
         byte[] image = Characters(maps);
         ushort[] words = BackgroundTileWordBytes.Words(tilemaps);

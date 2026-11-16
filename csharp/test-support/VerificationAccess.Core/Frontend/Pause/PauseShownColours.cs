@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
@@ -69,7 +70,7 @@ internal static class PauseShownColours
 
     /// <summary>The colours <paramref name="pause"/>'s pictures show now, bound to <paramref name="maps"/> by its fixture.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="maps"/> was not read from an installation.</exception>
-    internal static RgbColor[] Of(PauseMenuState pause, AreaMapPresentation maps)
+    internal static RgbColor[] Of(PauseMenuState pause, InstalledScreenContent maps)
     {
         Ensure.NotNull(pause);
         Ensure.NotNull(maps);

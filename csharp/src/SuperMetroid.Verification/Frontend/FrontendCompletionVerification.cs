@@ -96,7 +96,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
-    var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+    var options = new GameOptionsMenuState(screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)

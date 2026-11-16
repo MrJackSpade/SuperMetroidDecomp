@@ -24,7 +24,7 @@ internal static class SuperMetroidRuntimeHudAccess
         /// </summary>
         /// <exception cref="InvalidOperationException">No map presentation is bound, or it is not a fixture's.</exception>
         internal GameplayHudArtwork InstalledHudArtwork =>
-            SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(self.Artwork.MapPresentation
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(self.Artwork.ScreenContent
                 ?? throw new InvalidOperationException("No map presentation is bound.")).GameplayHud;
 
         /// <summary>

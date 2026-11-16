@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -17,13 +18,13 @@ internal static class PauseReserveUiAssetsVerification
 {
     /// <summary>Checks reserve labels, digits, and arrow phases against native rendering.</summary>
     internal static void VerifyPauseReserveUiAssets(ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var installed = new PauseMenuState(new PauseMenuEntry { Samus = installedSamus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Brinstar, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {

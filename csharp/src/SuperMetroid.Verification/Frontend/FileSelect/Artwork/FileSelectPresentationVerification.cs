@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -16,7 +17,7 @@ internal static class FileSelectPresentationVerification
     /// <summary>Compares native and installed COPY/CLEAR flows frame by frame.</summary>
     internal static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         _ = FileSelectSourcePresentationConstants.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus));
 

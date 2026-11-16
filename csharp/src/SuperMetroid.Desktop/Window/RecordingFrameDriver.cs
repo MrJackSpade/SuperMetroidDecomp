@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
@@ -61,7 +62,7 @@ internal sealed class RecordingFrameDriver : IHostFrameDriver
     /// Decodes the recording's cartridge-compatible SRAM image into the session's saves and rejects a
     /// different ROM revision before the first input can produce a misleading divergence.
     /// </summary>
-    private SaveSlotStore DecodeSaves(AreaMapPresentation maps)
+    private SaveSlotStore DecodeSaves(InstalledScreenContent maps)
     {
         byte[] actualDigest = SupportedCartridge.CreateSha256Digest();
         if (!CryptographicOperations.FixedTimeEquals(actualDigest, recording.RomSha256))

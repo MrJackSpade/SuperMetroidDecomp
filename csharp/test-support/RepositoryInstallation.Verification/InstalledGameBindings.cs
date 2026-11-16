@@ -26,7 +26,7 @@ internal static class InstalledGameBindings
         return ReferenceEquals(installation, RepositoryInstallation.Installation)
             ? RepositoryInstallation.Artwork with
             {
-                MapPresentation = InstalledFixtures.Maps,
+                ScreenContent = InstalledFixtures.Maps,
                 IntroCinematicArt = InstalledFixtures.IntroArtwork.BoundCatalog,
             }
             : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody());

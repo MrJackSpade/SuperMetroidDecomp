@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
@@ -34,6 +35,7 @@ internal static class InterfacePresentationContractDefinitions
         new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
              new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Artwork/InstalledScreenContent.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
@@ -42,6 +44,7 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/IInstalledArtworkContent.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
              new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Artwork/InstalledScreenContent.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs"),
              new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
@@ -59,10 +62,11 @@ internal static class InterfacePresentationContractDefinitions
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(TypedTextSpriteSheet))],
-        // The installed presentation's game catalog is the one implementation: the import's reads hold it beside the source
-        // artwork and colours only the import reads, and implement neither contract (#1616).
-        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation))],
+        // The installed screen content is the one implementation: the import's reads hold it beside the source artwork and
+        // colours only the import reads, and implement neither contract (#1616). Its area maps are their own source (#2203).
+        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(InstalledScreenContent))],
         "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
+            ContractTypeNames.MetadataName(typeof(InstalledScreenContent)),
             ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent))],
         _ => null,
     };

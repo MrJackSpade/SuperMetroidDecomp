@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Samus;
@@ -235,7 +236,7 @@ internal static class MapPresentationVerification
             // The shared catalog the reload is compared with is the process's shared fixture, loaded (and timed) as one
             // before the copy is reloaded, so the reload is charged its own reading alone and not the shared load's first
             // use of the reading code (#1532).
-            AreaMapPresentation shared = InstalledFixtures.Maps;
+            InstalledScreenContent shared = InstalledFixtures.Maps;
             Reopened = copy.Installation.LoadMaps();
             // The copy's files are the shared installation's, so its catalog is the shared one, which the fixture sheets and
             // pictures already compose and register (#1532).
@@ -244,14 +245,14 @@ internal static class MapPresentationVerification
         }
 
         /// <summary>The copy's map presentation, loaded again from its files before any corruption.</summary>
-        internal AreaMapPresentation Reopened { get; }
+        internal InstalledScreenContent Reopened { get; }
 
         /// <summary>Retail cartridge oracle for native comparisons.</summary>
         internal SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace Bus { get; }
         /// <summary>The copy's installed map presentation directory.</summary>
         internal string Stock { get; }
         /// <summary>Map catalog loaded before any corruption.</summary>
-        internal AreaMapPresentation Original { get; }
+        internal InstalledScreenContent Original { get; }
         /// <summary>Installed room fixtures bound by real-room checks, gathered when a check first binds them.</summary>
         internal static MapPresentationInstalledRoomAssets FixtureAssets => MapPresentationInstalledRoomAssets.Shared;
 
@@ -265,9 +266,9 @@ internal static class MapPresentationVerification
         using var fixture = new MapCatalogFixture();
         var bus = fixture.Bus;
         string stock = fixture.Stock;
-        AreaMapPresentation original = fixture.Original;
+        InstalledScreenContent original = fixture.Original;
         var rules = AreaIds.All.ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
-        AreaMapPresentation reopened = fixture.Reopened;
+        InstalledScreenContent reopened = fixture.Reopened;
         foreach (AreaId area in AreaIds.All)
         for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
         for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
@@ -306,7 +307,7 @@ internal static class MapPresentationVerification
     /// Checks that the installation holds no colour document only the import reads (#1544, #1637): they are import data, the
     /// installed copy holds none of them, and the game's read of it still reads the same presentation.
     /// </summary>
-    private static void VerifyInstallationHoldsNoImportColours(string stock, AreaMapPresentation original)
+    private static void VerifyInstallationHoldsNoImportColours(string stock, InstalledScreenContent original)
     {
         string[] importColours =
         [
@@ -352,7 +353,7 @@ internal static class MapPresentationVerification
         string stock = RepositoryInstallation.Installation.MapDirectory;
         // The colour documents (#1637) and the room-FX pages (#1638) only the import reads are import data: their checks read them where the import does.
         string importData = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
-        AreaMapPresentation original = InstalledFixtures.Maps;
+        InstalledScreenContent original = InstalledFixtures.Maps;
         Suite(nameof(VerifyTitleSpriteSources), () => VerifyTitleSpriteSources(bus));
         Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(importData));
         Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(importData));
@@ -385,7 +386,7 @@ internal static class MapPresentationVerification
     {
         var bus = RetailBus();
         string stock = RepositoryInstallation.Installation.MapDirectory;
-        AreaMapPresentation original = InstalledFixtures.Maps;
+        InstalledScreenContent original = InstalledFixtures.Maps;
         Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus));
         Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, original));
         Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, original));
@@ -410,7 +411,7 @@ internal static class MapPresentationVerification
         ISnesAddressSpace bus,
         string importColours,
         string stock,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         string source = Path.Combine(importColours, MotherBrainRainbowPaletteFile.FileName);
         MotherBrainRainbowPaletteDocument document =
@@ -552,7 +553,7 @@ internal static class MapPresentationVerification
     private static void VerifyMotherBrainHealthPalette(
         ISnesAddressSpace bus,
         string stock,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         string source = Path.Combine(stock, MotherBrainHealthPaletteFile.FileName);
         MotherBrainHealthPaletteDocument document =
@@ -615,12 +616,12 @@ internal static class MapPresentationVerification
     /// Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers of the bound catalog. The runtime is
     /// built without a cartridge, so it cannot read map ROM.
     /// </summary>
-    private static void VerifyLiveMapCatalog(AreaMapPresentation original, MapPresentationInstalledRoomAssets fixtureAssets)
+    private static void VerifyLiveMapCatalog(InstalledScreenContent original, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
         {
-            MapPresentation = original,
+            ScreenContent = original,
         });
         // The installed content, the map presentation among it, is named by path through the shared index, which
         // every round trip of the process reuses, instead of indexing all loaded content again for this game (#1532).
@@ -628,7 +629,7 @@ internal static class MapPresentationVerification
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
 
         var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        runtime.Artwork.MapPresentation = original;
+        runtime.Artwork.ScreenContent = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -640,7 +641,7 @@ internal static class MapPresentationVerification
             RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole));
         AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Offset16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
@@ -651,14 +652,14 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks stock file-select map pixels, the projected map cells, and restoration of the graphics state.</summary>
-    private static void VerifyFileSelectMapCatalog(AreaMapPresentation original)
+    private static void VerifyFileSelectMapCatalog(InstalledScreenContent original)
     {
         var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
-            AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+            AreaId.Crateria, screenContent: original, sheets: MenuSheetFixtures.For(original));
         var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,
-            mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+            screenContent: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.AreaMap.Cells),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -22,18 +23,18 @@ internal static class AttractCaptureTestsVerification
     /// <summary>Compares demo playback, held final image, cancellation, and return-to-title packets with the live frontend.</summary>
     internal static void VerifyAttractCapture()
     {
-        AreaMapPresentation presentation = RetailPresentationFixture();
+        InstalledScreenContent presentation = RetailPresentationFixture();
         // Scene setup is compiled now. Bound only the live verification instance after
         // its real first scene has loaded; ROM table patches no longer affect admission.
         var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         legacy.BindArtwork(legacy.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         captured.BindArtwork(captured.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         // The completed and the cancelled case receive the same input on every frame before the final-image hold reaches
         // the cancellation frame, so they publish the same frames until then. That shared prefix is played and checked

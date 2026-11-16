@@ -47,5 +47,5 @@ internal static class FrontendShownVramAccess
     extension(TitleSequenceState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }
 
     /// <summary>The pause menu's composed image, over <paramref name="artwork"/>, the map presentation its fixture bound.</summary>
-    extension(PauseMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram(SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation artwork) => PauseScreenMemory.Compose(self, artwork); }
+    extension(PauseMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram(SuperMetroid.Core.Frontend.Artwork.InstalledScreenContent artwork) => PauseScreenMemory.Compose(self, artwork); }
 }

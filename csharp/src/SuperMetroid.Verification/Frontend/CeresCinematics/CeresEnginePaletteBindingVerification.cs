@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -20,14 +21,14 @@ internal static class CeresEnginePaletteBindingVerification
     internal static void VerifyCeresEnginePaletteBinding()
     {
         // The repository installation's shared loads: the scene reads them and never writes them.
-        AreaMapPresentation stock = InstalledFixtures.Maps;
+        InstalledScreenContent stock = InstalledFixtures.Maps;
         ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
         {
-            MapPresentation = stock,
+            ScreenContent = stock,
             IntroCinematicArt = artwork.BoundCatalog,
             // The destruction scene's actors draw from the installed sprite sheets, as a full binding supplies them.
             SpriteSheets = sheets,
@@ -55,7 +56,7 @@ internal static class CeresEnginePaletteBindingVerification
         // Installed artwork is not saved state; the host rebinds all of it after a restore.
         restored.BindArtwork(restored.Artwork with
         {
-            MapPresentation = stock,
+            ScreenContent = stock,
             IntroCinematicArt = artwork.BoundCatalog,
             SpriteSheets = sheets,
         });

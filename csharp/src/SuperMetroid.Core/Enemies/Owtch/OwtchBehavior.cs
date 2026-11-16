@@ -20,20 +20,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Owtch's animations: each sets the walking direction main AI applies.</summary>
-    private static void ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue)
-    {
-        switch (cue.Kind)
-        {
-            case OwtchCueKind.SetMovingLeft:
-                SetOwtchMoving(state, OwtchBehaviorState.MovingLeft);
-                break;
-            case OwtchCueKind.SetMovingRight:
-                SetOwtchMoving(state, OwtchBehaviorState.MovingRight);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(OwtchCueKind)} {cue.Kind}.");
-        }
-    }
+    private static void ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue) =>
+        SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
     private const int OwtchMaximumBurialDepth = OwtchEnemyState.OwtchMaximumBurialDepth;

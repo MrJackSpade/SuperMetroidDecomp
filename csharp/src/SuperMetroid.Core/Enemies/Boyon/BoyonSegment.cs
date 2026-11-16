@@ -8,10 +8,6 @@ internal enum BoyonSegment
 {
     /// <summary>The idle animation.</summary>
     Idle,
-    /// <summary>The loop.</summary>
-    IdleLoop,
     /// <summary>The bouncing animation.</summary>
     Bouncing,
-    /// <summary>The loop.</summary>
-    BouncingLoop,
 }

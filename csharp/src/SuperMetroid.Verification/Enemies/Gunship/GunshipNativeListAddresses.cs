@@ -16,7 +16,6 @@ internal static class GunshipNativeListAddresses
     internal static readonly NativeProgramEntry<GunshipSegment>[] Entries =
     [
         new NativeProgramEntry<GunshipSegment>(GunshipSegment.EntrancePadOpening, 0xa5be),
-        new NativeProgramEntry<GunshipSegment>(GunshipSegment.EntrancePadOpen, 0xa5e6),
         new NativeProgramEntry<GunshipSegment>(GunshipSegment.EntrancePadClosing, 0xa5ee),
         new NativeProgramEntry<GunshipSegment>(GunshipSegment.BottomEntrancePad, 0xa60e),
         new NativeProgramEntry<GunshipSegment>(GunshipSegment.TopHull, 0xa616),

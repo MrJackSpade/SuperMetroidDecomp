@@ -31,7 +31,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>What the enemy passes run for the body; fade completion stops its animation.</summary>
     public EnemyProcessing BodyProcessing { get; internal set; }
 
-    /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
+    /// <summary>Whether the body is drawn and still holds its place; fade completion hides it.</summary>
     public EnemyPresence BodyPresence { get; internal set; }
 
     /// <summary>Whether the body collides by its frames' hitboxes; cleared when the faded body becomes non-interactive.</summary>
@@ -46,7 +46,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation.</summary>
     public EnemyProcessing BrainProcessing { get; internal set; }
 
-    /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
+    /// <summary>Whether the brain is drawn and still holds its place; the end of rotting hides it.</summary>
     public EnemyPresence BrainPresence { get; internal set; }
 
     /// <summary>Whether the brain collides by its frames' hitboxes; cleared when the rot animation completes.</summary>
@@ -86,7 +86,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     public int ExplodedDoorReadyingElapsed { get; private set; }
 
     /// <summary>
-    /// Set when the decapitation step installs the brain-slot draw setup before the decapitated head
+    /// Set when the decapitation step installs the brain's draw setup before the decapitated head
     /// starts falling. The separate brain AI is not silently folded into the body phase.
     /// </summary>
     public bool BrainDrawSetupRequested { get; private set; }
@@ -196,7 +196,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The move-to-back step makes both enemy slots non-interactive and disables the shared
+        // The move-to-back step makes both enemies non-interactive and disables the shared
         // hitboxes on every call, then reuses the ordinary medium-speed backward
         // walk producer. Its target reached means X 40 has been reached/overshot; the new 128
         // timer falls through so the first smoky explosion and decrement happen now.
@@ -347,7 +347,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathRealizeDecapitation()
     {
-        // The body starts the decapitated animation and a separate brain-slot draw
+        // The body starts the decapitated animation and a separate brain draw
         // setup, starts the brain falling from rest, then falls through immediately.
         _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;
@@ -610,7 +610,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathBlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The door explosion invokes the ordinary highest-free-slot allocator eight times with
+        // The door explosion spawns eight projectiles in the highest free places, as every spawn does, with
         // door fragments zero through seven. Allocation success is intentionally decided
         // by the shared enemy-projectile system, not assumed by the boss actor.
         foreach (MotherBrainDoorFragmentDefinition fragment in MotherBrainDoorFragmentDefinitions.Fragments)

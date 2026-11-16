@@ -24,50 +24,76 @@ internal static class DragonAnimationDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, selector),
                 $"Dragon animation selector {selector}");
-            AssertEqual(Selector(index & ~1),
-                DragonPhases.WithFacing(selector, facingLeft: true),
-                $"Dragon left-facing mapping {selector}");
-            AssertEqual(Selector(index | 1),
-                DragonPhases.WithFacing(selector, facingLeft: false),
-                $"Dragon right-facing mapping {selector}");
-            AssertEqual(Selector(4 | (index & 1)),
-                DragonPhases.AttackingWithSameFacing(selector),
-                $"Dragon attack mapping {selector}");
-            AssertEqual(Selector(index & 1),
-                DragonPhases.IdleWithSameFacing(selector),
-                $"Dragon idle mapping {selector}");
+        }
+        foreach (bool facingLeft in new[] { true, false })
+        {
+            int side = facingLeft ? 0 : 1;
+            AssertEqual(Selector(side), DragonPhases.Idle(facingLeft), $"Dragon idle facing left {facingLeft}");
+            AssertEqual(Selector(2 | side), DragonPhases.Wings(facingLeft), $"Dragon wings facing left {facingLeft}");
+            AssertEqual(Selector(4 | side), DragonPhases.Attacking(facingLeft), $"Dragon attack facing left {facingLeft}");
         }
 
         Suite(nameof(VerifyAllDragonAnimationInstalls), () => VerifyAllDragonAnimationInstalls());
         Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: false));
         Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: true));
 
-        Suite(nameof(VerifyDragonReinstallRequest), () => VerifyDragonReinstallRequest());
+        Suite(nameof(VerifyDragonRequestForPlayingAnimation), () => VerifyDragonRequestForPlayingAnimation());
+        Suite(nameof(VerifyDragonAttackStartsOverAfterFireball), () => VerifyDragonAttackStartsOverAfterFireball());
         Console.WriteLine(
-            "Dragon animation definitions: six native selectors, phase/facing mappings, all six installs, the reinstall request, and both live body/wing facing and attack handoffs pass with the pointer table forbidden.");
+            "Dragon animation definitions: six native selectors, phase/facing mappings, all six installs, a request for the playing animation, the attack starting over after each fireball, and both live body/wing facing and attack handoffs pass with the pointer table forbidden.");
     }
 
     /// <summary>The animation the cartridge's table ordinal <paramref name="index"/> names.</summary>
     private static DragonSegment Selector(int index) =>
         DragonNativeWords.Animations.Decode(index, "Dragon animation ordinal");
 
-    /// <summary>
-    /// A request for the installed animation installs nothing, unless a reinstall was requested: then the animation
-    /// restarts and the request is spent.
-    /// </summary>
-    private static void VerifyDragonReinstallRequest()
+    /// <summary>A request for the animation a part plays leaves it playing where it stands and its frame timer as it is (#2145).</summary>
+    private static void VerifyDragonRequestForPlayingAnimation()
     {
         RoomEnemyPlace place = NewDragonAnimationPlace(0);
         DragonPartState state = NewDragonAnimationState();
-        state.RequestedAnimation = DragonSegment.AttackingFacingLeft;
-        state.InstalledAnimation = DragonSegment.AttackingFacingLeft;
-        DragonBehavior.StartDragonAnimation(place, state);
-        AssertEqual(0x2222, place.AnimationClock.Hold.RawValue, "Dragon installs nothing for the installed animation");
+        var playing = new AnimationPlayback<DragonSegment>(DragonAnimations.StartingWith(DragonSegment.AttackingFacingLeft), new AnimationPlace(0, 2));
+        state.Playback = playing;
+        DragonBehavior.StartDragonAnimation(place, state, DragonSegment.AttackingFacingLeft);
+        AssertEqual(playing, state.Playback, "Dragon keeps playing the requested animation where it stands");
+        AssertEqual(0x2222, place.AnimationClock.Hold.RawValue, "Dragon installs nothing for the playing animation");
+    }
 
-        state.ReinstallRequested = true;
-        DragonBehavior.StartDragonAnimation(place, state);
-        AssertDragonAnimationHandoff(place, state, DragonSegment.AttackingFacingLeft, "Dragon reinstall request");
-        AssertEqual(false, state.ReinstallRequested, "Dragon reinstall request is spent by the install");
+    /// <summary>
+    /// The update a finished attack spits its fireball, the attack rests on its last pose; the next update it starts over,
+    /// which spaces the three fireballs by a whole attack animation (#2145; the cartridge clears the installed ordinal).
+    /// </summary>
+    private static void VerifyDragonAttackStartsOverAfterFireball()
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
+        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
+        body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
+        wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
+        enemies.DragonBehavior.InitializeDragon(body);
+        enemies.DragonBehavior.InitializeDragon(wing);
+        DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0].");
+        Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonSegment.AttackingFacingRight);
+        var playedOut = new AnimationPlayback<DragonSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
+        bodyState.Action = DragonAction.Attacking;
+        bodyState.FacingLeft = false;
+        bodyState.AttackCounter = 3;
+        bodyState.AnimationFinished = true;
+        bodyState.Playback = playedOut;
+
+        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        AssertEqual(2, bodyState.AttackCounter, "the finished attack spits a fireball");
+        AssertEqual(playedOut, bodyState.Playback, "the attack rests on its last pose the update it spits");
+
+        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        AssertDragonAnimationHandoff(body, bodyState, DragonSegment.AttackingFacingRight, "the attack after a fireball");
+        AssertEqual(2, bodyState.AttackCounter, "the restarted attack spits nothing until it finishes again");
+
+        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
+        AssertEqual(new AnimationPlayback<DragonSegment>(attack, AnimationPlace.StartOfAnimation), bodyState.Playback,
+            "the restarted attack asked for again plays on where it stands");
     }
 
     /// <summary>Forces each selector into a fresh slot to confirm pointer and timer installation.</summary>
@@ -78,9 +104,7 @@ internal static class DragonAnimationDefinitionsVerification
             DragonSegment requested = Selector(index);
             var place = NewDragonAnimationPlace(0);
             DragonPartState state = NewDragonAnimationState();
-            state.RequestedAnimation = requested;
-            state.ReinstallRequested = true;
-            DragonBehavior.StartDragonAnimation(place, state);
+            DragonBehavior.StartDragonAnimation(place, state, requested);
             AssertDragonAnimationHandoff(place, state, requested, $"Dragon {requested}");
         }
     }
@@ -150,7 +174,7 @@ internal static class DragonAnimationDefinitionsVerification
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
     private static DragonWingState NewDragonAnimationState() => new();
 
-    /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
+    /// <summary>Confirms the requested animation started from its beginning, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(
         RoomEnemyPlace place,
         DragonPartState state,
@@ -158,10 +182,6 @@ internal static class DragonAnimationDefinitionsVerification
         string context,
         ushort expectedFrameHold = 1)
     {
-        AssertEqual(expected, state.RequestedAnimation,
-            $"{context} requested selector");
-        AssertEqual(expected, state.InstalledAnimation,
-            $"{context} installed selector");
         AssertEqual(new AnimationPlayback<DragonSegment>(DragonAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");

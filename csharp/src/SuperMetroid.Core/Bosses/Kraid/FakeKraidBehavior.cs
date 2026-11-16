@@ -310,7 +310,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Mini-Kraid's shared death reaction: the enemy's death spawns death
     /// explosion and clears the place, then the death drop
     /// scatters four pickups from the coordinates saved before the shot AI.
-    /// The explosion therefore takes the first free projectile slot.
+    /// The explosion therefore takes the first free projectile place.
     /// </summary>
     private void KillFakeKraid(RoomEnemyPlace place, SamusState samus)
     {

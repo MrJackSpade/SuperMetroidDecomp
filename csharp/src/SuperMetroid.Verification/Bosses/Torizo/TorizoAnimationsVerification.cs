@@ -519,6 +519,8 @@ internal static class TorizoAnimationsVerification
                         plays = pending ?? 1;
                         pending = null;
                         break;
+                    case NativeEnemyControlKind.LoopStart:
+                        throw new InvalidDataException("The Torizo list reader reads no goto back into a list's own beats (#2144).");
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");
                 }

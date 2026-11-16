@@ -52,4 +52,7 @@ public static class PuyoHopDefinitions
     /// in two.
     /// </summary>
     internal static readonly RandomChance BigDroppedBounce = RandomChance.Highest(1, HopRollParity);
+
+    /// <summary>The farthest place along the quadratic speed curve, mark 64, an airborne Puyo's speed is read from.</summary>
+    internal static QuadraticSpeedCurvePlace FastestSpeedPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);
 }

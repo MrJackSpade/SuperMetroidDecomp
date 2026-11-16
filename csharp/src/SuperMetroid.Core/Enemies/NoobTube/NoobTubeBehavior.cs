@@ -25,7 +25,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     /// <summary>Allocates and advances crack, glass shard, and released-air-bubble projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Binds projectile initialization to the loaded room and its projectile slots.</summary>
+    /// <summary>Binds projectile initialization to the loaded room and its projectiles.</summary>
     internal NoobTubeBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;

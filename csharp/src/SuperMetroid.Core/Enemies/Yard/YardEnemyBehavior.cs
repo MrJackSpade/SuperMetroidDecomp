@@ -658,7 +658,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         AdmitsBombFamilies = true,
         // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
         // but every other colliding shot merely kicks the shell into the air. This occurs after projectile
-        // impact, exactly where the collision pass has already accepted the collision index.
+        // impact, once the collision pass has accepted the collision.
         BeforeVulnerability = (in EnemyShotContext c) =>
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)

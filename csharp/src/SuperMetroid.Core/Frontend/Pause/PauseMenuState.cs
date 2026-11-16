@@ -168,7 +168,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <param name="newlyPressedInput">The buttons newly pressed this update, which the equipment page reads.</param>
     /// <param name="heldInput">The ordinary held buttons, which the map's scroll arrows read.</param>
     /// <param name="frameCycle">The runtime's short frame counter, the colour animation's phase.</param>
-    /// <param name="bombs">Samus's bomb slots frozen under the pause, which a same-frame toggle into the first reserve row repaints (#1505).</param>
+    /// <param name="bombs">Samus's bombs frozen under the pause, which a same-frame toggle into the first reserve row repaints (#1505).</param>
     public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton heldInput, int frameCycle,
         SamusBombProjectileSystem bombs)
     {

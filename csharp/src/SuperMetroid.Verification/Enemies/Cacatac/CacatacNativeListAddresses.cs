@@ -19,7 +19,6 @@ internal static class CacatacNativeListAddresses
         new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideUpIdle, 0x9e8a),
         new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideUpAttack, 0x9eb0),
         new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownIdle, 0x9eda),
-        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownIdleLoop, 0x9edc),
         new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownAttack, 0x9f00),
     ];
 

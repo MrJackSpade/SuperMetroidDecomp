@@ -195,7 +195,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= level.Size.X ||
                 (uint)row >= level.Size.Y ||
-                level.GetCollisionBlock(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(row))).Terrain.StopsAttachment)
+                level.GetCollisionBlock(new(column, row)).Terrain.StopsAttachment)
             {
                 return true;
             }
@@ -228,7 +228,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= level.Size.X ||
                 (uint)row >= level.Size.Y ||
-                level.GetCollisionBlock(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(row))).Terrain.StopsAttachment)
+                level.GetCollisionBlock(new(column, row)).Terrain.StopsAttachment)
             {
                 return true;
             }
@@ -254,7 +254,7 @@ internal sealed class EnemyTerrain
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
             if ((uint)blockX >= level.Size.X ||
-                level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY))).Terrain.StopsAttachment)
+                level.GetCollisionBlock(new(blockX, blockY)).Terrain.StopsAttachment)
                 return true;
         }
         return false;
@@ -556,7 +556,7 @@ internal sealed class EnemyTerrain
             return false;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
         if (block.CollisionType != RoomCollisionType.Slope ||
             !block.Behavior.Slope.IsNonSquare)
             return false;

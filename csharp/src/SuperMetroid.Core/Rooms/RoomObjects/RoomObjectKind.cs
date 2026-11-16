@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The kind of a room object, what it is: the thing a room population places, a door, item or block reaction leaves, or a scripted
-/// scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by member, and
-/// verification maps the game's identities through its own table. <see cref="None"/> marks a place in
+/// scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by member.
+/// <see cref="None"/> marks a place in
 /// the room's update order that holds no identified object.
 /// </summary>
 /// <remarks>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's death sequence state outside his enemy slots: the bridge collapse, the acid, the melt's passes, the
+/// Crocomire's death sequence state outside his enemy places: the bridge collapse, the acid, the melt's passes, the
 /// hidden wall's rumble and the baring of his skeleton.
 /// </summary>
 public sealed class CrocomireDeathState

@@ -190,9 +190,6 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorMetroidElectricityArc16By6Anchored0By4, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityArc16By8Anchored0By4, 2),
             Show(EnemyFrameId.EffectActorEmpty, 7),
-        ],
-        [P.MetroidElectricityLoop] =
-        [
             Show(EnemyFrameId.EffectActorMetroidElectricityArc23By21Anchored8By20, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityArc22By22Anchored8By20, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityArc24By23Anchored8By20, 4),
@@ -259,9 +256,6 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorEmpty, 1),
             Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
             Show(EnemyFrameId.EffectActorEmpty, 1),
-        ],
-        [P.MetroidShellLoop] =
-        [
             Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
             Show(EnemyFrameId.EffectActorEmpty, 1),
             Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
@@ -342,10 +336,8 @@ internal static class RoomEffectActorAnimations
         [P.PuromiLeftExplosion] = new([new(P.PuromiLeftExplosion, 0, 7, 1)], AnimationEnd.Stops),
         [P.PuromiSplash] = new([new(P.PuromiSplash, 0, 5, 1)], AnimationEnd.Stops),
         [P.FallingSparkTrail] = new([new(P.FallingSparkTrail, 0, 4, 1)], AnimationEnd.Stops),
-        [P.MetroidElectricity] = new([new(P.MetroidElectricity, 0, 31, 1), new(P.MetroidElectricityLoop, 0, 31, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MetroidElectricityLoop] = new([new(P.MetroidElectricityLoop, 0, 31, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetroidShell] = new([new(P.MetroidShell, 0, 32, 1), new(P.MetroidShellLoop, 0, 30, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MetroidShellLoop] = new([new(P.MetroidShellLoop, 0, 30, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetroidElectricity] = new([new(P.MetroidElectricity, 0, 31, 1), new(P.MetroidElectricity, 31, 31, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MetroidShell] = new([new(P.MetroidShell, 0, 32, 1), new(P.MetroidShell, 32, 30, 1)], AnimationEnd.LoopsFrom(1)),
         [P.YappingMawBaseFacingDown] = new([new(P.YappingMawBaseFacingDown, 0, 1, 1)], AnimationEnd.Holds),
         [P.YappingMawBaseFacingUp] = new([new(P.YappingMawBaseFacingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.EvirFacingLeft] = new([new(P.EvirFacingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),

@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>Fixed launch magnitudes for the three Rio families, each with its own behaviour.</summary>
+/// <summary>
+/// Fixed launch magnitudes for the three Rio families, each with its own behaviour, how near Samus brings each to dive
+/// and how its dive slows (#2156).
+/// </summary>
 public static class RioLaunchDefinitions
 {
     /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>
@@ -36,4 +39,22 @@ public static class RioLaunchDefinitions
     /// Rio to attack.
     /// </summary>
     internal static readonly RandomSampleField AttackChanceHighBit = new(8, 1);
+
+    /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Rio dives.</summary>
+    internal const int RioTriggerDistance = 160;
+
+    /// <summary>How much a Rio's vertical speed falls each update of its dive and rebound, 24 256ths of a pixel.</summary>
+    internal static SignedEightEight RioGravity { get; } = SignedEightEight.FromParts(0, 24);
+
+    /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Norfair Rio may dive.</summary>
+    internal const int NorfairTriggerDistance = 192;
+
+    /// <summary>How much a Norfair Rio's vertical speed falls each update of its dive and return, an eighth of a pixel.</summary>
+    internal static SignedEightEight NorfairGravity { get; } = SignedEightEight.FromParts(0, 32);
+
+    /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Lower Norfair Rio may swoop.</summary>
+    internal const int LowerNorfairTriggerDistance = 112;
+
+    /// <summary>How much a Lower Norfair Rio's vertical speed falls each update of its flight, an eighth of a pixel.</summary>
+    internal static SignedEightEight LowerNorfairGravity { get; } = SignedEightEight.FromParts(0, 32);
 }

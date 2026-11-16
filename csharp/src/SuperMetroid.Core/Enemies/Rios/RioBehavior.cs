@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -31,23 +30,16 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
-    private const int RioTriggerDistance = 160;
-    /// <summary>Vertical velocity decrement applied during dive and rebound, 24 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight RioGravityStep = SignedEightEight.FromParts(0, 24);
-
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemyPlace place)
     {
         var state = new RioEnemyState(RioAction.WaitingForSamus)
         {
             AnimationFinished = false,
-            InstalledAnimation = null,
         };
         place.SetSpeciesState(state);
 
-        // The Rio's setup writes the animation directly rather than calling the animation starter. The installed animation must
-        // therefore remain none until the first behavioral transition starts a new animation.
+        // The Rio rests in its idle animation until its first swoop starts another.
         state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.Idle));
     }
 
@@ -70,7 +62,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         place.Position.X.Whole,
-                        RioTriggerDistance))
+                        RioLaunchDefinitions.RioTriggerDistance))
                 {
                     return;
                 }
@@ -122,7 +114,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
                 if (state.Velocity.Y.IsNegative)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
@@ -160,7 +152,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 else
                 {
-                    state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
+                    state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
                 }
                 return;
 
@@ -210,16 +202,12 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Installs an animation only when it actually changes.</summary>
+    /// <summary>Starts an animation only when it differs from the one playing (#2145).</summary>
     private static void StartRioAnimation(
         RoomEnemyPlace place,
         RioEnemyState state,
         RioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(RioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.StartingWith(segment));
 
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)

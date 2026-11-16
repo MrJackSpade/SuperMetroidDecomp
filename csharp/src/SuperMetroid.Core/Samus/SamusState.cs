@@ -264,15 +264,15 @@ public sealed class SamusState
     /// <summary>
     /// The fraction of one energy Samus holds beyond <see cref="Health"/>. The HUD shows only <see cref="Health"/>, but
     /// periodic damage takes its fraction from this one first (<see cref="TakeFractionalEnergyDamage"/>), so the damage
-    /// of one update is never rounded on its own; how it borrows is the compatibility layer's
+    /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
     public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
-    /// first, borrowing one more whole energy when it is more than the fraction held
-    /// (<see cref="PeriodicDamageEnergyFraction.Borrows"/>); the whole damage and any borrowed energy then come off
+    /// first, taking one more whole energy when it is more than the fraction held
+    /// (<see cref="PeriodicDamageEnergyFraction.Borrows"/>); the whole damage and that one energy then come off
     /// <see cref="Health"/>. A result below zero energy leaves no energy and no fraction instead.
     /// </summary>
     /// <param name="fraction">Fractional damage, 0 through one part short of an energy, in <see cref="PeriodicDamageEnergyFraction.PartsPerEnergy"/>ths.</param>

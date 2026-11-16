@@ -30,16 +30,9 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
             var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
-            var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
-            {
-                RequestedAnimation = animation,
-                InstalledAnimation = animation == MaridiaLargeSnailSegment.FacingRightIdle
-                    ? MaridiaLargeSnailSegment.FacingLeftIdle
-                    : MaridiaLargeSnailSegment.FacingRightIdle,
-            };
+            var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling);
             place.AnimationClock.HoldFor(0x1234);
-            MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state);
-            AssertEqual(animation, state.InstalledAnimation, $"Oum installed selector {animationIndex}");
+            MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, animation);
             AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(program), state.Playback.Animation) &&
                 state.Playback.Place == AnimationPlace.StartOfAnimation, $"Oum installed animation {animationIndex}");
             AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue, $"Oum instruction timer {animationIndex}");
@@ -54,20 +47,19 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         {
             int facing = left ? 1 : 0;
             AssertEqual(Index(facing), MaridiaLargeSnailAnimationChoices.Idle(left), $"Oum idle facing left {left}");
-            AssertEqual(Index(facing | 2), MaridiaLargeSnailAnimationChoices.RollingFrom(Index(facing)), $"Oum roll from idle facing left {left}");
+            AssertEqual(Index(facing | 2), MaridiaLargeSnailAnimationChoices.RollingForwards(left), $"Oum roll from idle facing left {left}");
             AssertEqual(Index((facing & 1) | 4), MaridiaLargeSnailAnimationChoices.Attacking(left), $"Oum attack facing left {left}");
-            AssertEqual(Index((facing | 4) - 2), MaridiaLargeSnailAnimationChoices.RollingAfter(Index(facing | 4)), $"Oum roll after attack facing left {left}");
-            foreach (int roll in new[] { facing | 2, facing | 6 })
-                AssertEqual(Index(roll ^ 4), MaridiaLargeSnailAnimationChoices.Reversed(Index(roll)), $"Oum reversed roll from index {roll}");
+            AssertEqual(Index((facing | 4) - 2), MaridiaLargeSnailAnimationChoices.RollingForwards(left), $"Oum roll after attack facing left {left}");
+            foreach (bool backwards in new[] { false, true })
+            {
+                int roll = facing | (backwards ? 6 : 2);
+                AssertEqual(Index(roll ^ 4), (backwards ? MaridiaLargeSnailAnimationChoices.RollingForwards(left) : MaridiaLargeSnailAnimationChoices.RollingBackwards(left)), $"Oum reversed roll from index {roll}");
+            }
             transitions += 6;
         }
-        foreach (MaridiaLargeSnailSegment notIdle in new[] { Index(2), Index(4), Index(6) })
-            AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailAnimationChoices.RollingFrom(notIdle), $"Oum starts rolling only from idle, not {notIdle}");
-        foreach (MaridiaLargeSnailSegment notAttack in new[] { Index(0), Index(2), Index(6) })
-            AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailAnimationChoices.RollingAfter(notAttack), $"Oum resumes rolling only after an attack, not {notAttack}");
-        foreach (MaridiaLargeSnailSegment notRoll in new[] { Index(0), Index(5) })
-            AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailAnimationChoices.Reversed(notRoll), $"Only a rolling Oum reverses, not {notRoll}");
         static MaridiaLargeSnailSegment Index(int index) => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index");
+
+        VerifyMaridiaLargeSnailSpawnIdle();
 
         foreach (MaridiaLargeSnailSegment attack in new[] { MaridiaLargeSnailSegment.FacingLeftAttacking, MaridiaLargeSnailSegment.FacingRightAttacking })
         {
@@ -102,6 +94,29 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MaridiaLargeSnailAnimations.Segments, roll)), $"Oum {roll} loop");
         }
         Console.WriteLine($"Maridia Large Snail: eight native selectors, installs, {transitions} index-arithmetic transitions, both attacks' splash and completion, and all four rolls' rotation windows and loops pass.");
+    }
+
+    /// <summary>
+    /// The spawned Oum shows its left-facing idle while it counts as facing right (#2145): asking for the right-facing idle
+    /// keeps that pose and its frame timer, asking for the left-facing idle starts it afresh, and from then on asking for
+    /// the animation playing leaves it running.
+    /// </summary>
+    private static void VerifyMaridiaLargeSnailSpawnIdle()
+    {
+        (_, RoomEnemyPlace place, MaridiaLargeSnailEnemyState state) = Create();
+        Animation<MaridiaLargeSnailSegment> leftIdle = MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailSegment.FacingLeftIdle);
+        var spawned = new AnimationPlayback<MaridiaLargeSnailSegment>(leftIdle, AnimationPlace.StartOfAnimation);
+        AssertEqual(spawned, state.Playback, "Oum spawns showing its left-facing idle");
+        place.AnimationClock.HoldFor(0x1234);
+        MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailSegment.FacingRightIdle);
+        AssertEqual(spawned, state.Playback, "the spawned Oum keeps its left-facing pose for the right-facing idle it counts as");
+        AssertEqual((ushort)0x1234, place.AnimationClock.Hold.RawValue, "the spawned Oum's frame timer runs on for the right-facing idle");
+        MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailSegment.FacingLeftIdle);
+        AssertEqual(spawned, state.Playback, "asking the spawned Oum for its left-facing idle starts that idle");
+        AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue, "asking the spawned Oum for its left-facing idle starts it afresh");
+        place.AnimationClock.HoldFor(0x1234);
+        MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailSegment.FacingLeftIdle);
+        AssertEqual((ushort)0x1234, place.AnimationClock.Hold.RawValue, "the started left-facing idle asked for again runs on");
     }
 
     /// <summary>An Oum after its real initializer.</summary>

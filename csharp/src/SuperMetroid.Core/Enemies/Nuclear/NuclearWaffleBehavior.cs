@@ -131,12 +131,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
     }
 
-    /// <summary>The number of damaging projectile links in the waffle's body.</summary>
-    private const int ProjectileLinkCount = 4;
-
-    /// <summary>The number of cosmetic effect-actor links interleaved with the projectile links.</summary>
-    private const int SpriteLinkCount = 3;
-
     /// <summary>Allocates the four damaging projectile links in association order, each at the head's starting point.</summary>
     private NuclearWaffleLink<EnemyProjectile>[] SpawnNuclearWaffleProjectileLinks(
         RoomEnemyPlace owner,
@@ -145,7 +139,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Each of the four links is spawned for its own place along the waffle's arm, in the order the update later
         // walks them from the last.
-        var links = new NuclearWaffleLink<EnemyProjectile>[ProjectileLinkCount];
+        var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
         for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
             EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();
@@ -178,7 +172,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         SpriteGraphics graphics)
     {
-        var links = new NuclearWaffleLink<RoomEffectActor>[SpriteLinkCount];
+        var links = new NuclearWaffleLink<RoomEffectActor>[NuclearWaffleDefinitions.SpriteLinks];
         for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
             links[segmentIndex] = new NuclearWaffleLink<RoomEffectActor>(_effectActors.SpawnRoomEffectActor(

@@ -41,7 +41,9 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(parameter);
             place.Bind(EnemyDefinitionId.Dachora, place.Definition);
             enemies.DachoraBehavior.InitializeDachora(place);
-            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Playback,
+            RoomEnemyPlace initialized = enemies.Places.InUpdateOrder[0];
+            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                initialized.EntityState<DachoraEntity, DachoraEnemyState>()?.Playback ?? initialized.EntityState<DachoraEntity, DachoraEchoState>()?.Playback,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 

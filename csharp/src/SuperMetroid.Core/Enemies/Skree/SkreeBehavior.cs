@@ -38,7 +38,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new SkreeEnemyState(SkreeAction.Idling)
         {
-            InstalledAnimation = SkreeMetareeSegment.SkreeIdling,
             AttackReady = false,
         };
         place.SetSpeciesState(state);
@@ -123,18 +122,12 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
     }
 
-    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
+    /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
     internal static void StartSkreeAnimation(
         RoomEnemyPlace place,
         SkreeEnemyState state,
-        SkreeMetareeSegment animation)
-    {
-        if (animation == state.InstalledAnimation)
-            return;
-
-        state.InstalledAnimation = animation;
-        state.Playback = EnemyAnimationPlayback.Start(place, SkreeMetareeAnimations.StartingWith(animation));
-    }
+        SkreeMetareeSegment animation) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Skree's main AI.</summary>
     internal void RunSkreeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

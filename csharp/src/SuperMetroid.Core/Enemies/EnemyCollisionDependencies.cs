@@ -30,7 +30,7 @@ internal sealed record EnemyCollisionDependencies
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Place table.</summary>
+    /// <summary>The room's enemy places.</summary>
     public required EnemyPlaces Places { get; init; }
 
     /// <summary>The power bomb's sweep radius after a kill, shared with the deaths that record kills.</summary>

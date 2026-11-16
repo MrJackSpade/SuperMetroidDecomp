@@ -75,20 +75,74 @@ internal static class DachoraMotionStateVerification
             new FrameCounters(0));
         foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, DachoraEnemyState state) = NewDachora(parameter: ushort.MaxValue);
-            AssertEqual(DachoraAction.Echo, state.Action, "a negative parameter makes an echo");
-            state.EchoLifetime = lifetime;
+            (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter: ushort.MaxValue);
+            DachoraEchoState state = place.SpeciesState<DachoraEchoState>() ?? throw new InvalidOperationException("A negative parameter makes an echo.");
+            state.Lifetime = lifetime;
 
             enemies.DachoraBehavior.RunDachoraMainAi(place, frame);
 
-            AssertEqual(expected, state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
+            AssertEqual(expected, state.Lifetime, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, place.Presence.HasAny(EnemyPresence.Hidden), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");
     }
 
-    /// <summary>An initialized Dachora with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
+    /// <summary>
+    /// The body spaces its trail itself (#2147): the launch clears its trail timer, so its first shinespark update places
+    /// the first echo, the next places none, and the one after places the second echo, while the echoes keep only their
+    /// lives.
+    /// </summary>
+    internal static void VerifyDachoraTrailSpacing()
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        for (int slot = 0; slot < 5; slot++)
+        {
+            RoomEnemyPlace part = enemies.Places.InUpdateOrder[slot];
+            part.Bind(EnemyDefinitionId.Dachora, part.Definition);
+            part.SetSpawnParameter1(EnemyDefinitionId.Dachora, slot == 0 ? (ushort)1 : ushort.MaxValue);
+            part.Radius = new(8, 8);
+        }
+        for (int slot = 0; slot < 5; slot++)
+            enemies.DachoraBehavior.InitializeDachora(enemies.Places.InUpdateOrder[slot]);
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        DachoraEnemyState state = body.RequireSpeciesState<DachoraEnemyState>();
+        DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => enemies.Places.InUpdateOrder[slot].RequireSpeciesState<DachoraEchoState>())];
+        foreach (DachoraEchoState echo in echoes)
+            echo.Lifetime = 3;
+        state.TrailTimer = 5;
+        body.Position = body.Position.WithWhole(new(64, 128));
+        state.Action = DachoraAction.ChargingShinespark;
+        state.StartCharging(1);
+
+        var frame = new ClockedEnemyAiFrame(
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
+            new FrameCounters(0));
+        enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
+        AssertEqual(DachoraAction.Shinesparking, state.Action, "the charge launches the shinespark");
+        AssertEqual(0, state.TrailTimer, "the launch clears the body's trail timer");
+        AssertTrue(echoes.All(echo => echo.Lifetime == 0), "the launch frees every echo");
+
+        int[][] lives = [[8, 0, 0, 0], [8, 0, 0, 0], [8, 8, 0, 0]];
+        int[] timers = [1, 0, 1];
+        for (int update = 0; update < lives.Length; update++)
+        {
+            enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
+            AssertEqual(timers[update], state.TrailTimer, $"the body's trail timer after shinespark update {update}");
+            AssertEqual(string.Join(",", lives[update]), string.Join(",", echoes.Select(echo => echo.Lifetime)),
+                $"the echoes' lives after shinespark update {update}");
+        }
+        Console.WriteLine("  Dachora trail spacing: the body's own timer places an echo every second shinespark update.");
+    }
+
+    /// <summary>An initialized Dachora body with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
     private static NewDachoraResult NewDachora(ushort parameter)
+    {
+        (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter);
+        return new NewDachoraResult(enemies, place, place.RequireSpeciesState<DachoraEnemyState>());
+    }
+
+    /// <summary>An initialized Dachora body or echo with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
+    private static (RoomEnemySystem Enemies, RoomEnemyPlace Place) NewDachoraPlace(ushort parameter)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
@@ -96,7 +150,7 @@ internal static class DachoraMotionStateVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
         place.Radius = new(8, 8);
         enemies.DachoraBehavior.InitializeDachora(place);
-        return new NewDachoraResult(enemies, place, place.RequireSpeciesState<DachoraEnemyState>());
+        return (enemies, place);
     }
 
     /// <summary>Runs Dachora's motion-state and echo-lifetime checks.</summary>
@@ -105,6 +159,7 @@ internal static class DachoraMotionStateVerification
     {
         Suite(nameof(VerifyDachoraMotionState), () => VerifyDachoraMotionState());
         Suite(nameof(VerifyDachoraEchoLifetime), () => VerifyDachoraEchoLifetime());
+        Suite(nameof(VerifyDachoraTrailSpacing), () => VerifyDachoraTrailSpacing());
         return 0;
     }
 }

@@ -150,7 +150,7 @@ internal static class SamusGroundedPoseTransitions
     /// ahead in the CURRENT pose direction and maps the prospective pose without moving when
     /// one is hit. Otherwise it moves Samus that pixel, retains the move when clear, and maps
     /// the prospective pose's shot direction when a block stops it. The retained move is the
-    /// retail arm-pump bug.
+    /// game's arm pump.
     /// </remarks>
     public static SamusPoseId? CheckProspectiveRunningPoseForWall(
         SamusState samus,

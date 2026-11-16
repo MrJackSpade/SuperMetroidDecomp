@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
 /// The compatibility services and display policy a session runs against, fixed at construction. The game uses
-/// <see cref="Default"/>, the game's own timing with every gameplay frame captured; replay verification supplies
-/// recorded evidence instead, and simulation-only verification may retain the prior display.
+/// <see cref="Default"/>, the game's own timing with every gameplay frame captured; another host may supply its own
+/// timing or keep the display it last showed.
 /// </summary>
 internal sealed record SuperMetroidGameHostServices
 {

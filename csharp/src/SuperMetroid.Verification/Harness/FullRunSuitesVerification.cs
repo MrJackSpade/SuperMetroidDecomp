@@ -217,6 +217,7 @@ using static SuperMetroid.Verification.Samus.Movement.KnockbackHorizontalStopVer
 using static SuperMetroid.Verification.Samus.Movement.KnockbackShinesparkLaunchVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmSamusContactVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSamusContactVerification;
+using static SuperMetroid.Verification.Enemies.EnemyStandingVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundVerification;
@@ -1163,6 +1164,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySuitPickupPeriodicDamage), () => VerifySuitPickupPeriodicDamage()),
         new(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact()),
         new(nameof(VerifyShaktoolSamusContact), () => VerifyShaktoolSamusContact()),
+        new(nameof(VerifySamusStandingOnEnemy), () => VerifySamusStandingOnEnemy()),
         new(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots()),
         new(nameof(VerifyEnemyExtendedFrameDisplays), () => VerifyEnemyExtendedFrameDisplays()),
         new(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact()),

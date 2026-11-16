@@ -224,7 +224,7 @@ internal sealed class MotherBrainCombat
         // The shared no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
         if (projectileType.BeamCombination.HasPlasma)
-            head.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
+            head.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
         head.Health = damage >= head.Health
             ? 0
             : head.Health - damage;

@@ -31,29 +31,18 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
-    private const int MetareeHorizontalActivationDistance = 72;
-    /// <summary>Whole-pixel X steering toward Samus, reevaluated every airborne frame.</summary>
-    private const int MetareeHorizontalDiveSpeed = 2;
-    /// <summary>Ground-impact countdown before the actor deletes itself.</summary>
-    private const int MetareeBurrowLifetime = 21;
-    /// <summary>Burrow countdown value that spawns the particle burst.</summary>
-    private const int MetareeParticleFrame = 8;
-
     /// <summary>Starts the idle animation directly and initializes the place's dive, burrow, and animation-change state.</summary>
     internal static void InitializeMetaree(RoomEnemyPlace place)
     {
         var state = new MetareeEnemyState(MetareeAction.Idling)
         {
             BurrowTimer = 0,
-            InstalledAnimation = SkreeMetareeSegment.MetareeIdling,
             AttackReady = false,
             YVelocity = 0,
         };
         place.SetSpeciesState(state);
 
-        // The initializer starts the idle animation directly rather than through StartMetareeAnimation, which would
-        // leave the idle animation it records as installed unstarted.
+        // The initializer starts the idle animation directly, leaving the frame timer as the spawn set it.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
@@ -96,10 +85,10 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The proximity test computes a wrapped signed difference, takes its signed
         // absolute value, and compares it as a distance that is never negative. It notably does *not* check that
-        // Samus is below the actor; preserving that retail bug matters to the velocity math.
+        // Samus is below the actor, and the velocity math depends on that.
         int horizontalDistance = Math.Abs(
             CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole));
-        if (horizontalDistance >= MetareeHorizontalActivationDistance)
+        if (horizontalDistance >= MetareeMotionDefinitions.ActivationDistance)
             return;
 
         state.YVelocity = MetareeDiveSpeed.Of(place.Position.Y.Whole, samus.Position.Y.Whole);
@@ -130,7 +119,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The game reloads this every airborne frame. It becomes a countdown only after
         // the attachment probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = MetareeBurrowLifetime;
+        state.BurrowTimer = MetareeMotionDefinitions.BurrowLifetime;
 
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
@@ -150,8 +139,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0;
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
             (metareeIsLeftOfSamus
-                ? MetareeHorizontalDiveSpeed
-                : -MetareeHorizontalDiveSpeed));
+                ? MetareeMotionDefinitions.DiveSteer
+                : -MetareeMotionDefinitions.DiveSteer));
     }
 
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>
@@ -163,23 +152,17 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.BurrowTimer == MetareeParticleFrame)
+        if (state.BurrowTimer == MetareeMotionDefinitions.BurstCountdown)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, MetareeParticleDefinitions.Burst);
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
     }
 
-    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
+    /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
     internal static void StartMetareeAnimation(
         RoomEnemyPlace place,
         MetareeEnemyState state,
-        SkreeMetareeSegment animation)
-    {
-        if (animation == state.InstalledAnimation)
-            return;
-
-        state.InstalledAnimation = animation;
-        state.Playback = EnemyAnimationPlayback.Start(place, SkreeMetareeAnimations.StartingWith(animation));
-    }
+        SkreeMetareeSegment animation) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Metaree's main AI.</summary>
     internal void RunMetareeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

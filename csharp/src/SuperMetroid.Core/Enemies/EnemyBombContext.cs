@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One exploding normal bomb overlapping one enemy in the ordinary bomb pass.</summary>
 /// <param name="Enemy">The enemy whose selected shot reaction runs.</param>
-/// <param name="Bomb">The exploding bomb slot, already marked with its hit direction.</param>
-/// <param name="OrdinaryProjectiles">Samus's beam/missile slots (reactions read the first shot's aim).</param>
+/// <param name="Bomb">The exploding bomb, already marked with its hit direction.</param>
+/// <param name="OrdinaryProjectiles">Samus's beams and missiles (reactions read the first shot's aim).</param>
 /// <param name="Samus">Samus.</param>
 /// <param name="SelectedShot">The named reaction of the selected hitbox (the definition's on the radius path), if named.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>

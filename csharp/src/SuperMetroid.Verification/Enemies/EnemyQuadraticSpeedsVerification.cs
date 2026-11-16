@@ -12,7 +12,10 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Checks the quadratic speed rows and their Polyp, Beetom, Hopper, KiHunter, and Maw consumers.</summary>
 internal static class EnemyQuadraticSpeedsVerification
 {
-    /// <summary>Compares every row and its coarse speeds with the cartridge, then focused production integrations.</summary>
+    /// <summary>
+    /// Compares every row's speed, its stored negation with the speed negated at use (#2157), and its coarse speeds with
+    /// the cartridge, then focused production integrations.
+    /// </summary>
     internal static void VerifyCompiledQuadraticEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
@@ -20,8 +23,13 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
         {
             QuadraticCurveSpeed speeds = QuadraticSpeedCurve.AtMark(row);
-            AssertEqual(EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row), speeds, "quadratic speed row");
-            AssertEqual(EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, row), speeds, "quadratic projectile copy row");
+            foreach (int table in (int[])[EnemySpeedTableCodec.QuadraticTable, EnemySpeedTableCodec.QuadraticProjectileCopy])
+            {
+                (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = EnemySpeedTableCodec.QuadraticRow(cartridge, table, row);
+                AssertEqual(speeds.Speed, positive, $"quadratic speed row {row} at {table:X6}");
+                AssertEqual(speeds.Toward(EnemySpeedSign.Negative), negative,
+                    $"quadratic speed row {row} at {table:X6}: stored negation is the speed negated at use");
+            }
             foreach (EnemySpeedSign sign in signs)
                 AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), (int)unchecked((ushort)speeds.CoarseToward(sign)), "quadratic coarse speed");
         }
@@ -34,7 +42,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         foreach (EnemySpeedSign sign in signs)
         {
-            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index).Toward(sign).RawValue;
+            int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index, sign).RawValue;
             uint expected = unchecked(origin + (uint)speed);
             rock.Position = rock.Position.WithY(SixteenSixteenWords.ToCoordinate(origin));
             addRock(rock, QuadraticSpeedCurvePlace.FromMarks(index), sign);
@@ -107,7 +115,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
         foreach (EnemySpeedSign sign in signs)
         {
-            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign).RawValue;
+            int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, sign).RawValue;
             maw.Extension = SixteenSixteenWords.ToDisplacement(unchecked((int)start));
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             maw.QuadraticSpeedSign = sign;

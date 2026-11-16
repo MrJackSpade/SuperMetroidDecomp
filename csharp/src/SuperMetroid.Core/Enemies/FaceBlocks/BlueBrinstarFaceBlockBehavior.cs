@@ -62,8 +62,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         var state = new BlueBrinstarFaceBlockEnemyState();
         place.SetSpeciesState(state);
 
-        // The neutral animation is a one-frame neutral map followed by the common rest. All
-        // authored directional animations use the same neutral map as their first frame.
+        // The neutral animation is a one-frame neutral picture followed by the common rest. All
+        // authored directional animations show the same neutral picture as their first frame.
         state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial));
 
         // The initializer always restarts the glow's countdown, even before Samus has the Morph Ball, and starts the glow

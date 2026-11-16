@@ -40,11 +40,21 @@ internal static class EnemySpeedTableCodec
         return (LinearSpeed(cartridge, start), LinearSpeed(cartridge, start + NegativeOffset));
     }
 
-    /// <summary>Quadratic row <paramref name="row"/> of the table at <paramref name="table"/>.</summary>
-    public static QuadraticCurveSpeed QuadraticRow(IImportCartridgeSource cartridge, int table, int row)
+    /// <summary>Quadratic row <paramref name="row"/> of the table at <paramref name="table"/>: its speed and its stored negation.</summary>
+    public static (SignedSixteenSixteen Positive, SignedSixteenSixteen Negative) QuadraticRow(IImportCartridgeSource cartridge, int table, int row)
     {
         int start = table + row * RowBytes;
-        return new QuadraticCurveSpeed(QuadraticSpeed(cartridge, start), QuadraticSpeed(cartridge, start + NegativeOffset));
+        return (QuadraticSpeed(cartridge, start), QuadraticSpeed(cartridge, start + NegativeOffset));
+    }
+
+    /// <summary>
+    /// The speed quadratic row <paramref name="row"/> of the table at <paramref name="table"/> stores for the direction
+    /// <paramref name="sign"/> names: the row's speed, or its stored negation.
+    /// </summary>
+    public static SignedSixteenSixteen QuadraticSpeedToward(IImportCartridgeSource cartridge, int table, int row, EnemySpeedSign sign)
+    {
+        (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = QuadraticRow(cartridge, table, row);
+        return sign == EnemySpeedSign.Negative ? negative : positive;
     }
 
     /// <summary>The speed of the linear row that starts <paramref name="byteOffset"/> bytes into the table, as native enemy state records it.</summary>

@@ -50,15 +50,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ShuttersPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterShootable];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ShuttersEntity(this, place, common);
-
-    /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
-    private const int GrowingShutterSectionLength = 16;
-    /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
-    private const int GrowingShutterIntermediateInset = 7;
+    /// <summary>The growing shutter, a shootable vertical shutter or the Kamer that reuses it, or a destroyable vertical shutter (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Shutters definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.ShutterGrowing)
+            return new GrowingShutterEntity(this, place, common);
+        if (definition is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer)
+            return new ShootableShutterEntity(this, place, common);
+        if (definition == EnemyDefinitionId.ShutterDestroyable)
+            return new DestroyableShutterEntity(this, place, common);
+        throw new InvalidOperationException($"The Shutters species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Initializes the growing shutter.</summary>
     internal static void InitializeGrowingShutter(RoomEnemyPlace place)
@@ -178,7 +184,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         place.Position = place.Position.AdvanceY(state.GrowthSpeed);
-        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() + GrowingShutterSectionLength);
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() + GrowingShutterDefinitions.SectionLength);
 
         // The non-negative test returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
@@ -198,7 +204,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PreviousPosition = place.Position.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
-        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterSectionLength);
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterDefinitions.SectionLength);
         if (CoordinateAxis.Precedes(targetY, place.Position.Y.Whole))
         {
             CarrySamusWithGrowingShutter(place, state, samus);
@@ -210,8 +216,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The upward growth step: the exact signed 1/65536-pixel negation of the positive growth speed, borrowing one
-    /// whole pixel from the negated whole pixels whenever the fraction is nonzero.
+    /// The upward growth step: the exact signed 1/65536-pixel negation of the positive growth speed, one whole pixel
+    /// further up than the negated whole pixels whenever the fraction is nonzero.
     /// </summary>
     internal static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
         SignedSixteenSixteen.Zero - growthSpeed;
@@ -222,7 +228,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterEnemyState state,
         SamusState samus)
     {
-        if (!PlatformsBehavior.IsSamusRidingPlatform(place, samus))
+        if (!EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
         int wholeDelta = (place.Position.Whole - state.PreviousPosition).Y;
@@ -246,8 +252,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int placedY = finalSection
             ? targetY
             : CoordinateAxis.Wrap(targetY + (direction == VerticalDirection.Up
-                ? GrowingShutterIntermediateInset
-                : -GrowingShutterIntermediateInset));
+                ? GrowingShutterDefinitions.IntermediateInset
+                : -GrowingShutterDefinitions.IntermediateInset));
         place.Position = place.Position.WithWholeY(placedY);
         state.GrowthLevel += 1;
 
@@ -302,17 +308,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ReferenceEquals(SolidContactPlaceCombination.NamedPlace<ISolidEnemy>(samus.Kinematics.SolidEnemyContacts, _places.InUpdateOrder), place) &&
         samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
 
-    /// <summary>Tests the strict, wrapped absolute-X proximity threshold.</summary>
+    /// <summary>Whether Samus lies strictly within <paramref name="maximumDistance"/> of the shutter horizontally.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(
         RoomEnemyPlace place,
         SamusState samus,
-        int maximumDistance)
-    {
-        int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - place.Position.X.Whole);
-        if (CoordinateAxis.AsSigned(distance) < 0)
-            distance = CoordinateAxis.Wrap(-distance);
-        return distance < maximumDistance;
-    }
+        int maximumDistance) =>
+        CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < maximumDistance;
 
     /// <summary>
     /// Publishes the activation sound only when the shutter's centre lies in the enemies' square view, which reaches
@@ -565,7 +566,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalDirection direction)
     {
         state.PreviousPosition = place.Position.Whole;
-        state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(place, samus);
+        state.MovingSamus = EnemyCollision.IsSamusStandingOn(place, samus);
         place.Position = place.Position.AdvanceY(direction == VerticalDirection.Up ? state.UpVelocity : state.DownVelocity);
         CarrySamusVertically(place, state, samus);
 

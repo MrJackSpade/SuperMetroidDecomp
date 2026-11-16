@@ -14,7 +14,6 @@ internal static class EyeDoorProjectileNativeListAddresses
     internal static readonly NativeProgramEntry<EyeDoorProjectileSegment>[] Entries =
     [
         new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Initial, 0xb5d9),
-        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.FlyingLoop, 0xb5eb),
         new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Impact, 0xb5f3),
         new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Shot, 0xb603),
     ];

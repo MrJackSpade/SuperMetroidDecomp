@@ -29,6 +29,9 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
     internal override int MouthDrop => 0;
 
     /// <inheritdoc/>
+    internal override RoomEnemyProjectileKind Fireball => RoomEnemyProjectileKind.FuneFireball;
+
+    /// <inheritdoc/>
     internal override FuneNamiheSegment Animation => ShowsActiveAnimation
         ? FacingRight ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
         : FacingRight ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;

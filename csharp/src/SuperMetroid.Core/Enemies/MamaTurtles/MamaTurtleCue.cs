@@ -1,5 +1,18 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>One cue of the turtles' animations: what it does.</summary>
-/// <param name="Kind">What the cue does.</param>
-internal readonly record struct MamaTurtleCue(MamaTurtleCueKind Kind);
+/// <summary>One cue of the turtles' animations: what it does, with the values it acts on.</summary>
+internal abstract record MamaTurtleCue
+{
+    /// <summary>Closes the hierarchy to the cues declared here.</summary>
+    private MamaTurtleCue()
+    {
+    }
+
+    /// <summary>Starts the Mama Turtle's rise the way she leaves her shell facing, and continues at its spin (#2151).</summary>
+    /// <param name="Direction">The way she faces as she rises.</param>
+    internal sealed record RiseToHover(HorizontalDirection Direction) : MamaTurtleCue;
+
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
+    /// <param name="Kind">What the cue does.</param>
+    internal sealed record Signal(MamaTurtleCueKind Kind) : MamaTurtleCue;
+}

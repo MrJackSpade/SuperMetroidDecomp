@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainBodyAnimationState
 {
 
-    /// <summary>Mother Brain body enemy-slot whole-pixel room position.</summary>
+    /// <summary>Mother Brain's body's whole-pixel room position.</summary>
     public Position16<RoomPixels> Position { get; set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed class MotherBrainBodyAnimationState
     public MotherBrainBodySegment? Animation { get; private set; }
 
     /// <summary>
-    /// Requests a body animation; the physical body slot starts it on the next enemy
+    /// Requests a body animation; the room's body enemy starts it on the next enemy
     /// animation stage.
     /// </summary>
     public void SetAnimation(MotherBrainBodySegment segment) => Animation = segment;

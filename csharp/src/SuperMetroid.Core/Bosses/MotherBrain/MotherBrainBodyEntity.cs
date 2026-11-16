@@ -1,0 +1,63 @@
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
+
+namespace SuperMetroid.Core.Bosses.MotherBrain;
+
+/// <summary>
+/// Mother Brain's body (#2146): her fight, the shots her definition leaves to her, the dud her own shot reaction makes of
+/// a bomb, and the pictures she shows on her boss body layer.
+/// </summary>
+/// <param name="species">The MotherBrain species owner.</param>
+/// <param name="place">The place the body occupies.</param>
+/// <param name="common">The shared participation.</param>
+/// <param name="bossArtwork">The session's installed boss artwork.</param>
+internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : MotherBrainEntity(species, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
+{
+    /// <inheritdoc/>
+    public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMotherBrainBodyMainAi(Place, frame);
+
+    /// <inheritdoc/>
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceMotherBrainBodyTypedAnimation(Place, context);
+
+    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
+    public override EnemyReaction? SpeciesShot => MotherBrainReactions.BodyShot;
+
+    /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.BodyShotReaction : base.ShotReaction;
+
+    /// <summary>
+    /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the frame-hitbox bomb walker
+    /// has already marked the physical explosion, and the body's reaction does no health, phase or multipart work of its
+    /// own.
+    /// </summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context) =>
+        context.SelectedShot == MotherBrainReactions.BodyShot || base.TryReactToBomb(context);
+
+    /// <summary>
+    /// The shared Power Bomb reaction; the body leaves the blast to the species, which has no reaction to it, and fails
+    /// loudly if a blast reaches it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
+    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
+        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
+        : base.PowerBombReaction;
+
+    /// <inheritdoc/>
+    public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
+        MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
+
+    /// <summary>Shots meet the body's frames' hitboxes; its contact uses the definition's radius.</summary>
+    public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
+
+    /// <summary>The body's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == MotherBrainReactions.BodyShot;
+}

@@ -807,12 +807,12 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Steps the fresh-Ceres elevator arrival, which lowers Samus in the enemy-projectile slot before scrolling.</summary>
+    /// <summary>Steps the fresh-Ceres elevator arrival, which lowers Samus where the enemy projectiles run, before scrolling.</summary>
     private void StepCeresElevatorArrival(SamusState samus, bool deathOwnsSamus)
     {
         // Main gameplay runs enemy projectiles immediately after Samus's
         // movement phase and before the main scrolling. The two fresh-Ceres actors
-        // use that slot to lower Samus one pixel at a time; moving this call below the
+        // use that step to lower Samus one pixel at a time; moving this call below the
         // camera would make the viewport trail one frame behind the game.
         if (!deathOwnsSamus && Room.CeresElevatorArrival is { IsComplete: false } arrival)
         {

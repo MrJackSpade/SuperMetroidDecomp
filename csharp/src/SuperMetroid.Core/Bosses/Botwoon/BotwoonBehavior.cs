@@ -765,7 +765,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Applies the angle table's signed X/Y displacement to the head.</summary>
+    /// <summary>Moves the head by <paramref name="magnitude"/> along <paramref name="angle"/>.</summary>
     private static void AddBotwoonAngleVector(
         RoomEnemyPlace head,
         TrigonometryAngle angle,
@@ -866,7 +866,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         if (segment is null)
         {
             throw new InvalidOperationException(
-                "Botwoon requires thirteen free enemy-projectile slots during room load.");
+                "Botwoon requires thirteen free enemy-projectile places during room load.");
         }
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

@@ -19,7 +19,7 @@ internal static class FuneNamiheAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }));
         Console.WriteLine($"  Fune or Namihe animations: {Entries.Length} segments ({beats} beats) and {FuneNamiheAnimations.StartingAt.Count} animations match bank $A8.");

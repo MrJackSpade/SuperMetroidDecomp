@@ -24,8 +24,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Runs Ceres Ridley's shot-overlap seam against the five ordinary Samus
-    /// projectile slots. The shot response increments a dedicated counter and never
+    /// Runs Ceres Ridley's shot-overlap seam against Samus's five ordinary
+    /// projectile places. The shot response increments a dedicated counter and never
     /// subtracts enemy health; the projectile owner performs its normal explosion change.
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(

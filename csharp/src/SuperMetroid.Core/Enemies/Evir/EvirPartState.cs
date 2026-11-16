@@ -16,12 +16,14 @@ public abstract class EvirPartState
     /// <summary>The side the part faces: the body's own, which the arms and spit copy when they position themselves.</summary>
     public EvirFacing Facing { get; internal set; }
 
-    /// <summary>The last installed animation, not its advancing cursor; none forces installation of the requested one.</summary>
-    internal EvirSegment? InstalledAnimation { get; set; }
-
-    /// <summary>The animation requested by the part's current facing or the spit's phase; a changed request restarts the frame timer at one.</summary>
-    internal EvirSegment RequestedAnimation { get; set; }
-
-    /// <summary>The animation the part plays and where it stands in it (#1600), which its initialization installs.</summary>
+    /// <summary>The animation the part plays and where it stands in it (#1600), which its initialization starts.</summary>
     internal AnimationPlayback<EvirSegment> Playback { get; set; }
+
+    /// <summary>
+    /// Whether the part still shows the animation its initialization started (#2145). Its first request starts the
+    /// requested animation afresh even when it is that same animation, so the body's and arms' first update and the spit's
+    /// first launch restart the frame timer; a body that has not yet updated reads as facing left to its spit's
+    /// regeneration.
+    /// </summary>
+    internal bool ShowsSpawnAnimation { get; set; }
 }

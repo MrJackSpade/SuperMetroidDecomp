@@ -18,8 +18,10 @@ internal static class AnimalsNativeWords
         [DachoraAction.ChargingShinespark] = 0xf78f,
         [DachoraAction.Shinesparking] = 0xf806,
         [DachoraAction.Falling] = 0xf935,
-        [DachoraAction.Echo] = 0xf98c,
     });
+
+    /// <summary>The routine word a Dachora speed-boost echo's record names, the echo's flicker (#2147).</summary>
+    internal const ushort DachoraEchoRoutine = 0xf98c;
 
     /// <summary>
     /// The routine word naming each <see cref="EscapeEtecoonAction"/>: an Etecoon thanking Samus runs the routine that

@@ -77,9 +77,12 @@ internal static class SbugMovementDefinitionsVerification
         place.Position = place.Position.WithWhole(samus.Position.Whole);
         for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
         {
+            // The Sbug takes its activation behaviour from its placement when it is placed (#2063).
+            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
+            initialize(place);
+            place.Position = place.Position.WithWhole(samus.Position.Whole);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Action = SbugAction.WaitForSamus;
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
             runMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
 
             int address = activationTable + behavior * 2;

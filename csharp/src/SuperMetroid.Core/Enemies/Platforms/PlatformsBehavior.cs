@@ -27,20 +27,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue)
-    {
-        switch (cue.Kind)
-        {
-            case PlatformCueKind.MoveLeft:
-                SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Left);
-                break;
-            case PlatformCueKind.MoveRight:
-                SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Right);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PlatformCueKind)} {cue.Kind}.");
-        }
-    }
+    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue) =>
+        SetPlatformHorizontalMovementFromCue(place, cue.Movement);
 
     /// <summary>Runs the two entry points and common initializer.</summary>
     internal static void InitializePlatform(RoomEnemyPlace place)
@@ -63,8 +51,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
-        state.VerticallyMovingArtInstalled = false;
-        state.VerticallyStillArtInstalled = false;
+        state.VerticalArt = null;
         state.RestingY = CoordinateAxis.Wrap(place.Position.Y.Whole + 1);
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
@@ -80,7 +67,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every frame starts in the rising phase and changes to sinking only when the
         // exact asymmetric "Samus from below" test succeeds. This is also the solid-
         // platform riding gate; ordinary radius overlap would trigger from the sides.
-        state.YMovement = IsSamusRidingPlatform(place, samus)
+        state.YMovement = EnemyCollision.IsSamusStandingOn(place, samus)
             ? PlatformVerticalMovement.Sinking
             : PlatformVerticalMovement.Rising;
 
@@ -95,34 +82,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.YMovement != state.PreviousYMovement)
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.PreviousYMovement = state.YMovement;
-    }
-
-    /// <summary>Exact wrapped-coordinate test of Samus riding the platform from above.</summary>
-    internal static bool IsSamusRidingPlatform(RoomEnemyPlace place, SamusState samus)
-    {
-        int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - place.Position.X.Whole);
-        if (CoordinateAxis.AsSigned(xDistance) < 0)
-            xDistance = CoordinateAxis.Wrap(-xDistance);
-
-        // A distance within Samus's radius goes directly to the Y test. Otherwise the
-        // remainder must be strictly less than the platform radius; equality is not overlap.
-        if (xDistance >= samus.Kinematics.Radius.X)
-        {
-            int remainder = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
-            if (remainder >= place.Radius.X)
-                return false;
-        }
-
-        // The +3 bias requires Samus's center to remain above the enemy center. After taking
-        // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        int yDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - place.Position.Y.Whole);
-        if (CoordinateAxis.AsSigned(yDifference) >= 0)
-            return false;
-        int yDistance = CoordinateAxis.Wrap(-yDifference);
-        if (yDistance < samus.Kinematics.Radius.Y)
-            return true;
-        int yRemainder = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
-        return yRemainder <= place.Radius.Y;
     }
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
@@ -143,7 +102,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // A wall collision reverses the horizontal direction and immediately installs the opposite
-        // vertically-still animation. The first step of that animation republishes the same index
+        // vertically-still animation. The first step of that animation shows the same frame again
         // when the animations run later in this enemy frame.
         state.XMovement = movingLeft
             ? PlatformHorizontalMovement.Right
@@ -216,8 +175,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int preHorizontalX)
     {
-        // The sinking step performs a comparison followed by a call that does nothing; it
-        // has no branch or side effect. Sinking therefore always continues to acceleration.
+        // Sinking always accelerates.
         IncrementAndClampPlatformYSpeed(state);
 
         // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
@@ -251,33 +209,26 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YSpeedCurvePlace = state.MaximumYSpeedCurvePlace;
     }
 
-    /// <summary>Installs moving art once per phase and always clears the still-art flag, whichever art it installed.</summary>
+    /// <summary>Starts moving art once per moving phase, whatever art a wall has started since (#2145).</summary>
     private static void SetPlatformVerticallyMovingAnimation(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
-        if (!state.VerticallyMovingArtInstalled)
-        {
-            state.VerticallyMovingArtInstalled = true;
-            InstallPlatformVerticallyMovingForCurrentDirection(place, state);
-        }
-        // The direction cue runs after the already-installed branch target, so it executes even when
-        // no new animation was needed this frame.
-        state.VerticallyStillArtInstalled = false;
+        if (state.VerticalArt == PlatformVerticalArt.Moving)
+            return;
+        state.VerticalArt = PlatformVerticalArt.Moving;
+        InstallPlatformVerticallyMovingForCurrentDirection(place, state);
     }
 
-    /// <summary>Installs stationary art once per phase and always clears the moving-art flag.</summary>
+    /// <summary>Starts stationary art once per resting phase (#2145).</summary>
     private static void SetPlatformVerticallyStillAnimation(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
-        if (!state.VerticallyStillArtInstalled)
-        {
-            state.VerticallyStillArtInstalled = true;
-            InstallPlatformVerticallyStillForCurrentDirection(place, state);
-        }
-        // As in the moving helper, the opposite flag is always cleared, whichever art was installed.
-        state.VerticallyMovingArtInstalled = false;
+        if (state.VerticalArt == PlatformVerticalArt.Still)
+            return;
+        state.VerticalArt = PlatformVerticalArt.Still;
+        InstallPlatformVerticallyStillForCurrentDirection(place, state);
     }
 
     /// <summary>Selects the moving animation from suspensor identity and current horizontal direction.</summary>
@@ -312,7 +263,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
     }
 
-    /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
+    /// <summary>Replaces a frozen Tripper's frame after common Bomb reaction using its movement direction.</summary>
     internal static EnemyBombReaction TripperBombReaction { get; } = new()
     {
         AfterCommon = c =>
@@ -338,7 +289,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
+    /// <summary>Applies Tripper's direction-specific frozen frame after a successful common shot freeze.</summary>
     /// <remarks>Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
     /// frame with its direction's frozen frame.</remarks>
     internal static EnemyShotReaction TripperShotReaction { get; } = new()

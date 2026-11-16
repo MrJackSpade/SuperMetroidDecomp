@@ -19,7 +19,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives each eruption's sound in call order, as the game queues it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds paired Hibashi parts to the room enemy place table and the enemy audio queue.</summary>
+    /// <summary>Binds paired Hibashi parts to the room's enemy places and the enemy audio queue.</summary>
     internal HibashiBehavior(EnemyPlaces places, EnemyAudioQueue audio)
     {
         _places = places;
@@ -51,7 +51,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         HibashiSpawnSettings settings = place.SpawnSettings<HibashiSpawnSettings>();
 
-        // Every part starts with the one-frame hitbox map. Only the flame replaces it with
+        // Every part starts with the one-frame hitbox animation. Only the flame replaces it with
         // the eruption animation and initializes the state-machine values below.
         AnimationPlayback<HibashiSegment> hitboxMap = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
         if (settings.Part == HibashiPart.CollisionPart)

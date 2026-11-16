@@ -172,7 +172,7 @@ internal sealed class GateObjects
             DownwardGateTriggerBehavior.YellowLeft => plainPowerBomb,
 
             // The retail right-yellow gate triggers on everything but a power bomb, the opposite of the
-            // left one. Preserve that asymmetry even though it looks like a likely original bug.
+            // left one.
             DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
             _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),
         };

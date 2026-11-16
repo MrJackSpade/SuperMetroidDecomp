@@ -342,7 +342,7 @@ internal sealed class MotherBrainProjectiles
             int afterburnCount = bomb.StateOf<MotherBrainBombState>().Afterburns;
             DeleteMotherBrainBomb(bomb, state);
 
-            // The bomb's explosion clears the source slot before both allocations. They therefore use
+            // The bomb's explosion frees the bomb's place before both spawns. They therefore use
             // the normal descending shared-pool competition, including legitimate same-place
             // replacement that the outer scheduler will continue processing on this pass.
             // Its afterburn pair flies left and right.
@@ -705,7 +705,7 @@ internal sealed class MotherBrainProjectiles
         return true;
     }
 
-    /// <summary>Clears a bomb slot when its lifetime or collision ends.</summary>
+    /// <summary>Deletes a bomb when its lifetime or collision ends.</summary>
     private static void DeleteMotherBrainBomb(
         EnemyProjectile bomb,
         MotherBrainEnemyState state)
@@ -793,7 +793,7 @@ internal sealed class MotherBrainProjectiles
 
     /// <summary>
     /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds twelve
-    /// units of gravity per frame, and switches to its four-map splash at world Y 215.
+    /// units of gravity per frame, and switches to its four-frame splash at world Y 215.
     /// </summary>
     internal static void DropMotherBrainDrool(
         EnemyProjectile drool)

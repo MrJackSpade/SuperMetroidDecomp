@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Norfair Ridley's facing, which selects his arena targets, claw offsets and turning pose. The game's facing index
-/// for each belongs to verification (#1452).
+/// Norfair Ridley's facing, which selects his arena targets, claw offsets and turning pose.
 /// </summary>
 public enum RidleyFacing
 {

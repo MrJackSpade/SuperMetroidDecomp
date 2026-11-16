@@ -37,9 +37,6 @@ internal static class KagoBugProjectileAnimations
             Show(EnemyProjectileFrameId.KagoBugJumpStartFirst, 16),
             Show(EnemyProjectileFrameId.KagoBugJumpStartSecond, 5),
             Cue(new(K.StartJump)),
-        ],
-        [P.JumpLoop] =
-        [
             Hold(EnemyProjectileFrameId.KagoBugJumpLoop),
         ],
         [P.Shot] =
@@ -64,8 +61,7 @@ internal static class KagoBugProjectileAnimations
     {
         [P.Landed] = new([new(P.Landed, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Falling] = new([new(P.Falling, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.JumpStart] = new([new(P.JumpStart, 0, 3, 1), new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.JumpLoop] = new([new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.JumpStart] = new([new(P.JumpStart, 0, 4, 1)], AnimationEnd.Holds),
         [P.Shot] = new([new(P.Shot, 0, 8, 1)], AnimationEnd.Holds),
         [P.Waiting] = new([new(P.Waiting, 0, 1, 1)], AnimationEnd.Holds),
     };

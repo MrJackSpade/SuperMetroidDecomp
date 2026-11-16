@@ -15,6 +15,6 @@ public enum BoulderAction
     Falling,
     /// <summary>Follows terrain with vertical compensation and accelerates horizontally until wall collision hides and deletes the actor with a dust effect.</summary>
     Rolling,
-    /// <summary>Inert after the terminal rolling impact; no further movement occurs before slot cleanup.</summary>
+    /// <summary>Inert after the terminal rolling impact; the Boulder moves no further before it is removed.</summary>
     Inert,
 }

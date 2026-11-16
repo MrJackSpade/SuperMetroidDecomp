@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The phases Mother Brain's body runs; unrelated phases are not interchangeable.
-/// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
+/// Its values are arbitrary.
 /// </summary>
 public enum MotherBrainBodyPhase
 {

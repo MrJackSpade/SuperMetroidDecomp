@@ -35,9 +35,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision = collision;
     }
 
-    /// <summary>Head, five middle segments, and tail occupy consecutive enemy places.</summary>
-    private const int ShaktoolSegmentCount = 7;
-
     /// <summary>The whole step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
     private static RotationAngle OppositeOrbitStep(RotationAngle angle) =>
         (angle + RotationAngle.HalfTurn).WholeStep;
@@ -70,7 +67,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 "where both retail Shaktool room states place it.");
         }
         // The chain's places hold its segments in chain order, leading saw first.
-        RoomEnemyPlace[] chainPlaces = [owner, .. _places.ListedRunAfter(owner, ShaktoolSegmentCount - 1)];
+        RoomEnemyPlace[] chainPlaces = [owner, .. _places.ListedRunAfter(owner, ShaktoolSegmentDefinitions.SegmentCount - 1)];
         _chains.Place(place, new ShaktoolChainPlaces(
             Chain: [.. chainPlaces.Zip(ShaktoolSegmentDefinitions.Segments, (segment, definition) => new ShaktoolChainSegment(segment, definition))],
             Previous: _places.ListedBeforeOrNone(place, 1),
@@ -132,7 +129,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // the cleared coordinates.
         place.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToTrigonometryAngle()));
     }
-
 
     /// <summary>Runs the common orbit step.</summary>
     private void AdvanceShaktoolOrbit(RoomEnemyPlace place, ShaktoolSegmentState state)
@@ -447,7 +443,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (struckSegment.Health != 0)
             return;
-        foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentCount))
+        foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentDefinitions.SegmentCount))
         {
             segment.Contact = EnemyContact.None;
             segment.Processing = EnemyProcessing.None;

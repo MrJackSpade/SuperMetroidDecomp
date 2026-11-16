@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies.EffectActors;
+using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -240,7 +241,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = 5;
+            samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
         }
     }
 
@@ -564,23 +565,17 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Runs the death actor's two explosion cues. Both consume one object number the cue carries and one
-    /// random sample; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that sample's fields that offset X and Y
-    /// around the death actor, before both are centred back by <paramref name="center"/>.
-    /// Effect actors are separate from enemy projectiles, so these decorations never
-    /// consume one of the eighteen enemy-projectile places.
+    /// Runs the death actor's explosion-sprite cue. It consumes one object number the cue carries and one random sample;
+    /// <paramref name="spread"/>'s scatter fields read that sample's fields that offset X and Y around the death actor,
+    /// before both are centred back by its radius. Effect actors are separate from enemy projectiles, so these decorations
+    /// never consume one of the eighteen enemy-projectile places.
     /// </summary>
-    internal void SpawnRandomEnemyDeathSprite(
-        EnemyProjectile projectile,
-        RoomEffectActorKind kind,
-        RandomSampleField xScatter,
-        RandomSampleField yScatter,
-        int center)
+    internal void SpawnRandomEnemyDeathSprite(EnemyProjectile projectile, RoomEffectActorKind kind, EnemyDeathSpriteSpread spread)
     {
         int random = _room.Random.Generate();
         _ = _effectActors.SpawnRoomEffectActor(new(
-            CoordinateAxis.Wrap(projectile.Position.X.Whole + xScatter.Of(random) - center),
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole + yScatter.Of(random) - center)),
+            CoordinateAxis.Wrap(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
             kind, graphics: default);
     }
 

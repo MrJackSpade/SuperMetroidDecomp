@@ -227,8 +227,8 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>Moves the camera toward Samus until she lies within the grapple dead zone.</summary>
-    /// <remarks>The subtraction is unsigned: Samus left of or above the camera borrows and scrolls back, as do screen
-    /// offsets below the near edge; offsets at the far edge advance.</remarks>
+    /// <remarks>Samus left of or above the camera scrolls it back, as do screen offsets below the near edge; offsets at
+    /// the far edge advance it.</remarks>
     private static int StepTowardDeadZone(int camera, int samus, int nearEdge, int farEdge)
     {
         if (samus < camera)

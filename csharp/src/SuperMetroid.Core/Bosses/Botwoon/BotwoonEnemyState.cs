@@ -118,7 +118,7 @@ public sealed class BotwoonEnemyState
 
     /// <summary>The spawned body segment at <paramref name="index"/>; body movement runs only after all thirteen spawn.</summary>
     internal EnemyProjectile Segment(int index) => BodySegments[index] ??
-        throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
+        throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile place.");
 
     /// <summary>
     /// Whether each body segment is inside a hole: true means that body point is travelling inside the

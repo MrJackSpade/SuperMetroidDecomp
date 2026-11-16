@@ -10,8 +10,6 @@ internal enum EyeDoorProjectileSegment
 {
     /// <summary>The eye door's shot as it is fired.</summary>
     Initial,
-    /// <summary>The eye door's shot flying on, looping.</summary>
-    FlyingLoop,
     /// <summary>The eye door's shot exploding on impact.</summary>
     Impact,
     /// <summary>The eye door's shot when Samus shoots it.</summary>

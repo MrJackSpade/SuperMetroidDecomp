@@ -31,9 +31,9 @@ internal static class WalkingSpacePirateNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<WalkingSpacePirateCue>> Instructions = new()
     {
-        [0xfc68] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaserLeft>("V"),
-        [0xfc90] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaserRight>("V"),
-        [0xfcb8] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.Signal>("E", "a signal beginning a stand or walk", signal => signal.Kind is not WalkingSpacePirateCueKind.ChooseMovement),
+        [0xfc68] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaser>("V", "a laser to the left", laser => laser.Direction == HorizontalDirection.Left),
+        [0xfc90] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaser>("V", "a laser to the right", laser => laser.Direction == HorizontalDirection.Right),
+        [0xfcb8] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.Begin>("E"),
         [0xfcc8] = NativeCueShape<WalkingSpacePirateCue>.Exactly(new WalkingSpacePirateCue.Signal(WalkingSpacePirateCueKind.ChooseMovement)),
     };
 }

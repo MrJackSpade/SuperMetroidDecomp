@@ -18,9 +18,6 @@ internal static class BeetomAnimations
         [P.CrawlingLeft] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-        ],
-        [P.CrawlingLeftLoop] =
-        [
             Show(EnemyFrameId.BeetomCrawlingLeftLegsTucked, 10),
             Show(EnemyFrameId.BeetomCrawlingLeftLegsMid, 10),
             Show(EnemyFrameId.BeetomCrawlingLeftLegsOut, 10),
@@ -40,9 +37,6 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreen, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreenDim, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreen, 48),
-        ],
-        [P.DrainingLeftLoop] =
-        [
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemRedBright, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemRed, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemRedDim, 5),
@@ -51,9 +45,6 @@ internal static class BeetomAnimations
         [P.CrawlingRight] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-        ],
-        [P.CrawlingRightLoop] =
-        [
             Show(EnemyFrameId.BeetomCrawlingRightLegsTucked, 10),
             Show(EnemyFrameId.BeetomCrawlingRightLegsMid, 10),
             Show(EnemyFrameId.BeetomCrawlingRightLegsOut, 10),
@@ -73,9 +64,6 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomLatchedFacingRightGemGreen, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemGreenDim, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemGreen, 48),
-        ],
-        [P.DrainingRightLoop] =
-        [
             Show(EnemyFrameId.BeetomLatchedFacingRightGemRedBright, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemRed, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemRedDim, 5),
@@ -86,16 +74,12 @@ internal static class BeetomAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
-        [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 1, 1), new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CrawlingLeftLoop] = new([new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 1, 1), new(P.CrawlingLeft, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HopLeft] = new([new(P.HopLeft, 0, 5, 1)], AnimationEnd.Holds),
-        [P.DrainingLeft] = new([new(P.DrainingLeft, 0, 4, 1), new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.DrainingLeftLoop] = new([new(P.DrainingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.CrawlingRight] = new([new(P.CrawlingRight, 0, 1, 1), new(P.CrawlingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CrawlingRightLoop] = new([new(P.CrawlingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DrainingLeft] = new([new(P.DrainingLeft, 0, 4, 1), new(P.DrainingLeft, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingRight] = new([new(P.CrawlingRight, 0, 1, 1), new(P.CrawlingRight, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HopRight] = new([new(P.HopRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.DrainingRight] = new([new(P.DrainingRight, 0, 4, 1), new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.DrainingRightLoop] = new([new(P.DrainingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.DrainingRight] = new([new(P.DrainingRight, 0, 4, 1), new(P.DrainingRight, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

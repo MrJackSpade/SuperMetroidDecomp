@@ -272,8 +272,8 @@ internal sealed class MotherBrainHead
     /// <summary>Carries out one event of a brain animation.</summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
     /// <remarks>
-    /// The brain animation advances in her brain's draw, after the enemy update has collected the frame's legacy
-    /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
+    /// The brain animation advances in her brain's draw, after the enemy update has queued the frame's enemy
+    /// sounds, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue)
     {

@@ -34,9 +34,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         _ceilingTurn = ceilingTurn;
     }
 
-    /// <summary>Upper bound applied to the airborne speed-curve place when it selects a speed.</summary>
-    private static readonly QuadraticSpeedCurvePlace MaximumPuyoYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
-
     /// <summary>Initializes the Puyo.</summary>
     internal static void InitializePuyo(RoomEnemyPlace place)
     {
@@ -281,7 +278,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
-        QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
+        QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, PuyoHopDefinitions.FastestSpeedPlace).Speed;
         SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         if (verticalCollision)

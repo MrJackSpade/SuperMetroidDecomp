@@ -84,7 +84,7 @@ internal sealed class DraygonShots
                     AttachDraygonGoopToSamus(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
                     return;
                 case DraygonProjectileCue.SpawnDrops:
-                    // The drop is allocated before the deletion releases this projectile, preserving slot order.
+                    // The drop is spawned before the deletion frees this projectile's place, so it takes another place.
                     deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.DraygonEye, context.Samus);
                     return;
                 case DraygonProjectileCue.Delete:

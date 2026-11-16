@@ -34,7 +34,7 @@ internal sealed class EnemyFrameContext
     /// </summary>
     internal int FrameCounter { get; private set; }
 
-    /// <summary>Forces every enemy slot through the current pass when processing requires a full sweep.</summary>
+    /// <summary>Forces every enemy place through the current pass when processing requires a full sweep.</summary>
     internal bool ProcessAllEnemies { get; private set; }
 
     /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
@@ -47,7 +47,7 @@ internal sealed class EnemyFrameContext
     internal void BeginRoomLoad(bool deferLoaderTimeCameraReads) => DeferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
 
 
-    /// <summary>Forces every enemy slot through the passes that follow, as Draygon and Spore Spawn request.</summary>
+    /// <summary>Forces every enemy place through the passes that follow, as Draygon and Spore Spawn request.</summary>
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
     /// <summary>Enemy frame start: the freeze flag and the frame clock's count.</summary>

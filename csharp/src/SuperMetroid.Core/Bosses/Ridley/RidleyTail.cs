@@ -471,7 +471,7 @@ internal sealed class RidleyTail
             projectiles);
     }
 
-    /// <summary>Consumes the first colliding ordinary beam or missile slot at one armored joint and spawns its impact effect.</summary>
+    /// <summary>Consumes the first colliding ordinary beam or missile at one armored joint and spawns its impact effect.</summary>
     private bool TryBlockProjectileAtRidleyTailJoint(
         RidleyTailSegment joint,
         int radius,

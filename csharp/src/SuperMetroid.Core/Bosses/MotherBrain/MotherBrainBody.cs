@@ -166,7 +166,7 @@ internal sealed class MotherBrainBody
     {
         switch (cue)
         {
-            // Pose is shared encounter state, not a property of the displayed map. Body AI
+            // Pose is shared encounter state, not a property of the displayed frame. Body AI
             // waits on these exact values while the animation continues independently.
             case MotherBrainBodyCue.SetPose setPose:
                 state.Pose = setPose.Pose;
@@ -303,7 +303,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Runs the hand beam's charging initializer. The body—not the articulated
-    /// head—is the source: its extended map puts the hand at (+64,-48).
+    /// head—is the source: its frame puts the hand at (+64,-48).
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
         MotherBrainEnemyState state,

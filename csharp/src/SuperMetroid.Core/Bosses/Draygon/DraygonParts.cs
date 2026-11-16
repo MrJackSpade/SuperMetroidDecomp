@@ -68,52 +68,52 @@ internal sealed class DraygonParts
         Draygon.StartAnimation(body, DraygonSegment.BodyFacingLeftIdle);
     }
 
-    /// <summary>Runs the independent initializers.</summary>
-    internal void InitializeDraygonPart(RoomEnemyPlace part)
+    /// <summary>
+    /// The encounter a part other than the body joins as it sets up, which his body has set up first; the part's animation
+    /// steps on its next update.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The part sets up before his body.</exception>
+    private DraygonEnemyState JoiningPart(RoomEnemyPlace part)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before his body.");
-
         part.AnimationClock.StepOnNextUpdate();
-        switch (DraygonPartDefinitions.Parts[part.DefinitionId])
-        {
-            case DraygonPart.Eye:
-                // Inert until the body publishes facing AI.
-                var eyeState = new DraygonEyeState(DraygonEyeAction.Inert);
-                part.SetSpeciesState(eyeState);
-                state.Eye = part;
-                state.StartAnimation(part, DraygonSegment.EyeFacingLeftIdle);
-                return;
-
-            case DraygonPart.Tail:
-                state.Tail = part;
-                part.Shading = state.Colours.Sprites;
-                state.StartAnimation(part, DraygonSegment.TailFacingLeftInitialFakeWhip);
-                return;
-
-            case DraygonPart.Arms:
-                // Body init briefly writes a body phase before this part exists. Retail part init
-                // clears that lost write and installs the ordinary idle loop.
-                part.Shading = state.Colours.Sprites;
-                state.Arms = part;
-                state.StartAnimation(part, DraygonSegment.ArmsFacingLeftIdle);
-                return;
-
-            case DraygonPart.Body:
-            default:
-                throw new InvalidDataException(
-                    $"Enemy {part.DefinitionId} is not a Draygon part.");
-        }
+        return state;
     }
 
-    /// <summary>Runs the no-op tail/arms main AI and the active eye step.</summary>
-    internal void RunDraygonPartMain(RoomEnemyPlace part, SamusState samus)
+    /// <summary>Sets Draygon's eye up, inert until the body publishes facing AI.</summary>
+    internal void InitializeDraygonEye(RoomEnemyPlace eye)
     {
-        if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
-            return;
-        if (part.DefinitionId != EnemyDefinitionId.DraygonEye)
-            throw new InvalidDataException("Draygon part step received another family.");
+        DraygonEnemyState state = JoiningPart(eye);
+        var eyeState = new DraygonEyeState(DraygonEyeAction.Inert);
+        eye.SetSpeciesState(eyeState);
+        state.Eye = eye;
+        state.StartAnimation(eye, DraygonSegment.EyeFacingLeftIdle);
+    }
 
+    /// <summary>Sets Draygon's tail up, starting with its fake whip.</summary>
+    internal void InitializeDraygonTail(RoomEnemyPlace tail)
+    {
+        DraygonEnemyState state = JoiningPart(tail);
+        state.Tail = tail;
+        tail.Shading = state.Colours.Sprites;
+        state.StartAnimation(tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
+    }
+
+    /// <summary>Sets Draygon's arms up in their idle loop.</summary>
+    internal void InitializeDraygonArms(RoomEnemyPlace arms)
+    {
+        DraygonEnemyState state = JoiningPart(arms);
+        // Body init briefly writes a body phase before this part exists. Retail part init
+        // clears that lost write and installs the ordinary idle loop.
+        arms.Shading = state.Colours.Sprites;
+        state.Arms = arms;
+        state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftIdle);
+    }
+
+    /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
+    internal void RunDraygonEyeMain(RoomEnemyPlace part, SamusState samus)
+    {
         DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action;
         switch (action)
         {

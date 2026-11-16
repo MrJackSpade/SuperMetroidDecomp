@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class EnemyOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
-    /// <param name="magdolliteApexGrowth">Whether a Magdollite arm grows a final segment at its full height, by its slot.</param>
+    /// <param name="magdolliteApexGrowth">Whether a Magdollite arm grows a final segment at its full height, by its place.</param>
     /// <param name="fallingSparkUnauthoredLaunch">The drift a falling spark takes on the random choice past its authored launches.</param>
     internal EnemyOverreadServices(MagdolliteApexGrowth magdolliteApexGrowth, FallingSparkUnauthoredLaunch fallingSparkUnauthoredLaunch)
     {
@@ -17,7 +17,7 @@ public sealed class EnemyOverreadServices
         FallingSparkUnauthoredLaunch = Ensure.NotNull(fallingSparkUnauthoredLaunch);
     }
 
-    /// <summary>Whether a Magdollite arm grows one final segment on reaching its full height, by the slot it occupies.</summary>
+    /// <summary>Whether a Magdollite arm grows one final segment on reaching its full height, by the place it holds.</summary>
     internal MagdolliteApexGrowth MagdolliteApexGrowth { get; }
 
     /// <summary>The drift a falling spark takes when its random launch choice lies past the authored launches.</summary>

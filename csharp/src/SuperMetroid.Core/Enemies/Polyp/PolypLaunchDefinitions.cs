@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Polyp;
 
-/// <summary>Fixed launch/cooldown mechanics selected by three independent RNG draws.</summary>
+/// <summary>
+/// Fixed launch/cooldown mechanics selected by three independent RNG draws, how near Samus brings a launch and how its
+/// rock falls (#2156).
+/// </summary>
 public static class PolypLaunchDefinitions
 {
     /// <summary>The random number divided by two, modulo 8, selects the cooldown.</summary>
@@ -26,4 +29,16 @@ public static class PolypLaunchDefinitions
         -SignedEightEight.FromParts(0, 96), -SignedEightEight.FromParts(0, 112), -SignedEightEight.FromParts(0, 128), -SignedEightEight.FromParts(0, 144),
         -SignedEightEight.FromParts(0, 160), -SignedEightEight.FromParts(0, 176), -SignedEightEight.FromParts(0, 192), -SignedEightEight.FromParts(0, 208),
     ];
+
+    /// <summary>How close on each axis Samus comes, in pixels, for a Polyp to launch a rock.</summary>
+    internal const int LaunchReach = 64;
+
+    /// <summary>The seed every Polyp's initialization resets the enemies' shared random numbers to.</summary>
+    internal const int RandomSeed = 17;
+
+    /// <summary>How far each update moves a rock's place along the quadratic speed curve, two marks.</summary>
+    internal static QuadraticSpeedCurvePlace RockFallStep { get; } = QuadraticSpeedCurvePlace.FromMarks(2);
+
+    /// <summary>The place along the quadratic speed curve, mark 64, a falling rock stops accelerating at.</summary>
+    internal static QuadraticSpeedCurvePlace RockFastestFallPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);
 }

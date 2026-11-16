@@ -136,7 +136,7 @@ public sealed class SamusProjectile
     /// <summary>The expanding radius, in pixels, of a Shinespark crash echo.</summary>
     public int EchoRadius { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>The departure angle of a Shinespark crash echo, to the angle table's whole steps.</summary>
+    /// <summary>The departure angle of a Shinespark crash echo, in whole steps.</summary>
     public TrigonometryAngle EchoAngle { get; internal set; }
 
     /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot, from zero.</summary>

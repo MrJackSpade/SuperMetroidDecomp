@@ -15,16 +15,23 @@ public sealed class MaridiaLargeSnailEnemyState
     internal AnimationPlayback<MaridiaLargeSnailSegment> Playback { get; set; }
 
     /// <summary>
-    /// The animation the snail's behaviour asks for: idle facing Samus, a forward roll from idle, an attack facing Samus,
-    /// a forward roll again once the attack ends, and the opposite roll each time a roll meets a wall.
+    /// Whether Oum faces left: toward Samus while idle, the way it moves when it attacks, and as it faced then while it
+    /// rolls (#2145). It spawns facing right.
     /// </summary>
-    public MaridiaLargeSnailSegment RequestedAnimation { get; internal set; }
+    public bool FacesLeft { get; internal set; }
 
     /// <summary>
-    /// The requested animation the snail last started. Asking for it again leaves the playing animation running, and the
-    /// snail starts out holding the right-facing idle here while it shows the left-facing one.
+    /// Whether Oum's roll runs backwards: a roll from idle or after an attack runs forwards, and each wall it meets
+    /// reverses it (#2145).
     /// </summary>
-    public MaridiaLargeSnailSegment InstalledAnimation { get; internal set; }
+    public bool RollsBackwards { get; internal set; }
+
+    /// <summary>
+    /// Whether Oum still shows the left-facing idle it spawns with while it counts as facing right (#2145): until it first
+    /// starts an animation, asking for the right-facing idle keeps that left-facing one, and asking for the left-facing
+    /// idle starts it afresh.
+    /// </summary>
+    internal bool ShowsSpawnIdle { get; set; }
 
     /// <summary>Set by the attack animation's cue when it ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }

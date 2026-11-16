@@ -318,7 +318,7 @@ internal sealed class CrocomireBridgeCollapse
         if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The fragment counts as launched even when no projectile slot is free. The graphics argument the
+        // The fragment counts as launched even when no projectile place is free. The graphics argument the
         // passes alongside it is immaterial: the definition initializer immediately replaces it.
         death.BridgeFragmentsSpawned = fragment + 1;
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();

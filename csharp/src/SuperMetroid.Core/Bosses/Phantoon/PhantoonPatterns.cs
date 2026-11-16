@@ -746,7 +746,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
-    /// <returns>The flame, or null when every enemy projectile slot is in use.</returns>
+    /// <returns>The flame, or null when every enemy projectile place is in use.</returns>
     private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyPlace body)
     {
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();

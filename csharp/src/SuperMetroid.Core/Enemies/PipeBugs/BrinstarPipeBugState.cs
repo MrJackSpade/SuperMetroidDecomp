@@ -30,9 +30,6 @@ public sealed class BrinstarPipeBugState
     /// </summary>
     public bool FliesLeft { get; internal set; }
 
-    /// <summary>The animation the bug last started (#1810); asking for it again leaves it playing.</summary>
-    public PipeBugSegment InstalledAnimation { get; internal set; }
-
     /// <summary>
     /// The respawn countdown, in AI updates: started at 48 when the bug leaves the screen, and expiring when a decrement
     /// reaches zero.

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
-/// <summary>The wait between a WorkRobot's laser shots and where its lasers leave it.</summary>
+/// <summary>The wait between a WorkRobot's laser shots, where its lasers leave it and how fast they fly.</summary>
 internal static class WorkRobotLaserDefinitions
 {
     /// <summary>The fixed part of a firing WorkRobot's laser cooldown, in updates, to which <see cref="CooldownJitter"/> adds.</summary>
@@ -17,4 +17,13 @@ internal static class WorkRobotLaserDefinitions
     /// <see cref="CooldownBase"/>: the sample modulo 32.
     /// </summary>
     internal static readonly RandomSampleField CooldownJitter = new(0, 5);
+
+    /// <summary>How much longer a WorkRobot waits to fire after it turns at a wall or a ledge, in updates.</summary>
+    internal const int TurnDelay = 8;
+
+    /// <summary>How much longer a WorkRobot waits to fire after a shot strikes it, in updates.</summary>
+    internal const int RecoilDelay = 64;
+
+    /// <summary>How fast a WorkRobot's laser flies the way the robot faces, two pixels an update.</summary>
+    internal static SignedEightEight Speed { get; } = SignedEightEight.FromPixels(2);
 }

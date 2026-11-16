@@ -14,8 +14,6 @@ internal enum EtecoonSegment
     RunningLeft,
     /// <summary>The wall jump left animation.</summary>
     WallJumpLeft,
-    /// <summary>The wall jump left loop animation.</summary>
-    WallJumpLeftLoop,
     /// <summary>The hopping facing left animation.</summary>
     HoppingFacingLeft,
     /// <summary>The hop facing left, up to its crest and down again, which hitting a ceiling enters at the crest.</summary>

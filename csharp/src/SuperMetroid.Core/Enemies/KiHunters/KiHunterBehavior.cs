@@ -12,10 +12,23 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. KiHunterPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
+    [
+        EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRed,
+        EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings,
+    ];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new KiHunterEntity(this, place, common);
+    /// <summary>A body of any colour, or its wings (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Ki-Hunter definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterYellow)
+            return new KiHunterBodyEntity(this, place, common);
+        if (definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterRedWings or EnemyDefinitionId.KihunterYellowWings)
+            return new KiHunterWingsEntity(this, place, common);
+        throw new InvalidOperationException($"The Ki-Hunter species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;
@@ -53,7 +66,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private KiHunterSegment? ApplyKiHunterCue(RoomEnemyPlace place, KiHunterCue cue)
     {
-        switch (cue.Kind)
+        if (cue is KiHunterCue.Spit spit)
+        {
+            SpawnKiHunterAcidFromCue(place, direction: spit.Direction);
+            return null;
+        }
+        KiHunterCueKind kind = ((KiHunterCue.Signal)cue).Kind;
+        switch (kind)
         {
             case KiHunterCueKind.ReturnToFlying:
                 // The cue returns the body's flying animation while separately restarting the attached wings.
@@ -64,14 +83,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             case KiHunterCueKind.StartWinglessThinking:
                 StartKiHunterGroundWaitFromCue(place.RequireSpeciesState<KiHunterBodyState>());
                 return null;
-            case KiHunterCueKind.SpitLeft:
-                SpawnKiHunterAcidFromCue(place, direction: HorizontalDirection.Left);
-                return null;
-            case KiHunterCueKind.SpitRight:
-                SpawnKiHunterAcidFromCue(place, direction: HorizontalDirection.Right);
-                return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(KiHunterCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(KiHunterCueKind)} {kind}.");
         }
     }
 
@@ -791,31 +804,27 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the Ki-Hunter's main AI.</summary>
-    internal void RunKiHunterMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        if (place.SpeciesState<KiHunterWingState>() is { } wings)
-            RunKiHunterWingMain(place, wings, frame.Level);
-        else
-            RunKiHunterMain(place, place.RequireSpeciesState<KiHunterBodyState>(), frame.Samus, frame.Level);
-    }
+    /// <summary>Runs a Ki-Hunter body's main AI.</summary>
+    internal void RunKiHunterBodyMainAi(RoomEnemyPlace body, IEnemyAiFrame frame) =>
+        RunKiHunterMain(body, body.RequireSpeciesState<KiHunterBodyState>(), frame.Samus, frame.Level);
 
-    /// <summary>Advances the Ki-Hunter body's or wings' typed animation.</summary>
-    internal void AdvanceKiHunterTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
-    {
-        if (place.SpeciesState<KiHunterWingState>() is not null)
-        {
-            EnemyAnimationPlayback.Advance(place, KiHunterAnimations.Segments,
-                static (KiHunterWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
-                (state, cue) => throw new InvalidOperationException($"A Ki-Hunter wing animation raised {cue}."));
-            return;
-        }
-        EnemyAnimationPlayback.Advance(place, KiHunterAnimations.Segments,
+    /// <summary>Runs a Ki-Hunter's wings' main AI.</summary>
+    internal void RunKiHunterWingsMainAi(RoomEnemyPlace wings, IEnemyAiFrame frame) =>
+        RunKiHunterWingMain(wings, wings.RequireSpeciesState<KiHunterWingState>(), frame.Level);
+
+    /// <summary>Advances a Ki-Hunter's wings' cue-free typed animation.</summary>
+    internal static void AdvanceKiHunterWingsTypedAnimation(RoomEnemyPlace wings) =>
+        EnemyAnimationPlayback.Advance(wings, KiHunterAnimations.Segments,
+            static (KiHunterWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            (state, cue) => throw new InvalidOperationException($"A Ki-Hunter wing animation raised {cue}."));
+
+    /// <summary>Advances a Ki-Hunter body's typed animation, carrying out its cues.</summary>
+    internal void AdvanceKiHunterBodyTypedAnimation(RoomEnemyPlace body) =>
+        EnemyAnimationPlayback.Advance(body, KiHunterAnimations.Segments,
             static (KiHunterBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyKiHunterCue(place, cue) is { } target
+            (state, cue) => ApplyKiHunterCue(body, cue) is { } target
                 ? new AnimationContinuation<KiHunterSegment>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
-    }
 
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
     internal EnemyShotReaction KiHunterShotReaction => field ??= new()

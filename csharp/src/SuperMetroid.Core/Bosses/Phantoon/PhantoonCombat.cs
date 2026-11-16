@@ -371,7 +371,7 @@ internal sealed class PhantoonCombat
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared damage helper.
                     if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
+                        body.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;

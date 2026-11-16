@@ -246,10 +246,12 @@ internal sealed record PartFrameConfiguration(
         new("CeresDoorBehavior", null, null, "CeresDoorAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["CeresDoor"] = ["DoorFacingRight", "DoorFacingLeft"],
-                ["CeresRidleyRoomDoor"] = ["RidleyRoomDoor"],
+                // Each door's cues start, by name, the closing, closed and waiting animations of its facing (#2189).
+                ["CeresDoor"] = ["DoorFacingRight", "DoorFacingLeft", "CloseFacingRight", "CloseFacingLeft", "ClosedFacingRight",
+                    "ClosedFacingLeft", "ClosedFacingRightWait", "ClosedFacingLeftWait"],
+                ["CeresRidleyRoomDoor"] = ["RidleyRoomDoor", "RidleyRoomDoorWait"],
                 ["CeresElevatorDoor"] = ["ElevatorDoor"],
-                ["CeresElevatorRoomWall"] = ["ElevatorRoomWall"],
+                ["CeresElevatorRoomWall"] = ["ElevatorRoomWall", "DoorFacingLeft"],
                 ["CeresGetawayChamberWall"] = ["GetawayChamberLeftWall", "GetawayChamberRightWall"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,

@@ -22,8 +22,8 @@ internal static class WalkingSpacePirateOwnedStateVerification
         WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
         WalkingSpacePirateEnemyState state = enemies.WalkingSpacePirateStates[0]
             ?? throw new InvalidOperationException("The walking Pirate has no state.");
-        AssertEqual(new Position16<RoomPixels>(0x0100 - 48, 0), state.LeftPost, "the left post lies the patrol radius left");
-        AssertEqual(new Position16<RoomPixels>(0x0100 + 48, 0), state.RightPost, "the right post lies the patrol radius right");
+        AssertEqual(0x0100 - 48, state.LeftPostX, "the left post lies the patrol radius left");
+        AssertEqual(0x0100 + 48, state.RightPostX, "the right post lies the patrol radius right");
         Console.WriteLine("Walking Space Pirate owned state: the patrol posts match.");
     }
 

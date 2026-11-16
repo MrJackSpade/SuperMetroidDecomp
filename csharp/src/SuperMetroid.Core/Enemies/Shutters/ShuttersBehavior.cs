@@ -83,14 +83,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 : GrowingShutterAction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
-        var state = new GrowingShutterEnemyState(slot, action)
+        var state = new GrowingShutterEnemyState(action)
         {
             ActivationTimer = settings.ActivationWait,
             ActivationDistance = settings.ActivationDistance,
         };
         slot.SetSpeciesState(state);
 
-        state.PlaceSectionOrigins(growsUp);
+        state.PlaceSectionOrigins(slot.Position.Y.Whole, growsUp);
         state.GrowthLevel = 0;
 
         state.GrowthSpeed = settings.GrowthSpeed;
@@ -179,13 +179,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         slot.Position = slot.Position.AdvanceY(state.GrowthSpeed);
-        Position16<RoomPixels> target = state.OriginForLevel() + new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() + GrowingShutterSectionLength);
 
         // The non-negative test returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
-        if ((target - slot.Position.Whole).Y >= 0)
+        if (CoordinateAxis.Difference(targetY, slot.Position.Y.Whole) >= 0)
             return;
-        FinishGrowingShutterSection(slot, state, target, direction: VerticalDirection.Down);
+        FinishGrowingShutterSection(slot, state, targetY, direction: VerticalDirection.Down);
     }
 
     /// <summary>Runs the four upward growth stages.</summary>
@@ -199,14 +199,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PreviousPosition = slot.Position.Whole;
         slot.Position = slot.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
-        Position16<RoomPixels> target = state.OriginForLevel() - new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
-        if ((target - slot.Position.Whole).Y < 0)
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterSectionLength);
+        if (CoordinateAxis.Precedes(targetY, slot.Position.Y.Whole))
         {
             CarrySamusWithGrowingShutter(slot, state, samus);
             return;
         }
 
-        FinishGrowingShutterSection(slot, state, target, direction: VerticalDirection.Up);
+        FinishGrowingShutterSection(slot, state, targetY, direction: VerticalDirection.Up);
         CarrySamusWithGrowingShutter(slot, state, samus);
     }
 
@@ -233,20 +233,23 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Snaps a completed section, enlarges its collision radius, and selects the next artwork.</summary>
+    /// <summary>
+    /// Snaps a completed section to its target row <paramref name="targetY"/>, enlarges its collision radius, and selects
+    /// the next artwork.
+    /// </summary>
     internal static void FinishGrowingShutterSection(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
-        Position16<RoomPixels> target,
+        int targetY,
         VerticalDirection direction)
     {
         bool finalSection = state.GrowthLevel == 3;
-        Position16<RoomPixels> placed = finalSection
-            ? target
-            : target + new Offset16<RoomPixels>(0, direction == VerticalDirection.Up
+        int placedY = finalSection
+            ? targetY
+            : CoordinateAxis.Wrap(targetY + (direction == VerticalDirection.Up
                 ? GrowingShutterIntermediateInset
-                : -GrowingShutterIntermediateInset);
-        slot.Position = slot.Position.WithWholeY(placed.Y);
+                : -GrowingShutterIntermediateInset));
+        slot.Position = slot.Position.WithWholeY(placedY);
         state.GrowthLevel += 1;
 
         if (finalSection)

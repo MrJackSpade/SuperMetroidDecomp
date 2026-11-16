@@ -427,7 +427,7 @@ internal static class NativeEnemyFamilyStateImport
             growingShutterRecord.Action = ShuttersNativeWords.GrowingShutterActions.Decode(words.A, "recorded GrowingShutterAction");
             ushort[] originRows = [words.B, words.C, words.D, words.E];
             for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                growingShutterRecord.SetSectionOrigin(level, new(0, originRows[level]));
+                growingShutterRecord.SetSectionOriginY(level, originRows[level]);
             growingShutterRecord.GrowthLevel = words.F;
         }
         if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
@@ -502,9 +502,9 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
         {
             ninjaSpacePirateRecord.Action = SpacePiratesNativeWords.NinjaSpacePirateActions.Decode(words.A, "recorded NinjaSpacePirateAction");
-            ninjaSpacePirateRecord.PostsMidpoint = new(words.D, 0);
-            ninjaSpacePirateRecord.LeftPost = new(words.E, 0);
-            ninjaSpacePirateRecord.RightPost = new(words.F, 0);
+            ninjaSpacePirateRecord.PostsMidpointX = words.D;
+            ninjaSpacePirateRecord.LeftPostX = words.E;
+            ninjaSpacePirateRecord.RightPostX = words.F;
         }
         if (slot.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
         {
@@ -621,8 +621,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
         {
             walkingPirate.Action = SpacePiratesNativeWords.WalkingSpacePirateActions.Decode(words.A, "recorded WalkingSpacePirateAction");
-            walkingPirate.LeftPost = new(words.E, 0);
-            walkingPirate.RightPost = new(words.F, 0);
+            walkingPirate.LeftPostX = words.E;
+            walkingPirate.RightPostX = words.F;
         }
         if (slot.EntityState<MultiviolaEntity, MultiviolaEnemyState>() is { } multiviola)
             multiviola.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.E, words.F);

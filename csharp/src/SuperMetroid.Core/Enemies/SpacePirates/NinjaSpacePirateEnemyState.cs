@@ -19,33 +19,19 @@ public sealed class NinjaSpacePirateEnemyState
     internal NinjaSpacePirateSegment ActiveAnimation { get; set; }
 
     /// <summary>
-    /// The room position midway between the adjusted posts. Only the X axis is stored and meaningful; Samus and the
-    /// Pirate are compared with it by the wrapped spatial difference on X.
+    /// The room column midway between the adjusted posts. Samus and the Pirate are compared with it by the wrapped
+    /// difference.
     /// </summary>
-    public Position16<RoomPixels> PostsMidpoint
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
+    public int PostsMidpointX { get; internal set; }
 
     /// <summary>
-    /// The adjusted left post. Only the X axis is stored and meaningful: a Pirate whose X equals it stands at the left
-    /// post, and a return walk ends on passing it.
+    /// The adjusted left post's room column: a Pirate whose X equals it stands at the left post, and a return walk ends
+    /// on passing it.
     /// </summary>
-    public Position16<RoomPixels> LeftPost
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
+    public int LeftPostX { get; internal set; }
 
-    /// <summary>
-    /// The adjusted right post. Only the X axis is stored and meaningful: a return walk ends on reaching or passing it.
-    /// </summary>
-    public Position16<RoomPixels> RightPost
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
+    /// <summary>The adjusted right post's room column: a return walk ends on reaching or passing it.</summary>
+    public int RightPostX { get; internal set; }
 
     /// <summary>
     /// The current signed 1/256-pixel speed in 1/256 pixel per update: the spin jump's horizontal speed, which rises by 32 per

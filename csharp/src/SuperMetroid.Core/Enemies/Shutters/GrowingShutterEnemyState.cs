@@ -13,18 +13,11 @@ public sealed class GrowingShutterEnemyState
     /// <summary>The number of growth sections, each with a stored origin; a fully grown shutter is at this level.</summary>
     internal const int SectionCount = 4;
 
-    /// <summary>The shutter's slot, whose position the state reads.</summary>
-    private readonly RoomEnemySlot _slot;
+    /// <summary>Each growth section's origin row, indexed by growth level.</summary>
+    private readonly int[] _sectionOriginYs = new int[SectionCount];
 
-    /// <summary>Each growth section's stored origin row, indexed by growth level; the column is always the shutter's own.</summary>
-    private readonly Position16<RoomPixels>[] _sectionOrigins = new Position16<RoomPixels>[SectionCount];
-
-    /// <summary>Creates the state for a room-owned shutter slot, starting in <paramref name="action"/>.</summary>
-    internal GrowingShutterEnemyState(RoomEnemySlot slot, GrowingShutterAction action)
-    {
-        _slot = slot;
-        Action = action;
-    }
+    /// <summary>Creates the state starting in <paramref name="action"/>.</summary>
+    internal GrowingShutterEnemyState(GrowingShutterAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
@@ -45,17 +38,17 @@ public sealed class GrowingShutterEnemyState
     public int ActivationDistance { get; internal set; }
 
     /// <summary>
-    /// The origin of the section grown at <paramref name="level"/>, indexed by growth level: level 0 is the spawn position
+    /// The origin row of the section grown at <paramref name="level"/>, indexed by growth level: level 0 is the spawn row
     /// and each later level is eight pixels further along the growth direction, wrapping at the room coordinate's sixteen
-    /// bits. A growing shutter only ever moves vertically, so every section origin shares the shutter's own column.
+    /// bits. A growing shutter only ever moves vertically, so a section's origin is a row in the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>
-    public Position16<RoomPixels> SectionOrigin(int level) => new(_slot.Position.X.Whole, _sectionOrigins[level].Y);
+    public int SectionOriginY(int level) => _sectionOriginYs[level];
 
     /// <summary>Stores the origin row of the section grown at <paramref name="level"/>.</summary>
     /// <param name="level">The growth level, 0 through 3.</param>
-    /// <param name="origin">The section's origin; only its row is kept.</param>
-    internal void SetSectionOrigin(int level, Position16<RoomPixels> origin) => _sectionOrigins[level] = new(0, origin.Y);
+    /// <param name="originY">The section's origin row.</param>
+    internal void SetSectionOriginY(int level, int originY) => _sectionOriginYs[level] = originY;
 
     /// <summary>Number of completed growth sections: zero through four, where four is the fully grown terminal state.</summary>
     public int GrowthLevel
@@ -71,23 +64,22 @@ public sealed class GrowingShutterEnemyState
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
-    /// Places the four section origins from the shutter's current (spawn) position, each eight pixels further along the
-    /// growth direction, wrapping at the room coordinate's sixteen bits as the game's origins do.
+    /// Places the four section origins from the shutter's spawn row <paramref name="spawnY"/>, each eight pixels further
+    /// along the growth direction, wrapping at the room coordinate's sixteen bits as the game's origins do.
     /// </summary>
-    internal void PlaceSectionOrigins(bool growsUp)
+    internal void PlaceSectionOrigins(int spawnY, bool growsUp)
     {
-        Position16<RoomPixels> spawn = _slot.Position.Whole;
-        var spacing = new Offset16<RoomPixels>(0, growsUp ? CoordinateAxis.AsSigned(-SectionOriginSpacing) : SectionOriginSpacing);
-        Position16<RoomPixels> origin = spawn;
+        int spacing = growsUp ? -SectionOriginSpacing : SectionOriginSpacing;
+        int originY = spawnY;
         for (int level = 0; level < SectionCount; level++)
         {
-            SetSectionOrigin(level, origin);
-            origin += spacing;
+            SetSectionOriginY(level, originY);
+            originY = CoordinateAxis.Wrap(originY + spacing);
         }
     }
 
-    /// <summary>Selects the current growth section's stored origin; level four has no next section.</summary>
-    internal Position16<RoomPixels> OriginForLevel() => GrowthLevel < SectionCount
-        ? SectionOrigin(GrowthLevel)
+    /// <summary>Selects the current growth section's stored origin row; level four has no next section.</summary>
+    internal int OriginYForLevel() => GrowthLevel < SectionCount
+        ? SectionOriginY(GrowthLevel)
         : throw new InvalidOperationException($"Growing shutter level {GrowthLevel} has no section origin.");
 }

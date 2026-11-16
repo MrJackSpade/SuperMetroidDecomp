@@ -290,18 +290,23 @@ internal static class NativeEnemyFamilyStateImport
             shitroidRecord.ColourDelay = words.E;
             shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);
         }
+        if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
+        {
+            // An echo's record names its flicker routine and keeps its lifetime in variable D. The first echo's variable A
+            // holds its body's trail timer, which Core keeps on the body listed right before it (#2147).
+            if (words.F != AnimalsNativeWords.DachoraEchoRoutine)
+                throw new InvalidDataException($"Recorded Dachora echo {enemy.Ordinal} runs routine {words.F:X4}, not the echo's.");
+            dachoraEcho.Lifetime = unchecked((short)words.D);
+            if (enemies.Places.ListedBeforeOrNone(enemy, 1)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
+                echoBody.TrailTimer = unchecked((short)words.A);
+        }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
             dachoraRecord.SetGlowCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
             dachoraRecord.Action = AnimalsNativeWords.DachoraActions.Decode(words.F, "recorded DachoraAction");
-            // The cartridge keeps the speed's whole pixels and the countdowns in variable A, and the acceleration's
-            // fraction and an echo's lifetime in variable D; each is read here as the meaning the recorded phase gives it.
-            if (dachoraRecord.Action == DachoraAction.Echo)
-            {
-                dachoraRecord.EchoPositionTimer = unchecked((short)words.A);
-                dachoraRecord.EchoLifetime = unchecked((short)words.D);
-            }
-            else if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
+            // The cartridge keeps the speed's whole pixels and the countdowns in variable A and the acceleration's fraction
+            // in variable D; each is read here as the meaning the recorded phase gives it.
+            if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
                 dachoraRecord.PhaseTimer = unchecked((short)words.A);
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);

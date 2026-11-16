@@ -2,10 +2,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The state of a Dachora body or echo. A body waits at rest for Samus, blinks, runs, charges and shinesparks: its first
-/// run starts from rest because it has not moved before it, and its shinespark starts from rest because the charge stops
-/// it (<see cref="StartCharging"/>). The echo pacing countdown and the lifetime belong to echoes, which have no speed or
-/// acceleration.
+/// The state of a Dachora's body. It waits at rest for Samus, blinks, runs, charges and shinesparks: its first run starts
+/// from rest because it has not moved before it, and its shinespark starts from rest because the charge stops it
+/// (<see cref="StartCharging"/>). Its four speed-boost echoes keep their own state (<see cref="DachoraEchoState"/>, #2147).
 /// </summary>
 public sealed class DachoraEnemyState
 {
@@ -27,26 +26,17 @@ public sealed class DachoraEnemyState
     /// <summary>While blinking or charging: the updates left in the phase, which ends when they reach zero.</summary>
     public int PhaseTimer { get; internal set; }
 
-    /// <summary>On the first echo: frames until the echo positions next advance.</summary>
-    public int EchoPositionTimer { get; internal set; }
+    /// <summary>
+    /// While shinesparking: the updates before the body next places an echo on its trail, which the launch clears so the
+    /// first update places one (#2147).
+    /// </summary>
+    public int TrailTimer { get; internal set; }
 
     /// <summary>
-    /// On the body during the shinespark: the signed 1/65536-pixel vertical acceleration per update, which gravity accumulates
-    /// into with the fraction's overflow into the whole part and 1/65536-pixel wraparound.
+    /// During the shinespark: the signed 1/65536-pixel vertical acceleration per update, which gravity accumulates into with
+    /// the fraction's overflow into the whole part and 1/65536-pixel wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalAcceleration { get; internal set; }
-
-    /// <summary>
-    /// On an echo: the updates the echo stays visible, counted down to zero and never below it; zero marks the echo free
-    /// for the next trail position.
-    /// </summary>
-    public int EchoLifetime { get; internal set; }
-
-    /// <summary>
-    /// On an echo: whether it shows on odd updates rather than even ones while it is visible. Its body sets it each time
-    /// it places the echo, alternating along the trail so neighbouring echoes flicker in turn.
-    /// </summary>
-    internal bool ShowsOnOddFrames { get; set; }
 
     /// <summary>
     /// Starts the warning countdown before the first run. The Dachora has been waiting at rest since it was placed, so

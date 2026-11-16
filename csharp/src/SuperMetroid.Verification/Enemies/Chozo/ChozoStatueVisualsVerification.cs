@@ -68,9 +68,12 @@ internal static class ChozoStatueVisualsVerification
                 crumbleObjects.Step(crumbleLevel);
                 seenCrumbleBlocks.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).Terrain);
             }
-            foreach (int block in new[] { 0x53, 0x54, 0x55, 0xff })
+            foreach (int block in new[] { 0x53, 0x54, 0x55 })
                 AssertTrue(seenCrumbleBlocks.Contains(RoomTerrainBlock.Of(block, BlockMirroring.None, RoomCollisionType.Air)),
                     $"Chozo crumble program draws air block ${block:X3}");
+            // The crumble ends on open space, which shows nothing (#2100).
+            AssertTrue(seenCrumbleBlocks.Contains(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air)),
+                "Chozo crumble program ends on air that shows nothing");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo crumble PLM did not reread compiled program or draw bytes");
 

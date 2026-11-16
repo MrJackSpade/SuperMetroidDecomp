@@ -67,8 +67,10 @@ internal static class RoomObjectPopulationDefinitionsVerification
     private static RoomObjectPopulationDefinitionsLoadResult Load(
         ISnesAddressSpace bus, ushort pointer, bool useCompiled)
     {
-        const int width = 64;
-        const int height = 64;
+        // The Landing Site, whose population the check loads, is nine screens wide and five high; every placement lies
+        // inside it.
+        const int width = 144;
+        const int height = 80;
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(width, height),
             new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height]);
         var roomObjects = RoomObjectFixtures.Unbound();

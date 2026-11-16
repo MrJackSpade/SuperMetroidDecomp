@@ -27,9 +27,8 @@ internal sealed class CoreModel
     private static readonly string[] TableNames =
     [
         "EnemyProjectileDefinitionCatalog",
-        "RoomEffectActorDefinitions",
-        // The effect actors' animations name their enemy-sheet frames outright (#1817); an effect actor's frames reach
-        // its spawner's sheet through its kind, as the spawn analysis reads it.
+        // The effect actors' animations name their enemy-sheet frames outright (#1817) and start one per kind (#2158); an
+        // effect actor's frames reach its spawner's sheet through its kind, as the spawn analysis reads it.
         "RoomEffectActorAnimations",
         "EnemyFrameNameDefinitions",
     ];

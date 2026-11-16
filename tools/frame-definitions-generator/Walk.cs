@@ -157,7 +157,7 @@ internal sealed class Walk
     /// RoomEffectActorKind members that are Samus's weapon effects and on no enemy sheet (#1713): the burst her hit shows
     /// at an enemy it hurts, which her projectile sheets picture in her beams' colouring.
     /// </summary>
-    public static readonly string[] ExcludedEffectActors = ["EnemyHit"];
+    public static readonly string[] ExcludedEffectActors = ["HitBurst"];
 
 
     private readonly CoreModel _model;

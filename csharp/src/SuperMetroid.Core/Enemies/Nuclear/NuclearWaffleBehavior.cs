@@ -287,13 +287,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _ = _effectActors.SpawnRoomEffectActor(
             position,
-            RoomEffectActorKind.NuclearWaffleTurnOverlay,
+            RoomEffectActorKind.NuclearWaffleSplash,
             graphics);
         _ = _effectActors.SpawnRoomEffectActor(
             position,
             orientation.Turn == RotationDirection.Counterclockwise
-                ? RoomEffectActorKind.NuclearWaffleTurnCounterClockwise
-                : RoomEffectActorKind.NuclearWaffleTurnClockwise,
+                ? RoomEffectActorKind.NuclearWaffleLeftExplosion
+                : RoomEffectActorKind.NuclearWaffleRightExplosion,
             graphics);
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.

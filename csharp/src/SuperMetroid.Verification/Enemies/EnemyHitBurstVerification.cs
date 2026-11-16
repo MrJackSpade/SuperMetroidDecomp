@@ -296,7 +296,7 @@ internal static class EnemyHitBurstVerification
 
     /// <summary>The live bursts of <paramref name="enemies"/>' room.</summary>
     private static RoomEffectActor[] Bursts(RoomEnemySystem enemies) =>
-        [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.EnemyHit)];
+        [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.HitBurst)];
 
     /// <summary>A dud flash at <see cref="Place"/>, as a shot an enemy part shrugs off leaves.</summary>
     private static RoomEffectActor SpawnDud(RoomEnemySystem enemies)

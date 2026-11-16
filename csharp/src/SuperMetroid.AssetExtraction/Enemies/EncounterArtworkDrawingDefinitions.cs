@@ -39,7 +39,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing DraygonEvirs =
         new(ComposedEncounter.DraygonEvirs, [EncounterLookUploads.DraygonEvirsLook])
         {
-            EffectActors = [RoomEffectActorKind.DraygonIntroEvir, RoomEffectActorKind.DraygonDeathEvirFacingRight],
+            EffectActors = [RoomEffectActorKind.EvirFacingLeft, RoomEffectActorKind.EvirFacingRight],
         };
 
     /// <summary>The gunship's hull, drawn landed and through its takeoff.</summary>

@@ -483,11 +483,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SpriteGraphics graphics = SpriteGraphics.SharedStandard;
         _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(place.Position.X.Whole - 8), CoordinateAxis.Wrap(place.Position.Y.Whole + 28)),
-            RoomEffectActorKind.NinjaPirateLandingDust,
+            RoomEffectActorKind.RisingDustPuff,
             graphics);
         _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(place.Position.X.Whole + 8), CoordinateAxis.Wrap(place.Position.Y.Whole + 28)),
-            RoomEffectActorKind.NinjaPirateLandingDust,
+            RoomEffectActorKind.RisingDustPuff,
             graphics);
     }
 

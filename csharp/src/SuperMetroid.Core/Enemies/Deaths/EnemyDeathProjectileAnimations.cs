@@ -34,7 +34,7 @@ internal static class EnemyDeathProjectileAnimations
         [
             Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.SmallExplosion)),
             Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.Smoke)),
-            Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.DustCloud)),
+            Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.BigDustCloud)),
             Show(EnemyProjectileFrameId.EnemyDeathBlankTwinB, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),

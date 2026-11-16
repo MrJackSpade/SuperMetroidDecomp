@@ -216,8 +216,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
         }
 
-        FreezeMetroidOuterBody(state.Electricity, MetroidOuterBodyDefinitions.ElectricityFrozenAnimation);
-        FreezeMetroidOuterBody(state.Shell, MetroidOuterBodyDefinitions.ShellFrozenAnimation);
+        FreezeMetroidOuterBody(state.Electricity);
+        FreezeMetroidOuterBody(state.Shell);
     }
 
     /// <summary>
@@ -405,15 +405,16 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         outerBody.UpdatesDisabled = false;
     }
 
-    /// <summary>Switches an outer-body sprite to frozen art, starting its frozen animation from its first frame.</summary>
-    private static void FreezeMetroidOuterBody(
-        RoomEffectActor outerBody,
-        RoomEffectActorSegment frozenSegment)
+    /// <summary>
+    /// Switches an outer-body sprite to its frozen colours, restarting its own animation from its first frame; it keeps
+    /// drawing from the Metroid's own sheet, in the frozen colours every spawned-object sheet holds (#1881).
+    /// </summary>
+    private static void FreezeMetroidOuterBody(RoomEffectActor outerBody)
     {
         outerBody.Graphics = outerBody.Graphics.In(EnemyShades.FrozenLook);
         outerBody.UpdatesDisabled = true;
         // Drawing shows the first frame while animation is disabled.
-        outerBody.StartAnimation(frozenSegment);
+        outerBody.RestartAnimation();
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its movement changes.</summary>

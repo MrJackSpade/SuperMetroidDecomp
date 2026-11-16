@@ -38,7 +38,7 @@ internal sealed class DraygonIntro
                 {
                     RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
                         new(16, 384),
-                        RoomEffectActorKind.DraygonIntroEvir,
+                        RoomEffectActorKind.EvirFacingLeft,
                         SpriteGraphics.SharedIn(DraygonColours.Evirs));
                     state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
                 }

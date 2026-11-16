@@ -234,6 +234,6 @@ internal static class SpawnedObjectSheetComposer
 
     /// <summary>The enemy frames the room effect actors of <paramref name="kinds"/> show, each once.</summary>
     private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
-        kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(RoomEffectActorDefinitions.Animations[kind])))
+        kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)))
             .Select(picture => picture.RequireEnemyFrame()).Distinct().Order();
 }

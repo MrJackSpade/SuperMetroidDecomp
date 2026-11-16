@@ -723,7 +723,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 _effectActors.SpawnRoomEffectActor(
                     new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + BotwoonDeathDefinitions.LargeExplosionLeft,
                         state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
-                    RoomEffectActorKind.BotwoonLargeExplosion,
+                    RoomEffectActorKind.BigExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
@@ -736,7 +736,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                     _effectActors.SpawnRoomEffectActor(
                         new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + BotwoonDeathDefinitions.SmallExplosionLeft,
                             state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
-                        RoomEffectActorKind.BotwoonSmallExplosion,
+                        RoomEffectActorKind.SmokePuff,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }

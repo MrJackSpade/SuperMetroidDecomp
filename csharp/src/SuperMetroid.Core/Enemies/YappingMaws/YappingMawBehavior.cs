@@ -111,8 +111,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RootEffectActor = _effectActors.SpawnRoomEffectActor(
             new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
             place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? RoomEffectActorKind.YappingMawRootFacingDown
-                : RoomEffectActorKind.YappingMawRootFacingUp,
+                ? RoomEffectActorKind.YappingMawBaseFacingDown
+                : RoomEffectActorKind.YappingMawBaseFacingUp,
             SpriteGraphics.SpawnedBy(place));
     }
 

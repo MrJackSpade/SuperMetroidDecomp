@@ -3,32 +3,33 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// <summary>The bank-$B4 address of each room sprite-object program's native instruction list.</summary>
 internal static class RoomEffectActorProgramAddresses
 {
-    /// <summary>Each program's list address.</summary>
-    internal static IReadOnlyDictionary<RoomEffectActorSegment, ushort> Entries { get; } = new Dictionary<RoomEffectActorSegment, ushort>
+    /// <summary>
+    /// Each kind's list address. A Metroid's electricity and shell lists run straight on into the records they loop over,
+    /// so those records follow the first pass's.
+    /// </summary>
+    internal static IReadOnlyDictionary<RoomEffectActorKind, ushort> Entries { get; } = new Dictionary<RoomEffectActorKind, ushort>
     {
-        [RoomEffectActorSegment.DraygonFoamingAtTheMouth] = 0xbe24,
-        [RoomEffectActorSegment.SmallExplosion] = 0xbea4,
-        [RoomEffectActorSegment.DudShot] = 0xbeea,
-        [RoomEffectActorSegment.SmallDudShot] = 0xbf1c,
-        [RoomEffectActorSegment.SpacePirateLandingDustCloud] = 0xbf32,
-        [RoomEffectActorSegment.Smoke] = 0xbf56,
-        [RoomEffectActorSegment.BigExplosion] = 0xbf74,
-        [RoomEffectActorSegment.ShortBigDustCloud] = 0xc014,
-        [RoomEffectActorSegment.BigDustCloud] = 0xc05e,
-        [RoomEffectActorSegment.ShortDraygonBreathBubbles] = 0xc10c,
-        [RoomEffectActorSegment.PuromiBody] = 0xc30a,
-        [RoomEffectActorSegment.PuromiRightExplosion] = 0xc33e,
-        [RoomEffectActorSegment.PuromiLeftExplosion] = 0xc35c,
-        [RoomEffectActorSegment.PuromiSplash] = 0xc37a,
-        [RoomEffectActorSegment.FallingSparkTrail] = 0xc390,
-        [RoomEffectActorSegment.MetroidElectricity] = 0xc3ba,
-        [RoomEffectActorSegment.MetroidElectricityLoop] = 0xc436,
-        [RoomEffectActorSegment.MetroidShell] = 0xc4b6,
-        [RoomEffectActorSegment.MetroidShellLoop] = 0xc536,
-        [RoomEffectActorSegment.YappingMawBaseFacingDown] = 0xc5d8,
-        [RoomEffectActorSegment.YappingMawBaseFacingUp] = 0xc5de,
-        [RoomEffectActorSegment.EvirFacingLeft] = 0xc608,
-        [RoomEffectActorSegment.EvirFacingRight] = 0xc61c,
-        [RoomEffectActorSegment.EnemyHit] = 0xc5c6,
+        [RoomEffectActorKind.DraygonFoam] = 0xbe24,
+        [RoomEffectActorKind.SmallExplosion] = 0xbea4,
+        [RoomEffectActorKind.DudShot] = 0xbeea,
+        [RoomEffectActorKind.SmokePuff] = 0xbf1c,
+        [RoomEffectActorKind.RisingDustPuff] = 0xbf32,
+        [RoomEffectActorKind.Smoke] = 0xbf56,
+        [RoomEffectActorKind.BigExplosion] = 0xbf74,
+        [RoomEffectActorKind.ShortBigDustCloud] = 0xc014,
+        [RoomEffectActorKind.BigDustCloud] = 0xc05e,
+        [RoomEffectActorKind.DraygonBreathBubbles] = 0xc10c,
+        [RoomEffectActorKind.NuclearWaffleBody] = 0xc30a,
+        [RoomEffectActorKind.NuclearWaffleRightExplosion] = 0xc33e,
+        [RoomEffectActorKind.NuclearWaffleLeftExplosion] = 0xc35c,
+        [RoomEffectActorKind.NuclearWaffleSplash] = 0xc37a,
+        [RoomEffectActorKind.FallingSparkTrail] = 0xc390,
+        [RoomEffectActorKind.MetroidElectricity] = 0xc3ba,
+        [RoomEffectActorKind.MetroidShell] = 0xc4b6,
+        [RoomEffectActorKind.YappingMawBaseFacingDown] = 0xc5d8,
+        [RoomEffectActorKind.YappingMawBaseFacingUp] = 0xc5de,
+        [RoomEffectActorKind.EvirFacingLeft] = 0xc608,
+        [RoomEffectActorKind.EvirFacingRight] = 0xc61c,
+        [RoomEffectActorKind.HitBurst] = 0xc5c6,
     };
 }

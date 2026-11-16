@@ -1119,10 +1119,10 @@ internal static class LookupStream4Verification
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomEffectActorKind, SpriteGraphics, RoomEffectActor> spriteSpawn =
             (owner, position, kind, graphics) => owner.EffectActors.SpawnRoomEffectActor(position, kind, graphics);
         int kinds = 0;
-        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>().Distinct())
+        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>())
         {
             ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomEffectActorNativeWords.Kinds.Word(kind)));
-            AssertEqual(entry, RoomEffectActorDefinitions.InstructionPointer(kind), "room sprite native program case");
+            AssertEqual(entry, RoomEffectActorProgramAddresses.Entries[kind], "room sprite native program case");
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEffectActor spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");

@@ -55,11 +55,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ShuttersEntity(this, place, common);
 
-    /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
-    private const int GrowingShutterSectionLength = 16;
-    /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
-    private const int GrowingShutterIntermediateInset = 7;
-
     /// <summary>Initializes the growing shutter.</summary>
     internal static void InitializeGrowingShutter(RoomEnemyPlace place)
     {
@@ -178,7 +173,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         place.Position = place.Position.AdvanceY(state.GrowthSpeed);
-        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() + GrowingShutterSectionLength);
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() + GrowingShutterDefinitions.SectionLength);
 
         // The non-negative test returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
@@ -198,7 +193,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PreviousPosition = place.Position.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
-        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterSectionLength);
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterDefinitions.SectionLength);
         if (CoordinateAxis.Precedes(targetY, place.Position.Y.Whole))
         {
             CarrySamusWithGrowingShutter(place, state, samus);
@@ -246,8 +241,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int placedY = finalSection
             ? targetY
             : CoordinateAxis.Wrap(targetY + (direction == VerticalDirection.Up
-                ? GrowingShutterIntermediateInset
-                : -GrowingShutterIntermediateInset));
+                ? GrowingShutterDefinitions.IntermediateInset
+                : -GrowingShutterDefinitions.IntermediateInset));
         place.Position = place.Position.WithWholeY(placedY);
         state.GrowthLevel += 1;
 

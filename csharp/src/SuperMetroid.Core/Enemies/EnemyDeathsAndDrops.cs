@@ -46,10 +46,6 @@ internal sealed class EnemyDeathsAndDrops
         [RoomEnemyProjectileKind.EnemyDeathPickup] = SingleMotion.Moving,
         [RoomEnemyProjectileKind.EnemyDeathExplosion] = null,
     };
-    /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
-    private const int EnemyPickupLifetime = 400;
-    /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
-    private const int EnemyPickupGrappleDelay = 16;
 
     /// <summary>Live Samus owner needed when a dying grappled enemy drops the beam.</summary>
     internal SamusState? SamusForEnemyDrops { get; private set; }
@@ -173,8 +169,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromDefinition(new(
-                CoordinateAxis.Wrap(origin.X + EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16),
-                CoordinateAxis.Wrap(origin.Y + EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16)), definitionId);
+                CoordinateAxis.Wrap(origin.X + EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring),
+                CoordinateAxis.Wrap(origin.Y + EnemyDropScatterDefinitions.VerticalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring)), definitionId);
         }
     }
 
@@ -258,7 +254,7 @@ internal sealed class EnemyDeathsAndDrops
     internal static EnemyDeathProjectileSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-        projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
+        projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime);
         projectile.StartMotion(SingleMotion.Moving);
 
         // Becoming a pickup clears the persists-on-contact property but retains the other definition bits. The typed
@@ -299,8 +295,8 @@ internal sealed class EnemyDeathsAndDrops
             return EnemyPickupKind.NoDrop;
         // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
         // drops stay within it (#1620).
-        if (table.Total > FullWeightBudget)
-            throw new InvalidDataException($"A drop table's chances sum to {table.Total}, past the {FullWeightBudget} every chance is out of.");
+        if (table.Total > EnemyDropSelectionDefinitions.FullWeightBudget)
+            throw new InvalidDataException($"A drop table's chances sum to {table.Total}, past the {EnemyDropSelectionDefinitions.FullWeightBudget} every chance is out of.");
 
         int random;
         do
@@ -309,14 +305,14 @@ internal sealed class EnemyDeathsAndDrops
         }
         while (random == 0);
 
-        int majorAdjustedBudget = FullWeightBudget;
+        int majorAdjustedBudget = EnemyDropSelectionDefinitions.FullWeightBudget;
         int accumulated = 0;
         int combinedEnergy = samus.Health + samus.ReserveEnergy;
-        if (combinedEnergy < 30)
+        if (combinedEnergy < EnemyDropSelectionDefinitions.CriticalEnergy)
             _room.Session.CriticalEnergyDropBias = true;
-        else if (combinedEnergy >= 50)
+        else if (combinedEnergy >= EnemyDropSelectionDefinitions.RecoveredEnergy)
             _room.Session.CriticalEnergyDropBias = false;
-        // Values 30..49 deliberately retain the previous flag: this is the game's
+        // Energy between the two deliberately retains the previous flag: this is the game's
         // hysteresis/grace period, not an omitted assignment.
 
         int pooledMinorWeight;
@@ -384,9 +380,6 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPickupKind.NoDrop;
     }
 
-    /// <summary>The whole weight budget the drop chances share, before the enabled major drops take their part.</summary>
-    private const int FullWeightBudget = 255;
-
     /// <summary>
     /// Uses an explicit boss chance table, a saved enemy definition's, or none. A death explosion from a cleared enemy place
     /// drops nothing: the drop-chance table indexed by the empty definition reads a value
@@ -415,13 +408,12 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
-
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
-            pickup.Lifetime < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
-            CoordinateAxis.Distance(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < 16 &&
-            CoordinateAxis.Distance(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < 16)
+            pickup.Lifetime < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
+            CoordinateAxis.Distance(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&
+            CoordinateAxis.Distance(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < EnemyPickupDefinitions.GrappleReach)
         {
             CollectEnemyPickup(projectile, samus);
             return;
@@ -449,23 +441,23 @@ internal sealed class EnemyDeathsAndDrops
         switch (kind)
         {
             case EnemyPickupKind.SmallEnergy:
-                RestoreEnemyDropEnergy(samus, 5);
+                RestoreEnemyDropEnergy(samus, EnemyPickupDefinitions.SmallEnergyAmount);
                 RequestPickupSound(EnemySound.SmallEnergyPickup);
                 break;
             case EnemyPickupKind.BigEnergy:
-                RestoreEnemyDropEnergy(samus, 20);
+                RestoreEnemyDropEnergy(samus, EnemyPickupDefinitions.BigEnergyAmount);
                 RequestPickupSound(EnemySound.BigEnergyPickup);
                 break;
             case EnemyPickupKind.PowerBomb:
-                RestoreEnemyDropPowerBombs(samus, 1);
+                RestoreEnemyDropPowerBombs(samus, EnemyPickupDefinitions.PowerBombAmount);
                 RequestPickupSound(EnemySound.PowerBombPickup);
                 break;
             case EnemyPickupKind.Missile:
-                RestoreEnemyDropMissiles(samus, 2);
+                RestoreEnemyDropMissiles(samus, EnemyPickupDefinitions.MissileAmount);
                 RequestPickupSound(EnemySound.MissilePickup);
                 break;
             case EnemyPickupKind.SuperMissile:
-                RestoreEnemyDropSuperMissiles(samus, 1);
+                RestoreEnemyDropSuperMissiles(samus, EnemyPickupDefinitions.SuperMissileAmount);
                 RequestPickupSound(EnemySound.SuperMissilePickup);
                 break;
             case EnemyPickupKind.NoDrop:
@@ -494,7 +486,10 @@ internal sealed class EnemyDeathsAndDrops
         samus.Health = samus.MaxHealth;
     }
 
-    /// <summary>Fills missiles first, spilling excess into reserves capped by inventory and 99.</summary>
+    /// <summary>
+    /// Fills missiles first, spilling excess into reserves capped by inventory and
+    /// <see cref="EnemyPickupDefinitions.LargestMissileReserve"/>.
+    /// </summary>
     private static void RestoreEnemyDropMissiles(SamusState samus, int amount)
     {
         int restored = samus.Missiles + amount;
@@ -503,7 +498,7 @@ internal sealed class EnemyDeathsAndDrops
             return;
 
         samus.ReserveMissiles += restored - samus.MaxMissiles;
-        int reserveCap = Math.Min(samus.MaxMissiles, 99);
+        int reserveCap = Math.Min(samus.MaxMissiles, EnemyPickupDefinitions.LargestMissileReserve);
         if (samus.ReserveMissiles >= reserveCap)
             samus.ReserveMissiles = reserveCap;
         samus.Missiles = samus.MaxMissiles;

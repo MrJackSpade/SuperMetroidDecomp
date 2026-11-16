@@ -57,4 +57,16 @@ internal static class MetroidBehaviorDefinitions
 
     /// <summary>Suitless Samus's drain fraction: twelve sixteenths.</summary>
     internal const int PowerSuitDrainFraction = 12 * SixteenthHealth;
+
+    /// <summary>How long a Metroid whose ice threshold is exhausted stays frozen, in updates.</summary>
+    internal const int FrozenDuration = 400;
+
+    /// <summary>How long a latched Metroid a Power Bomb shakes loose takes to escape Samus, in updates.</summary>
+    internal const int EscapeDuration = 4;
+
+    /// <summary>The fastest a chasing Metroid moves on each axis, in whole pixels an update.</summary>
+    internal const int FastestChase = 3;
+
+    /// <summary>How many drops a frozen Metroid leaves when it dies, each chosen at random.</summary>
+    internal const int FrozenDeathDropCount = 5;
 }

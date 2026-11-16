@@ -26,4 +26,13 @@ internal static class EnemyDropSelectionDefinitions
     /// compared with the accumulated drop chances.
     /// </summary>
     internal static readonly RandomSampleField DropRoll = new(0, 8);
+
+    /// <summary>The whole weight budget the drop chances share, before the enabled major drops take their part.</summary>
+    internal const int FullWeightBudget = 255;
+
+    /// <summary>The combined energy and reserve below which drops favour energy.</summary>
+    internal const int CriticalEnergy = 30;
+
+    /// <summary>The combined energy and reserve from which drops stop favouring energy.</summary>
+    internal const int RecoveredEnergy = 50;
 }

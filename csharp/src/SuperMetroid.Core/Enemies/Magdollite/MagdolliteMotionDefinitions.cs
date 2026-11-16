@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>Where Magdollite's parts hide and surface, and how long it waits between throws (#2043).</summary>
+/// <summary>
+/// Where Magdollite's parts hide and surface, how long it waits between throws (#2043), how fast its lava flies and how
+/// long each frame of its glow shows (#2156).
+/// </summary>
 internal static class MagdolliteMotionDefinitions
 {
     /// <summary>How far below its origin a dormant arm or the hidden overlay waits, in pixels.</summary>
@@ -23,4 +26,10 @@ internal static class MagdolliteMotionDefinitions
 
     /// <summary>How long the head waits after a throw before it may attack again, in updates.</summary>
     internal const int AttackCooldown = 256;
+
+    /// <summary>How fast thrown lava flies sideways, three pixels an update, toward the side it is thrown.</summary>
+    internal static SignedEightEight LavaThrowSpeed { get; } = SignedEightEight.FromParts(3, 0);
+
+    /// <summary>How long each frame of the room's lava glow every Magdollite shows lasts, in updates.</summary>
+    internal const int GlowFrameDuration = 8;
 }

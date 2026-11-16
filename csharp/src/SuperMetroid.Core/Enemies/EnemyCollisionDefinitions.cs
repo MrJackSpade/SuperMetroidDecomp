@@ -58,6 +58,9 @@ internal static class EnemyCollisionDefinitions
     /// </summary>
     internal const int SamusStandingBias = 3;
 
-    /// <summary>The updates of knockback an enemy's touch requests for Samus.</summary>
+    /// <summary>The updates of knockback an enemy's or an enemy projectile's touch requests for Samus.</summary>
     internal const int SamusTouchKnockbackUpdates = 5;
+
+    /// <summary>The updates an enemy is protected from weapons and contact after a damaging Plasma shot.</summary>
+    internal const int PlasmaShotInvincibilityUpdates = 16;
 }

@@ -58,4 +58,7 @@ internal static class ShaktoolSegmentDefinitions
     /// <summary>The seven segments in chain order, leading saw first.</summary>
     internal static readonly ShaktoolSegmentDefinition[] Segments =
         [LeadingSaw, LeadingOuterArm, LeadingInnerArm, Head, TrailingInnerArm, TrailingOuterArm, TrailingSaw];
+
+    /// <summary>How many segments Shaktool's chain has, in consecutive enemy places: the two saws and the five between.</summary>
+    internal const int SegmentCount = 7;
 }

@@ -31,15 +31,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
-    private const int MetareeHorizontalActivationDistance = 72;
-    /// <summary>Whole-pixel X steering toward Samus, reevaluated every airborne frame.</summary>
-    private const int MetareeHorizontalDiveSpeed = 2;
-    /// <summary>Ground-impact countdown before the actor deletes itself.</summary>
-    private const int MetareeBurrowLifetime = 21;
-    /// <summary>Burrow countdown value that spawns the particle burst.</summary>
-    private const int MetareeParticleFrame = 8;
-
     /// <summary>Starts the idle animation directly and initializes the place's dive, burrow, and animation-change state.</summary>
     internal static void InitializeMetaree(RoomEnemyPlace place)
     {
@@ -99,7 +90,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
             CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole));
-        if (horizontalDistance >= MetareeHorizontalActivationDistance)
+        if (horizontalDistance >= MetareeMotionDefinitions.ActivationDistance)
             return;
 
         state.YVelocity = MetareeDiveSpeed.Of(place.Position.Y.Whole, samus.Position.Y.Whole);
@@ -130,7 +121,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The game reloads this every airborne frame. It becomes a countdown only after
         // the attachment probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = MetareeBurrowLifetime;
+        state.BurrowTimer = MetareeMotionDefinitions.BurrowLifetime;
 
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
@@ -150,8 +141,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0;
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
             (metareeIsLeftOfSamus
-                ? MetareeHorizontalDiveSpeed
-                : -MetareeHorizontalDiveSpeed));
+                ? MetareeMotionDefinitions.DiveSteer
+                : -MetareeMotionDefinitions.DiveSteer));
     }
 
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>
@@ -163,7 +154,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.BurrowTimer == MetareeParticleFrame)
+        if (state.BurrowTimer == MetareeMotionDefinitions.BurstCountdown)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, MetareeParticleDefinitions.Burst);
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
     }

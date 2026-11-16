@@ -41,17 +41,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, place, common);
 
-    /// <summary>Strict horizontal range for starting the opening animation.</summary>
-    private const int EyeActivateXDistance = 128;
-    /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>
-    private const int EyeDeactivateXDistance = 176;
-    /// <summary>Strict vertical range for initial activation.</summary>
-    private const int EyeActivateYDistance = 128;
-    /// <summary>Strict vertical range retained while tracking Samus.</summary>
-    private const int EyeDeactivateYDistance = 128;
-    /// <summary>Countdown for both opening and closing eye transitions.</summary>
-    private const int EyeTransitionDuration = 32;
-
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
@@ -141,13 +130,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        if (!EnemyMath.IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, EyeActivateYDistance) ||
-            !EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeActivateXDistance))
+        if (!EnemyMath.IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, MorphBallEyeWatchDefinitions.OpeningReachY) ||
+            !EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, MorphBallEyeWatchDefinitions.OpeningReachX))
         {
             return;
         }
 
-        state.ActionTimer = EyeTransitionDuration;
+        state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
         eye.AnimationClock.StepOnNextUpdate();
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
@@ -179,13 +168,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         bool inProximity =
-            EnemyMath.IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, EyeDeactivateYDistance) &&
-            EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
+            EnemyMath.IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, MorphBallEyeWatchDefinitions.StayOpenReachY) &&
+            EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, MorphBallEyeWatchDefinitions.StayOpenReachX);
         if (!inProximity)
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
-            state.ActionTimer = EyeTransitionDuration;
+            state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
             state.Aim = null;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating

@@ -31,11 +31,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
-    private const int RioTriggerDistance = 160;
-    /// <summary>Vertical velocity decrement applied during dive and rebound, 24 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight RioGravityStep = SignedEightEight.FromParts(0, 24);
-
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemyPlace place)
     {
@@ -70,7 +65,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         place.Position.X.Whole,
-                        RioTriggerDistance))
+                        RioLaunchDefinitions.RioTriggerDistance))
                 {
                     return;
                 }
@@ -122,7 +117,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
                 if (state.Velocity.Y.IsNegative)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
@@ -160,7 +155,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 else
                 {
-                    state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
+                    state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
                 }
                 return;
 

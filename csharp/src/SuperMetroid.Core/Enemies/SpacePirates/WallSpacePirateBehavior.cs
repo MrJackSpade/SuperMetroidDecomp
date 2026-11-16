@@ -31,11 +31,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         _terrain = terrain;
     }
 
-    /// <summary>Vertical distance below which a climbing Pirate starts its fire-and-jump animation.</summary>
-    private const int WallPirateSamusDetectionBand = 32;
-    /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
-    private const int WallPirateLaserMuzzleYOffset = 16;
-
     /// <summary>Initializes the wall Space Pirate.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemyPlace place)
     {
@@ -148,7 +143,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
     private static bool WallSpacePirateCanAttack(RoomEnemyPlace place, SamusState samus) =>
         CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) <
-            WallPirateSamusDetectionBand;
+            SpacePirateMotionDefinitions.WallDetectionBand;
 
     /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
     private static void SnapWallSpacePirateXToWallGrid(RoomEnemyPlace place)
@@ -243,7 +238,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         // The laser initializer queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
-        if (Walking.SpawnSpacePirateLaser(place, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
+        if (Walking.SpawnSpacePirateLaser(place, direction == HorizontalDirection.Right, SpacePirateMotionDefinitions.WallLaserMuzzleAbove))
             Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 

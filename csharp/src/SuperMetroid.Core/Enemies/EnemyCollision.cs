@@ -383,7 +383,7 @@ internal sealed class EnemyCollision
                     // Only a beam combining Plasma gives this; other projectile
                     // families never count as Plasma.
                     if (projectileType.BeamCombination.HasPlasma)
-                        enemy.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
+                        enemy.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
 
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&

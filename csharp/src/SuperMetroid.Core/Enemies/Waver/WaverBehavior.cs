@@ -38,18 +38,13 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Horizontal speed of one and a half pixels per update.</summary>
-    private static readonly SignedSixteenSixteen WaverHorizontalSpeed = SignedSixteenSixteen.FromParts(1, 32768);
-    /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
-    private const int WaverVerticalRadius = 4;
-
     /// <summary>Initializes the Waver.</summary>
     internal static void InitializeWaver(RoomEnemyPlace place)
     {
         HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
         SignedSixteenSixteen signedSpeed = facing == HorizontalDirection.Right
-            ? WaverHorizontalSpeed
-            : -WaverHorizontalSpeed;
+            ? WaverMotionDefinitions.HorizontalSpeed
+            : -WaverMotionDefinitions.HorizontalSpeed;
         var state = new WaverEnemyState
         {
             XVelocity = signedSpeed,
@@ -90,7 +85,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int verticalPixels = EnemyMath.CircleNegativeSinePixels(
                 state.Angle.ToTrigonometryAngle(),
-                WaverVerticalRadius);
+                WaverMotionDefinitions.WaveHeight);
             if (_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(verticalPixels)))
             {
                 state.ReflectWave();

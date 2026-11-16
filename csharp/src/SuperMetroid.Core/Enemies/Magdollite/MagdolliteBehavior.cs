@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 [RoomLifetime]
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
 
@@ -44,9 +43,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
     }
-
-    /// <summary>The updates each frame of the room's lava glow holds for.</summary>
-    private const int GlowFrameUpdates = 8;
 
     /// <summary>Updates left before the room's lava glow steps to its next frame.</summary>
     internal int GlowStepCountdown { get; private set; }
@@ -100,12 +96,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
-    /// for <see cref="GlowFrameUpdates"/> updates.
+    /// for <see cref="MagdolliteMotionDefinitions.GlowFrameDuration"/> updates.
     /// </summary>
     internal void RestartGlow()
     {
         _glowStarted = true;
-        GlowStepCountdown = GlowFrameUpdates;
+        GlowStepCountdown = MagdolliteMotionDefinitions.GlowFrameDuration;
         GlowFrame = 0;
         ShowGlow();
     }
@@ -566,7 +562,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--GlowStepCountdown != 0)
             return;
 
-        GlowStepCountdown = GlowFrameUpdates;
+        GlowStepCountdown = MagdolliteMotionDefinitions.GlowFrameDuration;
         GlowFrame = (GlowFrame + 1) % MagdolliteShades.GlowFrames;
         ShowGlow();
     }
@@ -776,8 +772,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
         ResolveMagdolliteCombatAfterCommon(context.Place);
     }
-    /// <summary>Sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
-    private static readonly SignedEightEight MagdolliteLavaHorizontalSpeed = SignedEightEight.FromParts(3, 0);
 
     /// <summary>Spawns and initializes a Magdollite lava ball.</summary>
     internal void SpawnMagdolliteLava(RoomEnemyPlace source, bool throwsRight)
@@ -796,7 +790,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // lava sideways in the overlay's facing.
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop), source.Position.Y.Fraction));
         projectile.Velocity = new(
-            throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed,
+            throwsRight ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
             SignedEightEight.Zero);
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }

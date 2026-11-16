@@ -31,11 +31,6 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Zoa's animation: it selects the launch's speed.</summary>
     private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue) => state.LaunchSpeed = cue.LaunchSpeed;
 
-    /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
-    private const int ZoaActivationColumnDistance = 128;
-    /// <summary>Upward travel of half a pixel per gameplay frame.</summary>
-    private static readonly SignedSixteenSixteen ZoaRisingSpeed = SignedSixteenSixteen.FromParts(0, 32768);
-
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemyPlace place)
     {
@@ -84,7 +79,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ZoaActivationColumnDistance)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ZoaSpeedDefinitions.ActivationDistance)
             return;
 
         // The Zoa rises facing Samus, judged by the same wrapped distance from the Zoa to her.
@@ -105,7 +100,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The Japanese and North American release subtracts exactly 0.5 px/frame; the European release's step is 0.625.
             // This project targets the Japanese and North American retail release and reads its data.
-            place.Position = place.Position.AdvanceY(-ZoaRisingSpeed);
+            place.Position = place.Position.AdvanceY(-ZoaSpeedDefinitions.RisingSpeed);
             return;
         }
 

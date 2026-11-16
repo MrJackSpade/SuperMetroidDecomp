@@ -77,28 +77,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
     }
 
-    /// <summary>Fixed-point downward displacement used for the ground probe.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateOnePixelDown = SignedSixteenSixteen.FromWholePixels(1);
-    /// <summary>Left patrol edge is probed one pixel farther than the right edge.</summary>
-    private const int WalkingPirateLeftLedgeProbePixels = 17;
-    /// <summary>Right patrol ledge probe distance in room pixels.</summary>
-    private const int WalkingPirateRightLedgeProbePixels = 16;
-    /// <summary>The right patrol step, seven thirty-seconds of a pixel.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateRightStepDisplacement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(56);
-    /// <summary>The left patrol step: the right step mirrored, and one 65536th of a pixel further left.</summary>
-    private static readonly SignedSixteenSixteen WalkingPirateLeftStepDisplacement =
-        -WalkingPirateRightStepDisplacement - SignedSixteenSixteen.FromParts(0, 1);
-    /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
-    private const int WalkingPirateFiringBandPixels = 16;
-    /// <summary>Horizontal collision window used by the pirate's projectile flinch path.</summary>
-    private const int WalkingPirateFlinchBoxPixels = 32;
-    /// <summary>Horizontal distance from the enemy center to the laser muzzle.</summary>
-    private const int WalkingPirateLaserMuzzleXOffset = 24;
-    /// <summary>Slow laser's whole-pixel movement per frame.</summary>
-    private const int WalkingPirateSlowLaserPixelsPerFrame = 2;
-    /// <summary>Fast laser's whole-pixel movement per frame.</summary>
-    private const int WalkingPirateFastLaserPixelsPerFrame = 4;
-
     /// <summary>
     /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and
     /// ninja pirates and Mother Brain's pirate laser all request their sounds through this.
@@ -176,7 +154,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // The first one-pixel downward move doubles as the grounded test. A move that hits
         // nothing means there was no floor, and the move itself is retained as falling.
-        if (!_terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown))
+        if (!_terrain.MoveEnemyVertically(level, place, SpacePirateMotionDefinitions.WalkingGroundProbeStep))
             return;
 
         // Left and right are not mirrors in the game. Left probes a point 17 pixels
@@ -184,8 +162,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
         int originalX = place.Position.X.Whole;
         place.Position = place.Position.WithWrappedWholeX(
-            place.Position.X.Whole - WalkingPirateLeftLedgeProbePixels);
-        bool floorAhead = _terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown);
+            place.Position.X.Whole - SpacePirateMotionDefinitions.WalkingLeftLedgeProbe);
+        bool floorAhead = _terrain.MoveEnemyVertically(level, place, SpacePirateMotionDefinitions.WalkingGroundProbeStep);
         place.Position = place.Position.WithWholeX(originalX);
 
         if (floorAhead)
@@ -195,7 +173,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
-                displacement: WalkingPirateLeftStepDisplacement);
+                displacement: SpacePirateMotionDefinitions.WalkingLeftStep);
             if (!hitWall &&
                 CoordinateAxis.Difference(place.Position.X.Whole, state.LeftPostX) >= 0)
             {
@@ -222,20 +200,20 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         }
 
-        if (!_terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown))
+        if (!_terrain.MoveEnemyVertically(level, place, SpacePirateMotionDefinitions.WalkingGroundProbeStep))
             return;
 
         int originalX = place.Position.X.Whole;
         place.Position = place.Position.WithWrappedWholeX(
-            place.Position.X.Whole + WalkingPirateRightLedgeProbePixels);
-        bool floorAhead = _terrain.MoveEnemyVertically(level, place, WalkingPirateOnePixelDown);
+            place.Position.X.Whole + SpacePirateMotionDefinitions.WalkingRightLedgeProbe);
+        bool floorAhead = _terrain.MoveEnemyVertically(level, place, SpacePirateMotionDefinitions.WalkingGroundProbeStep);
         place.Position = place.Position.WithWholeX(originalX);
 
         if (floorAhead &&
             !_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
-                displacement: WalkingPirateRightStepDisplacement) &&
+                displacement: SpacePirateMotionDefinitions.WalkingRightStep) &&
             CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPostX))
         {
             return;
@@ -258,9 +236,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         SamusProjectile? shot = PirateFlinchFromHighestShot.Shot(projectiles.Shots, projectile => !projectile.Type.IsNone);
         if (shot is null ||
             CoordinateAxis.Distance(shot.Position.X.Whole, place.Position.X.Whole) >=
-                WalkingPirateFlinchBoxPixels ||
+                SpacePirateMotionDefinitions.WalkingFlinchReach ||
             CoordinateAxis.Distance(shot.Position.Y.Whole, place.Position.Y.Whole) >=
-                WalkingPirateFlinchBoxPixels)
+                SpacePirateMotionDefinitions.WalkingFlinchReach)
         {
             return;
         }
@@ -297,7 +275,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemyPlace place,
         SamusState samus) =>
         CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) <
-            WalkingPirateFiringBandPixels;
+            SpacePirateMotionDefinitions.WalkingFiringBand;
 
     /// <summary>Chooses a left or right laser animation from Samus's current side.</summary>
     private static void InstallWalkingSpacePirateAttack(
@@ -345,7 +323,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             new(
                 CoordinateAxis.Wrap(
                     source.Position.X.Whole +
-                    (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset)),
+                    (movingRight ? SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead : -SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead)),
                 CoordinateAxis.Wrap(source.Position.Y.Whole - laserHeight)),
             movingRight,
             LaserSpeedOf(source));
@@ -425,8 +403,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         HorizontalDirection direction)
     {
         int pixels = projectile.StateOf<PirateLaserState>().Slow
-            ? WalkingPirateSlowLaserPixelsPerFrame
-            : WalkingPirateFastLaserPixelsPerFrame;
+            ? SpacePirateMotionDefinitions.WalkingSlowLaserStep
+            : SpacePirateMotionDefinitions.WalkingFastLaserStep;
         projectile.Position = projectile.Position.WithWholeX(direction == HorizontalDirection.Right
             ? CoordinateAxis.Wrap(projectile.Position.X.Whole + pixels)
             : CoordinateAxis.Wrap(projectile.Position.X.Whole - pixels));

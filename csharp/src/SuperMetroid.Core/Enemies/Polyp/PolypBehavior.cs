@@ -27,11 +27,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Samus must be within 64 pixels on each axis to trigger a launch.</summary>
-    private const int PolypProximity = 64;
-    /// <summary>Each Polyp initializer resets the shared enemy random seed to 17.</summary>
-    private const int PolypRandomSeed = 17;
-
     /// <summary>Initializes the Polyp.</summary>
     internal void InitializePolyp(RoomEnemyPlace place)
     {
@@ -48,7 +43,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Polyp initializer writes 17 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it
         // as actor-local randomness would produce a different launch sequence.
-        setRandomNumber(PolypRandomSeed);
+        setRandomNumber(PolypLaunchDefinitions.RandomSeed);
     }
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>
@@ -103,7 +98,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {
-        return CoordinateAxis.Distance(samusCoordinate, enemyCoordinate) < PolypProximity;
+        return CoordinateAxis.Distance(samusCoordinate, enemyCoordinate) < PolypLaunchDefinitions.LaunchReach;
     }
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
@@ -121,11 +116,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunPolypMain(place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
-
-    /// <summary>Each rock frame moves its place along the quadratic speed curve by two marks.</summary>
-    private static readonly QuadraticSpeedCurvePlace PolypRockGravityStep = QuadraticSpeedCurvePlace.FromMarks(2);
-    /// <summary>Falling rocks stop accelerating at mark 64.</summary>
-    private static readonly QuadraticSpeedCurvePlace PolypRockTerminalCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
@@ -177,7 +167,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StepRisingPolypRock(EnemyProjectile projectile)
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
-        rock.SpeedCurvePlace -= PolypRockGravityStep;
+        rock.SpeedCurvePlace -= PolypLaunchDefinitions.RockFallStep;
         if (rock.SpeedCurvePlace.IsNegative)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
@@ -199,9 +189,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StepFallingPolypRock(EnemyProjectile projectile)
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
-        rock.SpeedCurvePlace += PolypRockGravityStep;
-        if (rock.SpeedCurvePlace >= PolypRockTerminalCurvePlace)
-            rock.SpeedCurvePlace = PolypRockTerminalCurvePlace;
+        rock.SpeedCurvePlace += PolypLaunchDefinitions.RockFallStep;
+        if (rock.SpeedCurvePlace >= PolypLaunchDefinitions.RockFastestFallPlace)
+            rock.SpeedCurvePlace = PolypLaunchDefinitions.RockFastestFallPlace;
 
         AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace - QuadraticSpeedCurvePlace.OneMark, sign: EnemySpeedSign.Positive);
         AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, sign: EnemySpeedSign.Positive);

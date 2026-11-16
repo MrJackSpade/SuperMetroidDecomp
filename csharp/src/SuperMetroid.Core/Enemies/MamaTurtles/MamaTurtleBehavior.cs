@@ -104,25 +104,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Maximum crawl distance from a baby's spawn before its animation reverses direction.</summary>
-    private const int BabyTurtleTravelDistance = 48;
-    /// <summary>Upper room Y where Mama pauses after a rider-powered ascent.</summary>
-    private const int MamaTurtlePeakYPosition = 488;
-    /// <summary>Whole pixels climbed per tick while Samus rides Mama toward the peak.</summary>
-    private const int MamaTurtleRisingSpeed = 7;
-    /// <summary>Ticks held at the ascent peak before Mama begins falling.</summary>
-    private const int MamaTurtlePeakPauseFrames = 30;
-    /// <summary>Whole-speed cap the fall compares Mama's own vertical speed with.</summary>
-    private const int MamaTurtleMaximumFallingSpeed = 4;
-    /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
-    private const int MamaTurtleMaximumHoveringSpeed = 3;
-    /// <summary>How many Baby Turtles crawl on Mama's shell.</summary>
-    private const int BabyTurtleCount = 4;
-
     /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists right after her.</summary>
     internal void InitializeMamaTurtle(RoomEnemyPlace place)
     {
-        RoomEnemyPlace[] babies = _places.ListedRunAfter(place, BabyTurtleCount);
+        RoomEnemyPlace[] babies = _places.ListedRunAfter(place, MamaTurtleMotionDefinitions.BabyCount);
         _babiesOfMama.Place(place, babies);
         foreach (RoomEnemyPlace baby in babies)
             _mamaOfBaby.Place(baby, place);
@@ -273,10 +258,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
-            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(1, 0);
+            samus.Kinematics.ExtraDisplacement -= MamaTurtleMotionDefinitions.LeavingShellRiderShift;
         }
 
-        mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - 1);
+        mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.LeavingShellClimb);
         mama.Radius = mama.Radius.WithY(MamaTurtleMotionDefinitions.AwakeHalfHeight);
         mama.Position = mama.Position.WithWholeX(MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeft.IsSetIn(mama.Position.Y.Whole)
             ? CoordinateAxis.Wrap(mama.Position.X.Whole - 1)
@@ -317,12 +302,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-1)))
+        if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-MamaTurtleMotionDefinitions.RiseToHoverSpeed)))
             return;
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
-            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, 1);
+            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleMotionDefinitions.RiseToHoverSpeed);
         }
 
         if (--state.ActionTimer != 0)
@@ -330,8 +315,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The two adjacent accelerations accelerate toward Samus's side by a sixteenth of a pixel per update.
         state.XAcceleration = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) < 0
-            ? SignedSixteenSixteen.FromSixteenthsOfPixel(1)
-            : SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
+            ? MamaTurtleMotionDefinitions.HoverAcceleration
+            : -MamaTurtleMotionDefinitions.HoverAcceleration;
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
         state.Action = MamaTurtleAction.Hovering;
     }
@@ -381,13 +366,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int oldWhole = velocity.WholePixels;
         int newWhole = sum.WholePixels;
 
-        int cappedWhole = Math.Abs(newWhole) < MamaTurtleMaximumHoveringSpeed
+        int cappedWhole = Math.Abs(newWhole) < MamaTurtleMotionDefinitions.FastestHover
             ? newWhole
             // Chooses the cap's sign from the old velocity, before storing the
             // just-computed result. Preserve that one-frame zero-crossing behavior.
             : oldWhole < 0
-                ? -MamaTurtleMaximumHoveringSpeed
-                : MamaTurtleMaximumHoveringSpeed;
+                ? -MamaTurtleMotionDefinitions.FastestHover
+                : MamaTurtleMotionDefinitions.FastestHover;
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(cappedWhole, sum.Fraction));
     }
 
@@ -406,9 +391,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if (CoordinateAxis.Difference(mama.Position.Y.Whole, MamaTurtlePeakYPosition) < 0)
+        if (CoordinateAxis.Difference(mama.Position.Y.Whole, MamaTurtleMotionDefinitions.RiddenAscentPeak) < 0)
         {
-            state.ActionTimer = MamaTurtlePeakPauseFrames;
+            state.ActionTimer = MamaTurtleMotionDefinitions.PeakPause;
             state.Action = MamaTurtleAction.HoveringAtPeak;
             state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
             return;
@@ -416,8 +401,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
-            mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleRisingSpeed);
-            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleRisingSpeed);
+            mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.RiddenAscentSpeed);
+            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleMotionDefinitions.RiddenAscentSpeed);
             return;
         }
 
@@ -446,11 +431,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveMamaTurtleExpandedContact(mama, samus);
 
         // The cap compares Mama's own fall speed.
-        if (state.Velocity.Y.WholePixels < MamaTurtleMaximumFallingSpeed)
+        if (state.Velocity.Y.WholePixels < MamaTurtleMotionDefinitions.FastestFall)
         {
             // The one-eighth-pixel fraction step carries into the whole pixels; both are one 1/65536-pixel add.
             state.Velocity = state.Velocity.WithY(
-                state.Velocity.Y + SignedSixteenSixteen.FromSixteenthsOfPixel(2));
+                state.Velocity.Y + MamaTurtleMotionDefinitions.FallAcceleration);
         }
 
         // Only the whole part is passed to the downward move; the fraction influences later
@@ -609,7 +594,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int signedDifference = CoordinateAxis.Difference(state.SpawnTopCenter.X, baby.Position.X.Whole);
         int distance = Math.Abs(signedDifference);
-        if (distance >= BabyTurtleTravelDistance)
+        if (distance >= MamaTurtleMotionDefinitions.BabyTravelDistance)
         {
             state.Velocity = state.Velocity.WithX(signedDifference < 0 ? -1 : 1);
         }
@@ -628,7 +613,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         state.Action = MamaTurtleAction.RisingToHover;
-        state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? 1 : -1);
+        state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right
+            ? MamaTurtleMotionDefinitions.RiseToHoverDrift
+            : -MamaTurtleMotionDefinitions.RiseToHoverDrift);
         state.ActionTimer = MamaTurtleMotionDefinitions.RiseToHoverDuration;
     }
 

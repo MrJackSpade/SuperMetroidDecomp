@@ -126,7 +126,8 @@ internal static class EnemySheetOwnFramesVerification
             [EnemyDefinitionId.EtecoonEscape] = Reach(EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt,
                 EscapeEtecoonAnimations.StartingAt.Keys),
             [EnemyDefinitionId.DachoraEscape] = Reach(EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt,
-                EscapeDachoraAnimations.StartingAt.Keys),
+                EscapeDachoraAnimations.StartingAt.Keys).Union(Shown(EscapeDachoraAnimations.Segments,
+                    [EscapeDachoraAnimations.RunningAroundLowTide, EscapeDachoraAnimations.RunningAroundHighTide])).ToHashSet(),
         });
 
     /// <summary>A Fune or Namihe runs the programs its placements' variant selects, idle or active, facing either way.</summary>
@@ -373,6 +374,16 @@ internal static class EnemySheetOwnFramesVerification
         }
         return shown;
     }
+
+    /// <summary>The frames every phase of <paramref name="animations"/> shows: animations an owner starts by name.</summary>
+    private static HashSet<EnemyFrameId> Shown<TSegment, TEvent>(AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
+        IEnumerable<Animation<TSegment>> animations)
+        where TSegment : struct, Enum
+        where TEvent : notnull =>
+        [.. animations.SelectMany(animation => animation.Phases)
+            .SelectMany(phase => segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
+            .Select(beat => beat.ShownFrame)
+            .OfType<EnemyFrameId>()];
 
     /// <summary>Runs the installed enemy sheets' own-frame check.</summary>
     [VerificationCommand("--enemy-sheet-own-frames")]

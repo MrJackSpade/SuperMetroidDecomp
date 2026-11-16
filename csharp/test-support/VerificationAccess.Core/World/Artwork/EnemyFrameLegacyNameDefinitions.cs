@@ -1835,7 +1835,7 @@ internal static class EnemyFrameLegacyNameDefinitions
         [EnemyFrameId.WorkRobotUnpoweredTiltedLeft] = "work_robot_unpowered_left",
         [EnemyFrameId.WorkRobotUnpoweredTiltedRight] = "work_robot_unpowered_right",
         [EnemyFrameId.WalkingPirateFacingViewer] = "walking_pirate_look_shared",
-        [EnemyFrameId.TorizoFacingLeftHalfRisen] = "torizo_facing_left_standing_up_third",
+        [EnemyFrameId.TorizoFacingLeftHalfRisen] = "golden_torizo_initial",
     };
 
     /// <summary>The names the Crocomire BG2 frame document gave its frames before they were named for their poses.</summary>

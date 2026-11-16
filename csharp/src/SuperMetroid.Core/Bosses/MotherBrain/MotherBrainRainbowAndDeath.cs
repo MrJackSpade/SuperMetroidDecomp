@@ -253,7 +253,7 @@ internal sealed class MotherBrainRainbowAndDeath
         }
 
         state.Phase = sequence.State.Phase;
-        state.PhaseTimer = sequence.State.PhaseTimer;
+        state.PhaseTimer.Count = sequence.State.PhaseTimer.Count;
         state.NeckTurnPerUpdate = sequence.State.NeckTurnPerUpdate;
         state.NeckMovementEnabled = sequence.State.NeckMovementEnabled;
         state.LowerNeckMovement = sequence.State.LowerNeckMovement;

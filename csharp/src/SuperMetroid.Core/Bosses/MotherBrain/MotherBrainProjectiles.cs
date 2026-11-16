@@ -366,9 +366,9 @@ internal sealed class MotherBrainProjectiles
             // A fragment falls for its lifetime of 32 updates at most, so its gravity adds at most four pixels an update.
             fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
             fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
-            // The fragment's lifetime expires when it passes zero.
+            // The fragment turns to dust as its lifetime runs out.
             MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
-            if (--fragmentState.Lifetime >= 0) return;
+            if (fragmentState.Lifetime.StepKeepsRunning()) return;
             Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
             fragment.Delete();
             dependencies.Projectiles.SpawnDustOrExplosion(dust, MotherBrainDeathDefinitions.DoorDustParameter);

@@ -40,7 +40,7 @@ internal sealed class MotherBrainLateFightState
     public MotherBrainNeckMovement UpperNeckMovement { get; internal set; }
 
     /// <summary>Body phase timer.</summary>
-    public int PhaseTimer { get; internal set; }
+    public MotherBrainCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// The speed her severed brain falls at once she has realized her decapitation (#1890, #2016): none as it starts to

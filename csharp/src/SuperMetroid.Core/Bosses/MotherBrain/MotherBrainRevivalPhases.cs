@@ -34,7 +34,7 @@ internal sealed class MotherBrainRevivalPhases
         // The inanimate setup only moves to the next phase and sets its 768-frame timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife;
-        _state.PhaseTimer = 768;
+        _state.PhaseTimer.Count = 768;
         return false;
     }
 
@@ -44,15 +44,14 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
-        // The below-zero check accepts zero: 768 reaches zero without advancing and only the 769th
-        // call passes zero to -1. Revival then re-enables both breath producers,
+        // The count of 768 lasts 769 calls. As it runs out, revival re-enables both breath producers,
         // seeds 224, and falls through two phase changes to the transition from grey.
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             EnableSmallPurpleBreathGeneration();
             _state.DroolGenerationEnabled = true;
             _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey;
-            _state.PhaseTimer = 224;
+            _state.PhaseTimer.Count = 224;
             _state.GreyTransitionCounter = 0;
             return true;
         }
@@ -65,9 +64,9 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveTransitionFromGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
-            _state.PhaseTimer = 16;
+            _state.PhaseTimer.Count = 16;
 
             // The revival reverses the same eight grey fade steps used by the corpse
             // transition and follows them with zero. The body counter is incremented
@@ -103,7 +102,7 @@ internal sealed class MotherBrainRevivalPhases
             _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             _state.NeckMovementEnabled = true;
             _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch;
-            _state.PhaseTimer = 16;
+            _state.PhaseTimer.Count = 16;
             return true;
         }
         return false;
@@ -115,11 +114,11 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUpStretch()
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase3);
             _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby;
-            _state.PhaseTimer = 128;
+            _state.PhaseTimer.Count = 128;
             return true;
         }
         return false;
@@ -131,9 +130,9 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby(MotherBrainRainbowBeamStepRequests requests)
     {
-        // Once the 128-count timer passes zero, the timer deliberately remains negative and the
+        // Once the 128-count timer runs out, it stays run out and the
         // helper is retried after every body-animation call until X has overshot 80.
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;
             bool reachedWalkTarget = CoordinateAxis.Difference(80, _state.Body.Position.X) < 0 ||
@@ -198,7 +197,7 @@ internal sealed class MotherBrainRevivalPhases
                 ? MotherBrainHeadSegment.AttackingBabyMetroid
                 : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
             _state.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown;
-            _state.PhaseTimer = 64;
+            _state.PhaseTimer.Count = 64;
         }
         return false;
     }
@@ -209,7 +208,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttackCooldown()
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
             _state.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttack;
         return false;
     }

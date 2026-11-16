@@ -198,7 +198,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             // The neck phase itself runs on Mother Brain's next ordinary phase-three
             // main call.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
-            State.PhaseTimer = 0;
+            State.PhaseTimer.Count = 0;
         }
     }
 

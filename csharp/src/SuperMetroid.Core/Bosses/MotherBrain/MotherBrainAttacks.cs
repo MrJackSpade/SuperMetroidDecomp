@@ -305,13 +305,13 @@ internal sealed class MotherBrainAttacks
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
         state.Phase = MotherBrainBodyPhase.SecondPhaseBombFired;
-        state.PhaseTimer = 44;
+        state.PhaseTimer.Count = 44;
     }
 
     /// <summary>Waits after the bomb, including its stand-up fallthrough.</summary>
     internal static void WaitAfterMotherBrainBomb(MotherBrainEnemyState state)
     {
-        if (--state.PhaseTimer >= 0)
+        if (state.PhaseTimer.StepKeepsRunning())
             return;
 
         if (TryMakeMotherBrainStand(state))
@@ -414,24 +414,23 @@ internal sealed class MotherBrainAttacks
         state.UpperNeckMovement = targetMovement;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Quick;
         state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire;
-        state.PhaseTimer = 4;
+        state.PhaseTimer.Count = 4;
     }
 
     /// <summary>
-    /// Positions the head slowly and fires the laser. Its timer expires only after counting down through
-    /// zero to -1, at which point neck rotation slows and the ordinary head animation
+    /// Positions the head slowly and fires the laser. As its timer runs out, neck rotation slows and the ordinary head animation
     /// owns the muzzle animation and projectile spawn.
     /// </summary>
     internal static void PositionMotherBrainHeadSlowlyAndFireLaser(
         MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
         state.Phase = MotherBrainBodyPhase.SecondPhaseLaserFinishAttack;
-        state.PhaseTimer = 16;
+        state.PhaseTimer.Count = 16;
     }
 
     /// <summary>
@@ -444,7 +443,7 @@ internal sealed class MotherBrainAttacks
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.LowerNeckMovement = MotherBrainNeckMovement.BobUp;

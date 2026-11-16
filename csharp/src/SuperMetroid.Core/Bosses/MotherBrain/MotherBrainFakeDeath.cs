@@ -53,9 +53,9 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Steps Mother Brain's fake-death gray fade and advances when its colour cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
-        if (--state.PhaseTimer < 0)
+        if (state.PhaseTimer.StepRunsOut())
         {
-            state.PhaseTimer = 8;
+            state.PhaseTimer.Count = 8;
             int step = state.GreyFadeStep++;
             if (step == MotherBrainFakeDeathFadeDefinitions.FrameCount)
             {
@@ -87,10 +87,10 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
     internal void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
     {
-        if (--state.FakeDeathExplosionTimer >= 0)
+        if (state.FakeDeathExplosionTimer.StepKeepsRunning())
             return;
 
-        state.FakeDeathExplosionTimer = 8;
+        state.FakeDeathExplosionTimer.Count = 8;
         // The index steps backward through the eight positions, from the first back to the last.
         state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
@@ -106,8 +106,8 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
-    /// <remarks>Every spawn after the first waits until its timer goes negative, so each waits out the
-    /// 32 (or 2) its preceding clear step set.</remarks>
+    /// <remarks>Every spawn after the first waits until its timer runs out, so each waits out the
+    /// 32 (or 2) count its preceding clear step set.</remarks>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseStep)
@@ -125,7 +125,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnTopRightTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnTopRightTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, new(152, 47));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn9;
@@ -136,7 +136,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnTopLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnTopLeftTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, new(104, 47));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn6;
@@ -147,7 +147,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnBottomRightTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnBottomRightTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomRight);
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomRightTube;
@@ -158,7 +158,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomMiddleLeft);
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube;
@@ -169,7 +169,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, MotherBrainTopTubeSegment.TopMiddleLeft, new(120, 59));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn7;
@@ -180,7 +180,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, MotherBrainTopTubeSegment.TopMiddleRight, new(136, 59));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn8;
@@ -191,7 +191,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube, 32);
                 return;
             case MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomMiddleRight);
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube;
@@ -202,7 +202,7 @@ internal sealed class MotherBrainFakeDeath
                     MotherBrainTubeCollapseStep.SpawnMainTube, 2);
                 return;
             case MotherBrainTubeCollapseStep.SpawnMainTube:
-                if (!DecrementMotherBrainTubeTimerPastZero(state))
+                if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleTubes;
@@ -220,9 +220,6 @@ internal sealed class MotherBrainFakeDeath
         }
     }
 
-    /// <summary>Counts the tube phase's timer down and reports whether it ran past zero.</summary>
-    private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state) => --state.TubeCollapseTimer < 0;
-
     /// <summary>Queues the room block change at the tube's location.</summary>
     private void RequestMotherBrainTubeObject(
         MotherBrainEnemyState state,
@@ -233,7 +230,7 @@ internal sealed class MotherBrainFakeDeath
     {
         _access.RequestMotherBrainObject(block, mutation);
         state.TubeCollapseStep = next;
-        state.TubeCollapseTimer = timer;
+        state.TubeCollapseTimer.Count = timer;
     }
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
@@ -284,7 +281,7 @@ internal sealed class MotherBrainFakeDeath
         {
             Playback = MotherBrainTubeAnimations.Starting(piece),
             FloorY = tubeBody.Floor,
-            FallDelay = settings.FallDelay,
+            FallDelay = { Count = settings.FallDelay },
         };
         tube.SetSpeciesState(state);
     }
@@ -299,8 +296,8 @@ internal sealed class MotherBrainFakeDeath
                 FallMotherBrainSideTube(tube);
                 return;
             case MotherBrainTubeAction.WaitingToFall:
-                // The main tube's fall delay expires when it passes zero.
-                if (--tubeState.FallDelay >= 0)
+                // The main tube falls as its fall delay runs out.
+                if (tubeState.FallDelay.StepKeepsRunning())
                     return;
                 tubeState.Action = MotherBrainTubeAction.Falling;
                 FallMotherBrainMainTube(tube);
@@ -374,12 +371,12 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Emits smoke at the falling tube's current position.</summary>
     private void SpawnMotherBrainTubeSmoke(RoomEnemyPlace tube)
     {
-        // The smoke cadence counts down and emits when it passes zero.
+        // The smoke cadence counts down and emits as it runs out.
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        if (--tubeState.SmokeDelay >= 0)
+        if (tubeState.SmokeDelay.StepKeepsRunning())
             return;
 
-        tubeState.SmokeDelay = 8;
+        tubeState.SmokeDelay.Count = 8;
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets.Length;
         _projectiles.SpawnDustOrExplosion(
             new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), 208),
@@ -521,10 +518,10 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Restores the combat colours after the gray fake-death phase.</summary>
     internal static void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.PhaseTimer = 4;
+        state.PhaseTimer.Count = 4;
         int fadeStep = state.GrayTransitionCounter++;
         if (fadeStep < MotherBrainFakeDeathFadeDefinitions.FrameCount)
         {
@@ -539,6 +536,6 @@ internal sealed class MotherBrainFakeDeath
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
         state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingShakeHead;
-        state.PhaseTimer = 23;
+        state.PhaseTimer.Count = 23;
     }
 }

@@ -183,7 +183,7 @@ internal static class NativeEnemyFamilyStateImport
                 fallingTubeRecord.Action = MotherBrainNativeWords.MotherBrainTubeActions.Decode(words.A, "recorded MotherBrainTubeAction");
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
-            fallingTubeRecord.SmokeDelay = CoordinateAxis.AsSigned(words.D);
+            fallingTubeRecord.SmokeDelay.Count = CoordinateAxis.AsSigned(words.D);
             fallingTubeRecord.SmokePositionIndex = words.E;
         }
         if (enemy.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)

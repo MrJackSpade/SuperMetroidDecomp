@@ -47,7 +47,7 @@ internal static class MotherBrainDeathExplosionStartVerification
 
         // The door's dust continues the place and the interval the last death burst left.
         sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer;
-        sequence.State.PhaseTimer = 32;
+        sequence.State.PhaseTimer.Count = 32;
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);
         var frame = new RainbowBeamAttackFrame

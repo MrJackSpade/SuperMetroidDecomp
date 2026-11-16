@@ -61,7 +61,7 @@ internal sealed class MotherBrainAscent
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Health = 18000;
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense;
-        state.PhaseTimer = 128;
+        state.PhaseTimer.Count = 128;
 
         // The setup falls directly into the suspense wait; the freshly written timer is observed as
         // 127 before another enemy can run.
@@ -72,11 +72,11 @@ internal sealed class MotherBrainAscent
     internal static void PauseBeforeMotherBrainRises(
         MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentPrepareForRising;
-        state.PhaseTimer = 32;
+        state.PhaseTimer.Count = 32;
         PrepareMotherBrainForRising(state);
     }
 
@@ -84,7 +84,7 @@ internal sealed class MotherBrainAscent
     internal static void PrepareMotherBrainForRising(
         MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         // The display hides the newly loaded leg sprites below a fixed line so they do not
@@ -94,7 +94,7 @@ internal sealed class MotherBrainAscent
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody;
-        state.PhaseTimer = 256;
+        state.PhaseTimer.Count = 256;
 
         // The first readying update runs on the same frame the floor-clipping effect starts.
         ReadyMotherBrainStandingBody(state);
@@ -137,7 +137,7 @@ internal sealed class MotherBrainAscent
     /// <summary>Consumes the pre-rise wait and advances to body ascent.</summary>
     internal static void ContinueMotherBrainAscentPause(MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
@@ -204,20 +204,20 @@ internal sealed class MotherBrainAscent
 
         state.GrayTransitionCounter = 0;
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray;
-        state.PhaseTimer = 0;
+        state.PhaseTimer.Count = 0;
     }
 
     /// <summary>Applies the phase-two head shake before normal combat begins.</summary>
     internal static void ShakeMotherBrainHeadMenacingly(
         MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
         state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
-        state.PhaseTimer = 256;
+        state.PhaseTimer.Count = 256;
         BringMotherBrainHeadBackUp(state);
     }
 
@@ -225,20 +225,20 @@ internal sealed class MotherBrainAscent
     internal static void BringMotherBrainHeadBackUp(
         MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingFinish;
-        state.PhaseTimer = 64;
+        state.PhaseTimer.Count = 64;
         FinishMotherBrainStretching(state);
     }
 
     /// <summary>Switches the head to its neutral phase-two animation.</summary>
     internal static void FinishMotherBrainStretching(MotherBrainEnemyState state)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.SmallPurpleBreathGenerationEnabled = true;

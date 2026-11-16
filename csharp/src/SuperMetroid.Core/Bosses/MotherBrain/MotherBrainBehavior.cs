@@ -262,7 +262,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The fake-death start installs the following countdown and falls through to it. The
                 // first observable value is therefore 63, not the installed value 64.
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
-                state.PhaseTimer = 64;
+                state.PhaseTimer.Count = 64;
                 RunMotherBrainPauseBeforeLock(state, samus);
                 return;
 
@@ -271,27 +271,27 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic:
-                if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+                if (!state.PhaseTimer.StepRunsOut())
                     return;
                 _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
                 _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
-                state.PhaseTimer = 12;
+                state.PhaseTimer.Count = 12;
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
-                if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+                if (!state.PhaseTimer.StepRunsOut())
                     return;
                 // Restoring Samus's control reinstalls the normal input and movement modes.
                 samus.Control.Unlock();
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash;
-                state.PhaseTimer = 8;
+                state.PhaseTimer.Count = 8;
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash:
-                if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+                if (!state.PhaseTimer.StepRunsOut())
                     return;
 
                 // The fake-death flash starts the looping room flash, drains the room's acid,
@@ -300,9 +300,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots;
-                state.TubeCollapseTimer = 0;
+                state.TubeCollapseTimer.Count = 0;
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
-                state.PhaseTimer = 0;
+                state.PhaseTimer.Count = 0;
                 state.GreyFadeStep = 0;
                 Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
@@ -463,7 +463,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Waits through the fake-death pause before control is locked for the next phase.</summary>
     private void RunMotherBrainPauseBeforeLock(MotherBrainEnemyState state, SamusState samus)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         // The arena lock keeps the first screen of the room's row of four and closes the second,
@@ -475,7 +475,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic;
-        state.PhaseTimer = 32;
+        state.PhaseTimer.Count = 32;
         RunMotherBrainFakeDeath(state, samus);
     }
 

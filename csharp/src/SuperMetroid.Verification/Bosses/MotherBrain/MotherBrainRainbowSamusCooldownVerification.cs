@@ -29,7 +29,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         };
         attack.State.Body.Position = new(64, 100);
         attack.State.Phase = MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge;
-        attack.State.PhaseTimer = 0;
+        attack.State.PhaseTimer.Count = 0;
         RainbowBeamAttackFrame Frame() => new() { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 };
 
         MotherBrainRainbowBeamAttackStepResult neckLowered = attack.Step(samus, Frame());

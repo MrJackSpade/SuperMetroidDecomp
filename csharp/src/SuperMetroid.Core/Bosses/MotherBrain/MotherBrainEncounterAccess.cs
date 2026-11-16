@@ -39,15 +39,6 @@ internal sealed class MotherBrainEncounterAccess
         throw new InvalidDataException(
             "Mother Brain's brain needs the live rainbow beam and Baby sequence.");
 
-    /// <summary>
-    /// Timers expire only once a decrement takes them below zero.
-    /// A zero timer therefore expires immediately, while a value N remains live for N ticks.
-    /// </summary>
-    internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
-    {
-        return --state.PhaseTimer < 0;
-    }
-
     /// <summary>Restarts the body enemy on <paramref name="segment"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyAnimation(MotherBrainEnemyState state, MotherBrainBodySegment segment)
     {

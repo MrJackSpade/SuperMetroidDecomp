@@ -94,7 +94,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (stoodUp)
         {
             _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire;
-            _state.PhaseTimer = 16;
+            _state.PhaseTimer.Count = 16;
             return true;
         }
         return false;
@@ -106,13 +106,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
-        // Stand-up falls through here, so the freshly written 16 becomes 15
-        // on the same AI call. The below-zero check accepts zero and expires only once the timer passes zero.
-        if (--_state.PhaseTimer < 0)
+        // Stand-up falls through here, so the freshly loaded countdown takes its first step on the same AI call.
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
             _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam;
-            _state.PhaseTimer = 256;
+            _state.PhaseTimer.Count = 256;
         }
         return false;
     }
@@ -123,7 +122,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
             _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby;
@@ -146,7 +145,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
             _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam;
-            _state.PhaseTimer = 256;
+            _state.PhaseTimer.Count = 256;
         }
         return false;
     }
@@ -157,7 +156,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;

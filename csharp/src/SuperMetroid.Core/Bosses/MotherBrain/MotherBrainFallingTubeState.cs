@@ -24,8 +24,8 @@ internal sealed class MotherBrainFallingTubeState
     /// <summary>The signed 1/256-pixel fall speed per update, increased by six 256ths each update.</summary>
     public SignedEightEight FallSpeed { get; internal set; }
 
-    /// <summary>The updates before the next smoke puff, counted down past zero.</summary>
-    public int SmokeDelay { get; internal set; }
+    /// <summary>The wait before the next smoke puff (<see cref="MotherBrainCountdown"/>).</summary>
+    public MotherBrainCountdown SmokeDelay { get; } = new();
 
     /// <summary>The smoke puff's horizontal position, cycling through the four authored offsets.</summary>
     public int SmokePositionIndex
@@ -34,6 +34,6 @@ internal sealed class MotherBrainFallingTubeState
         internal set => field = Ensure.BetweenInclusive(0, 3, value);
     }
 
-    /// <summary>The main tube's wait before it falls, counted down past zero.</summary>
-    public int FallDelay { get; internal set; }
+    /// <summary>The main tube's wait before it falls (<see cref="MotherBrainCountdown"/>).</summary>
+    public MotherBrainCountdown FallDelay { get; } = new();
 }

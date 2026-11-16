@@ -55,7 +55,7 @@ internal static class RoomEnemyPlaceFrameAccess
                 {
                     // One of Kraid's parts shows the pose its record stores: the picture, its step and its depth (#2210).
                     if (self.SpeciesState<KraidPartState>() is { } part
-                        && KraidPartFrameToolingDefinitions.PoseAt(value) is { } pose)
+                        && KraidPartFrameToolingDefinitionsConstants.PoseAt(value) is { } pose)
                     {
                         self.Frame = part.Show(pose);
                         return;

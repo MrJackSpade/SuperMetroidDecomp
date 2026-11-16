@@ -44,23 +44,8 @@ internal static class KraidPartFrameToolingDefinitions
         throw new ArgumentOutOfRangeException(nameof(pose), pose, "Not a Kraid part pose.");
     }
 
-    /// <summary>The pose the extended spritemap <paramref name="spritemap"/> stores, or null when it stores none of Kraid's.</summary>
-    internal static KraidPartPose? PoseAt(ushort spritemap)
-    {
-        foreach ((ushort stored, KraidPartPose pose) in Records)
-        {
-            if (stored == spritemap)
-                return pose;
-        }
-        return null;
-    }
-
-    /// <summary>The extended spritemaps of the foot's and arm's poses (#2210): every record of theirs the animations show.</summary>
-    internal static IEnumerable<ushort> LimbSpritemaps => Records.Select(record => record.Spritemap)
-        .Where(spritemap => spritemap is >= FootStart and <= ArmLast or FootStanding);
-
     /// <summary>Each record Kraid's part animations show, with the pose it stores, in the cartridge's order.</summary>
-    private static readonly (ushort Spritemap, KraidPartPose Pose)[] Records =
+    internal static readonly (ushort Spritemap, KraidPartPose Pose)[] Records =
     [
         (FootRoot(0), Foot(F.KraidFootPlanted, new(0, 0))),
         (FootRoot(1), Foot(F.KraidFootPlanted, new(-2, -1))),

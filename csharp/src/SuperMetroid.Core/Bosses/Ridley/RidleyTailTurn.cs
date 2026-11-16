@@ -30,12 +30,6 @@ public readonly record struct RidleyTailTurn : IComparable<RidleyTailTurn>
     /// <summary>Whether <paramref name="left"/> turns more than <paramref name="right"/>.</summary>
     public static bool operator >(RidleyTailTurn left, RidleyTailTurn right) => left.CompareTo(right) > 0;
 
-    /// <summary>Whether <paramref name="left"/> turns no more than <paramref name="right"/>.</summary>
-    public static bool operator <=(RidleyTailTurn left, RidleyTailTurn right) => left.CompareTo(right) <= 0;
-
-    /// <summary>Whether <paramref name="left"/> turns no less than <paramref name="right"/>.</summary>
-    public static bool operator >=(RidleyTailTurn left, RidleyTailTurn right) => left.CompareTo(right) >= 0;
-
     /// <inheritdoc />
     public int CompareTo(RidleyTailTurn other) => Steps.CompareTo(other.Steps);
 

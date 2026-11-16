@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -40,6 +39,6 @@ internal static class KraidFootCollisionDefinitionsAccess
     {
         /// <summary>The components of the foot pose stored at native address <paramref name="pointer"/>, when it stores one (#2210).</summary>
         internal static bool TryGetComponents(ushort pointer, out ImmutableArray<KraidCollisionComponent> components) =>
-            KraidFootCollision.TryGetComponents(SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPartFrameToolingDefinitions.PoseAt(pointer), out components);
+            KraidFootCollision.TryGetComponents(SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPartFrameToolingDefinitionsConstants.PoseAt(pointer), out components);
     }
 }

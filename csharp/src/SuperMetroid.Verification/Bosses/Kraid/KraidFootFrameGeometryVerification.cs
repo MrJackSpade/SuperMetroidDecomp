@@ -44,7 +44,7 @@ internal static class KraidFootFrameGeometryVerification
         var stored = new HashSet<KraidPartPose>();
         foreach (ushort record in records)
         {
-            KraidPartPose pose = KraidPartFrameToolingDefinitions.PoseAt(record)
+            KraidPartPose pose = KraidPartFrameToolingDefinitionsConstants.PoseAt(record)
                 ?? throw new InvalidOperationException($"Verification failed: $A7:{record:X4} stores no Kraid foot pose.");
             AssertTrue(Pictures.Contains(pose.Picture), $"$A7:{record:X4} shows one of the five foot pictures");
             stored.Add(pose);
@@ -53,7 +53,7 @@ internal static class KraidFootFrameGeometryVerification
                 $"$A7:{record:X4}: native two-component frame size");
         }
         AssertTrue(stored.SetEquals(shown), "the foot's animations show exactly the poses its native records store");
-        AssertTrue(KraidPartFrameToolingDefinitions.PoseAt(0x8f35) is null, "the unshown root stores no pose");
+        AssertTrue(KraidPartFrameToolingDefinitionsConstants.PoseAt(0x8f35) is null, "the unshown root stores no pose");
 
         AssertEqual(Pictures.Length, KraidFootVisualDefinitions.FrameCount, "Kraid foot picture count");
         AssertEqual(Pictures.Length, KraidFootVisualDefinitions.Frames.Length, "Kraid foot sequence length");
@@ -64,7 +64,7 @@ internal static class KraidFootFrameGeometryVerification
             AssertEqual(new NativeEnemySpritemapDefinition(0xa7, composed.Pointer, $"kraid_foot_oam_{composed.Pointer:X4}"), composed,
                 "native Kraid foot identity and key");
             // Each picture is composed where the walk first shows it: unstepped, at its own depth.
-            AssertEqual<KraidPartPose?>(new KraidPartPose(Pictures[index]), KraidPartFrameToolingDefinitions.PoseAt(composed.Pointer),
+            AssertEqual<KraidPartPose?>(new KraidPartPose(Pictures[index]), KraidPartFrameToolingDefinitionsConstants.PoseAt(composed.Pointer),
                 $"{Pictures[index]} is composed from $A7:{composed.Pointer:X4}, where the walk first shows it");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitionsConstants.Frame(-1), "negative foot index");

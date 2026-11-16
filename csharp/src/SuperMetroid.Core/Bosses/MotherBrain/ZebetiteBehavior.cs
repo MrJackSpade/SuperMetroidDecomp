@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;

@@ -35,10 +35,10 @@ internal sealed class DoorObjects
     /// code have been placed.
     /// </summary>
     /// <remarks>
-    /// The first object at the door's block, in the room's update order, closes unless it is a cap whose door has been
-    /// opened for good: a coloured or grey cap, an eye door's eye or Mother Brain's escape gate closes from its next update.
-    /// A blue cap a shot opened has no closing of its own; the room's <see cref="ShotOpenedCapClosing{TDoor}"/> rule decides
-    /// whether it stays open (#1906).
+    /// The first object at the door's block, in the room's update order, closes unless it stays open
+    /// (<see cref="IDoorKeptOpen"/>, #2091): a cap or eye door whose door has been opened for good stays open, and so does a
+    /// blue cap a shot opened while the room's <see cref="ShotOpenedCapClosing{TDoor}"/> rule keeps it open (#1906).
+    /// Otherwise a coloured or grey cap, an eye door's body or Mother Brain's escape gate closes from its next update.
     /// With no object there, the door's closing behaviour may place a blue cap closing toward the travel direction or the
     /// escape gate closing, in the first free place, like any other room object.
     /// </remarks>
@@ -63,12 +63,7 @@ internal sealed class DoorObjects
 
             // A cap whose opening never persists always closes. The escape entrance's cap never persists, so it
             // always selects its closing sequence. Ordinary coloured caps consult the doors opened for good.
-            if (resident.Argument is DoorBitArgument { Persists: true } residentDoorBit &&
-                system.HasOpenedDoor(residentDoorBit.Door))
-            {
-                break;
-            }
-            if (resident.Argument is ShotOpenedCapArgument && _shotCapClosing.StaysOpen(system.HasOpenedDoor))
+            if (resident.Behaviour is IDoorKeptOpen kept && kept.StaysOpenBehindSamus(system.HasOpenedDoor, _shotCapClosing))
                 break;
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
@@ -117,10 +112,11 @@ internal sealed class DoorObjects
         RoomLevelData level,
         RoomObjectPlace place,
         ColoredDoorColor color,
-        ColoredDoorOrientation orientation)
+        ColoredDoorOrientation orientation,
+        DoorBitArgument? door)
     {
         ApplyColoredDoorSetup(level, place.Block);
-        place.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
+        place.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation), PlacedDoor.For(door)));
     }
 
     /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
@@ -131,24 +127,15 @@ internal sealed class DoorObjects
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>
-    /// Whether this cap's door has been opened for good before; a cap whose opening never persists never has.
+    /// Whether <paramref name="door"/> has been opened for good before; a door whose opening never persists never has, nor
+    /// has a spent object's, nor an object's placed with none.
     /// </summary>
-    internal bool IsDoorOpened(RoomObjectPlace place) =>
-        place.Argument is DoorBitArgument { Persists: true } cap && _system.HasOpenedDoor(cap.Door);
+    internal bool IsDoorOpened(PlacedDoor? door) => door?.IsOpenedForGood(_system.HasOpenedDoor) == true;
 
     /// <summary>
-    /// Records the door of the cap at <paramref name="place"/> opened for good, when its opening persists, and marks the
-    /// cap spent: it then keeps only its own door.
+    /// Records <paramref name="door"/> opened for good, when its opening persists, which spends its object.
     /// </summary>
-    internal void RecordDoorOpened(RoomObjectPlace place)
-    {
-        Ensure.NotNull(place);
-        if (place.Argument is DoorBitArgument { Persists: true } cap)
-        {
-            _system.OpenDoor(cap.Door);
-            place.Argument = SpentDoorArgument.Instance;
-        }
-    }
+    internal void RecordDoorOpened(PlacedDoor? door) => door?.RecordOpened(_system);
 
     /// <summary>
     /// Names the color and facing of a colored-door room object (#1414: each of the twelve doors is matched by member, replacing
@@ -197,9 +184,8 @@ internal sealed class DoorObjects
             return false;
 
         place.Block = position;
-        place.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // A later closing behind Samus at this block asks the room's shot-cap rule whether the cap stays open (#1906).
-        place.Argument = ShotOpenedCapArgument.Instance;
+        place.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
 
         // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision
         // sees the solid block at once.

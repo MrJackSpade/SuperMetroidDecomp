@@ -16,12 +16,17 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="area">The area whose map or save it serves.</param>
 /// <param name="animation">The animation it shows first.</param>
 /// <param name="completedAnimation">The animation it shows once used.</param>
+/// <param name="savedAt">The load station a save station saves at, as its placement named it; null for any other station.</param>
 internal sealed class StationObject(
     StationKind kind,
     AreaId area,
     StationAnimation animation,
-    StationAnimation completedAnimation) : RoomObjectBehaviour
+    StationAnimation completedAnimation,
+    LoadStation? savedAt) : RoomObjectBehaviour
 {
+    /// <summary>The load station a save station saves at, which its activation events carry; null for any other station.</summary>
+    internal LoadStation? SavedAt { get; } = savedAt;
+
     /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
     public StationKind Kind { get; } = kind;
     /// <summary>Area whose map-acquired or save-station state is affected.</summary>
@@ -266,13 +271,14 @@ internal sealed class StationObject(
             Kind,
             message,
             Area,
-            (place.Argument as SaveStationArgument)?.Station,
+            SavedAt,
             place.Block));
     }
 
     /// <summary>The load station a save station saves at, which its activation events carry.</summary>
-    private static LoadStation SavedStation(RoomObjectPlace place) => (place.Argument as SaveStationArgument
-        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station.")).Station;
+    /// <exception cref="InvalidDataException">The save station was placed without its load station.</exception>
+    private LoadStation SavedStation(RoomObjectPlace place) => SavedAt
+        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station.");
 
     /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>
     private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)

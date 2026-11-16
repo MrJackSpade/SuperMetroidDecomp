@@ -92,7 +92,7 @@ internal sealed class CollectibleObjects
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _places.FromLastPlace
         .Where(place => place.Active)
         .SelectMany(place => place.Behaviour is CollectibleObject { } item
-            ? [new CollectibleObjectSnapshot(place.Block, (place.Argument as CollectedItemArgument)?.Location, item.Kind)]
+            ? [new CollectibleObjectSnapshot(place.Block, item.Location, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
 
@@ -152,20 +152,21 @@ internal sealed class CollectibleObjects
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
     /// <summary>
-    /// Runs one permanent-item setup on the place selected by the shared room
-    /// loader. The setup remains table-driven by the game's definition and presentation.
+    /// Runs one permanent-item setup on the place selected by the shared room loader, for the item its placement
+    /// (<paramref name="placed"/>) names the location of. The setup remains table-driven by the game's definition and
+    /// presentation.
     /// </summary>
     internal void SetupCollectible(
         RoomObjectRoom room,
         RoomObjectPlace place,
         InWorldCollectibleKind kind,
-        CollectiblePresentation presentation)
+        CollectiblePresentation presentation,
+        CollectedItemArgument? placed)
     {
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
-        bool collected = place.Argument is CollectedItemArgument placedItem &&
-            system.HasCollectedItem(placedItem.Location);
+        bool collected = placed is not null && system.HasCollectedItem(placed.Location);
         CollectibleBlockPairs.Pair? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
@@ -187,7 +188,7 @@ internal sealed class CollectibleObjects
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        place.Become(new CollectibleObject(kind, presentation, blockPair, phase));
+        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed?.Location));
     }
 
     /// <summary>
@@ -225,8 +226,8 @@ internal sealed class CollectibleObjects
                 "A live collectible was triggered before the room owned Samus state.");
         SharedGameState system = _system;
 
-        if (place.Argument is CollectedItemArgument collectedItem)
-            system.CollectItem(collectedItem.Location);
+        if (item.Location is { } location)
+            system.CollectItem(location);
         ApplyCollectibleEffect(samus, item.Kind);
 
         var pickup = new CollectiblePickupEvent(

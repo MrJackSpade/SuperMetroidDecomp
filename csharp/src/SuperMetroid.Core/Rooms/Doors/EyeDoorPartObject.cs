@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -12,10 +14,19 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="component">Which part this is: the body or the bottom.</param>
-internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorComponent component) : SequencedRoomObject<EyeDoorStep>, IClosingDoor
+/// <param name="door">The door the part's placement named; null for none.</param>
+internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorComponent component, PlacedDoor? door)
+    : SequencedRoomObject<EyeDoorStep>, IClosingDoor, IDoorKeptOpen
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
+
+    /// <summary>The door the part stands in, as its placement named it; null for none.</summary>
+    internal PlacedDoor? Door { get; } = door;
+
+    /// <summary>A part whose door has been opened for good stays open behind Samus.</summary>
+    public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        Door?.IsOpenedForGood(openedForGood) == true;
 
     /// <summary>Which part this is: the body or the bottom.</summary>
     internal EyeDoorComponent Component { get; } = component is EyeDoorComponent.Door or EyeDoorComponent.Bottom
@@ -55,7 +66,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
     /// <inheritdoc/>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (!WaitsForOpenedDoor || !context.RoomObjects.DoorObjects.IsDoorOpened(place))
+        if (!WaitsForOpenedDoor || !context.RoomObjects.DoorObjects.IsDoorOpened(Door))
             return false;
         WaitsForOpenedDoor = false;
         context.RoomObjects.DeleteObject(place);
@@ -82,7 +93,7 @@ internal sealed class EyeDoorPartObject(EyeDoorOrientation orientation, EyeDoorC
         if (_placed)
         {
             _placed = false;
-            if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
+            if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
             {
                 context.RoomObjects.DeleteObject(place);
                 return;

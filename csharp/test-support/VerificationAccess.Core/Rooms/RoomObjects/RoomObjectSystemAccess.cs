@@ -189,7 +189,7 @@ internal static class RoomObjectSystemAccess
                     RoomArgument: entry.Place.NativeRoomArgument,
                     ProjectileHit: entry.Place.ProjectileHit,
                     Behaviour: entry.Place.Behaviour,
-                    SpentCap: entry.Place.Argument is SpentDoorArgument)),
+                    SpentCap: RoomObjectRoomArgumentWords.IsSpentDoor(entry.Place.Behaviour))),
         ];
 
         /// <summary>

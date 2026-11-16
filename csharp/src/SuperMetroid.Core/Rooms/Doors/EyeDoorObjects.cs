@@ -34,26 +34,27 @@ internal sealed class EyeDoorObjects
     internal static bool IsEyeDoorKind(RoomObjectKind kind) => EyeDoorPartDefinitions.Parts.ContainsKey(kind);
 
     /// <summary>
-    /// Places the eye-door part the room's population placed as <paramref name="placed"/>, which takes its first look on
-    /// its first update, and installs its closed collision blocks unless its door has been opened for good.
+    /// Places the eye-door part the room's population placed as <paramref name="placed"/> in <paramref name="door"/>, which
+    /// takes its first look on its first update, and installs its closed collision blocks unless its door has been opened
+    /// for good.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="placed"/> is not an eye-door part.</exception>
     internal void SetupEyeDoor(
         RoomLevelData level,
         RoomObjectPlace place,
-        RoomObjectKind placed)
+        RoomObjectKind placed,
+        DoorBitArgument? door)
     {
         Ensure.NotNull(place);
         (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(placed, out EyeDoorPart part)
             ? part
             : throw new ArgumentOutOfRangeException(nameof(placed), placed, "Not an eye-door room object.");
+        PlacedDoor? placedDoor = PlacedDoor.For(door);
         place.Become(component == EyeDoorComponent.Eye
-            ? new EyeDoorEyeObject(orientation)
-            : new EyeDoorPartObject(orientation, component));
+            ? new EyeDoorEyeObject(orientation, placedDoor)
+            : new EyeDoorPartObject(orientation, component, placedDoor));
 
-        SharedGameState system = _system;
-        if (place.Argument is DoorBitArgument { Persists: true } openedEye &&
-            system.HasOpenedDoor(openedEye.Door))
+        if (placedDoor?.IsOpenedForGood(_system.HasOpenedDoor) == true)
         {
             // Setup leaves an opened door's terrain untouched: the part's first look removes a body or bottom, and turns
             // the eye into the ordinary blue cap.
@@ -88,29 +89,29 @@ internal sealed class EyeDoorObjects
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
-    /// <summary>The eye facing <paramref name="facing"/> fires its projectile and queues its sound.</summary>
-    internal void Shoot(RoomObjectPlace place, EyeDoorOrientation facing)
+    /// <summary>The eye fires its projectile and queues its sound.</summary>
+    internal void Shoot(RoomObjectPlace place, EyeDoorEyeObject eye)
     {
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Projectile, facing);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Projectile, eye);
         _sounds.Queue(
             EyeDoorDefinitions.ProjectileSound,
             Priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>The eye facing <paramref name="facing"/> sweats.</summary>
-    internal void SpawnSweat(RoomObjectPlace place, EyeDoorOrientation facing) =>
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Sweat, facing);
+    /// <summary>The eye sweats.</summary>
+    internal void SpawnSweat(RoomObjectPlace place, EyeDoorEyeObject eye) =>
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Sweat, eye);
 
-    /// <summary>Two randomly placed smoke puffs.</summary>
-    internal void SpawnTwoSmoke(RoomObjectPlace place, EyeDoorOrientation facing)
+    /// <summary>Two randomly placed smoke puffs about the eye.</summary>
+    internal void SpawnTwoSmoke(RoomObjectPlace place, EyeDoorEyeObject eye)
     {
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, eye);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, eye);
     }
 
-    /// <summary>One centred smoke puff.</summary>
-    internal void SpawnSmoke(RoomObjectPlace place, EyeDoorOrientation facing) =>
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.CenteredSmoke, facing);
+    /// <summary>One centred smoke puff about the eye.</summary>
+    internal void SpawnSmoke(RoomObjectPlace place, EyeDoorEyeObject eye) =>
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.CenteredSmoke, eye);
 
     /// <summary>
     /// Moves the eye up one block and writes the blue cap facing
@@ -149,16 +150,19 @@ internal sealed class EyeDoorObjects
         }
     }
 
-    /// <summary>Sends an eye-door projectile request with the eye's facing, source block and room argument to enemy services.</summary>
+    /// <summary>
+    /// Sends an eye-door projectile request with the eye's facing, source block and door, none once the eye is spent, to
+    /// enemy services.
+    /// </summary>
     private void SpawnEyeDoorProjectile(
         RoomObjectPlace place,
         EyeDoorProjectileDefinition definition,
-        EyeDoorOrientation facing)
+        EyeDoorEyeObject eye)
     {
         _enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definition,
-            facing,
+            eye.Orientation,
             place.Block,
-            (place.Argument as DoorBitArgument)?.Door));
+            eye.Door?.Door));
     }
 }

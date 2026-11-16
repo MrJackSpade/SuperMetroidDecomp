@@ -15,9 +15,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
 {
-    /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="condition"/>, just placed.</summary>
-    internal GreyDoorObject(GreyDoorVariant variant, GreyDoorCondition condition)
-        : base(variant.Orientation, DoorCapPaint.Grey)
+    /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="condition"/>, just placed in <paramref name="door"/>.</summary>
+    internal GreyDoorObject(GreyDoorVariant variant, GreyDoorCondition condition, PlacedDoor? door)
+        : base(variant.Orientation, DoorCapPaint.Grey, door)
     {
         Variant = variant;
         Condition = condition;
@@ -129,9 +129,9 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
-        if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
+        if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
         {
-            BlueDoorCapObject.TakeOver(place, context, Orientation);
+            BlueDoorCapObject.TakeOver(place, context, Orientation, Door);
             return;
         }
         Waits = GreyDoorWait.Condition;
@@ -142,7 +142,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// <summary>Opens the cap at the opening shot, which records the door opened for good.</summary>
     private void Open(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        context.RoomObjects.DoorObjects.RecordDoorOpened(place);
+        context.RoomObjects.DoorObjects.RecordDoorOpened(Door);
         Waits = GreyDoorWait.Nothing;
         Phase = GreyDoorPhase.Opening;
         Play(GreyDoorDefinitions.Opening, place, context);

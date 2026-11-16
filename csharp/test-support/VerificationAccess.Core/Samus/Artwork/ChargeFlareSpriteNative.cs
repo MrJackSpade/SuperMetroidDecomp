@@ -34,8 +34,7 @@ internal static class ChargeFlareSpriteNative
                 >= 48 and < NativeSelectorCount => (ChargeFlareComponent.FastSparks, true, selector - 48),
                 _ => throw new ArgumentOutOfRangeException(nameof(selector), selector, "The flare's selector table has 54 entries."),
             };
-            return ChargeFlarePictures.Of(component, facingLeft, phase)
-                ?? throw new InvalidOperationException($"Flare selector {selector} shows no picture.");
+            return ChargeFlarePictures.Of(component, facingLeft, phase);
         }
     }
 }

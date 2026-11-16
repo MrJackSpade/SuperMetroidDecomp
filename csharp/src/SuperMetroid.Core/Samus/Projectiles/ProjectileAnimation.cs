@@ -83,10 +83,15 @@ internal sealed class ProjectileAnimation
     {
         // The next picture shows on the update the wait's count passes below zero, so a wait of zero still holds its
         // picture for one update; testing for zero would show every picture one update too short.
-        CountdownStep hold = _charge.CountFlareHold(component);
+        ChargeFlareComponentState flare = _charge.Flare(component);
+        CountdownStep hold = flare.CountHold();
         if (hold.IsNonNegative)
             return;
-        _charge.ShowFlare(component, ChargeFlareAnimations.Next(component, _charge.FlarePhase(component)));
+        // Only the Hyper Beam's count runs a component past its first picture, and the ordinary flare never plays again
+        // once Samus has the Hyper Beam.
+        int picture = flare.Picture
+            ?? throw new InvalidOperationException($"Charge-flare {component} has run past its first picture and plays no further.");
+        flare.Show(ChargeFlareAnimations.Next(component, picture));
     }
 
     /// <summary>
@@ -119,10 +124,11 @@ internal sealed class ProjectileAnimation
 
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
-        // A component the Hyper Beam's count wrapped past its first picture may stand at a place that shows no flare
-        // picture; it draws nothing there (#1275, Mother Brain glitch movie).
-        if (ChargeFlarePictures.Of(component, pose.FacingLeft, _charge.FlarePhase(component)) is not { } picture)
+        // A component the Hyper Beam's count has run past its first picture draws nothing (#1275, Mother Brain glitch
+        // movie; #2114).
+        if (_charge.Flare(component).Picture is not { } shownPlace)
             return;
+        ProjectileSpriteId picture = ChargeFlarePictures.Of(component, pose.FacingLeft, shownPlace);
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare), image,

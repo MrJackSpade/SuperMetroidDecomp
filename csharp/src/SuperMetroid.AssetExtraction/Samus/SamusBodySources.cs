@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
@@ -188,23 +187,42 @@ public sealed class SamusBodySources
         return counts;
     }
 
-    /// <summary>What the installed body holds for gameplay: where each resolved frame places the body, and its catalogs.</summary>
+    /// <summary>
+    /// What the installed body holds for gameplay: where each resolved frame places the body, by the frame of the pose's
+    /// animation it lies at in the game's layout, and its catalogs.
+    /// </summary>
     private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts, InstalledFrames installed) => new()
     {
-        OriginRises = installed.OriginRises,
+        OriginRises = installed.OriginRises.ToDictionary(pose => pose.Key, pose => (IReadOnlyDictionary<SamusAnimationFrame, int>)NamedRises(pose.Key, pose.Value)),
         GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
         DeathSteps = Ensure.NotNull(parts.DeathSteps),
         ArmCannon = Ensure.NotNull(parts.ArmCannon).Gameplay,
     };
 
     /// <summary>
+    /// <paramref name="rises"/>, where each of <paramref name="pose"/>'s resolved frames places the body by its place in the
+    /// game's layout of the pose's animation, by the frame of the animation each lies at; a frame not resolved has none.
+    /// </summary>
+    private static Dictionary<SamusAnimationFrame, int> NamedRises(SamusPoseId pose, IReadOnlyList<int?> rises)
+    {
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        var named = new Dictionary<SamusAnimationFrame, int>();
+        for (int frame = 0; frame < rises.Count; frame++)
+        {
+            if (rises[frame] is { } rise)
+                named.Add(SamusAnimationLayout.FrameAt(animation, frame), rise);
+        }
+        return named;
+    }
+
+    /// <summary>
     /// What the installation holds of this body for the game (#1638): each pose's art origin, every body frame the body sheet
     /// pictures with where it places the body, her death steps and the arm cannon's placement at every frame each pose shows.
     /// </summary>
-    /// <param name="framesBeyondAnimation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
-    internal InstalledSamusBody InstalledBody(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation) =>
+    /// <param name="shown">The frames her body can show in each pose and the picture each draws, as the import decided them.</param>
+    internal InstalledSamusBody InstalledBody(SamusShownFrames shown) =>
         new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
-            SheetFrames(originRises, Spritemaps, Ensure.NotNull(framesBeyondAnimation)), DeathSteps, ArmCannon.Installed(framesBeyondAnimation));
+            SheetFrames(originRises, Spritemaps, Ensure.NotNull(shown)), shown, DeathSteps, ArmCannon.Installed(shown));
 
     /// <summary>
     /// Every whole picture the body sheet holds, in the cartridge's pose order and frame order: each frame
@@ -215,38 +233,40 @@ public sealed class SamusBodySources
     {
         foreach (SamusBodyFrame frame in Ensure.NotNull(installed).Frames)
         {
-            if (!TryPictures(frame.Pose, frame.PictureFrame, out SamusBodyFramePictures pictures))
+            int place = SamusAnimationLayout.Offset(SamusAnimationDelays.AnimationForPose(frame.Pose), frame.PictureFrame);
+            if (!TryPictures(frame.Pose, place, out SamusBodyFramePictures pictures))
                 throw new InvalidDataException($"Samus body frame {frame.Name} is pictured but selects no installed half pictures.");
-            yield return new SamusShownBody(frame, SamusBodyCompositions.Of(frame.Pose, frame.PictureFrame, this), pictures);
+            yield return new SamusShownBody(frame, SamusBodyCompositions.Of(frame.Pose, place, this), pictures);
         }
     }
 
     /// <summary>
     /// The body frames the body sheet pictures (#1513, #1585, #1638), and where each places the body: each picture frame of
-    /// each pose some path gives Samus, as her own animation shows it with <paramref name="framesBeyondAnimation"/>, whose half
-    /// pictures and placement are installed and whose halves' animation frames the pose-half table holds. A body whose
-    /// halves reach past the table draws nothing the sheet could hold: the draw rejects it.
+    /// each pose some path gives Samus, as <paramref name="shown"/> decided her animation shows it, whose half pictures and
+    /// placement are installed and whose halves' animation frames the pose-half table holds, by the frame of the pose's
+    /// animation. A body whose halves reach past the table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
-    private static Dictionary<SamusPoseId, IReadOnlyDictionary<int, int>> SheetFrames(Dictionary<SamusPoseId, IReadOnlyList<int?>> installed,
-        SamusSpritemapSources spritemaps, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation)
+    private static Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> SheetFrames(Dictionary<SamusPoseId, IReadOnlyList<int?>> installed,
+        SamusSpritemapSources spritemaps, SamusShownFrames shown)
     {
-        SamusShownFrames shown = SamusShownFrames.Of(framesBeyondAnimation);
-        Dictionary<SamusPoseId, Dictionary<int, int>> pictured = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => new Dictionary<int, int>());
-        foreach (SamusPoseId pose in SamusShownFrames.Poses)
+        Dictionary<SamusPoseId, Dictionary<SamusAnimationFrame, int>> pictured =
+            SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => new Dictionary<SamusAnimationFrame, int>());
+        foreach (SamusPoseId pose in shown.PictureFrames.Keys)
         {
             if (!installed.TryGetValue(pose, out IReadOnlyList<int?>? rises))
                 continue;
-            foreach (int frame in shown.pictured[pose])
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            foreach (int frame in shown.Pictures(pose).Select(picture => SamusAnimationLayout.Offset(animation, picture)))
             {
                 if ((uint)frame >= (uint)rises.Count || rises[frame] is not { } rise ||
                     !Covers(spritemaps, new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, frame)) ||
                     (SamusBodyCompositions.ShowsBottomHalf(pose, frame) &&
                      !Covers(spritemaps, new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, frame))))
                     continue;
-                pictured[pose].Add(frame, rise);
+                pictured[pose].Add(SamusAnimationLayout.FrameAt(animation, frame), rise);
             }
         }
-        return pictured.ToDictionary(pose => pose.Key, pose => (IReadOnlyDictionary<int, int>)pose.Value);
+        return pictured.ToDictionary(pose => pose.Key, pose => (IReadOnlyDictionary<SamusAnimationFrame, int>)pose.Value);
     }
 
     /// <summary>Whether <paramref name="half"/>'s animation frame is one the table holds for its pose half.</summary>

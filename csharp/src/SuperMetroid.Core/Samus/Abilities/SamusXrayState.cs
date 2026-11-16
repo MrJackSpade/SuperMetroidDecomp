@@ -227,12 +227,12 @@ public sealed class SamusXrayState
     {
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
 
         // X-ray's activation pose immediately overrides the freshly selected
         // delay with frame two and a 63-tick timer, takes her pose input and movement, starts the
         // visor shade, clears beam-flare state, and plays the X-ray's starting sound.
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame: 2, timer: 63);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.XrayActivation, timer: 63);
         _colouring.Take(SamusSpecialColouringKind.Xray);
         samus.Shinespark.RelinquishColoursToXray();
         // X-ray's activation takes both Samus's pose input and her movement, so an interrupted Flash's
@@ -347,7 +347,7 @@ public sealed class SamusXrayState
         // The game waits until the final visible turning frame has exactly one tick left.
         // Its movement does nothing for a grounded turn, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
-        if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
+        if (!samus.AnimationIsAt(SamusAnimationFrames.TurnEnd) || !samus.AnimationFrameTimer.IsAt(1))
             return;
 
         bool nowFacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
@@ -365,7 +365,7 @@ public sealed class SamusXrayState
     /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
     /// </summary>
-    public int? StepMovement(SamusState samus)
+    internal SamusAnimationTarget? StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -374,17 +374,17 @@ public sealed class SamusXrayState
             return null;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        int frame = facingLeft
-            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? 4 :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? 3 :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? 2 :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? 1 : 0
-            : Angle < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? 0 :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? 1 :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? 2 :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? 3 : 4;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, frame, timer: 15);
-        return frame;
+        SamusAnimationTarget aim = facingLeft
+            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftDownBelow ? XrayScopeDefinitions.Aims.Down :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftLoweredBelow ? XrayScopeDefinitions.Aims.Lowered :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftLevelBelow ? XrayScopeDefinitions.Aims.Level :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftRaisedBelow ? XrayScopeDefinitions.Aims.Raised : XrayScopeDefinitions.Aims.Up
+            : Angle < XrayScopeDefinitions.AnimationAngles.RightRaisedFrom ? XrayScopeDefinitions.Aims.Up :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightLevelFrom ? XrayScopeDefinitions.Aims.Raised :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightLoweredFrom ? XrayScopeDefinitions.Aims.Level :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightDownFrom ? XrayScopeDefinitions.Aims.Lowered : XrayScopeDefinitions.Aims.Down;
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, aim, timer: 15);
+        return aim;
     }
 
     /// <summary>
@@ -620,7 +620,7 @@ public sealed class SamusXrayState
 
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input transition.
@@ -655,7 +655,7 @@ public sealed class SamusXrayState
     {
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         // Both branches of X-ray's frozen-time pose input publish history after
         // initializing their pose; the ordinary gameplay pose transitions are bypassed.
         samus.CommitPoseHistory();

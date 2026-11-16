@@ -13,7 +13,8 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Host-installed artwork catalogs (room pictures, colours, layouts, sky, Samus, beams, grapple, map presentation) the
-/// runtime's owners draw and colour from.
+/// runtime's owners draw and colour from. Every catalog is installed from the start: the runtime is built over the
+/// host's installed artwork (#2049), and a rebinding replaces a catalog with another installed one.
 /// </summary>
 internal sealed class RuntimeArtwork
 {
@@ -27,6 +28,12 @@ internal sealed class RuntimeArtwork
     /// <summary>Receives Samus colour, grapple, and picture bindings.</summary>
     private readonly SamusFrameState _player;
 
+    /// <summary>The map presentation's backing value, installed from the start.</summary>
+    private IGameplayPresentationContent _mapPresentation;
+
+    /// <summary>The sprite sheets' backing value, installed from the start.</summary>
+    private InstalledSpriteSheets _spriteSheets;
+
     /// <summary>
     /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
     /// and again whenever the host rebinds artwork.
@@ -37,30 +44,43 @@ internal sealed class RuntimeArtwork
         Ensure.NotNull(bombs);
         projectiles.Animation.FrameBindings = ProjectileFrameBindings;
         bombs.FrameBindings = ProjectileFrameBindings;
-        bombs.PowerBombExplosion.Blast.PresentationColors = MapPresentation?.PowerBombGlowColors;
+        bombs.PowerBombExplosion.Blast.PresentationColors = MapPresentation.PowerBombGlowColors;
     }
 
-    /// <summary>Captures the runtime owners that consume host-installed visual assets.</summary>
+    /// <summary>Captures the runtime owners that consume host-installed visual assets and the catalogs the runtime is built over.</summary>
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
+        Ensure.NotNull(dependencies);
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
         _player = dependencies.Player;
+        RuntimeArtworkDependencies installed = dependencies;
+        _mapPresentation = installed.MapPresentation;
+        _spriteSheets = installed.SpriteSheets;
+        ProjectileSheets = SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(installed.SpriteSheets);
+        SamusArtwork = new SamusArtworkBinding(installed.SamusBodyArt, installed.SamusShownFrames, installed.SpriteSheets, installed.GrappleFlarePlacement,
+            installed.GrappleSwingFrames);
+        ProjectileFrameBindings = installed.ProjectileFrameBindings;
+        ChargeFlarePlacement = installed.ChargeFlarePlacement;
+        RoomBlockSheets = installed.RoomBlockSheets;
+        RoomVisualLayouts = installed.RoomVisualLayouts;
+        RoomLevelStreams = installed.RoomLevelStreams;
     }
+
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
-    /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD sheet's pictures, so binding has no HUD artwork to show again.</remarks>
-    public IGameplayPresentationContent? MapPresentation
+    /// <remarks>Binding rebinds the presentation owners. The HUD shows the HUD sheet's pictures, so binding has no HUD artwork to show again.</remarks>
+    public IGameplayPresentationContent MapPresentation
     {
-        get;
+        get => _mapPresentation;
         set
         {
-            field = value;
-            _hud.BindPresentation(value?.GameplayHud);
-            _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
-            _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowBeamColours;
-            _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
-            _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
+            _mapPresentation = Ensure.NotNull(value);
+            _hud.BindPresentation(value.GameplayHud);
+            _bossArtwork.EscapeTypewriterPresentation = value.EscapeTypewriter;
+            _bossArtwork.MotherBrainRainbowColors = value.MotherBrainRainbowBeamColours;
+            _bossArtwork.CeresRidleyGetawayBoostDelays = value.CeresRidleyGetawayBoostDelays;
+            _room.Scope?.Enemies.RebindEscapeTypewriters(value.EscapeTypewriter);
         }
     }
 
@@ -68,62 +88,65 @@ internal sealed class RuntimeArtwork
     /// The session's Samus artwork, which every Samus the runtime builds draws from, so a rebinding reaches the Samus
     /// already playing (#2049).
     /// </summary>
-    internal SamusArtworkBinding SamusArtwork { get; } = new();
+    internal SamusArtworkBinding SamusArtwork { get; }
 
     /// <summary>Rebinds authored visual frame choices to both projectile slot owners.</summary>
-    public InstalledProjectileFrameBindings? ProjectileFrameBindings
-    {
-        get;
-        set;
-    }
+    public InstalledProjectileFrameBindings ProjectileFrameBindings { get; set; }
+
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
-    public ChargeFlarePlacements? ChargeFlarePlacement { get; set; }
+    public ChargeFlarePlacements ChargeFlarePlacement { get; set; }
 
     /// <summary>Current Grapple flare offsets.</summary>
-    public ChargeFlarePlacements? GrappleFlarePlacement
+    public ChargeFlarePlacements GrappleFlarePlacement
     {
         get => SamusArtwork.GrappleFlarePlacement;
         set => SamusArtwork.GrappleFlarePlacement = value;
     }
 
     /// <summary>Current frame Samus's swing pose shows at each grapple angle.</summary>
-    public InstalledGrappleSwingFrames? GrappleSwingFrames
+    public InstalledGrappleSwingFrames GrappleSwingFrames
     {
         get => SamusArtwork.GrappleSwingFrames;
         set => SamusArtwork.GrappleSwingFrames = value;
     }
 
     /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>
-    public InstalledSpriteSheets? SpriteSheets
+    public InstalledSpriteSheets SpriteSheets
     {
-        get;
+        get => _spriteSheets;
         set
         {
-            field = value;
-            ProjectileSheets = value is null ? null : SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
+            _spriteSheets = Ensure.NotNull(value);
+            ProjectileSheets = SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
             SamusArtwork.Sheets = value;
         }
     }
 
     /// <summary>The projectile sheets Samus's projectiles, bombs, charge flare and trails draw from.</summary>
-    public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
+    public SuperMetroid.Core.Samus.Artwork.ProjectileSheets ProjectileSheets { get; private set; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    public InstalledRoomArtwork? RoomBlockSheets { get; set; }
+    public InstalledRoomArtwork RoomBlockSheets { get; set; }
 
     /// <summary>Installed visual room layouts, rebound when a saved game state is restored.</summary>
-    public RoomLevelArtworks? RoomVisualLayouts { get; set; }
+    public RoomLevelArtworks RoomVisualLayouts { get; set; }
     /// <summary>Installed terrain of every room level, rebound when a saved game state is restored.</summary>
-    public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
+    public InstalledRoomLevelStreams RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus pictures; restored and future Samus states use the same edit.</summary>
-    public InstalledSamusBodyArtwork? SamusBodyArt
+    public InstalledSamusBodyArtwork SamusBodyArt
     {
-        get;
+        get => SamusArtwork.Body;
         set
         {
-            field = value;
             SamusArtwork.Body = value;
-            SamusArtwork.ArmCannon = value?.ArmCannon;
+            SamusArtwork.ArmCannon = value.ArmCannon;
         }
+    }
+
+    /// <summary>Host-owned frames Samus's body can show and the pictures they draw; restored and future Samus states use the same edit.</summary>
+    public SuperMetroid.Core.Samus.Drawing.SamusShownFrames SamusShownFrames
+    {
+        get => SamusArtwork.ShownFrames;
+        set => SamusArtwork.ShownFrames = value;
     }
 }

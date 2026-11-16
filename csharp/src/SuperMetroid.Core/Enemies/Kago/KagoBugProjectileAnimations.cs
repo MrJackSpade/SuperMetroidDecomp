@@ -58,7 +58,7 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Waiting] =
         [
-            Hold(EnemyProjectileFrameId.KraidRock),
+            Hold(EnemyProjectileFrameId.KagoBugWaiting),
         ],
     });
 

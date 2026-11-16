@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -8,8 +9,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public sealed class SamusPowerBombExplosionState
 {
+    /// <summary>Starts an explosion whose blast glows in <paramref name="glowColors"/> (#2049).</summary>
+    /// <param name="glowColors">The installed glow colours.</param>
+    public SamusPowerBombExplosionState(InstalledPowerBombGlowColors glowColors) => Blast = new PowerBombBlastTimeline(glowColors);
+
     /// <summary>The blast's stages, radii and glow (#2000).</summary>
-    public PowerBombBlastTimeline Blast { get; } = new();
+    public PowerBombBlastTimeline Blast { get; }
 
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
     public Position16<RoomPixels> Position { get; private set; }

@@ -148,9 +148,7 @@ internal static class GameplayDisplayFrameTestsVerification
         // Fireflea darkness: the effect and the shade it publishes. From the first flash shade (level zero), a step at darkness
         // offset six shades level eighteen and one at offset two level six.
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
-        FirefleaFxState fireflea = runtime.RoomFx.Fireflea;
-        runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
-        fireflea.Initialize();
+        FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
         fireflea.Step(frozen: false, darknessStep: 3);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
@@ -163,8 +161,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(6, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
             "the next accepted frame publishes the chosen shade");
-        runtime.RoomFxOverlay.Type = originalFx;
-        fireflea.Initialize();
+        runtime.RoomFxOverlay.EndFirefleaDarknessForCheck(originalFx);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual<RgbColor?>(null, runtime.PublishDisplayFrame().Latched.Tints.Fireflea,
             "a room whose effect is not Fireflea darkness publishes no Fireflea shade");

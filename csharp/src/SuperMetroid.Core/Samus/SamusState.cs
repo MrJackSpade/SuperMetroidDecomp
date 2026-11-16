@@ -91,17 +91,61 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The animation frame shown: the number of the step of the pose's animation Samus is on, which is
-    /// also the frame number of the pose's artwork. It is zero or more and never runs away: every frame the animation
-    /// reaches names a step of the pose's animation or of the animation laid out after it, and reading a frame that names no
-    /// step fails (<see cref="AnimationStep"/>); the setter rejects a negative frame.
+    /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of <see cref="AnimatedPose"/>.
+    /// Every frame the animation reaches names a step of that animation or of the animation laid out after it, and reading
+    /// a frame that names no step fails (<see cref="AnimationStep"/>).
     /// </summary>
-    [IntegerQuantity("frame index within the current pose animation")]
-    public int AnimationFrame
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    internal SamusAnimationFrame AnimationFrame { get; set; }
+
+    /// <summary>The pose whose animation <see cref="AnimationFrame"/> is a frame of: the animated pose, or before her animation starts, her pose.</summary>
+    internal SamusPoseId AnimationPose => AnimatedPose ?? Pose;
+
+    /// <summary>Sets her animation frame to <paramref name="place"/>, as it lands in the animation she animates by (<see cref="SamusAnimationDelays.Land"/>).</summary>
+    internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
+
+    /// <summary>Moves her animation on to the frame after the one it is on, the animation laid out after hers included.</summary>
+    internal void AdvanceAnimationFrame() => AnimationFrame = SamusAnimationDelays.Next(AnimationPose, AnimationFrame);
+
+    /// <summary>Moves her animation to the frame <paramref name="target"/> names, as a cue read on her current frame names it.</summary>
+    internal void MoveAnimationTo(SamusAnimationTarget target) =>
+        AnimationFrame = SamusAnimationDelays.Target(AnimationPose, AnimationFrame, target, FramesBeyondAnimation);
+
+    /// <summary>
+    /// Her animation frame read as a frame of <paramref name="pose"/>'s animation, which must be the animation she animates
+    /// by: every path that gives her a pose of another animation starts that animation before her body is drawn.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="pose"/> animates by another animation than hers.</exception>
+    internal SamusAnimationFrame AnimationFrameOf(SamusPoseId pose) =>
+        ReferenceEquals(SamusAnimationDelays.AnimationForPose(pose), SamusAnimationDelays.AnimationForPose(AnimationPose))
+            ? AnimationFrame
+            : throw new InvalidOperationException(
+                $"Samus's pose {pose} animates by another animation than the one of pose {AnimationPose}, whose frame {AnimationFrame} she is on.");
+
+    /// <summary>Whether her animation has reached <paramref name="place"/>, as it lies in the animation she animates by.</summary>
+    internal bool AnimationHasReached(SamusAnimationPlace place) => SamusAnimationDelays.HasReached(AnimationPose, AnimationFrame, place, FramesBeyondAnimation);
+
+    /// <summary>Whether her animation lies past <paramref name="place"/>, as it lies in the animation she animates by.</summary>
+    internal bool AnimationHasPassed(SamusAnimationPlace place) => SamusAnimationDelays.HasPassed(AnimationPose, AnimationFrame, place, FramesBeyondAnimation);
+
+    /// <summary>Whether her animation is on <paramref name="frame"/> of the animation she animates by.</summary>
+    internal bool AnimationIsAt(SamusAnimationTarget frame) =>
+        AnimationFrame == SamusAnimationDelays.AnimationForPose(AnimationPose).Resolve(frame);
+
+    /// <summary>Her animation frame, named by its segment, for diagnostics.</summary>
+    internal string AnimationFrameName =>
+        $"{SamusAnimationDelays.AnimationForPose(AnimationPose).SegmentName(AnimationFrame)} frame {AnimationFrame.Frame}";
+
+    /// <summary>Whether her animation is on <paramref name="place"/>, as it lands in the animation she animates by.</summary>
+    internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
+
+    /// <summary>
+    /// The frame of the run's stride her animation is on, which the running cadence times (<see cref="SamusRunningCadences"/>):
+    /// a frame of the running animation's first segment, which every pose that runs animates by.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Her animation is past the stride.</exception>
+    internal int RunFrame => AnimationFrame.Segment == 0
+        ? AnimationFrame.Frame
+        : throw new InvalidOperationException($"Samus's animation frame {AnimationFrame} lies past the run's stride.");
 
     /// <summary>
     /// Animation frame countdown. Zero and negative-after-decrement both advance,
@@ -137,18 +181,10 @@ public sealed class SamusState
     public SamusShinesparkState Shinespark { get; }
 
     /// <summary>
-    /// The update's audio requests every sound of hers joins as it is made: her own record until a runtime points her at
-    /// its own (<see cref="BindAudioRequests"/>).
+    /// The update's audio requests every sound of hers, her movement's and her spark's among them, joins as it is made: her
+    /// runtime's, or a cinematic's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
-
-    /// <summary>Points every sound of hers, her movement's and her spark's among them, at <paramref name="requests"/>.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests)
-    {
-        AudioRequests = Ensure.NotNull(requests);
-        LiquidPhysics.BindAudioRequests(requests);
-        Shinespark.BindAudioRequests(requests);
-    }
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
@@ -471,7 +507,7 @@ public sealed class SamusState
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
+    internal FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
     /// <summary>
     /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
@@ -519,14 +555,18 @@ public sealed class SamusState
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii or animation data; gameplay setup supplies those separately.</remarks>
+    /// <param name="audioRequests">The update's audio requests of whoever runs her, which every sound of hers joins (#2057).</param>
     /// <param name="framesBeyondAnimation">What an animation frame past her pose's animation reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
     /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
-    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation, UnauthoredBoostCadence unauthoredBoostCadence,
-        SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge, SamusArtworkBinding artwork)
+    internal SamusState(GameplayAudioRequests audioRequests,
+        FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
+        UnauthoredBoostCadence unauthoredBoostCadence, SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge,
+        SamusArtworkBinding artwork)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         BeamCharge = Ensure.NotNull(beamCharge);
         Artwork = Ensure.NotNull(artwork);
         Grapple = new SamusGrappleState(artwork);
@@ -539,15 +579,14 @@ public sealed class SamusState
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;
         HurtFlash = compatibility.HurtFlash;
-        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel, SpecialColouring);
+        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel, SpecialColouring, AudioRequests);
         CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount, SpecialColouring);
         Xray = new SamusXrayState(SpecialColouring);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation(artwork);
-        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles);
+        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests);
         Kinematics = new SamusKinematicsState();
-        BindAudioRequests(AudioRequests);
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
         Kinematics.CollisionPose = Pose;
@@ -790,7 +829,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        SamusPresentation.InitializeAnimation(this, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(this);
     }
 
     /// <summary>

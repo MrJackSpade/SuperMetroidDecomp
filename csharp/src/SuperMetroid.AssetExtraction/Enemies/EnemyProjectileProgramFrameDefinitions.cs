@@ -12,7 +12,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 [EncodingOwner("bank-$86 instruction-list operands of the enemy-projectile program frames")]
 internal static class EnemyProjectileProgramFrameDefinitions
 {
-    /// <summary>The bank-$86 operand of every installed program frame.</summary>
+    /// <summary>
+    /// The bank-$86 operand of every installed program frame. Two frames share one: the waiting Kago bug plays the list
+    /// Kraid's resting rocks play, but drawn from its Kago's sheet it is its own picture (#2045).
+    /// </summary>
     internal static readonly FrozenDictionary<EnemyProjectileFrameId, ushort> Operands = new Dictionary<EnemyProjectileFrameId, ushort>
     {
         [EnemyProjectileFrameId.DraygonGoopFirst] = 0x8c3c,
@@ -115,6 +118,7 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.PhantoonDestroyableShotThird] = 0x9804,
         [EnemyProjectileFrameId.PhantoonDestroyableShotFourth] = 0x9808,
         [EnemyProjectileFrameId.KraidRock] = 0x9c7f,
+        [EnemyProjectileFrameId.KagoBugWaiting] = 0x9c7f,
         [EnemyProjectileFrameId.KraidRockRisingRightPose] = 0x9c85,
         [EnemyProjectileFrameId.KraidRockBurstFirst] = 0x9c8f,
         [EnemyProjectileFrameId.KraidRockBurstSecond] = 0x9c93,

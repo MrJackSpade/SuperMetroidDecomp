@@ -290,7 +290,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.GameplayRuntime.FrameBoundary.PublishWhileLoading();
         session.ApplySelectedGameOptions();
         session.Show(new CeresDestructionCinematicState(
-            session.audio, session.Artwork.MapPresentation?.PowerBombGlowColors,
+            session.audio, session.Artwork.InstalledPowerBombGlowColors,
             session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets,
             japaneseText: session.GameplayRuntime.JapaneseText));
         session.GameState = SuperMetroidGameState.CeresGoesBoom;
@@ -305,15 +305,14 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 "The opening cinematic's flashbacks require the installed Samus overread services."),
             session.Artwork.BossAndIntroOverreads?.ShellFragmentFallPastCurve ?? throw new InvalidOperationException(
                 "The opening cinematic's egg shell requires the installed boss and intro overread services.")),
-            session.audio, session.Artwork.IntroCinematicArt,
-            session.Artwork.SamusBodyArt, japaneseText)
+            session.audio, session.Artwork.FlashbackSamusArtwork(), session.Artwork.InstalledPowerBombGlowColors,
+            session.Artwork.IntroCinematicArt, japaneseText)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
         cinematic.BindProjectileFrames(session.Artwork.ProjectileFrameBindings);
-        cinematic.BindSpriteSheets(session.Artwork.SpriteSheets);
         return cinematic;
     }
 }

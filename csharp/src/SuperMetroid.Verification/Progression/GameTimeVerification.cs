@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -35,7 +36,7 @@ internal static class GameTimeVerification
         AssertEqual(59, time.Minutes, "game time saturation minutes");
         AssertEqual(99, time.Hours, "game time saturation hours");
 
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), new SharedGameState(new SharedRandom()), new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, GameTime = time });
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), new SharedGameState(new SharedRandom()), new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, GameTime = time });
         AssertEqual(59, snapshot.GameTimeFrames, "save captures game-time frames");
         AssertEqual(59, snapshot.GameTimeSeconds, "save captures game-time seconds");
         AssertEqual(59, snapshot.GameTimeMinutes, "save captures game-time minutes");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -33,7 +34,7 @@ internal static class ProjectileTrailArtworkVerification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             // The native interpreter's own trail, run beside the port's, and the cartridge's retained tile words it keeps.
             var nativeTrail = new SamusProjectileTrail(SuperMetroid.Core.Progression.SamusBeamCombination.Power);
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
@@ -85,7 +86,7 @@ internal static class ProjectileTrailArtworkVerification
         {
             ushort frame = ProjectileTrailNative.Address(pose);
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var side = system.AddTrail().Left;
             side.InstructionPointer = (ushort)(frame + 4); side.FrameHold = 3;
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.ShownPose = pose;
@@ -113,7 +114,7 @@ internal static class ProjectileTrailArtworkVerification
         }
         var document = RequiredJson.Parse(json);
         ProjectileTrailFrame first = ProjectileTrailVisualDefinitions.Frames[0];
-        var animation = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var animation = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         var trail = animation.AddTrail().Left;
         trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.FrameHold = 1; trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>

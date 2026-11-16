@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
@@ -39,18 +40,18 @@ internal static class SamusOverreadHeldPoseFramesVerification
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         SamusBodySources body = InstalledFixtures.SamusBody;
         SamusSpritemapSources spritemaps = body.Spritemaps;
-        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation);
+        SamusShownFrameAnalysis shown = InstalledFixtures.SamusShownFrameAnalysis;
         SamusShownBody[] bodies = [.. shown.Bodies(body)];
         int resolved = 0;
         foreach (SamusPoseId pose in OverreadHeldPoses)
         {
             AssertTrue(!SamusUnreachablePoseDefinitions.Poses.Contains(pose), $"{pose} is held, so it is not listed as never held");
-            AssertTrue(SamusShownFrames.Poses.Contains(pose), $"{pose} is one of the poses the body can show");
-            AssertTrue(shown.pictured[pose].Count > 0, $"{pose} pictures at least one frame");
-            foreach (int frame in shown.pictured[pose])
+            AssertTrue(SamusShownFrameAnalysis.Poses.Contains(pose), $"{pose} is one of the poses the body can show");
+            AssertTrue(shown.Pictures(pose).Any(), $"{pose} pictures at least one frame");
+            foreach (int frame in shown.Pictures(pose))
             {
                 AssertTrue(body.TryPictures(pose, frame, out _), $"{pose} frame {frame} has installed pictures");
-                SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Pose == pose && drawn.Frame.PictureFrame == frame)];
+                SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Pose == pose && SamusAnimationNumbers.Number(pose, drawn.Frame.PictureFrame) == frame)];
                 AssertTrue(drawnAs.Length > 0, $"{pose} frame {frame} is drawn as a body");
                 foreach (SamusShownBody drawn in drawnAs)
                 {
@@ -65,7 +66,7 @@ internal static class SamusOverreadHeldPoseFramesVerification
 
         // The Draygon-held ball has the Draygon-held movement type, whose normal entry only clears the vertical collision
         // result, so without Draygon placing her she does not move.
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.DraygonHeldBallLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

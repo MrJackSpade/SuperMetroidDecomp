@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms;
@@ -150,7 +151,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             ColourEffectDefinition definition = ColourEffectAnimations.DefinitionAt(pointer);
             var systemSession = new ColourEffectSessionState();
             var system = new ColourEffectSystem(systemSession);
-            system.BindAudioRequests(new GameplayAudioRequests());
+            system.BindAudioRequests(GameplayAudioRequests.Standalone());
             system.Start(pointer, equippedItems: 0);
             RoomColourEffect effect = ActiveColourEffect(system);
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
@@ -178,7 +179,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     internal static void VerifyColourEffectConditionWatchedAfterFirstFrame()
     {
         var system = new ColourEffectSystem(new ColourEffectSessionState());
-        system.BindAudioRequests(new GameplayAudioRequests());
+        system.BindAudioRequests(GameplayAudioRequests.Standalone());
         system.Start(ColourEffectId.SporeSpawnBlueBackgroundSpores, 0, areaMiniBossDefeated: false);
         RoomColourEffect spores = system.effects.Single();
         AssertEqual(ColourEffectColours.BrinstarBlueSpores, spores.Colours, "the spores' colours are their definition's from the start");
@@ -208,7 +209,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     {
         var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         var system = new ColourEffectSystem(new ColourEffectSessionState());
-        system.BindAudioRequests(new GameplayAudioRequests());
+        system.BindAudioRequests(GameplayAudioRequests.Standalone());
         system.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
         system.Start(ColourEffectId.FadeInSuperMetroidTitleLogo, 0);
         system.Start(ColourEffectId.TitleScreenBabyMetroidTubeLight, 0);
@@ -242,7 +243,7 @@ internal static class RoomPaletteFxDefinitionsVerification
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.
         var many = new ColourEffectSystem(new ColourEffectSessionState());
-        many.BindAudioRequests(new GameplayAudioRequests());
+        many.BindAudioRequests(GameplayAudioRequests.Standalone());
         for (int started = 0; started < 9; started++)
             many.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
         AssertEqual(9, many.effects.Count, "any number of effects run at once");

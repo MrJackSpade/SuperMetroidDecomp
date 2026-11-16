@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed record SamusBodyArtworkContent
 {
     /// <summary>
-    /// The installed animation frames of each pose with a record, from the first: how many pixels above Samus's drawn point
-    /// each frame's body origin sits, negative below it, or none for a frame that is not installed.
+    /// The installed animation frames of each pose with a record, by frame of the pose's animation: how many pixels above
+    /// Samus's drawn point each frame's body origin sits, negative below it. A frame without an entry is not installed.
     /// </summary>
-    public required IReadOnlyDictionary<SamusPoseId, IReadOnlyList<int?>> OriginRises { get; init; }
+    public required IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> OriginRises { get; init; }
 
     /// <summary>
     /// Each pose's art origin: how many pixels above Samus's center the arm cannon, the Grapple beam, the charge flare and

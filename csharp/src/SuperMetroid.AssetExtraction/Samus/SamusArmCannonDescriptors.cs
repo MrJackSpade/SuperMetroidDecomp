@@ -83,42 +83,51 @@ public sealed class SamusArmCannonDescriptors
 
     /// <summary>
     /// The placements the installation holds (#1638): each pose's drawing order and directions, and the displacement of
-    /// every animation frame <paramref name="shown"/> says the pose shows, which are the frames the cover is drawn at. A
-    /// displacement read past the pose's own descriptor is the value the game reads there.
+    /// every animation frame <paramref name="shown"/> says the pose shows, which are the frames the cover is drawn at, each by
+    /// its named frame of the pose's animation. A displacement read past the pose's own descriptor is the value the game
+    /// reads there.
     /// </summary>
     /// <exception cref="InvalidDataException">A shown frame's displacement lies past the drawing window.</exception>
     internal SamusArmCannonLayout Installed(SamusShownFrames shown)
     {
         Ensure.NotNull(shown);
         return new SamusArmCannonLayout(SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose =>
-            Decode(poseDescriptors[pose], Enumerable.Range(0, InstalledSamusBody.AnimationFrames)
-                .Where(frame => shown.TryPictureFrame(pose, frame, out _)))));
+        {
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            return Decode(poseDescriptors[pose], animation, Enumerable.Range(0, InstalledSamusBody.AnimationFrames)
+                .Where(frame => shown.TryPictureFrame(pose, SamusAnimationLayout.FrameAt(animation, frame), out _)));
+        }));
     }
 
-    /// <summary>Each pose's placement over every animation frame the drawing window holds; poses sharing a descriptor share it.</summary>
+    /// <summary>
+    /// Each pose's placement over every animation frame the drawing window holds; poses sharing a descriptor and an animation
+    /// share it.
+    /// </summary>
     private Dictionary<SamusPoseId, SamusArmCannonPlacement> WindowPlacements()
     {
-        var placements = new Dictionary<int, SamusArmCannonPlacement>();
+        var placements = new Dictionary<DescriptorReading, SamusArmCannonPlacement>();
         return SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose =>
         {
             int descriptor = poseDescriptors[pose];
-            if (!placements.TryGetValue(descriptor, out SamusArmCannonPlacement? placement))
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            if (!placements.TryGetValue(new DescriptorReading(descriptor, animation), out SamusArmCannonPlacement? placement))
             {
                 int frames = Math.Max(0, (drawingData.Length - DisplacementsStart(descriptor)) / DisplacementBytes);
-                placement = Decode(descriptor, Enumerable.Range(0, frames));
-                placements.Add(descriptor, placement);
+                placement = Decode(descriptor, animation, Enumerable.Range(0, frames));
+                placements.Add(new DescriptorReading(descriptor, animation), placement);
             }
             return placement;
         });
     }
 
     /// <summary>
-    /// Decodes <paramref name="descriptor"/> into a typed placement over <paramref name="frames"/>: the descriptor's direction
-    /// byte, whose top bit makes the byte after the drawing mode the direction of every later animation frame, then the
-    /// drawing mode, then one signed X and Y displacement per animation frame.
+    /// Decodes <paramref name="descriptor"/> into a typed placement over <paramref name="frames"/>, counted in the game's
+    /// layout of <paramref name="animation"/>, the pose's: the descriptor's direction byte, whose top bit makes the byte after
+    /// the drawing mode the direction of every later animation frame, then the drawing mode, then one signed X and Y
+    /// displacement per animation frame, each installed by its named frame of the animation.
     /// </summary>
     /// <exception cref="InvalidDataException">A frame's displacement lies past the drawing window.</exception>
-    private SamusArmCannonPlacement Decode(int descriptor, IEnumerable<int> frames)
+    private SamusArmCannonPlacement Decode(int descriptor, SamusPoseAnimation animation, IEnumerable<int> frames)
     {
         int direction = drawingData[descriptor];
         bool frameDependent = (direction & FrameDependentDirectionFlag) != 0;
@@ -127,8 +136,13 @@ public sealed class SamusArmCannonDescriptors
         return new SamusArmCannonPlacement(SamusArmCannonDrawOrderCodec.FromDrawingMode(drawingData[descriptor + DrawingModeByte]),
             SamusProjectileDirectionCodec.FromAimIndex(direction & DirectionBits),
             frameDependent ? SamusProjectileDirectionCodec.FromAimIndex(drawingData[descriptor + LaterDirectionByte] & DirectionBits) : null,
-            frames.ToDictionary(frame => frame, frame => Displacement(displacements + frame * DisplacementBytes, frame)));
+            frames.ToDictionary(frame => SamusAnimationLayout.FrameAt(animation, frame), frame => Displacement(displacements + frame * DisplacementBytes, frame)));
     }
+
+    /// <summary>A descriptor read for poses of one animation, whose frames name its displacements.</summary>
+    /// <param name="Descriptor">Where the descriptor begins within the drawing data.</param>
+    /// <param name="Animation">The animation of the poses that read it.</param>
+    private readonly record struct DescriptorReading(int Descriptor, SamusPoseAnimation Animation);
 
     /// <summary>Where <paramref name="descriptor"/>'s displacements begin: after its one or two direction and mode pairs.</summary>
     private int DisplacementsStart(int descriptor) => descriptor +

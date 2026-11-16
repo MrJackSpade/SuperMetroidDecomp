@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -25,7 +26,9 @@ internal static class SaveStationSoundVerification
     internal static void VerifySaveStationSound()
     {
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(random: random);
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, 
+            SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
+        var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -43,8 +46,6 @@ internal static class SaveStationSoundVerification
             (ushort)(column * 16 + SaveStationTriggerGeometry.HorizontalProbeOffset + 8),
             (ushort)(row * 16 - samus.Kinematics.Radius.Y - 1)));
 
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, 
-            SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
         game.AdoptRuntime(runtime);
         game.GameState = SuperMetroidGameState.MainGameplay;
         AudioQueues audio = game.Session.audio;

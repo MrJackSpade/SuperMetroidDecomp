@@ -19,10 +19,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusShinesparkState
 {
-    /// <summary>
-    /// The update's audio requests the spark's sounds join as they are made: Samus's, which her runtime points at its own.
-    /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+    /// <summary>The update's audio requests the spark's sounds join as they are made: Samus's (#2057).</summary>
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// The upward spark's 1/65536-pixel acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
@@ -45,15 +43,15 @@ public sealed class SamusShinesparkState
     /// <param name="acceleration">Samus's suit pickup carryover, which holds the spark's upward acceleration.</param>
     /// <param name="orbitTravel">Samus's crash orbit carryover, which holds how far the crash's orbit has turned.</param>
     /// <param name="colouring">Samus's special suit colouring, which the shine and the spark take.</param>
-    internal SamusShinesparkState(SuitPickupSparkCarryover<SamusSuitPickupStage> acceleration, CrashOrbitTravelCarryover orbitTravel, SamusSpecialColouring colouring)
+    /// <param name="audioRequests">Samus's audio requests, which the spark's sounds join.</param>
+    internal SamusShinesparkState(SuitPickupSparkCarryover<SamusSuitPickupStage> acceleration, CrashOrbitTravelCarryover orbitTravel,
+        SamusSpecialColouring colouring, GameplayAudioRequests audioRequests)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         _colouring = Ensure.NotNull(colouring);
         _acceleration = Ensure.NotNull(acceleration);
         _orbitTravel = Ensure.NotNull(orbitTravel);
     }
-
-    /// <summary>Points the spark's sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>The special colouring timer: 180 stored, 60 windup, and 15 during active motion.</summary>
     public int ShineTimer { get; private set; }
@@ -519,7 +517,7 @@ public sealed class SamusShinesparkState
     {
         samus.Pose = pose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
@@ -800,7 +798,7 @@ false,             CrashSequenceFinished: true);
         // aligns the standing body's bottom with the old crash body. The input phase alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Pixels an echo's radius grows by on each update.</summary>

@@ -102,8 +102,6 @@ internal sealed class RoomLoader
     private readonly YardKickTrackingDistance _yardKickDistance;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect-overlay FX reads.</summary>
-    private readonly RoomFxSession _roomFx;
     /// <summary>Whether the colour effects run, and the heat phases, which each room's colour effects read.</summary>
     private readonly ColourEffectSessionState _colourEffectSession;
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
@@ -142,7 +140,6 @@ internal sealed class RoomLoader
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
         _yardKickDistance = Ensure.NotNull(dependencies.YardKickDistance);
         _room = dependencies.Room;
-        _roomFx = dependencies.RoomFx;
         _colourEffectSession = dependencies.ColourEffectSession;
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
@@ -246,7 +243,7 @@ internal sealed class RoomLoader
         // appearance before restoring ordinary input.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, frame: 2, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -274,7 +271,8 @@ internal sealed class RoomLoader
     internal SamusState InitializeSamus()
     {
         _yardKickDistance.RecordSamusInitialization();
-        return new SamusState(_samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge, _artwork.SamusArtwork);
+        return new SamusState(_audioRequests, _samusOverreads.FramesBeyondAnimation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge,
+            _artwork.SamusArtwork);
     }
 
     /// <summary>
@@ -287,9 +285,8 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         _player.Samus = samus;
-        _player.Samus.BindAudioRequests(_audioRequests);
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
         StoredExploredMapLoads.LoadFile(_system.StoredExploredMaps, slot.Progression);
@@ -322,9 +319,8 @@ internal sealed class RoomLoader
         // Initialization faces Samus forward in the power suit; the model's constructor defaults to the right-facing pose.
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         samus.CopyInventoryFrom(carried);
-        samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
 
@@ -816,8 +812,9 @@ internal sealed class RoomLoader
             outgoing.Enemies.HandOverTo(_room.HandOver);
         }
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
-        var wreckedShipTreadmill = new WreckedShipTreadmillBlockAnimationsState();
-        scope.WreckedShipTreadmill = wreckedShipTreadmill;
+        // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
+        var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
+        scope.BlockAnimations = blockAnimations;
         var maridiaElevatube = new MaridiaElevatubeRoomMainState(
             active: room.State.MainBehavior == RoomMainBehavior.MaridiaElevatube,
             _room.RoomMainCarryover);
@@ -890,7 +887,6 @@ internal sealed class RoomLoader
         // chooses the picture its overlay shows, and creates its distortion and block animation state before colour
         // effects and enemies begin running.
         var roomFxOverlay = RoomFxOverlayState.ForRoom(
-            _roomFx,
             room.State.Fx,
             door,
             _system.RandomNumber,
@@ -901,9 +897,6 @@ internal sealed class RoomLoader
         scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
             _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        scope.SandBlockAnimations = new RoomSandBlockAnimationsState(room.State.Fx, door);
-        scope.SpikeBlockAnimations = new RoomSpikeBlockAnimationsState(room.State.Fx, door);
-        scope.TreadmillBlockAnimations = new RoomTreadmillBlockAnimationsState(room.State.Fx, door);
         if (_player.Samus is not null)
             _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
@@ -930,13 +923,11 @@ internal sealed class RoomLoader
             loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
-        var bombs = new SamusBombProjectileSystem();
+        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.MapPresentation.PowerBombGlowColors);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
-        var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
+        var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         projectiles.TakeOverFrom(_room.HandOver);
-        bombs.BindAudioRequests(_audioRequests);
-        projectiles.BindAudioRequests(_audioRequests);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
@@ -965,9 +956,9 @@ internal sealed class RoomLoader
         // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
-            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft));
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft),
+            _audioRequests);
         scope.RoomObjects = roomObjects;
-        roomObjects.Sounds.BindAudioRequests(_audioRequests);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
@@ -976,7 +967,7 @@ internal sealed class RoomLoader
         // those setups rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetup(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
+        _doorTransition.RunDoorSetup(door, roomObjects, blockAnimations, ceresElevatorShaft, maridiaElevatube);
         // The room state's setup runs right after the door's.
         RoomStateSetup.Run(room, assets.LevelData, roomObjects, destinationCamera.Scrolls, _system);
 
@@ -1024,7 +1015,6 @@ internal sealed class RoomLoader
             DoorPassage = _doorTransition.Passage,
         });
         enemies.TakeOverFrom(_room.HandOver);
-        enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which
         // leave with it.
@@ -1158,10 +1148,9 @@ internal sealed class RoomLoader
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
-        _player.Samus.BindAudioRequests(_audioRequests);
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();
 
@@ -1179,7 +1168,7 @@ internal sealed class RoomLoader
         // the HUD template's unrelated map glyphs visible for the entire descent. Seed
         // Ceres's real room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.Area) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup locks her movement. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
@@ -1227,11 +1216,7 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        _artwork.RoomVisualLayouts is { } layouts &&
-        _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(layouts, levelStreams, blockSheets)
-            : throw new InvalidOperationException(
-                "Room loading requires installed visual-layout, level-stream and block-sheet assets.");
+        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets);
 
 
     /// <summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Saves;
@@ -225,7 +226,7 @@ internal static class SaveRamCodecVerification
     /// <summary>A save with a distinct health, area, progression and explored map.</summary>
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
         var system = new SharedGameState(new SharedRandom());
         system.SetEvent(StoryEvent.ZebesAwake);
         system.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);

@@ -21,8 +21,7 @@ internal static class GameplayRuntimeFactory
         if ((start.Purpose == GameplayRuntimePurpose.SelectedGame) != (start.Selected is not null))
             throw new ArgumentException($"A {start.Purpose} runtime start {(start.Selected is null ? "requires" : "takes no")} selected-game options.", nameof(start));
 
-        var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork, start.Carryover);
-        runtime.BindArtwork(start.Artwork, previous: null);
+        var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork.Gameplay, start.Carryover);
         if (start.Selected is { } selected)
         {
             runtime.JapaneseText = selected.JapaneseText;

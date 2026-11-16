@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -57,7 +58,7 @@ internal static class CrocomireMouthShotHoldVerification
         (RoomEnemySystem enemies, RoomEnemySlot body) = NewCrocomireBody();
         var state = new CrocomireEnemyState(body) { Phase = CrocomirePhase.SteppingForward };
         enemies.CrocomireBehavior.Access.Crocomire = state;
-        var ordinaryProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
+        var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         var bomb = new SamusBomb(0)
         {

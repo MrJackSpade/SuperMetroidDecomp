@@ -11,11 +11,13 @@ namespace SuperMetroid.Core.Enemies;
 /// enemies consult (the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint)
 /// and the installed enemy sheets and enemy frame displays every room's enemies draw from (#1616).
 /// </summary>
+[ArchitectureReview("context-bag", "The enemy side of the game session: it owns the session-lifetime enemy state (the elevator journey, Ceres's escape progress, the drop bias, the enemy counter, the death quota) together with the session's collaborators every room's enemies are built over; state with a lifetime, not a parameter bag.")]
 public sealed class EnemySession
 {
     /// <summary>
     /// Creates the enemy state a fresh power-on holds, bound to the compatibility services its enemies consult.
     /// </summary>
+    /// <param name="audioRequests">The update's audio requests of the runtime the enemies run in, which every room's enemies join (#2057).</param>
     /// <param name="overreads">The installation's services reproducing what enemies read past their authored data (#1500).</param>
     /// <param name="bossOverreads">
     /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data (#1500).
@@ -26,19 +28,24 @@ public sealed class EnemySession
     /// </param>
     /// <param name="sheets">The installed pre-coloured enemy sheets every room's enemies draw from.</param>
     /// <param name="frameDisplays">Every installed enemy frame's display, which drawing an enemy reads.</param>
-    public EnemySession(
+    internal EnemySession(
+        GameplayAudioRequests audioRequests,
         EnemyOverreadServices overreads,
         BossAndIntroOverreadServices bossOverreads,
         RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint,
         IEnemySheetSource sheets,
         EnemyFrameDisplays frameDisplays)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         Overreads = Ensure.NotNull(overreads);
         BossOverreads = Ensure.NotNull(bossOverreads);
         RainbowBeamCameraCheckpoint = Ensure.NotNull(rainbowBeamCameraCheckpoint);
         Sheets = Ensure.NotNull(sheets);
         FrameDisplays = Ensure.NotNull(frameDisplays);
     }
+
+    /// <summary>The update's audio requests of the runtime the enemies run in, which every room's enemies' sounds and music join.</summary>
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>The elevator journey state carried through an elevator door.</summary>
     internal ElevatorJourneyState Elevator { get; } = new();

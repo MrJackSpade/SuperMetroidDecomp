@@ -72,7 +72,7 @@ internal static class SpikeShinesparkSuitVerification
         frozenRuntime.Freeze.GameplayTimeFrozen = true;
         uint frozenX = SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.X);
         uint frozenY = SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.Y);
-        int frozenAnimationFrame = frozenSamus.AnimationFrame;
+        int frozenAnimationFrame = frozenSamus.AnimationNumber;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
         SamusSpecialColouringKind frozenPalette = frozenSamus.SpecialColouring.Holder;
@@ -83,7 +83,7 @@ internal static class SpikeShinesparkSuitVerification
             new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.Y)),
             "Reserve command zero freezes spike-knockback position");
         AssertEqual(new AnimationResult(frozenAnimationFrame, frozenAnimationTimer),
-            new AnimationResult(frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
+            new AnimationResult(frozenSamus.AnimationNumber, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual(new VerifySpikeShinesparkSuitCase(frozenShineTimer, frozenPalette),
             new VerifySpikeShinesparkSuitCase(frozenSamus.Shinespark.ShineTimer, frozenSamus.SpecialColouring.Holder),

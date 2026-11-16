@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -56,9 +57,21 @@ internal static class InstalledFixtures
     /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     internal static SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices BossAndIntroOverreads => bossAndIntroOverreads.Value;
 
-    /// <summary>What the installation reads at a Samus animation frame past her pose's program, which every Samus takes.</summary>
-    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> FramesBeyondAnimation =>
+    /// <summary>
+    /// What the installation reads at a Samus animation frame that names no step of her pose's animation, and where its
+    /// named places land in other animations, which every Samus takes.
+    /// </summary>
+    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame,
+        SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> FramesBeyondAnimation =>
         SamusOverreads.FramesBeyondAnimation;
+
+    /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations, made once.</summary>
+    private static readonly Lazy<SamusShownFrameAnalysis> samusShownFrameAnalysis = Shared<SamusShownFrameAnalysis>("Samus shown frames", () =>
+        new SamusShownFrameAnalysis(SamusAnimationLayout.Read(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))))));
+
+    /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations.</summary>
+    internal static SamusShownFrameAnalysis SamusShownFrameAnalysis => samusShownFrameAnalysis.Value;
 
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = Shared<RoomAssetCatalogs>("room asset catalogs", () => new RoomAssetCatalogs(
@@ -166,6 +179,21 @@ internal static class InstalledFixtures
     /// <summary>The ending's colours the import decodes from the cartridge, which the installed ending sheets are pre-coloured in.</summary>
     internal static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteSet EndingColours => endingColours.Value;
 
+    /// <summary>
+    /// Every shade of the ending's screen the import installs, by shade (#1512, #1544), coloured from
+    /// <see cref="EndingColours"/> and the palette effects' installed colours, which only the import reads (#1583).
+    /// </summary>
+    private static readonly Lazy<IReadOnlyDictionary<PictureShade, SheetShade>> endingScreenShades =
+        Shared<IReadOnlyDictionary<PictureShade, SheetShade>>("ending screen shades", () =>
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingScreenShades.Screen(EndingColours, ImportMaps.RoomPaletteFx)
+                .ToDictionary(shade => shade.Shade));
+
+    /// <summary>
+    /// Every shade of the ending's screen the import installs, by shade, built once from the shared fixtures it is coloured
+    /// from: every ending state's shown colours are read through the same shades.
+    /// </summary>
+    internal static IReadOnlyDictionary<PictureShade, SheetShade> EndingScreenShadesByShade => endingScreenShades.Value;
+
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
@@ -267,22 +295,6 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays EnemyFrameDisplays => EnemyTiles.FrameDisplays
         ?? throw new InvalidDataException("The installed enemy artwork holds no enemy frames.");
 
-    /// <summary>
-    /// The installed catalogs a bare runtime is built over: the Samus, boss and enemy overread services and the installed
-    /// enemy sheets and frame displays (#1616).
-    /// </summary>
-    internal static SuperMetroid.Core.Frontend.GameArtwork BareRuntimeArtwork => bareRuntimeArtwork.Value;
-
-    /// <summary>Backing value of <see cref="BareRuntimeArtwork"/>.</summary>
-    private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> bareRuntimeArtwork = new(() => new SuperMetroid.Core.Frontend.GameArtwork
-    {
-        SamusOverreads = SamusOverreads,
-        BossAndIntroOverreads = BossAndIntroOverreads,
-        EnemyOverreads = EnemyOverreads,
-        EnemySheets = EnemySheets,
-        EnemyFrameDisplays = EnemyFrameDisplays,
-    });
-
     /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
         Shared<SuperMetroid.Core.Frontend.GameArtwork>("game artwork", () => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
@@ -380,14 +392,14 @@ internal static class InstalledFixtures
     /// </summary>
     internal static SamusProjectileSystem CreateProjectileSystem()
     {
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = Projectiles.FrameBindings } };
         projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return projectiles;
     }
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { Blast = { PresentationColors = Maps.PowerBombGlowColors } } };
+        new(GameplayAudioRequests.Standalone(), Maps.PowerBombGlowColors) { FrameBindings = Projectiles.FrameBindings };
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
@@ -395,19 +407,25 @@ internal static class InstalledFixtures
     /// <summary>The installed colour tables Samus's sheets are pre-coloured from (#1512), which checks resolve her shades with.</summary>
     internal static SuperMetroid.AssetExtraction.Samus.SamusShadeSources SamusShadeSources => SamusBodySheetFixtures.Inputs.ShadeSources;
 
-    /// <summary>Binds the installation's body and grapple presentation to a standalone Samus.</summary>
-    internal static SamusState BindSamus(SamusState samus)
+    /// <summary>
+    /// The installation's Samus artwork, as a binding of its own (#2049): its body, sheets, arm cannon and grapple
+    /// presentation, which a test may rebind without touching another's.
+    /// </summary>
+    /// <param name="body">The body artwork to bind in place of the installation's own.</param>
+    /// <param name="armCannon">The arm-cannon placements to bind in place of the body artwork's own.</param>
+    internal static SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding SamusArtwork(InstalledSamusBodyArtwork? body = null,
+        SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork? armCannon = null)
     {
-        samus.Artwork.Body = SamusBody.Gameplay;
-        samus.Artwork.Sheets = SpriteSheets;
-        samus.Artwork.ArmCannon = SamusBody.ArmCannon.Gameplay;
-        samus.Artwork.GrappleFlarePlacement = Projectiles.Grapple.FlarePlacement;
-        samus.Artwork.GrappleSwingFrames = Projectiles.Grapple.SwingFrames;
-        return samus;
+        var binding = new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding(body ?? SamusBody.Gameplay,
+            RepositoryInstallation.SamusBody.ShownFrames, SpriteSheets,
+            Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames);
+        if (armCannon is not null)
+            binding.ArmCannon = armCannon;
+        return binding;
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => BindSamus(new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
+    internal static SamusState CreateSamus() => new SamusState(GameplayAudioRequests.Standalone(), FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), SamusArtwork());
 
     /// <summary>
     /// Creates Ceres destruction with installed cinematic art and fixed colors, waiting on <paramref name="audio"/>'s music:
@@ -426,7 +444,7 @@ internal static class InstalledFixtures
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio ?? AudioQueues.Standalone(),
-            (characterArtwork ?? IntroArtwork).BoundCatalog, samusBodyArtwork ?? SamusBody.Gameplay)
+            SamusArtwork(samusBodyArtwork), Maps.PowerBombGlowColors, (characterArtwork ?? IntroArtwork).BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

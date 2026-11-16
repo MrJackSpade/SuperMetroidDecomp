@@ -7,7 +7,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// <summary>
 /// One typed enemy-projectile family's oracle parameters, for a family that plays typed animations (#1600): its segments
 /// are compared beat by beat, its animations with the lists' control flow, and a recording's native instruction pointer
-/// translates to and from the playback it stands for.
+/// translates to and from the playback it stands for. Animations its owners start at native entries that only load the
+/// counter (#2044) are compared and translated from those entries.
 /// </summary>
 internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEvent>(
     NativeProgramEntry<TSegment>[] entries,
@@ -16,7 +17,8 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     Func<TFrame, ushort> presentationKey,
     NativeEnemyProjectileCueRules<TEvent> rules,
     Func<TFrame, ushort?>? reflectedPresentationKey,
-    IReadOnlySet<TSegment>? startsWithClearedCounter) : NativeEnemyProjectileFamily
+    IReadOnlySet<TSegment>? startsWithClearedCounter,
+    IReadOnlyList<NativeCountedEntry<TSegment>> countedEntries) : NativeEnemyProjectileFamily
     where TSegment : struct, Enum
     where TFrame : struct
     where TEvent : notnull
@@ -24,14 +26,14 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     /// <inheritdoc/>
     internal override int CompareAll(IImportCartridgeSource cartridge) =>
         NativeEnemyProjectileProgramOracle.CompareAll(cartridge, entries, segments, startingAt, presentationKey, rules, reflectedPresentationKey,
-            startsWithClearedCounter);
+            startsWithClearedCounter, countedEntries);
 
     /// <inheritdoc/>
     internal override Func<EnemyProjectileAnimation, ushort?> NativePointers(IImportCartridgeSource cartridge)
     {
-        Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge);
+        (Dictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeCountedStart<TSegment>> counted) = Walk(cartridge);
         return animation => animation is EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> typed
-            ? NativeEnemyAnimationOracle.PointerOf(lists, entries, startingAt, typed.Playback)
+            ? NativeEnemyAnimationOracle.PointerOf(lists, entries, startingAt, typed.Playback, counted)
             : null;
     }
 
@@ -40,25 +42,27 @@ internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEv
     {
         if (animation is not EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> typed)
             return false;
+        (Dictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeCountedStart<TSegment>> counted) = Walk(cartridge);
         typed.Playback = NativeEnemyAnimationOracle.WithNativePlaysLeft(
-            NativeEnemyAnimationOracle.PlaybackAt(Lists(cartridge), entries, startingAt, nativePointer), nativeLoopCounter);
+            NativeEnemyAnimationOracle.PlaybackAt(lists, entries, startingAt, nativePointer, counted), nativeLoopCounter);
         return true;
     }
 
-    /// <summary>Every segment's native list, walked once per cartridge.</summary>
-    private Dictionary<TSegment, NativeEnemyList<TSegment>> Lists(IImportCartridgeSource cartridge)
+    /// <summary>Every segment's native list and every counted entry as its native list reads, walked once per cartridge.</summary>
+    private (Dictionary<TSegment, NativeEnemyList<TSegment>> Lists, IReadOnlyList<NativeCountedStart<TSegment>> Counted) Walk(IImportCartridgeSource cartridge)
     {
-        if (!ReferenceEquals(walkedCartridge, cartridge) || walkedLists is null)
+        if (!ReferenceEquals(walkedCartridge, cartridge) || walked is null)
         {
-            walkedLists = NativeEnemyProjectileProgramOracle.Lists(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey);
+            walked = (NativeEnemyProjectileProgramOracle.Lists(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey),
+                NativeEnemyProjectileProgramOracle.CountedStarts(cartridge, entries, countedEntries, rules));
             walkedCartridge = cartridge;
         }
-        return walkedLists;
+        return walked.Value;
     }
 
-    /// <summary>The cartridge <see cref="walkedLists"/> came from.</summary>
+    /// <summary>The cartridge <see cref="walked"/> came from.</summary>
     private IImportCartridgeSource? walkedCartridge;
 
-    /// <summary>The lists of the last walk.</summary>
-    private Dictionary<TSegment, NativeEnemyList<TSegment>>? walkedLists;
+    /// <summary>The lists and counted entries of the last walk.</summary>
+    private (Dictionary<TSegment, NativeEnemyList<TSegment>> Lists, IReadOnlyList<NativeCountedStart<TSegment>> Counted)? walked;
 }

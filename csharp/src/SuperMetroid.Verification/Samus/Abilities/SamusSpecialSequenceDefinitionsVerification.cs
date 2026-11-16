@@ -17,7 +17,7 @@ internal static class SamusSpecialSequenceDefinitionsVerification
     internal static void VerifySamusSpecialSequenceDefinitions()
     {
         AssertTrue(Enum.GetValues<SuperMetroid.Core.Samus.Movement.SamusMovementType>()
-                .All(movement => SamusDeathSequenceFrames.InitialFrame(movement) is 0 or 1 or 5),
+                .All(movement => SamusDeathSequenceFrames.InitialFrame(movement).Frame is 0 or 1 or 5),
             "death initial-frame table covers every retail movement type");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");

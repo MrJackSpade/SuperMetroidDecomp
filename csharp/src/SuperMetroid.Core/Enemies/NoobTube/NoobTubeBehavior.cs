@@ -59,7 +59,12 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
-        projectile.StartAnimation(new NoobTubeProjectileAnimation(piece.Animation));
+        projectile.StartAnimation(new NoobTubeProjectileAnimation(piece.Start switch
+        {
+            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingWith(start.Segment),
+            NoobTubePieceStart.ShardFlight flight => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard],
+            _ => throw new InvalidOperationException($"A n00b tube piece starts by {piece.Start}, which no case answers."),
+        }));
         switch (piece.Definition)
         {
             case NoobTubeProjectileDefinition.Crack:

@@ -61,7 +61,7 @@ public sealed class SuperMetroidGame
         Ensure.NotNull(artwork);
         GameArtwork previous = Session.Artwork;
         Session.Artwork = artwork;
-        Session.Runtime?.BindArtwork(artwork, previous);
+        Session.Runtime?.BindArtwork(artwork.Gameplay);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
             Session.saves.BindMapPresentation(artwork.MapPresentation);
         Session.Screen?.BindArtwork(previous, artwork, Session.GameState);
@@ -475,7 +475,7 @@ public sealed class SuperMetroidGame
             ? new SamusSnapshot
             {
                 Pose = samus.Pose,
-                AnimationFrame = samus.AnimationFrame,
+                AnimationFrame = samus.AnimationFrameName,
                 AnimationFramesRemaining = samus.AnimationFrameTimer.RemainingFrames,
                 AnimatedPose = samus.AnimatedPose,
                 Position = samus.Position.Whole,

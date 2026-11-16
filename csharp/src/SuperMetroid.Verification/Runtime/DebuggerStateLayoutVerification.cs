@@ -8,6 +8,7 @@ using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
@@ -20,7 +21,7 @@ internal static class DebuggerStateLayoutVerification
     /// </summary>
     internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
-        var state = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { PoseChangeAutoFireTimer = 7 };
+        var state = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { PoseChangeAutoFireTimer = 7 };
         byte[] current = SerializeDebuggerGraph(state);
         AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer,
             "a current-layout graph round-trips");
@@ -171,6 +172,29 @@ internal static class DebuggerStateLayoutVerification
     }
 
     /// <summary>
+    /// #2060: a state holding the room-object visuals captures and restores them. Their store finds each bound catalog by
+    /// its type, so the state holds those types: each is written as the identity of the type it names, and the restored
+    /// store finds the catalog under this build's type again, with its pictures, and finds none for a family left unbound.
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresRoomObjectVisuals()
+    {
+        RoomObjectSetupBlock block = Enum.GetValues<RoomObjectSetupBlock>()[0];
+        var shown = new RoomBlockAppearance(5, BlockMirroring.Horizontal);
+        var visuals = new SuperMetroid.Core.World.RoomObjectVisuals
+        {
+            RoomObjectSetupBlocks = new InstalledRoomObjectSetupBlocks(new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance> { [block] = shown }),
+        };
+
+        var restored = DeserializeDebuggerGraph<SuperMetroid.Core.World.RoomObjectVisuals>(SerializeDebuggerGraph(visuals));
+        AssertTrue(!ReferenceEquals(visuals, restored), "the restore builds its own room-object visuals");
+        AssertTrue(restored.Catalog<InstalledRoomObjectSetupBlocks>() is { } catalog && catalog.Shown(block) == shown,
+            "the restored visuals find the bound setup-block pictures by their type, showing what they showed");
+        AssertTrue(restored.Catalog<InstalledRoomObjectGrappleBlockVisuals>() is null,
+            "the restored visuals find no pictures for a family left unbound");
+        Console.WriteLine("Debugger state room-object visuals: the catalog store restores each catalog under its type.");
+    }
+
+    /// <summary>
     /// The most bytes a Landing Site runtime's debugger state may take (#1696). Its level data alone made the state 137 MB
     /// when every block was written as a framed object naming its type and each field; written as packed runs of the
     /// blocks' values, the whole state fits in a small fraction of that.
@@ -292,6 +316,7 @@ internal static class DebuggerStateLayoutVerification
         Suite(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers());
         Suite(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections());
         Suite(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks());
+        Suite(nameof(VerifyDebuggerStateRestoresRoomObjectVisuals), () => VerifyDebuggerStateRestoresRoomObjectVisuals());
         return 0;
     }
 }

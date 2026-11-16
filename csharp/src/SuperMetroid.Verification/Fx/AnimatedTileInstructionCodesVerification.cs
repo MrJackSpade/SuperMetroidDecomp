@@ -77,9 +77,9 @@ internal static class AnimatedTileInstructionCodesVerification
         BlockAnimationLoop definition =
             BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(direction));
         var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
-        var state = new WreckedShipTreadmillBlockAnimationsState();
+        var state = new RoomBlockAnimations(null, null);
         var frames = new ArtworkFrameSelections();
-        state.Start(direction);
+        state.StartDoorTreadmill(direction);
         state.Step(areaBossDefeated: false, frames);
         AssertTrue(!frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out _), $"{direction} retail boss wait");
 

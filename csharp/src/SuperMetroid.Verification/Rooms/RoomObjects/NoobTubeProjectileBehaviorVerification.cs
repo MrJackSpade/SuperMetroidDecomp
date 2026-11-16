@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -39,25 +40,16 @@ internal static class NoobTubeProjectileBehaviorVerification
         AssertEqual(48, RunThroughDeletion(crackSystem, crack, maximumTicks: 64),
             "n00b-tube crack completes 47 frames and its terminal deletion tick");
 
-        NoobTubeProjectileSegment[] shards =
-        [
-            NoobTubeProjectileSegment.ShardDownOutward,
-            NoobTubeProjectileSegment.ShardUpOutward,
-            NoobTubeProjectileSegment.ShardUpSteep,
-            NoobTubeProjectileSegment.ShardUpDiagonalInner,
-            NoobTubeProjectileSegment.ShardUpDiagonalOuter,
-            NoobTubeProjectileSegment.ShardDownDiagonal,
-            NoobTubeProjectileSegment.ShardDownOuter,
-            NoobTubeProjectileSegment.ShardOutward,
-            NoobTubeProjectileSegment.ShardUp,
-            NoobTubeProjectileSegment.ShardDownInner,
-        ];
+        // The shards burst in the order their identities are declared (#2044).
+        NoobTubeShard[] shards = Enum.GetValues<NoobTubeShard>();
+        AssertEqual(shards.Length, NoobTubeDebrisDefinitions.Shards.Length, "the tube bursts into each shard once");
         for (int piece = 0; piece < shards.Length; piece++)
         {
             RoomEnemySystem shardSystem = NewSystem();
             EnemyProjectile shard = Spawn(shardSystem, RoomEnemyProjectileKind.NoobTubeShard, NoobTubeDebrisDefinitions.Shards[piece]);
-            AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation && animation.PlayingSegment == shards[piece],
-                $"real n00b-tube shard producer selects shard {piece}'s program");
+            AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation
+                    && ReferenceEquals(animation.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[shards[piece]]),
+                $"real n00b-tube shard producer starts shard {shards[piece]}'s animation");
             AssertEqual(305, RunThroughDeletion(shardSystem, shard, maximumTicks: 320),
                 $"n00b-tube shard {piece} completes both counted flicker phases");
         }
@@ -112,7 +104,7 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         void Process(RoomEnemySystem system, EnemyProjectile projectile, int shortCounter)
         {
-            system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()), Position16<RoomPixels>.Zero, shortCounter);
+            system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter);
             if (!projectile.IsActive)
                 return;
             ushort expectedOperand = projectile.PresentationOperandAddress;

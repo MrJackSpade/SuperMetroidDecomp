@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -42,7 +43,8 @@ internal static class ReserveAutoFrontendVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(random: random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -53,7 +55,6 @@ internal static class ReserveAutoFrontendVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         var recovery = game.Session.reserveRecovery;
         // Enter through actual state-eight routing, not by calling recovery.Begin:
@@ -70,10 +71,10 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(entry.Snapshot is not null,
             "entry preserves the completed gameplay presentation instead of a blank frame");
         runtime.BombProjectiles.SetSharedCooldown(10);
-        int lockedAnimationFrame = samus.AnimationFrame;
+        int lockedAnimationFrame = samus.AnimationNumber;
         ushort lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.StepCaptured(0);
-        AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
+        AssertEqual(lockedAnimationFrame, samus.AnimationNumber,
             "automatic refill command-zero beta preserves the current Samus animation frame");
         AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer.RawValue,
             "automatic refill command-zero beta does not advance Samus animation timer");
@@ -100,7 +101,7 @@ internal static class ReserveAutoFrontendVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, RgbaPixel[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
-        lockedAnimationFrame = samus.AnimationFrame;
+        lockedAnimationFrame = samus.AnimationNumber;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.GameState = SuperMetroidGameState.ReserveTanksAuto;
         for (int frame = 0; frame < 33; frame++)
@@ -113,7 +114,7 @@ internal static class ReserveAutoFrontendVerification
             IReadOnlyList<SoundEffectId> roomRequests = audio.SoundsQueuedSinceForVerification(roomMark);
             if (frame < 32)
             {
-                AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
+                AssertEqual(lockedAnimationFrame, samus.AnimationNumber,
                     "all nonfinal recovery frames retain Samus animation cursor");
                 AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer.RawValue,
                     "all nonfinal recovery frames retain Samus animation delay");

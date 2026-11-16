@@ -108,9 +108,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static int ReadGraphicsYOffset(SamusState samus)
     {
-        return (samus.Presentation.Artwork ?? throw new InvalidOperationException(
-            "Samus pose presentation requires installed body artwork."))
-            .GraphicsYOffset(samus.Pose);
+        return samus.Presentation.Artwork.GraphicsYOffset(samus.Pose);
     }
 
     /// <summary>True for the four right-facing standing poses that move as <see cref="SamusMovementType.Standing"/>.</summary>
@@ -140,7 +138,7 @@ internal static class SamusPoseMetadata
         samus.Pose = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
     }
 
     /// <summary>
@@ -152,7 +150,7 @@ internal static class SamusPoseMetadata
     public static void ApplyZebesStartPoseSetup(SamusState samus)
     {
         SelectForwardFacingPose(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>
@@ -188,7 +186,7 @@ internal static class SamusPoseMetadata
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {
         SelectForwardFacingPose(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
 
         // This forced owner shifts history even when already facing forward.
         // It does not pass through the ordinary input-transition epilogue.
@@ -295,7 +293,7 @@ internal static class SamusPoseMetadata
                 $"Draygon pose {targetPose} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
         }
 
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>
@@ -699,7 +697,7 @@ internal static class SamusPoseMetadata
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).
                 // Preserve this frame's velocity; bomb start replaces it next frame.
-                SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+                SamusPresentation.InitializeAnimation(samus);
                 ArmPublishedBombJump(samus);
                 return true;
 

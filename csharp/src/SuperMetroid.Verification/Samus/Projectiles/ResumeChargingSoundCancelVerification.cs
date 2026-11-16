@@ -118,7 +118,6 @@ internal static class ResumeChargingSoundCancelVerification
     private static void VerifyGrappleFiringCancels()
     {
         var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, SamusBeamFlags.None);
-        PrepareRetailSamusFixture(fixture.Samus);
         fixture.Samus.ResumeChargingBeamSoundPending = true;
         SamusGrappleMovement.BeginFiring(fixture.Samus, GameplayAction.Shoot);
         AssertEqual(GrapplePhase.Firing, fixture.Samus.Grapple.Phase, "the grapple fires");
@@ -137,26 +136,24 @@ internal static class ResumeChargingSoundCancelVerification
         /// <summary>Places Samus in <paramref name="pose"/> at <paramref name="position"/> with <paramref name="beams"/> equipped.</summary>
         internal Fixture(SamusPoseId pose, FixedPosition<RoomPixels> position, SamusBeamFlags beams)
         {
-            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge, new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            Samus = new SamusState(Requests, InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = pose,
                 Position = position,
                 EquippedBeams = beams,
             };
-            Projectiles = new SamusProjectileSystem(Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
+            Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
             {
                 Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
             };
             Projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
-            Samus.BindAudioRequests(Requests);
-            Projectiles.BindAudioRequests(Requests);
         }
 
         /// <summary>The charge Samus and her projectiles share.</summary>
         internal BeamChargeState Charge { get; } = new();
 
         /// <summary>The update's sound requests, in request order, of Samus and her projectiles alike.</summary>
-        internal GameplayAudioRequests Requests { get; } = new();
+        internal GameplayAudioRequests Requests { get; } = GameplayAudioRequests.Standalone();
 
         /// <summary>Samus.</summary>
         internal SamusState Samus { get; }

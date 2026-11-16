@@ -39,6 +39,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// <paramref name="rules"/> name flicker commands.
     /// </param>
     /// <param name="startsWithClearedCounter">The counted lists the family's owners start directly, with a cleared counter.</param>
+    /// <param name="countedEntries">The animations the family's owners start at native entries that only load the counter (#2044).</param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
@@ -47,19 +48,54 @@ internal static class NativeEnemyProjectileProgramOracle
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
         Func<TFrame, ushort?>? reflectedPresentationKey = null,
-        IReadOnlySet<TSegment>? startsWithClearedCounter = null)
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null,
+        IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
         Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey);
-        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, startsWithClearedCounter);
+        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, startsWithClearedCounter,
+            countedStarts: CountedStarts(cartridge, entries, countedEntries ?? [], rules));
         return lists.Values.Sum(list => list.BeatAddresses.Length);
     }
 
     /// <summary>
+    /// Reads each counted entry's native list (#2044): it must hold no beat, only the counter load, and continue into a
+    /// segment's list, by running on into it or by a goto.
+    /// </summary>
+    /// <exception cref="InvalidDataException">An entry's list holds a beat or anything but one counter load and its continuation.</exception>
+    internal static IReadOnlyList<NativeCountedStart<TSegment>> CountedStarts<TSegment, TEvent>(
+        IImportCartridgeSource cartridge,
+        NativeProgramEntry<TSegment>[] entries,
+        IReadOnlyList<NativeCountedEntry<TSegment>> countedEntries,
+        NativeEnemyProjectileCueRules<TEvent> rules)
+        where TSegment : struct, Enum
+        where TEvent : notnull
+    {
+        Ensure.NotNull(entries);
+        Ensure.NotNull(countedEntries);
+        Ensure.NotNull(rules);
+        return [.. countedEntries.Select(Read)];
+
+        NativeCountedStart<TSegment> Read(NativeCountedEntry<TSegment> counted)
+        {
+            // The entry holds no beat, so a frame there fails as a beat the typed side lacks.
+            NativeProjectileList read = ReadList<ushort, TEvent>(cartridge, address => ProgramAt(entries, address) is not null, [], 0,
+                _ => throw new InvalidDataException($"{counted.Name}'s counted entry ${counted.Address:X4} shows no frame."), rules, null,
+                counted.Name, counted.Address);
+            if (read is not { BeatAddresses: [], Controls: [{ Kind: NativeEnemyControlKind.SetCounter, Count: { } count },
+                    { Kind: NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.Goto, Target: { } target }] })
+                throw new InvalidDataException($"{counted.Name}'s native entry ${counted.Address:X4} does not only load the counter and continue into a segment's list.");
+            TSegment into = ProgramAt(entries, target)
+                ?? throw new InvalidDataException($"{counted.Name}'s native entry ${counted.Address:X4} continues at ${target:X4}, no segment's list.");
+            return new NativeCountedStart<TSegment>(counted, count, into);
+        }
+    }
+
+    /// <summary>
     /// Reads every typed segment's native bank-$86 list, comparing its beats with the segment's as
-    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?)"/>
+    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?, IReadOnlyList{NativeCountedEntry{TSegment}}?)"/>
     /// does: each beat's native address, and each control instruction with its address and the beat it follows.
     /// </summary>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(

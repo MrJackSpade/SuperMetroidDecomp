@@ -34,8 +34,8 @@ internal static class YappingMawGrappleReleaseVerification
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
         samus.Position = samus.Position.WithWhole(new(936, 172));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 24);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, samus.Pose, 24, 3);
+        SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(24));
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.PoseFrameNumbered(24), timer: 3);
         samus.Grapple.Phase = GrapplePhase.ConnectedSwinging;
         samus.Grapple.CancelFromConnectedPose = false;
         samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;

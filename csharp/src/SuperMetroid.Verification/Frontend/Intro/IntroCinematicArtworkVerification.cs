@@ -14,7 +14,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryActorSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEggEffectSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEyeInstructionsVerification;
@@ -26,7 +25,6 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Samus.Poses.SamusAnimationDelayDefinitionsVerification;
-using static SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -559,14 +557,12 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>
-    /// The installed intro, Ceres and ending artwork family, with the Samus body artwork. Each suite that corrupts artwork
-    /// runs on its own private installation copy, so the full run schedules them independently; the read-only suites
-    /// share the repository installation.
+    /// The installed intro, Ceres and ending artwork family. Each suite that corrupts artwork runs on its own private
+    /// installation copy, so the full run schedules them independently; the read-only suites share the repository
+    /// installation. The Golden Torizo's cartridge fallback and Samus's body artwork are their own families' suites (#2060).
     /// </summary>
     internal static RegisteredSuite[] IntroCinematicArtworkSuites() =>
     [
-        new(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(RepositoryRomPath, RepositoryInstallation.Installation)),
-        new(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork),
         new(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(RepositoryRomPath)),
         new(nameof(VerifyCeresFlightArtwork), () => VerifyCeresFlightArtwork(RepositoryInstallation.Installation,
             CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath))),
@@ -575,23 +571,11 @@ internal static class IntroCinematicArtworkVerification
         new(nameof(VerifyEndingArtwork), () => VerifyEndingArtwork()),
     ];
 
-    /// <summary>Runs the Samus body artwork checks against the repository installation.</summary>
-    private static void VerifyInstalledSamusBodyArtwork() =>
-        VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath));
-
     /// <summary>Runs every suite of the installed intro, Ceres and ending artwork family in this process.</summary>
     [VerificationCommand("--intro-cinematic-artwork")]
     internal static int IntroCinematicArtworkCommand()
     {
         RunSuitesSerially(IntroCinematicArtworkSuites());
-        return 0;
-    }
-
-    /// <summary>Runs the Samus body artwork checks.</summary>
-    [VerificationCommand("--samus-body-artwork")]
-    internal static int SamusBodyArtworkCommand()
-    {
-        Suite(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork);
         return 0;
     }
 

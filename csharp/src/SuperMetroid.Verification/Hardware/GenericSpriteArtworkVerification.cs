@@ -110,8 +110,8 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, title.screenSprites, "title copyright owner parity");
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
-            AudioQueues.Standalone(), characterArtwork: introArtwork.BoundCatalog,
-            samusBodyArtwork: body)
+            AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(body), InstalledFixtures.Maps.PowerBombGlowColors,
+            characterArtwork: introArtwork.BoundCatalog)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

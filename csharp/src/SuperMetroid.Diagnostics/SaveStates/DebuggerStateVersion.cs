@@ -17,7 +17,8 @@ internal enum DebuggerStateVersion
     /// collection, instead of its capturing process's bucket layout (#1681); the game itself as the graph's root, with no
     /// work-memory image beside it (#1688); every array of values with no identity (enums, structs of values, nullable
     /// values) written as one packed run of a schema, member tables and back-to-back values instead of a framed object per
-    /// element (#1696).
+    /// element (#1696); a type value, such as a key of the room-object visuals' catalog store, written as the identity of
+    /// the type it names instead of refused (#2060).
     /// </summary>
-    Current = 16,
+    Current = 17,
 }

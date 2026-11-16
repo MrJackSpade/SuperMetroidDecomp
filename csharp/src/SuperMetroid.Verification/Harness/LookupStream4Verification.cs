@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -115,7 +116,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         var cgram = new SnesCgram();
         fx.Start(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
@@ -209,7 +210,7 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new ColourEffectSessionState();
             var fx = new ColourEffectSystem(fxSession);
-            fx.BindAudioRequests(new GameplayAudioRequests());
+            fx.BindAudioRequests(GameplayAudioRequests.Standalone());
             var cgram = new SnesCgram();
             fx.Start(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -245,7 +246,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.Start(program.DefinitionPointer, 0);
         for (int tick = 0; tick <= 80; tick++)
@@ -312,9 +313,9 @@ internal static class LookupStream4Verification
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
-            native.BindAudioRequests(new GameplayAudioRequests());
+            native.BindAudioRequests(GameplayAudioRequests.Standalone());
                                                                  var installed = new ColourEffectSystem(installedSession);
-                                                                 installed.BindAudioRequests(new GameplayAudioRequests());
+                                                                 installed.BindAudioRequests(GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -358,9 +359,9 @@ internal static class LookupStream4Verification
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
-            native.BindAudioRequests(new GameplayAudioRequests());
+            native.BindAudioRequests(GameplayAudioRequests.Standalone());
                                                                  var installed = new ColourEffectSystem(installedSession);
-                                                                 installed.BindAudioRequests(new GameplayAudioRequests());
+                                                                 installed.BindAudioRequests(GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -1031,11 +1032,11 @@ internal static class LookupStream4Verification
                 var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],"All twelve stock AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)}, new GameplayAudioRequests());
+                hud.UpdateGameplayCounters(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)}, GameplayAudioRequests.Standalone());
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords(selected)[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
             // The HUD is drawn from its current values (#1555): manual reserves show the AUTO cells cleared.
-            hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Manual,ReserveEnergy=1}, new GameplayAudioRequests());
+            hud.UpdateGameplayCounters(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Manual,ReserveEnergy=1}, GameplayAudioRequests.Standalone());
             for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords(selected)[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserves clear AUTO");
         }
         Console.WriteLine("HUD AUTO:12native words,the document hash,actual state updates,manual clear/readguard/neighbors pass.");
@@ -1226,7 +1227,7 @@ internal static class LookupStream4Verification
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
             if (!SamusPoseNumbering.NamesPose(pose))
                 continue;
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseNumbering.FromNumber(pose) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
             var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequested = false, TailAction = RidleyTailAction.Pogo, IntangibilityTimer = 99 };
@@ -1955,8 +1956,8 @@ internal static class LookupStream4Verification
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
-                var liquid = new RoomFxOverlayState(new RoomFxSession());
-                liquid.BindAudioRequests(new GameplayAudioRequests());
+                var liquid = new RoomFxOverlayState();
+                liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 enemies.RoomFx.BindRoomFx(liquid);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)

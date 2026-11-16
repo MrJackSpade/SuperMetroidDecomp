@@ -28,7 +28,7 @@ internal sealed class GameplayHudSetup
     /// </summary>
     public void InitializeHud(HudSnapshot snapshot)
     {
-        _hud.BindPresentation(_artwork.MapPresentation?.GameplayHud);
+        _hud.BindPresentation(_artwork.MapPresentation.GameplayHud);
         _hud.Initialize(snapshot);
     }
 }

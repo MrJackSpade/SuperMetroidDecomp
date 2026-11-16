@@ -85,18 +85,13 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
             !ReferenceEquals(source.ColourEffects, destination.ColourEffects) && !ReferenceEquals(source.CeresHaze, destination.CeresHaze) &&
-            !ReferenceEquals(source.SandBlockAnimations, destination.SandBlockAnimations) && !ReferenceEquals(source.SpikeBlockAnimations, destination.SpikeBlockAnimations) &&
-            !ReferenceEquals(source.TreadmillBlockAnimations, destination.TreadmillBlockAnimations) &&
-            !ReferenceEquals(source.WreckedShipTreadmill, destination.WreckedShipTreadmill) &&
+            !ReferenceEquals(source.BlockAnimations, destination.BlockAnimations) &&
             !ReferenceEquals(source.TourianStatues, destination.TourianStatues),
             "the destination builds its own FX, animated tiles, haze and statue sequence");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.MaridiaElevatube, destination.MaridiaElevatube) &&
             !ReferenceEquals(source.CeresElevatorShaft, destination.CeresElevatorShaft) &&
             !destination.MaridiaElevatube.IsActive && !destination.CeresElevatorShaft.IsActive,
             "the destination builds its own room mains, inactive in a room that does not select them");
-        VerificationAssertions.AssertTrue(ReferenceEquals(source.FxOverlay.Fireflea, destination.FxOverlay.Fireflea) &&
-            ReferenceEquals(runtime.RoomFx.Fireflea, destination.FxOverlay.Fireflea),
-            "the Fireflea state is the session's, shared by both rooms");
         VerificationAssertions.AssertEqual(heatPhase, runtime.ColourEffectSession.PublishedHeatPhase,
             "the palette-FX heat phase survives the load on the session");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
@@ -120,7 +115,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
         VerificationAssertions.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
         VerificationAssertions.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
-        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system, projectile pools, FX and animated tiles, enemies, keeps the held beam charge and session FX and enemy state; its camera carries the fractions, ideal position, speed and previous Samus point.");
+        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system, projectile pools, FX and animated tiles, enemies, keeps the held beam charge, the palette-FX heat phase and session enemy state; its camera carries the fractions, ideal position, speed and previous Samus point.");
     }
 
     /// <summary>Runs the room-scope carry-over confirmation.</summary>

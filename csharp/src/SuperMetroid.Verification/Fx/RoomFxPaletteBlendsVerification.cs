@@ -125,7 +125,7 @@ internal static class RoomFxPaletteBlendsVerification
         RoomEffectDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
-        var state = RoomFxOverlayState.ForDefinition(new RoomFxSession(), record, randomNumber: 0);
+        var state = RoomFxOverlayState.ForDefinition(record, randomNumber: 0);
         return new ConstructBlendLoadResult(state, bus);
     }
 

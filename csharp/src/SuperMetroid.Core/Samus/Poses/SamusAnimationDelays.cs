@@ -1,8 +1,9 @@
 using static SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions;
+using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame, SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep>;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Which animation each Samus pose animates by (#1473).</summary>
+/// <summary>Which animation each Samus pose animates by (#1473), and how her animation reads its frames (#2048).</summary>
 internal static class SamusAnimationDelays
 {
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
@@ -11,54 +12,95 @@ internal static class SamusAnimationDelays
     /// </exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => AnimationOf(pose);
 
-    /// <summary>The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException">No step of the pose's animation is numbered <paramref name="frame"/>.</exception>
+    /// <summary>The step of <paramref name="pose"/>'s animation at <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException">The frame reads no step of the pose's animation.</exception>
     /// <remarks>
     /// A frame on a value a cue carries reads the step the value selects, and a frame past the animation's end reads the
-    /// animation laid out after it, both through <paramref name="framesBeyondAnimation"/>, which names each animation by a pose that
-    /// animates by it; frame targets that animation names are shifted back to this pose's frames (#1535).
+    /// frame of a later animation the import decoded for it, both through <paramref name="framesBeyondAnimation"/>, which
+    /// names each animation by a pose that animates by it (#1535); a cue read there names its frames in that animation
+    /// (<see cref="Target"/>).
     /// </remarks>
     /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
-    /// <param name="framesBeyondAnimation">What a frame past an animation's end reads.</param>
-    internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, int frame, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation) =>
+    /// <param name="framesBeyondAnimation">What a frame that is no step of its animation reads.</param>
+    internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
         TryStepFor(pose, frame, framesBeyondAnimation) ?? throw new InvalidDataException(
             $"Samus animation frame {frame} is not a step of pose {pose}'s animation nor of an animation laid out after it.");
 
     /// <summary>
-    /// The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads
-    /// it, or null when the frame reads past every animation, or lands on a cue value whose step would publish a record no
+    /// The step of <paramref name="pose"/>'s animation at <paramref name="frame"/>, read as <see cref="StepFor"/> reads it, or
+    /// null when the frame reads no step: past every animation, or on a cue value whose step would publish a record no
     /// gameplay path gives Samus, where the animation fails.
     /// </summary>
     /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
-    /// <param name="framesBeyondAnimation">What a frame past an animation's end reads.</param>
-    internal static SamusPoseAnimationStep? TryStepFor(SamusPoseId pose, int frame, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation)
+    /// <param name="framesBeyondAnimation">What a frame that is no step of its animation reads.</param>
+    /// <exception cref="InvalidDataException">A read past the animation reaches a frame that names no step.</exception>
+    internal static SamusPoseAnimationStep? TryStepFor(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation)
     {
         Ensure.NotNull(framesBeyondAnimation);
-        SamusPoseId read = pose;
-        SamusPoseAnimation animation = AnimationOf(read);
-        int readFrame = frame;
-        int shift = 0;
-        SamusPoseAnimationStep? step = animation.TryStepAt(readFrame) ?? framesBeyondAnimation.CueValueStep(read, readFrame);
-        while (step is null)
-        {
-            if (framesBeyondAnimation.ReadPast(read, readFrame) is not { } past)
-                return null;
-            read = past.Animation;
-            animation = AnimationOf(read);
-            readFrame = past.Frame;
-            shift += past.Shift;
-            step = animation.TryStepAt(readFrame) ?? framesBeyondAnimation.CueValueStep(read, readFrame);
-        }
-        return shift == 0 ? step : step switch
-        {
-            SamusAnimationRepeat repeat => new SamusAnimationRepeat(repeat.Frame + shift),
-            SamusAnimationWallJumpSelect select => new SamusAnimationWallJumpSelect(
-                select.OrdinaryFrame + shift, select.SpaceJumpFrame + shift, select.ScrewAttackFrame + shift),
-            _ => step,
-        };
+        if (OwnStep(pose, frame, framesBeyondAnimation) is { } own)
+            return own;
+        return framesBeyondAnimation.ReadPast(pose, frame) is { } read
+            ? OwnStep(read.Animation, read.Frame, framesBeyondAnimation) ?? throw new InvalidDataException(
+                $"Samus animation frame {frame} of pose {pose} reads frame {read.Frame} of pose {read.Animation}'s animation, which names no step.")
+            : null;
     }
+
+    /// <summary>The frame after <paramref name="frame"/> of <paramref name="pose"/>'s animation, past its end included.</summary>
+    internal static SamusAnimationFrame Next(SamusPoseId pose, SamusAnimationFrame frame) => AnimationOf(pose).Next(frame);
+
+    /// <summary>
+    /// The frame of <paramref name="pose"/>'s animation a cue read at <paramref name="at"/> moves it to when it names
+    /// <paramref name="target"/>: the named frame of the pose's own animation for a cue of its own, or, for a cue a read past
+    /// the animation reaches, the frame the import decoded for the frame the cue names in the later animation (#1535).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The frame <paramref name="at"/> reads no step, or the read names no move to the target.</exception>
+    internal static SamusAnimationFrame Target(SamusPoseId pose, SamusAnimationFrame at, SamusAnimationTarget target,
+        SamusFramesBeyondAnimation framesBeyondAnimation)
+    {
+        Ensure.NotNull(framesBeyondAnimation);
+        if (OwnStep(pose, at, framesBeyondAnimation) is not null)
+            return AnimationOf(pose).Resolve(target);
+        SamusFramesBeyondAnimation.Read read = framesBeyondAnimation.ReadPast(pose, at) ?? throw new InvalidDataException(
+            $"Samus animation frame {at} of pose {pose} reads no step whose cue could name a frame.");
+        SamusAnimationFrame named = AnimationOf(read.Animation).Resolve(target);
+        return read.Moves.TryGetValue(named, out SamusAnimationFrame moved)
+            ? moved
+            : throw new InvalidDataException(
+                $"Samus animation frame {at} of pose {pose} reads pose {read.Animation}'s animation, whose frame {named} it has no installed move to.");
+    }
+
+    /// <summary>
+    /// The frame of <paramref name="pose"/>'s animation <paramref name="place"/> sets: the named frame itself when the pose
+    /// animates by the place's animation, otherwise the frame the import decoded for the place in the pose's (#2048).
+    /// </summary>
+    internal static SamusAnimationFrame Land(SamusPoseId pose, SamusAnimationPlace place, SamusFramesBeyondAnimation framesBeyondAnimation)
+    {
+        Ensure.NotNull(place.Animation);
+        Ensure.NotNull(framesBeyondAnimation);
+        return ReferenceEquals(AnimationOf(pose), place.Animation) ? place.Frame : framesBeyondAnimation.Landing(place.Name, pose);
+    }
+
+    /// <summary>
+    /// Whether <paramref name="frame"/> of <paramref name="pose"/>'s animation has reached <paramref name="place"/>: lies at
+    /// it or after it, as the frame <paramref name="place"/> sets on the pose would (<see cref="Land"/>).
+    /// </summary>
+    internal static bool HasReached(SamusPoseId pose, SamusAnimationFrame frame, SamusAnimationPlace place,
+        SamusFramesBeyondAnimation framesBeyondAnimation) =>
+        frame >= Land(pose, place, framesBeyondAnimation);
+
+    /// <summary>Whether <paramref name="frame"/> of <paramref name="pose"/>'s animation lies past <paramref name="place"/>.</summary>
+    internal static bool HasPassed(SamusPoseId pose, SamusAnimationFrame frame, SamusAnimationPlace place,
+        SamusFramesBeyondAnimation framesBeyondAnimation) =>
+        frame > Land(pose, place, framesBeyondAnimation);
+
+    /// <summary>
+    /// The step <paramref name="frame"/> of <paramref name="pose"/>'s animation names itself: one of its delays or cues, or a
+    /// value one of its cues carries; null for a frame read past the animation.
+    /// </summary>
+    private static SamusPoseAnimationStep? OwnStep(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
+        AnimationOf(pose).TryStepAt(frame) ?? framesBeyondAnimation.CueValueStep(pose, frame);
 
     /// <summary>The animation of <paramref name="pose"/>.</summary>
     private static SamusPoseAnimation AnimationOf(SamusPoseId pose)

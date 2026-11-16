@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -44,7 +45,7 @@ internal static class SpringBallEquipmentJumpVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
-            SamusPresentation.InitializeAnimation(samus, 3);
+            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(3));
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(1, 0x8000);
             for (int jump = 0; jump < 2; jump++)
@@ -52,7 +53,7 @@ internal static class SpringBallEquipmentJumpVerification
                 Resume(true);
                 SamusPoseId springGround = left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose;
                 AssertEqual(springGround, samus.Pose, "unpause equips jump-enabled Spring Ball even while rising");
-                AssertEqual(0, samus.AnimationFrame, "cross-family equipment conversion restarts ball animation");
+                AssertEqual(0, samus.AnimationNumber, "cross-family equipment conversion restarts ball animation");
                 ushort beforeY = samus.Position.Y.Whole;
                 runtime.PlayerActions.Latch(0);
                 runtime.StepFrame(ControllerButton.A);

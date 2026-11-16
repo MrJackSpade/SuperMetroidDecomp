@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <see cref="SuperMetroidGame.BindArtwork"/>.
 /// </summary>
 [ArchitectureReview("context-bag", "The installed artwork set a host binds as one value; every member is an immutable artwork catalog, not a service.")]
-public sealed record GameArtwork : IGameplayArtwork
+public sealed record GameArtwork
 {
     /// <summary>No catalog bound: the state of a new game, or of a restored one before its host rebinds.</summary>
     public static GameArtwork Unbound { get; } = new();
@@ -40,14 +40,14 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Area maps with the pause, HUD, title, intro and ending text and colours that share their installation.</summary>
     public AreaMapPresentation? MapPresentation { get; init; }
 
-    /// <inheritdoc/>
-    IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;
-
     /// <summary>The opening's and the Ceres scenes' backdrops and actor placements; their pictures are the sprite sheets (#1616).</summary>
     public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 
     /// <summary>Samus body pictures, suit colours and death colours.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
+
+    /// <summary>The frames Samus's body can show in each pose and the picture frame each draws.</summary>
+    public SuperMetroid.Core.Samus.Drawing.SamusShownFrames? SamusShownFrames { get; init; }
 
     /// <summary>The ending scenes' backdrops (#1544).</summary>
     public EndingBackdrops? EndingBackdrops { get; init; }
@@ -190,4 +190,75 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
     public InstalledGrappleSwingFrames? GrappleSwingFrames { get; init; }
+
+    /// <summary>
+    /// The catalogs a gameplay runtime is built over, every one installed (#2049): gameplay starts only once the host has
+    /// installed its artwork.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A catalog gameplay needs is not installed.</exception>
+    internal GameplayArtwork Gameplay => new()
+    {
+        MapPresentation = Installed(MapPresentation),
+        SamusBodyArt = Installed(SamusBodyArt),
+        SamusShownFrames = Installed(SamusShownFrames),
+        RoomBlockSheets = Installed(RoomBlockSheets),
+        RoomVisualLayouts = Installed(RoomVisualLayouts),
+        RoomLevelStreams = Installed(RoomLevelStreams),
+        RoomObjectShotBlockVisuals = Installed(RoomObjectShotBlockVisuals),
+        RoomObjectGrappleBlockVisuals = Installed(RoomObjectGrappleBlockVisuals),
+        RoomObjectStationVisuals = Installed(RoomObjectStationVisuals),
+        RoomObjectBlueDoorVisuals = Installed(RoomObjectBlueDoorVisuals),
+        RoomObjectColoredDoorVisuals = Installed(RoomObjectColoredDoorVisuals),
+        RoomObjectGreyDoorVisuals = Installed(RoomObjectGreyDoorVisuals),
+        RoomObjectEyeDoorVisuals = Installed(RoomObjectEyeDoorVisuals),
+        RoomObjectMotherBrainGlassVisuals = Installed(RoomObjectMotherBrainGlassVisuals),
+        RoomObjectNoobTubeVisuals = Installed(RoomObjectNoobTubeVisuals),
+        RoomObjectDownwardGateVisuals = Installed(RoomObjectDownwardGateVisuals),
+        RoomObjectElevatorPlatformVisuals = Installed(RoomObjectElevatorPlatformVisuals),
+        RoomObjectEscapeGateVisuals = Installed(RoomObjectEscapeGateVisuals),
+        RoomObjectBombTorizoHandVisuals = Installed(RoomObjectBombTorizoHandVisuals),
+        RoomObjectDraygonCannonVisuals = Installed(RoomObjectDraygonCannonVisuals),
+        RoomObjectPhantoonDoorVisuals = Installed(RoomObjectPhantoonDoorVisuals),
+        RoomObjectChozoStatueVisuals = Installed(RoomObjectChozoStatueVisuals),
+        RoomObjectLinkedRestoreVisuals = Installed(RoomObjectLinkedRestoreVisuals),
+        RoomObjectTourianAccessVisuals = Installed(RoomObjectTourianAccessVisuals),
+        RoomObjectSpeedBoosterVisuals = Installed(RoomObjectSpeedBoosterVisuals),
+        RoomObjectMaridiaElevatubeVisuals = Installed(RoomObjectMaridiaElevatubeVisuals),
+        RoomObjectSporeSpawnCeilingVisuals = Installed(RoomObjectSporeSpawnCeilingVisuals),
+        RoomObjectSamusEaterVisuals = Installed(RoomObjectSamusEaterVisuals),
+        RoomObjectBotwoonWallVisuals = Installed(RoomObjectBotwoonWallVisuals),
+        RoomObjectKraidVisuals = Installed(RoomObjectKraidVisuals),
+        RoomObjectCrocomireVisuals = Installed(RoomObjectCrocomireVisuals),
+        RoomObjectMotherBrainFakeDeathVisuals = Installed(RoomObjectMotherBrainFakeDeathVisuals),
+        RoomObjectCollectibleVisuals = Installed(RoomObjectCollectibleVisuals),
+        RoomObjectRevealAndWallVisuals = Installed(RoomObjectRevealAndWallVisuals),
+        RoomObjectSetupBlocks = Installed(RoomObjectSetupBlocks),
+        XrayRevealVisuals = Installed(XrayRevealVisuals),
+        ProjectileFrameBindings = Installed(ProjectileFrameBindings),
+        SamusOverreads = Installed(SamusOverreads),
+        BossAndIntroOverreads = Installed(BossAndIntroOverreads),
+        SpriteSheets = Installed(SpriteSheets),
+        EnemySheets = Installed(EnemySheets),
+        EnemyFrameDisplays = Installed(EnemyFrameDisplays),
+        EnemyOverreads = Installed(EnemyOverreads),
+        ChargeFlarePlacement = Installed(ChargeFlarePlacement),
+        GrappleFlarePlacement = Installed(GrappleFlarePlacement),
+        GrappleSwingFrames = Installed(GrappleSwingFrames),
+        KraidEyes = Installed(KraidEyes),
+        BossBodySheets = Installed(BossBodySheets),
+    };
+
+    /// <summary>The installed Power Bomb glow colours, which the Ceres station's blast and the flashbacks' bombs glow in.</summary>
+    /// <exception cref="InvalidOperationException">No map presentation is installed.</exception>
+    internal InstalledPowerBombGlowColors InstalledPowerBombGlowColors => Installed(MapPresentation).PowerBombGlowColors;
+
+    /// <summary>The installed Samus artwork the opening cinematic's flashback Samus draws from (#2049).</summary>
+    /// <exception cref="InvalidOperationException">A catalog Samus draws from is not installed.</exception>
+    internal SamusArtworkBinding FlashbackSamusArtwork() =>
+        new(Installed(SamusBodyArt), Installed(SamusShownFrames), Installed(SpriteSheets), Installed(GrappleFlarePlacement), Installed(GrappleSwingFrames));
+
+    /// <summary>The installed catalog <paramref name="catalog"/>, which gameplay requires.</summary>
+    /// <exception cref="InvalidOperationException">The catalog is not installed.</exception>
+    private static T Installed<T>(T? catalog, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(catalog))] string name = "") where T : class =>
+        catalog ?? throw new InvalidOperationException($"Gameplay requires the installed {name}.");
 }

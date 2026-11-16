@@ -86,14 +86,10 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The sound and music requests the current update makes, in the order its systems make them (#1620): every room
-    /// system and Samus queue theirs here as they run, and a session's go straight on into its queues.
+    /// system and Samus take it as they are built and queue theirs here as they run, and they go straight on into the
+    /// session's queues (#2057).
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; }
-
-    /// <summary>Sends the runtime's later audio requests straight on into <paramref name="audio"/>, the queues of the session running it.</summary>
-    /// <exception cref="InvalidOperationException">The runtime's requests already reach a session's queues.</exception>
-    internal void AttachSessionAudio(AudioQueues audio) =>
-        AudioRequests.AttachTo(new SessionGameplayAudioQueues(audio, AttractSession));
 
     /// <summary>What the gameplay display shows: the turning floor's and the elevator shaft's transforms and the latched scene.</summary>
     internal GameplayDisplayState Display { get; }
@@ -180,10 +176,10 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Creates the frame-steppable runtime under its assists, Samus in her starting shades.</summary>
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
-    /// The installed catalogs; their Samus overread services
+    /// The installed catalogs, every one required (#2049); their Samus overread services
     /// are handed to the owners that consult them, their enemy and boss overread services, enemy sheets and enemy frame
-    /// displays and the rainbow-beam camera checkpoint are injected into the enemy session it builds, and
-    /// <see cref="BindArtwork"/> binds the rest.
+    /// displays and the rainbow-beam camera checkpoint are injected into the enemy session it builds, the Samus, projectile
+    /// and map artwork are its <see cref="Artwork"/>'s from the start, and the rest are bound before the constructor returns.
     /// </param>
     /// <param name="session">
     /// What the session keeps across its runtimes: the frame clock it shares with the frontend; what the shared game state
@@ -191,7 +187,7 @@ internal sealed class SuperMetroidRuntime
     /// and the compatibility services kept across games (the unauthored Speed Booster cadence its enemies and every Samus
     /// share, the save confirmation's input cadence and the camera fractions).
     /// </param>
-    internal SuperMetroidRuntime(GameplayAssists assists, IGameplayArtwork artwork, GameplaySessionCarryover session)
+    internal SuperMetroidRuntime(GameplayAssists assists, GameplayArtwork artwork, GameplaySessionCarryover session)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(session);
@@ -200,29 +196,30 @@ internal sealed class SuperMetroidRuntime
         CameraFractions = Ensure.NotNull(session.Compatibility.CameraFractions);
         FadeOut = new GameplayFadeOut(FadeStepCount);
         MessageBox = new GameplayMessageBoxState(session.Compatibility.SaveChoiceInput, session.Compatibility.MessageBoxPauses);
-        SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
-            "Gameplay requires the installed Samus overread services.");
+        SamusOverreads = artwork.SamusOverreads;
         System = new SharedGameState(session.GameState.Random, session.GameState.EarthquakeSoundDelay, session.GameState.StoredExploredMaps);
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        AudioRequests = new GameplayAudioRequests();
-        if (session.Audio is { } audio)
-            AttachSessionAudio(audio);
+        AudioRequests = new GameplayAudioRequests(new SessionGameplayAudioQueues(session.Audio, AttractSession));
         EnemySession = new EnemySession(
-            artwork.EnemyOverreads ?? throw new InvalidOperationException("Gameplay requires the installed enemy overread services."),
-            artwork.BossAndIntroOverreads ?? throw new InvalidOperationException("Gameplay requires the installed boss and intro overread services."),
-            RainbowBeamCameraCheckpoint,
-            artwork.EnemySheets ?? throw new InvalidOperationException("Gameplay requires the installed enemy sheets."),
-            artwork.EnemyFrameDisplays ?? throw new InvalidOperationException("Gameplay requires the installed enemy frame displays."));
+            AudioRequests,artwork.EnemyOverreads, artwork.BossAndIntroOverreads, RainbowBeamCameraCheckpoint,
+            artwork.EnemySheets, artwork.EnemyFrameDisplays);
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
         Assists = new ActiveAssists(Player, System, assists);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, Hud = Hud, Player = Player });
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
+        {
+            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
+            GrappleFlarePlacement = artwork.GrappleFlarePlacement, GrappleSwingFrames = artwork.GrappleSwingFrames,
+            ProjectileFrameBindings = artwork.ProjectileFrameBindings, ChargeFlarePlacement = artwork.ChargeFlarePlacement,
+            RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
+            BossArtwork = BossArtwork, Room = Room, Hud = Hud, Player = Player,
+        });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
@@ -235,7 +232,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -245,11 +242,25 @@ internal sealed class SuperMetroidRuntime
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
+        BindArtwork(artwork, previous: null);
     }
 
+    /// <summary>The catalogs the runtime last bound: those it was built over until the host binds others.</summary>
+    private GameplayArtwork _boundArtwork;
+
     /// <summary>
-    /// Binds the installed catalogs to the runtime's owners: every catalog when <paramref name="previous"/> is null (a new
-    /// runtime), otherwise only the catalogs whose reference changed.
+    /// Binds the catalogs the host installs in place of those the runtime holds: only the catalogs whose reference changed
+    /// reach their owners.
+    /// </summary>
+    /// <param name="artwork">The catalogs to bind.</param>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="artwork"/> names enemy sheets or enemy frame displays other than those the runtime was built with.
+    /// </exception>
+    internal void BindArtwork(GameplayArtwork artwork) => BindArtwork(artwork, _boundArtwork);
+
+    /// <summary>
+    /// Binds the installed catalogs to the runtime's owners: every catalog when <paramref name="previous"/> is null (the
+    /// runtime being built, or one restored from a saved state), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
     /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
@@ -260,21 +271,24 @@ internal sealed class SuperMetroidRuntime
     /// <exception cref="InvalidOperationException">
     /// <paramref name="artwork"/> names enemy sheets or enemy frame displays other than those the runtime was built with.
     /// </exception>
-    internal void BindArtwork(IGameplayArtwork artwork, IGameplayArtwork? previous)
+    [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(_boundArtwork))]
+    internal void BindArtwork(GameplayArtwork artwork, GameplayArtwork? previous)
     {
         Ensure.NotNull(artwork);
         // The enemy session holds the sheets and frame displays it was built with for the runtime's lifetime (#1616).
         if (!ReferenceEquals(artwork.EnemySheets, EnemySession.Sheets) || !ReferenceEquals(artwork.EnemyFrameDisplays, EnemySession.FrameDisplays))
             throw new InvalidOperationException("A runtime draws its enemies from the sheets and frame displays it was built with.");
-        void Bind<T>(Func<IGameplayArtwork, T?> catalog, Action<T?> bind) where T : class
+        _boundArtwork = artwork;
+        void Bind<T>(Func<GameplayArtwork, T> catalog, Action<T> bind) where T : class
         {
-            T? value = catalog(artwork);
+            T value = catalog(artwork);
             if (previous is null || !ReferenceEquals(catalog(previous), value))
                 bind(value);
         }
 
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
+        Bind(a => a.SamusShownFrames, value => Artwork.SamusShownFrames = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);
@@ -409,9 +423,6 @@ internal sealed class SuperMetroidRuntime
     /// <remarks>Before the first room exists there is no explosion.</remarks>
     public bool PowerBombExplosionActive => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
-    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's effect overlay FX.</summary>
-    public RoomFxSession RoomFx { get; } = new();
-
     /// <summary>The held beam charge, flare and charge colours, which survive room loads; each room's projectiles share it.</summary>
     internal BeamChargeState BeamCharge { get; }
 
@@ -520,8 +531,6 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        scope.BindAudioRequests(AudioRequests);
-        Player.Samus?.BindAudioRequests(AudioRequests);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 
@@ -592,7 +601,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
+            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep });
             // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary earthquake step later in
             // this frame so its first displacement is visible immediately.
             if (Room.LoadedScope.FxOverlay.SustainedEarthquake is { } risingLiquidShake)
@@ -886,7 +895,7 @@ internal sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal movement phase; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.Area) });
+            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation.Get(roomGeometry.Area) });
         }
     }
 
@@ -920,10 +929,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (escapeTimerRuns && EscapeTimer.IsActive)
         {
-            var presentation = Artwork.MapPresentation ?? throw new InvalidOperationException(
-                "Escape timer requires installed presentation assets.");
-            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, presentation.EscapeTimer, (Artwork.SpriteSheets ?? throw new InvalidOperationException(
-                "The escape timer requires the installed sprite sheets.")).Get(SpriteSheetId.EscapeTimer));
+            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, Artwork.MapPresentation.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
         }
     }
 
@@ -1053,7 +1059,7 @@ internal sealed class SuperMetroidRuntime
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
-            Artwork.MapPresentation?.CeresHaze,
+            Artwork.MapPresentation.CeresHaze,
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, Room.Scope?.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,

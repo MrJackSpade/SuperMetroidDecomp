@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,7 +16,7 @@ internal static class PlasmaPenetrationVerification
         foreach (bool charged in new[] { false, true })
         for (ushort combination = 0; combination < 8; combination++)
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var slot = shots.Shots[0];
             SamusProjectileType type = SamusProjectileType.Beam(
                 SamusBeamCombinations.Of(SamusEquipmentWordCodec.FromBeamWord(combination) | SamusBeamFlags.Plasma), charged);
@@ -24,7 +25,7 @@ internal static class PlasmaPenetrationVerification
             slot.Direction = SamusProjectileDirection.Right;
             slot.Playback = ProjectileFixturePlaybacks.Active;
             slot.FrameHold = WrappingCountdown.Start(7);
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             for (int hit = 0; hit < 2; hit++)
             {
                 AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bombs, slot), "penetrating enemy hit accepted");

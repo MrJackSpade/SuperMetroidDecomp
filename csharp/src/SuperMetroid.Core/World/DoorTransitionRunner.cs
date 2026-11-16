@@ -70,7 +70,7 @@ internal sealed class DoorTransitionRunner
     /// behaviour, not room-name patches: every door that names a setup receives the same
     /// screen changes and room event.
     /// </remarks>
-    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillBlockAnimationsState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
+    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, RoomBlockAnimations blockAnimations, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -106,11 +106,11 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorRoomEvent.StartsTreadmillRightwards:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, roomObjects, wreckedShipTreadmill);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, roomObjects, blockAnimations);
                 return;
 
             case DoorRoomEvent.StartsTreadmillLeftwards:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, roomObjects, wreckedShipTreadmill);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, roomObjects, blockAnimations);
                 return;
 
             case DoorRoomEvent.StartsElevatubeRideFromSouth:
@@ -132,8 +132,8 @@ internal sealed class DoorTransitionRunner
         }
     }
 
-    /// <summary>Starts the treadmills' block animations and attempts the matching entrance room-object spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, WreckedShipTreadmillBlockAnimationsState wreckedShipTreadmill)
+    /// <summary>Starts the room's entrance treadmill animation and attempts the matching entrance room-object spawn.</summary>
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, RoomBlockAnimations blockAnimations)
     {
         if (_room.LevelData is null || _room.ActiveRoom is null)
         {
@@ -141,7 +141,7 @@ internal sealed class DoorTransitionRunner
                 "Wrecked Ship treadmill door setup requires an active destination room.");
         }
 
-        wreckedShipTreadmill.Start(direction);
+        blockAnimations.StartDoorTreadmill(direction);
         // Both spawn helpers report when the room is full, and
         // the door setup deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the room-object allocator's false result here.

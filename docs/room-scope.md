@@ -14,7 +14,7 @@ remains.
 ## Enforcement
 
 Every room-lifetime type carries `[RoomLifetime]`: the scope, its parts, and the components those parts hold.
-Session state lives on session owners (`EnemySession`, `RoomFxSession`, `PaletteFxSessionState`, `BeamChargeState`,
+Session state lives on session owners (`EnemySession`, `PaletteFxSessionState`, `BeamChargeState`,
 `ActiveRoomState`'s session words). The blocking `RoomLifetimeAnalyzer` keeps the split:
 
 - **SME6409**: a room-lifetime type is constructed only inside another room-lifetime type or a `[RoomScopeBoundary]`
@@ -92,8 +92,8 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   beam fired left reads it at its muzzle check; the 100% movie diverges at update 23200 without it. The vertical
   sub-pixel position and the Spazer special-attack phase also survived the original reset, but every shot that reads
   them writes them first, so neither is handed over.
-- **Room-FX session state**: the Fireflea darkness state and the COLDATA shadows are never cleared by room loading;
-  they live on `RoomFxSession`, which each room's `RoomFxOverlayState` reads, with the host's installed FX catalogs.
+- **Fireflea darkness** is the room's (#2053): a Fireflea room's effect starts it from its first flash as the room
+  loads, so nothing of it carries into the next room.
 - **Palette-FX handler state**: the handler enable bit (`$1E79`) and the Norfair heat palette phases survive room
   loading on `PaletteFxSessionState`, which each room's `RoomPaletteFxSystem` reads.
 - **X-ray direct G-mode** is demoted, not reset.
@@ -146,8 +146,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 | `SamusBombProjectileSystem` | slots, bomb counter, cooldown, power-bomb explosion | room |
 | `SamusProjectileSystem` | slots, trails, counter, combo, earthquake | room |
 | `BeamChargeState` | charge, flare, charge palette | session carry-over |
-| `RoomFxOverlayState`, `RoomPaletteFxSystem`, sand/spike/treadmill tiles | FX state | room |
-| `RoomFxSession` | Fireflea state, COLDATA shadows, installed FX catalogs | session carry-over |
+| `RoomFxOverlayState` (with its Fireflea darkness), `RoomPaletteFxSystem`, `RoomBlockAnimations` | FX state | room |
 | `PaletteFxSessionState` | handler enable bit, heat palette phases | session carry-over |
 | Treadmill, elevatube and Ceres shaft room mains | active flag, script state | room, with the elevatube exit carried |
 | `CeresHazeState`, `TourianStatueSequence` | presentation and sequence | room |

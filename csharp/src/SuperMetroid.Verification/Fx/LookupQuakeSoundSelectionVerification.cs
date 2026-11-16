@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -21,10 +22,9 @@ internal static class LookupQuakeSoundSelectionVerification
         AssertEqual((ushort)0x8000, ReadVerificationWord(rom, 0x88b256 + 4 * count), "Original reset marker");
         for (int index = 0; index < count; index++)
         {
-            var stateSession = new RoomFxSession();
-            var state = new RoomFxOverlayState(stateSession);
-            state.BindAudioRequests(new GameplayAudioRequests());
-            state.EarthquakeSoundRhythmPosition = index;
+            var state = new RoomFxOverlayState();
+            state.BindAudioRequests(GameplayAudioRequests.Standalone());
+            state.SetEarthquakeSoundRhythmPositionForCheck(index);
             state.PublishStatueEarthquakeSound(0, SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame);
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = state.SoundRequests[0];

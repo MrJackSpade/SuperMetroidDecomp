@@ -89,6 +89,7 @@ internal static class AudioVerification
         Suite(nameof(VerifyEchoFollowsTheUpdatesEarlierSounds), () => VerifyEchoFollowsTheUpdatesEarlierSounds());
         Suite(nameof(VerifyGameplaySoundsQueueInRunOrder), () => VerifyGameplaySoundsQueueInRunOrder());
         Suite(nameof(VerifyLaterUpdateQueuesNothingStale), () => VerifyLaterUpdateQueuesNothingStale());
+        Suite(nameof(VerifyRuntimeOutsideASessionAnswersFromItsOwnQueues), () => VerifyRuntimeOutsideASessionAnswersFromItsOwnQueues());
 
         var audio = AudioQueues.Standalone();
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));

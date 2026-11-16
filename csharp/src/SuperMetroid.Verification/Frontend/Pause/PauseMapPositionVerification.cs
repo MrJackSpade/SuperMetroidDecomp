@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -36,7 +37,7 @@ internal static class PauseMapPositionVerification
             var system = new SharedGameState(new SharedRandom());
             var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + RoomScreenOf.Pixel(samusX))), checked((ushort)(roomY + RoomScreenOf.Pixel(samusY))));
             system.MarkExploredMapTile(area, samusCell);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))}, System = system, Area = area, RoomMapPosition = new(checked((ushort)roomX), checked((ushort)roomY)) });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))}, System = system, Area = area, RoomMapPosition = new(checked((ushort)roomX), checked((ushort)roomY)) });
             int nativeFrame = 0, nativeTimer = 0;
             for (int frame = 0; frame < 48; frame++)
             {

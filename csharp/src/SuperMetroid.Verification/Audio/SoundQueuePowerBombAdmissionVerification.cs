@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core;
@@ -92,15 +93,14 @@ internal static class SoundQueuePowerBombAdmissionVerification
     /// <summary>A standing-ready Samus in <paramref name="pose"/>, her sounds joining <paramref name="requests"/>.</summary>
     private static SamusState SamusAt(SamusPoseId pose, GameplayAudioRequests requests)
     {
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var samus = new SamusState(requests, InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0120, 0x0080)),
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.BindAudioRequests(requests);
         return samus;
     }
 

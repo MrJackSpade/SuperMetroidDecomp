@@ -86,7 +86,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual<EarthquakeShake?>(null, runtime.RoomFxOverlay.SustainedEarthquake,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
-        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true });
         AssertEqual(0xb1, runtime.RoomFxOverlay.NamedSurface, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;

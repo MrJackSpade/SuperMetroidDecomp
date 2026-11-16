@@ -13,8 +13,8 @@ public sealed class SamusSnapshot
     /// <summary>Samus's pose.</summary>
     public required SamusPoseId Pose { get; init; }
 
-    /// <summary>The step of the pose's animation the animation is on.</summary>
-    public required int AnimationFrame { get; init; }
+    /// <summary>The frame of the pose's animation the animation is on, named by its segment.</summary>
+    public required string AnimationFrame { get; init; }
 
     /// <summary>Frames left before the animation's next step.</summary>
     public required int AnimationFramesRemaining { get; init; }

@@ -269,8 +269,7 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="requestEchoSound">
     /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
-    /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown; or none when no
-    /// queue answered (a Samus outside a session), when the stage just stored picks them.
+    /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
@@ -279,7 +278,7 @@ public sealed class SamusHorizontalSpeedState
         int animationFrameBuffer,
         ref int animationFrame,
         out int animationFrameTimer,
-        Func<SoundQueueAdmission?> requestEchoSound)
+        Func<SoundQueueAdmission> requestEchoSound)
     {
         Ensure.NotNull(requestEchoSound);
         animationFrameTimer = 0;
@@ -304,8 +303,7 @@ public sealed class SamusHorizontalSpeedState
                 EchoSoundPlaying = true;
                 // What the echo's queue request found, not the stage just stored, picks
                 // both the restart countdown and the first frame's cadence.
-                if (requestEchoSound() is { } admission)
-                    cadenceAfterEcho = SamusRunningCadences.CadenceAfterEcho(_boostRestart, admission);
+                cadenceAfterEcho = SamusRunningCadences.CadenceAfterEcho(_boostRestart, requestEchoSound());
             }
         }
 
@@ -362,7 +360,7 @@ public sealed class SamusHorizontalSpeedState
         bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
-            if (frame.AnimationFrame == 0)
+            if (frame.AnimationOnSpinStart)
             {
                 // Restarts only the colour cycle's step. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw shade.
@@ -370,7 +368,7 @@ public sealed class SamusHorizontalSpeedState
                 return shadeCopied;
             }
 
-            if (frame.AnimationFrame >= 27)
+            if (frame.AnimationPastScrewAttackSpin)
             {
                 // From frame 27 onward Samus shows her normal suit colours.
                 // Frames 1..26 cycle below. Samus's colours are what the next shown frame displays.
@@ -387,7 +385,7 @@ public sealed class SamusHorizontalSpeedState
             if (!screwAttackEquipped)
                 return shadeCopied;
 
-            if (frame.AnimationFrame < 3)
+            if (frame.AnimationBeforeWallJumpSpin)
             {
                 // The wall-jump animation keeps the normal suit colours on frames 0..2;
                 // its Screw frames begin on frame three and share the same six colour steps.

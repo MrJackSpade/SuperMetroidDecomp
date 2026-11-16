@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
@@ -71,7 +71,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement behaviour consumes it.
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         SettleAcceptedLanding(samus, leavingScrewAttack);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
+        SamusPresentation.InitializeAnimation(samus, StandingPoseInitialFrame(sourcePose, targetPose));
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // Correct the center now, but retain the movement frame's live radius
             // until the input phase, including when landing on a frozen enemy.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
+            SamusPresentation.InitializeAnimation(samus, StandingPoseInitialFrame(sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -175,13 +175,13 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// Keeps the gun raised on frame one when both standing poses aim straight up;
     /// other standing transitions begin at frame zero.
     /// </summary>
-    internal static int StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
+    internal static SamusAnimationFrame StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
         // Keeps the gun raised when both the old and new standing
         // initializer's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
             SamusPoseMetadata.ReadAim(sourcePose).AimsStraightUp &&
-            SamusPoseMetadata.ReadAim(targetPose).AimsStraightUp ? 1 : 0;
+            SamusPoseMetadata.ReadAim(targetPose).AimsStraightUp ? SamusAnimationFrame.AfterStart : SamusAnimationFrame.Start;
     }
 
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
@@ -288,7 +288,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // projectile collision still use it, and the input phase's radius update takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {

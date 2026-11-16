@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -54,8 +55,9 @@ internal static class SamusAnimationProgramCodec
     /// Decodes <paramref name="pose"/>'s program: every run from where the pose's word points up to the next place any
     /// pose's word points, or the end of the programs.
     /// </summary>
-    internal static IReadOnlyList<SamusAnimationSequence> Decode(IImportCartridgeSource cartridge, SamusPoseId pose)
+    internal static IReadOnlyList<SamusAnimationProgramRun> Decode(IImportCartridgeSource cartridge, SamusPoseId pose)
     {
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
         int start = ProgramStart(cartridge, SamusPoseNumbers.Number(pose));
         int end = ProgramsEnd;
         for (int other = 0; other < PoseCount; other++)
@@ -65,7 +67,7 @@ internal static class SamusAnimationProgramCodec
                 end = otherStart;
         }
 
-        var sequences = new List<SamusAnimationSequence>();
+        var sequences = new List<SamusAnimationProgramRun>();
         int position = start;
         while (position < end)
         {
@@ -78,12 +80,12 @@ internal static class SamusAnimationProgramCodec
                 position++;
             }
             int frame = position - start;
-            SamusAnimationCue instruction = Instruction(cartridge, value, position, frame);
+            SamusAnimationCue instruction = Instruction(cartridge, value, position, frame, animation);
             position += 1 + OperandBytes(value);
             // Six transitions write their pose as a word; the interpreter never reads its zero high byte.
             if (instruction is SamusAnimationTransition && position == end - 1 && Byte(cartridge, position) == 0)
                 position++;
-            sequences.Add(new SamusAnimationSequence(firstFrame, delays, instruction));
+            sequences.Add(new SamusAnimationProgramRun(firstFrame, delays, instruction));
         }
         if (position != end)
             throw new InvalidDataException($"Pose {pose}'s program runs past the next program at $91:{end:X4}.");
@@ -107,7 +109,7 @@ internal static class SamusAnimationProgramCodec
     };
 
     /// <summary>Decodes the instruction byte <paramref name="value"/> at frame <paramref name="frame"/>, with its operands.</summary>
-    private static SamusAnimationCue Instruction(IImportCartridgeSource cartridge, int value, int position, int frame)
+    private static SamusAnimationCue Instruction(IImportCartridgeSource cartridge, int value, int position, int frame, SamusPoseAnimation animation)
     {
         SamusPoseId PoseAt(int operand) => SamusPoseNumbering.FromNumber(Byte(cartridge, position + operand));
         SamusEquipmentFlags Items() => ItemsOf(cartridge.ReadCartridgeWord(Bank | (position + 1)));
@@ -118,10 +120,10 @@ internal static class SamusAnimationProgramCodec
             0xf7 => new SamusAnimationInstallDrainedFall(),
             0xf8 => new SamusAnimationTurnTransition(PoseAt(1)),
             0xf9 => new SamusAnimationItemAirborneTransition(Items(), PoseAt(3), PoseAt(4), PoseAt(5), PoseAt(6)),
-            0xfb => new SamusAnimationWallJumpSelect(frame + 1, frame + 11, frame + 21),
+            0xfb => new SamusAnimationWallJumpSelect(SamusAnimationNumbers.Target(animation, frame + 1), SamusAnimationNumbers.Target(animation, frame + 11), SamusAnimationNumbers.Target(animation, frame + 21)),
             0xfc => new SamusAnimationItemTransition(Items(), PoseAt(3), PoseAt(4)),
             0xfd => new SamusAnimationTransition(PoseAt(1)),
-            0xfe => new SamusAnimationRepeat(frame - Byte(cartridge, position + 1)),
+            0xfe => new SamusAnimationRepeat(SamusAnimationNumbers.Target(animation, frame - Byte(cartridge, position + 1))),
             0xff => new SamusAnimationRestart(),
             _ => throw new InvalidDataException($"Animation byte ${value:X2} at $91:{position:X4} is no instruction a retail program holds."),
         };
@@ -143,3 +145,12 @@ internal static class SamusAnimationProgramCodec
         return items;
     }
 }
+
+/// <summary>
+/// A run of a decoded cartridge program: its delays from <paramref name="FirstFrame"/>, numbered as the cartridge lays the
+/// program out, and the instruction after them, whose frames name the typed animation's (#2048).
+/// </summary>
+/// <param name="FirstFrame">The place of the run's first frame in the program's layout.</param>
+/// <param name="Delays">Each frame's delay, in ticks.</param>
+/// <param name="End">The instruction after the delays.</param>
+internal sealed record SamusAnimationProgramRun(int FirstFrame, IReadOnlyList<int> Delays, SamusAnimationCue End);

@@ -1,4 +1,3 @@
-using System.Globalization;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
@@ -17,28 +16,38 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusAnimationCueValueDecoding
 {
     /// <summary>
-    /// The step at every cue-value place of every program, by pose with a record, then by frame in the program's own
-    /// numbering: every frame of the program's span, from its start to the next program's, that is no step of its own. The
-    /// last program laid out holds no frame past its own steps.
+    /// A cue value's step as the import decodes it, the frames it names counted in the game's layout of its program; the
+    /// layout names those frames before anything leaves the import (<see cref="SamusAnimationLayout"/>).
     /// </summary>
-    internal static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> CueValueSteps(IImportCartridgeSource cartridge)
+    /// <param name="Kind">What the step does.</param>
+    /// <param name="Ticks">A delay's ticks; null for any other kind.</param>
+    /// <param name="Frames">The frames the step selects, counted from its program's start; null for a step that selects none.</param>
+    /// <param name="Items">The names of the items a transition tests; null for any other kind.</param>
+    /// <param name="Poses">The names of the poses a transition publishes; null for any other kind.</param>
+    internal sealed record DecodedStep(Kind Kind, int? Ticks, IReadOnlyList<int>? Frames, IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
+
+    /// <summary>
+    /// The step at every cue-value place of every program, by program, then by frame counted from the program's start: every
+    /// frame of the program's span, from its start to the next program's, that is no step of its own. The last program laid
+    /// out holds no frame past its own steps.
+    /// </summary>
+    internal static Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, DecodedStep>> CueValueSteps(IImportCartridgeSource cartridge,
+        IReadOnlyList<SamusAnimationProgramLayout.LaidOutProgram> laidOut)
     {
-        SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var byProgram = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>>();
-        for (int index = 0; index < laidOut.Length; index++)
+        var byProgram = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, DecodedStep>>();
+        for (int index = 0; index < laidOut.Count; index++)
         {
             SamusAnimationProgramLayout.LaidOutProgram program = laidOut[index];
-            int span = index + 1 < laidOut.Length ? laidOut[index + 1].Start - program.Start : program.Program.FrameCount;
-            var steps = new Dictionary<string, SamusOverreadDocument.CueValueStep>(StringComparer.Ordinal);
+            int span = index + 1 < laidOut.Count ? laidOut[index + 1].Start - program.Start : SamusAnimationLayout.StepCount(program.Program);
+            var steps = new Dictionary<int, DecodedStep>();
             for (int frame = 0; frame < span; frame++)
             {
-                if (program.Program.TryStepAt(frame) is null && Decode(cartridge, program.Start, frame) is { } step)
-                    steps.Add(frame.ToString(CultureInfo.InvariantCulture), step);
+                if (SamusAnimationLayout.OwnStepAt(program.Program, frame) is null && Decode(cartridge, program.Start, frame) is { } step)
+                    steps.Add(frame, step);
             }
             byProgram.Add(program.Program, steps);
         }
-        return SamusAnimationProgramLayout.PosesWithRecords()
-            .ToDictionary(pose => pose.ToString(), pose => byProgram[SamusAnimationDelays.AnimationForPose(pose)]);
+        return byProgram;
     }
 
     /// <summary>
@@ -46,36 +55,36 @@ internal static class SamusAnimationCueValueDecoding
     /// game's handler for its byte does; null when the step would publish a record no gameplay path gives Samus, which no
     /// pose names.
     /// </summary>
-    private static SamusOverreadDocument.CueValueStep? Decode(IImportCartridgeSource cartridge, int start, int frame)
+    private static DecodedStep? Decode(IImportCartridgeSource cartridge, int start, int frame)
     {
         int place = start + frame;
         int Byte(int offset) => cartridge.ReadCartridgeByte(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + offset));
         int value = Byte(0);
         if (value < SamusOverreadSourceDefinitions.FirstAnimationInstructionByte)
-            return new(Kind.Delay.ToString(), value, null, null, null);
+            return new(Kind.Delay, value, null, null, null);
         string[]? Poses(params int[] offsets) =>
             offsets.All(offset => SamusPoseNumbering.NamesPose(Byte(offset)))
                 ? [.. offsets.Select(offset => SamusPoseNumbering.FromNumber(Byte(offset)).ToString())]
                 : null;
         string[] Items() => ItemNames(SamusEquipmentWordCodec.FromSavedEquipmentWord(
             cartridge.ReadCartridgeWord(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + 1))));
-        SamusOverreadDocument.CueValueStep? Transition(Kind kind, string[]? items, string[]? poses) =>
-            poses is null ? null : new(kind.ToString(), null, null, items, poses);
+        DecodedStep? Transition(Kind kind, string[]? items, string[]? poses) =>
+            poses is null ? null : new(kind, null, null, items, poses);
         return (value & 0xf) switch
         {
             // The first six handlers do nothing and leave the timer run out, so the next tick moves on.
-            <= 5 => new(Kind.Hold.ToString(), null, null, null, null),
-            6 => new(Kind.LoopUnlessLowEnergy.ToString(), null, null, null, null),
-            7 => new(Kind.InstallDrainedFall.ToString(), null, null, null, null),
+            <= 5 => new(Kind.Hold, null, null, null, null),
+            6 => new(Kind.LoopUnlessLowEnergy, null, null, null, null),
+            7 => new(Kind.InstallDrainedFall, null, null, null, null),
             8 => Transition(Kind.TurnTransition, null, Poses(1)),
             // An operand word's bits that name no item test nothing: the equipped items hold only item bits.
             9 => Transition(Kind.ItemAirborneTransition, Items(), Poses(3, 4, 5, 6)),
             10 => Transition(Kind.VerticalSpeedTransition, null, Poses(1, 2)),
-            11 => new(Kind.WallJumpSelect.ToString(), null, [frame + 1, frame + 11, frame + 21], null, null),
+            11 => new(Kind.WallJumpSelect, null, [frame + 1, frame + 11, frame + 21], null, null),
             12 => Transition(Kind.ItemTransition, Items(), Poses(3, 4)),
             13 => Transition(Kind.Transition, null, Poses(1)),
-            14 => new(Kind.Repeat.ToString(), null, [frame - Byte(1)], null, null),
-            _ => new(Kind.Restart.ToString(), null, null, null, null),
+            14 => new(Kind.Repeat, null, [frame - Byte(1)], null, null),
+            _ => new(Kind.Restart, null, null, null, null),
         };
     }
 

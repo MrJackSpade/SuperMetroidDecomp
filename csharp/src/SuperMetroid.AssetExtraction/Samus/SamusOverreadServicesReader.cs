@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame, SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep>;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -56,61 +57,114 @@ internal static class SamusOverreadServicesReader
             straddledTerrain);
     }
 
-    /// <summary>What an animation frame past a pose's program reads, which only the import reads to compose Samus's body sheet (#1513).</summary>
-    /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete animation successor.</exception>
-    internal static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> ReadFramesBeyondAnimation(SamusOverreadDocument document)
-    {
-        Ensure.NotNull(document);
-        if (document.Version != SamusOverreadFormat.Version)
-            throw new InvalidDataException("Samus overread file has an unsupported version.");
-        return FramesBeyondAnimationOf(document);
-    }
-
     /// <summary>
-    /// Every pose with an animation program, its program's successor and the steps its program's cue-value places read
-    /// (#1535).
+    /// What every pose's animation reads where its frame names no step of its own (#1535, #2048): the step each cue value's
+    /// frame reads, what each frame read past the animation reaches, and the frame each named place lands on in every other
+    /// animation, each named as the installation names it. The installation holds each program's outcomes once, under the
+    /// pose naming it, and every pose of the program reads them.
     /// </summary>
-    private static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> FramesBeyondAnimationOf(SamusOverreadDocument document)
+    /// <exception cref="InvalidDataException">An outcome is missing, names no frame, or reaches a frame that names no step.</exception>
+    private static SamusFramesBeyondAnimation FramesBeyondAnimationOf(SamusOverreadDocument document)
     {
-        IReadOnlyDictionary<string, SamusOverreadDocument.Successor?> documentSuccessors =
-            Require(document.AnimationSuccessors, nameof(document.AnimationSuccessors));
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> cueValueSteps =
             Require(document.AnimationCueValueSteps, nameof(document.AnimationCueValueSteps));
-        SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord)];
-        if (cueValueSteps.Count != poses.Length)
-            throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} poses, not {poses.Length}.");
-        if (documentSuccessors.Count != poses.Length)
-            throw new InvalidDataException($"Samus overread file holds {documentSuccessors.Count} animation successors, not {poses.Length}.");
-        var successors = new Dictionary<SamusPoseId, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor?>();
-        var cueValues = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
-        foreach (SamusPoseId pose in poses)
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> readsPast =
+            Require(document.AnimationReadsPast, nameof(document.AnimationReadsPast));
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> landings =
+            Require(document.AnimationPlaceLandings, nameof(document.AnimationPlaceLandings));
+        Dictionary<SamusPoseId, SamusPoseId> naming = SamusAnimationProgramLayout.NamingPoses();
+        SamusPoseId[] programs = [.. naming.Values.Distinct()];
+        if (cueValueSteps.Count != programs.Length)
+            throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} programs, not {programs.Length}.");
+        if (readsPast.Count != programs.Length)
+            throw new InvalidDataException($"Samus overread file holds reads past {readsPast.Count} programs, not {programs.Length}.");
+        var programCueValues = new Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, SamusPoseAnimationStep>>();
+        foreach (SamusPoseId program in programs)
         {
-            if (!documentSuccessors.TryGetValue(pose.ToString(), out SamusOverreadDocument.Successor? successor))
-                throw new InvalidDataException($"Samus overread file has no animation successor for {pose}.");
-            successors.Add(pose, successor is null
-                ? null
-                : new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(successor.Pose, "animation successor"), successor.Shift));
-            if (!cueValueSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
-                throw new InvalidDataException($"Samus overread file has no cue-value steps for {pose}.");
-            cueValues.Add(pose, Require(steps, $"cue-value steps for {pose}").ToDictionary(
-                pair => ParseCount(pair.Key, $"{pose} cue-value frame"), pair => CueValueStep(Require(pair.Value, $"{pose} cue-value step"))));
+            if (!cueValueSteps.TryGetValue(program.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
+                throw new InvalidDataException($"Samus overread file has no cue-value steps for {program}'s program.");
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(program);
+            programCueValues.Add(program, Require(steps, $"cue-value steps for {program}").ToDictionary(
+                pair => NoStepOf(animation, animation.FrameNamed(pair.Key), program, "cue-value frame"),
+                pair => CueValueStep(program, Require(pair.Value, $"{program} cue-value step"))));
         }
-        return new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>(successors, cueValues);
+        SamusPoseAnimationStep? StepAt(SamusPoseId pose, SamusAnimationFrame frame) =>
+            SamusAnimationDelays.AnimationForPose(pose).TryStepAt(frame) ??
+            (programCueValues[naming[pose]].TryGetValue(frame, out SamusPoseAnimationStep? step) ? step : null);
+        var programReads = new Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, SamusFramesBeyondAnimation.Read>>();
+        foreach (SamusPoseId program in programs)
+        {
+            if (!readsPast.TryGetValue(program.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>? entries))
+                throw new InvalidDataException($"Samus overread file has no reads past {program}'s program.");
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(program);
+            programReads.Add(program, Require(entries, $"reads past {program}'s program").ToDictionary(
+                pair => StepAt(program, animation.FrameNamed(pair.Key)) is null
+                    ? animation.FrameNamed(pair.Key)
+                    : throw new InvalidDataException($"Samus overread file reads past {program}'s animation at '{pair.Key}', which names a step of its own."),
+                pair =>
+                {
+                    SamusOverreadDocument.ReadPast entry = Require(pair.Value, $"{program} read past its animation");
+                    SamusPoseId reader = Parse<SamusPoseId>(entry.Pose, "pose read past into");
+                    if (!naming.ContainsKey(reader))
+                        throw new InvalidDataException($"Samus overread file reads past {program}'s animation into {reader}, which has no animation program.");
+                    SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationForPose(reader);
+                    SamusAnimationFrame frame = readAnimation.FrameNamed(entry.Frame);
+                    if (StepAt(reader, frame) is null)
+                        throw new InvalidDataException($"Samus overread file reads past {program}'s animation onto '{entry.Frame}' of {reader}'s, which names no step.");
+                    return new SamusFramesBeyondAnimation.Read(reader, frame, Require(entry.Moves, $"{program} read past moves")
+                        .ToDictionary(move => readAnimation.FrameNamed(move.Key), move => animation.FrameNamed(move.Value)));
+                }));
+        }
+        var places = new Dictionary<SamusAnimationPlaceName, IReadOnlyDictionary<SamusPoseId, SamusAnimationFrame>>();
+        foreach (SamusAnimationPlace place in SamusAnimationPlaces.All)
+        {
+            if (!landings.TryGetValue(place.Name.ToString(), out IReadOnlyDictionary<string, string>? frames))
+                throw new InvalidDataException($"Samus overread file has no landings of place {place.Name}.");
+            SamusPoseId[] met = [.. programs.Where(program => !ReferenceEquals(SamusAnimationDelays.AnimationForPose(program), place.Animation))];
+            if (Require(frames, $"landings of place {place.Name}").Count != met.Length)
+                throw new InvalidDataException($"Samus overread file holds landings of place {place.Name} in {frames.Count} programs, not {met.Length}.");
+            Dictionary<SamusPoseId, SamusAnimationFrame> landed = met.ToDictionary(program => program, program => frames.TryGetValue(program.ToString(), out string? frame)
+                ? SamusAnimationDelays.AnimationForPose(program).FrameNamed(frame)
+                : throw new InvalidDataException($"Samus overread file has no landing of place {place.Name} in {program}'s program."));
+            places.Add(place.Name, naming.Where(pose => landed.ContainsKey(pose.Value)).ToDictionary(pose => pose.Key, pose => landed[pose.Value]));
+        }
+        if (landings.Count != places.Count)
+            throw new InvalidDataException($"Samus overread file holds landings of {landings.Count} places, not {places.Count}.");
+        return new SamusFramesBeyondAnimation(
+            naming.ToDictionary(pose => pose.Key, pose => programCueValues[pose.Value]),
+            naming.ToDictionary(pose => pose.Key, pose => programReads[pose.Value]),
+            places);
     }
 
-    /// <summary>The step a cue value's place reads, from its decoded kind and the values it names.</summary>
+    /// <summary><paramref name="frame"/>, which must name no step of <paramref name="animation"/>'s own.</summary>
+    /// <exception cref="InvalidDataException">The frame names one of the animation's own steps.</exception>
+    private static SamusAnimationFrame NoStepOf(SamusPoseAnimation animation, SamusAnimationFrame frame, SamusPoseId pose, string what) =>
+        animation.TryStepAt(frame) is null
+            ? frame
+            : throw new InvalidDataException($"Samus overread file names {what} {animation.NameOf(frame)} of {pose}'s animation, which is a step of its own.");
+
+    /// <summary>
+    /// The step a cue value's frame of <paramref name="pose"/>'s animation reads, from its decoded kind and the values it
+    /// names; a frame it names is a named frame of the pose's animation.
+    /// </summary>
     /// <exception cref="InvalidDataException">The step lacks a value its kind needs, or carries one it does not.</exception>
-    private static SamusPoseAnimationStep CueValueStep(SamusOverreadDocument.CueValueStep step)
+    internal static SamusPoseAnimationStep CueValueStep(SamusPoseId pose, SamusOverreadDocument.CueValueStep step)
     {
+        Ensure.NotNull(step);
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
         SamusOverreadDocument.CueValueStepKind kind = Parse<SamusOverreadDocument.CueValueStepKind>(step.Kind, "cue-value step kind");
         SamusPoseId Pose(int index, int count) =>
             Require(step.Poses, $"{kind} poses") is { } poses && poses.Count == count
                 ? Parse<SamusPoseId>(poses[index], $"{kind} pose")
                 : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names {step.Poses?.Count} poses, not {count}.");
-        int Frame(int index, int count) =>
-            Require(step.Frames, $"{kind} frames") is { } frames && frames.Count == count && frames[index] >= 0
-                ? frames[index]
-                : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names no valid frame {index} of {count}.");
+        SamusAnimationTarget Frame(int index, int count)
+        {
+            IReadOnlyList<string> frames = Require(step.Frames, $"{kind} frames");
+            if (frames.Count != count)
+                throw new InvalidDataException($"Samus overread file's {kind} cue-value step names no valid frame {index} of {count}.");
+            SamusAnimationFrame frame = animation.FrameNamed(frames[index]);
+            return new SamusAnimationTarget(animation.SegmentName(frame), frame.Frame);
+        }
         SamusEquipmentFlags Items() => Require(step.Items, $"{kind} items")
             .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse<SamusEquipmentFlags>(name, "cue-value step item"));
         return kind switch

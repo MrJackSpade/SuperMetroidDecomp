@@ -49,7 +49,7 @@ internal static class ImportedSpritemapsVerification
         {
             AssertEqual(operand, projectile.PresentationOperandAddress,
                 "executed projectile frame retains its native presentation operand");
-            parts = artwork.GetProgramFrame(projectile.PresentationOperandAddress);
+            parts = artwork.GetProgramFrame(projectile.Frame ?? throw new InvalidOperationException("A projectile with a presentation operand shows a frame."));
         }
         else
         {

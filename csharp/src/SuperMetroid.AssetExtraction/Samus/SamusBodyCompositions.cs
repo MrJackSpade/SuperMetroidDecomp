@@ -101,6 +101,6 @@ internal static class SamusBodyCompositions
     /// </remarks>
     private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, SamusBodySources artwork) =>
         pose == SamusPoseId.ForwardFacingPowerSuitPose
-            ? Offset16<ScreenPixels>.Of(-7, artwork.Gameplay.OriginRise(pose, animationFrame) - 17)
+            ? Offset16<ScreenPixels>.Of(-7, artwork.Gameplay.OriginRise(pose, SamusAnimationLayout.FrameAt(SamusAnimationDelays.AnimationForPose(pose), animationFrame)) - 17)
             : null;
 }

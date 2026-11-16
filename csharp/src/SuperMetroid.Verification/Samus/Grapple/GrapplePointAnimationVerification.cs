@@ -16,7 +16,7 @@ internal static class GrapplePointAnimationVerification
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));
         ushort begin = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.PointTilePointers);
         ushort end = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.PointTilePointers + 2);
-        var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) };
+        var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) };
         ushort expectedTimer = 5, expectedPointer = begin;
         for (int tick = 0; tick < 48; tick++)
         {

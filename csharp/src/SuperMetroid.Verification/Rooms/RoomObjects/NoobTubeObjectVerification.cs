@@ -58,7 +58,7 @@ internal static class NoobTubeObjectVerification
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomFxOverlayState roomFx = CreateNoobTubeWaterFx();
         samus.LiquidPhysics.ConfigureFor(roomFx);
@@ -95,7 +95,7 @@ internal static class NoobTubeObjectVerification
         // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
         // Exercise StepFiring (including endpoint collision), rather than bypassing
         // the missing caller dispatch with TryNotifyResidentProjectileHit directly.
-        var grappleSamus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
@@ -246,7 +246,7 @@ internal static class NoobTubeObjectVerification
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request);
@@ -262,7 +262,8 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile firstShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
-            projectile.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileSegment.ShardDownOutward });
+            projectile.Animation is NoobTubeProjectileAnimation first
+            && ReferenceEquals(first.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]));
         AssertEqual(0x0048, firstShard.StateOf<NoobTubeDebrisState>().X.Whole,
             "first shard keeps its signed X origin as its own column");
         AssertEqual(0x0058, firstShard.Position.Y.Whole,
@@ -274,7 +275,8 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile lastShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
-            projectile.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileSegment.ShardDownInner });
+            projectile.Animation is NoobTubeProjectileAnimation last
+            && ReferenceEquals(last.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownInner]));
         AssertEqual(0x0078, lastShard.StateOf<NoobTubeDebrisState>().X.Whole,
             "last shard uses final signed X offset");
         AssertEqual(0x0060, lastShard.Position.Y.Whole,
@@ -347,10 +349,9 @@ internal static class NoobTubeObjectVerification
     internal static RoomFxOverlayState CreateNoobTubeWaterFx()
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel record.
-        var roomFxSession = new RoomFxSession();
-        var roomFx = RoomFxOverlayState.ForRoom(roomFxSession, RoomFxDefinitions.Suffix(0x9c94), door: null,
+        var roomFx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
-        roomFx.BindAudioRequests(new GameplayAudioRequests());
+        roomFx.BindAudioRequests(GameplayAudioRequests.Standalone());
         return roomFx;
     }
 

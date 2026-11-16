@@ -40390,6 +40390,22 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Audio.RecordingAudioQueues",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/RecordingAudioQueues.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.ReleasingClip",
       "kind": "record",
       "scope": "product",
@@ -57300,19 +57316,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.KilledShaktoolSegment\u003CTPlace, TSegment\u003E",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KilledShaktoolSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.KraidEyeGlow",
@@ -83141,6 +83144,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Escape.EscapeTimerAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Escape/EscapeTimerAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Escape.EscapeTimerAccess.extension(SuperMetroid.Core.Escape.EscapeTimer)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Escape/EscapeTimerAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Escape.EscapeTimerCadence",
       "kind": "static class",
       "scope": "product",
@@ -97675,6 +97710,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Fx.TextureDrift",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/TextureDrift.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.WaterWaveDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -101706,19 +101754,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.DisplayScreen",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/DisplayScreen.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rendering.EyeWindowRenderDefinitions",
@@ -124660,6 +124695,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Saves.SaveFileHistory",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Saves/SaveFileHistory.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Saves.SaveGameTimeJsonDocument",
       "kind": "record",
       "scope": "product",
@@ -135231,19 +135279,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11Screen",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Rendering.Direct3D11"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11Screen.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11ShaderLayout",

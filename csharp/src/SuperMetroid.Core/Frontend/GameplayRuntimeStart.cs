@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime;
 

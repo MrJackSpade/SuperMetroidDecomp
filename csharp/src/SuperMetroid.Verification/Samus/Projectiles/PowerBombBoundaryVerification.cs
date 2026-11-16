@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 

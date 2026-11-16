@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

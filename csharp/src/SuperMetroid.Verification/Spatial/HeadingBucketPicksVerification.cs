@@ -35,12 +35,12 @@ internal static class HeadingBucketPicksVerification
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            RotationAngle midpoint = RotationAngle.FromRaw(raw);
+            RotationAngle midpoint = RotationAngleConstants.FromRaw(raw);
             int bucket = midpoint.TurnedBySteps(8).Sector(8) * 32;
             AssertEqual(OctantDirections[bucket / 32], ShaktoolOrbitDefinitions.Orientations.At(midpoint), $"Shaktool midpoint {raw} orientation");
         }
         for (int octant = 0; octant < OctantDirections.Length; octant++)
-            AssertEqual(new TrigonometryAngle(octant * 32), Bearing.Toward(OctantDirections[octant]).ToMirroredTrigonometryAngle(),
+            AssertEqual(new TrigonometryAngle(octant * 32), BearingConstants.Toward(OctantDirections[octant]).ToMirroredTrigonometryAngle(),
                 $"Shaktool orientation {OctantDirections[octant]} cue direction");
     }
 
@@ -54,7 +54,7 @@ internal static class HeadingBucketPicksVerification
         ];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            RotationAngle heading = RotationAngle.FromRaw(raw);
+            RotationAngle heading = RotationAngleConstants.FromRaw(raw);
             AssertEqual(counterClockwiseFromRight[heading.TurnedBySteps(-48).Sector(8)], SbugMovement.FacingOf(heading), $"Sbug heading {raw} facing");
         }
     }
@@ -64,7 +64,7 @@ internal static class HeadingBucketPicksVerification
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            RotationAngle angle = RotationAngle.FromRaw(raw);
+            RotationAngle angle = RotationAngleConstants.FromRaw(raw);
             int halfTurnSector = angle.Sector(64) % 32;
             int fromUpright = Math.Min(halfTurnSector, 31 - halfTurnSector);
             GrappleRopeOrientation expected = fromUpright < 3 ? GrappleRopeOrientation.Vertical

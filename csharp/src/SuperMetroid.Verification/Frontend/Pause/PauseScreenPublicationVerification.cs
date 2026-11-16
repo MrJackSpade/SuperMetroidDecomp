@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;

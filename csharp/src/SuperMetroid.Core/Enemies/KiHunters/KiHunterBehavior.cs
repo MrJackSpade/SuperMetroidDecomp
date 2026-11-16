@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -88,14 +87,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly QuadraticSpeedCurvePlace DetachedSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
     /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
     private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
-
-    /// <summary>Recognizes the green, yellow and red body definitions.</summary>
-    internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterYellow or EnemyDefinitionId.KihunterRed;
-
-    /// <summary>Recognizes the three corresponding wing definitions.</summary>
-    internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyPlace body)

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.MovieReplay;

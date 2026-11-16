@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
@@ -8,15 +7,12 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 [RoomLifetime]
 internal sealed class SaveStationElectricity
 {
-    /// <summary>The loaded room the save station stands in.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy projectiles, which hold the electricity.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Binds the electricity to the loaded room and its enemy projectiles.</summary>
-    internal SaveStationElectricity(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
+    internal SaveStationElectricity(EnemyProjectileEngine projectiles)
     {
-        _room = room;
         _projectiles = projectiles;
     }
 

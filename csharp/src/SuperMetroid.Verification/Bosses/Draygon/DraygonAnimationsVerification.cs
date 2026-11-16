@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -59,8 +58,8 @@ internal static class DraygonAnimationsVerification
             AssertEqual(end, typed.End, $"Draygon {preamble.Program}'s end follows its native list");
         }
         int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
-        AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
-        for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
+        AssertEqual(DraygonFrameToolingDefinitionsConstants.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
+        for (int index = 0; index < DraygonFrameToolingDefinitionsConstants.FrameCount; index++)
             AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(DraygonFrameToolingDefinitions.CartridgeOrder[index])), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();

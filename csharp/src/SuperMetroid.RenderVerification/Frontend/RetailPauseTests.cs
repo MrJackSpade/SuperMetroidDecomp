@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;

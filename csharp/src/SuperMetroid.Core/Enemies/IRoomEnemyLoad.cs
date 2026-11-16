@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;

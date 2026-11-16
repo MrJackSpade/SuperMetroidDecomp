@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerification;

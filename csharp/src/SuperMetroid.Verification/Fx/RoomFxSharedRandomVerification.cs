@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;

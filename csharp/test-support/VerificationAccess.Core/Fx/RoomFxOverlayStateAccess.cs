@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using System.Reflection;
 
 namespace SuperMetroid.Core.Fx;

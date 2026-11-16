@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Poses;
-
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>The definitions Samus's movement and pose selection read: speeds, timers, frames and sentinels (#1411).</summary>

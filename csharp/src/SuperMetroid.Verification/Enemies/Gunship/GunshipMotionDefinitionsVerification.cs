@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipLandingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
@@ -1222,7 +1221,7 @@ internal static class LookupStream5Verification
     internal static EnemyTileSourceArtwork LookupStream5CorpseFixtureArtwork(CartridgeImportAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,CorpseSheets.DeadMonsterSheetByteCount)
-            .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheets.DeadMonsterSheet)+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(rom, CorpseSheets.DeadMonsterSheet)+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));

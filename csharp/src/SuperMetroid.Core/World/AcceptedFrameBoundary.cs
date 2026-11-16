@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
@@ -15,7 +14,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;

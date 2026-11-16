@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Samus.Projectiles;

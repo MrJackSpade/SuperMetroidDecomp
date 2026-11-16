@@ -83,7 +83,7 @@ internal static class GreenHillGateGlitchVerification
         AssertEqual(runtime.Room.LoadedLevelData.BlockAt(0x1be4), gate.Block, "authored Green Hill gate block");
         RoomObjectPlaceSnapshot trigger = runtime.RoomObjects.PopulationPlaces.Single(place =>
             place.HoldsDownwardGateShotBlock);
-        AssertEqual((ushort)0, trigger.RoomArgument,
+        AssertEqual(0, trigger.RoomArgument,
             "authored Green Hill trigger selects the blue-left gate table");
         runtime.StepFrame(0);
         runtime.StepFrame(0);

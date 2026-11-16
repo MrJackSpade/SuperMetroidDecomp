@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Shutters;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks where a growing shutter places its sections.</summary>
 internal static class GrowingShutterSectionOriginsVerification

@@ -3,9 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -297,13 +295,6 @@ public static class GameSaveJsonCodec
 
         _ = DecodeProgression(slot.Progression, $"slots[{expectedSlot}].progression");
     }
-
-    /// <summary>
-    /// Rejects a numeric slot field outside <c>[0, <paramref name="maximum"/>]</c>, the range its domain or its saved
-    /// field holds, so a JSON number never wraps on its way into the store.
-    /// </summary>
-    private static void RequireRange(int value, int maximum, int expectedSlot, string property) =>
-        RequireRange(value, 0, maximum, expectedSlot, property);
 
     /// <summary>Rejects a numeric slot field outside <c>[<paramref name="minimum"/>, <paramref name="maximum"/>]</c>.</summary>
     private static void RequireRange(int value, int minimum, int maximum, int expectedSlot, string property)

@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -18,9 +17,6 @@ internal interface IEnemyDisplaySources
 {
     /// <summary>The loaded Mother Brain, if any.</summary>
     MotherBrainEnemyState? MotherBrain { get; }
-
-    /// <summary>The loaded Draygon, if any.</summary>
-    DraygonEnemyState? Draygon { get; }
 
     /// <summary>The loaded Phantoon, if any.</summary>
     PhantoonEnemyState? Phantoon { get; }

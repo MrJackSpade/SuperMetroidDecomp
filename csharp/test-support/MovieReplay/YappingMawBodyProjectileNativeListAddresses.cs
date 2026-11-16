@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.Core.Enemies.YappingMaws;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

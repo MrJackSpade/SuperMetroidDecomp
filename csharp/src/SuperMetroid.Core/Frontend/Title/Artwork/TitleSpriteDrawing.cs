@@ -9,10 +9,6 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// </summary>
 public static class TitleSpriteDrawing
 {
-    /// <summary>Places one title frame of the title sheet, its parts drawn in <paramref name="colouring"/> (#1512).</summary>
-    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Offset16<ScreenPixels> origin,
-        TitleSpriteColouring colouring) =>
-        DrawSprite(sheet, sprite, sprites, origin, PictureShading.Shaded(TitleShades.Drawn(colouring)));
 
     /// <summary>Places one whole title composition of the title sheet in <paramref name="shading"/> (#1512).</summary>
     public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Offset16<ScreenPixels> origin,
@@ -23,11 +19,6 @@ public static class TitleSpriteDrawing
         Ensure.NotNull(sprites);
         sprites.AddImage(sheet.Frame(TitleSpriteDefinitions.FrameName(sprite)), origin, shading: shading);
     }
-
-    /// <summary>Places a title card's text typed so far, its letters drawn in <paramref name="colouring"/> (#1512, #1979).</summary>
-    public static void DrawCard(SpriteSheet sheet, TitleCardTyping typed, ScreenSprites sprites, Offset16<ScreenPixels> origin,
-        TitleSpriteColouring colouring) =>
-        DrawCard(sheet, typed, sprites, origin, PictureShading.Shaded(TitleShades.Drawn(colouring)));
 
     /// <summary>
     /// Places a title card's text typed so far in <paramref name="shading"/> (#1513, #1979): each letter it has typed, each at

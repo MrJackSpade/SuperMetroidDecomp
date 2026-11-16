@@ -13,17 +13,10 @@ public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
     private readonly int entry;
 
     /// <summary>Keeps the place's entry.</summary>
-    private BoyonCurvePlace(int entry) => this.entry = entry;
+    internal BoyonCurvePlace(int entry) => this.entry = entry;
 
     /// <summary>The top entry of the curve, where a Boyon moves slowest: the place a Boyon starts from.</summary>
     public static BoyonCurvePlace Top => default;
-
-    /// <summary>The place past the top a rise leaves after its update at the top entry, from which the fall starts.</summary>
-    public static BoyonCurvePlace PastTheTop => new(-1);
-
-    /// <summary>The place <paramref name="entryFromTop"/> entries down the curve from its top, zero or more.</summary>
-    /// <param name="entryFromTop">The entry, counted from the top.</param>
-    public static BoyonCurvePlace AtEntry(int entryFromTop) => new(Ensure.AtLeastZero(entryFromTop));
 
     /// <summary>Whether this is the place past the top a rise leaves.</summary>
     public bool IsPastTheTop => entry < 0;
@@ -52,10 +45,4 @@ public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
 
     /// <summary>Whether <paramref name="left"/> lies below <paramref name="right"/> on the curve.</summary>
     public static bool operator >(BoyonCurvePlace left, BoyonCurvePlace right) => left.CompareTo(right) > 0;
-
-    /// <summary>Whether <paramref name="left"/> lies no lower than <paramref name="right"/> on the curve.</summary>
-    public static bool operator <=(BoyonCurvePlace left, BoyonCurvePlace right) => left.CompareTo(right) <= 0;
-
-    /// <summary>Whether <paramref name="left"/> lies no higher than <paramref name="right"/> on the curve.</summary>
-    public static bool operator >=(BoyonCurvePlace left, BoyonCurvePlace right) => left.CompareTo(right) >= 0;
 }

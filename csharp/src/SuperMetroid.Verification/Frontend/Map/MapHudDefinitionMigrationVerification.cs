@@ -61,7 +61,7 @@ internal static class MapHudDefinitionMigrationVerification
         // each message form out with moved to extraction (#1466).
         AssertEqual(32, SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth, "message tilemap width");
         AssertEqual(124, GameplayMessageBoxDefinitions.Layout.WindowCenterY, "message window centre");
-        AssertEqual(8, SuperMetroid.Core.Compatibility.MessageBoxPauses.UpdatesBeforeOpening, "opening pause");
+        AssertEqual(8, SuperMetroid.Core.Compatibility.MessageBoxPausesConstants.UpdatesBeforeOpening, "opening pause");
         AssertEqual(360, GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames, "item message duration");
         AssertEqual(0x284e, GameplayMessageTilemapDefinitions.UnknownGlyph.PackedWord, "blank button glyph encoded through the codec");
         AssertEqual(0x3ce1, GameplayMessageButtonGlyphs.ResolveGlyph(ControllerButton.B).PackedWord, "B glyph encoded through the codec");

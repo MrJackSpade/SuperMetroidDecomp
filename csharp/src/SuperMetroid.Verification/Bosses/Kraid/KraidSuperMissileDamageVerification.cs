@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidReportedCollisionsVerification;
@@ -14,7 +13,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

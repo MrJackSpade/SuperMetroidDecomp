@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;

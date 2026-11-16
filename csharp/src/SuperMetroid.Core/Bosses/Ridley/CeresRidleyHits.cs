@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class CeresRidleyHits
 {
-    /// <summary>Provides room randomness and Ceres artwork state.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Performs Samus and projectile contact against Ridley's extended body.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
@@ -19,9 +17,8 @@ internal sealed class CeresRidleyHits
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyHits(EnemyRoomBinding room, EnemyCollision collision, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyHits(EnemyCollision collision, RidleyEncounter ridleyEncounter)
     {
-        _room = room;
         _collision = collision;
         _ridleyEncounter = ridleyEncounter;
     }

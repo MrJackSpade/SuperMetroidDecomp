@@ -23,7 +23,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus, ImportEnemyArtwork stock)
     {
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
-            SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, EnemyDefinitionId.PirateGoldWall),
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.PaletteAddress(bus, EnemyDefinitionId.PirateGoldWall),
             "Installed gold-Pirate sheet owns the native ninja target-palette source");
 
         // $B2:F5DE copies sixteen raw gold-Pirate colors into target palette seven.

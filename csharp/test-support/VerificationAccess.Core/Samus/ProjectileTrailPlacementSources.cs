@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Cartridge;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -37,9 +37,9 @@ internal static class ProjectileTrailPlacementSources
     /// <summary>The selector table a projectile of <paramref name="group"/> reads its row from.</summary>
     private static SnesAddress SelectorTable(ProjectileTrailFamilyGroup group) => group switch
     {
-        ProjectileTrailFamilyGroup.Uncharged => SamusSourceDefinitions.UnchargedTrailSelectors,
-        ProjectileTrailFamilyGroup.Charged => SamusSourceDefinitions.ChargedTrailSelectors,
-        ProjectileTrailFamilyGroup.SpecialBeamAttack => SamusSourceDefinitions.SpecialBeamAttackTrailSelectors,
+        ProjectileTrailFamilyGroup.Uncharged => SamusSourceDefinitionsConstants2.UnchargedTrailSelectors,
+        ProjectileTrailFamilyGroup.Charged => SamusSourceDefinitionsConstants2.ChargedTrailSelectors,
+        ProjectileTrailFamilyGroup.SpecialBeamAttack => SamusSourceDefinitionsConstants2.SpecialBeamAttackTrailSelectors,
         _ => throw new ArgumentOutOfRangeException(nameof(group), group, "Undefined trail selector table."),
     };
 

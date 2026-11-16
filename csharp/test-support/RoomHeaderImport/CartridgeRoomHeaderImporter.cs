@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.World.RoomStates;

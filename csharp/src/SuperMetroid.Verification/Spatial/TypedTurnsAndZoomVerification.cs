@@ -92,7 +92,7 @@ internal static class TypedTurnsAndZoomVerification
     {
         foreach (int raw in new[] { 0, 1, 47, 48, 2047, 2048, 32768, 65487, 65488, 65534, 65535 })
         {
-            RotationAngle angle = RotationAngle.FromRaw(raw);
+            RotationAngle angle = RotationAngleConstants.FromRaw(raw);
             foreach (int delta in new[] { -2304, -1536, -768, -512, -384, -32, -1, 0, 1, 32, 64, 1280, 1792, 2304 })
                 AssertEqual(angle.AddRaw(delta), angle.TurnedByFractionsOfStep(delta), $"{raw} turned by {delta} 256ths of a step");
             AssertEqual(angle.AddRaw(48), angle + RotationAngle.FromSteps(0, 48), $"getaway turn from {raw}");

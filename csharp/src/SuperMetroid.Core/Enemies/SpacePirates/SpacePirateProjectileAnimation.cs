@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 

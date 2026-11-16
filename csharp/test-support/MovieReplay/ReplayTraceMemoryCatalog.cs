@@ -2,7 +2,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 
@@ -23,7 +22,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class ReplayTraceMemoryCatalog
 {
     /// <summary>Bytes in a complete native WRAM image ($7E:0000-$7F:FFFF).</summary>
-    public const int WorkRamByteCount = 2 * SnesBusLayout.BankBytes;
+    public const int WorkRamByteCount = 2 * SnesBusLayoutConstants2.BankBytes;
 
     /// <summary>$0629-$064F: music queue ($0629-$0640), sound queues ($0643-$064B) and current sounds ($064D-$064F).</summary>
     public const int AudioQueuesStart = 0x0629, AudioQueuesEnd = 0x0650;

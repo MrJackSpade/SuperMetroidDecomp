@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -25,8 +24,6 @@ internal sealed class RuntimeArtwork
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
     private readonly HudState _hud;
-    /// <summary>Receives Samus colour, grapple, and picture bindings.</summary>
-    private readonly SamusFrameState _player;
 
     /// <summary>The map presentation's backing value, installed from the start.</summary>
     private IGameplayPresentationContent _mapPresentation;
@@ -54,7 +51,6 @@ internal sealed class RuntimeArtwork
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
-        _player = dependencies.Player;
         RuntimeArtworkDependencies installed = dependencies;
         _mapPresentation = installed.MapPresentation;
         _spriteSheets = installed.SpriteSheets;

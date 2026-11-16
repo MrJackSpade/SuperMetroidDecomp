@@ -965,34 +965,6 @@ public enum EnemyProjectileFrameId
     MotherBrainHandBeamOrbYellow,
     /// <summary>Mother Brain's hand beam: a white orb with a yellow rim.</summary>
     MotherBrainHandBeamOrbWhite,
-    /// <summary>Mother Brain's hand beam: a small red orb: the picture of MotherBrainHandBeamOrbSmall, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbSmallTwin,
-    /// <summary>Mother Brain's hand beam: a red orb with a yellow speck: the picture of MotherBrainHandBeamOrbRed, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbRedTwin,
-    /// <summary>Mother Brain's hand beam: a red orb with a yellow core: the picture of MotherBrainHandBeamOrbRedYellowCore, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbRedYellowCoreTwin,
-    /// <summary>Mother Brain's hand beam: an orange orb with a white core: the picture of MotherBrainHandBeamOrbOrange, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbOrangeTwin,
-    /// <summary>Mother Brain's hand beam: an orange orb with a wide white core: the picture of MotherBrainHandBeamOrbWhiteCore, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbWhiteCoreTwin,
-    /// <summary>Mother Brain's hand beam: a yellow orb with a white core: the picture of MotherBrainHandBeamOrbYellow, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbYellowTwin,
-    /// <summary>Mother Brain's hand beam: a white orb with a yellow rim: the picture of MotherBrainHandBeamOrbWhite, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbWhiteTwin,
-    /// <summary>Mother Brain's hand beam: a small red orb: the picture of MotherBrainHandBeamOrbSmall, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbSmallTwinB,
-    /// <summary>Mother Brain's hand beam: a red orb with a yellow speck: the picture of MotherBrainHandBeamOrbRed, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbRedTwinB,
-    /// <summary>Mother Brain's hand beam: a red orb with a yellow core: the picture of MotherBrainHandBeamOrbRedYellowCore, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbRedYellowCoreTwinB,
-    /// <summary>Mother Brain's hand beam: an orange orb with a white core: the picture of MotherBrainHandBeamOrbOrange, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbOrangeTwinB,
-    /// <summary>Mother Brain's hand beam: an orange orb with a wide white core: the picture of MotherBrainHandBeamOrbWhiteCore, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbWhiteCoreTwinB,
-    /// <summary>Mother Brain's hand beam: a yellow orb with a white core: the picture of MotherBrainHandBeamOrbYellow, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbYellowTwinB,
-    /// <summary>Mother Brain's hand beam: a white orb with a yellow rim: the picture of MotherBrainHandBeamOrbWhite, as a frame of its own.</summary>
-    MotherBrainHandBeamOrbWhiteTwinB,
     /// <summary>Mother Brain's rainbow beam charging: sparks spread 86 pixels across.</summary>
     MotherBrainRainbowChargeSparksSpread,
     /// <summary>Mother Brain's rainbow beam charging: sparks closing in, 80 pixels across.</summary>

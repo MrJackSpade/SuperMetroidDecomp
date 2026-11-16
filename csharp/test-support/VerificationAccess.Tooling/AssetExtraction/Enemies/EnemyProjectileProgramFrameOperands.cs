@@ -12,9 +12,14 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class EnemyProjectileProgramFrameOperands
 {
-    /// <summary>The installed program frames, by the bank-$86 operand each is stored at.</summary>
+    /// <summary>
+    /// The installed program frames, by the bank-$86 operand each is stored at, and by each operand that shows its picture
+    /// again (#2210).
+    /// </summary>
     private static readonly ILookup<ushort, EnemyProjectileFrameId> Frames =
-        EnemyProjectileProgramFrameDefinitions.Operands.ToLookup(pair => pair.Value, pair => pair.Key);
+        EnemyProjectileProgramFrameDefinitions.Operands.Select(pair => (Operand: pair.Value, Frame: pair.Key))
+            .Concat(EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
+            .ToLookup(entry => entry.Operand, entry => entry.Frame);
 
     /// <summary>Whether bank-$86 operand <paramref name="operand"/> stores an installed program frame.</summary>
     internal static bool Contains(ushort operand) => Frames.Contains(operand);

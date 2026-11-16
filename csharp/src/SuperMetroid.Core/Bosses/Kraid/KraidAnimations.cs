@@ -2,209 +2,211 @@ using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Kraid.KraidPartCue;
 using P = SuperMetroid.Core.Bosses.Kraid.KraidPartSegment;
 using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Kraid's typed part animations (#641, #1600, #1885): each foot, arm, lint and fingernail segment's beats, each beat naming
-/// the installed frame it shows, and the animation starting at each.
+/// the pose it shows (#2210): an installed picture, the foot's step from where its walk first shows that picture, and the
+/// depth of the parts Kraid shows while he rises; and the animation starting at each.
 /// </summary>
 internal static class KraidAnimations
 {
     /// <summary>Every foot, arm, lint and fingernail segment's beats.</summary>
-    internal static AnimationSegments<KraidPartSegment, EnemyFrameId, KraidPartCue> Segments { get; } = new(
-        new Dictionary<KraidPartSegment, AnimationBeat<EnemyFrameId, KraidPartCue>[]>
+    internal static AnimationSegments<KraidPartSegment, KraidPartPose, KraidPartCue> Segments { get; } = new(
+        new Dictionary<KraidPartSegment, AnimationBeat<KraidPartPose, KraidPartCue>[]>
     {
         [P.FootInitial] =
         [
-            Hold(F.KraidFootPlanted),
+            HoldSunk(F.KraidFootPlanted),
         ],
         [P.FootNeutral] =
         [
-            Hold(F.KraidFootPlantedTwin),
+            Hold(F.KraidFootPlanted),
         ],
         [P.FootWalkingForward] =
         [
-            Show(F.KraidFootPlantedTwin, 4),
-            Show(F.KraidFootPlantedOffset2By1, 4),
-            Show(F.KraidFootPlantedOffset4By2, 4),
-            Show(F.KraidFootPlantedOffset6By3, 4),
-            Show(F.KraidFootPlantedOffset8By4, 4),
-            Show(F.KraidFootLiftingOffset10By19, 4),
-            Show(F.KraidFootLiftingOffset12By20, 4),
-            Show(F.KraidFootLiftingOffset14By21, 4),
-            Show(F.KraidFootLiftingOffset16By22, 4),
-            Show(F.KraidFootLiftingOffset18By23, 4),
-            Show(F.KraidFootRaisedOffset20By26, 4),
-            Show(F.KraidFootSwingingOffset22By23, 3),
-            Show(F.KraidFootSwingingOffset24By21, 1),
-            Show(F.KraidFootSwingingOffset26By19, 1),
-            Show(F.KraidFootSwingingOffset28By17, 1),
-            Show(F.KraidFootSwingingOffset30By15, 1),
-            Show(F.KraidFootSwingingOffset32By13, 1),
-            Show(F.KraidFootSwingingOffset34By11, 16),
+            Show(F.KraidFootPlanted, 4),
+            Step(F.KraidFootPlanted, new(-2, -1), 4),
+            Step(F.KraidFootPlanted, new(-4, -2), 4),
+            Step(F.KraidFootPlanted, new(-6, -3), 4),
+            Step(F.KraidFootPlanted, new(-8, -4), 4),
+            Show(F.KraidFootLifting, 4),
+            Step(F.KraidFootLifting, new(-2, -1), 4),
+            Step(F.KraidFootLifting, new(-4, -2), 4),
+            Step(F.KraidFootLifting, new(-6, -3), 4),
+            Step(F.KraidFootLifting, new(-8, -4), 4),
+            Show(F.KraidFootRaised, 4),
+            Show(F.KraidFootSwinging, 3),
+            Step(F.KraidFootSwinging, new(-2, 2), 1),
+            Step(F.KraidFootSwinging, new(-4, 4), 1),
+            Step(F.KraidFootSwinging, new(-6, 6), 1),
+            Step(F.KraidFootSwinging, new(-8, 8), 1),
+            Step(F.KraidFootSwinging, new(-10, 10), 1),
+            Step(F.KraidFootSwinging, new(-12, 12), 16),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootReachingOffset32By10, 1),
+            Show(F.KraidFootReaching, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootReachingOffset30By10, 1),
-            Show(F.KraidFootReachingOffset30By10, 3),
+            Step(F.KraidFootReaching, new(2, 0), 1),
+            Step(F.KraidFootReaching, new(2, 0), 3),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootReachingOffset30By10, 1),
-            Show(F.KraidFootReachingOffset30By10, 3),
+            Step(F.KraidFootReaching, new(2, 0), 1),
+            Step(F.KraidFootReaching, new(2, 0), 3),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootRaisedOffset26By15, 1),
-            Show(F.KraidFootRaisedOffset26By15, 3),
+            Step(F.KraidFootRaised, new(-6, 11), 1),
+            Step(F.KraidFootRaised, new(-6, 11), 3),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(F.KraidFootRaisedOffset24By15, 1),
+            Step(F.KraidFootRaised, new(-4, 11), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset22By14, 1),
+            Step(F.KraidFootLifting, new(-12, 5), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset20By14, 1),
+            Step(F.KraidFootLifting, new(-10, 5), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
             Cue(K.StepSound),
-            Show(F.KraidFootLiftingOffset18By14, 1),
+            Step(F.KraidFootLifting, new(-8, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset16By14, 1),
+            Step(F.KraidFootLifting, new(-6, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset14By14, 1),
+            Step(F.KraidFootLifting, new(-4, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset12By14, 1),
+            Step(F.KraidFootLifting, new(-2, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset10By14, 1),
+            Step(F.KraidFootLifting, new(0, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset8By14, 1),
+            Step(F.KraidFootLifting, new(2, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootPlantedOffset6By0, 1),
-            Show(F.KraidFootPlantedTwin, 1),
+            Step(F.KraidFootPlanted, new(-6, 0), 1),
+            Show(F.KraidFootPlanted, 1),
         ],
         [P.FootLungeForward] =
         [
-            Show(F.KraidFootPlantedTwin, 1),
-            Show(F.KraidFootPlantedOffset2By1, 1),
-            Show(F.KraidFootPlantedOffset4By2, 1),
-            Show(F.KraidFootPlantedOffset6By3, 1),
-            Show(F.KraidFootPlantedOffset8By4, 1),
-            Show(F.KraidFootLiftingOffset10By19, 1),
-            Show(F.KraidFootLiftingOffset12By20, 1),
-            Show(F.KraidFootLiftingOffset14By21, 1),
-            Show(F.KraidFootLiftingOffset16By22, 1),
-            Show(F.KraidFootLiftingOffset18By23, 1),
-            Show(F.KraidFootRaisedOffset20By26, 1),
-            Show(F.KraidFootSwingingOffset22By23, 1),
-            Show(F.KraidFootSwingingOffset24By21, 1),
-            Show(F.KraidFootSwingingOffset26By19, 1),
-            Show(F.KraidFootSwingingOffset28By17, 1),
-            Show(F.KraidFootSwingingOffset30By15, 1),
-            Show(F.KraidFootSwingingOffset32By13, 1),
-            Show(F.KraidFootSwingingOffset34By11, 4),
+            Show(F.KraidFootPlanted, 1),
+            Step(F.KraidFootPlanted, new(-2, -1), 1),
+            Step(F.KraidFootPlanted, new(-4, -2), 1),
+            Step(F.KraidFootPlanted, new(-6, -3), 1),
+            Step(F.KraidFootPlanted, new(-8, -4), 1),
+            Show(F.KraidFootLifting, 1),
+            Step(F.KraidFootLifting, new(-2, -1), 1),
+            Step(F.KraidFootLifting, new(-4, -2), 1),
+            Step(F.KraidFootLifting, new(-6, -3), 1),
+            Step(F.KraidFootLifting, new(-8, -4), 1),
+            Show(F.KraidFootRaised, 1),
+            Show(F.KraidFootSwinging, 1),
+            Step(F.KraidFootSwinging, new(-2, 2), 1),
+            Step(F.KraidFootSwinging, new(-4, 4), 1),
+            Step(F.KraidFootSwinging, new(-6, 6), 1),
+            Step(F.KraidFootSwinging, new(-8, 8), 1),
+            Step(F.KraidFootSwinging, new(-10, 10), 1),
+            Step(F.KraidFootSwinging, new(-12, 12), 4),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootReachingOffset32By10, 1),
+            Show(F.KraidFootReaching, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootReachingOffset30By10, 1),
-            Show(F.KraidFootReachingOffset30By10, 1),
+            Step(F.KraidFootReaching, new(2, 0), 1),
+            Step(F.KraidFootReaching, new(2, 0), 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootReachingOffset30By10, 1),
-            Show(F.KraidFootReachingOffset30By10, 1),
+            Step(F.KraidFootReaching, new(2, 0), 1),
+            Step(F.KraidFootReaching, new(2, 0), 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Show(F.KraidFootRaisedOffset26By15, 1),
-            Show(F.KraidFootRaisedOffset26By15, 1),
+            Step(F.KraidFootRaised, new(-6, 11), 1),
+            Step(F.KraidFootRaised, new(-6, 11), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(F.KraidFootRaisedOffset24By15, 1),
+            Step(F.KraidFootRaised, new(-4, 11), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset22By14, 1),
+            Step(F.KraidFootLifting, new(-12, 5), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset20By14, 1),
+            Step(F.KraidFootLifting, new(-10, 5), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
             Cue(K.StepSound),
-            Show(F.KraidFootLiftingOffset18By14, 1),
+            Step(F.KraidFootLifting, new(-8, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset16By14, 1),
+            Step(F.KraidFootLifting, new(-6, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset14By14, 1),
+            Step(F.KraidFootLifting, new(-4, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset12By14, 1),
+            Step(F.KraidFootLifting, new(-2, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset10By14, 1),
+            Step(F.KraidFootLifting, new(0, 5), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootLiftingOffset8By14, 1),
-            Show(F.KraidFootPlantedOffset6By0, 1),
+            Step(F.KraidFootLifting, new(2, 5), 1),
+            Step(F.KraidFootPlanted, new(-6, 0), 1),
             Cue(K.StepLeft),
-            Show(F.KraidFootPlantedTwin, 1),
+            Show(F.KraidFootPlanted, 1),
         ],
         [P.FootWalkingBackward] =
         [
             Cue(K.StepRight),
-            Show(F.KraidFootPlantedTwinB, 4),
+            Show(F.KraidFootPlanted, 4),
             Cue(K.StepRight),
-            Show(F.KraidFootPlantedOffset4By0, 1),
+            Step(F.KraidFootPlanted, new(-4, 0), 1),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset8By14, 1),
+            Step(F.KraidFootLifting, new(2, 5), 1),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset10By14, 1),
+            Step(F.KraidFootLifting, new(0, 5), 1),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset12By14, 1),
+            Step(F.KraidFootLifting, new(-2, 5), 1),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset14By14, 1),
+            Step(F.KraidFootLifting, new(-4, 5), 1),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset16By14, 1),
+            Step(F.KraidFootLifting, new(-6, 5), 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset18By14, 1),
+            Step(F.KraidFootLifting, new(-8, 5), 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset20By14, 1),
+            Step(F.KraidFootLifting, new(-10, 5), 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(F.KraidFootLiftingOffset22By14, 1),
+            Step(F.KraidFootLifting, new(-12, 5), 1),
             Cue(K.RaiseBody),
             Cue(K.StepRight),
-            Show(F.KraidFootRaisedOffset24By15, 1),
+            Step(F.KraidFootRaised, new(-4, 11), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepRight),
-            Show(F.KraidFootRaisedOffset26By15, 1),
+            Step(F.KraidFootRaised, new(-6, 11), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepRight),
-            Show(F.KraidFootReachingOffset28By10, 1),
+            Step(F.KraidFootReaching, new(4, 0), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepRight),
-            Show(F.KraidFootReachingOffset30By10, 1),
+            Step(F.KraidFootReaching, new(2, 0), 1),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepSound),
-            Show(F.KraidFootReachingOffset32By10, 1),
-            Show(F.KraidFootSwingingOffset34By11, 20),
-            Show(F.KraidFootSwingingOffset32By13, 4),
-            Show(F.KraidFootSwingingOffset30By15, 4),
-            Show(F.KraidFootSwingingOffset28By17, 4),
-            Show(F.KraidFootSwingingOffset26By19, 4),
-            Show(F.KraidFootSwingingOffset24By21, 4),
-            Show(F.KraidFootSwingingOffset22By23, 4),
-            Show(F.KraidFootRaisedOffset20By26, 4),
-            Show(F.KraidFootLiftingOffset18By23, 4),
-            Show(F.KraidFootLiftingOffset16By22, 1),
-            Show(F.KraidFootLiftingOffset14By21, 1),
-            Show(F.KraidFootLiftingOffset12By20, 1),
-            Show(F.KraidFootLiftingOffset10By19, 1),
-            Show(F.KraidFootPlantedOffset8By4, 1),
-            Show(F.KraidFootPlantedOffset6By3, 1),
-            Show(F.KraidFootPlantedOffset4By2, 1),
-            Show(F.KraidFootPlantedOffset2By1, 1),
+            Show(F.KraidFootReaching, 1),
+            Step(F.KraidFootSwinging, new(-12, 12), 20),
+            Step(F.KraidFootSwinging, new(-10, 10), 4),
+            Step(F.KraidFootSwinging, new(-8, 8), 4),
+            Step(F.KraidFootSwinging, new(-6, 6), 4),
+            Step(F.KraidFootSwinging, new(-4, 4), 4),
+            Step(F.KraidFootSwinging, new(-2, 2), 4),
+            Show(F.KraidFootSwinging, 4),
+            Show(F.KraidFootRaised, 4),
+            Step(F.KraidFootLifting, new(-8, -4), 4),
+            Step(F.KraidFootLifting, new(-6, -3), 1),
+            Step(F.KraidFootLifting, new(-4, -2), 1),
+            Step(F.KraidFootLifting, new(-2, -1), 1),
+            Show(F.KraidFootLifting, 1),
+            Step(F.KraidFootPlanted, new(-8, -4), 1),
+            Step(F.KraidFootPlanted, new(-6, -3), 1),
+            Step(F.KraidFootPlanted, new(-4, -2), 1),
+            Step(F.KraidFootPlanted, new(-2, -1), 1),
         ],
         [P.ArmNormal] =
         [
@@ -255,24 +257,24 @@ internal static class KraidAnimations
         ],
         [P.ArmRisingOrSinking] =
         [
-            Show(F.KraidArmRaisedClawClosedTwin, 6),
-            Show(F.KraidArmRaisedClawOpenTwin, 6),
-            Show(F.KraidArmLoweringClawHookedTwin, 6),
-            Show(F.KraidArmLevelClawHookedTwin, 6),
-            Show(F.KraidArmLevelClawHangingDownTwin, 6),
-            Show(F.KraidArmLevelClawCurlingUnderTwin, 6),
-            Show(F.KraidArmLevelClawTuckedTwin, 6),
-            Show(F.KraidArmLevelClawTuckedTightTwin, 6),
-            Show(F.KraidArmLevelClawFoldedTwin, 6),
-            Show(F.KraidArmLevelClawFoldedFlatTwin, 6),
-            Show(F.KraidArmLevelClawTuckedTightTwin, 6),
-            Show(F.KraidArmLevelClawTuckedTwin, 6),
-            Show(F.KraidArmLevelClawCurlingUnderTwin, 6),
-            Show(F.KraidArmLevelClawHangingDownTwin, 6),
-            Show(F.KraidArmLevelClawHookedTwin, 6),
-            Show(F.KraidArmLoweringClawHookedTwin, 6),
-            Show(F.KraidArmRaisedClawOpenTwin, 6),
-            Show(F.KraidArmRaisedClawClosedTwin, 32),
+            Sunk(F.KraidArmRaisedClawClosed, 6),
+            Sunk(F.KraidArmRaisedClawOpen, 6),
+            Sunk(F.KraidArmLoweringClawHooked, 6),
+            Sunk(F.KraidArmLevelClawHooked, 6),
+            Sunk(F.KraidArmLevelClawHangingDown, 6),
+            Sunk(F.KraidArmLevelClawCurlingUnder, 6),
+            Sunk(F.KraidArmLevelClawTucked, 6),
+            Sunk(F.KraidArmLevelClawTuckedTight, 6),
+            Sunk(F.KraidArmLevelClawFolded, 6),
+            Sunk(F.KraidArmLevelClawFoldedFlat, 6),
+            Sunk(F.KraidArmLevelClawTuckedTight, 6),
+            Sunk(F.KraidArmLevelClawTucked, 6),
+            Sunk(F.KraidArmLevelClawCurlingUnder, 6),
+            Sunk(F.KraidArmLevelClawHangingDown, 6),
+            Sunk(F.KraidArmLevelClawHooked, 6),
+            Sunk(F.KraidArmLoweringClawHooked, 6),
+            Sunk(F.KraidArmRaisedClawOpen, 6),
+            Sunk(F.KraidArmRaisedClawClosed, 32),
         ],
         [P.ArmDyingOrPreparingToLunge] =
         [
@@ -322,20 +324,38 @@ internal static class KraidAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KraidPartSegment> StartingWith(KraidPartSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyFrameId, KraidPartCue> Show(EnemyFrameId frame, int duration) =>
-        new AnimationBeat<EnemyFrameId, KraidPartCue>.Frame(frame, duration);
+    /// <summary>Shows <paramref name="picture"/> where the part stands for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Show(EnemyFrameId picture, int duration) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.Frame(new KraidPartPose(picture), duration);
 
     /// <summary>
-    /// Shows <paramref name="frame"/> for good (#1627, #2213): the part rests on it until its owner starts another animation.
+    /// Shows the foot's <paramref name="picture"/> moved by <paramref name="step"/> from where its walk first shows it, its
+    /// collision moved with it, for <paramref name="duration"/> updates.
+    /// </summary>
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Step(EnemyFrameId picture, Offset16<RoomPixels> step, int duration) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.Frame(new KraidPartPose(picture) { Placement = step }, duration);
+
+    /// <summary>
+    /// Shows <paramref name="picture"/> behind the room's front tiles, as Kraid shows his arm while he rises or sinks, for
+    /// <paramref name="duration"/> updates.
+    /// </summary>
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Sunk(EnemyFrameId picture, int duration) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.Frame(new KraidPartPose(picture) { Depth = ActorDepth.BehindFrontParts }, duration);
+
+    /// <summary>
+    /// Shows <paramref name="picture"/> for good (#1627, #2213): the part rests on it until its owner starts another animation.
     /// The feet's standing poses, the belly lints' poses and the arm's last lunge-ready pose are held: nothing reads a part's
     /// frame timer or new-frame flag, and every lunge and the death start the arm's next animation long before any frame
     /// duration could run out.
     /// </summary>
-    private static AnimationBeat<EnemyFrameId, KraidPartCue> Hold(EnemyFrameId frame) =>
-        new AnimationBeat<EnemyFrameId, KraidPartCue>.HeldFrame(frame);
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Hold(EnemyFrameId picture) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.HeldFrame(new KraidPartPose(picture));
+
+    /// <summary>Holds <paramref name="picture"/> behind the room's front tiles, as Kraid shows his foot before his rise ends.</summary>
+    private static AnimationBeat<KraidPartPose, KraidPartCue> HoldSunk(EnemyFrameId picture) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.HeldFrame(new KraidPartPose(picture) { Depth = ActorDepth.BehindFrontParts });
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyFrameId, KraidPartCue> Cue(KraidPartCue cue) =>
-        new AnimationBeat<EnemyFrameId, KraidPartCue>.Event(cue);
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Cue(KraidPartCue cue) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.Event(cue);
 }

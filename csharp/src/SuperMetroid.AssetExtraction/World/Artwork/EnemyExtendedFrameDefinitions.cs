@@ -46,7 +46,7 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>The Torizos' third stand-up pose facing left, which Golden Torizo shows first, before its awakening.</summary>
     internal const int TorizoFacingLeftStandingUpThirdFrameCount = 1;
     /// <summary>Kraid arm OAM frames used independently of body art.</summary>
-    internal const int KraidArmFrameCount = 22;
+    internal const int KraidArmFrameCount = 12;
     /// <summary>Golden Torizo awakening component poses.</summary>
     internal const int GoldenTorizoAwakeningFrameCount = 6;
     /// <summary>Golden Torizo walking component poses.</summary>

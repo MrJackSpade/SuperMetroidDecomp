@@ -58,7 +58,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     private static NativeEnemyList<KraidPartSegment> ReadPartList(IImportCartridgeSource cartridge, KraidPartSegment segment, ushort entry)
     {
-        IReadOnlyList<AnimationBeat<EnemyFrameId, KraidPartCue>> beats = KraidAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<KraidPartPose, KraidPartCue>> beats = KraidAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<KraidPartSegment>>();
         ushort cursor = entry;
@@ -76,19 +76,19 @@ internal static class KraidAnimationsVerification
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             switch (NativeEnemyListDefinitions.Classify(word))
             {
-                case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<EnemyFrameId, KraidPartCue>.HeldFrame held:
+                case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<KraidPartPose, KraidPartCue>.HeldFrame held:
                     // A held pose (#1627) stands for the list's longest frame followed at once by its sleep.
                     AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held pose's native duration");
-                    AssertEqual(operand, KraidPartFrameToolingDefinitions.Spritemap(held.Shown), $"{at}: held pose's spritemap");
+                    AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitions.PoseAt(operand), held.Shown, $"{at}: the held pose its native spritemap stores");
                     AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)),
                         $"{at}: a held pose's native frame is followed by its sleep");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    var frame = AssertIs<AnimationBeat<EnemyFrameId, KraidPartCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                    var frame = AssertIs<AnimationBeat<KraidPartPose, KraidPartCue>.Frame>(Beat(beat, at), $"{at}: frame");
                     AssertEqual(word, frame.Duration, $"{at}: duration");
-                    AssertEqual(operand, KraidPartFrameToolingDefinitions.Spritemap(frame.Shown), $"{at}: spritemap");
+                    AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitions.PoseAt(operand), frame.Shown, $"{at}: the pose its native spritemap stores");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -106,7 +106,7 @@ internal static class KraidAnimationsVerification
                         cursor = unchecked((ushort)(cursor + 2));
                         continue; // The no-operation callback has no beat.
                     }
-                    var raised = AssertIs<AnimationBeat<EnemyFrameId, KraidPartCue>.Event>(Beat(beat, at), $"{at}: callback");
+                    var raised = AssertIs<AnimationBeat<KraidPartPose, KraidPartCue>.Event>(Beat(beat, at), $"{at}: callback");
                     AssertEqual(expected, raised.Raised, $"{at}: cue");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2));
@@ -128,7 +128,7 @@ internal static class KraidAnimationsVerification
             return new NativeEnemyList<KraidPartSegment>([.. addresses], [.. controls]);
         }
 
-        AnimationBeat<EnemyFrameId, KraidPartCue> Beat(int beat, string at) => beat < beats.Count
+        AnimationBeat<KraidPartPose, KraidPartCue> Beat(int beat, string at) => beat < beats.Count
             ? beats[beat]
             : throw new InvalidDataException($"{at}: the native list holds more beats than Kraid {segment}.");
     }
@@ -168,7 +168,7 @@ internal static class KraidAnimationsVerification
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
-        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmRaisedClawClosed), arm.SpritemapPointer, "the slow swing's first frame shows at once");
+        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidArmRaisedClawClosed)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
         AssertEqual((ushort)8, arm.AnimationClock.Hold.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow),
@@ -194,7 +194,7 @@ internal static class KraidAnimationsVerification
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
-        ushort neutral = KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidFootPlantedTwin);
+        ushort neutral = KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidFootPlanted));
         AssertEqual(neutral, foot.SpritemapPointer, "the neutral foot shows its pose");
         AssertTrue(foot.AnimationClock.ShowsNewFrame, "the held pose raises the new-frame flag as it shows");
         // Past one whole wrap of the frame timer: the held pose never plays on, shows anew or raises the flag again.
@@ -208,10 +208,10 @@ internal static class KraidAnimationsVerification
         state.ArmState.Playback = Started(KraidPartSegment.ArmDyingOrPreparingToLunge);
         for (int beat = 0; beat < 3; beat++)
             Pass(arm, forceExpiry: true);
-        ushort outstretched = KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmOutstretched);
+        ushort outstretched = KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidArmOutstretched));
         AssertEqual(outstretched, arm.SpritemapPointer, "the arm shows its last lunge-ready pose");
         // #2213: the pose is held, not timed by the longest frame duration: it rests until the arm's next animation starts.
-        AssertIs<AnimationBeat<EnemyFrameId, KraidPartCue>.HeldFrame>(KraidAnimations.Segments.Beats(KraidPartSegment.ArmDyingOrPreparingToLunge)[^1],
+        AssertIs<AnimationBeat<KraidPartPose, KraidPartCue>.HeldFrame>(KraidAnimations.Segments.Beats(KraidPartSegment.ArmDyingOrPreparingToLunge)[^1],
             "the arm's last lunge-ready pose is held");
         for (int update = 0; update < 256; update++)
         {

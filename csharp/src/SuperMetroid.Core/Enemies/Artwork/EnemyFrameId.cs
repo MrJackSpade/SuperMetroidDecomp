@@ -3160,26 +3160,6 @@ public enum EnemyFrameId
     KraidArmLevelClawFolded,
     /// <summary>Kraid: its arm held level, claw folded flat.</summary>
     KraidArmLevelClawFoldedFlat,
-    /// <summary>Kraid: its arm raised on a diagonal, claw closed: the picture of KraidArmRaisedClawClosed, as a frame of its own.</summary>
-    KraidArmRaisedClawClosedTwin,
-    /// <summary>Kraid: its arm raised on a diagonal, claw open: the picture of KraidArmRaisedClawOpen, as a frame of its own.</summary>
-    KraidArmRaisedClawOpenTwin,
-    /// <summary>Kraid: its arm lowering, claw hooked: the picture of KraidArmLoweringClawHooked, as a frame of its own.</summary>
-    KraidArmLoweringClawHookedTwin,
-    /// <summary>Kraid: its arm held level, claw hooked: the picture of KraidArmLevelClawHooked, as a frame of its own.</summary>
-    KraidArmLevelClawHookedTwin,
-    /// <summary>Kraid: its arm held level, claw hanging down: the picture of KraidArmLevelClawHangingDown, as a frame of its own.</summary>
-    KraidArmLevelClawHangingDownTwin,
-    /// <summary>Kraid: its arm held level, claw curling under: the picture of KraidArmLevelClawCurlingUnder, as a frame of its own.</summary>
-    KraidArmLevelClawCurlingUnderTwin,
-    /// <summary>Kraid: its arm held level, claw tucked: the picture of KraidArmLevelClawTucked, as a frame of its own.</summary>
-    KraidArmLevelClawTuckedTwin,
-    /// <summary>Kraid: its arm held level, claw tucked tight: the picture of KraidArmLevelClawTuckedTight, as a frame of its own.</summary>
-    KraidArmLevelClawTuckedTightTwin,
-    /// <summary>Kraid: its arm held level, claw folded: the picture of KraidArmLevelClawFolded, as a frame of its own.</summary>
-    KraidArmLevelClawFoldedTwin,
-    /// <summary>Kraid: its arm held level, claw folded flat: the picture of KraidArmLevelClawFoldedFlat, as a frame of its own.</summary>
-    KraidArmLevelClawFoldedFlatTwin,
     /// <summary>Kraid: its arm drooping on a diagonal.</summary>
     KraidArmDroopingDiagonal,
     /// <summary>Kraid: its arm stretched out flat.</summary>
@@ -3607,76 +3587,16 @@ public enum EnemyFrameId
     CrocomireBubbles4By6Risen14,
     /// <summary>Crocomire: bubbles rising from its skeleton, 4 pixels wide and 6 high, drifted off: the picture of CrocomireBubbles4By6Risen14, drawn 32 pixels right and 32 pixels lower.</summary>
     CrocomireBubbles4By6Adrift,
-    /// <summary>Kraid: its foot planted where it stands: the picture of KraidFootPlanted, as a frame of its own.</summary>
-    KraidFootPlantedTwin,
-    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 2 right and 1 down of the standing foot's.</summary>
-    KraidFootPlantedOffset2By1,
-    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 4 right and 2 down of the standing foot's.</summary>
-    KraidFootPlantedOffset4By2,
-    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 6 right and 3 down of the standing foot's.</summary>
-    KraidFootPlantedOffset6By3,
-    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 8 right and 4 down of the standing foot's.</summary>
-    KraidFootPlantedOffset8By4,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 10 right and 19 down of the standing foot's.</summary>
-    KraidFootLiftingOffset10By19,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 12 right and 20 down of the standing foot's.</summary>
-    KraidFootLiftingOffset12By20,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 14 right and 21 down of the standing foot's.</summary>
-    KraidFootLiftingOffset14By21,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 16 right and 22 down of the standing foot's.</summary>
-    KraidFootLiftingOffset16By22,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 18 right and 23 down of the standing foot's.</summary>
-    KraidFootLiftingOffset18By23,
-    /// <summary>Kraid: its foot raised, its leg straight up, its picture's origin 20 right and 26 down of the standing foot's.</summary>
-    KraidFootRaisedOffset20By26,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 22 right and 23 down of the standing foot's.</summary>
-    KraidFootSwingingOffset22By23,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 24 right and 21 down of the standing foot's.</summary>
-    KraidFootSwingingOffset24By21,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 26 right and 19 down of the standing foot's.</summary>
-    KraidFootSwingingOffset26By19,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 28 right and 17 down of the standing foot's.</summary>
-    KraidFootSwingingOffset28By17,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 30 right and 15 down of the standing foot's.</summary>
-    KraidFootSwingingOffset30By15,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 32 right and 13 down of the standing foot's.</summary>
-    KraidFootSwingingOffset32By13,
-    /// <summary>Kraid: its foot swinging forward, its leg leaning in, its picture's origin 34 right and 11 down of the standing foot's.</summary>
-    KraidFootSwingingOffset34By11,
-    /// <summary>Kraid: its foot reaching forward, its picture's origin 32 right and 10 down of the standing foot's.</summary>
-    KraidFootReachingOffset32By10,
-    /// <summary>Kraid: its foot reaching forward, its picture's origin 30 right and 10 down of the standing foot's.</summary>
-    KraidFootReachingOffset30By10,
-    /// <summary>Kraid: its foot reaching forward, its picture's origin 28 right and 10 down of the standing foot's.</summary>
-    KraidFootReachingOffset28By10,
-    /// <summary>Kraid: its foot raised, its leg straight up, its picture's origin 26 right and 15 down of the standing foot's.</summary>
-    KraidFootRaisedOffset26By15,
-    /// <summary>Kraid: its foot raised, its leg straight up, its picture's origin 24 right and 15 down of the standing foot's.</summary>
-    KraidFootRaisedOffset24By15,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 22 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset22By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 20 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset20By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 18 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset18By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 16 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset16By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 14 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset14By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 12 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset12By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 10 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset10By14,
-    /// <summary>Kraid: its foot lifting, its leg upright, its picture's origin 8 right and 14 down of the standing foot's.</summary>
-    KraidFootLiftingOffset8By14,
-    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 6 right and 0 down of the standing foot's.</summary>
-    KraidFootPlantedOffset6By0,
-    /// <summary>Kraid: its foot planted, its leg angled back, its picture's origin 4 right and 0 down of the standing foot's.</summary>
-    KraidFootPlantedOffset4By0,
-    /// <summary>Kraid: its foot planted where it stands: the picture of KraidFootPlanted, as a frame of its own.</summary>
-    KraidFootPlantedTwinB,
-    /// <summary>Kraid: its foot planted where it stands, its leg angled back.</summary>
+    /// <summary>Kraid: its foot planted, its leg angled back.</summary>
     KraidFootPlanted,
+    /// <summary>Kraid: its foot lifting, its leg upright.</summary>
+    KraidFootLifting,
+    /// <summary>Kraid: its foot raised, its leg straight up.</summary>
+    KraidFootRaised,
+    /// <summary>Kraid: its foot swinging forward, its leg leaning in.</summary>
+    KraidFootSwinging,
+    /// <summary>Kraid: its foot reaching forward.</summary>
+    KraidFootReaching,
     /// <summary>
     /// The empty frame every enemy family shares: an enemy showing it draws nothing, and one that collides by its frames'
     /// hitboxes collides at the single point at its origin.

@@ -101,7 +101,16 @@ internal static class EnemyExtendedFrameArtworkVerification
                 frame => frame.LegacyName.StartsWith("ninja_pirate_", StringComparison.Ordinal)),
             "all ninja-Pirate visual frame identities are installed");
         var differing = new List<string>();
-        foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
+        // Each of Kraid's foot and arm records draws its picture at the step and depth its pose names (#2210): the records
+        // that store an installed picture again are drawn beside the installed frames.
+        (string Name, byte Bank, ushort Pointer)[] drawnFrames =
+        [
+            .. EnemyExtendedFrameDefinitions.Frames.Select(frame => (frame.Name, frame.Bank, frame.Pointer)),
+            .. SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPartFrameToolingDefinitions.LimbSpritemaps
+                .Where(record => !EnemyExtendedFrameDefinitions.Frames.Any(frame => frame.Bank == SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualToolingDefinitions.Bank && frame.Pointer == record))
+                .Select(record => ($"Kraid record ${record:X4}", SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualToolingDefinitions.Bank, record)),
+        ];
+        foreach ((string Name, byte Bank, ushort Pointer) frame in drawnFrames)
         {
             foreach ((ushort x, ushort y) in new VerifyInstalledEnemyExtendedFramesCase[]
                      {
@@ -283,6 +292,14 @@ internal static class EnemyExtendedFrameArtworkVerification
         }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;
+        // Kraid's arm and foot show the pose their record stores, its step and depth, through their part state (#2210).
+        if (place.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
+        {
+            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.DefinitionId == EnemyDefinitionId.KraidArm
+                ? new SuperMetroid.Core.Bosses.Kraid.KraidArmState(new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState())
+                : new SuperMetroid.Core.Bosses.Kraid.KraidFootState(new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState()));
+            place.SpritemapPointer = pointer;
+        }
         if (frame is { } shown)
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
         place.AnimationClock.HoldFor(7);

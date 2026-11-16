@@ -40,11 +40,20 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <summary>Mirrors the frame about its origin.</summary>
     public SpriteMirror Mirror { get; }
 
+    /// <summary>The depth the draw's owner places it at, or null for its frame's own.</summary>
+    private readonly ActorDepth? depth;
+
     /// <summary>
-    /// Where a gameplay draw sits among the room's layers (#1514): its frame's depth, the whole draw at one depth. Null for a
-    /// frame that is not an actor's or is empty; a frontend screen places its draws by the sprite layer holding them instead.
+    /// Where a gameplay draw sits among the room's layers (#1514): its frame's depth, the whole draw at one depth, unless its
+    /// owner places it at a depth of its own (#2210), as Kraid's parts sit behind the room's front tiles while he rises. Null
+    /// for a frame that is not an actor's or is empty; a frontend screen places its draws by the sprite layer holding them
+    /// instead.
     /// </summary>
-    public ActorDepth? Depth => Image.Depth;
+    public ActorDepth? Depth
+    {
+        get => depth ?? Image.Depth;
+        init => depth = value;
+    }
 
     /// <summary>
     /// The screen position of the frame rectangle's top-left pixel. Mirroring the frame mirrors its rectangle about the

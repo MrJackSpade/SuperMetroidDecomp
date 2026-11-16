@@ -124,6 +124,7 @@ internal sealed class EnemyPresentation
         {
             Shading = shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), draw.RotRows, image),
+            Depth = draw.Depth,
         });
     }
 

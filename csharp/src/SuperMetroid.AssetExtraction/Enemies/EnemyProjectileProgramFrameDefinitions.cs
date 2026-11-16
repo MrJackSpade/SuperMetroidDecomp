@@ -494,20 +494,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore] = 0xc7ad,
         [EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow] = 0xc7b1,
         [EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite] = 0xc7b5,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbSmallTwin] = 0xc7b9,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbRedTwin] = 0xc7c2,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCoreTwin] = 0xc7c6,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbOrangeTwin] = 0xc7ca,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCoreTwin] = 0xc7ce,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbYellowTwin] = 0xc7d2,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteTwin] = 0xc7d6,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbSmallTwinB] = 0xc7da,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbRedTwinB] = 0xc7e3,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCoreTwinB] = 0xc7e7,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbOrangeTwinB] = 0xc7eb,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCoreTwinB] = 0xc7ef,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbYellowTwinB] = 0xc7f3,
-        [EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteTwinB] = 0xc7f7,
         [EnemyProjectileFrameId.MotherBrainRainbowChargeSparksSpread] = 0xc82b,
         [EnemyProjectileFrameId.MotherBrainRainbowChargeSparksClosing] = 0xc82f,
         [EnemyProjectileFrameId.MotherBrainRainbowChargeStreaksClosing] = 0xc833,
@@ -1002,5 +988,28 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.FallingSparkUprightSmallTwin] = 0xf385,
         [EnemyProjectileFrameId.FallingSparkBlankTwinD] = 0xf389,
         [EnemyProjectileFrameId.FallingSparkUprightSmallTwinB] = 0xf38d,
+    }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The operands that show an installed program frame's picture again (#2210), with the frame each shows: the hand beam's
+    /// second and third stages draw its first stage's seven pictures from operands of their own. The import composes each
+    /// frame once from <see cref="Operands"/>; tools reading native lists find its frame here.
+    /// </summary>
+    internal static readonly FrozenDictionary<ushort, EnemyProjectileFrameId> AlsoStoredAt = new Dictionary<ushort, EnemyProjectileFrameId>
+    {
+        [0xc7b9] = EnemyProjectileFrameId.MotherBrainHandBeamOrbSmall,
+        [0xc7c2] = EnemyProjectileFrameId.MotherBrainHandBeamOrbRed,
+        [0xc7c6] = EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCore,
+        [0xc7ca] = EnemyProjectileFrameId.MotherBrainHandBeamOrbOrange,
+        [0xc7ce] = EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore,
+        [0xc7d2] = EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow,
+        [0xc7d6] = EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite,
+        [0xc7da] = EnemyProjectileFrameId.MotherBrainHandBeamOrbSmall,
+        [0xc7e3] = EnemyProjectileFrameId.MotherBrainHandBeamOrbRed,
+        [0xc7e7] = EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCore,
+        [0xc7eb] = EnemyProjectileFrameId.MotherBrainHandBeamOrbOrange,
+        [0xc7ef] = EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore,
+        [0xc7f3] = EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow,
+        [0xc7f7] = EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite,
     }.ToFrozenDictionary();
 }

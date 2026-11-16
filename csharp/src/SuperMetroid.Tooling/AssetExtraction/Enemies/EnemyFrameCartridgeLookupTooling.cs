@@ -23,7 +23,10 @@ internal static class EnemyFrameCartridgeLookupTooling
     /// <summary>Each installed frame by where the cartridge stores it; the first composition in schema order wins a shared record.</summary>
     private static readonly Lazy<Dictionary<SnesAddress, EnemyFrameId>> FramesByLocation = new(Bind);
 
-    /// <summary>Binds every installed composition's location, ordinary compositions first.</summary>
+    /// <summary>
+    /// Binds every installed composition's location, ordinary compositions first, and each record that stores an installed
+    /// frame's picture again to that frame (#2210).
+    /// </summary>
     private static Dictionary<SnesAddress, EnemyFrameId> Bind()
     {
         var frames = new Dictionary<SnesAddress, EnemyFrameId>();
@@ -31,6 +34,11 @@ internal static class EnemyFrameCartridgeLookupTooling
             frames.TryAdd(EnemyFrameCartridgeLookup.Of(frame.Frame), frame.Frame);
         foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
             frames.TryAdd(EnemyFrameCartridgeLookup.Of(frame.Frame), frame.Frame);
+        foreach ((SnesAddress location, EnemyFrameId frame) in EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt)
+        {
+            if (!frames.TryAdd(location, frame))
+                throw new InvalidDataException($"${location.Bank:X2}:{location.Offset:X4} stores frame {frames[location]}, not only {frame}.");
+        }
         return frames;
     }
 

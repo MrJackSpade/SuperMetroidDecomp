@@ -12,6 +12,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -256,7 +257,8 @@ internal static class MotherBrainAnimationsVerification
             if (native.Deleted)
                 break;
             AssertEqual(native.Timer, beam.FrameHold.RawValue, $"{at}: timer");
-            AssertEqual(native.Operand, beam.PresentationOperandAddress, $"{at}: frame");
+            // The second and third stages draw the first stage's pictures from operands of their own (#2210).
+            AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, beam.Graphics.Owner), beam.Frame, $"{at}: frame");
         }
         AssertEqual(MotherBrainHandBeamAnimationsConstants.StageCount, spawns, "the hand beam spawns the next beam once a stage");
         return update;

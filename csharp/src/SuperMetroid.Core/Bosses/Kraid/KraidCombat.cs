@@ -299,11 +299,11 @@ internal sealed class KraidCombat
     {
         reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-            KraidFootCollision.TryGetComponents(enemy.Frame, out var footComponents)))
+            KraidFootCollision.TryGetComponents(enemy.SpeciesState<KraidPartState>()?.Pose, out var footComponents)))
             return null;
 
-        // Kraid's foot art is replaceable, but each frame
-        // still places two physical components against one shared hitbox list.
+        // Kraid's foot art is replaceable, but each pose still places two physical components against one shared hitbox
+        // list, moved with the pose's step.
         foreach (KraidCollisionComponent component in footComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
@@ -38,7 +40,9 @@ internal static class RoomEnemyPlaceFrameAccess
         /// </summary>
         internal ushort SpritemapPointer
         {
-            get => EnemyFrameCartridgeLookupTooling.Word(self.Frame, self.CollidesByFrameHitboxes);
+            // One of Kraid's parts shows a pose, whose record is the first that stores it (#2210).
+            get => self.SpeciesState<KraidPartState>()?.Pose is { } pose ? KraidPartFrameToolingDefinitions.Spritemap(pose)
+                : EnemyFrameCartridgeLookupTooling.Word(self.Frame, self.CollidesByFrameHitboxes);
             set
             {
                 // Zero shows no frame in any bank, so a free slot, which names no header, imports it too.
@@ -49,6 +53,13 @@ internal static class RoomEnemyPlaceFrameAccess
                 }
                 try
                 {
+                    // One of Kraid's parts shows the pose its record stores: the picture, its step and its depth (#2210).
+                    if (self.SpeciesState<KraidPartState>() is { } part
+                        && KraidPartFrameToolingDefinitions.PoseAt(value) is { } pose)
+                    {
+                        self.Frame = part.Show(pose);
+                        return;
+                    }
                     self.Frame = FrameAt(self.NativeHeader.Bank, value);
                 }
                 catch (ArgumentOutOfRangeException exception)

@@ -192,17 +192,17 @@ internal sealed class PhantoonPatterns
             int remaining = count - 1;
             // A burst with no flame left after this one ends and starts its cooldown; one at zero spits a last flame too.
             bool exhausted = remaining <= 0;
-            PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.CasualFlames.Pattern);
+            PhantoonCasualFlameSchedule schedule = state.CasualFlames.Schedule;
             state.CasualFlames.Remaining = exhausted ? null : remaining;
             state.CasualFlames.Hold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
             state.MouthPart.StartAnimation(PhantoonPartSegment.MouthSpawnFlame);
             return;
         }
 
-        state.CasualFlames.Pattern = _room.Random.Next(PhantoonRandomDefinitions.CasualFlamePattern);
-        PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.CasualFlames.Pattern);
-        state.CasualFlames.Remaining = pattern.FlameCount;
-        state.CasualFlames.Hold = pattern.IntervalBefore(pattern.FlameCount);
+        PhantoonCasualFlameSchedule burst = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.CasualFlamePattern));
+        state.CasualFlames.Schedule = burst;
+        state.CasualFlames.Remaining = burst.FlameCount;
+        state.CasualFlames.Hold = burst.IntervalBefore(burst.FlameCount);
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
@@ -407,10 +407,9 @@ internal sealed class PhantoonPatterns
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        int pattern = _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern);
-        var placement = PhantoonFlameRain.RainPlacement(pattern);
-        state.FigureEight.PathCursor = placement.Cursor;
-        body.Position = body.Position.WithWhole(placement.Position);
+        PhantoonRainPattern pattern = Ensure.Element(PhantoonRainPatternDefinitions.Choices, _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern));
+        state.FigureEight.PathCursor = pattern.PathCursor;
+        body.Position = body.Position.WithWhole(pattern.BodyPosition);
         state.FigureEight.Reversed = false;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, pattern);
@@ -429,7 +428,9 @@ internal sealed class PhantoonPatterns
 
         state.Swoop.Requested = false;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
-        SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128 ? 0 : 2);
+        SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128
+            ? PhantoonRainPatternDefinitions.FirstRainFromLeftHalf
+            : PhantoonRainPatternDefinitions.FirstRainFromRightHalf);
     }
 
     /// <summary>Hides the body before entering the enraged attack cycle.</summary>
@@ -615,9 +616,9 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns, each falling eight updates after the last.</summary>
-    private void SpawnPhantoonFlameRain(RoomEnemyPlace body, int pattern)
+    private void SpawnPhantoonFlameRain(RoomEnemyPlace body, PhantoonRainPattern pattern)
     {
-        int column = PhantoonFlameRain.FirstRainColumns[pattern];
+        int column = pattern.FirstColumn;
         int fallDelay = 8;
         for (int flame = 0; flame < 8; flame++)
         {

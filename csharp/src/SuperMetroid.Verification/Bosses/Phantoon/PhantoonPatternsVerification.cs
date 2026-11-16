@@ -15,12 +15,12 @@ internal static class PhantoonPatternsVerification
     {
         for (int i = 0; i < 8; i++)
         {
-            var placement = PhantoonFlameRain.RainPlacement(i);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.Cursor, "Native rain figure-eight cursor");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.Position.X, "Native rain body X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Position.Y, "Native rain body Y");
+            PhantoonRainPattern placement = PhantoonRainPatternDefinitions.Choices[i];
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathCursor, "Native rain figure-eight cursor");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
-            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonFlameRain.FirstRainColumns[i], "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn, "Native first rain column");
         }
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)

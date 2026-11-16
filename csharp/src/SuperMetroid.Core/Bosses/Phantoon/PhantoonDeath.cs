@@ -80,7 +80,7 @@ internal sealed class PhantoonDeath
         state.Death.ExplosionPasses = 0;
     }
 
-    /// <summary>Runs the dying explosions: all thirteen, then the sixth through the thirteenth twice more.</summary>
+    /// <summary>Runs the dying explosions: the opening explosions, then the repeated explosions three times over.</summary>
     internal void RunPhantoonDyingExplosions(
         RoomEnemyPlace body,
         PhantoonEnemyState state)
@@ -98,10 +98,10 @@ internal sealed class PhantoonDeath
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
         state.Death.NextExplosion++;
-        if (state.Death.NextExplosion < PhantoonDeathExplosionDefinitions.Count)
+        if (state.Death.NextExplosion < PhantoonDeathExplosions.Count)
             return;
 
-        state.Death.NextExplosion = PhantoonDeathExplosionDefinitions.RepeatStart;
+        state.Death.NextExplosion = PhantoonDeathExplosions.RepeatStart;
         state.Death.ExplosionPasses++;
         if (state.Death.ExplosionPasses >= PhantoonDeathExplosionDefinitions.PassCount)
             state.Phase = PhantoonPhase.BeginFinalWavyDeath;

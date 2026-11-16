@@ -28,8 +28,8 @@ internal static class PhantoonSoundDefinitions
     internal static readonly SoundRequestPriority CasualFlamePriority = SoundRequestPriority.Normal;
 
     /// <summary>
-    /// The materialization sounds: the enemy-library sounds queued in a repeating
-    /// three-step cycle.
+    /// The materialization sounds in the order they are queued: each materialization queues the next, the first again after
+    /// the last.
     /// </summary>
     internal static readonly SoundEffectId[] MaterializationSounds =
     [
@@ -37,7 +37,4 @@ internal static class PhantoonSoundDefinitions
         EnemySound.PhantoonAppears2,
         EnemySound.PhantoonAppears3,
     ];
-
-    /// <summary>The number of sounds in the materialization cycle.</summary>
-    internal static int MaterializationSoundCount => MaterializationSounds.Length;
 }

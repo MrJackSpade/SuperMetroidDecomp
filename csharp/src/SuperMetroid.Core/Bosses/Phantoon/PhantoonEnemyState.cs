@@ -115,8 +115,11 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// </summary>
     public bool Translucent { get; internal set; }
 
-    /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
-    public int MaterializationSoundIndex { get; internal set; }
+    /// <summary>
+    /// The sound his next materialization queues, one of <see cref="PhantoonSoundDefinitions.MaterializationSounds"/>: the
+    /// first, then each in turn (#2258).
+    /// </summary>
+    public SoundEffectId NextMaterializationSound { get; internal set; } = PhantoonSoundDefinitions.MaterializationSounds[0];
 
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }

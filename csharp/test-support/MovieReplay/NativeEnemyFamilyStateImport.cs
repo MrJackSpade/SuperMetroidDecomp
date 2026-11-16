@@ -107,7 +107,8 @@ internal static class NativeEnemyFamilyStateImport
             }
             else if (part == EnemyDefinitionId.PhantoonMouth)
             {
-                phantoon.CasualFlames.Pattern = words.A;
+                // The record names the burst by its place in the casual-flame update's choices.
+                phantoon.CasualFlames.Schedule = Ensure.Element(PhantoonCasualFlameDefinitions.Choices, words.A);
                 phantoon.CasualFlames.Hold = CoordinateAxis.AsSigned(words.B);
                 // The record's count reads below zero while no burst is under way, which the burst holds as no count.
                 short casualFlames = unchecked((short)words.C);

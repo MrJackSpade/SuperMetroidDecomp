@@ -1240,12 +1240,12 @@ internal static class LookupStream5Verification
     {
         for (int i = 0; i < 8; i++)
         {
-            var placement = PhantoonFlameRain.RainPlacement(i);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.Cursor, "Native rain figure-eight cursor");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.Position.X, "Native rain body X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Position.Y, "Native rain body Y");
+            PhantoonRainPattern placement = PhantoonRainPatternDefinitions.Choices[i];
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathCursor, "Native rain figure-eight cursor");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
-            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonFlameRain.FirstRainColumns[i], "Native first rain column");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn, "Native first rain column");
         }
         for (int high = 0; high < 1; high++)
         for (int pattern = 0; pattern < 8; pattern++)
@@ -1300,8 +1300,7 @@ internal static class LookupStream5Verification
         AssertThrows<InvalidDataException>(
             () => PhantoonEyeGaze.EyeAnimation((CompassDirection)Enum.GetValues<CompassDirection>().Length),
             "Phantoon eye direction beyond the eight directions");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[-1], "rain pattern lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[8], "rain pattern upper bound");
+        AssertEqual(8, PhantoonRainPatternDefinitions.Choices.Count, "a later rain chooses from the native eight patterns");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 

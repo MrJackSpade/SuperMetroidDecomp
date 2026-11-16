@@ -37,7 +37,7 @@ internal static class RetailFileMapTests
             }
             var room = new FileSelectRoomMapGraphics(new SharedGameState(new SharedRandom()), SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
-            foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
+            foreach (int scroll in new[] { 0, 255, 511, -1 })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");
         }
         foreach (bool cancel in new[] { false, true })

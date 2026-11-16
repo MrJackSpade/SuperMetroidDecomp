@@ -128,7 +128,7 @@ internal static class PauseMenuVerification
             drawnHud.Hud.Pictures[0].Picture), "pause retains and draws the gameplay HUD's top row on the HUD's layer");
         AssertEqual(124, pause.MapScroll.X,
             "downloaded pause map horizontal centering");
-        AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
+        AssertEqual(-24, pause.MapScroll.Y,
             "downloaded pause map vertical centering");
         // The display packet shows the marker's first pulse frame where Samus's map cell lies on the scrolled map.
         SpriteSheetFrame markerFrame = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.MapSprites)

@@ -92,7 +92,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal MapScroll ActiveMapScroll => CurrentMapScroll ??
         throw new InvalidOperationException("The pause map scroll has not been set up.");
     /// <summary>The map screen's scroll position.</summary>
-    internal Position16<MapPixels> MapScrollPosition { get => ActiveMapScroll.Scroll; set => ActiveMapScroll.Scroll = value; }
+    internal Offset16<MapPixels> MapScrollPosition { get => ActiveMapScroll.Scroll; set => ActiveMapScroll.Scroll = value; }
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations? CurrentMapArrows { get; set; }
     /// <summary>The map arrows, which exist once the map page is set up.</summary>

@@ -88,7 +88,7 @@ internal static class FileSelectRoomMapVerification
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
-            RgbaPixel[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
+            RgbaPixel[] pixels = graphics.RenderBackgrounds(new Offset16<MapPixels>(0, -40));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
@@ -479,7 +479,7 @@ internal static class FileSelectRoomMapVerification
         // Repeated stepping must stop at the native inequality, not run past the edge.
         for (int frame = 0; frame < 1000; frame++) precedence.Step(ControllerButton.Left);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
-        ushort stoppedX = precedence.Scroll.X;
+        short stoppedX = precedence.Scroll.X;
         for (int frame = 0; frame < 16; frame++) precedence.Step(ControllerButton.Left);
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }

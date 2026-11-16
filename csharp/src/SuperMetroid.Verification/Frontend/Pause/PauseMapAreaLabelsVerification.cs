@@ -48,8 +48,8 @@ internal static class PauseMapAreaLabelsVerification
             // origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).
             int topmost = int.MaxValue;
             for (int entry = list; Read(entry) != 0xffff; entry += 6) topmost = Math.Min(topmost, Read(entry + 2));
-            ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(topmost - LabelTopLine));
-            pause.MapScrollPosition = new Position16<MapPixels>(x, y);
+            int x = Read(list) - 128, y = topmost - LabelTopLine;
+            pause.MapScrollPosition = new Offset16<MapPixels>(x, y);
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
             {

@@ -616,7 +616,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             combinedChargeProjectiles.Shots[(combinedChargedReleaseSlot ?? throw new InvalidOperationException("Verification requires combinedChargedReleaseSlot."))];
         AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
-        AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer,
+        AssertEqual(30, combinedChargeBombs.CooldownTimer,
             $"charged beam combination {beamType} indexes charged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectCommands.Decode(

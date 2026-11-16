@@ -90,7 +90,7 @@ internal static class XrayControlsVerification
             int cooldownFrames = 0;
             while (runtime.BombProjectiles.CooldownTimer != 0 && cooldownFrames++ <= 0x20)
                 runtime.StepFrame(0);
-            AssertEqual(0, (int)runtime.BombProjectiles.CooldownTimer, "frozen-time cooldown drains after scan release");
+            AssertEqual(0, runtime.BombProjectiles.CooldownTimer, "frozen-time cooldown drains after scan release");
             runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
             AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is not null,
                 "Shoot resumes actual beam firing after scan release without deselecting scope");

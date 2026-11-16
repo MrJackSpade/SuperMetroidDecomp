@@ -59,7 +59,7 @@ public readonly record struct WrappingCountdown
 
     /// <summary>The countdown's count, 0 through 65535.</summary>
     [IntegerQuantity("the countdown's remaining count")]
-    private readonly ushort count;
+    internal readonly ushort count;
 
     /// <summary>Stores <paramref name="frames"/> exactly; callers use <see cref="Start"/>.</summary>
     private WrappingCountdown(ushort frames) => count = frames;
@@ -83,10 +83,6 @@ public readonly record struct WrappingCountdown
     /// <summary>Whether exactly <paramref name="frames"/> frames are left.</summary>
     /// <param name="frames">The frames compared, 0 through 65535.</param>
     public bool IsAt(int frames) => count == frames;
-
-    /// <summary>Whether at least <paramref name="frames"/> frames are left; a countdown run past zero counts as a large count.</summary>
-    /// <param name="frames">The frames compared, 0 through 65535.</param>
-    public bool IsAtLeast(int frames) => count >= frames;
 
     /// <summary>
     /// Whether the countdown is in the second half of a cycle that alternates every <paramref name="phaseFrames"/>

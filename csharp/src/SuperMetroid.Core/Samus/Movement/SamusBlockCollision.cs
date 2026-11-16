@@ -22,7 +22,6 @@ public static class SamusBlockCollision
     /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
     internal static BlockMoveResult ProbeWallHorizontal(
-
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
@@ -69,7 +68,6 @@ public static class SamusBlockCollision
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
     internal static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, HorizontalBlockMove move)
     {
-
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
@@ -377,7 +375,6 @@ public static class SamusBlockCollision
     /// </summary>
     internal static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalBlockMove move)
     {
-
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
@@ -726,7 +723,6 @@ public static class SamusBlockCollision
     /// <param name="scanLeftToRight">Scan order chosen by the frame counter's parity.</param>
     /// <param name="roomObjects">The room's room-object owner for special and bombable blocks.</param>
     internal static BlockMoveResult ProbeChangedPoseVertical(
-
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
@@ -734,7 +730,6 @@ public static class SamusBlockCollision
         bool scanLeftToRight,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(state);
         VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, owner, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });

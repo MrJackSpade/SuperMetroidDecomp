@@ -109,9 +109,9 @@ public static class SamusGrappleBeamDrawing
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.
         grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
-            origin.X, CoordinateAxis.Difference(origin.Y, physicalYOffset));
+            origin.X, origin.Y - physicalYOffset);
         grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(
-            flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
+            flare.X, flare.Y - graphicsYOffset);
     }
 
 

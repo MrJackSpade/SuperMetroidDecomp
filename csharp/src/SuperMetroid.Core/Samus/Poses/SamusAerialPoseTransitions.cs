@@ -38,15 +38,13 @@ internal static class SamusAerialPoseTransitions
     /// The wall-jump tables use this very same route for their diagonal-aim
     /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
-    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus, 
-
+    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         GameplayAction controllerNewInput,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
@@ -66,7 +64,6 @@ internal static class SamusAerialPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -91,7 +88,7 @@ internal static class SamusAerialPoseTransitions
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
         // branch of the common normal-jump initializer before ordinary acceleration.
-        bool beganShinespark = TryBeginShinesparkWindup(samus, 
+        bool beganShinespark = TryBeginShinesparkWindup(samus,
             targetPose, SamusPoseMetadata.IsWallJumpPose(sourcePose)
                 ? SamusMovementType.WallJumping : SamusMovementType.SpinJumping);
         if (!beganShinespark)
@@ -127,14 +124,12 @@ internal static class SamusAerialPoseTransitions
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
-    public static bool TryApplyAerialTurn(SamusState samus, 
-
+    public static bool TryApplyAerialTurn(SamusState samus,
         RoomLevelData level,
         SamusPoseId genericTargetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
@@ -191,7 +186,6 @@ internal static class SamusAerialPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             selectedTurnPose,
             frameCounter,
@@ -272,7 +266,6 @@ internal static class SamusAerialPoseTransitions
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         // Only the spin-jumping mover reaches the wall-jump check. The cached movement type, not the
         // live pose, gates it: a drained pose stored without the pose initializer keeps
         // spinning and still wall-jumps.
@@ -381,7 +374,6 @@ internal static class SamusAerialPoseTransitions
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool supportedTarget = targetPose is
@@ -408,7 +400,6 @@ internal static class SamusAerialPoseTransitions
         // only its output domain is restricted, not the source to connected-grapple art.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -744,7 +735,7 @@ internal static class SamusAerialPoseTransitions
     /// aimed-up or diagonally-up normal jump.
     /// That delay is visible both to animation and to the 180-frame shade countdown.
     /// </remarks>
-    internal static bool TryBeginShinesparkWindup(SamusState samus, 
+    internal static bool TryBeginShinesparkWindup(SamusState samus,
         SamusPoseId targetPose,
         SamusMovementType previousMovementType)
     {
@@ -798,7 +789,7 @@ internal static class SamusAerialPoseTransitions
     /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
     /// interrupting any same-facing landing with a fresh Jump edge.
     /// </summary>
-    public static void ApplyOrdinaryJumpTransition(SamusState samus, 
+    public static void ApplyOrdinaryJumpTransition(SamusState samus,
         SamusPoseId targetPose,
         GameplayAction controllerNewInput = GameplayAction.None)
     {
@@ -895,7 +886,7 @@ internal static class SamusAerialPoseTransitions
     /// speed selects deceleration and a fresh Shoot press arms the transition shot.
     /// </summary>
     /// <returns>True when the initializer began a shinespark windup instead.</returns>
-    internal static bool InitializeInstalledNormalJumpPose(SamusState samus, 
+    internal static bool InitializeInstalledNormalJumpPose(SamusState samus,
         SamusMovementType previousMovementType,
         GameplayAction controllerNewInput)
     {
@@ -978,14 +969,12 @@ internal static class SamusAerialPoseTransitions
     /// directions are blocked, the crouch selector selects ordinary crouch; if a compensating shift's
     /// second probe is blocked, the collision exit retains the source. Neither case installs the target.
     /// </remarks>
-    public static bool TryApplyCompactAerialTransition(SamusState samus, 
-
+    public static bool TryApplyCompactAerialTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool rightJump = SamusPoseMetadata.IsRightFacingNormalJumpPose(samus.Pose) &&
@@ -1007,7 +996,6 @@ internal static class SamusAerialPoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
                 level,
                 targetPose,
                 frameCounter,

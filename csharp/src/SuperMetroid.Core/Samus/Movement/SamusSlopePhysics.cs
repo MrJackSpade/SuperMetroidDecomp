@@ -26,7 +26,6 @@ public static class SamusSlopePhysics
         SignedSixteenSixteen displacement,
         UnsignedSixteenSixteen verticalSpeed)
     {
-
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the game's complete early-return condition, not an invented policy choice.
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)

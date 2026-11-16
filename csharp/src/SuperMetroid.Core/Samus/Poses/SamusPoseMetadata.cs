@@ -268,7 +268,6 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
-
         bool leftFamily = IsLeftFacingDraygonGrabbedPose(samus.Pose) &&
             IsLeftFacingDraygonGrabbedPose(targetPose);
         bool rightFamily = IsRightFacingDraygonGrabbedPose(samus.Pose) &&
@@ -623,15 +622,13 @@ internal static class SamusPoseMetadata
 
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
     /// <remarks>The newly pressed actions feed the transition-shot test.</remarks>
-    public static bool TrySetupPublishedBombJump(SamusState samus, 
-
+    public static bool TrySetupPublishedBombJump(SamusState samus,
         RoomLevelData level,
         bool timeIsFrozen,
         int frameCounter,
         GameplayAction controllerNewInput,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
@@ -668,7 +665,6 @@ internal static class SamusPoseMetadata
                 // observable for a crouching bomb jump: radius 16 grows to 21 and may be
                 // rejected by a low ceiling instead of clipping Samus into terrain.
                 LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
                     level,
                     targetPose,
                     frameCounter,

@@ -36,13 +36,11 @@ public static class SamusBombJumpMovement
 
     /// <summary>Runs one bomb-jump frame.</summary>
     internal static BombJumpMovementResult Step(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         Ensure.NotNull(roomObjects);
@@ -94,7 +92,6 @@ public static class SamusBombJumpMovement
             return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
-
             level,
             samus,
             frameCounter,
@@ -112,7 +109,6 @@ public static class SamusBombJumpMovement
 
     /// <summary>Applies bomb-jump gravity and vertical block collision, reporting the apex's downward branch.</summary>
     private static BombJumpRise MoveUpWithGravity(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,

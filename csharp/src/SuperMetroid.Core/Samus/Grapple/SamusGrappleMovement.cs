@@ -68,8 +68,9 @@ public static class SamusGrappleMovement
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
-        grapple.OriginOffset = new(origin.X, CoordinateAxis.Difference(origin.Y, physicalYOffset));
-        grapple.FlareOffset = new(flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
+        // The hand and flare offsets and the pose's offsets are a few pixels each, so their differences are ordinary.
+        grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);
+        grapple.FlareOffset = new(flare.X, flare.Y - graphicsYOffset);
 
         // The endpoint offset is a signed 1/65536-pixel displacement from Samus plus the firing
         // origin. Firing clears both axes, fraction and whole alike.
@@ -114,14 +115,12 @@ public static class SamusGrappleMovement
     /// enemy pass which precedes the grapple beam's block collision.
     /// </summary>
     internal static GrappleMovementResult StepFiring(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
         ISamusRoomObjects roomObjects,
         Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
@@ -167,7 +166,6 @@ public static class SamusGrappleMovement
 
             case GrappleEnemyReaction.HurtSamus:
                 ApplyGrappleEnemyDamage(
-
                     samus,
                     controllerInput,
                     enemy.EnemyDamage);
@@ -252,7 +250,6 @@ public static class SamusGrappleMovement
     /// </summary>
     internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
     {
-
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
@@ -416,7 +413,6 @@ public static class SamusGrappleMovement
     /// last <see cref="GrappleBeamDefinitions.Contact"/>'s updates.
     /// </summary>
     private static void ApplyGrappleEnemyDamage(
-
         SamusState samus,
         GameplayAction controllerInput,
         int damageBeforeSuit)
@@ -464,7 +460,6 @@ public static class SamusGrappleMovement
 
     /// <summary>During the release window, accepts a fresh Jump only when a 16-pixel probe finds a wall or solid enemy.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
-
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction newlyPressedInput)
@@ -491,7 +486,6 @@ public static class SamusGrappleMovement
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
-
             terrain.Level,
             samus.Kinematics, samus,
             signedProbe,

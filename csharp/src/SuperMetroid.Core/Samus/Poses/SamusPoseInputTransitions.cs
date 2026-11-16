@@ -33,7 +33,6 @@ public static class SamusPoseInputTransitions
         GameplayAction heldActions,
         GameplayAction newlyPressedActions)
     {
-
         // Branches directly to lookup-failure handling when no action is held,
         // before it reads this table at all.
         if (heldActions == GameplayAction.None)

@@ -158,15 +158,13 @@ internal static class SamusGroundedPoseTransitions
     /// the prospective pose's shot direction when a block stops it. The retained move is the
     /// retail arm-pump bug.
     /// </remarks>
-    public static SamusPoseId? CheckProspectiveRunningPoseForWall(SamusState samus, 
-
+    public static SamusPoseId? CheckProspectiveRunningPoseForWall(SamusState samus,
         RoomLevelData level,
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
         out BlockMoveResult? onePixelProbe,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         onePixelProbe = null;
 
@@ -261,11 +259,10 @@ internal static class SamusGroundedPoseTransitions
     /// turn art. Once active, aim changes and the direct return to forward running are
     /// ordinary radius-21 pose installations with no invented velocity adjustment.
     /// </remarks>
-    public static void ApplyMoonwalkPoseChange(SamusState samus, 
+    public static void ApplyMoonwalkPoseChange(SamusState samus,
         SamusPoseId targetPose,
         bool moonwalkEnabled)
     {
-
         bool sourceStandingRight = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) ||
             SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) ||
             SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose);
@@ -287,7 +284,7 @@ internal static class SamusGroundedPoseTransitions
             // substitutes the same ordinary standing turn used from normal standing.
             // Tests the candidate pose's X direction. The right-facing moonwalk poses store leftward travel
             // and become the right-to-left turn; the left-facing ones store rightward travel and become left-to-right.
-            ApplyGroundedTurn(samus, 
+            ApplyGroundedTurn(samus,
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
         }
@@ -321,7 +318,6 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void ApplyMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
     {
-
         SamusPoseId expectedTarget = SamusPoseMetadata.ReadAimDirection(samus) switch
         {
             SamusProjectileDirection.UpRight => SamusPoseId.MoonwalkTurnJumpAimUpLeftPose,
@@ -411,7 +407,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>Applies the ordinary grounded start-moving-left transition from left-facing standing.</summary>
     public static void ApplyStandingLeftToRunningLeft(SamusState samus) =>
-        ApplySimpleGroundedPoseChange(samus, 
+        ApplySimpleGroundedPoseChange(samus,
             SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MovingLeftNormalPose,
             "Standing-left to running-left");
@@ -420,7 +416,7 @@ internal static class SamusGroundedPoseTransitions
     /// <summary>Applies the no-button grounded fallback from moving left to standing left.</summary>
     public static void ApplyRunningLeftToStandingLeft(SamusState samus)
     {
-        ApplySimpleGroundedPoseChange(samus, 
+        ApplySimpleGroundedPoseChange(samus,
             SamusPoseId.MovingLeftNormalPose,
             SamusPoseId.FacingLeftNormalPose,
             "Running-left to standing-left");
@@ -460,7 +456,6 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, GameplayAction controllerInput = GameplayAction.None)
     {
-
         // Gives the two front-view poses a deliberately unusual route.
         // Their pose-X direction is zero, so they cannot honestly be classified as either
         // a right-facing or left-facing source. The game instead skips the shot-direction
@@ -601,13 +596,13 @@ internal static class SamusGroundedPoseTransitions
     /// Runs the pose update's shared expansion check before the interrupted hurt
     /// pose is installed. Crouch-to-hurt must keep the larger body above its floor.
     /// </summary>
-    internal static bool TryResolveKnockbackPoseCollision(SamusState samus, 
-RoomLevelData level, SamusPoseId targetPose,
+    internal static bool TryResolveKnockbackPoseCollision(SamusState samus,
+        RoomLevelData level, SamusPoseId targetPose,
         int frameCounter, ISamusRoomObjects roomObjects)
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome outcome = samus.ResolveLargerPoseCollision(
-level, targetPose, frameCounter, roomObjects, out int adjustment);
+            level, targetPose, frameCounter, roomObjects, out int adjustment);
         if (outcome != LargerPoseCollisionOutcome.Allowed)
         {
             if (outcome == LargerPoseCollisionOutcome.CrouchFallback)
@@ -623,7 +618,7 @@ level, targetPose, frameCounter, roomObjects, out int adjustment);
     /// Installs one already-validated grounded pose and runs the common pose initializer's
     /// metadata/radius work, initializing frame zero only for a changed pose.
     /// </summary>
-    internal static void ApplySimpleGroundedPoseChange(SamusState samus, 
+    internal static void ApplySimpleGroundedPoseChange(SamusState samus,
         SamusPoseId expectedPose,
         SamusPoseId targetPose,
         string transitionName,

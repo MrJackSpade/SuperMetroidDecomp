@@ -287,7 +287,6 @@ public sealed class SamusDrainedState
         SamusState samus,
         int frameCounter)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
@@ -320,7 +319,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
+        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus,
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: SamusAnimationFrame.Start,
             timer: 16);
@@ -333,7 +332,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
+        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus,
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: SamusDrainedAnimationDefinitions.PutCrouchingFrame,
             timer: SamusDrainedAnimationDefinitions.PutCrouchingTimer);

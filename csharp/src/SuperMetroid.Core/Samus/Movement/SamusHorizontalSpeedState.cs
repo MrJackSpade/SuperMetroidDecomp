@@ -708,7 +708,6 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     internal UnsignedSixteenSixteen CalculateBaseSpeed(SamusHorizontalSpeeds entry)
     {
-
         if (AccelerationMode != SamusAccelerationMode.Accelerating)
         {
             BaseSpeed -= MultipliedDeceleration.Of(entry.Deceleration, DecelerationMultiplier);

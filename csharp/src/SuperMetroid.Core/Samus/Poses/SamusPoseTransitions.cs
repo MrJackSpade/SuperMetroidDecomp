@@ -15,11 +15,10 @@ internal static class SamusPoseTransitions
     /// grounded movement probe finds no floor. Starting the fall clears vertical
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
-    public static void ApplyWalkedOffFloorTransition(SamusState samus, 
-RoomLevelData level, SamusPoseId targetPose,
+    public static void ApplyWalkedOffFloorTransition(SamusState samus,
+        RoomLevelData level, SamusPoseId targetPose,
         int frameCounter, ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         bool supportedSource =
             SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) ||
@@ -45,7 +44,7 @@ RoomLevelData level, SamusPoseId targetPose,
         // floor after a near-ground unmorph. Rejection also skips starting the fall.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
+            level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -95,7 +94,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
     /// point remains for cinematic movement and focused collision-free fixtures only.
     /// </remarks>
-    public static void ApplyAerialLanding(SamusState samus, 
+    public static void ApplyAerialLanding(SamusState samus,
         bool wasSpinning,
         GameplayAction controllerInput = GameplayAction.None)
     {
@@ -123,22 +122,19 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// True when the selected landing pose fit. False means the game's collision retained the
     /// source pose or selected its stable-crouch fallback; the game then does not settle Samus on the landing.
     /// </returns>
-    public static bool TryApplyAerialLanding(SamusState samus, 
-
+    public static bool TryApplyAerialLanding(SamusState samus,
         RoomLevelData level,
         bool wasSpinning,
         GameplayAction controllerInput,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(samus, wasSpinning, controllerInput);
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -185,7 +181,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     }
 
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
-    private static SamusPoseId SelectAerialLandingPose(SamusState samus, 
+    private static SamusPoseId SelectAerialLandingPose(SamusState samus,
         bool wasSpinning,
         GameplayAction controllerInput)
     {
@@ -251,13 +247,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// Both select the ordinary normal landing; the expansion from radius ten to 21 still runs the full
     /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
-    public static bool TryApplyCompactAerialLanding(SamusState samus, 
-
+    public static bool TryApplyCompactAerialLanding(SamusState samus,
         RoomLevelData level,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         if (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose))
             throw new InvalidOperationException($"Compact landing requires a compact straight-down jumping or falling pose, not {samus.Pose}.");
@@ -275,7 +269,6 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 $"Compact pose {samus.Pose} has unexpected aim {SamusPoseMetadata.ReadAim(samus)}."),
         };
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -432,7 +425,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // selected the new normal-jump pose but before it initializes that pose's frame.
         // A live stored shine replaces the target with the shinespark windup, so never briefly seed
         // neutral, aimed-up or diagonally-up normal-jump animation state in this branch.
-        bool beganShinespark = SamusAerialPoseTransitions.TryBeginShinesparkWindup(samus, 
+        bool beganShinespark = SamusAerialPoseTransitions.TryBeginShinesparkWindup(samus,
             targetPose,
             previousMovementType);
         if (!beganShinespark)

@@ -63,7 +63,6 @@ public sealed class SamusCeresRidleyEjectionState
         int cameraX,
         int frameCounter)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!IsActive)

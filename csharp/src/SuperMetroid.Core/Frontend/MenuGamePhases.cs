@@ -80,7 +80,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
             session.RaiseSavesChanged();
-            // Existing slots restore the same seven controller bindings and two
+            // Existing saves restore the same seven controller bindings and two
             // special settings that saving copied from live state. A new
             // slot begins with a new save file's defaults.
             SuperMetroidSaveSlot? optionSlot = session.LoadingExistingSave
@@ -189,7 +189,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(gameOver);
         if (gameOver.CeresArrivalRequested)
         {
-            // Starting a game publishes the Ceres state and reloads the slot in the same update;
+            // Starting a game publishes the Ceres state and reloads the save slot in the same update;
             // the Ceres loader runs on the next update. Gameplay owners are
             // rebuilt from the save file, so only the live random number survives.
             session.Close<GameOverMenuState>();

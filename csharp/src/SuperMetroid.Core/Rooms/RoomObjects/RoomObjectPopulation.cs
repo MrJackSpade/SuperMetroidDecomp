@@ -11,7 +11,7 @@ public sealed class RoomObjectPopulation
     /// <summary>Owned placements kept in the order the room-object allocator consumes them.</summary>
     private readonly RoomObjectPlacement[] placements;
 
-    /// <summary>The population's name, or a fixture's description.</summary>
+    /// <summary>The population's name.</summary>
     public string Name { get; }
     /// <summary>Validated placements in allocation order; scroll changes are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;

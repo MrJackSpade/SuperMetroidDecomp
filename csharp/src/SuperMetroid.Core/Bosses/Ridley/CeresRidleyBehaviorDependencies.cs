@@ -25,7 +25,7 @@ internal sealed record CeresRidleyBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Place table.</summary>
+    /// <summary>The room's enemy places.</summary>
     public required EnemyPlaces Places { get; init; }
 
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>

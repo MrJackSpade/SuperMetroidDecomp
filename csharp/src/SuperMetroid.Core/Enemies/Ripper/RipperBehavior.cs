@@ -193,7 +193,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
+    /// <summary>Preserves the direction-specific frozen frame after common bomb reactions.</summary>
     internal static EnemyBombReaction RipperBombReaction { get; } = new()
     {
         AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),

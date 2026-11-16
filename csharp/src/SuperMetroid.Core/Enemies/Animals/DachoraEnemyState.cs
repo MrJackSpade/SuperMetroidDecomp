@@ -80,7 +80,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>
     /// Counts one update off the glow cycle and reports whether its updates reached zero; counted from a cleared cycle, it
-    /// borrows from the frame (<see cref="DachoraGlowCycle"/>).
+    /// takes one off the frame as well (<see cref="DachoraGlowCycle"/>).
     /// </summary>
     internal bool TickGlowCycle()
     {

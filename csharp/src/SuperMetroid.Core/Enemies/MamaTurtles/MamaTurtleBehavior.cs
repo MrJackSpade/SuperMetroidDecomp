@@ -133,8 +133,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The population already supplies the animating property, but the initializer explicitly sets it again.
-        // Spell that write out because animation processing is essential to leaving shell.
+        // The population already supplies the animating property, and the initializer sets it again; leaving the
+        // shell needs the animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
@@ -336,7 +336,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Hovering;
     }
 
-    /// <summary>Runs accelerating horizontal hover and its original wall bug.</summary>
+    /// <summary>Runs the accelerating horizontal hover, which a wall reverses with a quake and a sound.</summary>
     private void RunMamaTurtleHovering(
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,

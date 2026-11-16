@@ -1220,7 +1220,7 @@ internal sealed class SamusFramePhases
         }
 
         // The posture-transition movement type's input step is empty. Transition
-        // poses can still have table entries, but reading them here prematurely
+        // poses can still have input locks, but reading them here prematurely
         // interrupts crouch/morph animations before their animation cue wins.
         frame.SamplePoseInputLocks(samus,
             ((samus.InputSnapshot.ShinesparkPoseInputLocked || samus.InputSnapshot.CrystalFlashPoseInputLocked) && !samus.InputSnapshot.AutoJumpInputPending) ||

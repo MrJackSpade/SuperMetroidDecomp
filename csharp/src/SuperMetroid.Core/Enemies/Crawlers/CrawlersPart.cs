@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>Which Crawlers occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which Crawlers occupant an enemy place holds, one per definition the species installs.</summary>
 internal enum CrawlersPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.Sciser"/> occupant.</summary>

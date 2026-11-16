@@ -278,7 +278,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The reset snaps only whole coordinates. Both subpositions and
-        // the last animation map remain live while the actor waits underground.
+        // the last animation frame remain live while the actor waits underground.
         place.Position = place.Position.WithWhole(state.SpawnPosition);
         state.Action = AlcoonAction.WaitingForSamus;
     }

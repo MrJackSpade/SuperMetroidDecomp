@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Progression;
 /// <summary>
 /// What a Samus projectile is: its family, the beams it carries, whether it was charged and, for an echo, which echo.
 /// Everything that reacts to a projectile (enemies, blocks, doors, bosses) reads this. The default value is
-/// <see cref="None"/>: an empty slot, and what the grapple beam presents to the blocks it touches.
+/// <see cref="None"/>: no projectile, and what the grapple beam presents to the blocks it touches.
 /// </summary>
 public readonly record struct SamusProjectileType
 {
-    /// <summary>No projectile: an empty slot, or the grapple beam's touch.</summary>
+    /// <summary>No projectile: an empty place in Samus's projectiles, or the grapple beam's touch.</summary>
     public static SamusProjectileType None => default;
 
     /// <summary>Whether this names a projectile; false for <see cref="None"/>.</summary>

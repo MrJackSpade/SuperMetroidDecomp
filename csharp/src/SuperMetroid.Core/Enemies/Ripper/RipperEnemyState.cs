@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <summary>
 /// The state of one Ripper, grapple Ripper or jet Ripper: its flying animation, its patrol velocity, its linear speed row,
 /// and grapple Ripper's two patrol bounds. All are the enemy's own: setup starts the animation for every variant and writes
-/// the bounds for the grapple Ripper, the only variant that reads them, so nothing a previous occupant of the slot left
+/// the bounds for the grapple Ripper, the only variant that reads them, so nothing a previous occupant of the place left
 /// reaches a new one.
 /// </summary>
 public sealed class RipperEnemyState

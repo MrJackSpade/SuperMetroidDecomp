@@ -22,7 +22,7 @@ internal sealed record ZebetiteBehaviorDependencies
     /// <summary>Earthquake.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Place table.</summary>
+    /// <summary>The room's enemy places.</summary>
     public required EnemyPlaces Places { get; init; }
 
     /// <summary>Samus's passage through a door, during which a newly initialized Zebetite stays inert.</summary>

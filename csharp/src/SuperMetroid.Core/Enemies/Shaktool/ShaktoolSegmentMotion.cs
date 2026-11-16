@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
 /// How a Shaktool segment moves itself before its animation runs.
-/// Its values are arbitrary; verification's view relates each member to its source (#1412).
+/// Its values are arbitrary.
 /// </summary>
 public enum ShaktoolSegmentMotion
 {

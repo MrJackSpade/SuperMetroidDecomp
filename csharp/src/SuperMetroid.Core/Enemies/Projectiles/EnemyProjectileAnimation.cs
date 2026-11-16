@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// A projectile family's typed animation (#641).
-/// The slot keeps the game's timer gate, so each frame lasts exactly as long as the frame did.
+/// The projectile's frame hold times each frame, so each frame lasts exactly its duration.
 /// </summary>
 internal abstract class EnemyProjectileAnimation
 {
@@ -45,7 +45,7 @@ internal abstract class EnemyProjectileAnimation
     }
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
-    /// <param name="context">The slot the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
+    /// <param name="context">The projectile the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
     /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
     private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles);
 }

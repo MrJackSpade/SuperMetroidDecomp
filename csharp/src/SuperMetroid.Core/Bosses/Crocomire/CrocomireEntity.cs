@@ -40,7 +40,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemyPlace 
             case CrocomirePart.Crocomire:
                 species.RunCrocomireMainAi(Place, frame);
                 break;
-            // The tongue's main AI is an empty step; the tongue follows the body through its animation and extended map.
+            // The tongue's main AI is an empty step; the tongue follows the body through its animation and frames.
             case CrocomirePart.Tongue:
                 break;
             default:

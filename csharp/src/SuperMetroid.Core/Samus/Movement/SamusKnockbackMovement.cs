@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// This code follows the game's knockback check, knockback movement, jump launch and knockback initializer.
 /// Enemy damage calculation is deliberately not invented here: the hit supplies only the
 /// collision result that enemy collision would have published, namely whether the source lies to
-/// Samus's left or right. Every pose, speed-table entry, timer value, and subsequent input
+/// Samus's left or right. Every pose, speed, timer value, and subsequent input
 /// transition is then taken from the game's definitions.
 /// </remarks>
 public static class SamusKnockbackMovement

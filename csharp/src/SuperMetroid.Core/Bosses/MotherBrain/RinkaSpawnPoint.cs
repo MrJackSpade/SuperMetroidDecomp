@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// The eleven places in Mother Brain's room where her special Rinkas appear, which those Rinkas share: each place is
 /// held by at most one Rinka at a time (#1699). The values are arbitrary; <see cref="RinkaSpawnPointDefinitions"/>
-/// places each point and orders them, and verification's catalog relates each to its source.
+/// places each point and orders them.
 /// </summary>
 public enum RinkaSpawnPoint
 {

@@ -18,7 +18,7 @@ internal static class RidleyCollisionDefinitions
     /// <summary>Every body rectangle's shot reaction: Ridley's own shot reaction.</summary>
     internal static readonly EnemyReaction BodyShotReaction = RidleyReactions.Shot;
 
-    /// <summary>Extended body maps for both Ridley encounters, selected by facing, mouth, and leg pose.</summary>
+    /// <summary>Ridley's body frames for both encounters, selected by facing, mouth, and leg pose.</summary>
     internal enum BodyFrame
     {
         /// <summary>Ridley facing left frame.</summary>

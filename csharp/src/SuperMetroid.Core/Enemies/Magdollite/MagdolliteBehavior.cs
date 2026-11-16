@@ -531,7 +531,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
     }
 
-    /// <summary>Validates the retail-ordered head, body and overlay any one component found when it was placed.</summary>
+    /// <summary>Validates the head, body and overlay, listed in that order, that any one component found when it was placed.</summary>
     private MagdolliteComposite RequireMagdolliteComposite(RoomEnemyPlace member)
     {
         (RoomEnemyPlace head, RoomEnemyPlace body, RoomEnemyPlace overlay) = _partners.Of(member).Composite;
@@ -540,7 +540,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             overlay.DefinitionId != EnemyDefinitionId.Magdollite || overlay.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.TrackingOverlay)
         {
             throw new InvalidDataException(
-                $"Magdollite place {member.Ordinal} is not inside a retail-ordered head, body and overlay composite.");
+                $"Magdollite place {member.Ordinal} is not inside a head, body and overlay composite listed in that order.");
         }
         return new(head, body, overlay);
     }

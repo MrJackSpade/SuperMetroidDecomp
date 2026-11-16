@@ -81,8 +81,8 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Creates the game-state loop with host-supplied timing and display policies, which verification hosts use to
-    /// replay recorded evidence or to retain the display while they inspect game state.
+    /// Creates the game-state loop with host-supplied timing and display policies: a host may supply its own timing
+    /// or keep the display it shows while it reads the game's state.
     /// </summary>
     /// <remarks>
     /// Frontend screens are always rendered because their state machines own their own compositors; only
@@ -90,7 +90,7 @@ public sealed class SuperMetroidGame
     /// </remarks>
     /// <param name="saves">The saves the session owns.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
-    /// <param name="hostServices">The compatibility services and display policy; replay verification supplies recorded evidence here.</param>
+    /// <param name="hostServices">The compatibility services and display policy.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,

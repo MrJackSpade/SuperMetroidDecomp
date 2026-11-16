@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Which Kraid occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which Kraid occupant an enemy place holds, one per definition the species installs.</summary>
 internal enum KraidPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.Kraid"/> occupant.</summary>

@@ -14,6 +14,6 @@ public enum RioAction
     Diving,
     /// <summary>Follows the upward bounce with signed 1/256-pixel acceleration; horizontal collision reverses X, and vertical collision starts the cooldown animation.</summary>
     BouncingBackToPerch,
-    /// <summary>Uses angle-table samples as 1/256-pixel velocities while above Samus, then restores saved horizontal speed and begins ascent at Y velocity -1.</summary>
+    /// <summary>Moves along its bearing toward Samus in 1/256-pixel velocities while above Samus, then restores saved horizontal speed and begins ascent at Y velocity -1.</summary>
     HoveringTowardSamus,
 }

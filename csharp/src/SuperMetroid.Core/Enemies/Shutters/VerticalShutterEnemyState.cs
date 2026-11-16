@@ -23,7 +23,7 @@ public sealed class VerticalShutterEnemyState
     /// it passes zero.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
-    /// <summary>Downward signed 1/65536-pixel velocity in pixels per update, from the common linear-speed table.</summary>
+    /// <summary>Downward signed 1/65536-pixel velocity in pixels per update, one of the common linear speeds.</summary>
     public SignedSixteenSixteen DownVelocity { get; internal set; }
 
     /// <summary>

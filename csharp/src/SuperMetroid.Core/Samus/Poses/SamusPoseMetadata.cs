@@ -209,7 +209,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// True for all five live running, right-moving pose-table entries. The gun-extended running pose
+    /// True for all five live running, right-moving poses. The gun-extended running pose
     /// belongs here even though its name describes firing: the game moves its body
     /// through exactly the same running physics as the unaimed and aimed running poses.
     /// </summary>
@@ -219,7 +219,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.RunningAimDiagonalUpRightPose or
         SamusPoseId.RunningAimDiagonalDownRightPose;
 
-    /// <summary>True for all five live left-moving <see cref="SamusMovementType.Running"/> pose-table entries.</summary>
+    /// <summary>True for all five live left-moving <see cref="SamusMovementType.Running"/> poses.</summary>
     public static bool IsLeftFacingRunningPose(SamusPoseId pose) => IsRightFacingRunningPose(SamusPoseMirror.Of(pose));
 
     /// <summary>

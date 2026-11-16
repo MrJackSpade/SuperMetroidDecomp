@@ -9,7 +9,7 @@ internal sealed class SamusScrollCap
     /// <summary>
     /// The camera's frame-start Samus checkpoint for this enemy frame. The live previous-position
     /// position is this point plus the frame's writes so far. Null when no camera
-    /// owns them, as in standalone enemy fixtures.
+    /// owns them.
     /// </summary>
     private FixedPosition<RoomPixels>? _samusPreviousPositionCheckpoint;
 

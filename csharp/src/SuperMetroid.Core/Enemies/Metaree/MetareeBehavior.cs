@@ -96,7 +96,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The proximity test computes a wrapped signed difference, takes its signed
         // absolute value, and compares it as a distance that is never negative. It notably does *not* check that
-        // Samus is below the actor; preserving that retail bug matters to the velocity math.
+        // Samus is below the actor, and the velocity math depends on that.
         int horizontalDistance = Math.Abs(
             CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole));
         if (horizontalDistance >= MetareeHorizontalActivationDistance)

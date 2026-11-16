@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public enum EnemyGrappleResponse
 {
-    /// <summary>No definition: an empty enemy slot's default.</summary>
+    /// <summary>No definition: an empty enemy place's default.</summary>
     None,
 
     /// <summary>The grapple passes through without interacting.</summary>

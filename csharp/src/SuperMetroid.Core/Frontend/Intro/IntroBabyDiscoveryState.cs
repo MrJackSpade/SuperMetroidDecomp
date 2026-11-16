@@ -152,7 +152,7 @@ internal sealed class IntroBabyDiscoveryState
         }
         egg.Step(HandleEggCue);
 
-        // The baby slot follows the egg slot in the descending actor traversal, so
+        // The baby follows the egg in the descending actor order, so
         // it observes the egg's freshly advanced animation position in this same frame.
         StepConfusedBaby(crossfadeFinishing);
         confusedBaby.Step();

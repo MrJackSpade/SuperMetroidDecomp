@@ -10,7 +10,7 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Body enemy-slot animation state. The fight advances its animation stage
+    /// The body enemy's animation state. The fight advances its animation stage
     /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the AI-then-animation order.
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
@@ -21,7 +21,7 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public MotherBrainBodyPhase Phase { get; internal set; } = MotherBrainBodyPhase.SecondPhaseRainbowStartCharging;
 
-    /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
+    /// <summary>Mother Brain's brain's room position used by the final beam's aim vector.</summary>
     public Position16<RoomPixels> BrainPosition { get; set; }
 
     /// <summary>Current brain animation installed through the brain-animation request, or null before the first request.</summary>
@@ -89,7 +89,7 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public MotherBrainPhase2CorpseState Phase2CorpseState { get; internal set; }
 
-    /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
+    /// <summary>The brain's health, rewritten to 36,000 when corpse state one is published.</summary>
     public int BrainHealth { get; internal set; } = 3000;
 
     /// <summary>

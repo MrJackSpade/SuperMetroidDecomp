@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="GameState">Front-end game state reported with this emitted frame.</param>
 /// <param name="Phase">Human-readable scene or runtime phase label for host diagnostics.</param>
-/// <param name="FrameNumber">The number of updates the game has run, not elapsed time or a recorded movie's video-frame number.</param>
+/// <param name="FrameNumber">The number of updates the game has run, not elapsed time.</param>
 /// <param name="Audio">
 /// The update's ordered semantic audio events after sound acceptance. The session has already rendered them into the
 /// update's PCM (<see cref="SuperMetroidGame.CopyAudioFrame"/>); a host that plays audio itself plays these instead.

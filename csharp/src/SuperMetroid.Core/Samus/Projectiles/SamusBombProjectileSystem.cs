@@ -709,7 +709,7 @@ public sealed class SamusBombProjectileSystem
 
         int previousX = bomb.Position.X.Whole;
         int previousXSub = bomb.Position.X.Fraction;
-        // The velocity moves the bomb with the fraction carrying into, or borrowing from, the whole pixels.
+        // The velocity moves the bomb, its fraction passing into the whole pixels in either direction.
         bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontalVelocity);
         if (!BombSpreadCollides(level, bomb))
             return;

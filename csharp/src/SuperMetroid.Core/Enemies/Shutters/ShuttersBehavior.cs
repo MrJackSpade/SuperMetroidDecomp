@@ -210,8 +210,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The upward growth step: the exact signed 1/65536-pixel negation of the positive growth speed, borrowing one
-    /// whole pixel from the negated whole pixels whenever the fraction is nonzero.
+    /// The upward growth step: the exact signed 1/65536-pixel negation of the positive growth speed, one whole pixel
+    /// further up than the negated whole pixels whenever the fraction is nonzero.
     /// </summary>
     internal static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
         SignedSixteenSixteen.Zero - growthSpeed;

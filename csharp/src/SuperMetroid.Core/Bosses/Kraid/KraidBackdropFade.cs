@@ -6,6 +6,6 @@ internal enum KraidBackdropFade
     /// <summary>The backdrop fades to black.</summary>
     ToBlack,
 
-    /// <summary>The backdrop fades back to the room's colours.</summary>
-    ToRoomColors,
+    /// <summary>The backdrop fades into Kraid's colours: his growth's fade, and the fade back once his body has sunk.</summary>
+    ToKraidColours,
 }

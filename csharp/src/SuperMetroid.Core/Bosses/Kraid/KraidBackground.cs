@@ -36,7 +36,8 @@ internal sealed class KraidBackground
     /// <summary>
     /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour
     /// change (#1512): steps zero through thirteen move the backdrop, the step after completes the fade and resets the
-    /// shared counter. The backdrop's colours are the import's shade of each step.
+    /// shared counter. When the fade completes is what gameplay sees: his growth and death wait on it, and a door's fade
+    /// sharing the counter brings it sooner. The backdrop shows a typed fade of its colours (#2215).
     /// </summary>
     /// <returns>Whether the fade completed on this call.</returns>
     internal bool AdvanceKraidRoomBackgroundFade(

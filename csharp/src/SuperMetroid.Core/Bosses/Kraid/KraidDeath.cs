@@ -120,7 +120,7 @@ internal sealed class KraidDeath
                     state.BodyState.Phase = KraidPhase.DeathFadeInBackground;
                 return;
             case KraidPhase.DeathFadeInBackground:
-                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
+                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
                     return;
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
                 if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))

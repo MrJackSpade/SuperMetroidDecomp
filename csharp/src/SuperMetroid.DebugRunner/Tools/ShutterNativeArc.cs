@@ -149,9 +149,9 @@ internal static class ShutterNativeArc
         Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.UnsignedWholePixels);
         Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.UnsignedWholePixels);
         Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
-        Word(0x7812, ShutterArcNativeWords.Rest(shutter.MovedDownRest)); Word(0x7820, shutter.LowerEndpoint.Y);
+        Word(0x7812, ShutterArcNativeWords.Rest(shutter.MovedDownRest)); Word(0x7820, shutter.LowerEndpointY);
         Word(0x8000, shutter.ReactionDirection == ShutterHeading.LeftOrUp ? 0 : 1);
-        Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, ShutterArcNativeWords.Rest(shutter.MovedUpRest));
+        Word(0x781E, shutter.UpperEndpointY); Word(0x7810, ShutterArcNativeWords.Rest(shutter.MovedUpRest));
         File.WriteAllBytes(path, ram);
 
         void Word(int address, int value) => BinaryPrimitives.WriteUInt16LittleEndian(ram.AsSpan(address, 2), unchecked((ushort)value));

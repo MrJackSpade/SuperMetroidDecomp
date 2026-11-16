@@ -203,7 +203,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.GrowthLevel >= 4)
             return;
 
-        state.PreviousPosition = place.Position.Whole;
+        state.PreviousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
         int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterDefinitions.SectionLength);
         if (CoordinateAxis.Precedes(targetY, place.Position.Y.Whole))
@@ -232,7 +232,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
-        int wholeDelta = (place.Position.Whole - state.PreviousPosition).Y;
+        int wholeDelta = CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY);
         if (wholeDelta < 0)
         {
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, wholeDelta);
@@ -448,14 +448,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WaitTime = settings.WaitTime;
         state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
 
-        Position16<RoomPixels> spawn = place.Position.Whole;
-        var travel = new Offset16<RoomPixels>(0, state.TravelDistance);
-        state.UpperEndpoint = spawn;
-        state.LowerEndpoint = spawn + travel;
+        int spawnY = place.Position.Y.Whole;
+        state.UpperEndpointY = spawnY;
+        state.LowerEndpointY = CoordinateAxis.Wrap(spawnY + state.TravelDistance);
         if (state.PrimaryDirection == ShutterHeading.LeftOrUp)
         {
-            state.LowerEndpoint = spawn;
-            state.UpperEndpoint = spawn - travel;
+            state.LowerEndpointY = spawnY;
+            state.UpperEndpointY = CoordinateAxis.Wrap(spawnY - state.TravelDistance);
         }
 
         state.MovingSamus = false;
@@ -566,14 +565,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         VerticalDirection direction)
     {
-        state.PreviousPosition = place.Position.Whole;
+        state.PreviousY = place.Position.Y.Whole;
         state.MovingSamus = EnemyCollision.IsSamusStandingOn(place, samus);
         place.Position = place.Position.AdvanceY(direction == VerticalDirection.Up ? state.UpVelocity : state.DownVelocity);
         CarrySamusVertically(place, state, samus);
 
         int beforeEndpoint = direction == VerticalDirection.Up
-            ? (state.UpperEndpoint - place.Position.Whole).Y
-            : -(state.LowerEndpoint - place.Position.Whole).Y;
+            ? CoordinateAxis.Difference(state.UpperEndpointY, place.Position.Y.Whole)
+            : -CoordinateAxis.Difference(state.LowerEndpointY, place.Position.Y.Whole);
         if (beforeEndpoint < 0)
             return;
         StopVerticalShutter(state, direction == VerticalDirection.Up);
@@ -588,7 +587,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.MovingSamus)
             return;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
-            (place.Position.Whole - state.PreviousPosition).Y);
+            CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY));
     }
 
     /// <summary>Enters a timed rest or permanent stop at the upper or lower endpoint.</summary>

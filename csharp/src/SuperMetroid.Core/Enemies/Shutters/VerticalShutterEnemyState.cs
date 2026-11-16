@@ -50,12 +50,15 @@ public sealed class VerticalShutterEnemyState
     public bool MovingSamus { get; internal set; }
     /// <summary>One-shot reaction latch, initially clear and set by a one-shot shutter's first reaction so later reactions cannot start it again.</summary>
     public bool ShotActivated { get; internal set; }
-    /// <summary>The shutter's whole-pixel position saved before its current move to derive the rider's wrapped vertical displacement.</summary>
-    public Position16<RoomPixels> PreviousPosition { get; internal set; }
-    /// <summary>Upper whole-pixel travel endpoint derived from spawn position and travel distance; upward motion stops upon reaching or passing its Y.</summary>
-    public Position16<RoomPixels> UpperEndpoint { get; internal set; }
-    /// <summary>Lower whole-pixel travel endpoint derived from spawn position and travel distance; downward motion stops upon reaching or passing its Y.</summary>
-    public Position16<RoomPixels> LowerEndpoint { get; internal set; }
+    /// <summary>
+    /// The shutter's whole-pixel row saved before its current move to derive the rider's wrapped vertical displacement
+    /// (#2178): a vertical shutter only moves vertically.
+    /// </summary>
+    public int PreviousY { get; internal set; }
+    /// <summary>Upper whole-pixel travel row derived from the spawn row and travel distance; upward motion stops upon reaching or passing it.</summary>
+    public int UpperEndpointY { get; internal set; }
+    /// <summary>Lower whole-pixel travel row derived from the spawn row and travel distance; downward motion stops upon reaching or passing it.</summary>
+    public int LowerEndpointY { get; internal set; }
     /// <summary>The end the next reaction heads for, initially the primary heading; it turns after each reaction.</summary>
     public ShutterHeading ReactionDirection { get; internal set; }
 }

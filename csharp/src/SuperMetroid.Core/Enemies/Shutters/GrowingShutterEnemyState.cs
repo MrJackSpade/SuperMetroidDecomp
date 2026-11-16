@@ -60,8 +60,11 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Positive 1/65536-pixel growth speed in pixels per update; upward growth applies its exact negation.</summary>
     public SignedSixteenSixteen GrowthSpeed { get; internal set; }
 
-    /// <summary>The shutter's whole-pixel position immediately before its current upward move, used to derive Samus's carry.</summary>
-    public Position16<RoomPixels> PreviousPosition { get; internal set; }
+    /// <summary>
+    /// The shutter's whole-pixel row immediately before its current upward move, used to derive Samus's carry (#2178): it
+    /// only ever moves vertically.
+    /// </summary>
+    public int PreviousY { get; internal set; }
 
     /// <summary>
     /// Places the four section origins from the shutter's spawn row <paramref name="spawnY"/>, each eight pixels further

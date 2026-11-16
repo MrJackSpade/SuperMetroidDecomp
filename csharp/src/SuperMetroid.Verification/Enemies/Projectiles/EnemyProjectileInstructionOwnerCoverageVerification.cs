@@ -65,17 +65,17 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
                 RoomEnemyProjectileKind.SporeSpawnSpawner or
                 RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
-                RoomEnemyProjectileKind.BombTorizoInitialDrool or
+                RoomEnemyProjectileKind.TorizoInitialDrool or
                 RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or
                 RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
-                RoomEnemyProjectileKind.BombTorizoDeathExplosion or
+                RoomEnemyProjectileKind.TorizoDeathExplosion or
                 RoomEnemyProjectileKind.BombTorizoStatueBreaking or
                 RoomEnemyProjectileKind.BombTorizoChozoOrb or
                 RoomEnemyProjectileKind.BombTorizoSonicBoom or
                 RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
                 RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-                RoomEnemyProjectileKind.BombTorizoRightFootDust or
-                RoomEnemyProjectileKind.BombTorizoLeftFootDust or
+                RoomEnemyProjectileKind.TorizoRightFootDust or
+                RoomEnemyProjectileKind.TorizoLeftFootDust or
                 RoomEnemyProjectileKind.GoldenTorizoEgg or
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
                 RoomEnemyProjectileKind.GoldenTorizoEyeBeam or

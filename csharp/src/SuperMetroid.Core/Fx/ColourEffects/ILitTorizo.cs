@@ -2,10 +2,10 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
 /// The Torizo whose belly a glow lights (#1700). The Torizo starts the glow as its fight starts and hands itself to it;
-/// the glow watches that Torizo (<see cref="ColourEffectCondition.EndsWhenTorizoDies"/>) and ends on the first update it
-/// reports its defeat.
+/// the glow watches that Torizo (<see cref="ColourEffectCondition.EndsWhenTorizoDies"/>), shows each of its steps on it
+/// (#2240), and ends on the first update it reports its defeat.
 /// </summary>
-public interface ILitTorizo
+public interface ILitTorizo : IGlowingEnemy
 {
     /// <summary>Whether the Torizo has no health left.</summary>
     bool IsDefeated { get; }

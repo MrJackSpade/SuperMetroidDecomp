@@ -31,22 +31,22 @@ internal enum TorizoProjectileSegment
     DroolFloorImpact,
     /// <summary>Torizo's explosive swipe: its sound and five poses, then deletion.</summary>
     ExplosiveSwipe,
-    /// <summary>The breaking statue hand's first fragment: it rests 128 updates, cracks and falls, then is deleted.</summary>
-    FirstStatueFragment,
-    /// <summary>The second fragment: it rests 120 updates, cracks and falls, then is deleted.</summary>
-    SecondStatueFragment,
-    /// <summary>The third fragment: it rests 112 updates, cracks and falls, then is deleted.</summary>
-    ThirdStatueFragment,
-    /// <summary>The fourth fragment: it rests 104 updates, cracks and falls, then is deleted.</summary>
-    FourthStatueFragment,
-    /// <summary>The fifth fragment: it rests 96 updates, cracks and falls, then is deleted.</summary>
-    FifthStatueFragment,
-    /// <summary>The sixth fragment: it rests 88 updates, cracks and falls, then is deleted.</summary>
-    SixthStatueFragment,
-    /// <summary>The seventh fragment: it rests 80 updates, cracks and falls, then is deleted.</summary>
-    SeventhStatueFragment,
-    /// <summary>The eighth fragment: it rests 72 updates, cracks and falls, then is deleted.</summary>
-    EighthStatueFragment,
+    /// <summary>The breaking statue hand's top middle piece (#2240): it rests 128 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentTopMiddle,
+    /// <summary>The top right piece: it rests 120 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentTopRight,
+    /// <summary>The middle left piece: it rests 112 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentMiddleLeft,
+    /// <summary>The centre piece: it rests 104 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentCentre,
+    /// <summary>The middle right piece: it rests 96 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentMiddleRight,
+    /// <summary>The bottom left piece: it rests 88 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentBottomLeft,
+    /// <summary>The bottom middle piece: it rests 80 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentBottomMiddle,
+    /// <summary>The bottom right piece: it rests 72 updates, cracks and falls, then is deleted.</summary>
+    StatueFragmentBottomRight,
     /// <summary>A Chozo orb flying left, for good.</summary>
     ChozoOrbMovingLeft,
     /// <summary>A Chozo orb flying right, for good.</summary>

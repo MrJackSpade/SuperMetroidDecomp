@@ -47,14 +47,11 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace plac
     public abstract EnemyReaction? SpeciesShot { get; }
 
     /// <summary>
-    /// Both Torizos' hurt behaviour; the common animation runner still advances after it, as the enemies' update does.
+    /// The Torizo's own hurt behaviour (#2240); the common animation runner still advances after it, as the enemies'
+    /// update does.
     /// </summary>
     /// <param name="frame">The enemy frame.</param>
-    public override bool RunHurt(RoomEnemyFrame frame)
-    {
-        Species.Combat.ApplyTorizoHurt(Place);
-        return true;
-    }
+    public abstract override bool RunHurt(RoomEnemyFrame frame);
 
     /// <summary>Whether the Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -70,15 +67,18 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace plac
     }
 
     /// <summary>The Torizo's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.TorizoShotReaction : base.ShotReaction;
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwnShotReaction : base.ShotReaction;
 
-    /// <summary>Runs the Torizos' own reaction to every bomb that overlaps them, before the ignoring check.</summary>
+    /// <summary>The Torizo's own shot reaction (#2240).</summary>
+    protected abstract EnemyShotReaction OwnShotReaction { get; }
+
+    /// <summary>Runs the Torizo's own reaction to every bomb that overlaps it, before the ignoring check (#2240).</summary>
     /// <param name="context">The bomb contact.</param>
-    public override bool TryReactToBomb(EnemyBombContext context)
-    {
-        Species.Combat.ReactToTorizoBomb(context);
-        return true;
-    }
+    public abstract override bool TryReactToBomb(EnemyBombContext context);
+
+    /// <summary>Shows a step of the belly glow this Torizo's fight start lit, on this Torizo (#2240).</summary>
+    /// <param name="frame">The glow's step.</param>
+    public void ShowGlow(ColourEffectFrame frame) => TorizoBehavior.ShowBellyGlow(Place, frame);
 
     /// <summary>The Torizo shot reactions both Torizos own, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>

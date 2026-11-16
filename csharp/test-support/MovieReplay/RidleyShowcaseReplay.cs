@@ -947,17 +947,17 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.BotwoonBody:
                     case RoomEnemyProjectileKind.BotwoonSpit:
                     case RoomEnemyProjectileKind.BombTorizoLowHealthDrool:
-                    case RoomEnemyProjectileKind.BombTorizoInitialDrool:
+                    case RoomEnemyProjectileKind.TorizoInitialDrool:
                     case RoomEnemyProjectileKind.BombTorizoExplosiveSwipe:
                     case RoomEnemyProjectileKind.BombTorizoLowHealthExplosion:
-                    case RoomEnemyProjectileKind.BombTorizoDeathExplosion:
+                    case RoomEnemyProjectileKind.TorizoDeathExplosion:
                     case RoomEnemyProjectileKind.BombTorizoStatueBreaking:
                     case RoomEnemyProjectileKind.BombTorizoChozoOrb:
                     case RoomEnemyProjectileKind.BombTorizoSonicBoom:
                     case RoomEnemyProjectileKind.GoldenTorizoChozoOrb:
                     case RoomEnemyProjectileKind.GoldenTorizoSonicBoom:
-                    case RoomEnemyProjectileKind.BombTorizoRightFootDust:
-                    case RoomEnemyProjectileKind.BombTorizoLeftFootDust:
+                    case RoomEnemyProjectileKind.TorizoRightFootDust:
+                    case RoomEnemyProjectileKind.TorizoLeftFootDust:
                     case RoomEnemyProjectileKind.GoldenTorizoEgg:
                     case RoomEnemyProjectileKind.GoldenTorizoSuperMissile:
                     case RoomEnemyProjectileKind.GoldenTorizoEyeBeam:

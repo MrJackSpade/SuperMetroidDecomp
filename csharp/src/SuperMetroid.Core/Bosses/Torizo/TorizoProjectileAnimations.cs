@@ -14,16 +14,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoProjectileAnimations
 {
-    /// <summary>
-    /// A statue fragment cracking off the hand: the impact sound, then its fall. It is declared before the steps that spread
-    /// it in, so static initialization builds it first.
-    /// </summary>
-    private static readonly AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] StatueFragmentCracking =
-    [
-        Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BeamImpact, Priority: SoundRequestPriority.Normal)),
-        Cue(new TorizoProjectileCue.Signal(K.StartFragmentFall)),
-    ];
-
     /// <summary>Every animation's steps.</summary>
     internal static AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments { get; } = new(
         new Dictionary<TorizoProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[]>
@@ -105,14 +95,14 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoSwipeFlareRingFading, 5),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
-        [P.FirstStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueMossClump, 128), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueMossClumpTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SecondStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight, 120), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitRightTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.ThirdStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenter, 112), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenterTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.FourthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpot, 104), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpotTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.FifthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTop, 96), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTopTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SixthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeck, 88), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeckTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.SeventhStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitBase, 80), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueRubbleLitBaseTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
-        [P.EighthStatueFragment] = [Show(EnemyProjectileFrameId.BombTorizoStatueSlab, 72), .. StatueFragmentCracking, Show(EnemyProjectileFrameId.BombTorizoStatueSlabTwin, 112), Cue(new TorizoProjectileCue.Signal(K.Delete))],
+        [P.StatueFragmentTopMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueMossClump, restUpdates: 128, EnemyProjectileFrameId.BombTorizoStatueMossClumpTwin),
+        [P.StatueFragmentTopRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight, restUpdates: 120, EnemyProjectileFrameId.BombTorizoStatueRubbleLitRightTwin),
+        [P.StatueFragmentMiddleLeft] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenter, restUpdates: 112, EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenterTwin),
+        [P.StatueFragmentCentre] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpot, restUpdates: 104, EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpotTwin),
+        [P.StatueFragmentMiddleRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTop, restUpdates: 96, EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTopTwin),
+        [P.StatueFragmentBottomLeft] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeck, restUpdates: 88, EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeckTwin),
+        [P.StatueFragmentBottomMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitBase, restUpdates: 80, EnemyProjectileFrameId.BombTorizoStatueRubbleLitBaseTwin),
+        [P.StatueFragmentBottomRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueSlab, restUpdates: 72, EnemyProjectileFrameId.BombTorizoStatueSlabTwin),
         [P.ChozoOrbMovingLeft] = [Hold(EnemyProjectileFrameId.TorizoChozoOrbFacingLeft)],
         [P.ChozoOrbMovingRight] = [Hold(EnemyProjectileFrameId.TorizoChozoOrbFacingRight)],
         [P.ChozoOrbWallImpact] =
@@ -375,14 +365,14 @@ internal static class TorizoProjectileAnimations
         [P.DroolWallImpact] = new([new(P.DroolWallImpact, 0, 2, 1)], AnimationEnd.Holds),
         [P.DroolFloorImpact] = new([new(P.DroolFloorImpact, 0, 5, 1)], AnimationEnd.Holds),
         [P.ExplosiveSwipe] = new([new(P.ExplosiveSwipe, 0, 7, 1)], AnimationEnd.Holds),
-        [P.FirstStatueFragment] = new([new(P.FirstStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.SecondStatueFragment] = new([new(P.SecondStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.ThirdStatueFragment] = new([new(P.ThirdStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.FourthStatueFragment] = new([new(P.FourthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.FifthStatueFragment] = new([new(P.FifthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.SixthStatueFragment] = new([new(P.SixthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.SeventhStatueFragment] = new([new(P.SeventhStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
-        [P.EighthStatueFragment] = new([new(P.EighthStatueFragment, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentTopMiddle] = new([new(P.StatueFragmentTopMiddle, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentTopRight] = new([new(P.StatueFragmentTopRight, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentMiddleLeft] = new([new(P.StatueFragmentMiddleLeft, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentCentre] = new([new(P.StatueFragmentCentre, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentMiddleRight] = new([new(P.StatueFragmentMiddleRight, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentBottomLeft] = new([new(P.StatueFragmentBottomLeft, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentBottomMiddle] = new([new(P.StatueFragmentBottomMiddle, 0, 5, 1)], AnimationEnd.Holds),
+        [P.StatueFragmentBottomRight] = new([new(P.StatueFragmentBottomRight, 0, 5, 1)], AnimationEnd.Holds),
         [P.ChozoOrbMovingLeft] = new([new(P.ChozoOrbMovingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ChozoOrbMovingRight] = new([new(P.ChozoOrbMovingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ChozoOrbWallImpact] = new([new(P.ChozoOrbWallImpact, 0, 8, 1)], AnimationEnd.Holds),
@@ -423,6 +413,20 @@ internal static class TorizoProjectileAnimations
     /// </summary>
     internal static AnimationContinuation<TorizoProjectileSegment> ReplayPhase(AnimationPlayback<TorizoProjectileSegment> pastCue) =>
         new(Ensure.NotNull(pastCue.Animation), AnimationPlace.Before(pastCue.Place.Phase));
+
+    /// <summary>
+    /// A piece of the breaking statue hand (#2240), every piece alike: it rests in <paramref name="resting"/> for
+    /// <paramref name="restUpdates"/>, cracks off with the impact sound and starts its fall, falls in
+    /// <paramref name="falling"/> for 112 updates, and is deleted.
+    /// </summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] StatueFragment(EnemyProjectileFrameId resting, int restUpdates, EnemyProjectileFrameId falling) =>
+    [
+        Show(resting, restUpdates),
+        Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BeamImpact, Priority: SoundRequestPriority.Normal)),
+        Cue(new TorizoProjectileCue.Signal(K.StartFragmentFall)),
+        Show(falling, 112),
+        Cue(new TorizoProjectileCue.Signal(K.Delete)),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for good: a still picture (#2235).</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue> Hold(EnemyProjectileFrameId frame) =>

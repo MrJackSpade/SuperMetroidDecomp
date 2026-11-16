@@ -11,7 +11,7 @@ internal static class TorizoProjectileAnimationsConstants
         P.LowHealthExplosion or P.LowHealthExplosionBurst or P.DeathExplosion or P.DeathExplosionBurst or P.DeathSmoke or P.Deletion => TorizoProjectileFamily.Explosion,
         P.DroolFourFrameDelay or P.DroolTwoFrameDelay or P.DroolNoDelay or P.DroolFalling or P.DroolWallImpact or P.DroolFloorImpact => TorizoProjectileFamily.Drool,
         P.ExplosiveSwipe => TorizoProjectileFamily.Swipe,
-        P.FirstStatueFragment or P.SecondStatueFragment or P.ThirdStatueFragment or P.FourthStatueFragment or P.FifthStatueFragment or P.SixthStatueFragment or P.SeventhStatueFragment or P.EighthStatueFragment => TorizoProjectileFamily.StatueFragment,
+        P.StatueFragmentTopMiddle or P.StatueFragmentTopRight or P.StatueFragmentMiddleLeft or P.StatueFragmentCentre or P.StatueFragmentMiddleRight or P.StatueFragmentBottomLeft or P.StatueFragmentBottomMiddle or P.StatueFragmentBottomRight => TorizoProjectileFamily.StatueFragment,
         P.ChozoOrbMovingLeft or P.ChozoOrbMovingRight or P.ChozoOrbWallImpact or P.ChozoOrbFloorImpact or P.ChozoOrbShot => TorizoProjectileFamily.ChozoOrb,
         P.SonicBoomFiredLeft or P.SonicBoomFlyingLeft or P.SonicBoomFiredRight or P.SonicBoomFlyingRight or P.SonicBoomWallImpact or P.SonicBoomWallImpactBurst => TorizoProjectileFamily.SonicBoom,
         P.LandingDustRightFoot or P.LandingDustLeftFoot => TorizoProjectileFamily.LandingDust,

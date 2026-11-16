@@ -75,13 +75,13 @@ internal sealed class TorizoAttacks
             [RoomEnemyProjectileKind.GoldenTorizoEgg] = TorizoProjectileMotion.EggBouncing,
             [RoomEnemyProjectileKind.GoldenTorizoSuperMissile] = TorizoProjectileMotion.SuperMissileHeld,
             [RoomEnemyProjectileKind.BombTorizoLowHealthDrool] = null,
-            [RoomEnemyProjectileKind.BombTorizoInitialDrool] = null,
+            [RoomEnemyProjectileKind.TorizoInitialDrool] = null,
             [RoomEnemyProjectileKind.BombTorizoExplosiveSwipe] = null,
             [RoomEnemyProjectileKind.BombTorizoLowHealthExplosion] = null,
-            [RoomEnemyProjectileKind.BombTorizoDeathExplosion] = null,
+            [RoomEnemyProjectileKind.TorizoDeathExplosion] = null,
             [RoomEnemyProjectileKind.BombTorizoStatueBreaking] = null,
-            [RoomEnemyProjectileKind.BombTorizoRightFootDust] = null,
-            [RoomEnemyProjectileKind.BombTorizoLeftFootDust] = null,
+            [RoomEnemyProjectileKind.TorizoRightFootDust] = null,
+            [RoomEnemyProjectileKind.TorizoLeftFootDust] = null,
         };
 
         /// <inheritdoc/>
@@ -279,10 +279,10 @@ internal sealed class TorizoAttacks
 
     /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemyPlace torizo) =>
-        SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
+        SpawnDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
     /// <summary>Allocates either drool animation and consumes room RNG in the variant-specific order.</summary>
-    internal void SpawnBombTorizoDrool(
+    internal void SpawnDrool(
         RoomEnemyPlace torizo,
         RoomEnemyProjectileKind kind)
     {
@@ -307,7 +307,7 @@ internal sealed class TorizoAttacks
         {
             random = _room.Random.Generate();
         }
-        if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
+        if (kind == RoomEnemyProjectileKind.TorizoInitialDrool)
         {
             // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
             // so a Torizo's centre lies at least its half-height (41 pixels) below the room's top and its half-width
@@ -410,14 +410,14 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Starts a death explosion at the statue center and stores that center for its later animation frames.</summary>
-    internal void SpawnBombTorizoDeathExplosion(RoomEnemyPlace torizo)
+    internal void SpawnDeathExplosion(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
-            RoomEnemyProjectileKind.BombTorizoDeathExplosion,
+            RoomEnemyProjectileKind.TorizoDeathExplosion,
             TorizoProjectiles,
             graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DeathExplosion));
@@ -593,14 +593,14 @@ internal sealed class TorizoAttacks
         SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
-    internal void SpawnBombTorizoLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
+    internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
         RoomEnemyProjectileKind kind = foot == HorizontalDirection.Right
-            ? RoomEnemyProjectileKind.BombTorizoRightFootDust
-            : RoomEnemyProjectileKind.BombTorizoLeftFootDust;
+            ? RoomEnemyProjectileKind.TorizoRightFootDust
+            : RoomEnemyProjectileKind.TorizoLeftFootDust;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TorizoProjectiles, graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot));
         Offset16<RoomPixels> dust = TorizoProjectilePlacementDefinitions.RightFootDust;

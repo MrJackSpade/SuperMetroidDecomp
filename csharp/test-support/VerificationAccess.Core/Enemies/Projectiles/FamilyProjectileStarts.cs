@@ -116,11 +116,11 @@ internal static class FamilyProjectileStarts
             enemies.TorizoBehavior.Attacks.ChozoOrb,
         RoomEnemyProjectileKind.GoldenTorizoEgg => enemies.TorizoBehavior.Attacks.Egg,
         RoomEnemyProjectileKind.GoldenTorizoSuperMissile => enemies.TorizoBehavior.Attacks.SuperMissile,
-        RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.BombTorizoInitialDrool or
+        RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.TorizoInitialDrool or
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
-            RoomEnemyProjectileKind.BombTorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
+            RoomEnemyProjectileKind.TorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
             RoomEnemyProjectileKind.BombTorizoSonicBoom or RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-            RoomEnemyProjectileKind.BombTorizoRightFootDust or RoomEnemyProjectileKind.BombTorizoLeftFootDust or
+            RoomEnemyProjectileKind.TorizoRightFootDust or RoomEnemyProjectileKind.TorizoLeftFootDust or
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam => enemies.TorizoBehavior.Attacks.TorizoProjectiles,
         RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueEyeGlow or
             RoomEnemyProjectileKind.TourianStatueParticle or RoomEnemyProjectileKind.TourianStatueTail or
@@ -228,12 +228,12 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.FakeKraidSpikeRight or RoomEnemyProjectileKind.PirateMotherBrainLaser or
             RoomEnemyProjectileKind.PirateClaw or RoomEnemyProjectileKind.MiscDustExplosion or RoomEnemyProjectileKind.KagoBug or
             RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
-            RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.BombTorizoInitialDrool or
+            RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.TorizoInitialDrool or
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
-            RoomEnemyProjectileKind.BombTorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
+            RoomEnemyProjectileKind.TorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
             RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.BombTorizoSonicBoom or
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-            RoomEnemyProjectileKind.BombTorizoRightFootDust or RoomEnemyProjectileKind.BombTorizoLeftFootDust or
+            RoomEnemyProjectileKind.TorizoRightFootDust or RoomEnemyProjectileKind.TorizoLeftFootDust or
             RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam or RoomEnemyProjectileKind.SporeSpawnStalk or
             RoomEnemyProjectileKind.SporeSpawnSpore or RoomEnemyProjectileKind.SporeSpawnSpawner => null,

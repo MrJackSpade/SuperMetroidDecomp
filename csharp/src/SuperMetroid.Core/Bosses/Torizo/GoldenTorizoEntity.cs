@@ -15,6 +15,23 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyPlace 
     /// <summary>Golden Torizo's own shot reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesShot => TorizoReactions.GoldenShot;
 
+    /// <inheritdoc/>
+    public override bool RunHurt(RoomEnemyFrame frame)
+    {
+        Species.Combat.ApplyGoldenTorizoHurt(Place);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    protected override EnemyShotReaction OwnShotReaction => Species.Combat.GoldenTorizoShotReaction;
+
+    /// <inheritdoc/>
+    public override bool TryReactToBomb(EnemyBombContext context)
+    {
+        Species.Combat.ReactToGoldenTorizoBomb(context);
+        return true;
+    }
+
     /// <summary>The Torizo shot reactions, which a normal bomb triggers as it does the common one, and Golden Torizo's own.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public override bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>

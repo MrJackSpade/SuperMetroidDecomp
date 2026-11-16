@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolAnimationDefinitions
 {
     /// <summary>
-    /// The head animation of each eighth-turn
-    /// direction bucket. The direction buckets start at up; animation storage starts two eighth-turns earlier at left.
+    /// The head animation of each of the eight directions, an eighth of a turn apart, the head aims in.
     /// </summary>
     internal static readonly Dictionary<CompassDirection, ShaktoolSegment> OrientationAnimations = new()
     {

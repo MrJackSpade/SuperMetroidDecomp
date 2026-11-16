@@ -21,7 +21,8 @@ internal static class WorkRobotAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                cue => cue.Kind is WorkRobotCueKind.WalkLeft or WorkRobotCueKind.WalkRight));
         Console.WriteLine($"  Work Robot animations: {Entries.Length} segments ({beats} beats) and {WorkRobotAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

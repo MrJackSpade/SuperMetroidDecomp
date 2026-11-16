@@ -10,22 +10,22 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 [RoomLifetime]
 internal sealed record BotwoonBehaviorDependencies
 {
-    /// <summary>Room.</summary>
+    /// <summary>The room Botwoon fights in: its random numbers and whether Botwoon is already defeated.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The enemy projectiles Botwoon's body segments and spit are, and the explosion its death raises.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Effect actors.</summary>
+    /// <summary>The room's effect actors, which show the explosions that break Botwoon's wall.</summary>
     public required RoomEffectActors EffectActors { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemies' ordinary touch, which Botwoon's touch runs.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' death drops, which Botwoon's death leaves.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Frame results.</summary>
+    /// <summary>The boss's results for the frame, which carry the change to Botwoon's wall.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>The enemy update's sound and music requests.</summary>

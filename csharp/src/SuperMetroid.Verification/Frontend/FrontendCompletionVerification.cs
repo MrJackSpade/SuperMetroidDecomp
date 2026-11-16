@@ -134,13 +134,13 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     AssertTrue(options.MoonwalkEnabled, "special page toggles Moonwalk with Right");
 
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-    saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
+    saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot
     {
         ControllerBindings = options.ControllerBindings,
         IconCancelEnabled = options.IconCancelEnabled,
         MoonwalkEnabled = options.MoonwalkEnabled,
     });
-    SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
+    SuperMetroidSaveSlot slot = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Options SRAM fixture failed its checksum.");
     AssertEqual(options.ControllerBindings, slot.ControllerBindings,
         "controller permutation round-trips through native SRAM words");

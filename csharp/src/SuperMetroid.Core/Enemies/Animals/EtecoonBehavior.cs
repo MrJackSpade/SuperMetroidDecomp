@@ -119,31 +119,28 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SamusState activeSamus = samus;
-        RoomLevelData activeLevel = level;
-
         switch (state.Action)
         {
             case EtecoonAction.WaitingForSamus:
-                RunEtecoonWaiting(place, state, activeSamus);
+                RunEtecoonWaiting(place, state, samus);
                 break;
             case EtecoonAction.PreJumpCountdown:
-                RunEtecoonPreJumpCountdown(place, state, activeSamus);
+                RunEtecoonPreJumpCountdown(place, state, samus);
                 break;
             case EtecoonAction.InitialJump:
-                RunEtecoonInitialJump(place, state, activeSamus, activeLevel);
+                RunEtecoonInitialJump(place, state, samus, level);
                 break;
             case EtecoonAction.FaceSamusPause:
                 RunEtecoonFaceSamusPause(place, state);
                 break;
             case EtecoonAction.RunLeftToWall:
-                RunEtecoonLeftToWall(place, state, activeLevel);
+                RunEtecoonLeftToWall(place, state, level);
                 break;
             case EtecoonAction.RunRightToWall:
-                RunEtecoonRightToWall(place, state, activeLevel);
+                RunEtecoonRightToWall(place, state, level);
                 break;
             case EtecoonAction.Airborne:
-                RunEtecoonAirborne(place, state, activeSamus, activeLevel);
+                RunEtecoonAirborne(place, state, samus, level);
                 break;
             case EtecoonAction.WallPause:
                 RunEtecoonWallPause(place, state);
@@ -152,37 +149,37 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunEtecoonRouteAfterLanding(place, state);
                 break;
             case EtecoonAction.MoveLeftToTeachingStart:
-                RunEtecoonMoveLeftToTeachingStart(place, state, activeLevel);
+                RunEtecoonMoveLeftToTeachingStart(place, state, level);
                 break;
             case EtecoonAction.MoveRightToTeachingStart:
-                RunEtecoonMoveRightToTeachingStart(place, state, activeLevel);
+                RunEtecoonMoveRightToTeachingStart(place, state, level);
                 break;
             case EtecoonAction.RunRightToLongJump:
-                RunEtecoonRightToLongJump(place, state, activeLevel);
+                RunEtecoonRightToLongJump(place, state, level);
                 break;
             case EtecoonAction.LongJump:
-                RunEtecoonLongJump(place, state, activeSamus, activeLevel);
+                RunEtecoonLongJump(place, state, samus, level);
                 break;
             case EtecoonAction.RunRightAfterLongJump:
-                RunEtecoonRightAfterLongJump(place, state, activeLevel);
+                RunEtecoonRightAfterLongJump(place, state, level);
                 break;
             case EtecoonAction.LongJumpLanding:
-                RunEtecoonLongJumpLanding(place, state, activeSamus, activeLevel);
+                RunEtecoonLongJumpLanding(place, state, samus, level);
                 break;
             case EtecoonAction.TeachingJump:
-                RunEtecoonTeachingJump(place, state, activeSamus, activeLevel);
+                RunEtecoonTeachingJump(place, state, samus, level);
                 break;
             case EtecoonAction.IdleBetweenTeachingJumps:
-                RunEtecoonIdleBetweenTeachingJumps(place, state, activeSamus);
+                RunEtecoonIdleBetweenTeachingJumps(place, state, samus);
                 break;
             case EtecoonAction.WaitForSamusBeforeLongRun:
-                RunEtecoonWaitForSamusBeforeLongRun(place, state, activeSamus);
+                RunEtecoonWaitForSamusBeforeLongRun(place, state, samus);
                 break;
             case EtecoonAction.RunRightToReturnJump:
-                RunEtecoonRightToReturnJump(place, state, activeLevel);
+                RunEtecoonRightToReturnJump(place, state, level);
                 break;
             case EtecoonAction.ReturnJump:
-                RunEtecoonReturnJump(place, state, activeSamus, activeLevel);
+                RunEtecoonReturnJump(place, state, samus, level);
                 break;
             default:
                 throw new InvalidDataException(
@@ -216,7 +213,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
             _audio.QueueEnemySound(EtecoonWakeSound, priority: SoundRequestPriority.Essential);
-        StartEtecoonAnimation(place, state, EtecoonSegment.Flexing);
+        state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
+        place.AnimationClock.StepOnNextUpdate();
         state.AwaitingSamus = false;
         state.ActionTimer = WrappingCountdown.Start(256);
     }
@@ -276,7 +274,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         place.AnimationClock.HoldFor(3);
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.HitCeiling), AnimationPlace.StartOfAnimation);
+        state.Playback = EtecoonAnimations.LeftHopFromCrest;
     }
 
     /// <summary>Waits 32 updates before running to the left or right wall, whichever way it was heading.</summary>
@@ -549,7 +547,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         place.AnimationClock.HoldFor(3);
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.HitCeiling), AnimationPlace.StartOfAnimation);
+        state.Playback = EtecoonAnimations.LeftHopFromCrest;
     }
 
     /// <summary>Counts teaching hops and takes the return run after four on nonlooping routes.</summary>

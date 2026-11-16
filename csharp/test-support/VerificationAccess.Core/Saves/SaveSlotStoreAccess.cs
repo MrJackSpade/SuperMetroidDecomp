@@ -10,8 +10,7 @@ internal static class SaveSlotStoreAccess
         /// <summary><c>LoadFromSRAM</c>'s outcome: whether <paramref name="slot"/> holds a save.</summary>
         public bool IsSlotValid(int slot)
         {
-            SaveRamCodec.ValidateSlot(slot);
-            return self.slots[slot] is not null;
+            return self.slots.ContainsKey(SaveRamCodec.SlotAt(slot));
         }
     }
 }

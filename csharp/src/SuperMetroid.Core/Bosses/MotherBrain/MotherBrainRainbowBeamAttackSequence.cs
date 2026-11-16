@@ -62,7 +62,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Current angle, in 256ths of a turn, of the rainbow beam's per-line effect.
+    /// Current angle, in 256ths of a turn, of the rainbow beam's cone.
     /// Exposing the movement owner's angle lets the live room adapter publish the
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>

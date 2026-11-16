@@ -47,10 +47,9 @@ public sealed class EtecoonEnemyState
     /// Whether the Etecoon is heading right: it is placed heading left, until it first takes a heading of its own.
     /// </summary>
     /// <remarks>
-    /// The game keeps the heading and <see cref="TeachingHops"/> together and tests them together, so a hop count
-    /// would also read as heading right; but every state that tests the heading is reached only after the Etecoon has
-    /// taken a heading (<see cref="Head"/>), which empties the count, and the teaching hops that count again always end
-    /// in the return run, whose wall takes a heading before the next test. The heading is therefore read alone.
+    /// The teaching hops never change which way the Etecoon heads: every state that tests the heading is reached only
+    /// after the Etecoon has taken a heading (<see cref="Head"/>), which empties <see cref="TeachingHops"/>, and the
+    /// teaching hops that count again always end in the return run, whose wall takes a heading before the next test.
     /// </remarks>
     public bool HeadingRight { get; internal set; }
 

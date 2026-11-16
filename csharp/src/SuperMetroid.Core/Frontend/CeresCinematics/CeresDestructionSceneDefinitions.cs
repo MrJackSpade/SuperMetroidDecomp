@@ -67,12 +67,12 @@ internal static class CeresDestructionSceneDefinitions
     /// <summary>Authored holds, in updates.</summary>
     internal static class Timing
     {
-        /// <summary>Calls a slow fade waits between brightness steps: it steps on every second call.</summary>
-        internal const int SlowFadeDelay = 1;
         /// <summary>Updates the completed Ceres explosion stays shown.</summary>
         internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
         internal const int ZebesHoldFrames = 64;
+        /// <summary>Updates each step of the cinematic's slow fades takes: one level every second update.</summary>
+        internal const int FadeUpdatesPerStep = 2;
     }
 
     /// <summary>

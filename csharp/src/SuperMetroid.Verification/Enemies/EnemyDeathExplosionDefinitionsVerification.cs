@@ -38,7 +38,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, dying.Kind,
                 $"production enemy death explosion kind {animation}");
-            AssertEqual(EnemyDeathExplosions.Animation(explosion), ProgramOf(dying),
+            AssertEqual(EnemyDeathExplosions.Animation(explosion), AnimationOf(dying),
                 $"production enemy death explosion program {animation}");
             AssertEqual(unchecked((ushort)(0xfff0 + animation)), dying.Position.X.Whole,
                 $"production enemy death explosion X {animation}");

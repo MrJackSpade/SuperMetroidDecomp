@@ -29,8 +29,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     internal readonly MenuScreen screen;
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Screen brightness stepped once per fade update.</summary>
-    private int brightness;
+    /// <summary>The screen's brightness, stepped one level on every fade update; the menu opens black.</summary>
+    private readonly ScreenFade fade = new(0);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     internal readonly MenuMissileAnimation missile = new();
     /// <summary>Where the Baby's animation stands, or null before its first update of this visit.</summary>
@@ -75,13 +75,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public YesNoChoice SelectedItem { get; private set; }
 
     /// <summary>Current menu step.</summary>
-    public GameOverMenuPhase Phase { get; internal set; }
+    public GameOverMenuPhase Phase { get; private set; }
 
     /// <summary>
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
     /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool IsWaitingOutDisplayFrame { get; internal set; }
+    public bool IsWaitingOutDisplayFrame { get; private set; }
 
     /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer game-state loop opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }
@@ -146,7 +146,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             case GameOverMenuPhase.ConfigureGraphics:
                 // The death black-out hands over at brightness zero, so the fade leaves the screen
                 // black; the menu blanks it and waits out one update before configuring itself.
-                if (brightness != 0)
+                if (!fade.IsBlack)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
                 audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
                 IsWaitingOutDisplayFrame = true;
@@ -160,7 +160,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 BabyFrameHold = 0;
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
-                brightness = 0;
+                fade.Show(0);
                 // Unblank, then wait out one update before advancing the step.
                 IsWaitingOutDisplayFrame = true;
                 break;
@@ -177,8 +177,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
             case GameOverMenuPhase.FadeIn:
                 StepBabyMetroid();
-                brightness = Math.Min(GameOverMenuDefinitions.MaximumBrightness, brightness + 1);
-                if (brightness == GameOverMenuDefinitions.MaximumBrightness)
+                if (fade.Brighten())
                     Phase = GameOverMenuPhase.Main;
                 break;
 
@@ -207,15 +206,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
             case GameOverMenuPhase.FadeOutToContinue:
                 StepBabyMetroid();
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                if (fade.Darken())
                     ContinueRequested = true;
                 break;
 
             case GameOverMenuPhase.FadeOutToTitle:
                 StepBabyMetroid();
-                brightness = Math.Max(0, brightness - 1);
-                if (brightness == 0)
+                if (fade.Darken())
                     TitleRequested = true;
                 break;
 
@@ -230,7 +227,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         // The page is one installed picture of the whole game-over page (#1467).
         DisplayLayer[] layers = [new PicturedPlaneLayer(screen.PagePictures(GameOverPresentationDefinitions.PageFrame), Offset16<PlanePixels>.Zero), screen.SpriteLayer()];
-        return new(screen.Paint(), layers, brightness);
+        return new(screen.Paint(), layers, fade.Level);
     }
 
     /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprite entries from installed art.</summary>

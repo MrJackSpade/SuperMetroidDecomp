@@ -8,17 +8,14 @@ using SuperMetroid.Core.World;
 /// <summary>Checks where a growing shutter places its sections.</summary>
 internal static class GrowingShutterSectionOriginsVerification
 {
-    /// <summary>Confirms an upward-growing shutter places its fourth section 24 pixels above its spawn in its column.</summary>
+    /// <summary>Confirms an upward-growing shutter places its fourth section 24 pixels above its spawn row.</summary>
     internal static void VerifyGrowingShutterSectionOrigins()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
-        var state = new GrowingShutterEnemyState(place, GrowingShutterAction.WaitToGrowUpForTimer);
-        place.SetSpeciesState(state);
-        state.PlaceSectionOrigins(growsUp: true);
-        AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200 - 24), state.SectionOrigin(3),
-            "the fourth section sits 24 pixels above the spawn in the shutter's column");
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer);
+        state.PlaceSectionOrigins(spawnY: 0x0200, growsUp: true);
+        AssertEqual(0x0200 - 24, state.SectionOriginY(3), "the fourth section sits 24 pixels above the spawn row");
+        state.PlaceSectionOrigins(spawnY: 8, growsUp: true);
+        AssertEqual(65536 - 16, state.SectionOriginY(3), "an origin above the room's top row wraps to its bottom");
         Console.WriteLine("Growing shutter section origins: an upward shutter stacks its sections above its spawn.");
     }
 

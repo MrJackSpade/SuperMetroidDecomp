@@ -37,8 +37,8 @@ internal sealed class EndingZebesExplosion
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.Zero;
-        _stage.Brightness = EndingScreenDefinitions.Dark;
-        _stage.RestartFadeCadence();
+        _stage.Fade.Show(0);
+        _stage.StartFastFade();
         BeginExplosionCrossfade();
         _stage.Phase = EndingCreditsPhase.FadeInZebesExplosion;
     }

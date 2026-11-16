@@ -22,7 +22,6 @@ internal static class EtecoonNativeListAddresses
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpLeftLoop, 0xe840),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.HoppingFacingLeft, 0xe854),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.ContinueHoppingFacingLeft, 0xe85a),
-        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.HitCeiling, 0xe862),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpLeftEligible, 0xe870),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.LookLeftAtSamusAndRunRight, 0xe876),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.BeginRunningRight, 0xe87c),
@@ -33,8 +32,10 @@ internal static class EtecoonNativeListAddresses
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.ContinueHoppingFacingRight, 0xe8b2),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpRightEligible, 0xe8c8),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Initial, 0xe8ce),
-        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Flexing, 0xe8d6),
-        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.FlexingLoop, 0xe8da),
+        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Flexing, 0xe8da),
     ];
+
+    /// <summary>The native entry the flex starts at (#2061): it loads the flex's count and runs on into the flex's list.</summary>
+    internal const ushort FlexingStart = 0xe8d6;
 
 }

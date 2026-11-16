@@ -69,16 +69,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses wrapped signed horizontal distance to arm the jump delay when Samus enters range.</summary>
+    /// <summary>Arms the jump delay when Samus comes within the activation distance horizontally.</summary>
     private static void WaitForChootActivation(
         RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
-        // The distance is the magnitude of the wrapped signed difference, up to 32768, and the farthest one reads as
-        // negative in the game's signed comparison with the activation distance.
-        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
-        if (CoordinateAxis.Difference(distance, ChootActivationDistance) >= 0)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootActivationDistance)
             return;
 
         state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay;

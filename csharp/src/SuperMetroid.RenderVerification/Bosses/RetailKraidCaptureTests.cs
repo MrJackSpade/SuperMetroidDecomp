@@ -44,8 +44,7 @@ internal static class RetailKraidCaptureTests
         var boss = runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.Places.InUpdateOrder[0];
         KraidPhase BodyPhase() =>
-            (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Phase
-                ?? throw new InvalidOperationException("Kraid's body runs no phase.");
+            (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Phase;
         // The death has played out once the background fade hands the body to either finished entry.
         static bool DeathFinished(KraidEnemyState kraid) =>
             kraid.BodyState.Phase is KraidPhase.DeathFinishedWasAlive or KraidPhase.DeathFinishedWasDead;

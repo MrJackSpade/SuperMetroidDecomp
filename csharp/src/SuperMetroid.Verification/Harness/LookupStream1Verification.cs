@@ -145,9 +145,9 @@ internal static class LookupStream1Verification
             var place = enemies.Places.InUpdateOrder[0];
             // The typed programs (#641) replacing the native lists at $B3:E964, $B3:E9D0 and $B3:EA34.
             EscapeDachoraEnemyState state = enemies.EscapeDachoraStates[0] ?? throw new InvalidOperationException("The Dachora fixture has no state.");
-            state.Playback = new(EscapeDachoraAnimations.StartingWith(program == 0 ? EscapeDachoraSegment.RunningAroundLowTide
-                : program == 1 ? EscapeDachoraSegment.RunningAroundHighTide : EscapeDachoraSegment.RunningForEscape), AnimationPlace.StartOfAnimation);
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            state.Playback = new(program == 0 ? EscapeDachoraAnimations.RunningAroundLowTide
+                : program == 1 ? EscapeDachoraAnimations.RunningAroundHighTide : EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningForEscape), AnimationPlace.StartOfAnimation);
+            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int records = program == 2 ? 19 : 60, expectedX = place.Position.X.Whole, calls = 0;
             for (int record = 0; record < records; record++)
             {
@@ -234,7 +234,7 @@ internal static class LookupStream1Verification
                 PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
             place.AnimationClock.StepOnNextUpdate();
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -293,7 +293,7 @@ internal static class LookupStream1Verification
             {
                 Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             });
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);
@@ -1072,8 +1072,8 @@ internal static class LookupStream1Verification
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })
             AssertThrows<InvalidDataException>(() => CacatacTravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
         for (ushort direction = 0; direction < 20; direction += 2)
-            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Animation(
-                CacatacNativeWords.SpikeDirections.Decode(direction, "Cacatac spike direction"))), "stream1 Cacatac named direction program");
+            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(
+                CacatacNativeWords.SpikeDirections.Decode(direction, "Cacatac spike direction")), "stream1 Cacatac named direction program");
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
             AssertEqual(false, CacatacNativeWords.SpikeDirections.TryDecode(invalid, out _), "stream1 Cacatac invalid direction selector");
     }

@@ -557,9 +557,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         reaction = null;
 
-        // Oum's 30 frames each have one (0,0) component, but the
-        // ordered regions change with roll and attack direction. Keep
-        // those rectangles and reaction identities independent of the drawn sprite pieces.
+        // The frame's hitboxes are read in order, and the first the probe overlaps gives the reaction.
         foreach (EnemyCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {

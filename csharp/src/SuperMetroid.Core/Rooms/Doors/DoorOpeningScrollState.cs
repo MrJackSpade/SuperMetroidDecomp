@@ -106,8 +106,8 @@ internal sealed class DoorOpeningScrollState
         };
 
     /// <summary>
-    /// The door setup replaces both whole coordinates with the foreground plus the
-    /// position modulo 256, preserving the fractions and deferring final nudges.
+    /// The door setup places Samus at the setup camera plus her place within the screen she stood in, on both axes,
+    /// preserving her fractions and deferring final nudges.
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
     {

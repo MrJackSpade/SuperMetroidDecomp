@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Saves;
 /// One saved game (#1475): the player's inventory, resources, clock and checkpoint, and the persistent progress the save
 /// keeps (<see cref="Progression"/>, a copy the slot owns). Hosts persist it; no part of it is a memory image.
 /// </summary>
-/// <param name="Slot">The slot, A through C as 0 through 2.</param>
+/// <param name="Slot">The slot the save is kept in.</param>
 /// <param name="EquippedItems">The collected items currently enabled on Samus.</param>
 /// <param name="CollectedItems">The item upgrades Samus has collected.</param>
 /// <param name="EquippedBeams">The collected beams currently enabled on Samus.</param>
@@ -34,7 +34,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="StartupRoute">The startup route the save resumes by.</param>
 /// <param name="Checkpoint">The load station the save resumes at.</param>
 public sealed record SuperMetroidSaveSlot(
-    int Slot,
+    SaveSlot Slot,
     SamusEquipmentFlags EquippedItems,
     SamusEquipmentFlags CollectedItems,
     SamusBeamFlags EquippedBeams,

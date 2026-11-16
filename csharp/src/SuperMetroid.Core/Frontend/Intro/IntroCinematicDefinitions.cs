@@ -43,10 +43,10 @@ public static class IntroCinematicDefinitions
     /// <summary>Screen-fade cadences of the opening's scene changes.</summary>
     public static class Fade
     {
-        /// <summary>The narration's fades: one brightness level every two updates.</summary>
-        public const int NarrationSlowFade = 2;
-        /// <summary>The final fade: one brightness level every second update.</summary>
-        public const int FinishFade = 1;
+        /// <summary>Updates each step of the narration's fades takes: one brightness level every two updates.</summary>
+        public const int NarrationUpdatesPerStep = 2;
+        /// <summary>Updates each step of the final fade takes: one brightness level every second update.</summary>
+        public const int FinishUpdatesPerStep = 2;
     }
 
     /// <summary>The narration's holds, in updates.</summary>

@@ -208,7 +208,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     };
 
-    /// <summary>After a lethal bomb, spawns debris while the body's graphics state is intact, then clears both indexes on the dead enemy, which keeps its place.</summary>
+    /// <summary>After a lethal bomb, spawns the debris in the dying Metaree's colours, then shows the dead enemy, which keeps its place, in its standard shading.</summary>
     internal EnemyBombReaction MetareeBombReaction => field ??= new()
     {
         AfterCommon = c =>

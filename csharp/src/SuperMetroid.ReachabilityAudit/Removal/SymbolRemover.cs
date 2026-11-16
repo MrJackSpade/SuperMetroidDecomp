@@ -45,7 +45,7 @@ internal static class SymbolRemover
                 string path = Path.GetFullPath(tree.FilePath);
                 if (!processed.Add(path))
                     continue;
-                var model = compilation.GetSemanticModel(tree);
+                var model = SemanticModels.Of(compilation, tree);
                 var root = tree.GetRoot();
                 var removals = new List<SyntaxNode>();
                 if (parameterEdits.TryGetValue(tree, out var positional))
@@ -131,7 +131,7 @@ internal static class SymbolRemover
         var removedByConstructor = new Dictionary<string, HashSet<int>>(StringComparer.Ordinal);
         foreach (var (tree, compilation) in trees)
         {
-            var model = compilation.GetSemanticModel(tree);
+            var model = SemanticModels.Of(compilation, tree);
             foreach (var parameter in tree.GetRoot().DescendantNodes().OfType<ParameterSyntax>())
             {
                 if (parameter.Parent?.Parent is not RecordDeclarationSyntax record ||
@@ -157,7 +157,7 @@ internal static class SymbolRemover
 
         foreach (var (tree, compilation) in trees)
         {
-            var model = compilation.GetSemanticModel(tree);
+            var model = SemanticModels.Of(compilation, tree);
             foreach (var node in tree.GetRoot().DescendantNodes())
             {
                 if (node is WithExpressionSyntax with)

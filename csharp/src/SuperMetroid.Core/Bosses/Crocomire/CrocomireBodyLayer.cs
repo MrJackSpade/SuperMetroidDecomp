@@ -91,8 +91,7 @@ internal sealed class CrocomireBodyLayer
         if (!CrocomireRandomDefinitions.AcidSmokeOnRight.IsSetIn(random))
             xOffset = -(xOffset + CrocomireRandomDefinitions.AcidSmokeLeftExtraPixels);
         // Crocomire's room always has its acid surface, which its tide only moves; a surface above the room's top is none.
-        RoomFxOverlayState roomFx = _roomFx.FxOverlay ??
-            throw new InvalidOperationException("Crocomire's acid smoke rises from his room's effect, which is not bound.");
+        RoomFxOverlayState roomFx = _roomFx.FxOverlay;
         int acidY = roomFx.Type is RoomFxType.Lava or RoomFxType.Acid && roomFx.Surface is int surface and >= 0
             ? surface
             : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");

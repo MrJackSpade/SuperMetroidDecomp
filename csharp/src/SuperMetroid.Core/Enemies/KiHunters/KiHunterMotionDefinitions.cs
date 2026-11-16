@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>Ki-Hunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
 public static class KiHunterMotionDefinitions
 {
-    /// <summary>Tested with signed distance comparison.</summary>
+    /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>
     public const int SwoopTriggerDistance = 96;
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
@@ -94,6 +94,10 @@ public static class KiHunterMotionDefinitions
     /// <summary>The detached wing's falling-arc starting rotation angle, three eighths of a turn below zero.</summary>
     public static RotationAngle FallingArcStartAngle { get; } = RotationAngle.WrappedSteps(-3 * RotationAngle.StepsPerTurn / 8);
 
-    /// <summary>The detached speed accumulator stops summing once it reaches this.</summary>
-    public const int DetachedSpeedThreshold = 8192;
+    /// <summary>
+    /// The climb that fixes where the detached wings' speed resets on the speed curve: the place, stepping a mark and a
+    /// half a pass, at which the coarse speeds passed sum to 32 pixels.
+    /// </summary>
+    internal static QuadraticCurveClimb DetachedWingClimb { get; } =
+        new(SignedSixteenSixteen.FromWholePixels(32), QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384));
 }

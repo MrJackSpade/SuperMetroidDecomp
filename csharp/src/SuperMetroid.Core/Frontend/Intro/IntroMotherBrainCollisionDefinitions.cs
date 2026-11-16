@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Physical foreground of the intro Mother Brain room. Regular regions are constructed geometrically;
-/// the left silhouette is authored collision-mask data reviewed under 1165.</summary>
+/// the left silhouette is authored collision-mask data.</summary>
 internal static class IntroMotherBrainCollisionDefinitions
 {
     /// <summary>Sixteen blocks per room row.</summary>
@@ -12,12 +12,12 @@ internal static class IntroMotherBrainCollisionDefinitions
     internal const int SourceRows = 14;
     /// <summary>The room's height in blocks; the rows past the authored ones are empty.</summary>
     internal const int RoomRows = 16;
-    /// <summary>A solid block showing block zero.</summary>
-    internal static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-    /// <summary>A slope block showing block zero: the platforms' top collision cells.</summary>
-    internal static readonly RoomTerrainBlock PlatformTop = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-    /// <summary>An air block showing block zero: every cell the authored collision leaves open.</summary>
-    internal static readonly RoomTerrainBlock Empty = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
+    /// <summary>A solid block.</summary>
+    internal const RoomCollisionType Solid = RoomCollisionType.SolidBlock;
+    /// <summary>A slope block: the platforms' top collision cells.</summary>
+    internal const RoomCollisionType PlatformTop = RoomCollisionType.Slope;
+    /// <summary>An air block: every cell the authored collision leaves open.</summary>
+    internal const RoomCollisionType Empty = RoomCollisionType.Air;
     /// <summary>First and last nonzero full-width source rows.</summary>
     internal const int CeilingRow = 1, FloorRow = 13;
     /// <summary>Upper central formation spans rows 2/3, centered on column 9.</summary>
@@ -27,6 +27,6 @@ internal static class IntroMotherBrainCollisionDefinitions
 
     /// <summary>Authored collision-mask widths on rows 2..12: tank interior, upper notch and pipe base.
     /// These select blocking geometry independently of visible pixels; a fitted curve would
-    /// restate or alter the chosen level mask (see the intro Mother Brain collision contour disposition).</summary>
+    /// restate or alter the authored mask.</summary>
     internal static ReadOnlySpan<int> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 }

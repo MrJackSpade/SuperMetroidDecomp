@@ -18,10 +18,8 @@ internal enum EtecoonSegment
     WallJumpLeftLoop,
     /// <summary>The hopping facing left animation.</summary>
     HoppingFacingLeft,
-    /// <summary>The continue hopping facing left animation.</summary>
+    /// <summary>The hop facing left, up to its crest and down again, which hitting a ceiling enters at the crest.</summary>
     ContinueHoppingFacingLeft,
-    /// <summary>The hit ceiling animation.</summary>
-    HitCeiling,
     /// <summary>The wall jump left eligible animation.</summary>
     WallJumpLeftEligible,
     /// <summary>The look left at Samus and run right animation.</summary>
@@ -42,8 +40,6 @@ internal enum EtecoonSegment
     WallJumpRightEligible,
     /// <summary>The initial animation.</summary>
     Initial,
-    /// <summary>The flexing animation.</summary>
+    /// <summary>The flex: its hop poses, played four times, then its two closing poses.</summary>
     Flexing,
-    /// <summary>The flexing loop animation.</summary>
-    FlexingLoop,
 }

@@ -16,8 +16,10 @@ internal static class BullNativeListAddresses
     internal static readonly NativeProgramEntry<BullSegment>[] Entries =
     [
         new NativeProgramEntry<BullSegment>(BullSegment.Normal, 0xd841),
-        new NativeProgramEntry<BullSegment>(BullSegment.Shot, 0xd855),
-        new NativeProgramEntry<BullSegment>(BullSegment.ShotLoop, 0xd859),
+        new NativeProgramEntry<BullSegment>(BullSegment.Shot, 0xd859),
     ];
+
+    /// <summary>The native entry the shot reaction starts at (#2061): it loads the quick cycle's count and runs on into it.</summary>
+    internal const ushort ShotStart = 0xd855;
 
 }

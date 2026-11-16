@@ -101,30 +101,25 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int requestedLeft = startsAtLeft
             ? place.Position.X.Whole
             : CoordinateAxis.Wrap(place.Position.X.Whole - settings.PostDistance);
-        int requestedRight = startsAtLeft
-            ? CoordinateAxis.Wrap(place.Position.X.Whole + settings.PostDistance)
-            : place.Position.X.Whole;
-        int requestedHalfSpan = CoordinateAxis.Wrap(requestedRight - requestedLeft);
-        requestedHalfSpan >>= 1;
-        state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
+        int requestedHalfSpan = Ensure.BetweenInclusive(0, LongestPostHalfSpan, settings.PostDistance / 2);
+        state.PostsMidpointX = CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan);
 
         // The spin's speed grows until the distance it covers reaches the half-span; it runs at least once, so posts no
         // distance apart still spin.
-        int distanceInSubpixels = EightEight.FromWhole(Ensure.BetweenInclusive(0, LongestPostHalfSpan, requestedHalfSpan));
-        int speed = 0;
-        int accumulatedDistance = 0;
+        SignedSixteenSixteen requestedDistance = SignedSixteenSixteen.FromWholePixels(requestedHalfSpan);
+        SignedEightEight speed = SignedEightEight.Zero;
+        SignedSixteenSixteen covered = SignedSixteenSixteen.Zero;
         do
         {
-            speed += 32;
-            accumulatedDistance += speed;
+            speed += NinjaPirateSpinSpeedChange;
+            covered += speed.ToSixteenSixteenDelta();
         }
-        while (accumulatedDistance < distanceInSubpixels);
+        while (covered < requestedDistance);
 
-        int adjustedHalfSpan = UnsignedEightEight.Whole(accumulatedDistance);
-        var halfSpan = new Offset16<RoomPixels>(adjustedHalfSpan, 0);
-        state.RightPost = state.PostsMidpoint + halfSpan;
-        state.LeftPost = state.PostsMidpoint - halfSpan;
-        place.Position = place.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
+        int adjustedHalfSpan = covered.WholePixels;
+        state.RightPostX = CoordinateAxis.Wrap(state.PostsMidpointX + adjustedHalfSpan);
+        state.LeftPostX = CoordinateAxis.Wrap(state.PostsMidpointX - adjustedHalfSpan);
+        place.Position = place.Position.WithX(new(startsAtLeft ? state.LeftPostX : state.RightPostX, 0));
         state.SpawnPosition = place.Position.Whole;
     }
 
@@ -281,7 +276,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if (Math.Abs((state.PostsMidpoint - samus.Position.Whole).X) >=
+        if (CoordinateAxis.Distance(state.PostsMidpointX, samus.Position.X.Whole) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return false;
@@ -290,7 +285,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         StartNinjaPirateAnimation(
             place,
             state,
-            place.Position.X.Whole == state.LeftPost.X
+            place.Position.X.Whole == state.LeftPostX
                 ? NinjaSpacePirateSegment.SpinJumpRight
                 : NinjaSpacePirateSegment.SpinJumpLeft);
         return true;
@@ -305,7 +300,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!NinjaSpacePirateCadenceDefinitions.ClawAttackEverySixtyFourthUpdate.IsDue(place.FrameCounter))
             return;
 
-        if (place.Position.X.Whole == state.LeftPost.X)
+        if (place.Position.X.Whole == state.LeftPostX)
         {
             if (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0)
                 return;
@@ -337,7 +332,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        if (Math.Abs((state.PostsMidpoint - samus.Position.Whole).X) >=
+        if (CoordinateAxis.Distance(state.PostsMidpointX, samus.Position.X.Whole) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return;
@@ -354,7 +349,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         StartNinjaPirateAnimation(
             place,
             state,
-            place.Position.X.Whole == state.LeftPost.X
+            place.Position.X.Whole == state.LeftPostX
                 ? NinjaSpacePirateSegment.DivekickRightJump
                 : NinjaSpacePirateSegment.DivekickLeftJump);
     }
@@ -375,8 +370,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         {
             state.ChangeSpeed(NinjaPirateSpinSpeedChange);
             bool crossedMidpoint = direction == HorizontalDirection.Right
-                ? (place.Position.Whole - state.PostsMidpoint).X >= 0
-                : (place.Position.Whole - state.PostsMidpoint).X < 0;
+                ? CoordinateAxis.Difference(place.Position.X.Whole, state.PostsMidpointX) >= 0
+                : CoordinateAxis.Precedes(place.Position.X.Whole, state.PostsMidpointX);
             if (crossedMidpoint)
             {
                 state.Action = direction == HorizontalDirection.Right
@@ -391,7 +386,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Action = NinjaSpacePirateAction.StandingStill;
-        place.Position = place.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
+        place.Position = place.Position.WithWholeX(direction == HorizontalDirection.Right ? state.RightPostX : state.LeftPostX);
         StartNinjaPirateAnimation(
             place,
             state,
@@ -476,12 +471,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
             (direction == HorizontalDirection.Right ? NinjaPirateReturnWalkPixels : -NinjaPirateReturnWalkPixels));
         bool reachedPost = direction == HorizontalDirection.Right
-            ? (place.Position.Whole - state.RightPost).X >= 0
-            : (place.Position.Whole - state.LeftPost).X < 0;
+            ? CoordinateAxis.Difference(place.Position.X.Whole, state.RightPostX) >= 0
+            : CoordinateAxis.Precedes(place.Position.X.Whole, state.LeftPostX);
         if (!reachedPost)
             return;
 
-        place.Position = place.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
+        place.Position = place.Position.WithWholeX(direction == HorizontalDirection.Right ? state.RightPostX : state.LeftPostX);
         StartNinjaPirateAnimation(
             place,
             state,

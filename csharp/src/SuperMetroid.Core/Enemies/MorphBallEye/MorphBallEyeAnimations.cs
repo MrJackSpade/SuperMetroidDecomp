@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The Morph Ball eye's tracking, eyelid and mount animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
+/// The Morph Ball eye's eyelid and mount animations (#641), and the pose the open eye looks along as it tracks Samus
+/// (#2070). Each frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class MorphBallEyeAnimations
 {
@@ -14,29 +14,10 @@ internal static class MorphBallEyeAnimations
     internal static AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MorphBallEyeSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.Active] =
-        [
-            Show(EnemyFrameId.MorphBallEyeActiveFirst, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveFirst, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveSecond, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveThird, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveFourth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveFifth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveSixth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveSeventh, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveEighth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveNinth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveTenth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveEleventh, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveTwelfth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveThirteenth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveFourteenth, 10),
-            Show(EnemyFrameId.MorphBallEyeActiveFourteenth, 10),
-        ],
         [P.FacingRightDeactivating] =
         [
             Show(EnemyFrameId.MorphEyeRightTransition, 8),
-            Show(EnemyFrameId.MorphBallEyeActiveEleventh, 48),
+            Show(EnemyFrameId.MorphBallEyeLookingLeft, 48),
             Show(EnemyFrameId.MorphEyeRightTransition, 5),
         ],
         [P.FacingRightClosed] =
@@ -46,7 +27,7 @@ internal static class MorphBallEyeAnimations
         [P.FacingLeftDeactivating] =
         [
             Show(EnemyFrameId.MorphEyeLeftTransition, 8),
-            Show(EnemyFrameId.MorphBallEyeActiveFourth, 48),
+            Show(EnemyFrameId.MorphBallEyeLookingRight, 48),
             Show(EnemyFrameId.MorphEyeLeftTransition, 5),
         ],
         [P.FacingLeftClosed] =
@@ -57,14 +38,14 @@ internal static class MorphBallEyeAnimations
         [
             Show(EnemyFrameId.MorphEyeRightClosed, 32),
             Show(EnemyFrameId.MorphEyeRightTransition, 5),
-            Show(EnemyFrameId.MorphBallEyeActiveEleventh, 48),
+            Show(EnemyFrameId.MorphBallEyeLookingLeft, 48),
             Show(EnemyFrameId.MorphEyeRightTransition, 8),
         ],
         [P.FacingLeftActivating] =
         [
             Show(EnemyFrameId.MorphEyeLeftClosed, 32),
             Show(EnemyFrameId.MorphEyeLeftTransition, 5),
-            Show(EnemyFrameId.MorphBallEyeActiveFourth, 48),
+            Show(EnemyFrameId.MorphBallEyeLookingRight, 48),
             Show(EnemyFrameId.MorphEyeLeftTransition, 8),
         ],
         [P.MountFacingRight] =
@@ -88,7 +69,6 @@ internal static class MorphBallEyeAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
     {
-        [P.Active] = new([new(P.Active, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
         [P.FacingRightDeactivating] = new([new(P.FacingRightDeactivating, 0, 3, 1), new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
         [P.FacingRightClosed] = new([new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
         [P.FacingLeftDeactivating] = new([new(P.FacingLeftDeactivating, 0, 3, 1), new(P.FacingLeftClosed, 0, 1, 1)], AnimationEnd.Holds),
@@ -102,12 +82,18 @@ internal static class MorphBallEyeAnimations
     };
 
     /// <summary>
-    /// The place in the tracking loop each part of the turn resumes at: the loop's poses follow the turn, one for each of
-    /// its sixteen equal arcs from the eye's angle zero.
+    /// The pose the open eye looks along for each sixteenth of the turn its angle to Samus lies in (#2070), the arcs
+    /// following one another clockwise from straight up, as the eye's angle counts: fourteen poses, the two nearest
+    /// straight up and straight down each looking a little to one side of it, and the eye keeps looking a little to the
+    /// right through the arc after up's and a little to the left through the arc before it.
     /// </summary>
-    internal static TurnArcs<AnimationPlace> TrackingPlaces { get; } = new(TrigonometryAngle.Zero,
-        [.. Enumerable.Range(0, MorphBallEyeBeamDefinitions.TrackingPoses).Select(pose =>
-            AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(StartingAt[P.Active], P.Active, pose))]);
+    internal static TurnArcs<EnemyFrameId> AimFrames { get; } = new(TrigonometryAngle.Zero,
+        EnemyFrameId.MorphBallEyeLookingUpUpRight, EnemyFrameId.MorphBallEyeLookingUpUpRight, EnemyFrameId.MorphBallEyeLookingUpRight,
+        EnemyFrameId.MorphBallEyeLookingRightUpRight, EnemyFrameId.MorphBallEyeLookingRight, EnemyFrameId.MorphBallEyeLookingRightDownRight,
+        EnemyFrameId.MorphBallEyeLookingDownRight, EnemyFrameId.MorphBallEyeLookingDownDownRight, EnemyFrameId.MorphBallEyeLookingDownDownLeft,
+        EnemyFrameId.MorphBallEyeLookingDownLeft, EnemyFrameId.MorphBallEyeLookingLeftDownLeft, EnemyFrameId.MorphBallEyeLookingLeft,
+        EnemyFrameId.MorphBallEyeLookingLeftUpLeft, EnemyFrameId.MorphBallEyeLookingUpLeft, EnemyFrameId.MorphBallEyeLookingUpUpLeft,
+        EnemyFrameId.MorphBallEyeLookingUpUpLeft);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MorphBallEyeSegment> StartingWith(MorphBallEyeSegment segment) => StartingAt[segment];

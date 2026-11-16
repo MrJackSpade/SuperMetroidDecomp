@@ -140,11 +140,12 @@ internal static class EnemySheetOwnFramesVerification
     /// <summary>The programs every room placement of <paramref name="definition"/> can select.</summary>
     private static IEnumerable<FuneNamiheSegment> PlacedFuneNamihePrograms(EnemyDefinitionId definition)
     {
-        FuneNamiheSpawnSettings[] placements = [.. Placements(definition).Select(placement => placement.SpawnSettingsOf<FuneNamiheSpawnSettings>())];
-        AssertTrue(placements.Length > 0, $"a room places {definition}");
+        AssertTrue(Placements(definition).Any(), $"a room places {definition}");
         bool[] both = [false, true];
         return both.SelectMany(active => both.Select(right =>
-            FuneNamiheBehavior.SelectFuneNamiheAnimation(new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { IsNamihe = definition == EnemyDefinitionId.Namihe, ShowsActiveAnimation = active, FacingRight = right })));
+            FuneNamiheBehavior.SelectFuneNamiheAnimation(definition == EnemyDefinitionId.Namihe
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { ShowsActiveAnimation = active, FacingRight = right }
+                : new FuneEnemyState(FuneAction.WaitForCooldown) { ShowsActiveAnimation = active, FacingRight = right })));
     }
 
     /// <summary>

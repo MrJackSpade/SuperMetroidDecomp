@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
+    /// <summary>How long a Pirate that reflects a shot stays invincible, in updates.</summary>
+    internal const int ReflectInvincibility = 10;
+
     /// <summary>A Pirate's touch: Samus takes contact damage.</summary>
     private static readonly EnemyReaction Touch = SpacePirateReactions.Touch;
     /// <summary>A shot that hurts a walking or wall Pirate, or a silver ninja.</summary>

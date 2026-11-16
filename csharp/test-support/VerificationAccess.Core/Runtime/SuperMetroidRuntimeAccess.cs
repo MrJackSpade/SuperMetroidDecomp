@@ -50,6 +50,7 @@ internal static class SuperMetroidRuntimeAccess
                 Area = self.Room.LoadedRoom.Area,
                 BossArtwork = new SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding(),
                 BreakableTerrain = self.Room.LoadedScope.RoomObjects.BreakableTerrain,
+                RoomFx = self.Room.LoadedScope.FxOverlay,
                 DoorPassage = self.DoorTransition.Passage,
             });
             enemies.Load(request);
@@ -76,6 +77,7 @@ internal static class SuperMetroidRuntimeAccess
                 Area = loaded.Room.Area,
                 BossArtwork = loaded.BossArtworkBinding,
                 BreakableTerrain = scope.RoomObjects.BreakableTerrain,
+                RoomFx = scope.FxOverlay,
                 DoorPassage = self.DoorTransition.Passage,
             });
             // The room load hands the scope its enemy system before loading the population, as here.
@@ -84,7 +86,7 @@ internal static class SuperMetroidRuntimeAccess
                 scope.Appearance)
             {
                 Level = scope.LevelData,
-                Samus = self.Player.Samus,
+                Samus = self.Player.IntroducedSamus,
                 Camera = scope.Camera.PixelPosition,
             });
             return enemies;

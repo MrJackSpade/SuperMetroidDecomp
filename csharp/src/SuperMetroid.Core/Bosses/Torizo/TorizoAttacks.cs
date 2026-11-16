@@ -584,7 +584,7 @@ internal sealed class TorizoAttacks
             definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
     }
 
-    /// <summary>A randomized projectile's jitter on one axis: the random number modulo 256, less 128, in 256ths of a pixel.</summary>
+    /// <summary>A randomized projectile's jitter on one axis: the random number's lowest 256-value field, less 128, in 256ths of a pixel.</summary>
     private static SignedEightEight VelocityJitter(int random) =>
         SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
 

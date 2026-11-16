@@ -88,7 +88,7 @@ internal static class FileSelectRoomMapVerification
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
-            RgbaPixel[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
+            RgbaPixel[] pixels = graphics.RenderBackgrounds(new Offset16<MapPixels>(0, -40));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
@@ -113,8 +113,8 @@ internal static class FileSelectRoomMapVerification
         var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
         snapshot.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
         snapshot.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
-        saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0);
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        var slot = saves.ReadSlot(SaveSlot.A);
         var cancel = new FileSelectMapMenuState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new SharedRandom(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         var control = new FileSelectMapMenuState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new SharedRandom(), slot, 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         foreach (var menu in new[] { cancel, control })
@@ -323,8 +323,8 @@ internal static class FileSelectRoomMapVerification
             var cell = room.MapPosition + new Offset16<MapTiles>(checked(LittleEndianBytes.HighByte(station.SamusPosition.X)), checked((short)LittleEndianBytes.HighByte(station.SamusPosition.Y)));
             snapshot.Progress.SetExplored(savedArea, cell, explored: true);
         }
-        saves.SaveSlot(0, snapshot);
-        saves.SelectSlot(0);
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        saves.SelectSlot(SaveSlot.A);
         var game = CreateRetailGameFixture(saves, assists: null, renderGameplayFrames: false);
         game.BindArtwork(game.Artwork with
         {
@@ -479,7 +479,7 @@ internal static class FileSelectRoomMapVerification
         // Repeated stepping must stop at the native inequality, not run past the edge.
         for (int frame = 0; frame < 1000; frame++) precedence.Step(ControllerButton.Left);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
-        ushort stoppedX = precedence.Scroll.X;
+        short stoppedX = precedence.Scroll.X;
         for (int frame = 0; frame < 16; frame++) precedence.Step(ControllerButton.Left);
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }

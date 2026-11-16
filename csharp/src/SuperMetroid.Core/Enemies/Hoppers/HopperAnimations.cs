@@ -17,123 +17,123 @@ internal static class HopperAnimations
     {
         [P.SidehopperFloorJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
             Show(EnemyFrameId.SidehopperJumpFloor, 1),
         ],
         [P.SidehopperFloorLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Land)),
             Show(EnemyFrameId.SidehopperFloorLandedFirst, 2),
             Show(EnemyFrameId.SidehopperFloorLandedSecond, 5),
             Show(EnemyFrameId.SidehopperFloorLandedFirst, 2),
             Show(EnemyFrameId.SidehopperFloorLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.SidehopperCeilingJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
             Show(EnemyFrameId.SidehopperJumpCeiling, 1),
         ],
         [P.SidehopperCeilingLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Land)),
             Show(EnemyFrameId.SidehopperCeilingLandedFirst, 2),
             Show(EnemyFrameId.SidehopperCeilingLandedSecond, 5),
             Show(EnemyFrameId.SidehopperCeilingLandedFirst, 2),
             Show(EnemyFrameId.SidehopperCeilingLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.DessgeegaFloorJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Show(EnemyFrameId.DessgeegaJumpFloor, 1),
         ],
         [P.DessgeegaFloorLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
             Show(EnemyFrameId.DessgeegaFloorLandedFirst, 2),
             Show(EnemyFrameId.DessgeegaFloorLandedSecond, 5),
             Show(EnemyFrameId.DessgeegaFloorLandedFirst, 2),
             Show(EnemyFrameId.DessgeegaFloorLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.DessgeegaCeilingJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Show(EnemyFrameId.DessgeegaJumpCeiling, 1),
         ],
         [P.DessgeegaCeilingLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
             Show(EnemyFrameId.DessgeegaCeilingLandedFirst, 2),
             Show(EnemyFrameId.DessgeegaCeilingLandedSecond, 5),
             Show(EnemyFrameId.DessgeegaCeilingLandedFirst, 2),
             Show(EnemyFrameId.DessgeegaCeilingLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.LargeSidehopperFloorJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
             Show(EnemyFrameId.LargeSidehopperJumpFloor, 1),
         ],
         [P.LargeSidehopperFloorLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Land)),
             Show(EnemyFrameId.LargeSidehopperFloorLandedFirst, 2),
             Show(EnemyFrameId.LargeSidehopperFloorLandedSecond, 5),
             Show(EnemyFrameId.LargeSidehopperFloorLandedFirst, 2),
             Show(EnemyFrameId.LargeSidehopperFloorLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.LargeSidehopperCeilingJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Hop)),
             Show(EnemyFrameId.LargeSidehopperJumpCeiling, 1),
         ],
         [P.LargeSidehopperCeilingLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.PlaySound(HopperSoundDefinitions.Land)),
             Show(EnemyFrameId.LargeSidehopperCeilingLandedFirst, 2),
             Show(EnemyFrameId.LargeSidehopperCeilingLandedSecond, 5),
             Show(EnemyFrameId.LargeSidehopperCeilingLandedFirst, 2),
             Show(EnemyFrameId.LargeSidehopperCeilingLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.LargeDessgeegaFloorJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Show(EnemyFrameId.LargeDessgeegaJumpFloor, 1),
         ],
         [P.LargeDessgeegaFloorLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
             Show(EnemyFrameId.LargeDessgeegaFloorLandedFirst, 2),
             Show(EnemyFrameId.LargeDessgeegaFloorLandedSecond, 5),
             Show(EnemyFrameId.LargeDessgeegaFloorLandedFirst, 2),
             Show(EnemyFrameId.LargeDessgeegaFloorLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
         [P.LargeDessgeegaCeilingJumping] =
         [
-            Cue(new(K.ProcessOffScreen)),
+            Cue(new HopperCue.Signal(K.ProcessOffScreen)),
             Show(EnemyFrameId.LargeDessgeegaJumpCeiling, 1),
         ],
         [P.LargeDessgeegaCeilingLanded] =
         [
-            Cue(new(K.StopProcessingOffScreen)),
+            Cue(new HopperCue.Signal(K.StopProcessingOffScreen)),
             Show(EnemyFrameId.LargeDessgeegaCeilingLandedFirst, 2),
             Show(EnemyFrameId.LargeDessgeegaCeilingLandedSecond, 5),
             Show(EnemyFrameId.LargeDessgeegaCeilingLandedFirst, 2),
             Show(EnemyFrameId.LargeDessgeegaCeilingLandedSecond, 3),
-            Cue(new(K.ReadyToHop)),
+            Cue(new HopperCue.Signal(K.ReadyToHop)),
         ],
     });
 

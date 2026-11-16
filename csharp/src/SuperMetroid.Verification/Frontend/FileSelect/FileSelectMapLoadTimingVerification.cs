@@ -28,7 +28,7 @@ internal static class FileSelectMapLoadTimingVerification
         save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
         save.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        saves.SaveSlot(0, save);
+        saves.SaveSlot(SaveSlot.A, save);
         var game = CreateRetailGameFixture(saves);
         game.BindArtwork(game.Artwork with { MapPresentation = RetailPresentationFixture() });
 

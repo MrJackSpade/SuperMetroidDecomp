@@ -17,23 +17,9 @@ public sealed class WalkingSpacePirateEnemyState
     /// <summary>The current behaviour.</summary>
     public WalkingSpacePirateAction Action { get; internal set; }
 
-    /// <summary>
-    /// Left patrol post. Only the X axis is stored and meaningful (Y reads zero): a leftward walk turns back once the
-    /// Pirate passes it.
-    /// </summary>
-    public Position16<RoomPixels> LeftPost
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
+    /// <summary>The left patrol post's room column: a leftward walk turns back once the Pirate passes it.</summary>
+    public int LeftPostX { get; internal set; }
 
-    /// <summary>
-    /// Right patrol post. Only the X axis is stored and meaningful (Y reads zero): a rightward walk turns back once the
-    /// Pirate reaches it.
-    /// </summary>
-    public Position16<RoomPixels> RightPost
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
+    /// <summary>The right patrol post's room column: a rightward walk turns back once the Pirate reaches it.</summary>
+    public int RightPostX { get; internal set; }
 }

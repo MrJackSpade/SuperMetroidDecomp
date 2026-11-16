@@ -70,7 +70,7 @@ internal sealed class MotherBrainFakeDeath
             }
         }
 
-        // The grey fade's last step is an unconditional tail-call. Tube sequencing and dust therefore
+        // Every update of the grey fade also runs the tube collapse and the explosion, so tube sequencing and dust
         // begin during the grey fade rather than waiting for the eighth fade step.
         RunMotherBrainTubeCollapse(state);
         RunMotherBrainFakeDeathExplosion(state);

@@ -37,6 +37,10 @@ internal static class ReachabilityAnalysis
                 treeOwners.TryAdd(tree, compilation);
         var references = new ReferenceCollector(identity, graph, roots, json, reflection, treeOwners);
         var analyzed = solution.Projects.Where(p => !VerificationProjects.Contains(p.Project.Name)).ToList();
+        // The walks below are serial, since what they record depends on their order; binding the code they query on
+        // every processor first leaves them only the bound answers to read.
+        SemanticModels.Bind(analyzed.SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource)
+            .Select(tree => (p.Compilation, tree))));
 
         foreach (var (project, compilation) in analyzed)
         {

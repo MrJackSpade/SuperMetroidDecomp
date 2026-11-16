@@ -128,8 +128,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 {
                     Stage.ColourEffects.Start(EndingColourEffectDefinitions.Lava, 0);
                     Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, 0);
-                    Stage.Brightness = EndingScreenDefinitions.Dark;
-                    Stage.RestartFadeCadence();
+                    Stage.Fade.Show(0);
+                    Stage.StartFastFade();
                     Stage.Phase = EndingCreditsPhase.FadeInSideCloudEscape;
                 }
                 break;
@@ -137,7 +137,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.FadeInSideCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.StepFastFadeIn())
+                if (Stage.Fade.Brighten())
                     Stage.Phase = EndingCreditsPhase.SideCloudEscape;
                 break;
 
@@ -146,7 +146,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
-                    Stage.RestartFadeCadence();
+                    Stage.StartFastFade();
                     Stage.Phase = EndingCreditsPhase.FadeOutSideCloudEscape;
                 }
                 break;
@@ -154,14 +154,14 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.FadeOutSideCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.StepFastFadeOut())
+                if (Stage.Fade.Darken())
                     EscapeScenes.SetupTopAndBottomCloudEscape();
                 break;
 
             case EndingCreditsPhase.FadeInTopAndBottomCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.StepFastFadeIn())
+                if (Stage.Fade.Brighten())
                     Stage.Phase = EndingCreditsPhase.TopAndBottomCloudEscape;
                 break;
 
@@ -170,7 +170,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EscapeScenes.StepEscapeClouds();
                 if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
-                    Stage.RestartFadeCadence();
+                    Stage.StartFastFade();
                     Stage.Phase = EndingCreditsPhase.FadeOutTopAndBottomCloudEscape;
                 }
                 break;
@@ -178,14 +178,14 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.FadeOutTopAndBottomCloudEscape:
                 StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.StepFastFadeOut())
+                if (Stage.Fade.Darken())
                     Explosion.SetupZebesExplosion();
                 break;
 
             case EndingCreditsPhase.FadeInZebesExplosion:
                 Explosion.StepExplosionCrossfade();
                 EscapeScenes.StepSprites();
-                if (Stage.StepFastFadeIn())
+                if (Stage.Fade.Brighten())
                     Stage.Phase = EndingCreditsPhase.ZebesExplosionCrossfade;
                 break;
 
@@ -246,7 +246,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.FadeOutToCredits:
                 EscapeScenes.StepSprites();
-                if (Stage.StepFastFadeOut())
+                if (Stage.Fade.Darken())
                     CreditsRoll.SetupCredits();
                 break;
 
@@ -259,13 +259,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsBlank:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    Stage.RestartFadeCadence();
+                    Stage.StartPostCreditsFade();
                     Stage.Phase = EndingCreditsPhase.PostCreditsFadeIn;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsFadeIn:
-                if (Stage.StepSlowFadeIn())
+                if (Stage.Fade.Brighten())
                 {
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames;
                     CreditsRoll.FadeWaitingBackdrop(0);

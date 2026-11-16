@@ -18,13 +18,19 @@ internal static class VerificationReferences
         var identity = new SymbolIdentity(solution.RepositoryRoot);
         var keys = new HashSet<string>(StringComparer.Ordinal);
         var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (_, compilation) in solution.Projects.Where(p => ReachabilityAnalysis.VerificationProjects.Contains(p.Project.Name)))
+        var verification = solution.Projects.Where(p => ReachabilityAnalysis.VerificationProjects.Contains(p.Project.Name)).ToList();
+        // The walk keeps the first project's view of a shared file; binding those trees on every processor first leaves
+        // it only the bound answers to read.
+        var bindingSeen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        SemanticModels.Bind(verification.SelectMany(p => p.Compilation.SyntaxTrees
+            .Where(t => identity.IsRepositorySource(t) && bindingSeen.Add(Path.GetFullPath(t.FilePath)))
+            .Select(tree => (p.Compilation, tree))));
+        foreach (var (_, compilation) in verification)
             foreach (var tree in compilation.SyntaxTrees.Where(t => identity.IsRepositorySource(t) && visited.Add(Path.GetFullPath(t.FilePath))))
             {
-                var model = compilation.GetSemanticModel(tree);
                 foreach (var node in tree.GetRoot().DescendantNodes().Where(n => n is ExpressionSyntax or AttributeSyntax))
                 {
-                    var info = model.GetSymbolInfo(node);
+                    var info = SemanticModels.At(compilation, tree, node).GetSymbolInfo(node);
                     foreach (var symbol in info.CandidateSymbols.Prepend(info.Symbol))
                         if (identity.Key(SymbolIdentity.Normalize(symbol)) is { } key)
                             keys.Add(key);

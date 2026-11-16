@@ -31,18 +31,18 @@ internal static class CacatacProjectileDefinitionsVerification
             ushort raw = CacatacNativeWords.SpikeDirections.Word(direction);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
             bool diagonal = raw >= CacatacNativeWords.SpikeDirections.Word(CacatacSpikeDirection.UpLeft);
-            AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Animation(direction)),
+            AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(direction),
                 $"compiled Cacatac spike instruction {direction}");
 
-            CacatacSpikeSpeedPair speeds = CacatacSpikes.SpeedPair(direction);
+            // #2067: each kind's one speed, signed by the direction, gives the cartridge's two speed words.
             ushort expectedNegative = diagonal
                 ? (ushort)0xfe80
                 : (ushort)0xfe00;
             ushort expectedPositive = diagonal
                 ? (ushort)0x0180
                 : (ushort)0x0200;
-            AssertEqual(expectedNegative, speeds.Negative.RawValue, $"compiled Cacatac negative speed {direction}");
-            AssertEqual(expectedPositive, speeds.Positive.RawValue, $"compiled Cacatac positive speed {direction}");
+            SignedEightEight speed = diagonal ? CacatacProjectileDefinitions.DiagonalSpeed : CacatacProjectileDefinitions.CardinalSpeed;
+            AssertEqual(expectedPositive, speed.RawValue, $"compiled Cacatac speed {direction}");
 
             spawn(source, direction);
             EnemyProjectile actual = enemies.Projectiles.EnemyProjectiles.Single(
@@ -81,7 +81,7 @@ internal static class CacatacProjectileDefinitionsVerification
         AssertEqual(false, CacatacNativeWords.SpikeDirections.TryDecode(20, out _), "Cacatac spike selector beyond authored table");
 
         Console.WriteLine(
-            "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");
+            "Cacatac spike definitions: ten native selectors, speeds and production spawns pass with selector reads forbidden.");
     }
 
 }

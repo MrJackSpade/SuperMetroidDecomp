@@ -78,7 +78,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
     public SamusState Samus { get; }
 
-    /// <summary>The 32 by 16 discovery room with the game's partial foreground copy.</summary>
+    /// <summary>The 32 by 16 discovery room's collision: its two authored strips and air elsewhere.</summary>
     public RoomLevelData Level { get; }
 
     /// <summary>Signals the outer cinematic owner to start page three's colour transition.</summary>
@@ -456,15 +456,8 @@ internal sealed class IntroBabyDiscoveryState
         return actor;
     }
 
-    /// <summary>Creates the discovery collision room: its terrain, with every block's behaviour cleared.</summary>
-    private static RoomLevelData CreateLevel()
-    {
-        const int width = IntroBabyDiscoveryCollisionDefinitions.Columns;
-        const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
-        RoomTerrainBlock[] foreground = IntroBabyDiscoveryCollision.CreateForeground();
-        var behavior = new RoomBlockBehavior[width * height];
-        behavior.AsSpan().Fill(RoomBlockBehavior.None);
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
-    }
+    /// <summary>Creates the discovery room: collision only, which the scene's own pictures show.</summary>
+    private static RoomLevelData CreateLevel() => RoomLevelData.CollisionOnly(
+        new Extent16<RoomBlocks>(IntroBabyDiscoveryCollisionDefinitions.Columns, IntroBabyDiscoveryCollisionDefinitions.RoomRows),
+        IntroBabyDiscoveryCollision.CreateCollision());
 }

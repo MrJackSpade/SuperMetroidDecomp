@@ -76,7 +76,7 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in drawing order without advancing animations.</summary>
-    private void PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
+    private void PrepareIcons(Offset16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {
         ScreenSprites entries = screen.Sprites;
@@ -89,7 +89,7 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
-    public LayeredScene CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
+    public LayeredScene CaptureRenderSnapshot(Offset16<MapPixels> scroll = default,
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<DisplayLayer>();

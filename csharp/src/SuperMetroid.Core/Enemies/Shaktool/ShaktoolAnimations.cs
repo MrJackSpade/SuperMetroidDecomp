@@ -52,7 +52,7 @@ internal static class ShaktoolAnimations
         ],
         [P.ArmPieceNormal] =
         [
-            Show(EnemyFrameId.ShaktoolArm, 119),
+            Hold(EnemyFrameId.ShaktoolArm),
         ],
         [P.HeadHeadBob] =
         [
@@ -65,35 +65,35 @@ internal static class ShaktoolAnimations
         ],
         [P.HeadAimingLeft] =
         [
-            Show(EnemyFrameId.ShaktoolHeadLeft, 1908),
+            Hold(EnemyFrameId.ShaktoolHeadLeft),
         ],
         [P.HeadAimingUpLeft] =
         [
-            Show(EnemyFrameId.ShaktoolHeadUpLeft, 1909),
+            Hold(EnemyFrameId.ShaktoolHeadUpLeft),
         ],
         [P.HeadAimingUp] =
         [
-            Show(EnemyFrameId.ShaktoolHeadUp, 1910),
+            Hold(EnemyFrameId.ShaktoolHeadUp),
         ],
         [P.HeadAimingUpRight] =
         [
-            Show(EnemyFrameId.ShaktoolHeadUpRight, 1911),
+            Hold(EnemyFrameId.ShaktoolHeadUpRight),
         ],
         [P.HeadAimingRight] =
         [
-            Show(EnemyFrameId.ShaktoolHeadRight, 1912),
+            Hold(EnemyFrameId.ShaktoolHeadRight),
         ],
         [P.HeadAimingDownRight] =
         [
-            Show(EnemyFrameId.ShaktoolHeadDownRight, 1913),
+            Hold(EnemyFrameId.ShaktoolHeadDownRight),
         ],
         [P.HeadAimingDown] =
         [
-            Show(EnemyFrameId.ShaktoolHeadDown, 1914),
+            Hold(EnemyFrameId.ShaktoolHeadDown),
         ],
         [P.HeadAimingDownLeft] =
         [
-            Show(EnemyFrameId.ShaktoolHeadDownLeft, 1915),
+            Hold(EnemyFrameId.ShaktoolHeadDownLeft),
         ],
     });
 
@@ -123,6 +123,12 @@ internal static class ShaktoolAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, ShaktoolCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.Frame(frame, duration);
+
+    /// <summary>
+    /// Shows <paramref name="frame"/> for good (#2068): the arm and the aimed head rest on their pose, the head until its
+    /// orientation restarts it on the next update.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, ShaktoolCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, ShaktoolCue> Cue(ShaktoolCue cue) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.Event(cue);

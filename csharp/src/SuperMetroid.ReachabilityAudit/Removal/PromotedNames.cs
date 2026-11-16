@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ReachabilityAudit.Analysis;
 using SuperMetroid.ReachabilityAudit.Declarations;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ReachabilityAudit.Removal;
 
@@ -60,7 +61,7 @@ internal static class PromotedNames
             {
                 if (refusal is not null)
                     break;
-                refusal = ChangedReference(symbol, name, compilation.GetSemanticModel(tree), tree.GetRoot(), types);
+                refusal = ChangedReference(symbol, name, SemanticModels.Of(compilation, tree), tree.GetRoot(), types);
             }
             if (refusal is not null)
                 refusals[symbol] = refusal;

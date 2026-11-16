@@ -9,10 +9,10 @@ namespace SuperMetroid.Verification.Frontend.Map;
 /// <summary>Checks area-specific file-select map window origins, edge velocities, and timers.</summary>
 internal static class MapWindowMotionDefinitionsVerification
 {
-    /// <summary>Compares native X origins with the stock and installed label positions.</summary>
+    /// <summary>Compares native X origins with the installed label positions.</summary>
     internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelPositions labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
-    /// <summary>Compares native Y origins with the stock and installed label positions.</summary>
+    /// <summary>Compares native Y origins with the installed label positions.</summary>
     internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelPositions labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
@@ -23,13 +23,9 @@ internal static class MapWindowMotionDefinitionsVerification
         for (int area = 0; area < 6; area++)
         {
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
-            var stock = FileSelectMapWindowMotions.StockOrigin(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
-            AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
             Offset16<ScreenPixels> installed = labels.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.StockOrigin(SuperMetroid.Core.Progression.AreaId.Ceres),
-            "Ceres has no stock origin");
         AssertThrows<ArgumentOutOfRangeException>(() => labels.Get(SuperMetroid.Core.Progression.AreaId.Ceres), "Ceres has no installed label");
     }
 

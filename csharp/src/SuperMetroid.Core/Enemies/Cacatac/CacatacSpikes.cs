@@ -1,45 +1,29 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
-/// <summary>Chooses a Cacatac spike's animation and launch speeds by its direction.</summary>
+/// <summary>Chooses a Cacatac spike's launch velocity by its direction.</summary>
 internal static class CacatacSpikes
 {
-    /// <summary>The named animation of a spike launched in <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
-    internal static CacatacProjectileSegment Animation(CacatacSpikeDirection direction) =>
-        CacatacProjectileDefinitions.Animations.TryGetValue(direction, out CacatacProjectileSegment segment)
-            ? segment
-            : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
-
     /// <summary>
-    /// The launch speeds of a spike in <paramref name="direction"/>. The positive speed is the signed 1/256-pixel magnitude and
-    /// the negative speed is its negation.
-    /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
-    internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction) =>
-        CacatacProjectileDefinitions.Speeds.TryGetValue(direction, out CacatacSpikeSpeedPair speeds)
-            ? speeds
-            : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
-
-    /// <summary>
-    /// The velocity a spike launched in <paramref name="direction"/> flies at: its launch speed toward the side or sides
+    /// The velocity a spike launched in <paramref name="direction"/> flies at: its kind's speed toward the side or sides
     /// its direction names, and none on an axis it does not move along.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
     internal static EightEightVector<RoomPixels> Velocity(CacatacSpikeDirection direction)
     {
-        CacatacSpikeSpeedPair speeds = SpeedPair(direction);
-        SignedEightEight still = new(0);
+        SignedEightEight cardinal = CacatacProjectileDefinitions.CardinalSpeed;
+        SignedEightEight diagonal = CacatacProjectileDefinitions.DiagonalSpeed;
+        SignedEightEight still = SignedEightEight.Zero;
         return direction switch
         {
-            CacatacSpikeDirection.LeftFacingUp or CacatacSpikeDirection.LeftFacingDown => new(speeds.Negative, still),
-            CacatacSpikeDirection.RightFacingUp or CacatacSpikeDirection.RightFacingDown => new(speeds.Positive, still),
-            CacatacSpikeDirection.Up => new(still, speeds.Negative),
-            CacatacSpikeDirection.Down => new(still, speeds.Positive),
-            CacatacSpikeDirection.UpLeft => new(speeds.Negative, speeds.Negative),
-            CacatacSpikeDirection.UpRight => new(speeds.Positive, speeds.Negative),
-            CacatacSpikeDirection.DownLeft => new(speeds.Negative, speeds.Positive),
-            CacatacSpikeDirection.DownRight => new(speeds.Positive, speeds.Positive),
-            _ => throw new InvalidDataException($"Undefined {nameof(CacatacSpikeDirection)} {direction}."),
+            CacatacSpikeDirection.LeftFacingUp or CacatacSpikeDirection.LeftFacingDown => new(-cardinal, still),
+            CacatacSpikeDirection.RightFacingUp or CacatacSpikeDirection.RightFacingDown => new(cardinal, still),
+            CacatacSpikeDirection.Up => new(still, -cardinal),
+            CacatacSpikeDirection.Down => new(still, cardinal),
+            CacatacSpikeDirection.UpLeft => new(-diagonal, -diagonal),
+            CacatacSpikeDirection.UpRight => new(diagonal, -diagonal),
+            CacatacSpikeDirection.DownLeft => new(-diagonal, diagonal),
+            CacatacSpikeDirection.DownRight => new(diagonal, diagonal),
+            _ => throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions."),
         };
     }
 }

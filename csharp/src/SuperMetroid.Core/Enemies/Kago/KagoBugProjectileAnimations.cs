@@ -22,10 +22,6 @@ internal static class KagoBugProjectileAnimations
     internal static AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments { get; } = new(
         new Dictionary<KagoBugProjectileSegment, AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>[]>
     {
-        [P.SharedDelete] =
-        [
-            Cue(new(K.Delete)),
-        ],
         [P.Landed] =
         [
             Show(EnemyProjectileFrameId.KagoBugLandedFirst, 5),
@@ -55,6 +51,7 @@ internal static class KagoBugProjectileAnimations
             Show(EnemyProjectileFrameId.KagoBugShotFourth, 4),
             Show(EnemyProjectileFrameId.KagoBugShotFifth, 4),
             Cue(new(K.SpawnDrop)),
+            Cue(new(K.Delete)),
         ],
         [P.Waiting] =
         [
@@ -65,12 +62,11 @@ internal static class KagoBugProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt { get; } = new Dictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>>
     {
-        [P.SharedDelete] = new([new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
         [P.Landed] = new([new(P.Landed, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Falling] = new([new(P.Falling, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.JumpStart] = new([new(P.JumpStart, 0, 3, 1), new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.JumpLoop] = new([new(P.JumpLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Shot] = new([new(P.Shot, 0, 7, 1), new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Shot] = new([new(P.Shot, 0, 8, 1)], AnimationEnd.Holds),
         [P.Waiting] = new([new(P.Waiting, 0, 1, 1)], AnimationEnd.Holds),
     };
 

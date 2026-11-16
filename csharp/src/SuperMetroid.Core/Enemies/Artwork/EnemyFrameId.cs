@@ -1430,34 +1430,34 @@ public enum EnemyFrameId
     BlueBrinstarFaceBlockSamusRightSecond,
     /// <summary>The blue Brinstar face block: Samus right, third frame.</summary>
     BlueBrinstarFaceBlockSamusRightThird,
-    /// <summary>The Morph Ball eye: active, first frame.</summary>
-    MorphBallEyeActiveFirst,
-    /// <summary>The Morph Ball eye: active, second frame.</summary>
-    MorphBallEyeActiveSecond,
-    /// <summary>The Morph Ball eye: active, third frame.</summary>
-    MorphBallEyeActiveThird,
-    /// <summary>The Morph Ball eye: active, fourth frame.</summary>
-    MorphBallEyeActiveFourth,
-    /// <summary>The Morph Ball eye: active, fifth frame.</summary>
-    MorphBallEyeActiveFifth,
-    /// <summary>The Morph Ball eye: active, sixth frame.</summary>
-    MorphBallEyeActiveSixth,
-    /// <summary>The Morph Ball eye: active, seventh frame.</summary>
-    MorphBallEyeActiveSeventh,
-    /// <summary>The Morph Ball eye: active, eighth frame.</summary>
-    MorphBallEyeActiveEighth,
-    /// <summary>The Morph Ball eye: active, ninth frame.</summary>
-    MorphBallEyeActiveNinth,
-    /// <summary>The Morph Ball eye: active, tenth frame.</summary>
-    MorphBallEyeActiveTenth,
-    /// <summary>The Morph Ball eye: active, eleventh frame.</summary>
-    MorphBallEyeActiveEleventh,
-    /// <summary>The Morph Ball eye: active, twelfth frame.</summary>
-    MorphBallEyeActiveTwelfth,
-    /// <summary>The Morph Ball eye: active, thirteenth frame.</summary>
-    MorphBallEyeActiveThirteenth,
-    /// <summary>The Morph Ball eye: active, fourteenth frame.</summary>
-    MorphBallEyeActiveFourteenth,
+    /// <summary>The Morph Ball eye open, looking up and a little right.</summary>
+    MorphBallEyeLookingUpUpRight,
+    /// <summary>The Morph Ball eye open, looking up and to the right.</summary>
+    MorphBallEyeLookingUpRight,
+    /// <summary>The Morph Ball eye open, looking right and a little up.</summary>
+    MorphBallEyeLookingRightUpRight,
+    /// <summary>The Morph Ball eye open, looking straight right.</summary>
+    MorphBallEyeLookingRight,
+    /// <summary>The Morph Ball eye open, looking right and a little down.</summary>
+    MorphBallEyeLookingRightDownRight,
+    /// <summary>The Morph Ball eye open, looking down and to the right.</summary>
+    MorphBallEyeLookingDownRight,
+    /// <summary>The Morph Ball eye open, looking down and a little right.</summary>
+    MorphBallEyeLookingDownDownRight,
+    /// <summary>The Morph Ball eye open, looking down and a little left.</summary>
+    MorphBallEyeLookingDownDownLeft,
+    /// <summary>The Morph Ball eye open, looking down and to the left.</summary>
+    MorphBallEyeLookingDownLeft,
+    /// <summary>The Morph Ball eye open, looking left and a little down.</summary>
+    MorphBallEyeLookingLeftDownLeft,
+    /// <summary>The Morph Ball eye open, looking straight left.</summary>
+    MorphBallEyeLookingLeft,
+    /// <summary>The Morph Ball eye open, looking left and a little up.</summary>
+    MorphBallEyeLookingLeftUpLeft,
+    /// <summary>The Morph Ball eye open, looking up and to the left.</summary>
+    MorphBallEyeLookingUpLeft,
+    /// <summary>The Morph Ball eye open, looking up and a little left.</summary>
+    MorphBallEyeLookingUpUpLeft,
     /// <summary>The Morph Ball eye: right transition.</summary>
     MorphEyeRightTransition,
     /// <summary>The Morph Ball eye: right closed.</summary>
@@ -2212,8 +2212,8 @@ public enum EnemyFrameId
     EtecoonContinueHoppingFacingLeftFirst,
     /// <summary>Etecoon: continue hopping facing left, second frame.</summary>
     EtecoonContinueHoppingFacingLeftSecond,
-    /// <summary>Etecoon: hit ceiling, first frame.</summary>
-    EtecoonHitCeilingFirst,
+    /// <summary>Etecoon: continue hopping facing left, third frame: the crest of the hop, which a ceiling hit enters at.</summary>
+    EtecoonContinueHoppingFacingLeftThird,
     /// <summary>Etecoon: wall jump left eligible.</summary>
     EtecoonWallJumpLeftEligible,
     /// <summary>Etecoon: look left at Samus and run right.</summary>

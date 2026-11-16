@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
@@ -21,16 +22,21 @@ internal sealed class SymbolIdentity(string repositoryRoot)
     /// <summary>Path segment excluded because it contains built outputs.</summary>
     private static readonly string BinSegment = $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}";
 
+    /// <summary>Each file path's answer to <see cref="IsRepositorySource"/>, found once.</summary>
+    private readonly ConcurrentDictionary<string, bool> _repositorySource = new(StringComparer.Ordinal);
+
+    /// <summary>Each declaration's key, found once: the walks ask for the same symbols' keys again and again.</summary>
+    private readonly ConcurrentDictionary<ISymbol, string?> _keys = new(SymbolEqualityComparer.Default);
+
     /// <summary>Hand-written repository source; generated files under obj/ and bin/ are excluded.</summary>
-    public bool IsRepositorySource([NotNullWhen(true)] SyntaxTree? tree)
-    {
-        if (tree is null)
-            return false;
-        string path = Path.GetFullPath(tree.FilePath);
-        return path.StartsWith(repositoryRoot, StringComparison.OrdinalIgnoreCase)
-            && !path.Contains(ObjSegment, StringComparison.OrdinalIgnoreCase)
-            && !path.Contains(BinSegment, StringComparison.OrdinalIgnoreCase);
-    }
+    public bool IsRepositorySource([NotNullWhen(true)] SyntaxTree? tree) =>
+        tree is not null && _repositorySource.GetOrAdd(tree.FilePath, filePath =>
+        {
+            string path = Path.GetFullPath(filePath);
+            return path.StartsWith(repositoryRoot, StringComparison.OrdinalIgnoreCase)
+                && !path.Contains(ObjSegment, StringComparison.OrdinalIgnoreCase)
+                && !path.Contains(BinSegment, StringComparison.OrdinalIgnoreCase);
+        });
 
     /// <summary>Normalizes a source path into a repository-relative key component with forward slashes.</summary>
     public string Relative(string path) => Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/');
@@ -71,8 +77,12 @@ internal sealed class SymbolIdentity(string repositoryRoot)
     public string? Key(ISymbol? symbol)
     {
         symbol = Normalize(symbol);
-        if (symbol is null)
-            return null;
+        return symbol is null ? null : _keys.GetOrAdd(symbol, KeyOf);
+    }
+
+    /// <summary>The key of a normalized symbol.</summary>
+    private string? KeyOf(ISymbol symbol)
+    {
         // A compiler-generated constructor carries its type's location; it stands for "instantiated".
         if (symbol is IMethodSymbol { MethodKind: MethodKind.Constructor, IsImplicitlyDeclared: true } constructor)
             return Key(constructor.ContainingType) is { } typeKey ? typeKey + ImplicitConstructorSuffix : null;

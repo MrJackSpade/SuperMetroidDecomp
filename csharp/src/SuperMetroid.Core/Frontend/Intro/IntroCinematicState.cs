@@ -212,12 +212,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// intro reaches the title long before the game counter's 65536-update wrap, so it is a plain count.
     /// </summary>
     private int frameCounter;
-    /// <summary>How bright the narration screen is; the intro starts blanked and fades each narration page in and out.</summary>
-    private ScreenBrightness brightness = ScreenBrightness.Blanked;
-    /// <summary>How bright the narration screen the cinematic publishes is.</summary>
-    internal ScreenBrightness Brightness { get => brightness; set => brightness = value; }
-    /// <summary>Times the narration's screen fades at cinematic entry, between pages and at exit.</summary>
-    private readonly ScreenFade fade = new();
+    /// <summary>
+    /// How bright the narration screen is and the cadence of its fades at cinematic entry, between pages and at exit; the
+    /// intro starts black.
+    /// </summary>
+    private readonly ScreenFade fade = new(0);
     /// <summary>The updates the running narration hold has left.</summary>
     private int timer;
 
@@ -303,14 +302,13 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // A request queued with the shortest delay waits eight updates before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
-                    // The fade-in seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInFirstNarration;
-                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
             case IntroCinematicPhase.FadeInFirstNarration:
-                if (fade.AdvanceSlowFadeIn(ref brightness))
+                if (fade.Brighten())
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
                     timer = IntroCinematicDefinitions.Timing.FirstLineHold;
@@ -352,15 +350,14 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.FourSecondHold:
                 if (--timer <= 0)
                 {
-                    // The fade-out seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
-                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
             case IntroCinematicPhase.FadeOutFirstNarration:
                 // The fade-out installs page one's setup, which runs in the next update.
-                if (fade.AdvanceSlowFadeOut(ref brightness))
+                if (fade.Darken())
                     Phase = IntroCinematicPhase.SetupPageOne;
                 break;
 
@@ -374,14 +371,13 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (MusicQueueFinished())
                 {
                     Narration.StartEnglishPageOne();
-                    // Page one seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
-                    fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
+                    fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
                 }
                 break;
 
             case IntroCinematicPhase.FadeInPageOne:
-                if (fade.AdvanceSlowFadeIn(ref brightness))
+                if (fade.Brighten())
                     Phase = IntroCinematicPhase.PageOneText;
                 break;
 
@@ -486,8 +482,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
             case IntroCinematicPhase.IntroFadeOut:
                 // The intro's end fades out and finishes once the screen is black.
-                fade.FadeOut(ref brightness);
-                if (brightness.IsBlanked)
+                if (fade.Darken())
                 {
                     // The Ceres approach immediately replaces the narration display setup with the
                     // Ceres turning-floor scene. Give that scene its own display, colour, and
@@ -526,9 +521,8 @@ public sealed class IntroCinematicState : IFrontendScreen
                 Phase = IntroCinematicPhase.PageFiveAwaitingInput;
             if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageSixText)
             {
-                // Page six selects the ordinary fade-out owner with delay/counter one. The
-                // framebuffer on this request frame is still full-brightness page six.
-                fade.SetTiming(IntroCinematicDefinitions.Fade.FinishFade, IntroCinematicDefinitions.Fade.FinishFade);
+                // Page six starts the final fade-out; the screen on this request frame is still full-brightness page six.
+                fade.StepEvery(IntroCinematicDefinitions.Fade.FinishUpdatesPerStep);
                 Phase = IntroCinematicPhase.IntroFadeOut;
             }
         }
@@ -753,7 +747,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageThreeCrossfade()
     {
         // The reverse crossfade is shared by pages two and three. The named outer phase keeps
-        // rendering the SR388 actors until its final decrement switches TM back to text.
+        // showing the SR388 actors until its final step shows the text page alone again.
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
@@ -952,8 +946,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
             // When knockback ends humanoid knockback it selects the right or left falling pose and restores
-            // normal movement. The following frames therefore execute the ordinary type-6
-            // fall until the room's collision reports the laboratory floor.
+            // normal movement. The following frames therefore run Samus's ordinary fall until the room's
+            // collision reports the laboratory floor.
             fallingMovement = SamusAerialMovement.StepFalling(
 
                 level,
@@ -991,8 +985,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             transitionAccepted = true;
         }
 
-        // The intro demo's movement phase consumes the timer published by Rinka zero on the preceding cinematic-
-        // sprite pass. Keeping this after animation matches Samus's update during the intro demo:
+        // The intro demo's movement phase consumes the knockback timer the first Rinka's hit published on the
+        // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&
             samus.KnockbackTimer != 0 &&
@@ -1037,20 +1031,10 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackDemoInput.Disable();
     }
 
-    /// <summary>Builds the flashback's collision room: its terrain, with every block's behaviour cleared.</summary>
-    private static RoomLevelData CreateMotherBrainLevel()
-    {
-        const int width = IntroMotherBrainCollisionDefinitions.Columns;
-        const int height = IntroMotherBrainCollisionDefinitions.RoomRows;
-        RoomTerrainBlock[] foreground = IntroMotherBrainCollision.CreateForeground();
-        var behavior = new RoomBlockBehavior[width * height];
-        behavior.AsSpan().Fill(RoomBlockBehavior.None);
-
-        // The background plane is irrelevant to collision in this visual room; it exists
-        // only to satisfy the shared RoomLevelData ownership contract.
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
-    }
+    /// <summary>Builds the flashback's room: collision only, which the flashback's own pictures show.</summary>
+    private static RoomLevelData CreateMotherBrainLevel() => RoomLevelData.CollisionOnly(
+        new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows),
+        IntroMotherBrainCollision.CreateCollision());
 
     /// <summary>The flashback Samus's starting colour state: her suit and beams in the opening's own colours (#1512).</summary>
     private static SamusColours IntroSamusColours()
@@ -1245,7 +1229,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // and cropped eight pixels down. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
                 new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { DrawsOpaque = true } },
-                Brightness.Level);
+                fade.Level);
         }
         else
         {
@@ -1260,7 +1244,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         return new(new FramePaint(Backdrop), new DisplayLayer[]
         {
             room, new SpritesLayer(FlashbackDraws(sprites.Draws)), text,
-        }, Brightness.Level);
+        }, fade.Level);
     }
 
 

@@ -116,7 +116,7 @@ internal static class CoreAccess
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
-        internal Position16<MapPixels> MapScroll => pause.MapScrollPosition;
+        internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
 
         /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
         internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>

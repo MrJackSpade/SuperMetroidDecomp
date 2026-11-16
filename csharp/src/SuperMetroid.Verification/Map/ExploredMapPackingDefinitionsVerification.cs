@@ -70,8 +70,8 @@ internal static class ExploredMapPackingDefinitionsVerification
             for (int index = 0; index < AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles; index += 3)
                 explored.SetExplored(area, AreaMapSize.Extent.CellAtRowMajorIndex(index), explored: true);
         }
-        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Progress = explored });
-        SuperMetroidSaveSlot restored = saveRam.ReadSlot(0) ??
+        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot { Progress = explored });
+        SuperMetroidSaveSlot restored = saveRam.ReadSlot(SaveSlot.A) ??
             throw new InvalidOperationException("Compiled explored-map save failed checksums.");
         foreach (AreaId area in AreaIds.All)
         {
@@ -81,7 +81,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 $"packed map production round trip keeps {area}'s occupied runs");
         }
         byte[] image = SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
-        AssertTrue(SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(0)?.Progression.SameAs(restored.Progression) == true,
+        AssertTrue(SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(SaveSlot.A)?.Progression.SameAs(restored.Progression) == true,
             "the packed field round-trips the kept exploration through the save image");
 
         Suite(nameof(VerifyCalculatedMapPackingBindings), () => VerifyCalculatedMapPackingBindings(explored));
@@ -99,11 +99,11 @@ internal static class ExploredMapPackingDefinitionsVerification
         var original = InstalledFixtures.Maps;
         var snapshot = new SuperMetroidSaveSnapshot { Progress = explored };
         var unbound = new SaveSlotStore();
-        AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
+        AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(SaveSlot.A, snapshot),
             "unbound map packing fails before persistence");
-        AssertTrue(unbound.ReadSlot(0) is null, "unbound save leaves the slot empty");
+        AssertTrue(unbound.ReadSlot(SaveSlot.A) is null, "unbound save leaves the slot empty");
         var saves = new SaveSlotStore(original);
-        saves.SaveSlot(0, snapshot);
+        saves.SaveSlot(SaveSlot.A, snapshot);
 
         var game = new SuperMetroidGame(saves);
         game.BindArtwork(game.Artwork with
@@ -115,9 +115,9 @@ internal static class ExploredMapPackingDefinitionsVerification
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         var restoredSaves = restored.Saves;
         AssertTrue(ReferenceEquals(original, restored.Artwork.MapPresentation), "debugger graph names its bound map provider");
-        AssertTrue(restoredSaves.ReadSlot(0) is not null, "the restored graph keeps the decoded slot");
-        restoredSaves.SaveSlot(0, snapshot);
-        AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).Progression.SameAs((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression),
+        AssertTrue(restoredSaves.ReadSlot(SaveSlot.A) is not null, "the restored graph keeps the decoded slot");
+        restoredSaves.SaveSlot(SaveSlot.A, snapshot);
+        AssertTrue((restoredSaves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(SaveSlot.A).")).Progression.SameAs((saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")).Progression),
             "restored debugger game preserves decoded exploration");
     }
 

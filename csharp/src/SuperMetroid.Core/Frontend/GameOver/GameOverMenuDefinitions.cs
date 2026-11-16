@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// <summary>The game-over menu's fade, music, sound and Baby timing.</summary>
 public static class GameOverMenuDefinitions
 {
-    /// <summary>The full screen brightness; the fade-in enters the interactive menu on reaching it.</summary>
-    public const int MaximumBrightness = 15;
-
     /// <summary>
     /// How crowded the sound queue may be for the menu's sounds to join it: the silence it opens with, the selection
     /// missile's move and all three Baby cries are requested at the usual priority.

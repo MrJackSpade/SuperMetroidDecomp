@@ -156,10 +156,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         CarrySamusWithKzanIfTouchingFromBelow(place, state, samus);
 
-        // The game caps the speed by whether its difference from the cap is negative; both stay far
-        // inside the signed range, so that is the ordinary minimum.
-        SignedSixteenSixteen accelerated = state.FallingSpeed + KzanFallAcceleration;
-        state.FallingSpeed = (accelerated - KzanMaximumFallingSpeed).IsNegative ? accelerated : KzanMaximumFallingSpeed;
+        state.FallingSpeed = SignedSixteenSixteen.Min(state.FallingSpeed + KzanFallAcceleration, KzanMaximumFallingSpeed);
     }
 
     /// <summary>Counts down the 64-frame landing hold before switching to ascent.</summary>

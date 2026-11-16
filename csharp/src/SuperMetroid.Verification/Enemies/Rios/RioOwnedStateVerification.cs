@@ -22,12 +22,11 @@ internal static class RioOwnedStateVerification
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
-        NorfairRioEnemyState parentState = parent.EntityState<NorfairRioEntity, NorfairRioEnemyState>()
-            ?? throw new InvalidOperationException("The Norfair Rio parent has no state.");
-        NorfairRioEnemyState followerState = follower.EntityState<NorfairRioEntity, NorfairRioEnemyState>()
-            ?? throw new InvalidOperationException("The Norfair Rio follower has no state.");
-        AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
-        AssertEqual(NorfairRioAction.FollowParent, followerState.Action, "the follower follows its parent");
+        AssertTrue(parent.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is not null &&
+            parent.EntityState<NorfairRioEntity, NorfairRioFollowerState>() is null &&
+            follower.EntityState<NorfairRioEntity, NorfairRioFollowerState>() is not null &&
+            follower.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is null,
+            "parameter one's sign bit selects the follower, which keeps only its own follower state");
         Console.WriteLine("Rio owned state: the follower selection matches.");
     }
 

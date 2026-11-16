@@ -27,7 +27,7 @@ internal static class FileSelectNavigationLookupVerification
         for (int occupied = 0; occupied < original.Length; occupied++)
         {
             int mask = occupied;
-            HashSet<SaveSlot> slots = [.. SaveSlots.All.Where(slot => (mask & (1 << SaveSlots.StoreNumber(slot))) != 0)];
+            HashSet<SaveSlot> slots = [.. SaveSlots.All.Where((slot, bit) => (mask & (1 << bit)) != 0)];
             VerifyOriginalSubmenuChoices(original[mask], (selected, pressed) =>
                 FileSelectDataNavigation.MoveSourceOrClear(selected, slots, pressed),
                 $"source/clear occupancy={string.Join(",", slots)}");
@@ -50,9 +50,9 @@ internal static class FileSelectNavigationLookupVerification
             "both directions exclude the same live source");
         AssertEqual((ushort)4, ReadVerificationWord(rom, 0x81983f), "native destination end boundary");
         // The copy source is a typed slot, so the former out-of-range source rejection has nothing left to reject.
-        foreach (SaveSlot source in SaveSlots.All)
+        foreach ((SaveSlot source, int list) in SaveSlots.All.Select((slot, list) => (slot, list)))
         {
-            VerifyOriginalSubmenuChoices(original[SaveSlots.StoreNumber(source)], (selected, pressed) =>
+            VerifyOriginalSubmenuChoices(original[list], (selected, pressed) =>
                 FileSelectDataNavigation.MoveCopyDestination(selected, source, pressed),
                 $"copy destination source={source}");
         }

@@ -89,7 +89,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
         place.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
-            new(EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
+            new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs an escaping Etecoon's action.</summary>
@@ -170,7 +170,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EscapeDachoraEnemyState dachora = place.RequireSpeciesState<EscapeDachoraEnemyState>();
         AnimationPlayback<EscapeDachoraSegment> dachoraPlayback = dachora.Playback;
         EnemyAnimationPlayback.Play(place, EscapeDachoraAnimations.Segments, ref dachoraPlayback,
-            cue => ApplyEscapeDachoraCue(place, samus, cue) is { } target ? EscapeDachoraAnimations.BranchTargets[target] : null);
+            cue => ApplyEscapeDachoraCue(place, samus, cue));
         dachora.Playback = dachoraPlayback;
     }
 
@@ -195,15 +195,15 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries out one cue of the Dachora's animation, returning the target a branch continues at, or null to run on.</summary>
-    private EscapeDachoraSegment? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
+    /// <summary>Carries out one cue of the Dachora's animation, returning where a taken branch continues the play, or null to run on.</summary>
+    private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
     {
         switch (cue.Kind)
         {
             case EscapeDachoraCueKind.GoToIfAcidHigh:
-                return IsAcidLow(samus) ? null : cue.Target;
+                return IsAcidLow(samus) ? null : cue.Then;
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
-                return HasCrittersEscaped() ? cue.Target : null;
+                return HasCrittersEscaped() ? cue.Then : null;
             case EscapeDachoraCueKind.MoveLeft:
                 place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - EscapeDachoraPixelsPerCue);
                 return null;
@@ -219,8 +219,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
-    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent,
-    /// as it is with no Samus or liquid context.
+    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent
+    /// from Samus's room.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
         samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;

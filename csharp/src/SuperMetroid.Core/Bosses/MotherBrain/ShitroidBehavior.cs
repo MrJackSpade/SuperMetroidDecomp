@@ -717,7 +717,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ReactsToSamus)
             BreakReleasedShitroidFollow(state);
 
-        // The private reaction tail-calls main AI. Preserve the extra state/movement/colour
+        // The power-bomb reaction goes straight on to run main AI. Preserve the extra state/movement/colour
         // tick rather than reducing the power bomb to a state flag. That step reads the camera as the power-bomb pass
         // sees it, after the enemy pass and before the main scrolling.
         RunShitroidMain(place, context.Samus, context.Camera, null);

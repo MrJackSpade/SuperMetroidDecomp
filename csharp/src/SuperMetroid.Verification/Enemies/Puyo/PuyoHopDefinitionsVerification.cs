@@ -24,7 +24,10 @@ internal static class PuyoHopDefinitionsVerification
             int index = PuyoNativeWords.HopRecordOffsets.Word(hopType);
             var hop = PuyoHopDefinitions.Hops[hopType];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.JumpHeight, "Puyo native hop height");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.XSpeed, "Puyo native horizontal speed");
+            // The record's second value is both the horizontal speed in 256ths of a pixel and, in 256ths of a mark, the
+            // step the launch's search takes along the speed curve (#2065).
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.XSpeed.InTwoHundredFiftySixthsOfPixel, "Puyo native horizontal speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.LaunchSearchStep.InTwoHundredFiftySixthsOfMark, "Puyo native launch search step");
             // The record's third value is both the hop's curve step and, in 256ths of a pixel, the speed its drop falls at
             // when the hop is cut short (#1820); the drop itself takes no curve step.
             int third = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa29a0b + index);

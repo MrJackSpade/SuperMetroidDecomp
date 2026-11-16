@@ -9,8 +9,7 @@ public static class BoyonBounceCurve
     /// <remarks>
     /// Each of the 23 authored samples equals k*(k+1)/2 for place k from 0 through 22, ending at 253. From the
     /// twenty-fourth place down the bounce uses 255 before it multiplies, so no sample past the authored 23 ever reaches
-    /// it; this method gives the sample the bounce uses. The compiled Boyon speed check checks all authored samples, the
-    /// first 65,536 places, and every multiplier of 0 through 255 through the real production calculation.
+    /// it; this method gives the sample the bounce uses.
     /// </remarks>
     /// <param name="place">The place along the curve, never past the top.</param>
     public static int Sample(BoyonCurvePlace place) => place.EntryFromTop < StoredSampleCount
@@ -18,10 +17,10 @@ public static class BoyonBounceCurve
         : SaturatedSample;
 
     /// <summary>
-    /// The sample at <paramref name="place"/> scaled by <paramref name="multiplier"/>, 0 through
-    /// <see cref="BoyonSpeedDefinitions.LargestMultiplier"/>; the product is 0 through <see cref="BoyonSpeedDefinitions.LargestScaledSample"/>.
+    /// The sample at <paramref name="place"/> scaled by <paramref name="multiplier"/>, 1 through
+    /// <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/>; the product is 0 through <see cref="BoyonSpeedDefinitions.LargestScaledSample"/>.
     /// </summary>
     /// <param name="place">The place along the curve, never past the top.</param>
     /// <param name="multiplier">The Boyon's speed multiplier.</param>
-    public static int Multiply(BoyonCurvePlace place, int multiplier) => Sample(place) * Ensure.BetweenInclusive(0, LargestMultiplier, multiplier);
+    public static int Multiply(BoyonCurvePlace place, int multiplier) => Sample(place) * Ensure.BetweenInclusive(1, LargestArcMultiplier, multiplier);
 }

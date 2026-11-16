@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 16.16 fixed-point displacement with explicit whole and fractional halves.</summary>
 [EncodingOwner("signed 16.16 fixed-point number")]
-public readonly record struct SignedSixteenSixteen
+public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSixteen>
 {
     /// <summary>Wraps an existing signed 32-bit displacement without altering its whole and fraction bits.</summary>
     private SignedSixteenSixteen(int rawValue) => RawValue = rawValue;
@@ -143,6 +143,24 @@ public readonly record struct SignedSixteenSixteen
     /// magnitude: the negation of a backward displacement, kept as a speed's words.
     /// </summary>
     public UnsignedSixteenSixteen Magnitude() => UnsignedSixteenSixteen.FromDisplacement(IsNegative ? -this : this);
+
+    /// <summary>The smaller of two displacements, read signed.</summary>
+    public static SignedSixteenSixteen Min(SignedSixteenSixteen left, SignedSixteenSixteen right) => left <= right ? left : right;
+
+    /// <summary>Orders displacements by their signed value.</summary>
+    public int CompareTo(SignedSixteenSixteen other) => RawValue.CompareTo(other.RawValue);
+
+    /// <summary>Whether <paramref name="left"/> is the lesser displacement, read signed.</summary>
+    public static bool operator <(SignedSixteenSixteen left, SignedSixteenSixteen right) => left.CompareTo(right) < 0;
+
+    /// <summary>Whether <paramref name="left"/> is the greater displacement, read signed.</summary>
+    public static bool operator >(SignedSixteenSixteen left, SignedSixteenSixteen right) => left.CompareTo(right) > 0;
+
+    /// <summary>Whether <paramref name="left"/> is no greater than <paramref name="right"/>, read signed.</summary>
+    public static bool operator <=(SignedSixteenSixteen left, SignedSixteenSixteen right) => left.CompareTo(right) <= 0;
+
+    /// <summary>Whether <paramref name="left"/> is no less than <paramref name="right"/>, read signed.</summary>
+    public static bool operator >=(SignedSixteenSixteen left, SignedSixteenSixteen right) => left.CompareTo(right) >= 0;
 
     /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair, each word 0 through 65535.</summary>
     public FixedCoordinate AddTo(int wholePosition, int subposition) =>

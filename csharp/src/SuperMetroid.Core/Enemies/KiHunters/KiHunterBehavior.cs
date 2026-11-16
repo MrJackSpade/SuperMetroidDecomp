@@ -84,7 +84,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KiHunterGroundAttackDistance = 96;
 
 
-    /// <summary>The detached wing's step along the speed curve: a mark and a half per update while it slows, and per step while its reset is found.</summary>
+    /// <summary>The detached wing's step along the speed curve while it slows: a mark and a half per update.</summary>
     private static readonly QuadraticSpeedCurvePlace DetachedSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
     /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
     private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
@@ -150,15 +150,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case KiHunterAction.FlyingPatrol:
-                RequireKiHunterBody(actor);
                 RunKiHunterFlyingPatrol(actor, state, samus, level);
                 return;
             case KiHunterAction.Swooping:
-                RequireKiHunterBody(actor);
                 RunKiHunterSwoop(actor, state, level);
                 return;
             case KiHunterAction.RecoveringFromSwoop:
-                RequireKiHunterBody(actor);
                 RunKiHunterSwoopRecovery(actor, state, level);
                 return;
             case KiHunterAction.FallingAfterWingLoss:
@@ -604,7 +601,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.SavedWingPosition = wings.Position.Whole;
-        CalculateKiHunterDetachedSpeedReset(state);
+        state.DetachedSpeedReset = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
 
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
@@ -620,22 +617,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             KiHunterSegment.DetachedWings);
         wings.Frame = EnemyFrameId.Empty;
         wings.Processing = wings.Processing.With(EnemyProcessing.OffScreen);
-    }
-
-    /// <summary>
-    /// Walks the quadratic speed curve until the detached wing's speed sum reaches its threshold. The reset cannot run
-    /// past the curve: reading its speed rejects a place past the curve's last mark.
-    /// </summary>
-    private static void CalculateKiHunterDetachedSpeedReset(KiHunterWingState state)
-    {
-        state.DetachedSpeedReset = QuadraticSpeedCurvePlace.Start;
-        state.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        do
-        {
-            state.DetachedSpeedReset += DetachedSpeedStep;
-            state.AccumulateDetachedSpeed(state.DetachedSpeedReset.Speed.CoarseToward(EnemySpeedSign.Positive));
-        }
-        while (WrappingCounter.IsBehind(state.DetachedSpeedAccumulator, KiHunterMotionDefinitions.DetachedSpeedThreshold));
     }
 
     /// <summary>Centers the detached wing's orbit at its current position with a negative quarter-turn seed.</summary>
@@ -747,53 +728,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static KiHunterWingState? WingsInPlace(RoomEnemyPlace wings) => wings.SpeciesState<KiHunterWingState>();
 
     /// <summary>
-    /// The wings the body found when it was placed. While the pair is being set up the wings must be the body's colour;
-    /// afterwards the wings may already be gone, as a wingless Ki-Hunter's are from the start, and the body's behaviour
-    /// asks <see cref="WingsInPlace"/> before it touches them.
+    /// The wings the body found when it was placed, which its room lists right after it. They may already be gone, as a
+    /// wingless Ki-Hunter's are from the start, and the body's behaviour asks <see cref="WingsInPlace"/> before it
+    /// touches them.
     /// </summary>
-    private RoomEnemyPlace GetKiHunterWings(RoomEnemyPlace body)
-    {
-        // A fatal shot clears the body before its shot reaction deletes the wings, so a body that was placed stays one
-        // until the reaction finishes.
-        bool initializedBody = _wingsOfBody.IsPlaced(body);
-        if (!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody)
-            throw new InvalidDataException($"Enemy place {body.Ordinal} is not a Ki-Hunter body.");
+    private RoomEnemyPlace GetKiHunterWings(RoomEnemyPlace body) => _wingsOfBody.Of(body);
 
-        RoomEnemyPlace wings = _wingsOfBody.Of(body);
-        if (body.IsFree && initializedBody)
-            return wings;
-
-        EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.DefinitionId] switch
-        {
-            KiHunterPart.KihunterGreen => EnemyDefinitionId.KihunterGreenWings,
-            KiHunterPart.KihunterYellow => EnemyDefinitionId.KihunterYellowWings,
-            KiHunterPart.KihunterRed => EnemyDefinitionId.KihunterRedWings,
-            KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterRedWings or KiHunterPart.KihunterYellowWings => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
-            _ => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
-        };
-        // While the wings are being set up they must be the body's colour. Once the pair is established, wings that are
-        // gone may leave no identity behind; anything else in their place is refused.
-        bool established = _bodyOfWings.IsPlaced(wings);
-        if (wings.DefinitionId != expected &&
-            !(established && wings.IsFree))
-        {
-            throw new InvalidDataException(
-                $"Ki-Hunter body place {body.Ordinal} is followed by {wings.DefinitionId}, " +
-                $"not expected wing {expected} or its deleted place.");
-        }
-        return wings;
-    }
-
-    /// <summary>Resolves the body the wings found when they were placed and validates its colour pairing.</summary>
-    private RoomEnemyPlace GetKiHunterBody(RoomEnemyPlace wings)
-    {
-        if (!IsKiHunterWingDefinition(wings.DefinitionId))
-            throw new InvalidDataException($"Enemy place {wings.Ordinal} is not a linked Ki-Hunter wing.");
-        RoomEnemyPlace body = _bodyOfWings.Of(wings);
-        if (!ReferenceEquals(GetKiHunterWings(body), wings)) // Performs the exact body/variant pairing validation.
-            throw new InvalidDataException($"Ki-Hunter wings {wings.Ordinal} are not the wings of body {body.Ordinal}.");
-        return body;
-    }
+    /// <summary>The body the wings found when they were placed, which their room lists right before them.</summary>
+    private RoomEnemyPlace GetKiHunterBody(RoomEnemyPlace wings) => _bodyOfWings.Of(wings);
 
     /// <summary>Restarts a body animation from its first step.</summary>
     private static void StartKiHunterAnimation(RoomEnemyPlace body, KiHunterBodyState state, KiHunterSegment segment) =>
@@ -805,13 +747,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
     internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
-
-    /// <summary>Requires a body definition before body-only movement AI.</summary>
-    private static void RequireKiHunterBody(RoomEnemyPlace actor)
-    {
-        if (!IsKiHunterBodyDefinition(actor.DefinitionId))
-            throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
-    }
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal EnemyBombReaction KiHunterBombReaction => field ??= new()

@@ -44,31 +44,16 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Yapping Maw's animations: holding a grabbed Samus at a mouth offset, or the bite sound.</summary>
     private void ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case YappingMawCueKind.HoldSamusUpRight:
-                SetYappingMawHeldOffset(state, YappingMawAim.UpRight);
+            case YappingMawCue.HoldSamus hold:
+                SetYappingMawHeldOffset(state, hold.Aim);
                 break;
-            case YappingMawCueKind.HoldSamusUpLeft:
-                SetYappingMawHeldOffset(state, YappingMawAim.UpLeft);
-                break;
-            case YappingMawCueKind.HoldSamusDownRight:
-                SetYappingMawHeldOffset(state, YappingMawAim.DownRight);
-                break;
-            case YappingMawCueKind.HoldSamusDownLeft:
-                SetYappingMawHeldOffset(state, YappingMawAim.DownLeft);
-                break;
-            case YappingMawCueKind.HoldSamusUp:
-                SetYappingMawHeldOffset(state, YappingMawAim.Up);
-                break;
-            case YappingMawCueKind.HoldSamusDown:
-                SetYappingMawHeldOffset(state, YappingMawAim.Down);
-                break;
-            case YappingMawCueKind.PlayBiteSound:
+            case YappingMawCue.Signal { Kind: YappingMawCueKind.PlayBiteSound }:
                 PlayYappingMawAttackSound(state);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(YappingMawCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Yapping Maw cue {cue}.");
         }
     }
 
@@ -86,7 +71,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemyPlace place)
     {
-        var state = new YappingMawEnemyState(place)
+        var state = new YappingMawEnemyState
         {
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
@@ -99,10 +84,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             ? YappingMawSegment.AttackingDown
             : YappingMawSegment.AttackingUp));
 
-        // Projectile slots are searched from the last downward, and the body segments are
-        // spawned as links 3, 2, 1, 0, each recording its place under its link.
-        // Allocate in that order, then keep the links in root-to-mouth order.
-        for (int parameter = 3; parameter >= 0; parameter--)
+        // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
+        // gives it in that order; the Maw keeps them in root-to-mouth order.
+        for (int link = 3; link >= 0; link--)
         {
             EnemyProjectile? body = _projectiles.AllocateEnemyProjectile();
             if (body is null)
@@ -120,7 +104,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? YappingMawBodyProjectileSegment.FacingDown
                 : YappingMawBodyProjectileSegment.FacingUp));
-            state.BodyProjectiles[parameter] = body;
+            state.BodyProjectiles[link] = body;
         }
 
         // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
@@ -155,21 +139,19 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 AdvanceYappingMawExtension(place, state, samus);
                 break;
             case YappingMawAction.RetractedDelay:
-                WaitAfterYappingMawRetraction(state, samus);
+                WaitAfterYappingMawRetraction(place, state, samus);
                 break;
             default:
                 throw new InvalidDataException(
                     $"Yapping Maw has no behaviour for action {state.Action}.");
         }
 
-        // The mouth actor owns the final point. The four projectiles own root, quarter, half,
-        // and three-quarter points of the tongue. The game writes coordinates even
-        // though their frame behaviours are empty; the projectile pass advances only their one-frame
-        // map selection and permanent rest step.
-        PositionYappingMawBodyProjectile(state, 0, state.Origin);
-        PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
-        PositionYappingMawBodyProjectile(state, 2, YappingMawLinkPosition(state, 1));
-        PositionYappingMawBodyProjectile(state, 3, YappingMawLinkPosition(state, 2));
+        // The mouth owns the final point. The four body links own the root, quarter, half and three-quarter points of
+        // the tongue; they do nothing of their own but show their picture where the Maw places them each update.
+        PositionYappingMawBodyProjectile(place, state, 0, state.Origin);
+        PositionYappingMawBodyProjectile(place, state, 1, YappingMawLinkPosition(state, 0));
+        PositionYappingMawBodyProjectile(place, state, 2, YappingMawLinkPosition(state, 1));
+        PositionYappingMawBodyProjectile(place, state, 3, YappingMawLinkPosition(state, 2));
     }
 
     /// <summary>Waits for Samus, including the deliberately approximate distance helper.</summary>
@@ -337,11 +319,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits after retraction, including the expiry past zero on frame 65.</summary>
     private void WaitAfterYappingMawRetraction(
+        RoomEnemyPlace mouth,
         YappingMawEnemyState state,
         SamusState samus)
     {
         if (state.HasGrabbedSamus)
-            PositionSamusInYappingMaw(state.Owner, state, samus);
+            PositionSamusInYappingMaw(mouth, state, samus);
 
         state.RetractedDelayTimer--;
         if (state.RetractedDelayTimer >= 0 || samus.DeathSequence.IsActive)
@@ -470,7 +453,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyShades.FrozenLook;
     }
 
-    /// <summary>Animation behaviour used by all six held-Samus offset cues.</summary>
+    /// <summary>Holds a grabbed Samus at the mouth offset of <paramref name="aim"/>, as the hold cue asks.</summary>
     internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
         YappingMawAim aim)
@@ -487,13 +470,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>
     private static void PositionYappingMawBodyProjectile(
+        RoomEnemyPlace mouth,
         YappingMawEnemyState state,
         int index,
         Position16<RoomPixels> position)
     {
         EnemyProjectile projectile = state.BodyProjectiles[index] ??
             throw new InvalidOperationException(
-                $"Yapping Maw place {state.Owner.Ordinal} lost body projectile {index}.");
+                $"Yapping Maw place {mouth.Ordinal} lost body projectile {index}.");
         projectile.Position = projectile.Position.WithWhole(position);
     }
 

@@ -48,10 +48,10 @@ internal sealed class IntroCeresFlightState
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle = CeresFlightSceneDefinitions.FrontInitialAngle;
     /// <summary>
-    /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
-    /// lowered one level every other update in the final fade, stopping at zero.
+    /// The screen's brightness: held black until music is ready, then fully lit, and lowered one level every other update
+    /// in the final fade, stopping at black.
     /// </summary>
-    private int brightness;
+    private readonly ScreenFade fade = new(0);
     /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>
@@ -69,8 +69,6 @@ internal sealed class IntroCeresFlightState
     internal bool JapaneseCaptionShown { get; private set; }
     /// <summary>Selects the game's alternate Japanese caption record.</summary>
     private readonly bool japaneseText;
-    /// <summary>Gates one brightness decrement every other frame in the closing fade.</summary>
-    private int fadeDelay;
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
     /// <param name="audio">The shared music queue the approach waits on.</param>
@@ -138,7 +136,7 @@ internal sealed class IntroCeresFlightState
                 // The approach enables the display once the music queue is empty.
                 if (!audio.HasQueuedMusic)
                 {
-                    brightness = CeresFlightSceneDefinitions.FullBrightness;
+                    fade.Show(DisplayBrightness.Full);
                     Phase = IntroCeresFlightPhase.FlyingIntoCamera;
                 }
                 break;
@@ -228,7 +226,7 @@ internal sealed class IntroCeresFlightState
         {
             layers.Add(WhiteWash.Layer(flashIntensity));
         }
-        return new(new FramePaint(Backdrop), layers.ToArray(), brightness);
+        return new(new FramePaint(Backdrop), layers.ToArray(), fade.Level);
     }
 
     /// <summary>
@@ -271,7 +269,7 @@ internal sealed class IntroCeresFlightState
     internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
-    /// <summary>Loads the rear map, places five actors, and primes the white fixed-color flash.</summary>
+    /// <summary>Loads the rear map, places five actors, and starts the white flash.</summary>
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
@@ -288,8 +286,8 @@ internal sealed class IntroCeresFlightState
         RearViewActors = [.. CeresFlightActorDefinitions.RearViewSpawnOrder
             .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Place)))];
 
-        // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
-        // white and takes one step off the wash per frame until black.
+        // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
+        // off the wash per frame until none is left.
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
@@ -310,10 +308,10 @@ internal sealed class IntroCeresFlightState
         return actor;
     }
 
-    /// <summary>Fades fixed color and enlarges the rear-view turning image until the title begins.</summary>
+    /// <summary>Fades the white flash and enlarges the rear-view turning image until the title begins.</summary>
     private void StepFlyingTowardCeres()
     {
-        // The fixed-colour flash fades by one component step per frame, clamped at zero.
+        // The white flash fades by one step per frame, stopping at none.
         flashIntensity = Math.Max(0, flashIntensity - 1);
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
@@ -371,20 +369,15 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        fadeDelay = CeresFlightSceneDefinitions.FadeDelay;
+        fade.StepEvery(CeresFlightSceneDefinitions.FadeOutUpdatesPerStep);
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
     /// <summary>Lowers brightness every other update until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
-        // The fade step seeds both fade delays with one. The fade-out therefore removes one brightness level every
-        // other frame and ends with the screen blanked.
-        if (fadeDelay-- > 0)
-            return;
-        fadeDelay = CeresFlightSceneDefinitions.FadeDelay;
-        brightness = Math.Max(0, brightness - 1);
-        if (brightness == 0)
+        // The fade-out removes one brightness level every other frame and ends with the screen black.
+        if (fade.Darken())
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
 

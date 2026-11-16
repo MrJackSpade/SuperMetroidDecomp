@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroBabyDiscoveryCollision
 {
-    /// <summary>Construct mutable room terrain directly from its two horizontal collision strips.</summary>
-    internal static RoomTerrainBlock[] CreateForeground()
+    /// <summary>How each block of the room collides, row by row, built freshly from its two horizontal collision strips.</summary>
+    internal static RoomCollisionType[] CreateCollision()
     {
-        var foreground = new RoomTerrainBlock[Columns * RoomRows];
+        var foreground = new RoomCollisionType[Columns * RoomRows];
         foreground.AsSpan().Fill(EmptyBlock);
         foreground.AsSpan(ZeroRows * Columns, Columns).Fill(PenultimateRowBlock);
         foreground.AsSpan((SourceRows - 1) * Columns, Columns).Fill(FinalRowBlock);

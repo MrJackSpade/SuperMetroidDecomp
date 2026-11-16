@@ -8,6 +8,12 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Verification access to <see cref="PauseMenuState"/> members production does not use.</summary>
@@ -16,6 +22,26 @@ internal static class PauseMenuStateAccess
     /// <summary>Reads pause transitions, selection, animation, and native PPU state.</summary>
     extension(PauseMenuState self)
     {
+        /// <summary>
+        /// Runs one pause update as a check drives the menu alone: the map's arrows read <paramref name="heldInput"/>, or
+        /// the delayed-held buttons when none are given, the colour animation's phase is <paramref name="frameCycle"/>, and
+        /// no bombs are frozen under the pause beyond an empty set of bomb slots.
+        /// </summary>
+        internal bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null,
+            int frameCycle = 0) =>
+            self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, frameCycle, NoFrozenBombs());
+
+        /// <summary>Frames the map page by <paramref name="scroll"/> in place of the framing the menu set up, for a check of a map's edges.</summary>
+        internal void FrameMap(MapScroll scroll) =>
+            PrivateFrontendState.Set(self, nameof(PauseMenuState.CurrentMapScroll), Ensure.NotNull(scroll));
+
+        /// <summary>
+        /// Moves the map page's scroll to <paramref name="scroll"/> under the page's framing and limits, as a check or an
+        /// imported snapshot places it; no scroll step is under way afterwards.
+        /// </summary>
+        internal void ScrollMapTo(Offset16<MapPixels> scroll) =>
+            self.FrameMap(new MapScroll(self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll));
+
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
         internal bool IsPageTransitionActive => self.Transition != default;
 
@@ -99,4 +125,13 @@ internal static class PauseMenuStateAccess
             return new SnesBgTilemapWord(BackgroundTileWords.ToWord(self.ShownEquipmentTiles(artwork)[tile]));
         }
     }
+
+    /// <summary>
+    /// An empty set of Samus's bomb slots for a menu a check drives alone; the pause repaints only their values, so the
+    /// glows they would show are never read.
+    /// </summary>
+    private static SamusBombProjectileSystem NoFrozenBombs() =>
+        new(GameplayAudioRequests.Standalone(), new InstalledPowerBombGlowColors(
+            new RgbColor[PowerBombGlowColorFormat.Count(PowerBombGlowSequence.PreExplosion)],
+            new RgbColor[PowerBombGlowColorFormat.Count(PowerBombGlowSequence.Explosion)]));
 }

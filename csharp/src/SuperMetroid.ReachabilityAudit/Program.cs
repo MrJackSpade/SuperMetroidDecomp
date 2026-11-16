@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.MSBuild;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 using SuperMetroid.TestSupport.WindowsConsole;
 using SuperMetroid.ReachabilityAudit.Analysis;
@@ -89,18 +91,22 @@ internal static class Program
                 {
                     // Deletes the dead code tests do not use, then moves what they still use, with everything it uses,
                     // into test-support. Removing first leaves no dead shipped code naming members the move takes away.
-                    var categories = categoryList.Split(',').ToHashSet();
-                    string[] prefixes = prefix.Split(',');
-                    var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-                    var result = ReachabilityAnalysis.Run(solution);
-                    var unused = VerificationReferences.DeadFindings(result, categories, prefixes);
-                    unused.ExceptWith(VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefixes));
-                    SymbolRemover.Remove(solution, unused, Path.GetFullPath(retiredFields));
-                    solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-                    result = ReachabilityAnalysis.Run(solution);
-                    await SymbolRelocator.RelocateAsync(solution,
-                        VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefixes),
-                        Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies, RelocationStyle.VerificationAccess);
+                    // The solution is opened from the files again each time the prune asks for it.
+                    var workspaces = new List<MSBuildWorkspace>();
+                    try
+                    {
+                        await PruneKeepingVerificationUsedAsync(async () =>
+                            {
+                                var workspace = await SolutionLoader.OpenAsync(Path.GetFullPath(solutionPath));
+                                workspaces.Add(workspace);
+                                return workspace.CurrentSolution;
+                            }, SolutionLoader.RepositoryRoot(solutionPath), categoryList, prefix, targetDirectory, retiredFields);
+                    }
+                    finally
+                    {
+                        foreach (var workspace in workspaces)
+                            workspace.Dispose();
+                    }
                     return 0;
                 }
                 default:
@@ -116,5 +122,54 @@ internal static class Program
             Console.Error.WriteLine(exception);
             return 1;
         }
+    }
+
+    /// <summary>
+    /// The dead-code prune of the asynchronous cleanup (tools/cleanup/README.md): <paramref name="current"/> returns the
+    /// solution as its files are, and is asked again after the removal has written its files. The command line opens the
+    /// solution from the files each time; the cleanup, which loads the solution once for all its steps, hands over the
+    /// solution with every file its steps wrote.
+    /// </summary>
+    internal static Task PruneKeepingVerificationUsedAsync(Func<Task<Solution>> current, string repositoryRoot, string categoryList,
+        string prefix, string targetDirectory, string retiredFields) =>
+        PruneKeepingVerificationUsedAsync(async () => await SolutionLoader.CompileAsync(await current(), repositoryRoot),
+            categoryList, prefix, targetDirectory, retiredFields);
+
+    /// <summary>
+    /// Deletes the dead code tests do not use, then moves what they still use, with everything it uses, into
+    /// test-support. Removing first leaves no dead shipped code naming members the move takes away. The solution is
+    /// loaded again after the removal, which has written its files.
+    /// </summary>
+    private static async Task PruneKeepingVerificationUsedAsync(Func<Task<LoadedSolution>> load, string categoryList, string prefix,
+        string targetDirectory, string retiredFields)
+    {
+        var categories = categoryList.Split(',').ToHashSet();
+        string[] prefixes = prefix.Split(',');
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        void Timed(string phase)
+        {
+            Console.WriteLine($"Prune {phase} took {watch.Elapsed.TotalSeconds:F0} s.");
+            watch.Restart();
+        }
+        var solution = await load();
+        Timed("compilation");
+        // What verification names and what reaches what are read from the same compilations, independently: the
+        // verification projects' references are collected while the reachability analysis runs.
+        var referenced = Task.Run(() => VerificationReferences.Collect(solution));
+        var result = ReachabilityAnalysis.Run(solution);
+        var unused = VerificationReferences.DeadFindings(result, categories, prefixes);
+        unused.ExceptWith(VerificationReferences.SelectUsedDeadCode(result, await referenced, categories, prefixes));
+        Timed("reachability analysis and verification references");
+        SymbolRemover.Remove(solution, unused, Path.GetFullPath(retiredFields));
+        Timed("removal");
+        solution = await load();
+        Timed("compilation after the removal");
+        referenced = Task.Run(() => VerificationReferences.Collect(solution));
+        result = ReachabilityAnalysis.Run(solution);
+        var used = VerificationReferences.SelectUsedDeadCode(result, await referenced, categories, prefixes);
+        Timed("reachability analysis and verification references after the removal");
+        await SymbolRelocator.RelocateAsync(solution, used,
+            Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies, RelocationStyle.VerificationAccess);
+        Timed("relocation");
     }
 }

@@ -43,7 +43,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry).WithAnimationClock(hold: 0x2222);
                 place.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
-                var state = new BrinstarPipeBugState(PipeBugAction.BrinstarWaitUntilOnScreen)
+                var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen)
                 {
                     InstalledAnimation = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
                         ? PipeBugAnimationChoices.ShootingWithSameFacing(selector)

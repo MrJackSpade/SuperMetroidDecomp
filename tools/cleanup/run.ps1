@@ -1,12 +1,12 @@
 # One cleanup run on the clone the service has just reset to the remote tip (tools/cleanup/README.md). The service
 # runs the tree's own copy, so the fixes always match the code they clean. Everything it prints goes to the run's log.
 #
-# 1. Restores the solution, builds the reachability audit in Release (the prune runs it without building) and the
-#    repository's analyzer and code fixes in Debug (CodeFixRunner.cs loads them from the projects' Debug references).
-# 2. Takes turns at the code fixes of the automatically fixed rules (CodeFixRunner.cs, the rules read from
-#    csharp/.editorconfig), the reachability prune of dead code and the architecture audit's prune of stale reviews,
-#    until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
-# 3. Regenerates the architecture and module inventories.
+# 1. Restores the solution and builds the repository's analyzer and code fixes in Debug (the code fixes load them from
+#    the projects' Debug references) and the cleanup runner, CodeFixRunner.cs, with the audits it runs.
+# 2. In one process, on one load of the solution (CodeFixRunner.cs --cleanup): takes turns at the code fixes of the
+#    automatically fixed rules (read from csharp/.editorconfig), the reachability prune of dead code and the
+#    architecture audit's prune of stale reviews, until one of each in a row changes nothing (a tree seen before means
+#    the steps cycle), then regenerates the architecture and module inventories.
 # 4. When anything changed: builds the solution once with tools/build.ps1, commits as "Cleanup: ..." and pushes. When a
 #    developer push moved the branch during the run, it merges its commit onto the new tip and pushes that, until a push
 #    lands; the run's work is never discarded.
@@ -28,6 +28,12 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 . (Join-Path $PSScriptRoot 'common.ps1')
 $repository = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+
+# The builds use a compiler server of the cleanup's own, named apart from the developer's, so it never serves the
+# developer's builds and runs at the cleanup's priority; one warm server compiles the solution faster than a compiler
+# process started per project. It outlives the run only by its idle timeout, and a run within that time reuses it.
+$env:UseSharedCompilation = 'true'
+$env:SharedCompilationId = 'supermetroid-cleanup'
 $solution = 'csharp/SuperMetroid.Full.slnx'
 
 # The words the commit message uses for each rule of the automatically fixed group. The group itself is read from
@@ -59,16 +65,13 @@ $FixedRuleWords = [ordered]@{
 
 # The reachability prune's categories, source prefix and destination for dead code tests still use.
 $PruneCategories = 'unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant'
+$PrunePathPrefix = 'csharp/src'
+$PruneDestination = 'csharp/test-support/VerificationAccess.Core'
 
-# The steps the run takes turns at: code fixes, the dead-code prune and the stale-review prune.
-$StepKinds = @('fix', 'prune', 'reviews')
-
-# The bound on rounds of those steps. Each step either changes nothing or removes code, so real cascades settle in a
-# few rounds; reaching this many means the steps keep undoing each other without repeating a tree exactly.
+# The bound on rounds of the code fixes, the dead-code prune and the stale-review prune. Each step either changes
+# nothing or removes code, so real cascades settle in a few rounds; reaching this many means the steps keep undoing each
+# other without repeating a tree exactly.
 $MaxRounds = 6
-
-# The line the architecture audit's --prune-stale-reviews prints for each review it removes.
-$StaleReviewLine = 'Removed stale review: '
 
 function Write-Step([string]$Text) {
     Write-Host ''
@@ -159,117 +162,41 @@ try {
     if ($head -ne $Tip) { throw "The clone is at $head, not at $Tip." }
     if (Invoke-Git @('status', '--porcelain')) { throw 'The clone has local changes before the run.' }
 
-    Write-Step 'restore, the reachability audit''s Release build and the code fixes'' Debug build'
+    Write-Step 'restore, the code fixes'' Debug build and the cleanup runner''s build'
     Invoke-Checked 'restore' { dotnet restore $solution -v:q }
-    $audit = Invoke-Build 'reachability audit Release build' 'reachability-audit-build.log' @('csharp/src/SuperMetroid.ReachabilityAudit', '-c', 'Release')
-    if ($audit.Exit -ne 0) { throw "The reachability audit does not build in Release; see $($audit.Log)." }
     $fixers = Invoke-Build 'repository analyzer and code fixes Debug build' 'code-fixes-build.log' @('csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes')
     if ($fixers.Exit -ne 0) { throw "The repository analyzer and code fixes do not build in Debug; see $($fixers.Log)." }
+    $runner = Invoke-Build 'cleanup runner build (CodeFixRunner.cs and the audits it runs)' 'cleanup-runner-build.log' @('tools/cleanup/CodeFixRunner.cs')
+    if ($runner.Exit -ne 0) { throw "tools/cleanup/CodeFixRunner.cs does not build; see $($runner.Log)." }
 
+    # The fix and prune loop and the inventories run in one process on one load of the solution (CodeFixRunner.cs
+    # --cleanup); it prints each step to the log and writes what the steps did to the outcome file.
     $fixedRules = Get-FixedRules
-    $codeFixes = [ordered]@{}
-    $kept = [ordered]@{}
-    $prunedPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
-    $prunedSummaries = [Collections.Generic.List[string]]::new()
-    $retiredFields = [Collections.Generic.List[string]]::new()
-    $fixedPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
-    $reviewPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
-    $staleReviews = [Collections.Generic.List[string]]::new()
-    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    $problems = [Collections.Generic.List[string]]::new()
-    $unfixed = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
-    $tree = Get-TreeId
-    $null = $seen.Add($tree)
-    $unchangedInARow = 0
-    $maxSteps = $MaxRounds * $StepKinds.Count
-    for ($step = 1; $unchangedInARow -lt $StepKinds.Count; $step++) {
-        if ($step -gt $maxSteps) {
-            $problems.Add("The fix and prune steps did not settle within $maxSteps steps; the run keeps the tree it has.")
-            Write-Output "problem: $($problems[-1])"
-            break
-        }
-        $kind = $StepKinds[($step - 1) % $StepKinds.Count]
-        if ($kind -eq 'fix') {
-            Write-Step "step $step`: code fixes ($($fixedRules -join ', '))"
-            $summaryPath = Join-Path $Artifacts "code-fixes-$step.json"
-            Invoke-Checked 'code fixes' { dotnet run tools/cleanup/CodeFixRunner.cs -- $solution $summaryPath ($fixedRules -join ',') }
-            $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json
-            foreach ($property in $summary.Fixed.PSObject.Properties) { $codeFixes[$property.Name] = [int]$codeFixes[$property.Name] + [int]$property.Value }
-            $kept = [ordered]@{}
-            foreach ($property in $summary.Kept.PSObject.Properties) { $kept[$property.Name] = [int]$property.Value }
-            if ($summary.ProjectsWithCompilerErrors.Count -gt 0) {
-                Write-Output "projects with compiler errors, whose files were left alone: $($summary.ProjectsWithCompilerErrors -join ', ')"
-            }
-            foreach ($site in $summary.Unfixed) { $null = $unfixed.Add($site) }
-            foreach ($problem in $summary.Problems) { $problems.Add("Code fixes, step ${step}: $problem") }
-        }
-        elseif ($kind -eq 'prune') {
-            Write-Step "step $step`: reachability prune of dead code"
-            $retired = Join-Path $Artifacts "retired-fields-$step.txt"
-            [IO.File]::WriteAllText($retired, '')
-            $output = & dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution $solution `
-                --prune-keeping-verification-used $PruneCategories --path-prefix csharp/src `
-                --to csharp/test-support/VerificationAccess.Core --retired-fields $retired 2>&1
-            $exit = $LASTEXITCODE
-            $output | ForEach-Object { "$_" }
-            Write-Output "--- reachability prune exit $exit"
-            if ($exit -ne 0) {
-                # The prune validates every edit before writing any, so a failed prune leaves the tree as it was.
-                $problems.Add("The reachability prune failed (exit $exit) at step $step; see the log.")
-                Write-Output "problem: $($problems[-1])"
-            }
-            $output | ForEach-Object { "$_" } | Where-Object { $_ -match '^(Removed|Moved|Relocated|Deleted)\b' } | ForEach-Object { $prunedSummaries.Add($_) }
-            Get-Content -LiteralPath $retired | Where-Object { $_ } | ForEach-Object { $retiredFields.Add($_) }
-        }
-        elseif ($kind -eq 'reviews') {
-            Write-Step "step $step`: stale architecture reviews (ArchitectureAudit --prune-stale-reviews)"
-            $output = & dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution $solution --prune-stale-reviews 2>&1
-            $exit = $LASTEXITCODE
-            $output | ForEach-Object { "$_" }
-            Write-Output "--- stale review prune exit $exit"
-            if ($exit -ne 0) {
-                $problems.Add("The stale review prune failed (exit $exit) at step $step; see the log.")
-                Write-Output "problem: $($problems[-1])"
-            }
-            $output | ForEach-Object { "$_" } | Where-Object { $_.StartsWith($StaleReviewLine) } |
-                ForEach-Object { $staleReviews.Add($_.Substring($StaleReviewLine.Length)) }
-        }
-        else {
-            throw "Unknown step kind $kind."
-        }
-        $next = Get-TreeId
-        if ($next -eq $tree) {
-            $unchangedInARow++
-            Write-Output 'no change'
-            continue
-        }
-        $paths = @(Get-ChangedPaths $tree $next)
-        foreach ($path in $paths) {
-            if ($kind -eq 'fix') { $null = $fixedPaths.Add($path) }
-            elseif ($kind -eq 'prune') { $null = $prunedPaths.Add($path) }
-            else { $null = $reviewPaths.Add($path) }
-        }
-        Write-Output "changed $($paths.Count) files"
-        $tree = $next
-        if (-not $seen.Add($next)) {
-            $problems.Add("Step $step returned the tree to an earlier state ($next): the fixes and the prunes undo each other; the run keeps that tree.")
-            Write-Output "problem: $($problems[-1])"
-            break
-        }
-        $unchangedInARow = 0
+    $outcomePath = Join-Path $Artifacts 'cleanup-outcome.json'
+    Invoke-Checked 'fix and prune loop and inventories' {
+        dotnet run --no-build tools/cleanup/CodeFixRunner.cs -- --cleanup $solution $Artifacts $outcomePath ($fixedRules -join ',') `
+            $PruneCategories $PrunePathPrefix $PruneDestination $MaxRounds
     }
-
-    Write-Step 'inventories (ArchitectureAudit --write)'
-    $inventoryOutput = & dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution $solution --write 2>&1
-    $inventoryExit = $LASTEXITCODE
-    $inventoryOutput | ForEach-Object { "$_" }
-    Write-Output "--- inventories exit $inventoryExit"
-    if ($inventoryExit -ne 0) {
-        $problems.Add("The inventories were not regenerated (exit $inventoryExit); see the log.")
-        Write-Output "problem: $($problems[-1])"
+    $outcome = Get-Content -LiteralPath $outcomePath -Raw | ConvertFrom-Json
+    $codeFixes = [ordered]@{}
+    foreach ($property in $outcome.CodeFixes.PSObject.Properties) { $codeFixes[$property.Name] = [int]$property.Value }
+    $kept = [ordered]@{}
+    foreach ($property in $outcome.Kept.PSObject.Properties) { $kept[$property.Name] = [int]$property.Value }
+    $fixedPaths = @($outcome.FixedPaths)
+    $prunedPaths = @($outcome.PrunedPaths)
+    $prunedSummaries = @($outcome.PrunedSummaries)
+    $retiredFields = @($outcome.RetiredFields)
+    $reviewPaths = @($outcome.ReviewPaths)
+    $staleReviews = @($outcome.StaleReviews)
+    $inventoryPaths = @($outcome.InventoryPaths)
+    $problems = [Collections.Generic.List[string]]::new()
+    foreach ($problem in $outcome.Problems) { $problems.Add($problem) }
+    $unfixed = @($outcome.Unfixed)
+    foreach ($step in $outcome.Steps) {
+        Write-Output "step $(if ($null -ne $step.Number) { $step.Number } else { '-' }) $($step.Kind): $([int]$step.Seconds) s, $($step.ChangedFiles) files"
     }
     $final = Get-TreeId
-    $inventoryPaths = @(Get-ChangedPaths $tree $final)
+    if ($final -ne $outcome.Tree) { throw "The working copy holds tree $final, not the $($outcome.Tree) the cleanup runner reported." }
 
     $changed = @(Get-ChangedPaths $Tip $final)
     if ($changed.Count -eq 0) {
@@ -280,8 +207,16 @@ try {
     $outside = @($changed | Where-Object { -not ($_.StartsWith('csharp/') -or $_.StartsWith('docs/')) })
     if ($outside.Count -gt 0) { throw "The cleanup changed files outside csharp/ and docs/: $($outside -join ', ')" }
 
-    Write-Step 'build (tools/build.ps1, the whole solution)'
-    $build = Invoke-Build 'build' 'build.log' @($solution)
+    if ($null -ne $outcome.BuildExit) {
+        # The runner built the solution while it wrote the inventories, since the loop had changed the code; the build
+        # left its full output in the temporary folder, as tools/build.ps1 always does.
+        $build = @{ Exit = [int]$outcome.BuildExit; Log = Copy-BuildLog 'build.log' }
+        Write-Output "--- build exit $($build.Exit); full output $($build.Log)"
+    }
+    else {
+        Write-Step 'build (tools/build.ps1, the whole solution)'
+        $build = Invoke-Build 'build' 'build.log' @($solution)
+    }
     if ($build.Exit -ne 0) {
         $problems.Add("The cleaned tree does not build (it is committed and pushed anyway); build output: $($build.Log)")
         Write-Output "problem: $($problems[-1])"

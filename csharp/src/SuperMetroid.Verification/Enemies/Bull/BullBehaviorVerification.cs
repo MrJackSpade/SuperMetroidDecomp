@@ -32,8 +32,8 @@ internal static class BullBehaviorVerification
             "Bull normal loop");
 
         BullBehavior.ResolveBullImmuneShot(place, state, SamusProjectileDirection.Right);
-        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Shot), AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
-        ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.ShotLoop).ToArray();
+        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.Shot, AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
+        ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.Shot).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullSegment.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
             EnemyInstructionRunner.ShownFrames(place, 61), "Bull shot program repeats five times and returns to normal");
@@ -41,35 +41,57 @@ internal static class BullBehaviorVerification
     }
 
     /// <summary>
-    /// A deceleration that overshoots: speed 10 256ths shrinks by the acceleration 24 to 14 256ths below zero, which the
-    /// state keeps; the next decelerating update reads that speed as below zero and stops the flight, clearing speed,
-    /// acceleration and its delta and returning to the movement delay. Both updates run the production main AI.
+    /// #2065: a Bull's speed stays within 0 through 2880 256ths of a pixel an update, so its moves read it as an ordinary
+    /// speed. A flight from rest under the fastest cap, 2815 256ths, accelerates while below it and overshoots once, to
+    /// 2880; braking runs the acceleration out with 360 256ths left. An immune shot's kick (six pixels an update, braked
+    /// from a pixel) runs the acceleration below zero with 304 256ths left; the same kick while the Bull waits, with no
+    /// braking change, brakes onto exactly zero. The speed is never below zero before a decelerating update stops the
+    /// flight.
     /// </summary>
-    internal static void VerifyBullDecelerationOvershoot()
+    internal static void VerifyBullSpeedStaysInFlightRange()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Bull, place.Definition);
-        place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(place);
-        BullEnemyState state = place.RequireSpeciesState<BullEnemyState>();
-        state.Action = BullAction.Decelerating;
-        state.Speed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(10);
-        state.Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(48);
-        state.AccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
-        state.AccelerationIntervalTimer = 1;
+        RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
+        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
+        slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
+        enemies.BullBehavior.InitializeBull(slot);
+        BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
+        SignedEightEight brakingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
-        BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(24, state.Acceleration.InTwoHundredFiftySixthsOfPixel, "the expiring interval shrinks the acceleration by its delta");
-        AssertEqual(-14, state.Speed.InTwoHundredFiftySixthsOfPixel, "the overshooting deceleration leaves the speed below zero");
-        AssertEqual(BullAction.Decelerating, state.Action, "the overshoot is read on the following update");
+        state.MaxSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2815);
+        state.AccelerationDelta = brakingStep;
+        int accelerations = 0;
+        while (state.IsBelowMaximumSpeed)
+        {
+            state.Accelerate();
+            accelerations++;
+        }
+        AssertEqual(15, accelerations, "a flight under the fastest cap accelerates fifteen times");
+        AssertEqual(2880, state.Speed.InTwoHundredFiftySixthsOfPixel, "the last acceleration overshoots the fastest cap to 2880 256ths");
+        int Brake()
+        {
+            while (!state.HasStopped)
+            {
+                AssertTrue(state.Speed > SignedEightEight.Zero, "a braking Bull flies at a speed above zero");
+                state.Decelerate();
+            }
+            AssertTrue(state.Speed >= SignedEightEight.Zero, "a Bull stops at a speed of zero or more");
+            return state.Speed.InTwoHundredFiftySixthsOfPixel;
+        }
+        AssertEqual(360, Brake(), "braking a flight runs its acceleration out with 360 256ths left");
+        AssertTrue(state.Acceleration.IsZero, "braking a flight runs its acceleration out exactly");
 
-        BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(BullAction.MovementDelay, state.Action, "a speed below zero stops the flight");
-        AssertTrue(state.Speed.IsZero, "stopping clears the speed");
-        AssertTrue(state.Acceleration.IsZero, "stopping clears the acceleration");
-        AssertTrue(state.AccelerationDelta.IsZero, "stopping clears the acceleration delta");
-        Console.WriteLine("  Bull deceleration: an overshoot keeps the speed below zero and stops the flight on the next update.");
+        BullBehavior.ResolveBullImmuneShot(slot, state, SamusProjectileDirection.Right);
+        AssertEqual(1536, state.Speed.InTwoHundredFiftySixthsOfPixel, "a kick throws the Bull at six pixels an update");
+        state.AccelerationDelta = brakingStep;
+        AssertEqual(304, Brake(), "a braked kick runs its acceleration below zero with 304 256ths left");
+        AssertEqual(-8, state.Acceleration.InTwoHundredFiftySixthsOfPixel, "a braked kick's acceleration ends below zero");
+
+        state.ShotReactionDisabled = false;
+        BullBehavior.ResolveBullImmuneShot(slot, state, SamusProjectileDirection.Right);
+        state.AccelerationDelta = SignedEightEight.Zero;
+        AssertEqual(0, Brake(), "a kick while the Bull waits brakes a pixel an interval onto exactly zero");
+        Console.WriteLine("  Bull speed: flights and kicks keep the speed within 0 through 2880 256ths of a pixel an update.");
     }
 
     /// <summary>Runs the Bull behavior check and program oracle against the local retail cartridge.</summary>
@@ -78,7 +100,7 @@ internal static class BullBehaviorVerification
     {
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBullBehavior), () => VerifyBullBehavior());
-        Suite(nameof(VerifyBullDecelerationOvershoot), () => VerifyBullDecelerationOvershoot());
+        Suite(nameof(VerifyBullSpeedStaysInFlightRange), () => VerifyBullSpeedStaysInFlightRange());
         Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));
         return 0;
     }

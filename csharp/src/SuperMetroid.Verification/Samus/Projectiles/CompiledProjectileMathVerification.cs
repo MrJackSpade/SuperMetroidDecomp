@@ -32,9 +32,9 @@ internal static class CompiledProjectileMathVerification
         var flyCircle = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.CircleStep);
         var flyDive = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.DiveVelocity);
         var eye = new Func<byte, int>(angle => EyeDoorBehavior.ReadEyeDoorAcceleration(new TrigonometryAngle(angle)).InTwoHundredFiftySixthsOfPixel);
-        var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new TrigonometryAngle(angle)).RawValue);
+        var rio = new Func<byte, int>(angle => RioBehavior.HoverVelocity(new TrigonometryAngle(angle)).RawValue);
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
-        var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(TrigonometryAngle.Wrapped(index - 64)).RawValue);
+        var shaktool = new Func<int, int>(index => ShaktoolBehavior.SineVelocity(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var arc = new Action<EnemyProjectile, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));

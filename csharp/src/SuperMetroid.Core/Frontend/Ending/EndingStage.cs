@@ -30,12 +30,11 @@ internal sealed class EndingStage
     /// <summary>Countdown read by the current cinematic phase.</summary>
     internal int PhaseTimer { get; set; }
 
-    /// <summary>Shared fade progression through scene and colour handoffs.</summary>
-    private int fadeCounter;
+    /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
+    internal ScreenFade Fade { get; } = new(0);
 
-    /// <summary>Master brightness during cinematic fades, from 0 (black) through 15 (full); every fade step clamps to that range.</summary>
-    [IntegerQuantity("screen brightness level, zero through fifteen")]
-    internal int Brightness { get; set; }
+    /// <summary>Master brightness during cinematic fades, from black through full.</summary>
+    internal int Brightness => Fade.Level;
 
     /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
     internal FixedVector<FloorPixels> FloorPosition { get; set; }
@@ -210,41 +209,12 @@ internal sealed class EndingStage
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops? Backdrops { get; private set; }
 
-    /// <summary>Raises screen brightness one step every two calls until full brightness.</summary>
-    internal bool StepFastFadeIn()
-    {
-        if (fadeCounter-- <= 0)
-        {
-            fadeCounter = 1;
-            Brightness = Math.Min(15, Brightness + 1);
-        }
-        return Brightness == 15;
-    }
+    /// <summary>Starts a fast fade: the next step lands two calls from now, and one every two calls after it.</summary>
+    internal void StartFastFade() => Fade.StepEvery(EndingCadenceDefinitions.FastFadeUpdatesPerStep);
 
-    /// <summary>Lowers screen brightness one step every two calls until blank.</summary>
-    internal bool StepFastFadeOut()
-    {
-        if (fadeCounter-- <= 0)
-        {
-            fadeCounter = 1;
-            Brightness = Math.Max(0, Brightness - 1);
-        }
-        return Brightness == 0;
-    }
-
-    /// <summary>Raises screen brightness one step every four calls for the post-credits reveal.</summary>
-    internal bool StepSlowFadeIn()
-    {
-        if (fadeCounter-- <= 0)
-        {
-            fadeCounter = 3;
-            Brightness = Math.Min(15, Brightness + 1);
-        }
-        return Brightness == 15;
-    }
-
-    /// <summary>Restarts the fade cadence: the next fade step lands two calls from now.</summary>
-    internal void RestartFadeCadence() => fadeCounter = 1;
+    /// <summary>Starts the post-credits reveal's slow fade: the next step lands two calls from now, then one every four calls.</summary>
+    internal void StartPostCreditsFade() =>
+        Fade.SetCadence(EndingCadenceDefinitions.PostCreditsFadeStepDelay, EndingCadenceDefinitions.PostCreditsFadeFirstWait);
 
     /// <summary>Selects the backdrops later scenes show (#1544).</summary>
     internal void BindBackdrops(EndingBackdrops? value) => Backdrops = value;

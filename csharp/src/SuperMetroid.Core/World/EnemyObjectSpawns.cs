@@ -39,6 +39,10 @@ internal sealed class EnemyObjectSpawns(
         eyeDoor.SpawnEyeDoorProjectile(request, system);
 
     /// <inheritdoc/>
+    public void SpawnEyeDoorAttack(EyeDoorAttackRequest request, SharedGameState system) =>
+        eyeDoor.SpawnEyeDoorAttack(request, system);
+
+    /// <inheritdoc/>
     public void SpawnOldTourianEscapeShaftWallExplosion() => oldTourianWall.SpawnOldTourianEscapeShaftWallExplosion();
 
     /// <inheritdoc/>

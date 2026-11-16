@@ -50,9 +50,9 @@ internal static class SaveSchemaTranslationVerification
         // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
-        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, JapaneseText = true }));
+        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, JapaneseText = true }));
         ram.SetGameCompleted(true);
-        ram.SelectSlot(0);
+        ram.SelectSlot(SaveSlot.A);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));
         AssertTrue(!json.Contains("preservedUntranslatedSram", StringComparison.Ordinal) &&
             json.Contains("\"gameCompleted\": true", StringComparison.Ordinal) &&
@@ -62,7 +62,7 @@ internal static class SaveSchemaTranslationVerification
         SaveSlotStore targetSaves = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture());
         AssertSameBytes(SaveRamCodec.Encode(targetSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
             "named schema rebuilds the canonical SRAM image");
-        var loaded = targetSaves.ReadSlot(0);
+        var loaded = targetSaves.ReadSlot(SaveSlot.A);
         var restoredSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var restoredSystem = new SharedGameState(new SharedRandom());
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
@@ -208,7 +208,7 @@ internal static class SaveSchemaTranslationVerification
         GameSaveJsonDocument upgradedFour = LegacyGameSaveJson.Deserialize(schemaFour.ToJsonString(), "game save", out bool migratedFour);
         AssertTrue(migratedFour, "a schema-four save is upgraded");
         SaveSlotStore upgradedFourSaves = GameSaveJsonCodec.ToStore(upgradedFour, RetailPresentationFixture());
-        SuperMetroidSaveSlot upgradedFourSlot = upgradedFourSaves.ReadSlot(0) ??
+        SuperMetroidSaveSlot upgradedFourSlot = upgradedFourSaves.ReadSlot(SaveSlot.A) ??
             throw new InvalidOperationException("The upgraded schema-four save lost slot 0.");
         AssertEqual(3, upgradedFourSlot.Progression.ZebetitesDestroyed, "schema four's counter events become the Zebetite count");
         AssertTrue(upgradedFourSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ShitroidEncounterMusicSkipped]),
@@ -221,7 +221,7 @@ internal static class SaveSchemaTranslationVerification
             new JsonArray("ZebetiteDestroyedBit0", "ZebetiteDestroyedBit1", "ZebetiteDestroyedBit2");
         GameSaveJsonDocument upgradedOverfull = LegacyGameSaveJson.Deserialize(overfullFour.ToJsonString(), "game save", out _);
         AssertEqual(PersistentProgress.ZebetiteCount,
-            (GameSaveJsonCodec.ToStore(upgradedOverfull, RetailPresentationFixture()).ReadSlot(0) ??
+            (GameSaveJsonCodec.ToStore(upgradedOverfull, RetailPresentationFixture()).ReadSlot(SaveSlot.A) ??
                 throw new InvalidOperationException("The upgraded overfull save lost slot 0.")).Progression.ZebetitesDestroyed,
             "a schema-four counter of seven becomes all four Zebetites destroyed");
 
@@ -238,7 +238,7 @@ internal static class SaveSchemaTranslationVerification
         byte[] native = SaveRamCodec.Encode(ram, RetailPresentationFixture());
         native[0x1a00] = 0xa5; // Unused SRAM, outside all slots and metadata.
         // The image's item set-up count, which schema one read from the image, is not carried (#1691).
-        byte[] countedPayload = SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(ram.ReadSlot(0) ??
+        byte[] countedPayload = SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(ram.ReadSlot(SaveSlot.A) ??
             throw new InvalidOperationException("Verification requires slot 0.")), RetailPresentationFixture());
         countedPayload[SaveRamLayout.LoadedItemCountOffset] = 0x21;
         countedPayload[SaveRamLayout.LoadedItemCountOffset + 1] = 0x43;
@@ -251,7 +251,7 @@ internal static class SaveSchemaTranslationVerification
         var upgraded = LegacyGameSaveJson.Deserialize(oldJson, "game save", out _);
         AssertEqual(GameSaveJsonFormat.SchemaVersion, upgraded.SchemaVersion, "schema-one import becomes the current schema");
         SaveSlotStore importedSaves = GameSaveJsonCodec.ToStore(upgraded, RetailPresentationFixture());
-        var imported = importedSaves.ReadSlot(0);
+        var imported = importedSaves.ReadSlot(SaveSlot.A);
         AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Health, "legacy named health overrides stale raw image");
         AssertEqual(27, imported.ReserveMissiles, "legacy importer decodes reserve missile word");
         AssertEqual(SaveRamLayout.LoadedItemCountSavedWord,
@@ -281,7 +281,7 @@ internal static class SaveSchemaTranslationVerification
             GameSaveLoadResult upgradedLoad = GameSaveFileStore.LoadOrMigrate(path, Path.Combine(fixtureDirectory, "absent.srm"), RetailPresentationFixture());
             AssertEqual(oldJson, File.ReadAllText(path + ".bak"), "automatic upgrade backs up the exact original schema-one JSON");
             AssertTrue(!File.ReadAllText(path).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "automatic upgrade replaces old format with named schema");
-            AssertEqual(42, (upgradedLoad.Saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires the upgraded slot 0.")).Health, "automatic upgrade applies named values");
+            AssertEqual(42, (upgradedLoad.Saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires the upgraded slot 0.")).Health, "automatic upgrade applies named values");
         }
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
@@ -469,12 +469,12 @@ internal static class SaveSchemaTranslationVerification
             MapPresentation = RetailPresentationFixture(),
         });
         // Boot fixes the demo playlist, so each marker state boots a session.
-        ram.SelectSlot(2);
+        ram.SelectSlot(SaveSlot.C);
         ram.SetGameCompleted(false);
         AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "incomplete save plays the ordinary demo sets");
         ram.SetGameCompleted(true);
         AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "completed save unlocks the completion demo set");
-        AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
+        AssertEqual(SaveSlot.C, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
@@ -495,7 +495,7 @@ internal static class SaveSchemaTranslationVerification
         frontend.Step(0);
         AssertEqual(1, writes, "final-message idle does not repeatedly save");
 
-        ram.SelectSlot(0);
+        ram.SelectSlot(SaveSlot.A);
     }
 
     /// <summary>Confirms a malformed schema-one save is rejected by the hosts' upgrade with a diagnostic naming the invalid value.</summary>

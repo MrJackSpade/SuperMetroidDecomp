@@ -17,7 +17,8 @@ internal static class EtecoonAnimationsVerification
             EtecoonAnimations.Segments, EtecoonAnimations.StartingAt, EtecoonFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
-                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")),
+            countedEntries: [new NativeCountedEntry<EtecoonSegment>("the flex", EtecoonAnimations.Flexing, FlexingStart)]);
         Console.WriteLine($"  Etecoon animations: {Entries.Length} segments ({beats} beats) and {EtecoonAnimations.StartingAt.Count} animations match bank $A7.");
     }
 }

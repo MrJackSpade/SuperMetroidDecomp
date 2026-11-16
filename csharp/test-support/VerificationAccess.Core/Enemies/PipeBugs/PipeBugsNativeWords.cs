@@ -8,31 +8,50 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 internal static class PipeBugsNativeWords
 {
-    /// <summary>The routine word naming each <see cref="PipeBugAction"/>.</summary>
-    internal static readonly NativeWordIdentities<PipeBugAction> PipeBugActions = new(new Dictionary<PipeBugAction, ushort>
+    /// <summary>The routine word naming each <see cref="BrinstarPipeBugAction"/>.</summary>
+    internal static readonly NativeWordIdentities<BrinstarPipeBugAction> BrinstarPipeBugActions = new(new Dictionary<BrinstarPipeBugAction, ushort>
     {
-        [PipeBugAction.BrinstarWaitUntilOnScreen] = 0x8880,
-        [PipeBugAction.BrinstarWaitForSamus] = 0x8890,
-        [PipeBugAction.BrinstarEmerge] = 0x88e3,
-        [PipeBugAction.BrinstarFlyHorizontally] = 0x891c,
-        [PipeBugAction.BrinstarRespawnDelay] = 0x897e,
-        [PipeBugAction.NorfairWaitForFormation] = 0x8bcd,
-        [PipeBugAction.NorfairWaitForSamus] = 0x8bff,
-        [PipeBugAction.NorfairRise] = 0x8ca6,
-        [PipeBugAction.NorfairLeaderStagger] = 0x8cff,
-        [PipeBugAction.NorfairUpperNearStagger] = 0x8d0c,
-        [PipeBugAction.NorfairUpperFarStagger] = 0x8d4e,
-        [PipeBugAction.NorfairLowerNearStagger] = 0x8d90,
-        [PipeBugAction.NorfairLowerFarStagger] = 0x8dd2,
-        [PipeBugAction.NorfairFlyLeft] = 0x8e14,
-        [PipeBugAction.NorfairFlyRight] = 0x8e35,
-        [PipeBugAction.NorfairWaitForStagger] = 0x8e5a,
-        [PipeBugAction.YellowWaitForSamus] = 0x8fb5,
-        [PipeBugAction.YellowEmergenceDelay] = 0x8ff5,
-        [PipeBugAction.YellowFlyLeft] = 0x9028,
-        [PipeBugAction.YellowFlyRight] = 0x90bd,
-        [PipeBugAction.YellowArcLeft] = 0x915a,
-        [PipeBugAction.YellowArcRight] = 0x91d8,
+        [BrinstarPipeBugAction.WaitUntilOnScreen] = 0x8880,
+        [BrinstarPipeBugAction.WaitForSamus] = 0x8890,
+        [BrinstarPipeBugAction.Emerge] = 0x88e3,
+        [BrinstarPipeBugAction.FlyHorizontally] = 0x891c,
+        [BrinstarPipeBugAction.RespawnDelay] = 0x897e,
+    });
+
+    /// <summary>The routine word naming each <see cref="NorfairPipeBugAction"/>.</summary>
+    internal static readonly NativeWordIdentities<NorfairPipeBugAction> NorfairPipeBugActions = new(new Dictionary<NorfairPipeBugAction, ushort>
+    {
+        [NorfairPipeBugAction.WaitForFormation] = 0x8bcd,
+        [NorfairPipeBugAction.WaitForSamus] = 0x8bff,
+        [NorfairPipeBugAction.Rise] = 0x8ca6,
+        [NorfairPipeBugAction.LeaderStagger] = 0x8cff,
+        [NorfairPipeBugAction.FlyLeft] = 0x8e14,
+        [NorfairPipeBugAction.FlyRight] = 0x8e35,
+        [NorfairPipeBugAction.WaitForStagger] = 0x8e5a,
+    });
+
+    /// <summary>The routine word naming each <see cref="YellowPipeBugAction"/>.</summary>
+    internal static readonly NativeWordIdentities<YellowPipeBugAction> YellowPipeBugActions = new(new Dictionary<YellowPipeBugAction, ushort>
+    {
+        [YellowPipeBugAction.WaitForSamus] = 0x8fb5,
+        [YellowPipeBugAction.EmergenceDelay] = 0x8ff5,
+        [YellowPipeBugAction.FlyLeft] = 0x9028,
+        [YellowPipeBugAction.FlyRight] = 0x90bd,
+        [YellowPipeBugAction.ArcLeft] = 0x915a,
+        [YellowPipeBugAction.ArcRight] = 0x91d8,
+    });
+
+    /// <summary>
+    /// The routine word naming each Norfair formation role's stagger after rising (#2071): the leader's holds its height,
+    /// and each other member's moves it by its role's offset, the cartridge giving every offset a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<NorfairPipeBugRole> FormationStaggers = new(new Dictionary<NorfairPipeBugRole, ushort>
+    {
+        [PipeBugDefinitions.LeaderRole] = 0x8cff,
+        [PipeBugDefinitions.UpperNearRole] = 0x8d0c,
+        [PipeBugDefinitions.UpperFarRole] = 0x8d4e,
+        [PipeBugDefinitions.LowerNearRole] = 0x8d90,
+        [PipeBugDefinitions.LowerFarRole] = 0x8dd2,
     });
 
     /// <summary>

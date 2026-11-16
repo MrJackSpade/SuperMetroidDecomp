@@ -25,7 +25,7 @@ public sealed class MotherBrainRainbowBeamColours
             throw new InvalidDataException("Mother Brain's installed beam colour cycle holds no colour.");
     }
 
-    /// <summary>Fixed-color backdrop used on the beam effect's first active frame.</summary>
+    /// <summary>The backdrop colour the beam shows on its first active frame.</summary>
     public RgbColor BeamInitialColor { get; }
 
     /// <summary>The colours of the beam backdrop's hue cycle; after its last, the beam starts the cycle again.</summary>

@@ -1364,11 +1364,9 @@ internal static class LookupStream3Verification
         CheckRainbow(stock);
         // Her rainbow holds ten images, and no other can be named (#2259).
         AssertEqual(10, MotherBrainRainbowImage.All.Count, "stream 3 rainbow bounds");
-        foreach (int invalid in new[] { -1, 8, int.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new SnesCgram(), invalid), "stream 3 drain bounds");
-            AssertThrows<InvalidDataException>(() => stock.ApplyFakeDeathToGrey(new SnesCgram(), invalid), "stream 3 fake-death bounds");
-        }
+        // Her drain and fake-death fades hold eight images each, and no other can be named (#2270).
+        AssertEqual(8, MotherBrainFadeDefinitions.DrainToGrey.Images.Count, "stream 3 drain bounds");
+        AssertEqual(8, MotherBrainFadeDefinitions.FakeDeathToGrey.Images.Count, "stream 3 fake-death bounds");
     }
 
     /// <summary>Checks the Baby Metroid initial and six fade palettes against ROM.</summary>

@@ -208,10 +208,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
             // The body greys over its grey steps, one each time the timer runs out; the ninth finishes the transition
             // without new colours.
-            int greyStep = Encounter.DrainedGreying.TakeStep();
-            if (greyStep < MotherBrainFightDefinitions.GreySteps)
-                requests.DrainColourStep = greyStep;
-            if (greyStep >= MotherBrainFightDefinitions.GreySteps)
+            if (MotherBrainFadeDefinitions.DrainToGrey.ImageAt(Encounter.DrainedGreying.TakeStep()) is { } image)
+                requests.DrainColourImage = image;
+            else
             {
                 Encounter.Head.Health = MotherBrainFightDefinitions.ThirdPhaseHealth;
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;

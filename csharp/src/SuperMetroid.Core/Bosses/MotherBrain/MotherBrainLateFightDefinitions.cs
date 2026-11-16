@@ -99,9 +99,6 @@ internal static class MotherBrainLateFightDefinitions
     /// <summary>The updates each step of her dying body's fade lasts.</summary>
     internal const int BodyFadeStepUpdates = 16;
 
-    /// <summary>The steps of her dying body's fade; the step after them hides her body.</summary>
-    internal const int BodyFadeSteps = 16;
-
     /// <summary>The updates of her last few explosions after her body is gone.</summary>
     internal const int FinalExplosionsUpdates = 16;
 

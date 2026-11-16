@@ -31,16 +31,16 @@ internal static class ImportedBossLooks
         internal void ApplyNormal(IPaletteColors cgram) => self.ShowImported(cgram, MotherBrainShades.Restored);
 
         /// <summary>Shows step <paramref name="frame"/> of the drain to grey over <paramref name="cgram"/>.</summary>
-        internal void ApplyToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.ToGrey(frame));
+        internal void ApplyToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.DrainToGrey.Images[frame]));
 
         /// <summary>Shows step <paramref name="frame"/> of the revival from grey over <paramref name="cgram"/>.</summary>
-        internal void ApplyFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.FromGrey(frame));
+        internal void ApplyFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.RevivalFromGrey.Images[frame]));
 
         /// <summary>Shows step <paramref name="frame"/> of the fake death's fade to grey over <paramref name="cgram"/>.</summary>
-        internal void ApplyFakeDeathToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.FakeDeathToGrey(frame));
+        internal void ApplyFakeDeathToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.FakeDeathToGrey.Images[frame]));
 
         /// <summary>Shows step <paramref name="frame"/> of the fake death's revival over <paramref name="cgram"/>.</summary>
-        internal void ApplyFakeDeathFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.FakeDeathFromGrey(frame));
+        internal void ApplyFakeDeathFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.FakeDeathFromGrey.Images[frame]));
 
         /// <summary>Lays <paramref name="shade"/> over <paramref name="cgram"/>.</summary>
         internal void ShowImported(IPaletteColors cgram, PictureShade shade) =>

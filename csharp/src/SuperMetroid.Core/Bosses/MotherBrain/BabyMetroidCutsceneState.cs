@@ -96,8 +96,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Reload-eight timer producing the nine-call cadence of the Baby's fade to black.</summary>
     public BossCountdown FadeToBlackTimer { get; } = new();
 
-    /// <summary>The shade the Baby's fade to black has reached; valid stored values are 0..6.</summary>
-    public int FadeToBlackShade { get; private set; }
+    /// <summary>The images of its fade to black the Baby has shown, zero through all six (#2270).</summary>
+    public int FadeToBlackImagesShown { get; private set; }
 
     /// <summary>Five-call cadence timer for the dust explosions surrounding the dying Baby.</summary>
     public BossCountdown DeathExplosionTimer { get; } = new();
@@ -155,7 +155,7 @@ public sealed class BabyMetroidCutsceneState
         OnionRingHitFlashTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
         FadeToBlackTimer.Count = 0;
-        FadeToBlackShade = 0;
+        FadeToBlackImagesShown = 0;
         DeathExplosionTimer.Count = 0;
         DeathExplosionPatternIndex = 0;
         AttacksAgainReadyingElapsed = 0;
@@ -202,7 +202,7 @@ public sealed class BabyMetroidCutsceneState
         bool ambientCrySoundQueued = false;
         bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
-        int? babyFadeShade = null;
+        MotherBrainFadeImage? babyFadeImage = null;
         int? recoveryLightsFrame = null;
 
         // Enemy collision handling runs touch AI before main AI, against the Baby's
@@ -580,7 +580,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.DeathSequence:
                 StepSamusRainbowColours(samus, ref samusRainbowActivated);
                 AccelerateDownwardsForDeath();
-                if (StepFadeToBlack(ref babyFadeShade))
+                if (StepFadeToBlack(ref babyFadeImage))
                 {
                     // Completion does not write the Baby's eighth colour. It hides the actor,
                     // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
@@ -676,7 +676,7 @@ public sealed class BabyMetroidCutsceneState
             releaseDustClouds.ToArray(),
             ambientCrySoundQueued,
             deathExplosion,
-            babyFadeShade,
+            babyFadeImage,
             recoveryLightsFrame);
     }
 
@@ -735,8 +735,11 @@ public sealed class BabyMetroidCutsceneState
         Velocity = new(Velocity.X.SlowedBy(BabyMetroidCutsceneFlightDefinitions.DeathFallDrag), Velocity.Y + BabyMetroidCutsceneFlightDefinitions.DeathFallGravity);
     }
 
-    /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=128, selecting the shade it shows.</summary>
-    private bool StepFadeToBlack(ref int? fadeShade)
+    /// <summary>
+    /// Shows the next image of the Baby's fade to black every nine calls after its center reaches Y=128; true on the call
+    /// after its last image, which completes the fade.
+    /// </summary>
+    private bool StepFadeToBlack(ref MotherBrainFadeImage? fadeImage)
     {
         // No timer changes occur until the actor's centre reaches Y 128.
         if (CoordinateAxis.Difference(Position.Y.Whole, 128) < 0)
@@ -746,12 +749,11 @@ public sealed class BabyMetroidCutsceneState
             return false;
 
         FadeToBlackTimer.Count = 8;
-        int nextIndex = FadeToBlackShade + 1;
-        if (nextIndex >= 7)
+        if (MotherBrainFadeDefinitions.BabyFade.ImageAt(FadeToBlackImagesShown) is not { } image)
             return true;
 
-        FadeToBlackShade = nextIndex;
-        fadeShade = nextIndex;
+        FadeToBlackImagesShown++;
+        fadeImage = image;
         return false;
     }
 

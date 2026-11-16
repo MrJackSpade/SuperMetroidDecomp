@@ -210,8 +210,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }
 
-        if (step.BabyFadeShade is int shade)
-            ShowBabyMetroidFade(colours, shade);
+        if (step.BabyFadeImage is { } image)
+            ShowBabyMetroidFade(colours, image);
 
         if (step.RecoveryLightsFrame is int lightsFrame)
             LoadMotherBrainRecoveryLights(colours, lightsFrame);
@@ -222,14 +222,10 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     internal static void LoadMotherBrainRecoveryLights(MotherBrainColours colours, int frame) =>
         Ensure.NotNull(colours).ShowLightsRecovering(MotherBrainRecoveryLights.At(frame));
 
-    /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>
-    internal static void ShowBabyMetroidFade(MotherBrainColours colours, int shade)
-    {
-        if (shade is < 1 or > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
-            throw new ArgumentOutOfRangeException(nameof(shade), shade, "The Baby's fade has six shades.");
-        Ensure.NotNull(colours).ShowBabyFade(shade);
-    }
+    /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
+    /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>
+    internal static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
+        Ensure.NotNull(colours).ShowBabyFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
     internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

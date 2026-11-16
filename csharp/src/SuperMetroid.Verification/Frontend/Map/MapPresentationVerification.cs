@@ -464,7 +464,7 @@ internal static class MapPresentationVerification
                 MotherBrainRainbowPaletteGeometry.BackLegCount,
                 MotherBrainColorDestinations.DrainedRearLegColor);
             SnesCgram installed = MotherBrainLook.OfRainbow(rainbow,
-                draining ? MotherBrainShades.ToGrey(frame) : MotherBrainShades.FromGrey(frame), seed);
+                MotherBrainShades.Fade((draining ? MotherBrainFadeDefinitions.DrainToGrey : MotherBrainFadeDefinitions.RevivalFromGrey).Images[frame]), seed);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
         }

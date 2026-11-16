@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         }
         for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
         {
-            ushort[] cgram = Shown(MotherBrainShades.DeathBody(frame));
+            ushort[] cgram = Shown(MotherBrainShades.Fade(MotherBrainFadeDefinitions.DeathBody.Images[frame]));
             for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
             {
                 ushort shared = colors.BodyColor(frame, color).ToWord();
@@ -115,7 +115,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         }
         for (int frame = 0; frame < MotherBrainDeathColorFile.CorpseFadeFrameCount; frame++)
         {
-            ushort[] cgram = Shown(MotherBrainShades.CorpseFade(frame));
+            ushort[] cgram = Shown(MotherBrainShades.Fade(MotherBrainFadeDefinitions.CorpseFade.Images[frame]));
             for (int color = 0; color < MotherBrainDeathColorFormat.CorpseColorCount; color++)
                 AssertEqual(colors.CorpseColor(frame, color).ToWord(),
                     cgram[MotherBrainDeathColorDestinations.BrainColors + color],

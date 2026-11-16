@@ -100,27 +100,25 @@ internal static class MotherBrainSheetShades
 
         var shades = new List<SheetShade>([.. HealthSprites(health), .. RainbowSprites(rainbow)]);
         shades.AddRange(RoomSprites(room));
-        for (int frame = 0; frame < death.BodyFadeFrameCount; frame++)
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DeathBody, death.BodyFadeFrameCount))
         {
-            int shown = frame;
-            shades.Add(BrainAndLegs(MotherBrainShades.DeathBody(shown), LegsRow + FirstColour,
-                Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(shown, colour)),
-                Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.LegColor(shown, colour))));
+            shades.Add(BrainAndLegs(MotherBrainShades.Fade(image), LegsRow + FirstColour,
+                Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(image.Step, colour)),
+                Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.LegColor(image.Step, colour))));
         }
         // Her detached brain fades as a corpse over its own colours.
-        for (int frame = 0; frame < death.CorpseFadeFrameCount; frame++)
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.CorpseFade, death.CorpseFadeFrameCount))
         {
-            int shown = frame;
-            shades.Add(SheetShade.Run(MotherBrainShades.CorpseFade(shown), BrainRow + FirstColour,
-                Colours(MotherBrainDeathColorFormat.CorpseColorCount, colour => death.CorpseColor(shown, colour))));
+            shades.Add(SheetShade.Run(MotherBrainShades.Fade(image), BrainRow + FirstColour,
+                Colours(MotherBrainDeathColorFormat.CorpseColorCount, colour => death.CorpseColor(image.Step, colour))));
         }
         shades.Add(SheetShade.Run(MotherBrainShades.BabyArrives, SeventhRow + FirstColour,
             Colours(BabyMetroidCutsceneColorFormat.InitialColorCount, baby.InitialColor)));
-        for (int shade = 1; shade <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; shade++)
+        // The Baby's installed fade colours number its images from one.
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.BabyFade, BabyMetroidCutsceneColorDefinitions.FadeFrameCount))
         {
-            int shown = shade;
-            shades.Add(SheetShade.Run(MotherBrainShades.BabyFade(shown), SeventhRow + FirstColour,
-                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(shown, colour))));
+            shades.Add(SheetShade.Run(MotherBrainShades.Fade(image), SeventhRow + FirstColour,
+                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(image.Step + 1, colour))));
         }
         return shades;
     }
@@ -135,11 +133,8 @@ internal static class MotherBrainSheetShades
         InstalledMotherBrainRainbowPalette rainbow = maps.MotherBrainRainbowColours;
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
-        for (int frame = 0; frame < death.BodyFadeFrameCount; frame++)
-        {
-            int shown = frame;
-            shades.Add(Body(MotherBrainShades.DeathBody(shown), Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(shown, colour))));
-        }
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DeathBody, death.BodyFadeFrameCount))
+            shades.Add(Body(MotherBrainShades.Fade(image), Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(image.Step, colour))));
         return shades;
     }
 
@@ -176,27 +171,28 @@ internal static class MotherBrainSheetShades
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
             shades.Add(Phase(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), rainbow.rainbow[frame]));
         shades.Add(Phase(MotherBrainShades.Restored, rainbow.normal));
-        for (int frame = 0; frame < rainbow.toGrey.Length; frame++)
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DrainToGrey, rainbow.toGrey.Length))
         {
-            int shown = frame;
-            shades.Add(BrainAndLegs(MotherBrainShades.ToGrey(shown), LegsRow + DrainedLegsFirstColour,
-                Colours(rainbow.toGrey.BodyCount, colour => rainbow.toGrey.Body(shown, colour)),
-                Colours(rainbow.toGrey.LegCount, colour => rainbow.toGrey.Leg(shown, colour))));
+            shades.Add(BrainAndLegs(MotherBrainShades.Fade(image), LegsRow + DrainedLegsFirstColour,
+                Colours(rainbow.toGrey.BodyCount, colour => rainbow.toGrey.Body(image.Step, colour)),
+                Colours(rainbow.toGrey.LegCount, colour => rainbow.toGrey.Leg(image.Step, colour))));
         }
-        for (int frame = 0; frame < rainbow.fromGrey.Length; frame++)
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.RevivalFromGrey, rainbow.fromGrey.Length))
         {
-            int shown = frame;
-            shades.Add(BrainAndLegs(MotherBrainShades.FromGrey(shown), LegsRow + DrainedLegsFirstColour,
-                Colours(rainbow.fromGrey.BodyCount, colour => rainbow.fromGrey.Body(shown, colour)),
-                Colours(rainbow.fromGrey.LegCount, colour => rainbow.fromGrey.Leg(shown, colour))));
+            shades.Add(BrainAndLegs(MotherBrainShades.Fade(image), LegsRow + DrainedLegsFirstColour,
+                Colours(rainbow.fromGrey.BodyCount, colour => rainbow.fromGrey.Body(image.Step, colour)),
+                Colours(rainbow.fromGrey.LegCount, colour => rainbow.fromGrey.Leg(image.Step, colour))));
         }
-        for (int frame = 0; frame < MotherBrainFakeDeathFadeDefinitions.FrameCount; frame++)
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.FakeDeathToGrey, MotherBrainFakeDeathFadeDefinitions.FrameCount))
         {
-            int shown = frame;
-            shades.Add(SheetShade.Run(MotherBrainShades.FakeDeathToGrey(shown), BrainRow + FirstColour,
-                Colours(MotherBrainRainbowPaletteGeometry.FakeDeathColors, colour => rainbow.fakeDeathToGrey.Body(shown, colour))));
-            shades.Add(SheetShade.Run(MotherBrainShades.FakeDeathFromGrey(shown), BrainRow + FirstColour,
-                Colours(MotherBrainRainbowPaletteGeometry.FakeDeathColors, colour => rainbow.fromGrey.Body(shown, colour))));
+            shades.Add(SheetShade.Run(MotherBrainShades.Fade(image), BrainRow + FirstColour,
+                Colours(MotherBrainRainbowPaletteGeometry.FakeDeathColors, colour => rainbow.fakeDeathToGrey.Body(image.Step, colour))));
+        }
+        // The fake death's return from grey shows the revival's first colours in her brain's three fading colours.
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.FakeDeathFromGrey, MotherBrainFakeDeathFadeDefinitions.FrameCount))
+        {
+            shades.Add(SheetShade.Run(MotherBrainShades.Fade(image), BrainRow + FirstColour,
+                Colours(MotherBrainRainbowPaletteGeometry.FakeDeathColors, colour => rainbow.fromGrey.Body(image.Step, colour))));
         }
         return shades;
 
@@ -228,16 +224,10 @@ internal static class MotherBrainSheetShades
             shades.Add(Body(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), Colours(phase.Body.Length, colour => phase.Body[colour])));
         }
         shades.Add(Body(MotherBrainShades.Restored, Colours(rainbow.normal.Body.Length, colour => rainbow.normal.Body[colour])));
-        for (int frame = 0; frame < rainbow.toGrey.Length; frame++)
-        {
-            int shown = frame;
-            shades.Add(Body(MotherBrainShades.ToGrey(shown), Colours(rainbow.toGrey.BodyCount, colour => rainbow.toGrey.Body(shown, colour))));
-        }
-        for (int frame = 0; frame < rainbow.fromGrey.Length; frame++)
-        {
-            int shown = frame;
-            shades.Add(Body(MotherBrainShades.FromGrey(shown), Colours(rainbow.fromGrey.BodyCount, colour => rainbow.fromGrey.Body(shown, colour))));
-        }
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DrainToGrey, rainbow.toGrey.Length))
+            shades.Add(Body(MotherBrainShades.Fade(image), Colours(rainbow.toGrey.BodyCount, colour => rainbow.toGrey.Body(image.Step, colour))));
+        foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.RevivalFromGrey, rainbow.fromGrey.Length))
+            shades.Add(Body(MotherBrainShades.Fade(image), Colours(rainbow.fromGrey.BodyCount, colour => rainbow.fromGrey.Body(image.Step, colour))));
         return shades;
     }
 
@@ -306,6 +296,15 @@ internal static class MotherBrainSheetShades
         return [.. Enumerable.Range(0, ZebetiteColorFormat.FrameCount).Select(frame => SheetShade.Run(ZebetiteShades.Pulse(ZebetitePulse.All[frame]),
             AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(frame, colour))))];
     }
+
+    /// <summary>
+    /// <paramref name="fade"/>'s images, whose colours the installation holds <paramref name="installed"/> rows of: one for
+    /// each image the fade shows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation holds another number of rows than the fade has images.</exception>
+    private static IReadOnlyList<MotherBrainFadeImage> Images(MotherBrainFade fade, int installed) => installed == fade.Images.Count
+        ? fade.Images
+        : throw new InvalidDataException($"Mother Brain's {fade} shows {fade.Images.Count} images, but the installation holds {installed} rows of its colours.");
 
     /// <summary>A load of the same colours into her brain's row and of <paramref name="legs"/> into her legs' row from <paramref name="legsFirstInk"/>.</summary>
     private static SheetShade BrainAndLegs(PictureShade shade, int legsFirstInk, RgbColor[] brain, RgbColor[] legs) =>

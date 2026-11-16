@@ -57,17 +57,16 @@ internal sealed class MotherBrainFakeDeath
         if (state.PhaseTimer.StepRunsOut())
         {
             state.PhaseTimer.Count = 8;
-            int step = state.FakeDeathGreying.TakeStep();
-            if (step == MotherBrainFakeDeathFadeDefinitions.FrameCount)
-            {
-                state.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
-            }
-            else
+            if (MotherBrainFadeDefinitions.FakeDeathToGrey.ImageAt(state.FakeDeathGreying.TakeStep()) is { } image)
             {
                 // Fake-death fade greys her brain's three colours only. Copying a convenient
                 // whole colour set would visibly alter unrelated room art and is not what
                 // the fake-death fade does.
-                state.Colours.ShowFakeDeathToGrey(step);
+                state.Colours.ShowFakeDeathToGrey(image);
+            }
+            else
+            {
+                state.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
             }
         }
 
@@ -408,11 +407,10 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         state.PhaseTimer.Count = 4;
-        int fadeStep = state.FromFakeDeathGrey.TakeStep();
-        if (fadeStep < MotherBrainFakeDeathFadeDefinitions.FrameCount)
+        if (MotherBrainFadeDefinitions.FakeDeathFromGrey.ImageAt(state.FromFakeDeathGrey.TakeStep()) is { } image)
         {
             // The restoration from grey recolours only three of the brain's colours.
-            state.Colours.ShowFakeDeathFromGrey(fadeStep);
+            state.Colours.ShowFakeDeathFromGrey(image);
             return;
         }
 

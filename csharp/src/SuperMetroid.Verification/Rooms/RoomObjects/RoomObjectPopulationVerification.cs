@@ -780,10 +780,10 @@ internal static class RoomObjectPopulationVerification
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
+                new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
             { Site = RoomObjectSite.BeyondTheRoom },
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
-                new(inRoomX, inRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
+                new(inRoomX, inRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),
@@ -822,7 +822,7 @@ internal static class RoomObjectPopulationVerification
         var undecoded = new RoomObjectPopulation("undecoded off-room door",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
+                new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
         ]);
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), undecoded, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),

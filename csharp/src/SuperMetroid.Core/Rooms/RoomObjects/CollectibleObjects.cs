@@ -182,7 +182,7 @@ internal sealed class CollectibleObjects
             : presentation switch
             {
                 CollectiblePresentation.Exposed => CollectiblePhase.Visible,
-                // An item orb tests only the collected-item bit. A shell
+                // An item orb tests only whether its item was collected. A shell
                 // broken on an earlier visit is rebuilt until the item is picked up.
                 CollectiblePresentation.ChozoOrb => CollectiblePhase.ChozoOrb,
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,

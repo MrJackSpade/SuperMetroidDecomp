@@ -202,7 +202,7 @@ internal static class EyeDoorObjectsVerification
         }
 
         AssertTrue(system.HasOpenedDoorBit(doorBit),
-            $"{orientation} accepted hit threshold persists door bit");
+            $"{orientation} accepted hit threshold records the door opened for good");
         for (int frame = 0; frame < 256 && roomObjects.Places.ActiveCount != 0; frame++)
             StepEyeDoorObjects(roomObjects, level);
         AssertEqual(0, roomObjects.Places.ActiveCount,

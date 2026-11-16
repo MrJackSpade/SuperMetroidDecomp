@@ -146,7 +146,7 @@ internal sealed class RoomObjectPopulationLoader
                 out ColoredDoorColor color,
                 out ColoredDoorOrientation coloredOrientation))
         {
-            DoorObjects.SetupColoredDoor(level, place, color, coloredOrientation, placed.Argument as DoorBitArgument);
+            DoorObjects.SetupColoredDoor(level, place, color, coloredOrientation, placed.Argument as LockedDoorArgument);
             return true;
         }
 
@@ -236,7 +236,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (EyeDoorObjects.IsEyeDoorKind(objectKind))
         {
-            _eyeDoors.SetupEyeDoor(level, place, objectKind, placed.Argument as DoorBitArgument);
+            _eyeDoors.SetupEyeDoor(level, place, objectKind, placed.Argument as LockedDoorArgument);
             return true;
         }
 

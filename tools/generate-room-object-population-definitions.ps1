@@ -72,11 +72,11 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             $persistence = if (($word -band 0x8000) -eq 0) { 'Persistent' } else { 'Transient' }
             $condition = ($word -shr 10) -band 0x1f
             if ($condition -ge $greyDoorConditions.Count) { throw ('Grey door {0} argument {1:X4} selects no condition.' -f $name, $word) }
-            return 'new GreyDoorArgument(GreyDoorCondition.{0}, new DoorBitArgument(@@DOOR:{1}@@, DoorOpeningPersistence.{2}))' -f $greyDoorConditions[$condition], ($word -band 0x3ff), $persistence
+            return 'new GreyDoorArgument(GreyDoorCondition.{0}, new LockedDoorArgument(@@DOOR:{1}@@, DoorOpeningPersistence.{2}))' -f $greyDoorConditions[$condition], ($word -band 0x3ff), $persistence
         }
         if ($name -match '^((Red|Green|Yellow)Door|EyeDoor)') {
             if (($word -band 0x8000) -ne 0) { throw ('Door {0} argument {1:X4} never persists.' -f $name, $word) }
-            return 'new DoorBitArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
+            return 'new LockedDoorArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
         }
         # A refill station's word numbers it in room data, but neither its setup nor its refill reads the number (#1623):
         # the station is placed without an argument.

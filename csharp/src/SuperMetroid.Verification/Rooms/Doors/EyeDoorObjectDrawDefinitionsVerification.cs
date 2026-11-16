@@ -159,7 +159,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         for (int frame = 0; frame < 1024 && roomObjects.Places.ActiveCount != 0; frame++)
             roomObjects.Step(level);
         AssertTrue(system.HasOpenedDoorBit(doorBit),
-            $"{orientation} retail eye-door opening persists the door bit");
+            $"{orientation} retail eye-door opening records its door opened for good");
         AssertEqual(0, roomObjects.Places.ActiveCount,
             $"{orientation} retail eye and passive components complete and delete");
         RoomCollisionBlock cap = level.GetCollisionBlockByIndex(eyeBlock - width);

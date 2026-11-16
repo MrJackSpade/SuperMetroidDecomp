@@ -84,7 +84,7 @@ internal sealed class GreyDoorObjects
     {
         Ensure.NotNull(place);
         GreyDoorArgument argument = placed ?? throw new InvalidDataException(
-            $"Grey door {variant} at block {place.Block} was placed without its condition and door bit.");
+            $"Grey door {variant} at block {place.Block} was placed without its condition and door.");
         ApplyGreyDoorSetup(level, place.Block);
         place.Become(new GreyDoorObject(variant, argument.Condition, new PlacedDoor(argument.Door)));
     }

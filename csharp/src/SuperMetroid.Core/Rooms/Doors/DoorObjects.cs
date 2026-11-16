@@ -113,7 +113,7 @@ internal sealed class DoorObjects
         RoomObjectPlace place,
         ColoredDoorColor color,
         ColoredDoorOrientation orientation,
-        DoorBitArgument? door)
+        LockedDoorArgument? door)
     {
         ApplyColoredDoorSetup(level, place.Block);
         place.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation), PlacedDoor.For(door)));

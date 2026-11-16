@@ -52,7 +52,7 @@ internal static class LookupDownwardGateSelectionVerification
             // writes the trigger's own side alone (#2128).
             RoomCollisionType? nativeCollision = native == 0 ? null : RoomLevelWordCodec.Decode(native).Collision;
             bool triggerSide = (field == 1) == GateObjects.IsLeftTrigger(trigger);
-            AssertEqual(nativeCollision, triggerSide ? DownwardGateDefinitions.TriggerCollision : (RoomCollisionType?)null,
+            AssertEqual(nativeCollision, triggerSide ? DownwardGateDefinitions.TriggerCollision : null,
                 $"Downward gate original field {field}, argument {raw} collision");
             if (native != 0)
                 AssertEqual(native & 0xff,

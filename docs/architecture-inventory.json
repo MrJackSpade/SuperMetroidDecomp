@@ -56711,6 +56711,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.CollectibleBlockPairs.WrittenBlocks",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CollectibleBlockPairs.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.ColourEffectTurnOrder",
       "kind": "static class",
       "scope": "product",
@@ -107813,6 +107826,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateImage",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateMovement",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateMovement.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateMovementDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -107956,48 +107995,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateShotBlockDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateShotBlockDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateShotBlockDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateShotBlockDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateShotBlockDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/DownwardGateShotBlockDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerBehavior",
       "kind": "enum",
       "scope": "product",
@@ -108009,6 +108006,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateTriggerDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateTriggerDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DraygonWallCannon",
@@ -109465,7 +109475,20 @@
         "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/KraidRoomObjectDraws.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.KraidRoomObjectDraws.CrumbleDraw",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/KraidRoomObjectDraws.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.LinkedRestoreObjectFamily",
@@ -146247,6 +146270,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidRockLaunchDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Kraid.KraidRoomDrawsAt",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidRoomDrawsAt.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

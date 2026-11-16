@@ -154,7 +154,7 @@ internal static class PhantoonDoorObjectsVerification
         state.BossDefeatPersisted = true;
         state.PhaseTimer = 0;
         // Past the power's last step: this update completes the power coming back.
-        state.BodyFade.Numerator = 14;
+        state.ShipPowerOn.Steps = 14;
         enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state, samus);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, results.PhantoonDoor, "the power's return asks for the restored door");
 

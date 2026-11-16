@@ -287,7 +287,7 @@ internal sealed class PhantoonPatterns
         SamusState samus)
     {
         MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
 
@@ -335,7 +335,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
+        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (state.BodyFade.Complete)
             state.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
     }
@@ -355,7 +355,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 1);
+        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.FlameRainFadeInSteps);
         if (!state.BodyFade.Complete)
             return;
 
@@ -393,7 +393,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonFlameRainFadeOut(
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
 
@@ -423,7 +423,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         StepPhantoonFigureEight(body, state.FigureEight);
         StepPhantoonCasualFlameSchedule(state);
         // Reaching zero expires the timer, as does running past it.
@@ -439,7 +439,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonFadeOutBeforeRage(
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
         state.Phase = PhantoonPhase.MoveToTopCenterForRage;
@@ -463,7 +463,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
+        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
         state.Phase = PhantoonPhase.Enraged;
@@ -501,7 +501,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonRageFadeOut(
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
         state.Phase = PhantoonPhase.WaitAfterFadeOut;
@@ -602,27 +602,19 @@ internal sealed class PhantoonPatterns
         state.EyePart.StartAnimation(PhantoonEyeGaze.EyeAnimation(direction));
     }
 
-    /// <summary>Blends the body colours toward hidden colors over the selected interval.</summary>
+    /// <summary>Fades his body toward his faded-out colours over <paramref name="steps"/> steps, one every second update.</summary>
     internal void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
-        int denominator)
+        int steps)
     {
         if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.Complete)
             return;
 
-        state.BodyFade.Denominator = denominator;
-        int numerator = state.BodyFade.Numerator;
-        if (denominator + 1 < numerator)
-        {
-            state.BodyFade.Numerator = 0;
-            state.BodyFade.Complete = true;
+        // The fade's step is a typed fade toward his faded-out colours (#1512, #2251).
+        if (state.BodyFade.TakeStep(steps) is { } step)
+            state.Colours.Fade(PhantoonBodyLook.FadedOut, step, steps);
+        else
             state.Colours.CompleteFade();
-            return;
-        }
-
-        // The fade's step is the import's shade of it, toward his faded-out colours (#1512).
-        state.Colours.Fade(PhantoonBodyLook.FadedOut, denominator, numerator);
-        state.BodyFade.Numerator = numerator + 1;
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns, each falling eight updates after the last.</summary>

@@ -87,8 +87,11 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.Round.EyeClosedTimer = CoordinateAxis.AsSigned(words.A);
                 phantoon.FigureEight.Reversed = words.C != 0;
                 phantoon.Death.FadeCycles = words.C;
-                phantoon.BodyFade.Denominator = words.D;
-                phantoon.BodyFade.Numerator = words.E;
+                // The eye's word E counts the steps of whichever of his fades runs: his body's, or after his death the
+                // Wrecked Ship's power coming on, each its own progress (#2251). Word D, the fade's length, is rewritten
+                // by every step.
+                PhantoonFadeProgress fade = phantoon.Phase == PhantoonPhase.Dead ? phantoon.ShipPowerOn : phantoon.BodyFade;
+                fade.Steps = words.E;
                 phantoon.BodyFade.Complete = words.F != 0;
                 phantoon.RageWaveCount = words.F;
                 PhantoonNativeWords.ImportDeathMosaic(phantoon.Death, words.C);

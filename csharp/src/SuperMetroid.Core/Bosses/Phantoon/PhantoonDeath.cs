@@ -63,9 +63,9 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.Death.FadeCycles))
-            _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
+            _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         else
-            _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
+            _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
 
         if (!state.BodyFade.Complete)
             return;
@@ -166,7 +166,7 @@ internal sealed class PhantoonDeath
             return;
         }
 
-        _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
+        _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (state.BodyFade.Complete)
             state.Phase = PhantoonPhase.AlmostDead;
     }
@@ -203,7 +203,6 @@ internal sealed class PhantoonDeath
         if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
             return;
 
-        state.BodyFade.Denominator = 12;
         if (!AdvanceWreckedShipPowerOn(state))
             return;
 
@@ -238,23 +237,18 @@ internal sealed class PhantoonDeath
     }
 
     /// <summary>
-    /// Takes one step of the Wrecked Ship's power coming on over the room (#1512): every colour but Phantoon's body's fades
-    /// toward its powered colour, which the room shows as the import's shade of each step.
+    /// Takes one step of the Wrecked Ship's power coming on over the room (#1512, #2251), its own fade with its own
+    /// progress: every colour but Phantoon's body's fades toward its powered colour, a typed fade the room shows.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
     internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
     {
-        PhantoonBodyFadeProgress fade = state.BodyFade;
-        int denominator = fade.Denominator;
-        int numerator = fade.Numerator;
-        if (denominator + 1 < numerator)
+        if (state.ShipPowerOn.TakeStep(PhantoonColorDefinitions.PowerOnSteps) is { } step)
         {
-            fade.Numerator = 0;
-            state.Colours.CompletePowerOn();
-            return true;
+            state.Colours.PowerOn(step);
+            return false;
         }
-        state.Colours.PowerOn(numerator);
-        fade.Numerator = numerator + 1;
-        return false;
+        state.Colours.CompletePowerOn();
+        return true;
     }
 }

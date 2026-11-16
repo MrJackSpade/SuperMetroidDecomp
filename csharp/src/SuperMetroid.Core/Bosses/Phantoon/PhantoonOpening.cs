@@ -85,7 +85,7 @@ internal sealed class PhantoonOpening
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _presentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
+        _presentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (PhantoonPresentation.AdvancePhantoonWaveAmplitude(
                 state.Wave,
                 PhantoonWaveDefinitions.IntroAmplitudeChange,

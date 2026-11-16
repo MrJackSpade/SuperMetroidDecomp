@@ -56,7 +56,7 @@ internal sealed class MotherBrainFakeDeath
         if (state.PhaseTimer.StepRunsOut())
         {
             state.PhaseTimer.Count = 8;
-            int step = state.GreyFadeStep++;
+            int step = state.FakeDeathGreying.TakeStep();
             if (step == MotherBrainFakeDeathFadeDefinitions.FrameCount)
             {
                 state.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
@@ -417,7 +417,7 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         state.PhaseTimer.Count = 4;
-        int fadeStep = state.GrayTransitionCounter++;
+        int fadeStep = state.FromFakeDeathGrey.TakeStep();
         if (fadeStep < MotherBrainFakeDeathFadeDefinitions.FrameCount)
         {
             // The restoration from grey recolours only three of the brain's colours.

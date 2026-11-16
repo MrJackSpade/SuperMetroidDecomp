@@ -86,7 +86,10 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     public int RageWaveCount { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>How far the fade on his body has run.</summary>
-    public PhantoonBodyFadeProgress BodyFade { get; } = new();
+    public PhantoonFadeProgress BodyFade { get; } = new();
+
+    /// <summary>How far the Wrecked Ship's power coming on after his death has run, its own fade (#2251).</summary>
+    public PhantoonFadeProgress ShipPowerOn { get; } = new();
 
     /// <summary>The wave his body ripples with.</summary>
     public PhantoonWaveState Wave { get; } = new();

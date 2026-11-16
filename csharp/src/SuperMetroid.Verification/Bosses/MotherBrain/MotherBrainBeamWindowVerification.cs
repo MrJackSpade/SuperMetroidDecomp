@@ -63,10 +63,10 @@ internal static class MotherBrainBeamWindowVerification
                 "beam advances one cycle colour per update");
         }
         Step();
-        AssertEqual(31, beam.Color, "the cycle's end shows colour zero");
-        AssertEqual(0, beam.ColourStep, "the update that restarts the cycle does not advance it");
+        AssertEqual(31, beam.Color, "past the cycle's end the beam starts over at colour zero");
+        AssertEqual(1, beam.ColourStep, "the update that starts the cycle over advances it");
         Step();
-        AssertEqual(31, beam.Color, "colour zero repeats after the restart");
+        AssertEqual(992, beam.Color, "colour zero does not repeat: the next update shows colour one (#2251)");
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot
             ?? throw new InvalidOperationException("The shown beam publishes its cone.");
         AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(beam.Color, new(new(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96))), snapshot,

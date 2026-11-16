@@ -65,69 +65,77 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
         var state = new PhantoonEnemyState(body, eye, tentacles, enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
-        // His live colour handlers name the shades of his body and room (#1512); the import pre-colours each from the
-        // installed colours, which this compares with the catalog.
+        // His live colour handlers name the shades of his body and room and the typed fades between them (#1512, #2251);
+        // the import pre-colours each settled colouring from the installed colours, which this compares with the catalog.
         IReadOnlyList<SheetShade> bodyShades = PhantoonSheetShades.Body(stock.Bosses);
+        PictureShading Body(PhantoonBodyLook look) => PictureShading.Shaded(PhantoonShades.Body(look));
+        const int steps = PhantoonColorDefinitions.BodyFadeSteps;
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
             PhantoonBehavior.ShowPhantoonHealthColours(state);
-            AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(band)), Shown(state), $"Phantoon live health restore band {band}");
+            AssertEqual(PictureShading.Shaded(PhantoonShades.Body(PhantoonBodyLook.Health(band))), Shown(state), $"Phantoon live health restore band {band}");
             AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
-            state.BodyFade.Numerator = 1;
+            state.BodyFade.Steps = 1;
             state.BodyFade.Complete = false;
-            enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 12);
-            AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(band), PhantoonBodyLook.Health(band), 12, 1, 1), Shown(state),
-                $"Phantoon live materialization band {band}");
-            AssertEqual(2, state.BodyFade.Numerator,
-                $"Phantoon fade-in band {band} retains native numerator advance");
+            enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, steps);
+            AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(band)), Body(PhantoonBodyLook.Health(band)), 1, steps)),
+                Shown(state), $"Phantoon live materialization band {band}: a typed fade from its first moving step");
+            AssertEqual(2, state.BodyFade.Steps, $"Phantoon fade-in band {band} takes one step");
         }
 
         body.Health = unchecked(2 * 312 + 1);
         body.FlashTimer = 8;
         state.Round.HurtFlashShown = true;
         PhantoonBehavior.ApplyPhantoonHurt(body, state);
-        AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");
+        AssertEqual(Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");
         AssertTrue(!state.Round.HurtFlashShown, "Phantoon hurt restore clears the flash latch");
 
-        state.BodyFade.Numerator = 13;
+        // The step past a fade's length reaches its goal, and the step after completes the fade, which then shows its goal.
+        state.BodyFade.Steps = steps + 1;
         state.BodyFade.Complete = false;
-        enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 12);
-        PictureShade fadedOut = PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 13, 13);
-        AssertEqual(fadedOut, Shown(state), "Phantoon live fade-out names its last step");
-        AssertShade(bodyShades, fadedOut, colors.ResolveFadeOut, "Phantoon live fade-out target");
-        AssertEqual(14, state.BodyFade.Numerator,
-            "Phantoon fade-out retains native numerator advance");
+        enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(2)), Body(PhantoonBodyLook.FadedOut), 1, 1)),
+            Shown(state), "Phantoon's fade-out restarted at its last step reaches its goal");
+        AssertEqual(steps + 2, state.BodyFade.Steps, "Phantoon's fade-out takes its last step");
+        enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
+        AssertTrue(state.BodyFade.Complete && state.BodyFade.Steps == 0, "the next step completes the fade and starts the next over");
+        AssertEqual(Body(PhantoonBodyLook.FadedOut), Shown(state), "a completed fade shows its goal");
+        AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.FadedOut), colors.ResolveFadeOut, "Phantoon's faded-out colours");
 
-        // A hurt colouring written mid-fade restarts the fade from it at the value the fade stands at (#1512): the
-        // cartridge steps each colour from the one shown, so the next step moves white once, not through the steps before.
+        // A hurt colouring written mid-fade restarts the fade from it over the steps it has left (#1512, #2251).
         state.Colours.Show(PhantoonBodyLook.Health(2));
-        for (int numerator = 1; numerator <= 4; numerator++)
-            state.Colours.Fade(PhantoonBodyLook.FadedOut, 12, numerator);
-        AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 1, 4), Shown(state),
-            "Phantoon's fade names the steps it took from his health colours");
+        for (int step = 1; step <= 4; step++)
+            state.Colours.Fade(PhantoonBodyLook.FadedOut, step, steps);
+        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(2)), Body(PhantoonBodyLook.FadedOut), 4, steps);
+        AssertEqual(PictureShading.Standard.With(fromHealth), Shown(state), "Phantoon's fade has come four of its twelve steps from his health colours");
         state.Colours.Show(PhantoonBodyLook.White);
-        state.Colours.Fade(PhantoonBodyLook.FadedOut, 12, 5);
-        PictureShade restarted = PhantoonShades.Fading(PhantoonBodyLook.White, PhantoonBodyLook.FadedOut, 12, 5, 5);
-        AssertEqual(restarted, Shown(state), "Phantoon's fade restarts from the hurt flash's white at the value it stands at");
-        AssertShade(bodyShades, restarted, color => CartridgeFadeStep(5, RgbColor.White, colors.ResolveFadeOut(color), 12),
-            "Phantoon's fade restarted from white");
-        AssertThrows<InvalidOperationException>(() => state.Colours.Fade(PhantoonBodyLook.Health(2), 12, 6),
-            "A fade toward another target while his colours are mid-fade is refused");
+        state.Colours.Fade(PhantoonBodyLook.FadedOut, 5, steps);
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8)),
+            Shown(state), "Phantoon's fade restarts from the hurt flash's white over the eight steps it has left");
+        AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.White), _ => RgbColor.White, "Phantoon's white hurt flash");
+        PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8);
+        state.Colours.Fade(PhantoonBodyLook.Health(2), 6, steps);
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(2)), 1, 7)),
+            Shown(state), "a fade toward another goal starts from the running fade as it shows");
 
-        state.BodyFade.Denominator = 12;
-        state.BodyFade.Numerator = 13;
-        bool complete = PhantoonDeath.AdvanceWreckedShipPowerOn(state);
-        AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
-        SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses, new RgbColor[ImageColourGroup.HalfColours])
-            .Single(shade => shade.Shade == PhantoonShades.PowerOn(13));
+        // The Wrecked Ship's power coming on is its own typed fade with its own progress.
+        state.ShipPowerOn.Steps = PhantoonColorDefinitions.PowerOnSteps + 1;
+        AssertTrue(!PhantoonDeath.AdvanceWreckedShipPowerOn(state), "Phantoon ship power-on remains active on its last step");
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(PhantoonShades.Powered),
+            PhantoonColorDefinitions.PowerOnSteps, PhantoonColorDefinitions.PowerOnSteps)), Shown(state, GameplayPictures.Room),
+            "the power's last step reaches the room's powered colours");
+        AssertEqual(PhantoonColorDefinitions.PowerOnSteps + 2, state.ShipPowerOn.Steps, "Phantoon ship power-on takes its last step");
+        AssertTrue(PhantoonDeath.AdvanceWreckedShipPowerOn(state), "the next step completes the power coming on");
+        AssertEqual(PictureShading.Shaded(PhantoonShades.Powered), Shown(state, GameplayPictures.FxOverlay),
+            "the completed power shows the powered colours on the room's effects too");
+        SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses).Single();
+        AssertEqual(PhantoonShades.Powered, powered.Shade, "the import pre-colours the room's powered colours");
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
             AssertEqual(colors.ResolvePowerOnAtNative(color),
                 powered.Colours[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
-        AssertEqual(14, state.BodyFade.Numerator,
-            "Phantoon ship power-on retains native numerator advance");
 
         AssertThrows<InvalidDataException>(
             () => PhantoonColorFile.Read(new MemoryStream("{\"version\":1,\"version\":1}"u8.ToArray(), writable: false)),
@@ -145,24 +153,21 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     $"installed Phantoon {name} color {color} preserves native RGB5");
         }
     }
-    /// <summary>The shade Phantoon's body shows now under <paramref name="state"/>'s colours.</summary>
-    private static PictureShade Shown(PhantoonEnemyState state)
+    /// <summary>The shading <paramref name="pictures"/> show now under <paramref name="state"/>'s colours: his body's by default.</summary>
+    private static PictureShading Shown(PhantoonEnemyState state, GameplayPictures pictures = GameplayPictures.BossBody)
     {
         var frame = new GameplayShadingBuilder();
         state.Colours.ShadeGameplay(frame);
+        // The room picture whose backdrop the build reads is pre-coloured in the powered shade the power coming on names.
         return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)],
-            new PictureColours { Backdrop = ColourKeyConstants.Of(RgbColor.Black) }))
-            .Of(GameplayPictures.BossBody).Shades.Single();
+            new PictureColours
+            {
+                Backdrop = ColourKeyConstants.Of(RgbColor.Black),
+                Shades = System.Collections.Immutable.ImmutableDictionary<PictureShade, PictureRecolouring>.Empty
+                    .Add(PhantoonShades.Powered, new PictureRecolouring([])),
+            }))
+            .Of(pictures);
     }
-
-    /// <summary>
-    /// One step of value <paramref name="step"/> of Phantoon's fade from <paramref name="shown"/> toward
-    /// <paramref name="goal"/>, as the cartridge's per-channel transition moves each channel by its distance in 256ths over
-    /// the steps left.
-    /// </summary>
-    private static RgbColor CartridgeFadeStep(int step, RgbColor shown, RgbColor goal, int denominator) =>
-        shown.FadeLevels.Zip(goal.FadeLevels, (_, from, to) => step == 0 ? from : step - 1 == denominator ? to
-            : ((from << 8) + Math.Sign(to - from) * (Math.Abs(to - from) * 256 / (denominator - step + 1))) >> 8).ToColour();
 
     /// <summary>Asserts that the import's <paramref name="shade"/> among <paramref name="made"/> shows <paramref name="expected"/>'s colours.</summary>
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)

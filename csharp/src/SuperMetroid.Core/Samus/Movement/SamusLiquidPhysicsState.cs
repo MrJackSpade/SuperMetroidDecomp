@@ -19,9 +19,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusLiquidPhysicsState
 {
     /// <summary>
-    /// Takes the selected room FX into Samus's liquid state. Room rendering and
-    /// movement therefore consume one game-owned surface instead of independently
-    /// configured debug values.
+    /// Takes the room's selected effect into Samus's liquid state, so what the room shows and how Samus moves read one
+    /// liquid surface.
     /// </summary>
     public void ConfigureFor(RoomFxOverlayState fx)
     {

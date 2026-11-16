@@ -335,9 +335,8 @@ internal static class SamusPosturePoseTransitions
             // invalid once the body has entered either ordinary or Spring Ball form.
             samus.BombSpreadChargeTimeoutCounter = 0;
 
-            // The posture change also cancels an active bounce before starting the
-            // transition. Ordinary crouch entry normally sees zero, but retaining the
-            // literal writes keeps a bounce that is somehow active deterministic.
+            // The posture change also cancels any bounce before starting the transition; an ordinary crouch has none
+            // to cancel.
             CancelBounceForPostureTransition(samus);
             SamusPresentation.InitializeAnimation(samus);
             return true;

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Normal (non-debug) input ownership for the saved-game area/room-map sequence.</summary>
+/// <summary>How the player's input moves through the saved game's area and room maps at file select.</summary>
 /// <remarks>
 /// Rendering and fades are separate owners. Requests stay pending until the frontend
 /// completes the requested transition; calling Step again never implicitly skips it.
@@ -55,9 +55,8 @@ public sealed class FileSelectMapNavigation
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
-                // The game's direction handling changes areas only with debug enabled.
-                // Its non-debug branch replaces the working input with none when
-                // a direction/Select edge exists, also suppressing a simultaneous confirm.
+                // The area map does not change areas: a newly pressed direction or Select discards the update's
+                // input, a confirm pressed with it included.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
                         ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;
                 // Otherwise B wins over A/Start, and selecting keeps the saved area.

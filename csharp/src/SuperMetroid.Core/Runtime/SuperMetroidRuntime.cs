@@ -563,12 +563,9 @@ internal sealed class SuperMetroidRuntime
     private void AdvanceMainLoopRandom()
     {
         // Every update draws a random number right after the liquid wave and statue descent
-        // (LiquidWaveAndStatueDescentOrder) and before the game state's own work. Several room and
-        // enemy behaviours only sample the random number instead of advancing it themselves;
-        // the falling-tile room is the first visibly obvious example: without this draw,
-        // every ceiling fragment falls at the same place forever. Keep this
-        // unconditional and at the start of the update; advancing only at a consumer would
-        // change the shared sequence.
+        // (LiquidWaveAndStatueDescentOrder) and before the game state's own work, whatever else runs. Several room
+        // and enemy behaviours only read the random number without drawing one themselves: the falling ceiling
+        // fragments land at new places only because of this draw.
         System.NextRandom();
     }
 
@@ -639,14 +636,10 @@ internal sealed class SuperMetroidRuntime
     private void RunColourEffects()
     {
         // Main gameplay runs the colour effects before Samus's update and
-        // before enemies are processed. The Hyper Beam is equipped by the
-        // Baby during that later enemy phase, so a newly started Hyper Beam colour effect naturally
-        // begins on the following frame. Debug scripts that grant Hyper Beam before their
-        // first StepFrame get the same effects-first behavior immediately.
+        // before enemies are processed. The Baby equips the Hyper Beam during that later enemy phase, so a newly
+        // started Hyper Beam colour effect begins on the following frame.
         // The room's colour effects take their turns first (ColourEffectSystem.effects): room FX starts first,
         // and Hyper Beam's effect, which starts later, takes its turn after them.
-        // Running the room's effects before the separately owned Hyper Beam effect keeps that
-        // order.
         // Door destination drawing borrows this frame path, but the door's destination
         // fade does not run the colour effects. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
@@ -830,10 +823,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs the main scrolling, its scrolling-finished hook, background streaming and the minimap.</summary>
     private void RunMainScrolling(SamusState samus, ScrollBoundaryCamera camera, FixedPosition<RoomPixels> previousCameraPoint, bool deathOwnsSamus)
     {
-        // The door's destination fade runs enemy/draw owners but not the camera, for ordinary doors as
-        // well as elevators.
-        // Running the normal camera here consumes the upward scroll's +32 offset
-        // before arrival resumes, exposing wrapped Samus art above the room.
+        // The door's destination fade runs the enemies and the drawing but not the camera, for ordinary doors as
+        // well as elevators: the upward scroll's 32-pixel offset stays until the arrival resumes.
         if (!deathOwnsSamus && !DoorTransition.Passage.IsUnderWay)
         {
             if (Room.LevelData is null)
@@ -893,9 +884,7 @@ internal sealed class SuperMetroidRuntime
             // following frame shows the room from level data at the new position.
             BackgroundPhase.UpdateBackgroundScrollingFromCamera(Freeze.TimeIsFrozen);
 
-            // UpdateMinimap belongs to Samus's normal movement phase; it uses world
-            // position, not camera position. Fresh debug sessions begin without an area
-            // map, so only tiles actually visited by this runtime are revealed.
+            // The minimap updates in Samus's normal movement phase from her room position, not the camera's.
             Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation.Get(roomGeometry.Area) });
         }
     }
@@ -944,10 +933,8 @@ internal sealed class SuperMetroidRuntime
         Room.LoadedScope.Enemies.PuyoCeilingTurn.HudRedrawn();
         if (Hud.IsInitialized)
         {
-            // The loan exists only so firing logic does not observe zero and
-            // auto-cancel the selected weapon. Remove it before the HUD update converts the
-            // live counters into HUD cells; publishing first made the on-screen
-            // minimum read two even though Snapshot later restored the actor to one.
+            // The loan exists only so firing does not see zero ammunition and cancel the selected weapon. It is
+            // returned before the HUD update shows the live counters, so the HUD shows the ammunition Samus holds.
             infiniteAmmoGuard.Complete(Player.Samus);
             // The HUD update rebuilds live energy/ammo cells every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
@@ -969,8 +956,7 @@ internal sealed class SuperMetroidRuntime
         RoomMains.RunBlockAnimations(Room.LoadedScope);
         EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope);
 
-        // Landing Site's room main is selected by the room state rather than by coordinates.
-        // It runs at the common room-main seam after gameplay drawing and before shaking.
+        // Maridia's elevatube runs with the room mains, after gameplay drawing and before the room shakes.
         if (Room.LoadedScope.MaridiaElevatube.IsActive)
         {
             if (Room.LevelData is null)
@@ -984,9 +970,8 @@ internal sealed class SuperMetroidRuntime
                 Room.RoomMainCarryover);
         }
 
-        // Execute the active room's room main at the same seam as Landing Site's
-        // room main above: after gameplay drawing/HUD work and before global shaking. The
-        // Ceres room main publishes a tilt for the following frame's presentation and may
+        // The active room's room main runs with Landing Site's above: after gameplay drawing and the HUD, and before
+        // the room shakes. The Ceres room main publishes a tilt for the following frame's presentation and may
         // change the outer game-state loop to the Ceres elevator state only while main gameplay runs it.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
@@ -1028,9 +1013,8 @@ internal sealed class SuperMetroidRuntime
     internal void ApplyEndOfUpdateAssists(
         AmmoLoanGuard infiniteAmmoGuard)
     {
-        // Every damage source applies its normal amount first. The assist intervenes
-        // only at the single end-of-update seam where zero would otherwise be
-        // observed by SuperMetroidGame and routed into the death states.
+        // Every damage source applies its normal amount first. The assist acts only at the end of the update, where
+        // zero energy would otherwise start Samus's death.
         if (Assists.Current.SamusCannotDie && Player.Samus is { Health: 0 } samus)
             samus.Health = 1;
 

@@ -64,7 +64,7 @@ internal static class EndingColourOwners
         }
         return listed.ToFrozenDictionary(StringComparer.Ordinal);
 
-        // Lists what the family of `shade` is authored for.
+        // Lists what the shade's family is authored for.
         void Add(PictureShade shade, EndingEffectOwners owners) =>
             listed.Add(shade.Effect, new ShadeOwners(owners.Actors.ToFrozenSet(), owners.Scenery.ToFrozenSet()));
     }

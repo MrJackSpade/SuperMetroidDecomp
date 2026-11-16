@@ -180,14 +180,11 @@ internal sealed class EnemyDrawList
     /// the draw publishes its frame's picture.
     /// </summary>
     /// <remarks>
-    /// A hit does not replace an enemy's stored colouring. On alternating phases of the
-    /// shared enemy frame counter, the writer temporarily supplies the common sprite
-    /// colours; the following draw restores the actor's own. Frozen flashing similarly
-    /// selects the frozen colours. Keeping this at the common writer is
-    /// important: Space Pirates are merely the first enemies whose missing flash
-    /// was obvious, and a family-specific colouring change would corrupt every later draw.
-    /// Ridley's AI already publishes the exact common-writer colouring because
-    /// its body, wings, and tail must share one latched phase.
+    /// A hit does not replace an enemy's own colouring. On alternating phases of the
+    /// shared enemy frame counter, the draw shows the common hurt colours instead;
+    /// the following draw shows the enemy's own again. A frozen enemy's flash
+    /// shows the frozen colours the same way. Every enemy flashes through this one choice.
+    /// Ridley makes the same choice himself, once for his body, wings and tail, so they flash on one phase.
     /// </remarks>
     private PictureShading SelectCommonEnemyDrawShading(RoomEnemyPlace place)
     {

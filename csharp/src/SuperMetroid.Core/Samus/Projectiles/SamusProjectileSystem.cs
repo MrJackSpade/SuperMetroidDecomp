@@ -322,8 +322,7 @@ public sealed class SamusProjectileSystem
 
         // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
         // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
-        // go to the companion bomb owner, and the debug grapple route disables this
-        // producer explicitly while it owns Shoot.
+        // go to the bombs instead, and while her input is locked no producer runs.
         // The forward-facing HUD step branches straight to projectile handling for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.

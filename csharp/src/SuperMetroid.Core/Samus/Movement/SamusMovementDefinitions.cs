@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>The definitions Samus's movement and pose selection read: speeds, timers, frames and sentinels (#1411).</summary>
 /// <remarks>
-/// Definitions are grouped by their subsystem rather than by the C# class that happens
-/// to read them. Runtime velocity, timers, and the selected movement do not belong in this catalog.
+/// Definitions are grouped by the part of Samus's movement they define. Her live velocity, timers and the selected
+/// movement do not belong in this catalog.
 /// </remarks>
 public static class SamusMovementDefinitions
 {

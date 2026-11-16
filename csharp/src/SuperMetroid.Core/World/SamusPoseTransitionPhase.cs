@@ -303,11 +303,9 @@ internal sealed class SamusPoseTransitionPhase
 
         // The wall-stop check runs inside the pose update after movement/animation and
         // only when no animation or interruption transition has already won. Its first
-        // branch consumes the X-speed-killed flag produced by CURRENT
-        // SamusMovementType.Running movement. This creates a wall-stop pose even with no input match.
+        // branch reads whether this update's running movement stopped her speed against a wall. This creates a wall-stop pose even with no input match.
         // An unobstructed upward platform carry leaves the prospective input
-        // pose intact too. Requiring a vertical collision here wrongly skipped
-        // the one-pixel run check while a Kamer was carrying Samus upward.
+        // pose intact too, so the one-pixel run check runs while a Kamer carries Samus upward.
         // A special movement owner can also retain a standing/running pose
         // (suit-interrupted windup). The wall-stop check does not require the normal grounded movement phase.
         if (!animationTransitionApplied &&
@@ -323,8 +321,8 @@ internal sealed class SamusPoseTransitionPhase
                     ? prospective.ProspectivePose
                     // The input phase chooses the same prospective pose for a
                     // matched input transition and a no-input fallback. A decelerating run
-                    // retains its running pose and must still take the running wall check's real
-                    // one-pixel forward move; omitting it shortens release drift.
+                    // retains its running pose and still takes the running wall check's one-pixel forward move, which
+                    // carries on its drift after release.
                     : _player.ProspectiveSamusFallbackPose;
             _player.ProspectiveSamusWallCollisionPose =
                 SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus,
@@ -430,8 +428,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // An unobstructed DOWNWARD grounding probe publishes SamusVerticalCollisionResult.Falling. An
         // unobstructed upward platform carry publishes SamusVerticalCollisionResult.None
-        // and must leave the pose alone; treating every non-collision as falling
-        // made rising Kamers repeatedly alternate falling and landing. For admitted
+        // and leaves the pose alone, so Samus rising on a Kamer does not fall and land over and over. For admitted
         // standing (including landing art), running, and stable crouching types,
         // losing the floor selects the first airborne family and the falling check chooses falling art.
         // The ground and jumping turns change no pose when they lose the floor;

@@ -83,8 +83,7 @@ internal sealed class ActiveRoomState
     public RoomHandOver HandOver { get; } = new();
 
     /// <summary>
-    /// Active foreground scroll-boundary state. It remains null until a room-specific scroll
-    /// table is loaded; this prevents the runtime from silently assuming Landing Site.
+    /// The loaded room's camera, which keeps the view within the room's scroll limits; null until a room loads.
     /// </summary>
     public ScrollBoundaryCamera? Camera => View(c => c.Camera, s => s.Camera);
     /// <summary>The loaded room's scroll camera.</summary>

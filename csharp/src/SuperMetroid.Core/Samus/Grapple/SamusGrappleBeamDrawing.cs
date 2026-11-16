@@ -161,8 +161,8 @@ public static class SamusGrappleBeamDrawing
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.FlareOrigin);
-        // Preserve the fraction across segments. Rounding each individual
-        // displacement shortens diagonals and rounds negative steps incorrectly.
+        // The fraction carries from segment to segment, so diagonal ropes keep their length and leftward and upward
+        // steps match the others.
         var step = new FixedVector<ScreenPixels>(
             SegmentStep(SamusGrappleSwing.ReadSignedSine(drawAngle + RotationAngle.QuarterTurn)),
             SegmentStep(SamusGrappleSwing.ReadSignedSine(drawAngle)));

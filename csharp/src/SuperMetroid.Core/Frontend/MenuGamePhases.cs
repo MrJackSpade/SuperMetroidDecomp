@@ -162,10 +162,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
             }
             else if (session.Assists.SkipOpeningCinematic)
             {
-                // This is the same game-state boundary reached by the intro's end after
-                // the SPACE COLONY fade. Do not fake Start presses or build a separately
-                // authored Ceres room: the following frame will execute the ordinary
-                // new-game loader, elevator arrival, and movement-unlock sequence.
+                // Skipping the intro reaches the game state the intro's end reaches after the SPACE COLONY fade: the
+                // next update sets up the new game, the Ceres elevator's arrival and the unlocking of Samus's movement.
                 session.Close<GameOptionsMenuState>();
                 session.GameState = SuperMetroidGameState.SetUpNewGame;
                 session.display.PublishBlack();

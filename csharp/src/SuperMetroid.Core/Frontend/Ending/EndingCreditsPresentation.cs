@@ -225,7 +225,7 @@ internal static class EndingCreditsPresentation
         sprites.FinishFrame();
         return sprites;
 
-        // Whether the sprites of `layer` are placed.
+        // Whether the sprites of the layer are placed.
         bool Shows(EndingSpriteLayer layer) => only is null || only == layer;
 
         // A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names;

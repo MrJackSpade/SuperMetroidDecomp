@@ -34,9 +34,8 @@ internal sealed class DeathSequenceRunner
     }
 
     /// <summary>
-    /// Enters the death animation after the outer death game state has completed its music wait.
-    /// Fatal-damage detection, blackout, and queued-music polling are deliberately not
-    /// fabricated by this narrow runtime seam.
+    /// Enters the death animation once the death game state has waited for its music. Detecting the fatal damage,
+    /// the blackout and waiting for the music are the death game state's.
     /// </summary>
     public void BeginDeathSequenceAfterMusicWait()
     {

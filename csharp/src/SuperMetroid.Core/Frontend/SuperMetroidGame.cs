@@ -115,8 +115,8 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// Binds the extracted audio catalog whenever a host binds the game to its content, so
-    /// every following update also synthesizes host PCM (<see cref="CopyAudioFrame"/>).
+    /// Binds the installed sound clips whenever a host binds the game to its content, so every following update also
+    /// mixes its sound into the samples the host copies (<see cref="CopyAudioFrame"/>).
     /// </summary>
     /// <remarks>
     /// Binding affects presentation only. Each update advances the session's sound acceptance clock and

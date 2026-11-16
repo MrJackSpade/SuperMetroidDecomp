@@ -124,8 +124,8 @@ public sealed class ScrollBoundaryCamera
     /// The vertical transitions deliberately begin outside the destination room:
     /// down starts at destination Y minus 224 (often 65312) and up starts at
     /// destination Y plus 251. These are valid wrapped coordinates, not entry
-    /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
-    /// prevents ordinary loaders and debug tools from bypassing room-edge validation.
+    /// positions to clamp. Every other placement of the camera is <see cref="SetPosition"/>'s, which keeps it within
+    /// the room's edges.
     /// </remarks>
     public void SetDoorTransitionPosition(Position16<RoomPixels> position) =>
         // The door-transition setup and scroll write whole camera positions, leaving both fractions intact.

@@ -18,10 +18,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.display.PublishIntro(session.ActiveIntro);
         if (session.ActiveIntro.CeresFlightFinished)
         {
-            // The intro's end selects the Ceres game state, Ceres and its elevator checkpoint only
-            // after the SPACE COLONY fade has gone fully black. Preserve the
-            // intervening game state instead of constructing a debug room
-            // directly from cinematic code.
+            // The intro ends once the SPACE COLONY fade has gone fully black: the next update sets up the new game,
+            // which loads Ceres and saves its elevator checkpoint.
             session.GameState = SuperMetroidGameState.SetUpNewGame;
             session.display.PublishBlack();
         }

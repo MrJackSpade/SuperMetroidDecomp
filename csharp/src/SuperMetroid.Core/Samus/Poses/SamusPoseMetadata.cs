@@ -177,11 +177,10 @@ internal static class SamusPoseMetadata
     /// <remarks>
     /// The behaviour also locks the player out of Samus's control, kills grapple,
     /// clears beam-flare presentation state, and reloads the suit shade. Those owners do
-    /// not live in this state object. This method deliberately covers only the state it can
-    /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and
-    /// all motion values cleared by the setup. It does not write the collision radius;
-    /// the next input phase's radius update does. The runtime or a debug tool remains responsible for
-    /// input lock, colouring and grapple before their first displayed frame.
+    /// not live in this state object. This method covers the pose the equipment chooses, its animation, the lift its
+    /// radius sets and every motion value the setup clears. It does not set the collision radius;
+    /// the next input phase's radius update does. The input lock, the colouring and the grapple are the runtime's, before
+    /// their first displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {
@@ -378,11 +377,9 @@ internal static class SamusPoseMetadata
     /// Every landing pose above points at the ordinary standing input transitions. That includes
     /// the aimed and firing landing poses, not merely the older
     /// normal/spin subset. That standing table can preserve Up, diagonal-up, or
-    /// diagonal-down shoulder input on the fresh Jump edge, so restricting the target to
-    /// the neutral jump transition incorrectly rejects routes such as a right diagonal-up
-    /// landing into the right diagonal-up jump transition. Keeping this
-    /// relation beside the complete landing classifiers prevents individual runtime switch
-    /// sites from accidentally admitting only part of the authored family.
+    /// diagonal-down shoulder input on the fresh Jump edge, so a right diagonal-up landing can take the right
+    /// diagonal-up jump transition, not only the neutral one. Every landing of the family admits every one of
+    /// these transitions.
     /// </remarks>
     public static bool IsLandingToNormalJumpTransition(SamusPoseId sourcePose, SamusPoseId targetPose) =>
         IsRightFacingLandingPose(sourcePose) && targetPose is

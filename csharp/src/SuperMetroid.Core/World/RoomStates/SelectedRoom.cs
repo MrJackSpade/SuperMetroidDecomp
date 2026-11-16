@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <remarks>
 /// The game selects the room's state immediately after reading
 /// the fixed definition. State selection is data-driven and can depend on events, bosses, or
-/// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
-/// start supplies an all-clear context and therefore follows the exact default branch.
+/// inventory. A new game's Ceres start has none of them, so it takes each room's default state.
 /// <see cref="UpScroller"/> and <see cref="DownScroller"/> are the camera's vertical scroller distances in pixels, 0 through 255.
 /// <see cref="UsesIsolatedDoorTransition"/> is the definition's flag that door transitions read: when the
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the colours

@@ -140,11 +140,11 @@ internal static class EnemyFormatDrawAccess
             oam.AppendDrawn(frame => engine.DrawEnemyProjectilesAt(frame, camera, depth, timeIsFrozen));
 
         /// <summary>Publishes the room sprite objects and the projectiles in front of Samus, appending their OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawEnemyProjectilesInFrontOfSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
+        internal void DrawEnemyProjectilesInFrontOfSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen) =>
             oam.AppendDrawn(frame => engine.DrawEnemyProjectilesInFrontOfSamus(frame, camera, HitBurstSheets, timeIsFrozen));
 
         /// <summary>Publishes the projectiles behind Samus, appending their OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawEnemyProjectilesBehindSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false) =>
+        internal void DrawEnemyProjectilesBehindSamusAsOam(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen) =>
             oam.AppendDrawn(frame => engine.DrawEnemyProjectilesBehindSamus(frame, camera, timeIsFrozen));
     }
 

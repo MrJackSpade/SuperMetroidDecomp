@@ -25,7 +25,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy
 
     /// <summary>
     /// What the place's last removed occupant left there for the enemies that read it: its species states as it left them
-    /// after a deletion, nothing after a kill (<see cref="RemovedEnemyLeftovers{TStates}"/>).
+    /// after a deletion, and cleared after a kill (<see cref="RemovedEnemyLeftovers{TStates}"/>).
     /// </summary>
     private readonly RemovedEnemyLeftovers<EnemyOccupantStates> _leftovers;
 
@@ -86,10 +86,31 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     /// The <typeparamref name="T"/> another enemy finds when it reads this place, which it does without testing what the
     /// place holds (<see cref="RemovedEnemyLeftovers{TStates}"/>): the occupant's own while an enemy holds the place, the
     /// state a deleted occupant left, or null when the place's last occupant was killed, whose cleared state reads as
-    /// nothing, or held none.
+    /// nothing unless a neighbour wrote it (<see cref="FoundOrClearedState{T}"/>), or held none.
     /// </summary>
     internal T? FoundState<T>() where T : class =>
-        _leftovers.Found(DefinitionId == EnemyDefinitionId.None ? null : OccupantStates)?.Find<T>();
+        _leftovers.Found(Occupant)?.Find<T>();
+
+    /// <summary>
+    /// The <typeparamref name="T"/> a neighbour that writes to this place finds there, which it does without testing what
+    /// the place holds: <see cref="FoundState{T}"/>'s, or, when the place's last occupant was killed, the
+    /// <typeparamref name="T"/> among the states the kill cleared (<see cref="RemovedEnemyLeftovers{TStates}.ClearedByKill"/>),
+    /// emptied when first reached and keeping what the neighbour writes; null when the place holds no
+    /// <typeparamref name="T"/> otherwise.
+    /// </summary>
+    internal T? FoundOrClearedState<T>() where T : class, new()
+    {
+        if (FoundState<T>() is { } found)
+            return found;
+        if (_leftovers.ClearedByKill(Occupant) is not { } cleared)
+            return null;
+        var emptied = new T();
+        cleared.Install(emptied);
+        return emptied;
+    }
+
+    /// <summary>The species states of the enemy holding the place, or null while it holds none.</summary>
+    private EnemyOccupantStates? Occupant => DefinitionId == EnemyDefinitionId.None ? null : OccupantStates;
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through

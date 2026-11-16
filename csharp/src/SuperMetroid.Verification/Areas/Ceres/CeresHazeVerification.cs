@@ -94,7 +94,7 @@ internal static class CeresHazeVerification
         runtime.System.RecordBossesDefeated(runtime.Room.LoadedRoom.Area, DefeatedBosses.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
         AssertTrue(!runtime.CeresHaze.IsRed, "defeat cannot replace the current room's HDMA channel");
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);

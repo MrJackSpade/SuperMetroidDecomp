@@ -12,8 +12,8 @@ internal static class KilledEnemyCompatibilityVerification
     /// <summary>
     /// Confirms what a neighbour finds in an enemy's place (<see cref="RemovedEnemyLeftovers{TStates}"/>): the living
     /// enemy's own state, the state a deleted enemy left as it left it, nothing once a kill cleared the place, and a later
-    /// enemy's own state; and that the rest of a Shaktool chain reads the killed segment's emptied remains for that update
-    /// and keeps what it writes there.
+    /// enemy's own state; and that the rest of a Shaktool chain reads the killed segment emptied in the record the kill
+    /// cleared and keeps what it writes there (<see cref="RoomEnemyPlace.FoundOrClearedState{T}"/>).
     /// </summary>
     internal static void VerifyKilledEnemyCompatibility()
     {
@@ -35,20 +35,41 @@ internal static class KilledEnemyCompatibilityVerification
         AssertEqual<Remains?>(null, place.FoundState<Remains>(), "a killed enemy's cleared place holds nothing");
 
         RoomEnemyPlace killedPlace = enemies.Places.InUpdateOrder[3];
-        RoomEnemyPlace otherPlace = enemies.Places.InUpdateOrder[4];
-        var segments = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>();
-        AssertEqual<ShaktoolSegmentState?>(null, segments.RemainsAt(killedPlace), "no remains before a kill");
-        segments.RecordKill(killedPlace);
-        ShaktoolSegmentState remains = segments.RemainsAt(killedPlace)
-            ?? throw new InvalidOperationException("The killed segment left no remains.");
-        AssertEqual(RotationAngle.Zero, remains.OrbitAngle, "the remains have no orbit");
-        AssertEqual(RotationAngle.Zero, remains.AngularVelocity, "the remains have no angular speed");
-        AssertEqual<ShaktoolSegmentMotion?>(null, remains.Motion, "the remains have no motion");
-        AssertEqual<ShaktoolSegmentState?>(null, segments.RemainsAt(otherPlace), "a place no kill emptied has no remains");
-        remains.TargetAngle = RotationAngleConstants.FromRaw(0x4000);
-        AssertTrue(ReferenceEquals(remains, segments.RemainsAt(killedPlace)), "the chain reads back what it wrote to the remains");
-        segments.RecordKill(otherPlace);
-        AssertEqual<ShaktoolSegmentState?>(null, segments.RemainsAt(killedPlace), "a later kill replaces the remains");
+        RoomEnemyPlace deletedPlace = enemies.Places.InUpdateOrder[4];
+        AssertEqual<ShaktoolSegmentState?>(null, killedPlace.FoundOrClearedState<ShaktoolSegmentState>(),
+            "a place no enemy has held holds no segment");
+        var living = new ShaktoolSegmentState();
+        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.Definition);
+        AssertEqual<ShaktoolSegmentState?>(null, killedPlace.FoundOrClearedState<ShaktoolSegmentState>(),
+            "a living enemy that holds no segment is found holding none");
+        killedPlace.SetSpeciesState(living);
+        AssertTrue(ReferenceEquals(living, killedPlace.FoundOrClearedState<ShaktoolSegmentState>()), "a living segment is found as it is");
+        killedPlace.Clear();
+        ShaktoolSegmentState emptied = killedPlace.FoundOrClearedState<ShaktoolSegmentState>()
+            ?? throw new InvalidOperationException("The killed segment's cleared record holds no segment.");
+        AssertTrue(!ReferenceEquals(living, emptied), "the kill clears the segment");
+        AssertEqual(RotationAngle.Zero, emptied.OrbitAngle, "the killed segment has no orbit");
+        AssertEqual(RotationAngle.Zero, emptied.AngularVelocity, "the killed segment has no angular speed");
+        AssertEqual<ShaktoolSegmentMotion?>(null, emptied.Motion, "the killed segment has no motion");
+        emptied.TargetAngle = RotationAngleConstants.FromRaw(0x4000);
+        AssertTrue(ReferenceEquals(emptied, killedPlace.FoundOrClearedState<ShaktoolSegmentState>()),
+            "the chain reads back what it wrote to the killed segment");
+        AssertTrue(ReferenceEquals(emptied, killedPlace.FoundState<ShaktoolSegmentState>()),
+            "what the chain wrote to the cleared record is found there");
+        AssertEqual<Remains?>(null, killedPlace.FoundState<Remains>(), "the cleared record holds nothing no neighbour wrote");
+        var successor = new ShaktoolSegmentState();
+        killedPlace.Bind(EnemyPlaceFixtures.StandIn, killedPlace.Definition);
+        killedPlace.SetSpeciesState(successor);
+        AssertTrue(ReferenceEquals(successor, killedPlace.FoundOrClearedState<ShaktoolSegmentState>()),
+            "an enemy placed after a kill is found as itself");
+
+        var deleted = new Remains();
+        deletedPlace.Bind(EnemyPlaceFixtures.StandIn, deletedPlace.Definition);
+        deletedPlace.SetSpeciesState(deleted);
+        deletedPlace.Unbind();
+        AssertEqual<ShaktoolSegmentState?>(null, deletedPlace.FoundOrClearedState<ShaktoolSegmentState>(),
+            "a deleted enemy's place holds no segment it did not leave");
+        AssertTrue(ReferenceEquals(deleted, deletedPlace.FoundState<Remains>()), "reaching a deleted enemy's place leaves what it left");
         Console.WriteLine("Killed-enemy compatibility: living, deleted and killed enemies' places and Shaktool segments match.");
     }
 

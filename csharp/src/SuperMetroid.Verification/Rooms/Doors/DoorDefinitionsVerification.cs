@@ -43,7 +43,7 @@ internal static class DoorDefinitionsVerification
             new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock)], [RoomBlockBehavior.None], [RoomBlockAppearance.Of(0)]),
             RoomLevelData.NothingBeyondGrid(), [new RoomDoorBlock(at, DoorBlockExit.Physical(CrateriaDoorDefinitions.LandingSiteToParlor))]);
         SamusCollisionPose pose = SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision();
-        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.ResolveDoorCollision(level.GetCollisionBlock(at), pose).Door,
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.ResolveDoorCollision(level.GetCollisionBlock(at), pose, publishDoorSideEffects: true).Door,
             "the door block leads through the door its room names");
         AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.PendingDoorTransition,
             "the collision publishes the door's transition");

@@ -21,7 +21,7 @@ internal sealed class BackgroundScrollPhase
     }
 
     /// <summary>Copies the camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
-    public void UpdateBackgroundScrollingFromCamera(bool timeIsFrozen = false)
+    public void UpdateBackgroundScrollingFromCamera(bool timeIsFrozen)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("A room camera must be initialized before the backgrounds scroll.");

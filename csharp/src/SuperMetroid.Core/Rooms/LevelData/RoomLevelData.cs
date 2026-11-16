@@ -340,7 +340,7 @@ public sealed class RoomLevelData
     public DoorBlockExit ResolveDoorCollision(
         RoomCollisionBlock doorBlock,
         SamusCollisionPose samusPose,
-        bool publishDoorSideEffects = true)
+        bool publishDoorSideEffects)
     {
         // Elevator and physical door blocks are found alike before the destination decides whether collision is solid or
         // starts the door transition.

@@ -1,9 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -15,29 +13,16 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingShownColours
 {
-    /// <summary>The colours <paramref name="ending"/>'s pictures show now.</summary>
-    /// <exception cref="KeyNotFoundException">The screen names a shade the import installs on no ending sheet.</exception>
-    internal static RgbColor[] Of(EndingCreditsState ending) => Of(ending, InstalledShades(ending));
-
     /// <summary>
-    /// The shades the import installs for <paramref name="ending"/>'s screen, by shade, from the ending's colours and the
-    /// installation's palette-effect colours, which only the import reads (#1583): a check reading the shown colours of many
-    /// states of one ending builds them once.
+    /// The colours <paramref name="ending"/>'s pictures show now, through the shades the import installs for the ending's
+    /// screen (<see cref="InstalledFixtures.EndingScreenShadesByShade"/>), which every ending state shares and the process
+    /// builds once.
     /// </summary>
-    internal static Dictionary<PictureShade, SheetShade> InstalledShades(EndingCreditsState ending)
-    {
-        Ensure.NotNull(ending);
-        EndingPaletteSet palettes = InstalledFixtures.EndingColours;
-        IPaletteFxColorSource paletteFx = InstalledFixtures.ImportMaps.RoomPaletteFx;
-        return EndingScreenShades.Screen(palettes, paletteFx).ToDictionary(shade => shade.Shade);
-    }
-
-    /// <summary>The colours <paramref name="ending"/>'s pictures show now, from the shades <see cref="InstalledShades"/> built for it.</summary>
     /// <exception cref="KeyNotFoundException">The screen names a shade the import installs on no ending sheet.</exception>
-    internal static RgbColor[] Of(EndingCreditsState ending, IReadOnlyDictionary<PictureShade, SheetShade> installed)
+    internal static RgbColor[] Of(EndingCreditsState ending)
     {
         Ensure.NotNull(ending);
-        Ensure.NotNull(installed);
+        IReadOnlyDictionary<PictureShade, SheetShade> installed = InstalledFixtures.EndingScreenShadesByShade;
         var colours = new RgbColor[EndingScreenInks.ScreenColourCount];
         foreach (PictureShade shown in ending.screen.Colours.Shading.Shades)
         {

@@ -509,4 +509,16 @@ internal static class SamusBodyArtworkVerification
 
     /// <summary>Colour words as four-digit hexadecimal, for a failure message.</summary>
     private static string Hex(ushort[] words) => string.Join(' ', words.Select(word => word.ToString("X4", System.Globalization.CultureInfo.InvariantCulture)));
+
+    /// <summary>Runs the Samus body artwork checks against the repository installation.</summary>
+    private static void VerifyInstalledSamusBodyArtwork() =>
+        VerifySamusBodyArtwork(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom());
+
+    /// <summary>Runs the Samus body artwork checks.</summary>
+    [SuperMetroid.Verification.Harness.VerificationCommand("--samus-body-artwork")]
+    internal static int SamusBodyArtworkCommand()
+    {
+        Suite(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork);
+        return 0;
+    }
 }

@@ -56724,19 +56724,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.ColourEffectTurnOrder",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/ColourEffectTurnOrder.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.ComboRingCollapse",
       "kind": "static class",
       "scope": "product",
@@ -56938,32 +56925,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.DeletedParentLeftovers",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/DeletedParentLeftovers.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.DestroyedShutterReaction",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/DestroyedShutterReaction.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.DisplayFrameWaitContinuation",
       "kind": "static class",
       "scope": "product",
@@ -57118,19 +57079,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.FirefleaTouchDeathExplosion",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/FirefleaTouchDeathExplosion.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.FirstPlaceExplosionLeavesNoPickup",
@@ -57354,45 +57302,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.KilledEvirBodyFacing",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KilledEvirBodyFacing.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.KilledFingernailStops",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KilledFingernailStops.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.KilledGametHoldsFormation",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KilledGametHoldsFormation.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.KilledShaktoolSegment\u003CTPlace, TSegment\u003E",
       "kind": "class",
       "scope": "product",
@@ -57523,19 +57432,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.KraidNailTouchDeathExplosion",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/KraidNailTouchDeathExplosion.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.KraidPassBounds",
       "kind": "struct",
       "scope": "product",
@@ -57586,6 +57482,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.LeftoverNumberDeathExplosion",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/LeftoverNumberDeathExplosion.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.LiquidMotionStart",
@@ -57945,19 +57854,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.PowampBurstExplosion",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/PowampBurstExplosion.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.PowerBombGrowthHold",
       "kind": "static class",
       "scope": "product",
@@ -57982,19 +57878,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.PowerBombedDraygonShotFinishesItsUpdate",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/PowerBombedDraygonShotFinishesItsUpdate.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay",
@@ -58157,6 +58040,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers\u003CTStates\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/RemovedEnemyLeftovers.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.ReserveRowToggleSpreadBombSpeed",
@@ -58813,19 +58709,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.SpentSpazerParticleEndsPartnerPlace",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/SpentSpazerParticleEndsPartnerPlace.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.StoredExploredMaps\u003CTArea\u003E",
@@ -154489,6 +154372,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification.Remains",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/KilledEnemyCompatibilityVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Kzan.KzanAnimationsVerification",

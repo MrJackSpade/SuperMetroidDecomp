@@ -33,8 +33,7 @@ public static class SamusAerialMovement
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
-        // The two speeds remain independent. Speed Booster's fractional
-        // bonus likewise uses an independent addition wrapping at 65536 and intentionally drops its overflow.
+        // Speed Booster's bonus then raises the launch speed part by part (SpeedBoosterJumpBonus).
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
@@ -60,10 +59,8 @@ public static class SamusAerialMovement
     }
 
     /// <summary>
-    /// Applies the Speed Booster jump bonus: when Speed Booster is equipped, the
-    /// extra run speed's fraction is added directly to the vertical speed's fraction and half its whole pixels to the
-    /// vertical speed's whole pixels. The two additions are independent: a fraction sum that passes a whole pixel keeps
-    /// only its remainder and never raises the whole speed.
+    /// Applies the Speed Booster jump bonus when Speed Booster is equipped: the dash's extra run speed raises the launch
+    /// speed part by part, as <see cref="SpeedBoosterJumpBonus"/> describes.
     /// </summary>
     public static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
@@ -71,16 +68,9 @@ public static class SamusAerialMovement
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
-        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(
-            samus.Kinematics.YSpeed.Whole + (samus.HorizontalSpeed.ExtraRunSpeed.Whole >> 1),
-            (samus.Kinematics.YSpeed.Fraction + samus.HorizontalSpeed.ExtraRunSpeed.Fraction) % PixelFractionSteps);
+        samus.Kinematics.YSpeed = SpeedBoosterJumpBonus.Boosted(samus.Kinematics.YSpeed, samus.HorizontalSpeed.ExtraRunSpeed);
     }
 
-    /// <summary>How far the spin wall-jump probe looks for a wall behind Samus, in pixels.</summary>
-    private const int WallJumpProbePixels = 8;
-
-    /// <summary>The steps of a speed's fraction of a pixel; a fraction sum past them keeps only its remainder.</summary>
-    private const int PixelFractionSteps = 65536;
 
     /// <summary>
     /// Chooses Samus's vertical acceleration. The three adjacent
@@ -611,9 +601,9 @@ public static class SamusAerialMovement
         UnsignedSixteenSixteen oldSpeed = state.YSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {
-            // Tests equality with whole speed five. Values above five are not
+            // Tests equality with the terminal whole speed. Values above it are not
             // clamped; preserving that oddity matters for externally scripted velocities.
-            if (state.YSpeed.Whole != 5)
+            if (state.YSpeed.Whole != SamusVerticalMotionDefinitions.TerminalFallWholeSpeed)
                 state.YSpeed += state.YAcceleration;
         }
         else
@@ -715,7 +705,7 @@ public static class SamusAerialMovement
         // Test Left first and probe RIGHT; the mirror Right chord probes
         // LEFT. That counter-intuitive direction is deliberate: the button points away from
         // the wall behind the newly facing spin pose.
-        SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? WallJumpProbePixels : -WallJumpProbePixels, 0);
+        SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? SamusMovementDefinitions.WallJumpReachPixels : -SamusMovementDefinitions.WallJumpReachPixels, 0);
         BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
             level,
             samus.Kinematics, samus,
@@ -733,7 +723,7 @@ public static class SamusAerialMovement
         }
 
         bool jumpNew = (controllerNewInput & GameplayAction.Jump) != GameplayAction.None;
-        bool triggered = jumpNew && distance < 8;
+        bool triggered = jumpNew && distance < SamusMovementDefinitions.WallJumpReachPixels;
         if (triggered)
         {
             // Both successful exits converge on the same result: the solid-enemy

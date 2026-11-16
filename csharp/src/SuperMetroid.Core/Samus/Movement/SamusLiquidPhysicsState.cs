@@ -274,8 +274,8 @@ public sealed class SamusLiquidPhysicsState
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
         return medium switch
         {
-            SamusLiquidMedium.Water => 3,
-            SamusLiquidMedium.LavaOrAcid => 2,
+            SamusLiquidMedium.Water => SamusAnimationDelayDefinitions.WaterAnimationDelay,
+            SamusLiquidMedium.LavaOrAcid => SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay,
             SamusLiquidMedium.Air => samus.XSpeedDivisor,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
@@ -315,12 +315,12 @@ public sealed class SamusLiquidPhysicsState
 
         if (RoomFxTypes.UsesWater(fxKind) && WaterAffectsBoundary(bottom))
         {
-            // Publishes delay three before testing the remembered medium. A
+            // Publishes water's delay before testing the remembered medium. A
             // transition into water queues the splash sound and creates either a diving splash or
             // two grounded splashes; every submerged call then gets the bubble opportunity.
             bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
             LiquidPhysicsType = SamusLiquidMedium.Water;
-            samus.AnimationFrameBuffer = 3;
+            samus.AnimationFrameBuffer = SamusAnimationDelayDefinitions.WaterAnimationDelay;
             if (enteredWater)
             {
                 QueueSound(EnemySound.SplashIn, priority: SoundRequestPriority.Normal);
@@ -372,9 +372,9 @@ public sealed class SamusLiquidPhysicsState
                 samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
-            // Both lava and acid now share the delay-two submerged path.
+            // Both lava and acid now share one submerged delay.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
-            samus.AnimationFrameBuffer = 2;
+            samus.AnimationFrameBuffer = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
             TrySpawnLavaSurfaceSpray(samus, top, frameCounter);
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
@@ -429,10 +429,10 @@ public sealed class SamusLiquidPhysicsState
                 priority: SoundRequestPriority.Normal);
         }
 
-        // A nonzero whole speed that reads as reaching five is a hard landing. Anything else, including a whole
+        // A nonzero whole speed that reads as reaching the hard landing's is a hard landing. Anything else, including a whole
         // speed so large that it reads as having passed zero, falls to the sub-speed test: with no sub-speed it
         // returns before both sound and graphics, and otherwise it is a soft landing.
-        bool hardLanding = impactYSpeed.Whole != 0 && SamusSpeedMagnitude.IsAtLeast(impactYSpeed.Whole, 5);
+        bool hardLanding = impactYSpeed.Whole != 0 && SamusSpeedMagnitude.IsAtLeast(impactYSpeed.Whole, SamusMovementDefinitions.HardLandingWholeSpeed);
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
 
@@ -553,12 +553,12 @@ public sealed class SamusLiquidPhysicsState
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
-        bool splash = kind == SamusParticleKind.SurfaceSplash;
-        int rightOffset = splash ? 4 : 8;
-        int leftSeparation = splash ? 7 : 16;
-        int firstX = CoordinateAxis.Wrap(samus.Position.X.Whole + rightOffset);
-        int secondX = CoordinateAxis.Wrap(firstX - leftSeparation);
-        int y = splash ? CoordinateAxis.Wrap(bottom - 4) : bottom;
+        SamusLandingParticlePair pair = kind == SamusParticleKind.SurfaceSplash
+            ? SamusLiquidParticleDefinitions.LandingSplashes
+            : SamusLiquidParticleDefinitions.LandingDust;
+        int firstX = CoordinateAxis.Wrap(samus.Position.X.Whole + pair.Right.X);
+        int secondX = CoordinateAxis.Wrap(firstX - pair.Separation);
+        int y = CoordinateAxis.Wrap(bottom + pair.Right.Y);
 
         // Both begin immediately on their first step, which shows for three updates.
         EffectWaits.HoldBubbles(SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), AtOnce));
@@ -589,15 +589,14 @@ public sealed class SamusLiquidPhysicsState
         {
             // A splash takes the spray's leading place and does not hold it up.
             _particles.Spawn(SamusParticleKind.DivingSplash, new(samus.Position.X.Whole, UntestedWaterSurfaceLine),
-                SamusParticleStart.Shown(2));
+                SamusLiquidParticleDefinitions.DivingSplashStart);
             EffectWaits.ReleaseSpray();
             return;
         }
 
-        _particles.Spawn(SamusParticleKind.SurfaceSplash,
-            new(CoordinateAxis.Wrap(samus.Position.X.Whole + 4), CoordinateAxis.Wrap(bottom - 4)), AtOnce);
-        _particles.Spawn(SamusParticleKind.SurfaceSplash,
-            new(CoordinateAxis.Wrap(samus.Position.X.Whole - 3), CoordinateAxis.Wrap(bottom - 4)), AtOnce);
+        foreach (Offset16<RoomPixels> splash in SamusLiquidParticleDefinitions.ShallowSplashes)
+            _particles.Spawn(SamusParticleKind.SurfaceSplash,
+                new(CoordinateAxis.Wrap(samus.Position.X.Whole + splash.X), CoordinateAxis.Wrap(bottom + splash.Y)), AtOnce);
         EffectWaits.ReleaseSpray();
     }
 
@@ -610,7 +609,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // Leaving water for a room configured without a water surface still runs this test, on the surface as it is
         // read untested.
-        int mouthY = CoordinateAxis.Wrap(top - 24);
+        int mouthY = CoordinateAxis.Wrap(top - SamusLiquidParticleDefinitions.BreathTestAboveTop);
         if (CoordinateAxis.Difference(mouthY, UntestedWaterSurfaceLine) < 0 ||
             !SamusCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
@@ -619,7 +618,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKind.Bubbles,
-            new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + 6)), AtOnce));
+            new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + SamusLiquidParticleDefinitions.BubbleBelowTop)), AtOnce));
         int sample = random.Generate();
         QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
@@ -638,12 +637,12 @@ public sealed class SamusLiquidPhysicsState
         // The outer particles show at once and the middle two one update late; the first two drift right and the last two
         // left. The first holds up the next spray while it shows, and the third holds up breath bubbles.
         int x = samus.Position.X.Whole;
-        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x + 6), surface), AtOnce, horizontalDrift: 1);
+        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x + SamusLiquidParticleDefinitions.LavaSprayOuterOffset), surface), AtOnce, horizontalDrift: 1);
         EffectWaits.HoldSpray(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, AtOnce));
         _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: 1);
         _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: -1);
         EffectWaits.HoldBubbles(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, OneUpdateLate));
-        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x - 6), surface), AtOnce, horizontalDrift: -1);
+        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x - SamusLiquidParticleDefinitions.LavaSprayOuterOffset), surface), AtOnce, horizontalDrift: -1);
 
         if (SamusCadenceDefinitions.LavaSpraySoundEverySecondUpdate.IsDue(frameCounter))
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
@@ -711,12 +710,12 @@ public sealed class SamusLiquidPhysicsState
     {
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         int firstX = facingLeft
-            ? CoordinateAxis.Wrap(samus.Position.X.Whole - 12)
-            : CoordinateAxis.Wrap(samus.Position.X.Whole + 12);
+            ? CoordinateAxis.Wrap(samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepLeadingAhead)
+            : CoordinateAxis.Wrap(samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepLeadingAhead);
         int secondX = facingLeft
-            ? CoordinateAxis.Wrap(samus.Position.X.Whole + 8)
-            : CoordinateAxis.Wrap(samus.Position.X.Whole - 8);
-        int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + 16);
+            ? CoordinateAxis.Wrap(samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepTrailingBehind)
+            : CoordinateAxis.Wrap(samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepTrailingBehind);
+        int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusLiquidParticleDefinitions.FootstepBelowCentre);
         int leadingUpdates = SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), OneUpdateLate);
         _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), AtOnce);
         if (kind == SamusParticleKind.Dust)

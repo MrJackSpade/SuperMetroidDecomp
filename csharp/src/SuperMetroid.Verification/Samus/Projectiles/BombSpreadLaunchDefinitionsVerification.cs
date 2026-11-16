@@ -14,13 +14,13 @@ internal static class BombSpreadLaunchDefinitionsVerification
     {
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.PlaceCount).Select(i =>
             new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.FuseTimers+i*2)),
-                BombSpreadHorizontalVelocity.FromLaunchWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2))), new UnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
+                BombSpreadLaunchWords.Unpack(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.XVelocities+i*2))), new UnsignedSixteenSixteen(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSpeeds+i*2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.YSubspeeds+i*2))))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunches.ForPlace(i),"All native Bomb Spread launch words");
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
-        var bombs=new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+        var bombs=new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var samus=new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         for(int hold=0;hold<=MorphBallBombDefinitions.DownChargeTimeoutUpdates;hold++)
         {
@@ -33,8 +33,8 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 var slot=bombs.Bombs[i]; var expected=reference[i];
                 ushort y=unchecked((ushort)-(expected.YSpeed.Whole+((hold>>6)&3)));
                 AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
-                AssertEqual(expected.XVelocity,slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
-                AssertEqual(expected.XVelocity.LaunchWord, slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
+                AssertEqual(expected.XVelocity,slot.BombSpreadHorizontalVelocity,"Spread horizontal velocity");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(MorphBallBombDefinitions.XVelocities+i*2), slot.BombSpreadDirectionMagnitude,"Spread horizontal velocity re-encodes the native direction/magnitude word");
                 var launchVelocity=SignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSpeed.Fraction);
                 AssertEqual(launchVelocity,slot.BombSpreadLaunchVelocity,"Spread hold modifier, negated whole velocity and authored fraction");
                 AssertEqual(launchVelocity,slot.BombSpreadVerticalVelocity,"Spread live velocity starts at the launch velocity");
@@ -61,15 +61,13 @@ internal static class BombSpreadLaunchDefinitionsVerification
         ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
         for (int slot = 0; slot < MorphBallBombDefinitions.PlaceCount; slot++)
         {
-            int launchWord = SamusBombSpreadLaunches.ForPlace(slot).XVelocity.LaunchWord;
-            foreach (BombSpreadHorizontalVelocity velocity in new[] {
-                BombSpreadHorizontalVelocity.FromLaunchWord(launchWord),
-                BombSpreadHorizontalVelocity.FromLaunchWord(launchWord).Reversed() })
+            SignedSixteenSixteen launch = SamusBombSpreadLaunches.ForPlace(slot).XVelocity;
+            foreach (SignedSixteenSixteen velocity in new[] { launch, -launch })
             foreach (ushort whole in boundaries)
             foreach (ushort fraction in boundaries)
             {
                 // The cartridge decodes the byte-swapped word and steps the split X words with explicit carry or borrow.
-                ushort swapped = LittleEndianBytesConstants.SwapBytes(checked((ushort)velocity.LaunchWord));
+                ushort swapped = LittleEndianBytesConstants.SwapBytes(checked((ushort)BombSpreadLaunchWords.Pack(velocity)));
                 int subvelocity = LittleEndianBytes.HighByteInPlace(swapped);
                 int magnitude = swapped & 127;
                 bool left = (swapped & 1 << 7) != 0;
@@ -79,7 +77,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 ushort expectedFraction = unchecked((ushort)fractionSum);
 
                 var start = FixedPosition<RoomPixels>.FromWhole(new(whole, 0)).WithFractionX(fraction);
-                var moved = start.AdvanceX(velocity.Displacement);
+                var moved = start.AdvanceX(velocity);
                 AssertEqual(new VerifyBombSpreadMotionWrapsCase(expectedWhole, expectedFraction), new VerifyBombSpreadMotionWrapsCase(moved.X.Whole, moved.X.Fraction),
                     $"spread step {velocity} from {whole:X4}.{fraction:X4} matches the split-word carry and wrap");
             }

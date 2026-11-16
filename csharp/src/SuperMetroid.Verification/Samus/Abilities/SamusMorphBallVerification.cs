@@ -614,7 +614,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertTrue(bombs.Bombs[0].IsActive && bombs.Bombs.Skip(1).All(slot => !slot.IsActive),
         "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
-    AssertEqual(0x0010, bombs.CooldownTimer.RawValue, "normal bomb loads cooldown table entry five");
+    AssertEqual(0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
     AssertEqual(59, bombs.Bombs[0].BombTimer.RawValue, "placement frame immediately decrements timer 60 to 59");
     AssertEqual(0x001e, bombs.Bombs[0].Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Bombs[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
@@ -747,7 +747,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
         "bomb spread occupies all five physical bomb slots");
-    AssertEqual(0x0010, spreadBombs.CooldownTimer.RawValue,
+    AssertEqual(0x0010, spreadBombs.CooldownTimer,
         "bomb spread selects non-beam cooldown entry five");
     AssertEqual(0, spreadSamus.BeamCharge.FlareCounter,
         "bomb spread clears mirrored flare counter");
@@ -806,7 +806,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // negative bounce velocity rather than freezing or reusing generic Samus collision.
     SamusBomb bouncingSpread = spreadBombs.Bombs[2];
     bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
-    bouncingSpread.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(0);
+    bouncingSpread.BombSpreadHorizontalVelocity = SignedSixteenSixteen.Zero;
     bouncingSpread.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
     bouncingSpread.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(-2, 0x8000);
     spreadBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, 0, 0);
@@ -871,7 +871,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "power-bomb placement decrements ammo exactly once");
     AssertEqual(HudItem.PowerBomb, powerBombSamus.SelectedHudItem,
         "remaining power-bomb ammo retains HUD selection");
-    AssertEqual(0x0028, powerBombs.CooldownTimer.RawValue,
+    AssertEqual(0x0028, powerBombs.CooldownTimer,
         "power bomb loads non-beam cooldown table entry three");
     AssertEqual(SamusBombProjectileSystem.PowerBombType, powerBombs.Bombs[0].Type,
         "the placed projectile is a Power Bomb");
@@ -1477,8 +1477,8 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         behaviors[crumbleIndex] = RoomBlockBehaviorCodec.Decode(behavior);
         var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
         var tableObjects = RoomObjectFixtures.Unbound();
-        SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
-            new(2, 2), new(), tableObjects, SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+        SamusBombProjectileSystem.ReactToBombedBlock(tableLevel,
+            new(2, 2), tableObjects, SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         tableObjects.Step(tableLevel);
         AssertEqual(behavior is >= 0x1a and <= 0x1d ? RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock) : RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialBlock),
             tableLevel.GetCollisionBlockByIndex(crumbleIndex).Terrain,

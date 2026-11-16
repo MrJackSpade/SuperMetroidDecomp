@@ -6,9 +6,6 @@ internal static class SamusProjectileCooldownDefinitions
     /// <summary>Cooldown that Samus's shot cooldown holds while time is frozen.</summary>
     internal const int FrozenTime = 32;
 
-    /// <summary>The longest cooldown any shot, bomb or boss sets the shared shot cooldown to.</summary>
-    internal const int LongestCooldown = 255;
-
     /// <summary>
     /// The updates every retail beam combination but Plasma and Ice waits after an uncharged shot fired with Charge
     /// equipped or on a fresh press.
@@ -26,4 +23,25 @@ internal static class SamusProjectileCooldownDefinitions
 
     /// <summary>The updates every retail beam combination waits after an uncharged shot repeated by holding the button without Charge.</summary>
     internal const int HeldFireShot = 25;
+
+    /// <summary>
+    /// The cooldown a beam, Hyper Beam or missile shot sets as it reserves its place, before its ammunition and a free
+    /// place are checked: a refused shot still waits it out.
+    /// </summary>
+    internal const int FireAttempt = 1;
+
+    /// <summary>The updates Samus waits after a Hyper Beam shot.</summary>
+    internal const int HyperBeamShot = 21;
+
+    /// <summary>The updates Samus waits after a missile.</summary>
+    internal const int MissileShot = 10;
+
+    /// <summary>The updates Samus waits after a Super Missile.</summary>
+    internal const int SuperMissileShot = 20;
+
+    /// <summary>The cooldown each update of a special attack's particles holds, so no shot fires while they fly.</summary>
+    internal const int SpecialAttackHold = 2;
+
+    /// <summary>The cooldown a shot striking a wall shortens a longer shared cooldown to; a shorter one is left as it is.</summary>
+    internal const int WallImpactCooldownCap = 20;
 }

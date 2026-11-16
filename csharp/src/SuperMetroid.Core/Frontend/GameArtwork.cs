@@ -253,7 +253,8 @@ public sealed record GameArtwork
     /// <summary>The installed Samus artwork the opening cinematic's flashback Samus draws from (#2049).</summary>
     /// <exception cref="InvalidOperationException">A catalog Samus draws from is not installed.</exception>
     internal SamusArtworkBinding FlashbackSamusArtwork() =>
-        new(Installed(SamusBodyArt), Installed(SamusShownFrames), Installed(SpriteSheets), Installed(GrappleFlarePlacement), Installed(GrappleSwingFrames));
+        new(Installed(SamusBodyArt), Installed(SamusShownFrames), Installed(SpriteSheets), Installed(GrappleFlarePlacement), Installed(GrappleSwingFrames),
+            Installed(ProjectileFrameBindings));
 
     /// <summary>The installed catalog <paramref name="catalog"/>, which gameplay requires.</summary>
     /// <exception cref="InvalidOperationException">The catalog is not installed.</exception>

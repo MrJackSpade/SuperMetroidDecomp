@@ -17,11 +17,15 @@ internal sealed class ProjectileAnimation
     /// <summary>Owns the shot count reduced when a delete cue ends a projectile.</summary>
     private readonly SamusShotPool _pool;
 
-    /// <summary>Binds projectile cues to the shot pool and charge-flare state.</summary>
-    internal ProjectileAnimation(BeamChargeState charge, SamusShotPool pool)
+    /// <summary>The Samus artwork whose installed projectile frames each shot's frames draw.</summary>
+    private readonly SamusArtworkBinding _artwork;
+
+    /// <summary>Binds projectile cues to the shot pool, the charge-flare state and the artwork the frames draw.</summary>
+    internal ProjectileAnimation(BeamChargeState charge, SamusShotPool pool, SamusArtworkBinding artwork)
     {
         _charge = charge;
         _pool = pool;
+        _artwork = artwork;
     }
     /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool AdvanceProjectileAnimation(
@@ -39,8 +43,7 @@ internal sealed class ProjectileAnimation
         }
         SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
         shot.FrameHold = WrappingCountdown.Start(duration);
-        shot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
-            "Samus's projectiles show their frames' installed compositions, which are not bound.")).Resolve(frame);
+        shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
         shot.Radius = gameplay.Radius;
         shot.Playback = playback;
         return false;
@@ -147,6 +150,4 @@ internal sealed class ProjectileAnimation
         SamusState samus) =>
         SamusSuitShade.Show(colours, samus.EquippedItems);
 
-    /// <summary>The installed composition each projectile animation frame draws, which a projectile's frames need bound.</summary>
-    public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
 }

@@ -32,15 +32,12 @@ internal sealed class RuntimeArtwork
     private InstalledSpriteSheets _spriteSheets;
 
     /// <summary>
-    /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
-    /// and again whenever the host rebinds artwork.
+    /// Binds the installed Power Bomb glow colours to one room's bombs: when the room builds them, and again whenever the
+    /// host rebinds artwork. The shots' and bombs' frames are the Samus artwork's, which they were built with.
     /// </summary>
-    internal void BindProjectiles(SamusProjectileSystem projectiles, SamusBombProjectileSystem bombs)
+    internal void BindProjectiles(SamusBombProjectileSystem bombs)
     {
-        Ensure.NotNull(projectiles);
         Ensure.NotNull(bombs);
-        projectiles.Animation.FrameBindings = ProjectileFrameBindings;
-        bombs.FrameBindings = ProjectileFrameBindings;
         bombs.PowerBombExplosion.Blast.PresentationColors = MapPresentation.PowerBombGlowColors;
     }
 
@@ -56,8 +53,7 @@ internal sealed class RuntimeArtwork
         _spriteSheets = installed.SpriteSheets;
         ProjectileSheets = SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(installed.SpriteSheets);
         SamusArtwork = new SamusArtworkBinding(installed.SamusBodyArt, installed.SamusShownFrames, installed.SpriteSheets, installed.GrappleFlarePlacement,
-            installed.GrappleSwingFrames);
-        ProjectileFrameBindings = installed.ProjectileFrameBindings;
+            installed.GrappleSwingFrames, installed.ProjectileFrameBindings);
         ChargeFlarePlacement = installed.ChargeFlarePlacement;
         RoomBlockSheets = installed.RoomBlockSheets;
         RoomVisualLayouts = installed.RoomVisualLayouts;
@@ -86,8 +82,12 @@ internal sealed class RuntimeArtwork
     /// </summary>
     internal SamusArtworkBinding SamusArtwork { get; }
 
-    /// <summary>The composition every frame of Samus's shots' and bombs' animations draws, which a rebinding hands to both.</summary>
-    public InstalledProjectileFrameBindings ProjectileFrameBindings { get; set; }
+    /// <summary>The composition every frame of Samus's shots' and bombs' animations draws: the Samus artwork's, which a rebinding replaces for both.</summary>
+    public InstalledProjectileFrameBindings ProjectileFrameBindings
+    {
+        get => SamusArtwork.ProjectileFrames;
+        set => SamusArtwork.ProjectileFrames = value;
+    }
 
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
     public ChargeFlarePlacements ChargeFlarePlacement { get; set; }

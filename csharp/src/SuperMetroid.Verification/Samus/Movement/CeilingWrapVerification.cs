@@ -22,7 +22,7 @@ internal static class CeilingWrapVerification
         AssertEqual(135, native.Length, "Native ceiling PLM allocation matrix");
         // Invoke the real producer collision path with the native probe's stationary
         // projectile registers. This isolates collision/PLM allocation from launch AI.
-        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
+        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         int cursor = 0, mismatches = 0;
         for (int tileX = 63; tileX <= 65; tileX++)
         {

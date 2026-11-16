@@ -33,9 +33,9 @@ public static class XrayRefusedAsDrained
     private const int DrainedSpeedDivisor = 2;
 
     /// <summary>Whether X-ray refuses to start because Samus reads as drained.</summary>
-    /// <param name="projectileCooldown">Samus's shared projectile cooldown.</param>
+    /// <param name="projectileCooldown">The updates left on Samus's shared projectile cooldown.</param>
     /// <param name="bombs">The bombs counted as Samus's.</param>
     /// <param name="speedDivisor">What Samus's horizontal speed is divided by.</param>
-    public static bool Refuses(WrappingCountdown projectileCooldown, int bombs, int speedDivisor) =>
-        projectileCooldown.IsAt(DrainedCooldownUpdates) && bombs == DrainedBombs && speedDivisor == DrainedSpeedDivisor;
+    public static bool Refuses(int projectileCooldown, int bombs, int speedDivisor) =>
+        projectileCooldown == DrainedCooldownUpdates && bombs == DrainedBombs && speedDivisor == DrainedSpeedDivisor;
 }

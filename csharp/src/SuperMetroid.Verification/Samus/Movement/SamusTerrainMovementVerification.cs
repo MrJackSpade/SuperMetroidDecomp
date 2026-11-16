@@ -529,7 +529,7 @@ internal static void VerifySamusGroundedMovement()
 
         level,
         forward,
-        frameCounter: 0, elevatorIsMoving: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, elevatorIsMoving: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), publishDoorSideEffects: true);
     AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
@@ -560,7 +560,7 @@ internal static void VerifySamusGroundedMovement()
         elevatorLevel,
         forward,
         frameCounter: 1,
-        elevatorIsMoving: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        elevatorIsMoving: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), publishDoorSideEffects: true);
     AssertTrue(elevatorMove is { Collided: false }, "elevator block scan accepts clear air");
     BlockMoveResult acceptedElevatorMove = elevatorMove ?? throw new InvalidOperationException(
         "A nonzero elevator status must execute the one-pixel vertical scan.");

@@ -34,7 +34,7 @@ internal static class KraidMouthHitboxesVerification
         var guarded = NewKraidMouthLowHalfGuard(rom);
         Func<RoomEnemyPlace, ushort, SamusProjectile, bool> overlaps = CoreAccess.KraidMouthHitboxOverlapsShot;
         var body = enemies.Places.InUpdateOrder[0];
-        var shot = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount()).Shots[0];
+        var shot = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).Shots[0];
         body.Position = body.Position.WithWhole(new(256, 256));
         shot.Radius = new(4, 4);
         for (int entry = 0; entry < 8; entry++)

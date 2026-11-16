@@ -82,12 +82,12 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(samus.HealthWarning.IsActive, "native external health check starts warning during frozen refill");
         AssertTrue(runtime.Freeze.TimeIsFrozen && samus.Control.InputLocked, "nonfinal refill keeps native freeze and input lock");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
-        AssertEqual(10, runtime.BombProjectiles.CooldownTimer.RawValue, "nonfinal refill freezes shared projectile clock");
+        AssertEqual(10, runtime.BombProjectiles.CooldownTimer, "nonfinal refill freezes shared projectile clock");
         game.StepCaptured(ControllerButton.Right);
         AssertEqual(2, samus.Health, "automatic refill completion frame");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "completion restores outer gameplay state");
         AssertTrue(!runtime.Freeze.TimeIsFrozen && !samus.Control.InputLocked, "completion clears native freeze and input lock");
-        AssertEqual(9, runtime.BombProjectiles.CooldownTimer.RawValue,
+        AssertEqual(9, runtime.BombProjectiles.CooldownTimer,
             "completion unfreezes the gameplay projectile pass on the same frame");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");

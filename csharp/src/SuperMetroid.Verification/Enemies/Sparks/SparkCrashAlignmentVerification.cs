@@ -18,7 +18,7 @@ internal static class SparkCrashAlignmentVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1234);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var fullShots = new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(GameplayAudioRequests.Standalone(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount), new SamusShotCount());
+            var fullShots = new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(GameplayAudioRequests.Standalone(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             fullShots.Pool.ShotCount.Restore(5);
             samus.Shinespark.FinishCrash(samus, fullShots);
             AssertEqual((ushort)35, samus.Position.Y.Whole, "Movement queues standing alignment until after animation");

@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>Body-overlap scroll, conveyor and sand reactions from Samus's inside-block detection.</summary>
 public static class SamusInsideBlockReactions
 {
-    /// <summary>Half a pixel in fraction steps: quicksand keeps only the part of the base speed's fraction below it.</summary>
-    private const int HalfPixelFraction = 32768;
-
     /// <summary>Samples bottom, center, and top in order.</summary>
     internal static void PrepareFrame(RoomLevelData level, SamusState samus,
         AreaId area, bool areaBossDefeated, ISamusRoomObjects roomObjects)
@@ -64,7 +61,7 @@ public static class SamusInsideBlockReactions
                     speed.SpeedBoostCounter = default;
                     speed.EchoSoundPlaying = false;
                     speed.ExtraRunSpeed = default;
-                    speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction % HalfPixelFraction);
+                    speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandReactions.SurfacePhysics(
@@ -190,12 +187,12 @@ public static class SamusInsideBlockReactions
             displacement = SignedSixteenSixteen.Zero;
             return SpecialAirCollisionOutcome.Blocks;
         }
-        // A stationary Samus's probe is compared with the surface limit and limited to it in its near reading alone,
-        // in 256ths of a pixel below 256 whole pixels (SignedSixteenSixteen.NearTwoFiftySixths); the limit, a multiple
-        // of a sixteenth of a pixel below one pixel, is exactly its own near reading.
-        if (body.YDirection == SamusVerticalDirection.None &&
-            displacement.NearTwoFiftySixths > QuicksandDefinitions.StationarySurfaceProbeLimit.NearTwoFiftySixths)
-            displacement = displacement.WithNearTwoFiftySixths(QuicksandDefinitions.StationarySurfaceProbeLimit.NearTwoFiftySixths);
+        // A stationary Samus's probe is limited to the surface limit counted in 256ths of a pixel, keeping its finer
+        // fraction. The probe here moves down (only a scan's own downward displacement reaches this for a stationary
+        // Samus; the pose-observation probe passed through above) and by far less than 256 pixels, where the game's
+        // reading of the middle of the displacement is exactly its count in 256ths.
+        if (body.YDirection == SamusVerticalDirection.None)
+            displacement = displacement.WithTwoFiftySixthsAtMost(QuicksandDefinitions.StationarySurfaceProbeLimit);
         surfaceContact = true;
         return SpecialAirCollisionOutcome.PassesThrough;
     }

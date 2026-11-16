@@ -139,10 +139,7 @@ internal static class ResumeChargingSoundCancelVerification
                 Position = position,
                 EquippedBeams = beams,
             };
-            Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount())
-            {
-                Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
-            };
+            Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
             Projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         }
 

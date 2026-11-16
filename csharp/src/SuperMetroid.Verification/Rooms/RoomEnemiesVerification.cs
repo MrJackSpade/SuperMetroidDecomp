@@ -326,7 +326,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
-    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
+    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
     var shotsEarthquake = new RoomEarthquake();
     shots.Earthquakes.BindRoomEarthquake(shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
@@ -351,7 +351,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
 
     int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
-        new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors));
+        new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
     AssertEqual(2, hits,
         "blocking enemy projectile visits Super Missile owner and linked slot");
@@ -1065,12 +1065,12 @@ internal static void VerifyCeresRidleyRoomEntry()
         // This focused hit-counter test used to patch the cartridge cooldown to one.
         // Wait through the real shared projectile owner instead; do not bypass admission
         // or speed up the separately stepped enemy phase/timer fixture.
-        for (int cooldownFrame = 0; cooldownFrame < 15 && !sharedProjectiles.CooldownTimer.IsZero; cooldownFrame++)
+        for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
         {
             sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
             projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), sharedProjectiles);
         }
-        AssertEqual((ushort)0, sharedProjectiles.CooldownTimer.RawValue, "Native cooldown expires before the next Ceres shot");
+        AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }

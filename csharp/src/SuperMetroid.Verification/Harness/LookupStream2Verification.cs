@@ -733,14 +733,14 @@ internal static class LookupStream2Verification
             var camera = new ScrollBoundaryCamera(grid);
             camera.SetPosition(new Position16<RoomPixels>(100, 0));
             camera.TrackMovedSamusHorizontally(
-                FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0), FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0), context);
+                FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0), FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0), context, timeIsFrozen: false);
             AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealPosition.X, "Actual camera target preserves mode and reversal");
             AssertEqual((ushort)5, camera.Speed.X.UnsignedWholePixels, "Target dispatch preserves movement speed calculation");
         }
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
             FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0), FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0),
-            new(false, 0, 0, SamusFacingDirection.Right, (CameraDistanceMode)(-1))),"An undefined camera distance is rejected before tracking");
+            new(false, 0, 0, SamusFacingDirection.Right, (CameraDistanceMode)(-1)), timeIsFrozen: false),"An undefined camera distance is rejected before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 
@@ -964,7 +964,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
+            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             // The native interpreter's own trail, run beside the port's.
             var nativeTrail = new SamusProjectileTrail(SamusBeamCombination.Power);
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
@@ -1058,7 +1058,7 @@ internal static class LookupStream2Verification
         foreach (SamusProjectileType trailingType in trailing)
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
-            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             var projectile = new SamusProjectile(0)
             {
                 Type = trailingType,
@@ -1468,7 +1468,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount()) { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
@@ -1492,7 +1492,7 @@ internal static class LookupStream2Verification
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount()) { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
@@ -1505,7 +1505,7 @@ internal static class LookupStream2Verification
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = stock };
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;

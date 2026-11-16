@@ -93,8 +93,9 @@ public sealed class SamusProjectileSystem
     /// room's builder with the room's shot pool.
     /// </param>
     /// <param name="shotCount">How many shots Samus has out as firing counts them, created by the room's builder with the room's shot pool.</param>
+    /// <param name="artwork">The Samus artwork whose projectile frames the shots draw, rebound with the host's artwork.</param>
     internal SamusProjectileSystem(GameplayAudioRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
-        LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount)
+        LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount, SamusArtworkBinding artwork)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         SamusProjectileOverreads overreads = Ensure.NotNull(samusOverreads).Projectiles;
@@ -104,7 +105,7 @@ public sealed class SamusProjectileSystem
         Pool = new SamusShotPool(muzzleCarry, shotCount);
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio(AudioRequests);
-        Animation = new ProjectileAnimation(Charge, Pool);
+        Animation = new ProjectileAnimation(Charge, Pool, Ensure.NotNull(artwork));
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, Pool, TerrainCollision, overreads.UnauthoredBeamFiring);
         Trails = new ProjectileTrails();
@@ -474,17 +475,17 @@ public sealed class SamusProjectileSystem
             return hyper;
         }
 
-        // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
-        // the central flare; calls 30+ additionally draw both orbiting spark components. The Hyper Beam's flare counts
+        // Calls before the main flare is shown initialize or retain the hidden animation state; from then the central
+        // flare is drawn, and from the sparks' count both orbiting spark components too. The Hyper Beam's flare counts
         // no updates, so without the Hyper Beam equipped it shows nothing here.
         if (Charge.FlareCounter == 1)
         {
             Charge.StartChargeFlare();
         }
-        if (Charge.FlareCounter < 15)
+        if (Charge.FlareCounter < ChargeFlareAnimationDefinitions.MainFlareShownFrom)
             return ChargeFlareComponents.None;
 
-        ChargeFlareComponents shown = Charge.FlareCounter < 30 ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
+        ChargeFlareComponents shown = Charge.FlareCounter < ChargeFlareAnimationDefinitions.SparksShownFrom ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
         foreach (ChargeFlareComponent component in shown.DrawOrder)
             Animation.AdvanceFlareComponent(component);
         return shown;
@@ -578,9 +579,9 @@ public sealed class SamusProjectileSystem
     /// elevator boarding and the intro flashback. A room's load builds a new system instead,
     /// whose held charge is the session's.
     /// </summary>
-    public void Reset(SamusState? samus = null)
+    public void Reset()
     {
-        ClearProjectileData(samus);
+        ClearProjectileData();
         Charge.ClearCount();
         Charge.PreviousCharge = BeamChargeLevel.None;
         Charge.ChargedShotGlow = ChargedShotGlow.None;
@@ -592,13 +593,8 @@ public sealed class SamusProjectileSystem
     /// Clears projectile storage without the flare
     /// counter, flare animation state or charge glow state, which <see cref="Reset"/> clears after it.
     /// </summary>
-    private void ClearProjectileData(SamusState? samus)
+    private void ClearProjectileData()
     {
-        if (samus is not null)
-        {
-            samus.HorizontalSpeed.ClearSpeedEchoes();
-            samus.Shinespark.ResetProjectileEchoStorage();
-        }
         Combos.OrbitTurnPerUpdate = TrigonometryAngle.Zero;
         Pool.ClearAll();
         Trails.Clear();

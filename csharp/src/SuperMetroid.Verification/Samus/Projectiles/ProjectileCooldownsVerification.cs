@@ -50,7 +50,7 @@ internal static class ProjectileCooldownsVerification
             var result = projectiles.Firing.TryFireBeam(room, samus, edge, shared, SamusRoomObjectFixtures.Uninstalled, charged);
             AssertEqual(0, result.Place, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
-            AssertEqual(retail.ReadCartridgeByte(address), shared.CooldownTimer.RawValue,
+            AssertEqual(retail.ReadCartridgeByte(address), shared.CooldownTimer,
                 "Native charged/fresh/held selection installs exact shared delay");
         }
         // Original source 2778 releases an uncharged shot via the pose handoff,
@@ -66,7 +66,7 @@ internal static class ProjectileCooldownsVerification
             projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared);
             AssertEqual(0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
-            AssertEqual((ushort)15, shared.CooldownTimer.RawValue, "Charge equipment or previous Shoot edge selects ordinary cooldown");
+            AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
         }
         foreach (ushort beam in new ushort[] { 0, 10 })
         {
@@ -94,7 +94,7 @@ internal static class ProjectileCooldownsVerification
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
             AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Shots[0].Type.BeamCombination.TableIndex),
-                shared.CooldownTimer.RawValue, "A special attack waits its combination's charged-shot cooldown, the row its first particle selects");
+                shared.CooldownTimer, "A special attack waits its combination's charged-shot cooldown, the row its first particle selects");
         }
         Console.WriteLine("Projectile cooldowns: 48 combination cooldown bytes, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass.");
     }

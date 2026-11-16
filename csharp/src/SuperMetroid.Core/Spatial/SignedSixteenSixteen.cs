@@ -111,19 +111,18 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public SignedSixteenSixteen ScaledByTwoFiftySixths(int twoFiftySixths) => new(checked(InTwoFiftySixths * twoFiftySixths));
 
     /// <summary>
-    /// The displacement's near reading in 256ths of a pixel, 0 through 65535, as a quicksand surface measures a stationary
-    /// Samus's probe: its whole pixels below 256 above its fraction's 256ths. Whole pixels of 256 or more, the sign and
-    /// the fraction's finest part do not take part.
+    /// The displacement limited to <paramref name="limit"/> counted in 256ths of a pixel, as a quicksand surface limits a
+    /// stationary Samus's probe: when its count in 256ths (<see cref="InTwoFiftySixths"/>) lies above the limit's, the
+    /// limit's count replaces it and the displacement's fraction finer than a 256th is kept; otherwise it is unchanged.
     /// </summary>
-    public int NearTwoFiftySixths => unchecked((ushort)(RawValue >> NearReadingShift));
+    /// <param name="limit">The largest displacement in 256ths of a pixel.</param>
+    public SignedSixteenSixteen WithTwoFiftySixthsAtMost(SignedSixteenSixteen limit) =>
+        InTwoFiftySixths > limit.InTwoFiftySixths
+            ? new(checked((limit.InTwoFiftySixths << NearReadingShift) + (RawValue & FinerThanTwoFiftySixth)))
+            : this;
 
-    /// <summary>
-    /// The displacement with its near reading in 256ths of a pixel (<see cref="NearTwoFiftySixths"/>) replaced by
-    /// <paramref name="nearTwoFiftySixths"/>, 0 through 65535, its whole pixels from 256 upward, its sign and its
-    /// fraction's finest part kept, as a quicksand surface limits a stationary Samus's probe.
-    /// </summary>
-    public SignedSixteenSixteen WithNearTwoFiftySixths(int nearTwoFiftySixths) =>
-        new((RawValue & ~(ushort.MaxValue << NearReadingShift)) | (Ensure.BetweenInclusive(0, ushort.MaxValue, nearTwoFiftySixths) << NearReadingShift));
+    /// <summary>The fraction bits finer than a 256th of a pixel.</summary>
+    private const int FinerThanTwoFiftySixth = (1 << NearReadingShift) - 1;
 
     /// <summary>
     /// The displacement with its whole pixels clamped to <paramref name="minimumWhole"/> through

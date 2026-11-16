@@ -20,9 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class UnauthoredBeamFiring<TBeams>
     where TBeams : notnull
 {
-    /// <summary>The longest cooldown a stored cooldown holds.</summary>
-    private const int LongestCooldown = 255;
-
     /// <summary>Each combination's horizontal and vertical launch speed, in 256ths of a pixel per update.</summary>
     private readonly IReadOnlyDictionary<TBeams, int> _cardinal;
 
@@ -35,7 +32,7 @@ public sealed class UnauthoredBeamFiring<TBeams>
     /// <summary>Keeps the decoded speeds and cooldowns.</summary>
     /// <param name="cardinal">Each combination's horizontal and vertical launch speed, -32768 through 32767.</param>
     /// <param name="diagonal">Each combination's diagonal launch speed, -32768 through 32767.</param>
-    /// <param name="cooldowns">Each combination's cooldowns, each 0 through 255 updates.</param>
+    /// <param name="cooldowns">Each combination's cooldowns, each zero or more updates.</param>
     /// <exception cref="ArgumentOutOfRangeException">A speed or cooldown is outside its range.</exception>
     /// <exception cref="ArgumentException">The three sets name different combinations.</exception>
     public UnauthoredBeamFiring(
@@ -53,9 +50,9 @@ public sealed class UnauthoredBeamFiring<TBeams>
             Ensure.BetweenInclusive(short.MinValue, short.MaxValue, speed);
         foreach (BeamShotCooldowns combination in cooldowns.Values)
         {
-            Ensure.BetweenInclusive(0, LongestCooldown, combination.Uncharged);
-            Ensure.BetweenInclusive(0, LongestCooldown, combination.Charged);
-            Ensure.BetweenInclusive(0, LongestCooldown, combination.HeldFire);
+            Ensure.AtLeastZero(combination.Uncharged);
+            Ensure.AtLeastZero(combination.Charged);
+            Ensure.AtLeastZero(combination.HeldFire);
         }
         _cardinal = cardinal;
         _diagonal = diagonal;

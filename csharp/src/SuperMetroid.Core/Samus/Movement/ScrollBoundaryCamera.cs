@@ -95,7 +95,7 @@ public sealed class ScrollBoundaryCamera
         // The vertical maximum depends on whether the screen aligns the camera to its top. Starting with the
         // room-wide conservative +31 allowance matches the boundary check's largest legal result;
         // the first vertical movement applies the screen-specific exact maximum.
-        int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + 31;
+        int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + SamusCameraDefinitions.LowerAlignment;
         var clamped = new Position16<RoomPixels>(
             CoordinateAxis.Wrap(Math.Clamp(requested.X, 0, maxX)),
             CoordinateAxis.Wrap(Math.Clamp(requested.Y, 0, maxY)));
@@ -165,7 +165,7 @@ public sealed class ScrollBoundaryCamera
         FixedPosition<RoomPixels> previous,
         FixedPosition<RoomPixels> current,
         HorizontalCameraContext context,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         if (!Enum.IsDefined(context.CameraDistance))
             throw new ArgumentOutOfRangeException(nameof(context), $"Undefined camera distance {context.CameraDistance}.");
@@ -211,7 +211,7 @@ public sealed class ScrollBoundaryCamera
     /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
     /// The camera's scroll speeds are not recalculated. A negative Samus X skips both axes.
     /// </summary>
-    public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen = false)
+    public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen)
     {
         if (CoordinateAxis.AsSigned(samus.X) >= 0)
         {
@@ -250,7 +250,7 @@ public sealed class ScrollBoundaryCamera
         FixedPosition<RoomPixels> previous,
         FixedPosition<RoomPixels> current,
         VerticalCameraContext context,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         Speed = Speed.WithY(CalculateDistanceMovedPlusOne(previous.Y, current.Y));
 
@@ -315,7 +315,7 @@ public sealed class ScrollBoundaryCamera
             // If the screen right of the candidate is also closed, discard the fractional screen position and stay
             // on the candidate screen's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
-            int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + 2);
+            int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
             if (candidate >= rightBoundary)
             {
                 SetWholeX(rightBoundary);
@@ -337,7 +337,7 @@ public sealed class ScrollBoundaryCamera
         // toward the current screen's left edge. If the candidate itself lands in a closed screen, round
         // up to the next screen boundary. The comparison is signed.
         int leftBoundary = ScreenStart(Position.X.Whole);
-        int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - 2);
+        int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
         if (CoordinateAxis.Difference(leftCandidate, leftBoundary) < 0)
         {
             SetWholeX(leftBoundary);
@@ -365,7 +365,7 @@ public sealed class ScrollBoundaryCamera
         // alignment is selected before Y is clamped and remains fixed for this invocation.
         int verticalAlignment = Scrolls.ReadCameraState(preClamp) == RoomScrollState.OpenAlignedToTop
             ? 0
-            : 31;
+            : SamusCameraDefinitions.LowerAlignment;
         int proposed = Position.Y.Whole;
 
         if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
@@ -382,7 +382,7 @@ public sealed class ScrollBoundaryCamera
             // A closed current screen pushes downward toward its bottom boundary. As in the X
             // step, a second closed screen beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
-            int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + 2);
+            int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
             if (candidate >= bottomBoundary)
             {
                 SetWholeY(bottomBoundary);
@@ -407,7 +407,7 @@ public sealed class ScrollBoundaryCamera
         if (topBoundary >= Position.Y.Whole)
             return;
 
-        int upwardCandidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - 2);
+        int upwardCandidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
         if (CoordinateAxis.Difference(upwardCandidate, topBoundary) < 0)
         {
             SetWholeY(topBoundary);
@@ -445,7 +445,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = ScreenStart(Position.X.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - 2);
+        int candidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
         if (CoordinateAxis.Difference(candidate, boundary) < 0)
             candidate = boundary;
         SetWholeX(candidate);
@@ -471,7 +471,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.X.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + 2);
+        int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeX(candidate);
@@ -486,7 +486,7 @@ public sealed class ScrollBoundaryCamera
         // Top-aligned screens align the 224-line playfield at +0; closed and open ones use +31.
         int verticalAlignment = Scrolls.ReadCameraState(current) == RoomScrollState.OpenAlignedToTop
             ? 0
-            : 31;
+            : SamusCameraDefinitions.LowerAlignment;
 
         if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
@@ -512,7 +512,7 @@ public sealed class ScrollBoundaryCamera
 
         if (beyondRoomBottom || blockedBelow)
         {
-            int candidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - 2);
+            int candidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
             if (CoordinateAxis.Difference(candidate, boundary) < 0)
                 candidate = boundary;
             SetWholeY(candidate);
@@ -539,7 +539,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.Y.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + 2);
+        int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeY(candidate);

@@ -100,12 +100,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles()
     {
-        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount()) { Animation = { FrameBindings = fixtureFrames } };
+        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
         // A Super Missile impact starts the room's earthquake, so the system is bound to one, as a room load binds it (#1594).
         created.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return created;
     }
-    SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = fixtureFrames };
+    SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
     ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
     RoomLevelData air = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
@@ -175,7 +175,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} queues ROM sound");
         AssertEqual(1, projectiles.Pool.ShotCount.Count,
             $"power beam direction {direction} increments counter");
-        AssertEqual(0x000f, bombs.CooldownTimer.RawValue,
+        AssertEqual(0x000f, bombs.CooldownTimer,
             $"power beam direction {direction} installs cooldown");
         AssertEqual(SamusProjectileDirectionCodec.FromAimIndex(direction), projectiles.Shots[0].Direction,
             $"power beam direction {direction} survives initialization");
@@ -221,7 +221,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"beam combination {beamType} allocates one ordinary slot");
         AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
             $"beam combination {beamType} indexes uncharged data pointer");
-        AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer.RawValue,
+        AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer,
             $"beam combination {beamType} indexes uncharged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectCommands.Decode(
@@ -251,10 +251,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerBombs = CreateSyntheticBombs();
     // The shot shows the installed Spazer compositions, which the Spazer sheet holds (#1513): the synthetic bindings give
     // the Spazer shot's first frame the power beam's composition, which the Spazer sheet does not hold (#1534).
-    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount())
-    {
-        Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
-    };
+    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), spazerFlickerBombs);
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();
@@ -501,7 +498,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         (SoundEffectId?)SamusSound.ChargedPowerBeam,
         chargedRelease.QueuedSoundEffect,
         "charged power beam queues ROM sound");
-    AssertEqual(0x001e, chargeBombs.CooldownTimer.RawValue,
+    AssertEqual(0x001e, chargeBombs.CooldownTimer,
         "charged power beam installs charged cooldown");
     AssertEqual(ChargedShotGlow.ChargedShotFlash, chargeProjectiles.Charge.ChargedShotGlow,
         "charged release starts the charged shot's flash");
@@ -619,7 +616,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             combinedChargeProjectiles.Shots[(combinedChargedReleaseSlot ?? throw new InvalidOperationException("Verification requires combinedChargedReleaseSlot."))];
         AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
-        AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer.RawValue,
+        AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer,
             $"charged beam combination {beamType} indexes charged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectCommands.Decode(
@@ -658,7 +655,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
     AssertEqual(0, hyperSlot.TrailTimer.RawValue, "Hyper Beam does not arm a projectile trail");
-    AssertEqual(21, hyperBombs.CooldownTimer.RawValue, "Hyper Beam installs literal cooldown 21");
+    AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
             SoundEffectLibrary.Samus, nativeChargedSounds[8]),
@@ -1028,7 +1025,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "nonempty missile reserve remains HUD-selected");
     AssertEqual(1, missileProjectiles.Pool.ShotCount.Count,
         "missile increments the shared ordinary-projectile counter");
-    AssertEqual(10, missileBombs.CooldownTimer.RawValue,
+    AssertEqual(10, missileBombs.CooldownTimer,
         "missile producer installs literal ten-frame shared cooldown");
     AssertEqual(20, missileProjectiles.Firing.ProjectileInvincibilityTimer,
         "missile producer installs literal projectile invincibility timer twenty");
@@ -1519,7 +1516,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "super producer queues library-one effect four");
     AssertEqual(2, superSamus.SuperMissiles,
         "super producer consumes exactly one ammo");
-    AssertEqual(20, superBombs.CooldownTimer.RawValue,
+    AssertEqual(20, superBombs.CooldownTimer,
         "super producer installs literal twenty-frame cooldown");
     AssertEqual(2, superProjectiles.Pool.ShotCount.Count,
         "super ignition counts visible owner plus invisible link");

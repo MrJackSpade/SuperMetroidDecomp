@@ -18,6 +18,24 @@ public static class SamusMovementDefinitions
     /// <summary>Falling movement: fast-fall timer before the animation tick.</summary>
     public const int FastFallAnimationTimer = 8;
 
+    /// <summary>
+    /// The least whole downward speed at which Samus's landing is a hard landing, with its own sound; a slower landing
+    /// with any fraction of speed is a soft one.
+    /// </summary>
+    public const int HardLandingWholeSpeed = 5;
+
+    /// <summary>
+    /// How far behind a spinning Samus a wall may lie for a wall jump, in pixels: the probe looks this far, and only a
+    /// wall it finds closer launches her.
+    /// </summary>
+    public const int WallJumpReachPixels = 8;
+
+    /// <summary>The pixels an update each speed echo travels away from Samus in her facing direction once the echoes depart.</summary>
+    public const int SpeedEchoDepartureSpeed = 8;
+
+    /// <summary>The pixels an update a departing speed echo closes on Samus's height until it reaches it.</summary>
+    public const int SpeedEchoVerticalApproach = 2;
+
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion

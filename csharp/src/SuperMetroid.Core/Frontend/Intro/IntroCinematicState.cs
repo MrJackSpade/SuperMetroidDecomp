@@ -44,7 +44,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             BindSamusBodyArtwork(artwork.SamusBodyArt ?? throw new InvalidOperationException(
                 "The opening cinematic's flashback Samus requires the installed Samus body artwork."));
         if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
-            BindProjectileFrames(artwork.ProjectileFrameBindings);
+            flashbackSamusArtwork.ProjectileFrames = artwork.ProjectileFrameBindings ?? throw new InvalidOperationException(
+                "The opening cinematic's flashback shots and bombs require the installed projectile frames.");
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
             BindSpriteSheets(artwork.SpriteSheets ?? throw new InvalidOperationException(
                 "The opening cinematic requires the installed sprite sheets."));
@@ -71,10 +72,6 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>The session's unauthored Speed Booster cadence, bound into the flashback Samus.</summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
-
-    /// <summary>Binds the host-owned frame artwork the Mother Brain flashback's projectile and bomb slots draw.</summary>
-    public void BindProjectileFrames(InstalledProjectileFrameBindings? bindings) =>
-        flashbackProjectiles.Animation.FrameBindings = flashbackBombProjectiles.FrameBindings = bindings;
 
     /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
@@ -245,9 +242,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         samusOverreads = Ensure.NotNull(overreads.Samus);
         shellFallPastCurve = Ensure.NotNull(overreads.ShellFall);
         flashbackAudioRequests = new GameplayAudioRequests(new CinematicAudioQueues(Ensure.NotNull(audio)));
-        flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, powerBombGlowColors);
+        flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, powerBombGlowColors, samusArtwork);
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork);
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = Ensure.NotNull(audio);

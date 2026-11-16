@@ -17,8 +17,10 @@ public sealed class SamusArtworkBinding
     /// <param name="sheets">The installed pre-coloured sheets Samus, her particles, her death explosion and her grapple beam draw from.</param>
     /// <param name="grappleFlarePlacement">The installed grapple flare placements.</param>
     /// <param name="grappleSwingFrames">The installed pictures Samus's swing shows at each grapple angle.</param>
+    /// <param name="projectileFrames">The installed composition each frame of her shots' and bombs' animations draws.</param>
     public SamusArtworkBinding(InstalledSamusBodyArtwork body, SamusShownFrames shownFrames, InstalledSpriteSheets sheets,
-        ChargeFlarePlacements grappleFlarePlacement, InstalledGrappleSwingFrames grappleSwingFrames)
+        ChargeFlarePlacements grappleFlarePlacement, InstalledGrappleSwingFrames grappleSwingFrames,
+        InstalledProjectileFrameBindings projectileFrames)
     {
         Body = body;
         ArmCannon = body.ArmCannon;
@@ -26,6 +28,7 @@ public sealed class SamusArtworkBinding
         Sheets = sheets;
         GrappleFlarePlacement = grappleFlarePlacement;
         GrappleSwingFrames = grappleSwingFrames;
+        ProjectileFrames = projectileFrames;
     }
 
     /// <summary>Samus's installed body placements, death steps and presentation catalogs.</summary>
@@ -45,4 +48,10 @@ public sealed class SamusArtworkBinding
 
     /// <summary>The installed pictures Samus's swing shows at each grapple angle.</summary>
     public InstalledGrappleSwingFrames GrappleSwingFrames { get; set => field = Ensure.NotNull(value); }
+
+    /// <summary>
+    /// The installed composition each frame of her shots' and bombs' animations draws, which every projectile and bomb
+    /// system built with this binding resolves its frames through.
+    /// </summary>
+    public InstalledProjectileFrameBindings ProjectileFrames { get; set => field = Ensure.NotNull(value); }
 }

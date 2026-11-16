@@ -231,14 +231,14 @@ internal sealed class BeamFiring
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
-            !sharedProjectiles.CooldownTimer.IsZero)
+            sharedProjectiles.CooldownTimer != 0)
         {
             return new BeamShot(null, null);
         }
 
         // Allocation writes one before allocating storage. A corrupt counter/free-projectile
         // disagreement is therefore intentionally observable rather than silently repaired.
-        sharedProjectiles.SetSharedCooldown(1);
+        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         _pool.ShotCount.CountShot();
 
         // The shot count can read lower than the places held: a special attack sets it to its particle count whatever
@@ -338,12 +338,12 @@ internal sealed class BeamFiring
         // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
-            !sharedProjectiles.CooldownTimer.IsZero)
+            sharedProjectiles.CooldownTimer != 0)
         {
             return new BeamShot(null, null);
         }
 
-        sharedProjectiles.SetSharedCooldown(1);
+        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         _pool.ShotCount.CountShot();
         if (_pool.FindFreePlace() is not { } place)
         {
@@ -379,7 +379,7 @@ internal sealed class BeamFiring
         projectile.Playback = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
         projectile.FrameHold = WrappingCountdown.Start(1);
-        projectile.Damage = 1000;
+        projectile.Damage = SamusProjectileDamageDefinitions.HyperBeamDamage;
 
         // Hyper uses the Wave beam collision check at this same producer seam. It publishes door and
         // shootable-block reactions but, like every Wave family, is not stopped by solid blocks and
@@ -393,7 +393,7 @@ internal sealed class BeamFiring
         InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
-        sharedProjectiles.SetSharedCooldown(21);
+        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.HyperBeamShot);
         _charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
         _charge.StartHyperBeamFlare();
 
@@ -425,12 +425,12 @@ internal sealed class BeamFiring
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.PlaceCount;
         if (_pool.ShotCount.Count >= admissionLimit ||
-            !sharedProjectiles.CooldownTimer.IsZero)
+            sharedProjectiles.CooldownTimer != 0)
         {
             return new BeamShot(null, null);
         }
 
-        sharedProjectiles.SetSharedCooldown(1);
+        sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         if (ammo == 0)
             return new BeamShot(null, null);
 
@@ -445,6 +445,8 @@ internal sealed class BeamFiring
         InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
         ProjectileInvincibilityTimer = ProjectileTimingDefinitions.MissileInteractionImmunity;
+        // A count Crystal Flash drained below zero still fires, each shot taking it further below; only the 32768th shot
+        // from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else
@@ -472,12 +474,14 @@ internal sealed class BeamFiring
             ? SamusShotBehaviors.SuperMissile
             : SamusShotBehaviors.Missile;
 
-        // The missile sound and the ten-frame shared cooldown. An item-selection press made while item cancel
+        // The missile sound and the missile's shared cooldown. An item-selection press made while item cancel
         // is held records a one-shot auto-cancel index; a successful missile consumes that
         // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
-        sharedProjectiles.SetSharedCooldown(isSuperMissile ? 20 : 10);
+        sharedProjectiles.SetSharedCooldown(isSuperMissile
+            ? SamusProjectileCooldownDefinitions.SuperMissileShot
+            : SamusProjectileCooldownDefinitions.MissileShot);
         if (samus.AutoCancelledItem != HudItem.Beam)
         {
             samus.SelectedHudItem = HudItem.Beam;

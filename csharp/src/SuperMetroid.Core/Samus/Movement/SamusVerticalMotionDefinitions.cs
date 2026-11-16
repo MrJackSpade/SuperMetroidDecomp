@@ -91,4 +91,13 @@ internal static class SamusVerticalMotionDefinitions
 
     /// <summary>The whole pixels an update at which a falling bouncing ball stops gathering speed.</summary>
     internal const int BallBounceFallingSpeed = 5;
+
+    /// <summary>
+    /// The whole pixels an update at which a falling Samus stops gathering speed: gravity is added to her fall only while
+    /// its whole speed is not exactly this, so a fall set faster by something else keeps its speed.
+    /// </summary>
+    internal const int TerminalFallWholeSpeed = 5;
+
+    /// <summary>The upward speed of the Morph Ball's second rebound: one pixel an update slower than its first, so none.</summary>
+    internal static UnsignedSixteenSixteen SecondBallBounceSpeed { get; } = new(0, 0);
 }

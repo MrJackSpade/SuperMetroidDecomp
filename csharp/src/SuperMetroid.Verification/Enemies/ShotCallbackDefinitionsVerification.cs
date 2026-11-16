@@ -157,7 +157,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
             });
-            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusProjectile projectile = projectiles.Shots[0];
             projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
             projectile.Damage = 20;
@@ -169,7 +169,7 @@ internal static class ShotCallbackDefinitionsVerification
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     projectiles,
-                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");

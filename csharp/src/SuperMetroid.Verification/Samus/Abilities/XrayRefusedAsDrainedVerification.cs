@@ -17,8 +17,8 @@ internal static class XrayRefusedAsDrainedVerification
     private const int MostSpeedDivisor = 5;
 
     /// <summary>
-    /// The rule against the original's test, for every input that reaches it: every cooldown a wrapping countdown holds,
-    /// every bomb count and every speed divisor; the X-ray setup refuses exactly when the cooldown equals 7, the bombs 5 and
+    /// The rule against the original's test, for every input that reaches it: every cooldown up to 65535 updates, far
+    /// past any a shot, bomb or boss sets, every bomb count and every speed divisor; the X-ray setup refuses exactly when the cooldown equals 7, the bombs 5 and
     /// the divisor 2. Then X-ray's own start, for a standing Samus who is otherwise admitted, at every bomb count and divisor
     /// and the cooldowns around seven: refused exactly where the rule refuses, admitted everywhere else.
     /// </summary>
@@ -26,13 +26,12 @@ internal static class XrayRefusedAsDrainedVerification
     {
         for (int cooldown = 0; cooldown <= ushort.MaxValue; cooldown++)
         {
-            WrappingCountdown countdown = WrappingCountdown.Start(cooldown);
             for (int bombs = 0; bombs <= MostBombs; bombs++)
             {
                 for (int divisor = 0; divisor <= MostSpeedDivisor; divisor++)
                 {
                     bool original = cooldown == 7 && bombs == 5 && divisor == 2;
-                    if (XrayRefusedAsDrained.Refuses(countdown, bombs, divisor) != original)
+                    if (XrayRefusedAsDrained.Refuses(cooldown, bombs, divisor) != original)
                     {
                         throw new InvalidOperationException(
                             $"X-ray's drained refusal at cooldown {cooldown}, {bombs} bombs and divisor {divisor} reads " +
@@ -54,7 +53,7 @@ internal static class XrayRefusedAsDrainedVerification
                         conditions: new XrayBeginConditions
                         {
                             GameState = SuperMetroidGameState.MainGameplay,
-                            ProjectileCooldownTimer = WrappingCountdown.Start(cooldown),
+                            ProjectileCooldownTimer = cooldown,
                             BombCounter = bombs,
                         });
                     bool refused = cooldown == 7 && bombs == 5 && divisor == 2;

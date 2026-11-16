@@ -233,14 +233,15 @@ internal static class QuicksandVerification
     }
 
     /// <summary>
-    /// A stationary Samus's downward probe into a quicksand surface is compared with the limit and limited to it in its
-    /// near reading alone: its whole pixels below 256 above its fraction's 256ths. The probe's whole pixels from 256 up,
-    /// its sign and its finest fraction byte are kept, so the cases cross 256 pixels, a negative probe and a set low byte.
-    /// The expected value is the cartridge's mask-and-merge of the probe's three bytes, written out here.
+    /// A stationary Samus's downward probe into a quicksand surface is limited to the surface limit (three sixteenths of a
+    /// pixel) counted in 256ths, keeping its fraction finer than a 256th (#2116). The probe reaches the surface only moving
+    /// down and by far less than 256 pixels, where the cartridge's merge of the limit into the probe's middle bytes is
+    /// exactly this: the cases cross the limit's 256th from either side, sit on it with a set finest byte, and reach far
+    /// past it with one. The expected value is the cartridge's mask-and-merge of the probe's bytes, written out here.
     /// </summary>
     private static void VerifyQuicksandStationaryProbeLimitsNearReading()
     {
-        int[] probes = [0x012880ab, -0x28000, 0x2f00, 0x3000, 0x30ff, 0x3100, 0x01000000, 0x0100ffff];
+        int[] probes = [0x00ff80ab, 0x2f00, 0x2fff, 0x3000, 0x30ff, 0x3100, 0x312a, 0x00010000];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]), RoomLevelData.NothingBeyondGrid(), []);
         foreach (int probe in probes)
         {
@@ -257,10 +258,9 @@ internal static class QuicksandVerification
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
                 axis: Axis.Vertical,
                 ref displacement,
-                out bool surfaceContact,
-                SamusCollisionDirection.Down);
+                out bool surfaceContact);
             AssertEqual(true, surfaceContact, $"stationary probe {probe:X8} touches the surface");
-            AssertEqual(expected, displacement.RawValue, $"stationary probe {probe:X8} is limited in its near reading alone");
+            AssertEqual(expected, displacement.RawValue, $"stationary probe {probe:X8} is limited in 256ths, keeping its finest byte");
         }
     }
 

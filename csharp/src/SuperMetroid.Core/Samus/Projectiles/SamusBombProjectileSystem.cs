@@ -21,8 +21,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 public sealed class SamusBombProjectileSystem
 {
-    /// <summary>The installed composition each projectile animation frame draws, which a bomb's frames need bound.</summary>
-    public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
+    /// <summary>The Samus artwork whose installed projectile frames each bomb's frames draw.</summary>
+    private readonly SamusArtworkBinding _artwork;
+
     /// <summary>How many bombs Samus can have out at once.</summary>
     public const int PlaceCount = MorphBallBombDefinitions.PlaceCount;
 
@@ -82,11 +83,15 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The cooldown shared by every Samus projectile, 0 through <see cref="SamusProjectileCooldownDefinitions.LongestCooldown"/>
-    /// frames: every shot, bomb and boss sets it no longer, and it only counts down from there or steps from zero to one, so
-    /// whether it has run out gates another shot and, while a bomb is out, another bomb.
+    /// The updates left on the cooldown shared by every Samus projectile, zero or more: every shot, bomb and boss sets it,
+    /// a bomb's reservation lengthens it by one, and it counts down to zero and stops there, so whether it has run out
+    /// gates another shot and, while a bomb is out, another bomb.
     /// </summary>
-    public WrappingCountdown CooldownTimer { get; private set; }
+    public int CooldownTimer
+    {
+        get;
+        private set => field = Ensure.AtLeastZero(value);
+    }
 
     /// <summary>
     /// Replaces the shared projectile cooldown from another Samus-projectile producer.
@@ -95,9 +100,8 @@ public sealed class SamusBombProjectileSystem
     /// Beams, missiles, power bombs and normal bombs do not own separate cooldowns; they all read and write the same
     /// one. Ordinary projectiles live in a separate class, but that boundary must not create a second clock.
     /// </remarks>
-    /// <param name="value">The cooldown's frames, 0 through <see cref="SamusProjectileCooldownDefinitions.LongestCooldown"/>.</param>
-    internal void SetSharedCooldown(int value) =>
-        CooldownTimer = WrappingCountdown.Start(Ensure.BetweenInclusive(0, SamusProjectileCooldownDefinitions.LongestCooldown, value));
+    /// <param name="value">The cooldown's updates, zero or more.</param>
+    internal void SetSharedCooldown(int value) => CooldownTimer = value;
 
     /// <summary>
     /// Replaces the bomb count from an enemy-owned Samus interaction. Shitroid writes
@@ -112,10 +116,12 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     /// <param name="audioRequests">The update's audio requests the bombs' sounds join: the runtime's, or a cinematic's.</param>
     /// <param name="powerBombGlowColors">The installed Power Bomb glow colours.</param>
+    /// <param name="artwork">The Samus artwork whose projectile frames the bombs draw, rebound with the host's artwork.</param>
     internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests,
-        SuperMetroid.Core.Samus.Artwork.InstalledPowerBombGlowColors powerBombGlowColors)
+        InstalledPowerBombGlowColors powerBombGlowColors, SamusArtworkBinding artwork)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
+        _artwork = Ensure.NotNull(artwork);
         PowerBombExplosion = new SamusPowerBombExplosionState(powerBombGlowColors);
     }
 
@@ -224,7 +230,6 @@ public sealed class SamusBombProjectileSystem
 
         bool explosionStarted = false;
         bool projectileDeleted = false;
-        var blockReactions = new List<BombBlockReaction>();
 
         // Bombs run in update order. X-ray may have frozen time in this same HUD pass: the cooldown above still runs, but
         // no projectile is handled after admission.
@@ -239,7 +244,6 @@ public sealed class SamusBombProjectileSystem
             bool bombExplosionStarted = AdvanceBomb(
                 terrain.Level,
                 bomb,
-                blockReactions,
                 terrain.RoomObjects,
                 samus.Kinematics);
             explosionStarted |= bombExplosionStarted;
@@ -334,7 +338,7 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBomb bomb in _bombs)
             bomb.End();
         BombCounter = 0;
-        CooldownTimer = WrappingCountdown.Start(0);
+        CooldownTimer = 0;
         PowerBombExplosion.Reset();
     }
 
@@ -354,12 +358,9 @@ public sealed class SamusBombProjectileSystem
                 samus.AudioRequests.QueueSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }
-        if (samus.BeamCharge.HasCharged(ChargeSoundFlareThreshold))
+        if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
             samus.AudioRequests.QueueSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
-
-    /// <summary>The flare count from which a charging beam's loop is audible.</summary>
-    private const int ChargeSoundFlareThreshold = 16;
 
     /// <summary>Ticks the shared shot cooldown, or holds it at 32 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
@@ -368,25 +369,13 @@ public sealed class SamusBombProjectileSystem
         // down, so the first shot after X-ray waits out the full delay.
         if (timeIsFrozen)
         {
-            CooldownTimer = WrappingCountdown.Start(SamusProjectileCooldownDefinitions.FrozenTime);
+            CooldownTimer = SamusProjectileCooldownDefinitions.FrozenTime;
             return;
         }
 
-        if (CooldownTimer.IsZero)
-            return;
-
-        // The cooldown also clamps already-negative/crossed-negative values to zero. Normal
-        // bomb cooldowns are small positive values, but retaining the signed edge keeps an
-        // out-of-range cooldown from producing a permanently locked firing state.
-        if (CooldownTimer.IsNegative)
-        {
-            CooldownTimer = WrappingCountdown.Start(0);
-            return;
-        }
-
-        CooldownTimer = CooldownTimer.Decrement().Remaining;
-        if (CooldownTimer.IsNegative)
-            CooldownTimer = WrappingCountdown.Start(0);
+        // Every cooldown set is a few dozen updates at most, so the count only ever runs down to zero and stops.
+        if (CooldownTimer > 0)
+            CooldownTimer--;
     }
 
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb place.</summary>
@@ -431,6 +420,8 @@ public sealed class SamusBombProjectileSystem
 
         if (placingPowerBomb)
         {
+            // A count Crystal Flash drained below zero still places Power Bombs, each taking it further below; only the
+            // 32768th from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
             samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
             PowerBombExplosion.Arm();
         }
@@ -442,9 +433,9 @@ public sealed class SamusBombProjectileSystem
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
         bomb.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(bomb);
-        CooldownTimer = WrappingCountdown.Start(placingPowerBomb
+        CooldownTimer = placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
-            : MorphBallBombDefinitions.NormalBombCooldown);
+            : MorphBallBombDefinitions.NormalBombCooldown;
 
         if (placingPowerBomb)
         {
@@ -518,7 +509,7 @@ public sealed class SamusBombProjectileSystem
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(place);
             bomb.BombTimer = WrappingCountdown.Start(launch.FuseTimer);
-            bomb.BombSpreadHorizontal = launch.XVelocity;
+            bomb.BombSpreadHorizontalVelocity = launch.XVelocity;
             // The held charge adds up to three whole pixels of upward launch speed.
             bomb.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
                 -(launch.YSpeed.Whole + verticalModifier), launch.YSpeed.Fraction);
@@ -526,7 +517,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         BombCounter = PlaceCount;
-        CooldownTimer = WrappingCountdown.Start(MorphBallBombDefinitions.NormalBombCooldown);
+        CooldownTimer = MorphBallBombDefinitions.NormalBombCooldown;
         samus.BombSpreadChargeTimeoutCounter = 0;
         samus.BeamCharge.ClearCount();
     }
@@ -540,7 +531,7 @@ public sealed class SamusBombProjectileSystem
         // The first bomb is allowed regardless of cooldown. With any active bomb,
         // five bombs out or a running cooldown reject the edge.
         if (BombCounter != 0 &&
-            (BombCounter >= PlaceCount || !CooldownTimer.IsZero))
+            (BombCounter >= PlaceCount || CooldownTimer != 0))
         {
             return false;
         }
@@ -548,7 +539,7 @@ public sealed class SamusBombProjectileSystem
         // Reserving a bomb counts it and lengthens the cooldown by one update before a free
         // place is chosen; once the bomb starts, placement replaces the cooldown with the
         // bomb's own.
-        CooldownTimer = CooldownTimer.AddFrames(1);
+        CooldownTimer++;
         BombCounter++;
 
         return true;
@@ -601,7 +592,6 @@ public sealed class SamusBombProjectileSystem
     private bool AdvanceBomb(
         RoomLevelData level,
         SamusBomb bomb,
-        List<BombBlockReaction> blockReactions,
         ISamusRoomObjects roomObjects,
         SamusKinematicsState samusKinematics)
     {
@@ -642,7 +632,7 @@ public sealed class SamusBombProjectileSystem
         else if (!bomb.BombTimer.IsZero)
         {
             bomb.BombTimer = bomb.BombTimer.Decrement().Remaining;
-            if (bomb.BombTimer.IsAt(15))
+            if (bomb.BombTimer.IsAt(SamusPowerBombFuseData.FastAnimationTimer))
             {
                 // The slow and fast animations have identical four-frame layouts and differ by
                 // a fixed distance. Moving the live animation by it preserves phase.
@@ -668,7 +658,7 @@ public sealed class SamusBombProjectileSystem
             // As soon as a normal bomb's fuse reads zero its explosion reacts with the
             // five-block cross around it, exactly once.
             bomb.HasReactedToTerrain = true;
-            CollectBlockExplosionReactions(level, bomb, blockReactions, roomObjects);
+            ReactToBombExplosionCross(level, bomb, roomObjects);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
@@ -676,11 +666,10 @@ public sealed class SamusBombProjectileSystem
             // newly reached rectangle border using the explosion's shared radii in whole pixels.
             if (!explosionStarted && bomb.BombTimer.IsZero && PowerBombExplosion.IsArmed)
             {
-                CollectPowerBombBoundaryReactions(
+                ReactToPowerBombBoundary(
                     level,
                     PowerBombExplosion.Position,
                     PowerBombExplosion.Blast.ExplosionRadius,
-                    blockReactions,
                     roomObjects,
                     bomb.Type);
             }
@@ -720,14 +709,13 @@ public sealed class SamusBombProjectileSystem
 
         int previousX = bomb.Position.X.Whole;
         int previousXSub = bomb.Position.X.Fraction;
-        // Rightward travel adds the speed with the fraction carrying into the whole pixels; leftward travel subtracts
-        // it, borrowing from them. Both wrap after 65535 whole pixels, the signed 1/65536-pixel value's wrapping addition.
-        bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontal.Displacement);
+        // The velocity moves the bomb with the fraction carrying into, or borrowing from, the whole pixels.
+        bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontalVelocity);
         if (!BombSpreadCollides(level, bomb))
             return;
 
         bomb.Position = bomb.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        bomb.BombSpreadHorizontal = bomb.BombSpreadHorizontal.Reversed();
+        bomb.BombSpreadHorizontalVelocity = -bomb.BombSpreadHorizontalVelocity;
     }
 
     /// <summary>Tests the bomb center against room bounds, extension parents, solid blocks and the game's non-square slope heights.</summary>
@@ -769,19 +757,34 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The power-bomb boundary traversal, shared by every frame behaviour that runs it.
-    /// Coordinates and radius belong to the global explosion, not the calling bomb.
+    /// The power-bomb boundary's reactions, shared by every frame behaviour that runs them: each block of the boundary
+    /// (<see cref="PowerBombBoundaryBlocks"/>) reacts in turn. Coordinates and radius belong to the global explosion, not
+    /// the calling bomb.
     /// </summary>
-    internal static void CollectPowerBombBoundaryReactions(
+    internal static void ReactToPowerBombBoundary(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius,
-        List<BombBlockReaction> reactions,
         ISamusRoomObjects roomObjects,
         SamusProjectileType projectileType)
     {
+        foreach (Position16<RoomBlocks> block in PowerBombBoundaryBlocks(level, explosion, explosionRadius))
+            ReactToBombedBlock(level, block, roomObjects, projectileType);
+    }
+
+    /// <summary>
+    /// The blocks a Power Bomb blast's boundary reaches this update, in the order they react: the top edge left to right,
+    /// the left edge top to bottom, the bottom edge left to right and the right edge top to bottom, each inclusive, so
+    /// every corner is reached twice. The edges are those of the blast's reach clipped to the room, fixed before the first
+    /// block reacts.
+    /// </summary>
+    internal static IReadOnlyList<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
+        RoomLevelData level,
+        Position16<RoomPixels> explosion,
+        PowerBombRadius explosionRadius)
+    {
         int horizontalRadius = explosionRadius.WholePixels;
-        int verticalRadius = (3 * horizontalRadius) >> 2;
+        int verticalRadius = PowerBombBlastOval.VerticalRadius(horizontalRadius);
 
         // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
         // or above the room holds a coordinate near 65535, and its far edge would pass 65535, which PixelToBlock rejects,
@@ -799,21 +802,22 @@ public sealed class SamusBombProjectileSystem
         // The traversal visits all four inclusive edges in this exact order. Corners are
         // intentionally visited twice; synchronous room-object terrain mutation means the second
         // visit can observe a different collision type than the first.
+        var blocks = new List<Position16<RoomBlocks>>();
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomObjects, projectileType);
+            blocks.Add(new Position16<RoomBlocks>(x, top));
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(left, y), reactions, roomObjects, projectileType);
+            blocks.Add(new Position16<RoomBlocks>(left, y));
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, bottom), reactions, roomObjects, projectileType);
+            blocks.Add(new Position16<RoomBlocks>(x, bottom));
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomObjects, projectileType);
+            blocks.Add(new Position16<RoomBlocks>(right, y));
+        return blocks;
     }
 
     /// <summary>Visits the normal bomb's five-block cross in order when its fuse reaches zero.</summary>
-    private static void CollectBlockExplosionReactions(
+    private static void ReactToBombExplosionCross(
         RoomLevelData level,
         SamusBomb bomb,
-        List<BombBlockReaction> reactions,
         ISamusRoomObjects roomObjects)
     {
         int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
@@ -835,27 +839,24 @@ public sealed class SamusBombProjectileSystem
                     $"Bomb explosion cross reaches outside room storage at block ({x},{y}).");
             }
 
-            CollectSingleBombedBlockReaction(
+            ReactToBombedBlock(
                 level,
                 new Position16<RoomBlocks>(x, y),
-                reactions,
                 roomObjects,
                 bomb.Type);
         }
     }
 
     /// <summary>Resolves a bombed block through extension, item, door and special-block reactions, including synchronous room-object changes.</summary>
-    internal static void CollectSingleBombedBlockReaction(
+    internal static void ReactToBombedBlock(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
-        List<BombBlockReaction> reactions,
         ISamusRoomObjects roomObjects,
         SamusProjectileType projectileType)
     {
         int x = bombedBlock.X;
         int y = bombedBlock.Y;
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
-        reactions.Add(new BombBlockReaction());
 
         // The block reactions do not react to an extension block directly. A nonzero signed
         // behaviour redirects the current block horizontally (a horizontal extension) or by whole room rows
@@ -1024,8 +1025,7 @@ public sealed class SamusBombProjectileSystem
             throw new InvalidDataException($"Bomb frame {frame} has zero duration.");
         SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
         bomb.FrameHold = WrappingCountdown.Start(duration);
-        bomb.Sprite = (FrameBindings ?? throw new InvalidOperationException(
-            "Samus's bombs show their frames' installed compositions, which are not bound.")).Resolve(frame);
+        bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
         bomb.Radius = gameplay.Radius;
         bomb.Playback = playback;
         return false;
@@ -1060,7 +1060,7 @@ public sealed class SamusBombProjectileSystem
             SamusProjectileFamily typeFamily = bomb.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
-                !bomb.BombTimer.IsAt(8))
+                !bomb.BombTimer.IsAt(MorphBallBombDefinitions.BombJumpExplosionCount))
                 continue;
 
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;

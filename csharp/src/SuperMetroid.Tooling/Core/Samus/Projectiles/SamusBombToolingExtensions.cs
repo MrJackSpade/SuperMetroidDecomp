@@ -7,10 +7,11 @@ internal static class SamusBombToolingExtensions
     extension(SamusBomb self)
     {
         /// <summary>
-        /// The spread bomb's horizontal travel in its launch definition's packed form, 0 through 65535, for traces that
-        /// print it.
+        /// The spread bomb's horizontal velocity in the launch table's packed form, 0 through 65535, for traces that print
+        /// it: the speed's whole pixels with the leftward bit above its 256ths. A bomb with no horizontal speed packs as
+        /// rightward.
         /// </summary>
-        public int BombSpreadDirectionMagnitude => self.BombSpreadHorizontal.LaunchWord;
+        public int BombSpreadDirectionMagnitude => BombSpreadLaunchWords.Pack(self.BombSpreadHorizontalVelocity);
         /// <summary>The whole word of <see cref="SamusBomb.BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
         public int BombSpreadYVelocity => self.BombSpreadVerticalVelocity.UnsignedWholePixels;
         /// <summary>The fraction word of <see cref="SamusBomb.BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>

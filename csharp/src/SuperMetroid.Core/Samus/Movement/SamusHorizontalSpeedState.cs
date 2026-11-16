@@ -530,7 +530,7 @@ public sealed class SamusHorizontalSpeedState
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoCursor = SpeedEchoCursor.Departing;
-            int speed = facing == SamusFacingDirection.Left ? -8 : 8;
+            int speed = facing == SamusFacingDirection.Left ? -SamusMovementDefinitions.SpeedEchoDepartureSpeed : SamusMovementDefinitions.SpeedEchoDepartureSpeed;
             FirstSpeedEchoHorizontalSpeed = speed;
             SecondSpeedEchoHorizontalSpeed = speed;
         }
@@ -644,8 +644,8 @@ public sealed class SamusHorizontalSpeedState
         if (yPosition != samusPosition.Y)
         {
             yPosition = CoordinateAxis.Difference(yPosition, samusPosition.Y) < 0
-                ? CoordinateAxis.Wrap(yPosition + 2)
-                : CoordinateAxis.Wrap(yPosition - 2);
+                ? CoordinateAxis.Wrap(yPosition + SamusMovementDefinitions.SpeedEchoVerticalApproach)
+                : CoordinateAxis.Wrap(yPosition - SamusMovementDefinitions.SpeedEchoVerticalApproach);
         }
 
         int speed = echo == SpeedEcho.First

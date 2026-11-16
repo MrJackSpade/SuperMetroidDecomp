@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -106,11 +107,30 @@ internal static class XraySetupVerification
         Console.WriteLine("  X-ray setup: the reveal resolves from the level data each frame shows, through the full beam.");
     }
 
+    /// <summary>
+    /// Checks that a reveal over open space builds (#2100): a block that shows nothing draws no picture, so the reveal
+    /// takes it without one, while a block that shows a picture the table does not hold is still refused.
+    /// </summary>
+    internal static void VerifyXrayRevealOverOpenSpace()
+    {
+        var pictures = new RoomBlockPictureTable([null], new Dictionary<CollectiblePicture, LayeredPicture>());
+        var open = new RevealedBlock?[XrayRevealArea.BlockCount];
+        Array.Fill(open, new RevealedBlock(RoomCellPicture.Nothing, RevealedBlockArrangement.AsDefined));
+        var reveal = new XrayRevealPlane(default, open, pictures);
+        AssertTrue(reveal.Blocks[0] is { Picture.ShowsNothing: true }, "a reveal over open space keeps its blocks that show nothing");
+        var unresolved = (RevealedBlock?[])open.Clone();
+        unresolved[0] = new RevealedBlock(RoomCellPicture.OfBlock(0), RevealedBlockArrangement.AsDefined);
+        AssertThrows<InvalidDataException>(() => new XrayRevealPlane(default, unresolved, pictures),
+            "a reveal block whose picture is not resolved");
+        Console.WriteLine("  X-ray reveal: open space draws nothing; an unresolved picture is refused.");
+    }
+
     /// <summary>Runs the staged X-ray setup buffer check.</summary>
     [VerificationCommand("--xray-setup")]
     internal static int XraySetupCommand()
     {
         Suite(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers());
+        Suite(nameof(VerifyXrayRevealOverOpenSpace), () => VerifyXrayRevealOverOpenSpace());
         return 0;
     }
 }

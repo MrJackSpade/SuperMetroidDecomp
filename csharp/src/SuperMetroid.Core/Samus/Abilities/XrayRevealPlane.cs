@@ -19,7 +19,7 @@ public sealed class XrayRevealPlane
     /// <param name="blocks">The blocks, row by row, <see cref="XrayRevealArea.Columns"/> to a row.</param>
     /// <param name="pictures">The pictures the blocks draw from.</param>
     /// <exception cref="ArgumentException">The blocks do not fill the reveal's rows and columns.</exception>
-    /// <exception cref="InvalidDataException">A block draws a picture the pictures do not hold.</exception>
+    /// <exception cref="InvalidDataException">A block that shows something draws a picture the pictures do not hold.</exception>
     public XrayRevealPlane(Position16<RoomPixels> origin, ReadOnlySpan<RevealedBlock?> blocks, RoomBlockPictureTable pictures)
     {
         Ensure.LengthEqual(blocks, XrayRevealArea.BlockCount);
@@ -27,7 +27,7 @@ public sealed class XrayRevealPlane
         Pictures = Ensure.NotNull(pictures);
         foreach (RevealedBlock? shown in blocks)
         {
-            if (shown is { } block && pictures.Picture(block.Picture) is null)
+            if (shown is { } block && !block.Picture.ShowsNothing && pictures.Picture(block.Picture) is null)
                 throw new InvalidDataException($"The X-ray reveal draws {block.Picture}, which was not resolved.");
         }
         this.blocks = blocks.ToArray();

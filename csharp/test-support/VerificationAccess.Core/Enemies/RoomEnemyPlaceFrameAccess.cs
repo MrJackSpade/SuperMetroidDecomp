@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
@@ -16,11 +17,17 @@ internal static class RoomEnemyPlaceFrameAccess
     /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>; zero shows none.</summary>
     internal static EnemyFrameId? FrameAt(byte bank, ushort word) => word == 0
         ? null
-        : EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word)
+        : TryFrameAt(bank, word)
             ?? throw new ArgumentOutOfRangeException(nameof(word), word, $"No installed enemy frame at ${bank:X2}:{word:X4}.");
 
-    /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>, or null when none is.</summary>
-    internal static EnemyFrameId? TryFrameAt(byte bank, ushort word) => word == 0 ? null : EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word);
+    /// <summary>
+    /// The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>, or null when none is. Mother
+    /// Brain's blank brain frame, which nothing installs, is her brain's hit area (#2220).
+    /// </summary>
+    internal static EnemyFrameId? TryFrameAt(byte bank, ushort word) =>
+        word == 0 ? null
+        : EnemyFrameCartridgeLookup.Of(EnemyFrameId.MotherBrainBrainHitArea) == new SnesAddress(bank, word) ? EnemyFrameId.MotherBrainBrainHitArea
+        : EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word);
 
     /// <summary>Native views of a slot.</summary>
     extension(RoomEnemyPlace self)

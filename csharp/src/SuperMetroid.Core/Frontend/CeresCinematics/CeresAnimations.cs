@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using A = SuperMetroid.Core.Frontend.CeresCinematics.CeresAnimation;
 using B = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, SuperMetroid.Core.Frontend.CeresCinematics.CeresCue>;
 using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
-using W = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, SuperMetroid.Core.Frontend.CeresCinematics.CeresExplosionSpawnerCue>;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 

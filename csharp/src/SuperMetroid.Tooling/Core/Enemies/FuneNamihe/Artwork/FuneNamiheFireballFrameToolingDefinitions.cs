@@ -19,12 +19,12 @@ internal static class FuneNamiheFireballFrameToolingDefinitions
     /// <summary>The bank-$8D spritemap each frame's native operand selects.</summary>
     private static readonly Dictionary<EnemyProjectileFrameId, ushort> Spritemaps = new()
     {
-        [EnemyProjectileFrameId.FuneNamiheFireballLeftFirst] = 0xaab9,
-        [EnemyProjectileFrameId.FuneNamiheFireballLeftSecond] = 0xaac0,
-        [EnemyProjectileFrameId.FuneNamiheFireballLeftThird] = 0xaac7,
-        [EnemyProjectileFrameId.FuneNamiheFireballRightFirst] = 0xaace,
-        [EnemyProjectileFrameId.FuneNamiheFireballRightSecond] = 0xaad5,
-        [EnemyProjectileFrameId.FuneNamiheFireballRightThird] = 0xaadc,
+        [EnemyProjectileFrameId.FuneNamiheFireballLeftTrailing] = 0xaab9,
+        [EnemyProjectileFrameId.FuneNamiheFireballLeftRound] = 0xaac0,
+        [EnemyProjectileFrameId.FuneNamiheFireballLeftDissolving] = 0xaac7,
+        [EnemyProjectileFrameId.FuneNamiheFireballRightTrailing] = 0xaace,
+        [EnemyProjectileFrameId.FuneNamiheFireballRightRound] = 0xaad5,
+        [EnemyProjectileFrameId.FuneNamiheFireballRightDissolving] = 0xaadc,
     };
     /// <summary>The frame whose installed artwork key is <paramref name="key"/>, if one is.</summary>
     internal static bool TryFrame(ushort key, out EnemyProjectileFrameId frame)

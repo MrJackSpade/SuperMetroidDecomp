@@ -80,7 +80,7 @@ internal static class KraidReportedCollisionsVerification
                 int damage = nail.Definition.Damage;
                 var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
                 interactive.Clear(); interactive.Add(nail);
-                AssertEqual(true, runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData), "Nail callback is dispatched");
+                AssertEqual(true, runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData), "Nail callback is dispatched");
                 AssertEqual((ushort)(999 - damage), samus.Health, "Nail applies native touch damage");
                 AssertTrue(nail.AwaitsRespawn && nail.DefinitionId == EnemyDefinitionId.None,
                     "the nail dies and its place awaits its respawn");
@@ -93,7 +93,7 @@ internal static class KraidReportedCollisionsVerification
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
             runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint).Phase = KraidPhase.LintInactive;
             ResetSamus(100, 400);
-            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus);
+            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Contact.HasAny(EnemyContact.IgnoresSamus), "Lint becomes intangible after contact");
@@ -121,7 +121,7 @@ internal static class KraidReportedCollisionsVerification
             state.BodyState.Phase = KraidPhase.MainloopThinking;
             state.ThinkingTimer = 100;
             ResetSamus(180, 500);
-            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), new Position16<RoomPixels>(0, 384), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
             AssertEqual((ushort)492, samus.Position.Y.Whole, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");
@@ -135,7 +135,7 @@ internal static class KraidReportedCollisionsVerification
             state.BodyState.Phase = KraidPhase.MainloopThinking;
             state.ThinkingTimer = 100;
             ResetSamus(180, 500);
-            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), new Position16<RoomPixels>(0, 384), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             state.EjectionLimitY = smallFormLimit;
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid still ejects Samus eight pixels left");
             AssertEqual((ushort)496, samus.Position.Y.Whole, "Kraid's upward push stops at the ejection limit's Y");

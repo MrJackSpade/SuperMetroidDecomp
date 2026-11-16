@@ -54,8 +54,14 @@ internal static class RidleyFlightTailVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> tail = enemies.RidleyTail.TickRidleyTail;
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        // Samus's beams and missiles, none fired, as the tail's whip sees them.
+        SamusProjectileSystem tailProjectiles = InstalledFixtures.CreateProjectileSystem();
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> tail = (ridley, ridleyState, target) =>
+            enemies.RidleyTail.TickRidleyTail(ridley, ridleyState, target, tailProjectiles);
+        // The power bomb explosion of idle bombs, none exploding, which a missed lunge would dodge.
+        var powerBomb = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePowerBombExplosion();
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
+            enemies.RidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, powerBomb);
         var place = enemies.Places.InUpdateOrder[0];
         place.Position = place.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
@@ -87,7 +93,9 @@ internal static class RidleyFlightTailVerification
         run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyTailAction.Neutral, state.TailAction, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
-        Action<RidleyEnemyState, SamusState, int> aim = (state, samus, turnsBeyond) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, turnsBeyond);
+        // Samus's beams and missiles as each aim sees them; none fired until the check fires a missile.
+        SamusProjectileSystem aimedProjectiles = InstalledFixtures.CreateProjectileSystem();
+        Action<RidleyEnemyState, SamusState, int> aim = (state, samus, turnsBeyond) => RidleyTail.AimCeresRidleyTailWhip(state, samus, aimedProjectiles, turnsBeyond);
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
@@ -100,18 +108,18 @@ internal static class RidleyFlightTailVerification
         projectiles.Pool.ShotCount.Restore(1);
         projectiles.Shots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Shots[0].Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
-        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, projectiles, new SuperMetroid.Core.Samus.Colours.SamusColours());
+        aimedProjectiles = projectiles;
         aim(state, samus, 0);
         RidleyTailAngle? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
-        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), new SuperMetroid.Core.Samus.Colours.SamusColours());
+        aimedProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         aim(state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
         int advances = 0;
         enemies.VerificationServices().ReadRandom = () => seed;
         enemies.VerificationServices().NextRandom = () => { advances++; return 0; };
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> neutral = (ridley, state, samus) => enemies.RidleyTail.HandleCeresRidleyNeutralTailControl(ridley, state, samus, aimedProjectiles);
         state.IdleTailWhipEnabled = true;
         state.TailSegments[0].Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
         foreach (var segment in state.TailSegments) segment.Active = true;

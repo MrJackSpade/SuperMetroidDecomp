@@ -29,7 +29,6 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftIdle, 0x9889),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyDying, 0x989b),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyDyingExplosions, 0x98a5),
-        new DraygonNativeListAddressesEntry(DraygonSegment.BodyDyingExplosionsLoop, 0x98bf),
         new DraygonNativeListAddressesEntry(DraygonSegment.Delete, 0x98ed),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftFireGoop, 0x98fe),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftRoar, 0x9922),
@@ -123,10 +122,10 @@ internal static class DraygonNativeListAddresses
         0x9e0a => new DraygonCue.ShiftBodyPicture(new(-unchecked((short)operands[0]), -unchecked((short)operands[1]))),
         0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
         0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Room, operands[0])),
-        0x973f => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DustCloud),
-        0x9752 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SporeSpawnDyingExplosion),
-        0x9765 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BotwoonLargeExplosion),
-        0x9778 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubble),
+        0x973f => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigDustCloud),
+        0x9752 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SmallExplosion),
+        0x9765 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigExplosion),
+        0x9778 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles),
         0x98d3 => DraygonCue.ParalyseTailAndArms.Instance,
         0x98ef => DraygonCue.SetBodyIntangible.Instance,
         0x9f57 => new DraygonCue.SetBodyPhase(BodyPhases[operands[0]]),
@@ -147,7 +146,6 @@ internal static class DraygonNativeListAddresses
         new ProjectileEntry(DraygonProjectileSegment.Goop, 0x8c3a),
         new ProjectileEntry(DraygonProjectileSegment.GoopShot, 0x8c58),
         new ProjectileEntry(DraygonProjectileSegment.WallTurretBloom, 0x8ca4),
-        new ProjectileEntry(DraygonProjectileSegment.WallTurretFlight, 0x8ce6),
     ];
 
     /// <summary>The bank-$86 callbacks the projectile lists use and the cue each must become.</summary>

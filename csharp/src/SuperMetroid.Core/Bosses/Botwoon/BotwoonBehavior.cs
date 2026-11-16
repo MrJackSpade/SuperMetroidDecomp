@@ -176,7 +176,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
             case BotwoonPhase.WaitForBody:
                 if (state.LastBodySegmentLanded)
-                    BeginBotwoonWallExplosions(head, state);
+                    BeginBotwoonWallExplosions(head, state, samus);
                 break;
 
             case BotwoonPhase.WallExplosions:
@@ -676,7 +676,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Requests the crumble room object and sixteen RNG-positioned drops before wall explosions.</summary>
-    private void BeginBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state)
+    private void BeginBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state, SamusState samus)
     {
         state.Phase = BotwoonPhase.WallExplosions;
         _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
@@ -693,7 +693,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 BotwoonDeathDefinitions.DropY.Of(random) + BotwoonDeathDefinitions.DropTop);
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 position,
-                head.Definition.DropChances);
+                head.Definition.DropChances,
+                samus);
         }
         state.WallExplosionFrame = 0;
         state.LargeExplosionTimer = 0;
@@ -723,7 +724,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 _effectActors.SpawnRoomEffectActor(
                     new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + BotwoonDeathDefinitions.LargeExplosionLeft,
                         state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
-                    RoomEffectActorKind.BotwoonLargeExplosion,
+                    RoomEffectActorKind.BigExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
@@ -736,7 +737,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                     _effectActors.SpawnRoomEffectActor(
                         new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + BotwoonDeathDefinitions.SmallExplosionLeft,
                             state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
-                        RoomEffectActorKind.BotwoonSmallExplosion,
+                        RoomEffectActorKind.SmokePuff,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }
@@ -849,7 +850,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Resolves Samus contact while preserving Botwoon's special zero-health tail.</summary>
     internal void ReactToBotwoonTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         ResolveBotwoonCombatAfterCommon(context.Place);
     }
     /// <summary>Spawns one of Botwoon's body segments.</summary>

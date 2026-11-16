@@ -64,7 +64,7 @@ internal static class TorizoProjectileAnimationsVerification
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
         [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.PlaySound>("")),
         [NativeEnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled))),
-        [NativeEnemyProjectileInstruction.GotoY_Probability_1_4] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.GoToSometimes>("")),
+        [NativeEnemyProjectileInstruction.GotoY_Probability_1_4] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.MayTurnToSmoke))),
         [NativeEnemyProjectileInstruction.AimSuperMissile_Rightwards] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.AimSuperMissileTowardSamus))),
         [NativeEnemyProjectileInstruction.AimSuperMissile_Leftwards] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Exactly(new TorizoProjectileCue.Signal(TorizoProjectileCueKind.AimSuperMissileAwayFromSamus))),
         [NativeEnemyProjectileInstruction.XYRadiusInY] = new TorizoProjectileAnimationsWord(ProjectileWord.Cue, NativeCueShape<TorizoProjectileCue>.Of<TorizoProjectileCue.SetRadius>("")),
@@ -204,8 +204,9 @@ internal static class TorizoProjectileAnimationsVerification
                 // The replay's operand is the entry of its own run's list, which the oracle checks (CueRules.Replays).
                 AssertEqual(2, operands.Length, $"{at}: the replayed list's operand");
                 return;
-            case TorizoProjectileCue.GoToSometimes goToSometimes:
-                AssertEqual(Word(0), ProjectileEntry(goToSometimes.Target), $"{at}: branch target");
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
+                // The native branch names the smoke the owner turns the explosion into (#2167).
+                AssertEqual(Word(0), ProjectileEntry(TorizoAttacks.DeathSmoke), $"{at}: branch target");
                 return;
             case TorizoProjectileCue.SetRadius setRadius:
                 AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), setRadius.Radius, $"{at}: radius");

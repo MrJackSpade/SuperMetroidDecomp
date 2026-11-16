@@ -142,9 +142,13 @@ internal sealed class NorfairRidleyDeath
     /// Finishes the death. Ridley's defeat is recorded before his body is deleted, on the update his drops scatter and
     /// the elevator music is requested.
     /// </summary>
+    /// <param name="body">Ridley's body.</param>
+    /// <param name="state">Ridley's state.</param>
+    /// <param name="samus">Samus, whose energy and ammunition each drop's roll reads.</param>
     internal void TickNorfairRidleyDeathFinish(
         RoomEnemyPlace body,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        SamusState samus)
     {
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
@@ -156,6 +160,7 @@ internal sealed class NorfairRidleyDeath
         // retain Ridley's definition themselves.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Ridley,
+            samus: samus,
             count: 16,
             xBase: 64,
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
@@ -260,7 +265,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>
-    internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment)
+    internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment, SamusState samus)
     {
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
             fragment.Presence = fragment.Presence.With(EnemyPresence.Hidden);
@@ -281,6 +286,6 @@ internal sealed class NorfairRidleyDeath
 
         // The breakup actor runs the small enemy death: clear the place immediately and
         // retain the fragment's definition and position in the shared explosion-to-pickup actor.
-        _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: EnemyDeathExplosion.Small);
+        _deathsAndDrops.StartGenericEnemyDeath(fragment, EnemyDeathExplosion.Small, samus);
     }
 }

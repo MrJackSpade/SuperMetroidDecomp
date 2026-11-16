@@ -94,10 +94,10 @@ internal static class CrocomireSkeletonArtworkVerification
             SetRuntimeFields(system, guard, vram);
             for (int index = 0; index < CrocomireSkeletonLookDefinitions.BaringDuration; index++)
             {
-                AssertTrue(!system.Room.Session.Looks.Shows(CrocomireSkeletonLookDefinitions.SkeletonLook), $"the skeleton is not yet bared before baring update {index}");
+                AssertTrue(!system.Presentation.Looks.Shows(CrocomireSkeletonLookDefinitions.SkeletonLook), $"the skeleton is not yet bared before baring update {index}");
                 BareSkeleton(system, state);
             }
-            AssertTrue(system.Room.Session.Looks.Shows(CrocomireSkeletonLookDefinitions.SkeletonLook), "the skeleton look shows from the baring's last update");
+            AssertTrue(system.Presentation.Looks.Shows(CrocomireSkeletonLookDefinitions.SkeletonLook), "the skeleton look shows from the baring's last update");
             BareSkeleton(system, state);
             // The skeleton's chunks as its sheets picture them: every copy of the skeleton look in order (#1406, #1538).
             var characters = new byte[SpriteArtworkPlacements.TableByteCount];

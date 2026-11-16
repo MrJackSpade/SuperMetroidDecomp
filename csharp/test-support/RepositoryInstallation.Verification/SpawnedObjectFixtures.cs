@@ -106,7 +106,7 @@ internal static class SpawnedObjectFixtures
         foreach (ComposedEncounter encounter in Enum.GetValues<ComposedEncounter>())
         {
             if (EncounterLookUploads.ShownAs(encounter) is EncounterArtwork shown && drawings.For(encounter) is { Looks: [int first and > 0, ..] })
-                enemies.Room.Session.Looks.Show(new EncounterLook(shown, EncounterLookUploads.Looks(encounter)[first]));
+                enemies.Presentation.Looks.Show(new EncounterLook(shown, EncounterLookUploads.Looks(encounter)[first]));
         }
     }
 
@@ -126,7 +126,7 @@ internal static class SpawnedObjectFixtures
     {
         ArgumentNullException.ThrowIfNull(state);
         EnemySession session = EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles);
-        var presentation = new EnemyPresentation(session, new SuperMetroid.Core.Compatibility.SharedFadeStepCount());
+        var presentation = new EnemyPresentation(session, new SuperMetroid.Core.Enemies.Artwork.EncounterLooks(), new SuperMetroid.Core.Compatibility.SharedFadeStepCount());
         presentation.DrawPopulation(FixturePopulationSets.Drawing(RoomEnemyGraphicsSetLists.Of(state)));
         return presentation;
     }

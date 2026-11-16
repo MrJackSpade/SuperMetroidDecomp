@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -40,6 +41,12 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
     /// <summary>What gameplay shows over the room's load (#1466), which the room objects and enemies the load builds show into.</summary>
     public RoomAppearance Appearance { get; } = new();
+
+    /// <summary>
+    /// The look each of the room's encounters shows (#1538, #2160), which the enemies the load builds show into: each starts
+    /// at the look the room's load gives it.
+    /// </summary>
+    public EncounterLooks Looks { get; } = new();
 
     /// <summary>The level allocation, once the level step has run.</summary>
     public RoomLevelData? LevelData { get; set; }
@@ -108,6 +115,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Camera = Camera ?? throw Missing(nameof(Camera)),
         ArtworkFrames = ArtworkFrames,
         Appearance = Appearance,
+        Looks = Looks,
         BlockPictures = new RoomBlockPictureResolver(Assets.BlockSheet),
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(

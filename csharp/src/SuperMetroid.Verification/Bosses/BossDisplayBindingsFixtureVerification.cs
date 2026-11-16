@@ -122,7 +122,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void DrawInto(SpriteFrameBuffer frame)
         {
             Enemies.Drawing.Advance(new(0, 0));
-            Enemies.Drawing.Draw(frame, new(0, 0));
+            Enemies.Drawing.Draw(frame, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
         }
 
 

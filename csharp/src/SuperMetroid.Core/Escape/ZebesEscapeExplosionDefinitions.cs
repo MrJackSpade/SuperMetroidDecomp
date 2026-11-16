@@ -12,15 +12,15 @@ internal static class ZebesEscapeExplosionDefinitions
 
     /// <summary>A small explosion that sounds the small-explosion sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SoundingSmallExplosion =
-        new(RoomEffectActorKind.SporeSpawnDyingExplosion, SmallExplosionSound);
+        new(RoomEffectActorKind.SmallExplosion, SmallExplosionSound);
 
     /// <summary>A small explosion that makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SilentSmallExplosion =
-        new(RoomEffectActorKind.SporeSpawnDyingExplosion, null);
+        new(RoomEffectActorKind.SmallExplosion, null);
 
     /// <summary>A small dust cloud, which makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SmallDustCloud =
-        new(RoomEffectActorKind.BotwoonSmallExplosion, null);
+        new(RoomEffectActorKind.SmokePuff, null);
 
     /// <summary>A smoke cloud that sounds the big-explosion sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition SoundingSmoke =
@@ -36,7 +36,7 @@ internal static class ZebesEscapeExplosionDefinitions
 
     /// <summary>A big dust cloud, which makes no sound.</summary>
     internal static readonly ZebesEscapeExplosionDefinition BigDustCloud =
-        new(RoomEffectActorKind.DustCloud, null);
+        new(RoomEffectActorKind.BigDustCloud, null);
 
     /// <summary>
     /// The eight equally likely explosions a draw that names one chooses from, in the draw's order: two small explosions,

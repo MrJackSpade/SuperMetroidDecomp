@@ -1,9 +1,11 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 

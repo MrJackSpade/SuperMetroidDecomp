@@ -89,8 +89,6 @@ internal static class EnemyProjectileMotionWords
         [0xb38a] = TorizoProjectileMotion.EyeBeamFlying,
         [0xba37] = TourianStatueDecorationMotion.FollowingReveal,
         [0xba42] = TourianStatueDecorationMotion.Settled,
-        [0xbe03] = ShaktoolCircleMotion.Leading,
-        [0xbe12] = ShaktoolCircleMotion.Trailing,
         [0xe4fe] = SingleMotion.Moving,
         [0xb535] = SingleMotion.Moving,
         [0x940e] = RidleyFireballMotion.FireballFlying,

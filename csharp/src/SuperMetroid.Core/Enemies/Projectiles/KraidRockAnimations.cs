@@ -14,16 +14,16 @@ internal static class KraidRockAnimations
     internal static AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments { get; } = new(
         new Dictionary<KraidRockSegment, Beat[]>
         {
-            [KraidRockSegment.SharedPose] = [new Beat.HeldFrame(EnemyProjectileFrameId.KraidRock)],
-            [KraidRockSegment.RisingRightPose] = [new Beat.HeldFrame(EnemyProjectileFrameId.KraidRockRisingRightPose)],
+            [KraidRockSegment.SharedPose] = [new Beat.HeldFrame(EnemyProjectileFrameId.KraidRockLarge)],
+            [KraidRockSegment.RisingRightPose] = [new Beat.HeldFrame(EnemyProjectileFrameId.KraidRockSmall)],
             [KraidRockSegment.SpitRockShot] =
             [
                 new Beat.Event(KraidRockCue.DrawFromSharedSheetFromNextPass),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockBurstFirst, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockBurstSecond, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockBurstThird, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockBurstFourth, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockBurstFifth, 4),
+                new Beat.Frame(EnemyProjectileFrameId.KraidRockSpark, 4),
+                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareBall, 4),
+                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRingCored, 4),
+                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRing, 4),
+                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRingFading, 4),
                 new Beat.Event(KraidRockCue.Delete),
             ],
         });

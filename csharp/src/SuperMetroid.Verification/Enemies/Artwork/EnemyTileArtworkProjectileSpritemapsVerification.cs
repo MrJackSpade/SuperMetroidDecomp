@@ -293,7 +293,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }
         }
         // $86:D5F2 selects the second operand on this even frame; reflected X remains 128.
-        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, EnemyProjectileFrameId.NoobTubeShardDownOutwardFlyingMirrored, bus);
+        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, EnemyProjectileFrameId.NoobTubeShardDownOutwardMirrored, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             NewEnemyProjectileVisualGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
@@ -532,17 +532,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>
                 $"({oam.LowTable[record * 4]:X2},{oam.LowTable[(record * 4) + 1]:X2},{oam.LowTable[(record * 4) + 2]:X2},{oam.LowTable[(record * 4) + 3]:X2})"));
 
-        // A frame on no sheet, so no set loads it (#1513): one showing the empty spritemap draws nothing, and these are never
-        // started: no code spawns the Wrecked Ship Chozo's spike-clearing explosions or Shaktool's attack circles. Any other
-        // frame a spawn table lacks fails loudly in the set load, as a frame the game can draw must be on a sheet.
-        static bool IsOnNoSheet(EnemyProjectileFrameId frame)
-        {
-            return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame)
-                || frame is EnemyProjectileFrameId.ShaktoolFrontFirst or EnemyProjectileFrameId.ShaktoolFrontSecond
-                    or EnemyProjectileFrameId.ShaktoolFrontLoop or EnemyProjectileFrameId.ShaktoolMiddleFirst
-                    or EnemyProjectileFrameId.ShaktoolMiddleSecond or EnemyProjectileFrameId.ShaktoolMiddleLoop
-                    or EnemyProjectileFrameId.ShaktoolBack or EnemyProjectileFrameId.ShaktoolBackLoop;
-        }
+        // A frame on no sheet, so no set loads it (#1513): one showing the empty spritemap draws nothing. Any other frame a
+        // spawn table lacks fails loudly in the set load, as a frame the game can draw must be on a sheet.
+        static bool IsOnNoSheet(EnemyProjectileFrameId frame) =>
+            SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame);
 
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)
         {

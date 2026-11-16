@@ -76,10 +76,6 @@ internal enum YardSegment
     HidingUpsideRightMovingDown,
     /// <summary>The airborne facing left animation.</summary>
     AirborneFacingLeft,
-    /// <summary>The airborne facing left loop animation.</summary>
-    AirborneFacingLeftLoop,
     /// <summary>The airborne facing right animation.</summary>
     AirborneFacingRight,
-    /// <summary>The airborne facing right loop animation.</summary>
-    AirborneFacingRightLoop,
 }

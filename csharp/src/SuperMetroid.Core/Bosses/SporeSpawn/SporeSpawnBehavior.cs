@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -251,7 +252,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             _ = _effectActors.SpawnRoomEffectActor(
                 new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + 96, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + 480),
-                RoomEffectActorKind.DustCloud,
+                RoomEffectActorKind.BigDustCloud,
                 graphics: default);
         }
     }
@@ -393,7 +394,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                     deathsAndDrops.QueueEnemyKilledSound();
                     return;
                 case SporeSpawnProjectileCue.RequestDrop:
-                    RequestSporeSpawnSporeDrop(projectile);
+                    RequestSporeSpawnSporeDrop(projectile, context.Samus);
                     return;
                 case SporeSpawnProjectileCue.Delete:
                     projectile.Delete();
@@ -445,7 +446,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>Runs the spore's drop-request step.</summary>
-        private void RequestSporeSpawnSporeDrop(EnemyProjectile spore)
+        private void RequestSporeSpawnSporeDrop(EnemyProjectile spore, SamusState samus)
         {
             if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
             {
@@ -454,7 +455,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             deathsAndDrops.SpawnEnemyDropFromDefinition(
                 spore.Position.Whole,
-                EnemyDefinitionId.SporeSpawnStalk);
+                EnemyDefinitionId.SporeSpawnStalk,
+                samus);
         }
     }
 
@@ -465,7 +467,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Plays Spore Spawn's body animation in place of the shared enemy animation.</summary>
-    internal void AdvanceSporeSpawnAnimation(RoomEnemyPlace body)
+    internal void AdvanceSporeSpawnAnimation(RoomEnemyPlace body, SamusState samus)
     {
         if (!body.AnimationClock.Expire())
             return;
@@ -475,7 +477,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyAnimationPlayback.Play(body, SporeSpawnAnimations.Segments, ref playback,
             cue =>
             {
-                ApplySporeSpawnCue(body, state, cue);
+                ApplySporeSpawnCue(body, state, cue, samus);
                 return null;
             });
         state.BodyPlayback = playback;
@@ -527,7 +529,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Spore Spawn has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         ResolveSporeSpawnDeathAfterCommon(context.Place);
     }
     /// <summary>
@@ -615,7 +617,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
-    internal void ApplySporeSpawnCue(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnCue cue)
+    internal void ApplySporeSpawnCue(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnCue cue, SamusState samus)
     {
         switch (cue)
         {
@@ -642,7 +644,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.RequestDeathDrops }:
-                RequestSporeSpawnDeathDrops();
+                RequestSporeSpawnDeathDrops(samus);
                 return;
             case SporeSpawnCue.SetMovement setMovement:
                 state.Movement = setMovement.Movement;
@@ -702,19 +704,19 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int random = _room.Random.Generate();
         _ = _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - 32)),
-            RoomEffectActorKind.SporeSpawnDyingExplosion,
+            RoomEffectActorKind.SmallExplosion,
             graphics: default);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }
 
     /// <summary>Generates sixteen RNG-positioned boss drops.</summary>
-    private void RequestSporeSpawnDeathDrops()
+    private void RequestSporeSpawnDeathDrops(SamusState samus)
     {
         for (int index = 0; index < 16; index++)
         {
             int random = _room.Random.Generate();
             Position16<RoomPixels> drop = new(SporeSpawnRandomDefinitions.DropX.Of(random) + 64, SporeSpawnRandomDefinitions.DropY.Of(random) + 528);
-            _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn);
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn, samus);
         }
     }
     /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>

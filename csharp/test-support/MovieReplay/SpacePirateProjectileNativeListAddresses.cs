@@ -13,13 +13,9 @@ internal static class SpacePirateProjectileNativeListAddresses
     internal static readonly NativeProgramEntry<SpacePirateProjectileSegment>[] Entries =
     [
         new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserLeft, SpacePirateProjectileInstructionProgramDefinitions.LaserLeft),
-        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop),
         new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserRight, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight),
-        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop),
         new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawLeft, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft),
-        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop),
         new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawRight, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight),
-        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop),
     ];
 
     /// <summary>The family's typed programs beside their native lists.</summary>

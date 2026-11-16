@@ -5,8 +5,6 @@ internal enum RidleyFireballSegment
 {
     /// <summary>The launching fireball.</summary>
     Fireball,
-    /// <summary>The flying fireball's loop.</summary>
-    FireballLoop,
     /// <summary>A directional afterburn's dying puff after it hits a wall.</summary>
     AfterburnFinal,
     /// <summary>The impact center that emits a horizontal pair.</summary>

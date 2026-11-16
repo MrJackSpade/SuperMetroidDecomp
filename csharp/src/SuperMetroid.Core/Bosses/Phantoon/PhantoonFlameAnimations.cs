@@ -26,57 +26,57 @@ internal static class PhantoonFlameAnimations
     {
         [P.DestroyableIdle] =
         [
-            Show(EnemyProjectileFrameId.PhantoonDestroyableIdleFirst, 5),
-            Show(EnemyProjectileFrameId.PhantoonDestroyableIdleSecond, 5),
-            Show(EnemyProjectileFrameId.PhantoonDestroyableIdleThird, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameRingedEye, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameBrightEye, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameFlickering, 5),
         ],
-        [P.CasualHitGround] = [Show(EnemyProjectileFrameId.PhantoonDestroyableIdleFifth, 1)],
+        [P.CasualHitGround] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashed, 1)],
         [P.CasualBouncing] =
         [
-            Show(EnemyProjectileFrameId.PhantoonCasualBouncingFirst, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualBouncingSecond, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualBouncingThird, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameRingedEyeTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameBrightEyeTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameFlickeringTwin, 5),
         ],
         [P.CasualResting] =
         [
-            Show(EnemyProjectileFrameId.PhantoonCasualBouncingFifth, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualBouncingSixth, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualRestingThird, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualRestingFourth, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualRestingFifth, 5),
-            Show(EnemyProjectileFrameId.PhantoonCasualRestingSixth, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameSwelling, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameLeaning, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameResting, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameRestingSwaying, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameRestingLow, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameRestingTwin, 5),
         ],
         [P.Dying] =
         [
-            Show(EnemyProjectileFrameId.PhantoonDyingFirst, 5),
-            Show(EnemyProjectileFrameId.PhantoonDyingSecond, 5),
-            Show(EnemyProjectileFrameId.PhantoonDyingThird, 5),
-            Show(EnemyProjectileFrameId.PhantoonDyingFourth, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameDying, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameGuttering, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameWisps, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameLastWisp, 5),
             Cue(PhantoonFlameCue.Delete),
         ],
-        [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonRainImpactFirst, 8)],
+        [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashedTwin, 8)],
         [P.CasualFalling] =
         [
-            Show(EnemyProjectileFrameId.PhantoonRainImpactFourth, 1),
-            Show(EnemyProjectileFrameId.PhantoonRainImpactFifth, 1),
-            Show(EnemyProjectileFrameId.PhantoonCasualFallingThird, 1),
-            Show(EnemyProjectileFrameId.PhantoonCasualFallingFourth, 1),
-            Show(EnemyProjectileFrameId.PhantoonCasualFallingFifth, 1),
-            Show(EnemyProjectileFrameId.PhantoonCasualFallingSixth, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameBlankTwin, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameBlankTwinB, 1),
         ],
         [P.StartingFlame] =
         [
-            Show(EnemyProjectileFrameId.PhantoonStartingFlameFirst, 5),
-            Show(EnemyProjectileFrameId.PhantoonStartingFlameSecond, 5),
-            Show(EnemyProjectileFrameId.PhantoonStartingFlameThird, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameKindlingTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameTeardropTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameSputteringTwin, 5),
         ],
         [P.Delete] = [Cue(PhantoonFlameCue.Delete)],
         [P.DestroyableShot] =
         [
-            Show(EnemyProjectileFrameId.PhantoonDestroyableShotFirst, 5),
-            Show(EnemyProjectileFrameId.PhantoonDestroyableShotSecond, 5),
-            Show(EnemyProjectileFrameId.PhantoonDestroyableShotThird, 5),
-            Show(EnemyProjectileFrameId.PhantoonDestroyableShotFourth, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameDyingTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameGutteringTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameWispsTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameLastWispTwin, 5),
             Cue(PhantoonFlameCue.SpawnDrop),
             Cue(PhantoonFlameCue.Delete),
         ],
@@ -84,7 +84,8 @@ internal static class PhantoonFlameAnimations
 
     /// <summary>
     /// How each flame animation plays its steps: the loops cycle for good, a resting or impacting flame runs on into dying,
-    /// and a falling flame plays each falling phase's poses four times, the three phases in turn for good.
+    /// which no owner starts on its own (#2166), and a falling flame plays each falling phase's poses four times, the three
+    /// phases in turn for good.
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
@@ -92,7 +93,6 @@ internal static class PhantoonFlameAnimations
         [P.CasualHitGround] = new([Whole(P.CasualHitGround)], AnimationEnd.Holds),
         [P.CasualBouncing] = new([Whole(P.CasualBouncing)], AnimationEnd.LoopsFrom(0)),
         [P.CasualResting] = new([Whole(P.CasualResting), Whole(P.Dying)], AnimationEnd.Holds),
-        [P.Dying] = new([Whole(P.Dying)], AnimationEnd.Holds),
         [P.RainImpact] = new([Whole(P.RainImpact), Whole(P.Dying)], AnimationEnd.Holds),
         [P.CasualFalling] = new([Falling(0), Falling(1), Falling(2)], AnimationEnd.LoopsFrom(0)),
         [P.StartingFlame] = new([Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),

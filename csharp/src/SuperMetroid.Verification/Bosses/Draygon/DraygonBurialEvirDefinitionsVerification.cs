@@ -54,8 +54,8 @@ internal static class DraygonBurialEvirDefinitionsVerification
         {
             // The cartridge spawns its last three entries as the left-facing intro Evir and its first three facing right.
             RoomEffectActorKind kind = entry >= 3
-                ? RoomEffectActorKind.DraygonIntroEvir
-                : RoomEffectActorKind.DraygonDeathEvirFacingRight;
+                ? RoomEffectActorKind.EvirFacingLeft
+                : RoomEffectActorKind.EvirFacingRight;
             DraygonBurialEvirDefinition definition = DraygonBurialEvirDefinitions.InSpawnOrder[5 - entry];
             Position16<RoomPixels> start = Position16<RoomPixels>.Zero + definition.Start;
             enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, definition);

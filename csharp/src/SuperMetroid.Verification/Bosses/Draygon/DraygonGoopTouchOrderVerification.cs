@@ -53,9 +53,7 @@ internal static class DraygonGoopTouchOrderVerification
                 powerBomb.Spawn(goop.Position.Whole);
                 PrivateState.Set(powerBomb.Blast, nameof(PowerBombBlastTimeline.ExplosionRadius), PowerBombRadius.FromWholePixels(32));
             }
-            enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, CreateProjectileFixture(), new SuperMetroid.Core.Samus.Colours.SamusColours(), powerBomb);
-
-            enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
+            enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus, samusBombs: runtime.BombProjectiles);
 
             string context = powerBombed ? "power-bombed goop at Samus" : "goop at Samus beyond the room edge";
             AssertEqual(1, samus.XSpeedDivisor, $"{context} attaches through its touch list");

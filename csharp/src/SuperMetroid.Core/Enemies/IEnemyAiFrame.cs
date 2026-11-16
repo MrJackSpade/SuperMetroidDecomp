@@ -30,6 +30,9 @@ internal interface IEnemyAiFrame
     /// <summary>Samus's beam and missile projectiles that main AI may inspect.</summary>
     SamusProjectileSystem SamusProjectiles { get; }
 
+    /// <summary>Samus's held charge, which a Pseudo Screw contact main AI resolves spends (#2159).</summary>
+    PseudoScrewCharge PseudoScrew { get; }
+
     /// <summary>The turning floor of Ceres Ridley's getaway shaft, which rotating actors follow, or null when none turns.</summary>
     TurningFloorTransform? TurningFloor { get; }
 

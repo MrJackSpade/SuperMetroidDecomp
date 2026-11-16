@@ -86,7 +86,7 @@ internal static class TorizoOwnershipVerification
         for (int update = 0; update < SparkUpdates; update++)
         {
             enemies.StepEnemyProjectiles(level, samus);
-            sparkedOn |= beam.Frame == EnemyProjectileFrameId.GoldenTorizoEyeBeamFloorImpactLoopSecond;
+            sparkedOn |= beam.Frame == EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameBurst;
         }
         AssertEqual(explosionsEnabled, sparkedOn,
             $"the eye beam's spark runs on only while its Golden Torizo enables its explosions (enabled {explosionsEnabled})");

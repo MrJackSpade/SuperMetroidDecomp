@@ -115,11 +115,14 @@ internal static class EnemyFormatDrawAccess
     /// <summary>Runs one enemy layer range's advance and publish passes.</summary>
     extension(EnemyDrawList drawing)
     {
-        /// <summary>Advances and draws an inclusive layer range, appending its OAM image to <paramref name="oam"/>.</summary>
-        internal void DrawAsOam(OamBuffer oam, Position16<RoomPixels> camera)
+        /// <summary>
+        /// Advances and draws an inclusive layer range, appending its OAM image to <paramref name="oam"/>; Mother Brain's
+        /// brain reads <paramref name="samus"/>, or a new Samus when the check names none.
+        /// </summary>
+        internal void DrawAsOam(OamBuffer oam, Position16<RoomPixels> camera, SuperMetroid.Core.Samus.SamusState? samus = null)
         {
             drawing.Advance(camera);
-            oam.AppendDrawn(frame => drawing.Draw(frame, camera));
+            oam.AppendDrawn(frame => drawing.Draw(frame, camera, samus ?? RoomEnemyFrameFixtures.StandaloneSamus()));
         }
     }
 

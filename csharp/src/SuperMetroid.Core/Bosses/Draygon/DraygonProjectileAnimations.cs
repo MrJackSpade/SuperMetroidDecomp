@@ -21,51 +21,48 @@ internal static class DraygonProjectileAnimations
             [P.GoopTouch] = [Cue(DraygonProjectileCue.StickToSamus)],
             [P.Goop] =
             [
-                Show(EnemyProjectileFrameId.DraygonGoopFirst, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopSecond, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopThird, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopFourth, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopFifth, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopSixth, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopSpiky, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopPuffed, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopRounded, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopLopsided, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopRoundedTwin, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopPuffedTwin, 10),
             ],
             [P.GoopShot] =
             [
-                Show(EnemyProjectileFrameId.DraygonGoopShotFirst, 8),
-                Show(EnemyProjectileFrameId.DraygonGoopShotSecond, 8),
+                Show(EnemyProjectileFrameId.DraygonGoopCurled, 8),
+                Show(EnemyProjectileFrameId.DraygonGoopScattered, 8),
                 Cue(DraygonProjectileCue.SpawnDrops),
                 Cue(DraygonProjectileCue.Delete),
             ],
             [P.WallTurretBloom] =
             [
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFirst, 5),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSecond, 4),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomThird, 3),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFourth, 3),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFifth, 3),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSixth, 3),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSeventh, 4),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomEighth, 3),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomNinth, 2),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomTenth, 2),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomEleventh, 2),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomTwelfth, 2),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomThirteenth, 10),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFourteenth, 10),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomFifteenth, 10),
-                Show(EnemyProjectileFrameId.DraygonWallTurretBloomSixteenth, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksApart32, 5),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksApart28, 4),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksApart24, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksApart20, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksApart16, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksApart14, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksTwistedApart32, 4),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksTwistedApart28, 3),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksTwistedApart24, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksTwistedApart20, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksTwistedApart16, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretSparksTwistedApart14, 2),
+                Show(EnemyProjectileFrameId.DraygonWallTurretGlowFaint, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretGlowDim, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretGlowBright, 10),
+                Show(EnemyProjectileFrameId.DraygonWallTurretOrbForming, 10),
                 Cue(DraygonProjectileCue.Fire),
-            ],
-            [P.WallTurretFlight] =
-            [
-                Show(EnemyProjectileFrameId.DraygonWallTurretFlightFirst, 8),
-                Show(EnemyProjectileFrameId.DraygonWallTurretFlightSecond, 8),
-                Show(EnemyProjectileFrameId.DraygonWallTurretFlightThird, 8),
+                Show(EnemyProjectileFrameId.DraygonWallTurretOrbBright, 8),
+                Show(EnemyProjectileFrameId.DraygonWallTurretOrbFlickering, 8),
+                Show(EnemyProjectileFrameId.DraygonWallTurretOrbDimmed, 8),
             ],
         });
 
     /// <summary>
     /// The animation that starts at each segment: the touch runs on into the goop loop, the burst holds after its deletion,
-    /// and the bloom fires and runs on into the flight loop.
+    /// and the wall turret's shot blooms and fires once, then loops its flight (#2166).
     /// </summary>
     internal static IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt { get; } =
         new Dictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>>
@@ -73,9 +70,15 @@ internal static class DraygonProjectileAnimations
             [P.GoopTouch] = new([Whole(P.GoopTouch), Whole(P.Goop)], AnimationEnd.LoopsFrom(1)),
             [P.Goop] = new([Whole(P.Goop)], AnimationEnd.LoopsFrom(0)),
             [P.GoopShot] = new([Whole(P.GoopShot)], AnimationEnd.Holds),
-            [P.WallTurretBloom] = new([Whole(P.WallTurretBloom), Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(1)),
-            [P.WallTurretFlight] = new([Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(0)),
+            [P.WallTurretBloom] = new([new(P.WallTurretBloom, 0, WallTurretBloomBeats, 1), new(P.WallTurretBloom, WallTurretBloomBeats, WallTurretFlightBeats, 1)],
+                AnimationEnd.LoopsFrom(1)),
         };
+
+    /// <summary>The wall turret shot's bloom: its sixteen frames and the cue that fires it.</summary>
+    private const int WallTurretBloomBeats = 17;
+
+    /// <summary>The wall turret shot's flight, the three frames it loops once fired.</summary>
+    private const int WallTurretFlightBeats = 3;
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DraygonProjectileSegment> StartingWith(DraygonProjectileSegment segment) => StartingAt[segment];

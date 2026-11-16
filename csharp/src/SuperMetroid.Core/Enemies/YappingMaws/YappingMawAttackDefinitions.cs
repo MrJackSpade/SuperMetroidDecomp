@@ -6,6 +6,9 @@ internal static class YappingMawAttackDefinitions
     /// <summary>How near Samus may be, in pixels and exclusive, for the Maw to hold off its attack and keep refreshing its grab cooldown.</summary>
     internal const int GrabSafetyDistance = 32;
 
+    /// <summary>The links of the Maw's tongue, root to mouth (#2162).</summary>
+    internal const int TongueLinks = 4;
+
     /// <summary>The largest curl the tongue's four links take, in whole angle units.</summary>
     internal const int LargestCurl = 128;
 

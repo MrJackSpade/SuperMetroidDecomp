@@ -694,7 +694,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                     // The shot animation's drop step: the ball leaves Magdollite's drop.
                     deathsAndDrops.SpawnEnemyDropFromDefinition(
                         projectile.Position.Whole,
-                        EnemyDefinitionId.Magdollite);
+                        EnemyDefinitionId.Magdollite,
+                        context.Samus);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(MagdolliteLavaCueKind)} {cue.Kind}.");
@@ -737,7 +738,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
     internal void ReactToMagdolliteTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context);
         ResolveMagdolliteCombatAfterCommon(context.Place);
     }
 

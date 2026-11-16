@@ -82,7 +82,6 @@ internal static class ShaktoolInstructionDefinitionsVerification
         ShaktoolSegment[] steadyPrograms =
         [
             ShaktoolSegment.SawHandPrimaryPiece,
-            ShaktoolSegment.SawHandFinalPiece,
             ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegment.HeadAimingLeft,
             ShaktoolSegment.HeadAimingUpLeft,

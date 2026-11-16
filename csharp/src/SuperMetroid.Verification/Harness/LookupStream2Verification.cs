@@ -868,7 +868,7 @@ internal static class LookupStream2Verification
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
             var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
             projectile.DropChancesOverride = NativeDropChances;
-            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
+            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile, fixture.Samus),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
@@ -916,7 +916,7 @@ internal static class LookupStream2Verification
                 var state = enemies.NorfairPipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(roles[member].PostRiseAction, state.PostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action."),
+                AssertEqual(roles[member].PostRiseAction, state.PostRiseAction,
                     "Actual formation writes its role's stagger");
                 AssertEqual(roles[member].StaggerOffset, state.StaggerOffset, "Actual formation writes its role's stagger offset");
                 AssertEqual(NorfairPipeBugAction.Rise, state.Action, "Actual formation begins rising");
@@ -1193,7 +1193,7 @@ internal static class LookupStream2Verification
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(place);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineReadyingDuration,
-                enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
+                enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
                 "the gunship shows its takeoff look from the readying's last update only");
             enumerated++;
         }

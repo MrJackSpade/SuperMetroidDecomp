@@ -254,7 +254,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.ClearPhantoonDeathGraphics(body, state);
                 break;
             case PhantoonPhase.Dead:
-                Death.ActivateWreckedShipAfterPhantoon(body, state);
+                Death.ActivateWreckedShipAfterPhantoon(body, state, samus);
                 break;
             case PhantoonPhase.WaitingOnEye:
                 break;

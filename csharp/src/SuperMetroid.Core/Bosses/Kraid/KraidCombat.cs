@@ -89,7 +89,7 @@ internal sealed class KraidCombat
         _ = _access.RequireKraidState(context.Place);
         context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
         _access.Part(_parts.BottomLint).Phase = KraidPhase.LintFire;
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ internal sealed class KraidCombat
                 else
                 {
                     RoomEffectActor dud = _effectActors.SpawnRoomEffectActor(
-                        shot.Position, RoomEffectActorKind.EnemyProjectileDud, graphics: default);
+                        shot.Position, RoomEffectActorKind.DudShot, graphics: default);
                     bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
@@ -281,7 +281,7 @@ internal sealed class KraidCombat
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
-    internal void ResolveKraidBodyContact(RoomEnemyPlace body, KraidEnemyState state, SamusState samus)
+    internal void ResolveKraidBodyContact(RoomEnemyPlace body, KraidEnemyState state, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         if (!IsFighting(state.BodyState.Phase))
             return;
@@ -297,7 +297,7 @@ internal sealed class KraidCombat
             ? state.EjectionLimitY : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(KraidContactDefinitions.ExtraX, KraidContactDefinitions.ExtraY));
         if (samus.InvincibilityTimer.IsZero)
-            _collision.ResolveNormalEnemyTouch(body, samus);
+            _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>

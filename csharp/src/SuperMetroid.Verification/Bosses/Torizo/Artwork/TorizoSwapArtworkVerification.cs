@@ -73,7 +73,7 @@ internal static class TorizoSwapArtworkVerification
                     installed.Span[offset],
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             ShowTorizoArtwork(installedEnemies, installedPlace, site.Torizo, site.Look);
-            AssertTrue(installedEnemies.Room.Session.Looks.Shows(look),
+            AssertTrue(installedEnemies.Presentation.Looks.Shows(look),
                 $"production Torizo swap $AA:{instruction:X4} shows its look {look}");
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset], upload.Characters.Span[offset],
@@ -115,7 +115,7 @@ internal static class TorizoSwapArtworkVerification
             "Golden Torizo's initial look shows its awakening sheet");
         ShowTorizoArtwork(goldenEnemies, goldenPlace, EncounterArtwork.GoldenTorizo, goldenAwakening);
         EncounterLook goldenLook = goldenAwakening.Of(EncounterArtwork.GoldenTorizo);
-        AssertTrue(goldenEnemies.Room.Session.Looks.Shows(goldenLook), "Golden Torizo's first look is its awakening");
+        AssertTrue(goldenEnemies.Presentation.Looks.Shows(goldenLook), "Golden Torizo's first look is its awakening");
         AssertEqual(1, EncounterLookUploads.IndexOf(ComposedEncounter.GoldenTorizo, goldenLook.Name),
             "Golden Torizo's awakening is the first look after its room's load");
         EncounterArtworkUpload awakening = UploadsOf(goldenLook, stock).Single();

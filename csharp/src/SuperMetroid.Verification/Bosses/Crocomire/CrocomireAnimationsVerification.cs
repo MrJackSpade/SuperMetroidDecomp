@@ -45,9 +45,13 @@ internal static class CrocomireAnimationsVerification
             new NativeEnemyCueRules<CrocomireBodyCue>(
                 word => BodyCallbacks.ContainsKey(word) ? 0 : null,
                 (word, _, cue, at) => AssertEqual(BodyCallbacks[word], cue, $"{at}: cue")));
-        NativeEnemyAnimationOracle.CompareAnimations(lists, WithNativeRoarRunOn(lists));
+        // The closed-mouth loop is no animation of its own (#2166): the roar's mouth closing runs on into it, and the fight
+        // AI tells the two apart where it tests whether the roar has closed his mouth.
+        NativeEnemyAnimationOracle.CompareAnimations(lists, WithNativeRoarRunOn(lists),
+            onlyRunOnInto: new HashSet<CrocomireBodySegment> { CrocomireBodySegment.RoarCloseMouthLoop });
         AssertTrue(lists.Values.All(list => list.Controls.All(control =>
-                control.Kind is NativeEnemyControlKind.Goto or NativeEnemyControlKind.Sleep or NativeEnemyControlKind.RunOnIntoNext)),
+                control.Kind is NativeEnemyControlKind.Goto or NativeEnemyControlKind.Sleep or NativeEnemyControlKind.RunOnIntoNext
+                    or NativeEnemyControlKind.LoopStart)),
             "Crocomire's body lists use no stops, counters or waits");
         // Each list that runs on into the list authored next is followed by that list wherever an animation plays on from
         // it (#1938), which is where the body's resting segment moves on; the closed-mouth loop's run-on into the Power
@@ -261,7 +265,6 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, shot: 1);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);

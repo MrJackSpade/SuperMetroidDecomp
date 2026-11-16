@@ -253,7 +253,7 @@ internal static class LookupStream5Verification
             Action<PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
             Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
-            system.FrameContext.SeedFrame((ushort)(bucket << 1), InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours());
+            system.FrameContext.SeedFrame((ushort)(bucket << 1));
             body.Position = body.Position.WithWhole(new(128, 96)); state.PhaseTimer = 1; state.FlameRainRequested = true;
             begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
@@ -1035,7 +1035,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
         Action<YappingMawEnemyState,YappingMawAim> set = YappingMawBehavior.SetYappingMawHeldOffset;
         var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-        var state = new YappingMawEnemyState { DistanceToSamus = 32 };
+        var state = new YappingMawEnemyState { DistanceToSamus = 32, Links = [] };
         // The cartridge's held-offset table lists the aims clockwise from up, the order of the aim sequence.
         for (int direction = 0; direction < 8; direction++)
         {
@@ -1114,14 +1114,14 @@ internal static class LookupStream5Verification
             var expected = new FadeLevelColour(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & FadeLevelColour.FullLevel,
                 rom.ReadCartridgeByte(0x88ea8c + phase * 4) & FadeLevelColour.FullLevel,
                 rom.ReadCartridgeByte(0x88ea8d + phase * 4) & FadeLevelColour.FullLevel).ToColour();
-            AssertEqual(expected, MorphBallEyeGeometry.BeamColor(phase), "Native two-channel triangle intensities");
+            AssertEqual(expected, MorphBallEyeBeamDefinitions.CycleColors[phase], "Native two-channel triangle intensities");
             step();
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColourStep, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
             "the import rejects a mount direction past the four sides");
-        AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometry.BeamColor(16), "Beam phase bound");
+        AssertEqual(16, MorphBallEyeBeamDefinitions.CycleColors.Count, "the beam cycles through the cartridge's sixteen colours");
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
     }
 

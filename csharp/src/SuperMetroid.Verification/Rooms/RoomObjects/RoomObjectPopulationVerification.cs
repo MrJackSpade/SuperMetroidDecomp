@@ -1315,7 +1315,7 @@ internal static class RoomObjectPopulationVerification
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) });
         // The fixture room places no enemies, so loading it keeps the session's first set; a save room's own set holds
         // the electricity on its shared sheet, as entering a save room loads it (#1513).
-        SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricityStartFirst,
+        SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricityRaised32,
             SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
         enemies.SaveStationElectricity.Spawn(saveBlock);
 
@@ -1327,7 +1327,7 @@ internal static class RoomObjectPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricityStartFirst),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricityRaised32),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");

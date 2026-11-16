@@ -48,9 +48,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.Cry),
             Show(F.ProjectileAttackSeventh, 5),
             Show(F.ProjectileAttackEighth, 5),
-        ],
-        [P.ProjectileAttackLoop] =
-        [
             Cue(K.FightAi),
             Show(F.ProjectileAttackLoopFirst, 8),
             Show(F.ProjectileAttackLoopSecond, 7),
@@ -271,9 +268,6 @@ internal static class CrocomireBodyAnimations
             Show(F.ProjectileAttackFifth, 5),
             Cue(K.BigExplosionSound),
             Dust(-16),
-        ],
-        [P.PowerBombReactionMouthNotOpenLoop] =
-        [
             Show(F.ChargingFirst, 4),
             Cue(K.ShakeScreen),
             Step(CrocomireStepDefinitions.AdvanceRaisingDust),
@@ -340,9 +334,6 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(F.ProjectileAttackSixth, 2),
             Cue(K.FightAi),
-        ],
-        [P.NearSpikeWallChargeLoop] =
-        [
             Show(F.ChargingFirst, 3),
             Cue(K.ShakeScreen),
             Step(CrocomireStepDefinitions.AdvanceRaisingDust),
@@ -500,8 +491,7 @@ internal static class CrocomireBodyAnimations
     internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ProjectileAttack] = new([new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ProjectileAttackLoop] = new([new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ProjectileAttack] = new([new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttack, 29, 6, 1)], AnimationEnd.LoopsFrom(1)),
         [P.StepForwardAfterDelay] = new([new(P.StepForwardAfterDelay, 0, 1, 1), new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(1)),
         [P.StepForward] = new([new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(0)),
         [P.StepBack] = new([new(P.StepBack, 0, 1, 1), new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(6)),
@@ -510,13 +500,10 @@ internal static class CrocomireBodyAnimations
         [P.MovingClaws] = new([new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(3)),
         [P.Roar] = new([new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
         [P.RoarCloseMouth] = new([new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RoarCloseMouthLoop] = new([new(P.RoarCloseMouthLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerBombReactionMouthFullyOpen] = new([new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.PowerBombReactionMouthPartiallyOpen] = new([new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthNotOpen] = new([new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PowerBombReactionMouthNotOpenLoop] = new([new(P.PowerBombReactionMouthNotOpenLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.NearSpikeWallCharge] = new([new(P.NearSpikeWallCharge, 0, 37, 1), new(P.NearSpikeWallChargeLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.NearSpikeWallChargeLoop] = new([new(P.NearSpikeWallChargeLoop, 0, 26, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PowerBombReactionMouthFullyOpen] = new([new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpen, 25, 26, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.PowerBombReactionMouthPartiallyOpen] = new([new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpen, 25, 26, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.PowerBombReactionMouthNotOpen] = new([new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpen, 25, 26, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.NearSpikeWallCharge] = new([new(P.NearSpikeWallCharge, 0, 37, 1), new(P.NearSpikeWallCharge, 37, 26, 1)], AnimationEnd.LoopsFrom(1)),
         [P.BackOffFromSpikeWall] = new([new(P.BackOffFromSpikeWall, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MeltingOneTopRow] = new([new(P.MeltingOneTopRow, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MeltingOneTopTwoRows] = new([new(P.MeltingOneTopTwoRows, 0, 1, 1)], AnimationEnd.Holds),

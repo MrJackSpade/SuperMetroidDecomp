@@ -148,14 +148,14 @@ internal static class PhantoonDoorObjectsVerification
         // The power's return scatters Phantoon's drops, which choose by Samus's health and ammunition and redraw a zero
         // roll, so the fixture's random source yields a nonzero roll.
         enemies.VerificationServices().NextRandom = () => 0x5a5a;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 });
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         // The boss bit is the room services' to keep; this fixture has none, so the bit counts as already set.
         state.BossDefeatPersisted = true;
         state.PhaseTimer = 0;
         // Past the power's last step: this update completes the power coming back.
         state.BodyFade.Numerator = 14;
-        enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state);
+        enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state, samus);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, results.PhantoonDoor, "the power's return asks for the restored door");
 
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before = NativeTerrain(rom, Frames[0].Pointer, out _);

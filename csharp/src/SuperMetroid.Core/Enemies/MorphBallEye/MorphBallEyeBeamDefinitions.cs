@@ -7,8 +7,29 @@ internal static class MorphBallEyeBeamDefinitions
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
     internal static RgbColor InitialColor { get; } = new(132, 132, 0);
 
-    /// <summary>The beam cycles through sixteen colours.</summary>
-    internal const int ColorCycleLength = 16;
+    /// <summary>
+    /// The sixteen colours the full beam cycles through, one each update: red and green from intensity 16 down to 8 and
+    /// back up to 15, without blue.
+    /// </summary>
+    internal static IReadOnlyList<RgbColor> CycleColors { get; } =
+    [
+        new FadeLevelColour(16, 16, 0).ToColour(),
+        new FadeLevelColour(15, 15, 0).ToColour(),
+        new FadeLevelColour(14, 14, 0).ToColour(),
+        new FadeLevelColour(13, 13, 0).ToColour(),
+        new FadeLevelColour(12, 12, 0).ToColour(),
+        new FadeLevelColour(11, 11, 0).ToColour(),
+        new FadeLevelColour(10, 10, 0).ToColour(),
+        new FadeLevelColour(9, 9, 0).ToColour(),
+        new FadeLevelColour(8, 8, 0).ToColour(),
+        new FadeLevelColour(9, 9, 0).ToColour(),
+        new FadeLevelColour(10, 10, 0).ToColour(),
+        new FadeLevelColour(11, 11, 0).ToColour(),
+        new FadeLevelColour(12, 12, 0).ToColour(),
+        new FadeLevelColour(13, 13, 0).ToColour(),
+        new FadeLevelColour(14, 14, 0).ToColour(),
+        new FadeLevelColour(15, 15, 0).ToColour(),
+    ];
 
     /// <summary>How much faster the widening beam's half-width grows each update: a quarter step.</summary>
     internal static RotationAngle WidthGrowthStep { get; } = RotationAngle.FromSteps(0, 64);

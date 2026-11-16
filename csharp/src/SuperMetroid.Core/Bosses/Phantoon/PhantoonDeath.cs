@@ -17,7 +17,7 @@ internal sealed class PhantoonDeath
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Applies body colours and the background changes.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -192,7 +192,8 @@ internal sealed class PhantoonDeath
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>
     internal void ActivateWreckedShipAfterPhantoon(
         RoomEnemyPlace body,
-        PhantoonEnemyState state)
+        PhantoonEnemyState state,
+        SamusState samus)
     {
         if (state.PhaseTimer != 0)
         {
@@ -214,7 +215,8 @@ internal sealed class PhantoonDeath
             xBase: 64,
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 96,
-            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
+            samus: samus);
         // The body is deleted, and every other part takes the body's properties.
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Eye.Contact = body.Contact;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -28,6 +29,9 @@ internal sealed record RoomEnemySystemDependencies
 
     /// <summary>The area the room is in.</summary>
     public required AreaId Area { get; init; }
+
+    /// <summary>The look each of the room's encounters shows (#1538, #2160): the room scope's, which lives as long as the room.</summary>
+    public required EncounterLooks Looks { get; init; }
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }

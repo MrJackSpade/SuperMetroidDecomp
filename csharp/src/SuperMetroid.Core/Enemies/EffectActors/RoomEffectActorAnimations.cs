@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
-using P = SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorSegment;
+using P = SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind;
 
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
@@ -13,11 +13,11 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// </summary>
 internal static class RoomEffectActorAnimations
 {
-    /// <summary>Every room effect-actor animation.</summary>
-    internal static AnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
+    /// <summary>Every room effect actor's animation: one segment per kind, the beats that kind shows.</summary>
+    internal static AnimationSegments<RoomEffectActorKind, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RoomEffectActorKind, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
     {
-        [P.DraygonFoamingAtTheMouth] =
+        [P.DraygonFoam] =
         [
             Show(EnemyFrameId.EffectActorDraygonFoam9By8Risen0, 6),
             Show(EnemyFrameId.EffectActorDraygonFoam13By14Risen4, 6),
@@ -46,7 +46,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorDudShotThinRing, 4),
             Show(EnemyFrameId.EffectActorDudShotFadingRing, 4),
         ],
-        [P.SmallDudShot] =
+        [P.SmokePuff] =
         [
             Show(EnemyFrameId.EffectActorSmallDudShotPuff, 5),
             Show(EnemyFrameId.EffectActorSmallDudShotSmoke, 5),
@@ -54,7 +54,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorSmallDudShotSmokeRisen, 5),
             Show(EnemyFrameId.EffectActorSmallDudShotSmokeFading, 5),
         ],
-        [P.SpacePirateLandingDustCloud] =
+        [P.RisingDustPuff] =
         [
             Show(EnemyFrameId.EffectActorSmallDudShotPuff, 3),
             Show(EnemyFrameId.EffectActorSpacePirateLandingDustPuff, 3),
@@ -95,7 +95,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorBigDustCloudFading, 5),
             Show(EnemyFrameId.EffectActorBigDustCloudWisps, 5),
         ],
-        [P.ShortDraygonBreathBubbles] =
+        [P.DraygonBreathBubbles] =
         [
             Show(EnemyFrameId.EffectActorDraygonBreathBubbles6By7Risen0, 3),
             Show(EnemyFrameId.EffectActorDraygonBreathBubbles12By12Risen6, 3),
@@ -107,7 +107,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorDraygonBreathBubbles8By10Risen16, 3),
             Show(EnemyFrameId.EffectActorDraygonBreathBubbles4By6Risen14, 3),
         ],
-        [P.PuromiBody] =
+        [P.NuclearWaffleBody] =
         [
             Show(EnemyFrameId.EffectActorNuclearWaffleBodyTurned0, 3),
             Show(EnemyFrameId.EffectActorNuclearWaffleBodyTurned45, 3),
@@ -122,7 +122,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorNuclearWaffleBodyTurned180, 3),
             Show(EnemyFrameId.EffectActorNuclearWaffleBodyTurned315, 3),
         ],
-        [P.PuromiRightExplosion] =
+        [P.NuclearWaffleRightExplosion] =
         [
             Show(EnemyFrameId.EffectActorNuclearWaffleRightExplosionEmber, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleRightExplosionBall, 2),
@@ -132,7 +132,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorNuclearWaffleRightExplosionScattering, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleRightExplosionScattered, 2),
         ],
-        [P.PuromiLeftExplosion] =
+        [P.NuclearWaffleLeftExplosion] =
         [
             Show(EnemyFrameId.EffectActorNuclearWaffleLeftExplosionEmber, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleLeftExplosionBall, 2),
@@ -142,7 +142,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorNuclearWaffleLeftExplosionScattering, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleLeftExplosionScattered, 2),
         ],
-        [P.PuromiSplash] =
+        [P.NuclearWaffleSplash] =
         [
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 2),
@@ -309,7 +309,7 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorEvirFacingRightLegsTucked, 10),
             Show(EnemyFrameId.EffectActorEvirFacingRightLegsLowering, 10),
         ],
-        [P.EnemyHit] =
+        [P.HitBurst] =
         [
             Burst(HitBurstSpriteDefinitions.Tight, 2),
             Burst(HitBurstSpriteDefinitions.Opening, 2),
@@ -318,23 +318,26 @@ internal static class RoomEffectActorAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<RoomEffectActorSegment, Animation<RoomEffectActorSegment>> StartingAt { get; } = new Dictionary<RoomEffectActorSegment, Animation<RoomEffectActorSegment>>
+    /// <summary>
+    /// The animation each kind plays: its segment once and done, or, for a Metroid's electricity and shell, a first pass
+    /// and then the rest of its segment looping.
+    /// </summary>
+    internal static IReadOnlyDictionary<RoomEffectActorKind, Animation<RoomEffectActorKind>> StartingAt { get; } = new Dictionary<RoomEffectActorKind, Animation<RoomEffectActorKind>>
     {
-        [P.DraygonFoamingAtTheMouth] = new([new(P.DraygonFoamingAtTheMouth, 0, 8, 1)], AnimationEnd.Stops),
+        [P.DraygonFoam] = new([new(P.DraygonFoam, 0, 8, 1)], AnimationEnd.Stops),
         [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
         [P.DudShot] = new([new(P.DudShot, 0, 6, 1)], AnimationEnd.Stops),
-        [P.SmallDudShot] = new([new(P.SmallDudShot, 0, 5, 1)], AnimationEnd.Stops),
-        [P.SpacePirateLandingDustCloud] = new([new(P.SpacePirateLandingDustCloud, 0, 4, 1)], AnimationEnd.Stops),
+        [P.SmokePuff] = new([new(P.SmokePuff, 0, 5, 1)], AnimationEnd.Stops),
+        [P.RisingDustPuff] = new([new(P.RisingDustPuff, 0, 4, 1)], AnimationEnd.Stops),
         [P.Smoke] = new([new(P.Smoke, 0, 4, 1)], AnimationEnd.Stops),
         [P.BigExplosion] = new([new(P.BigExplosion, 0, 6, 1)], AnimationEnd.Stops),
         [P.ShortBigDustCloud] = new([new(P.ShortBigDustCloud, 0, 4, 1)], AnimationEnd.Stops),
         [P.BigDustCloud] = new([new(P.BigDustCloud, 0, 8, 1)], AnimationEnd.Stops),
-        [P.ShortDraygonBreathBubbles] = new([new(P.ShortDraygonBreathBubbles, 0, 9, 1)], AnimationEnd.Stops),
-        [P.PuromiBody] = new([new(P.PuromiBody, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PuromiRightExplosion] = new([new(P.PuromiRightExplosion, 0, 7, 1)], AnimationEnd.Stops),
-        [P.PuromiLeftExplosion] = new([new(P.PuromiLeftExplosion, 0, 7, 1)], AnimationEnd.Stops),
-        [P.PuromiSplash] = new([new(P.PuromiSplash, 0, 5, 1)], AnimationEnd.Stops),
+        [P.DraygonBreathBubbles] = new([new(P.DraygonBreathBubbles, 0, 9, 1)], AnimationEnd.Stops),
+        [P.NuclearWaffleBody] = new([new(P.NuclearWaffleBody, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.NuclearWaffleRightExplosion] = new([new(P.NuclearWaffleRightExplosion, 0, 7, 1)], AnimationEnd.Stops),
+        [P.NuclearWaffleLeftExplosion] = new([new(P.NuclearWaffleLeftExplosion, 0, 7, 1)], AnimationEnd.Stops),
+        [P.NuclearWaffleSplash] = new([new(P.NuclearWaffleSplash, 0, 5, 1)], AnimationEnd.Stops),
         [P.FallingSparkTrail] = new([new(P.FallingSparkTrail, 0, 4, 1)], AnimationEnd.Stops),
         [P.MetroidElectricity] = new([new(P.MetroidElectricity, 0, 31, 1), new(P.MetroidElectricity, 31, 31, 1)], AnimationEnd.LoopsFrom(1)),
         [P.MetroidShell] = new([new(P.MetroidShell, 0, 32, 1), new(P.MetroidShell, 32, 30, 1)], AnimationEnd.LoopsFrom(1)),
@@ -342,11 +345,11 @@ internal static class RoomEffectActorAnimations
         [P.YappingMawBaseFacingUp] = new([new(P.YappingMawBaseFacingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.EvirFacingLeft] = new([new(P.EvirFacingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.EvirFacingRight] = new([new(P.EvirFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EnemyHit] = new([new(P.EnemyHit, 0, 4, 1)], AnimationEnd.Stops),
+        [P.HitBurst] = new([new(P.HitBurst, 0, 4, 1)], AnimationEnd.Stops),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RoomEffectActorSegment> StartingWith(RoomEffectActorSegment segment) => StartingAt[segment];
+    /// <summary>The animation <paramref name="kind"/> plays from its spawn.</summary>
+    internal static Animation<RoomEffectActorKind> StartingWith(RoomEffectActorKind kind) => StartingAt[kind];
 
     /// <summary>Shows enemy-sheet frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Show(EnemyFrameId frame, int duration) =>

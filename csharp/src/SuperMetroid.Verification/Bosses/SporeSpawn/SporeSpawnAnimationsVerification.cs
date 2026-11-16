@@ -149,15 +149,14 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>
-    /// A projectile system with Spore Spawn loaded in slot zero, whose spores take his colours, and whose spore drops have
-    /// a Samus to read.
+    /// A projectile system with Spore Spawn loaded in slot zero, whose spores take his colours and whose spore drops roll
+    /// for the Samus each projectile pass hands them.
     /// </summary>
     private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.SporeSpawnBehavior.SporeSpawn = new SporeSpawnEnemyState(enemies.Places.InUpdateOrder[0]);
         enemies.VerificationServices().NextRandom = () => 1;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         return enemies;
     }
 
@@ -187,12 +186,12 @@ internal static class SporeSpawnAnimationsVerification
             BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.VerificationServices().NextRandom = () => 4660;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 });
+        SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         enemies.SporeSpawnBehavior.SporeSpawn = state;
 
         for (int frame = 0; frame < frames; frame++)
         {
-            EnemyAnimationPlayer.AdvanceAnimation(body, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(body, samus: samus, level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
         return new RunSporeSpawnProgramResult(enemies, body);

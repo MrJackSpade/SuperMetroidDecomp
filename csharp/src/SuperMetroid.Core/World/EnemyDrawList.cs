@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -125,8 +126,9 @@ internal sealed class EnemyDrawList
     /// </summary>
     /// <param name="sprites">The frame's sprite description; the occupants and the late draws write its sprites.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="samus">Samus, whom Mother Brain's brain animation reads as her late parts advance it.</param>
     /// <exception cref="InvalidOperationException">The draws were not prepared by <see cref="Advance"/>.</exception>
-    public void Draw(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    public void Draw(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
     {
         Ensure.NotNull(sprites);
         if (_prepared is not { } prepared)
@@ -154,7 +156,7 @@ internal sealed class EnemyDrawList
 
         // Mother Brain's late parts advance her brain, which reads the room's random numbers, after every queued
         // enemy's draw.
-        _motherBrainBehavior.Head.DrawMotherBrainBrainAndNeck(sprites, camera);
+        _motherBrainBehavior.Head.DrawMotherBrainBrainAndNeck(sprites, camera, samus);
         _deadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, camera);
     }
 

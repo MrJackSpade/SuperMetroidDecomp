@@ -29,7 +29,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         RoomLevelData level = CreateWorkRobotInstructionRoom();
         WorkRobotEnemyState state = enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].");
 
-        foreach (WorkRobotSegment program in Enum.GetValues<WorkRobotSegment>())
+        // Every animation an owner starts; the recoils run on from the shots (#2166).
+        foreach (WorkRobotSegment program in WorkRobotAnimations.StartingAt.Keys)
         {
             state.Playback = new(WorkRobotAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             for (int call = 0; call < 400; call++)

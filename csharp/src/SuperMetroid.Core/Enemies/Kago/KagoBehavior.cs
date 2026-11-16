@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -128,10 +129,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue);
+        public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
         /// <summary>Carries out one cue of the bugs' animations.</summary>
-        private void ApplyKagoBugCue(EnemyProjectile projectile, KagoBugProjectileCue cue)
+        private void ApplyKagoBugCue(EnemyProjectile projectile, KagoBugProjectileCue cue, SamusState samus)
         {
             switch (cue.Kind)
             {
@@ -142,7 +143,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                     StartKagoBugIdle(projectile);
                     break;
                 case KagoBugProjectileCueKind.SpawnDrop:
-                    RequestKagoBugDrop(projectile);
+                    RequestKagoBugDrop(projectile, samus);
                     break;
                 case KagoBugProjectileCueKind.DrawFromSharedSheet:
                     projectile.Graphics = SpriteGraphics.SharedStandard;
@@ -277,11 +278,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>Shot-animation cue: requests the bug's drop.</summary>
-        private void RequestKagoBugDrop(EnemyProjectile projectile)
+        private void RequestKagoBugDrop(EnemyProjectile projectile, SamusState samus)
         {
             deathsAndDrops.SpawnEnemyDropFromDefinition(
                 projectile.Position.Whole,
-                EnemyDefinitionId.Kago);
+                EnemyDefinitionId.Kago,
+                samus);
         }
     }
 

@@ -44,9 +44,6 @@ internal static class DraygonTurretCadenceVerification
 
         AssertEqual(1, StepWith(counter8: 0x01, counter16: 0x3000),
             "a $05B6 multiple of $40 runs the turret check, firing a wall turret, whatever $05B5 holds");
-        // #1620: the enemy pass hands the enemies the power bomb explosion of its frame's bombs, which Draygon's shots read.
-        AssertTrue(stepped is not null && ReferenceEquals(stepped.SharedProjectiles.PowerBombExplosion, runtime.Enemies.FrameContext.PowerBombExplosion),
-            "the enemy pass's frame context holds its frame's power bomb explosion");
         AssertEqual(0, StepWith(counter8: 0x40, counter16: 0x3001),
             "$05B5 alone never runs the turret check");
 
@@ -79,12 +76,11 @@ internal static class DraygonTurretCadenceVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
         PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.ExplosionRadius), PowerBombRadius.FromWholePixels(32));
-        runtime.Enemies.FrameContext.SeedPowerBombExplosion(explosion);
         runtime.Player.IntroducedSamus.XSpeedDivisor = 3;
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
-            samusBombs: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem(), frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
+            samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual(0, runtime.Player.IntroducedSamus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");

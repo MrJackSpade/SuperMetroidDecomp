@@ -19,7 +19,7 @@ internal static class PolypRockFrameToolingDefinitions
     /// <summary>The bank-$8D spritemap each frame's native operand selects.</summary>
     private static readonly Dictionary<EnemyProjectileFrameId, ushort> Spritemaps = new()
     {
-        [EnemyProjectileFrameId.PolypRockInitial] = 0x9340,
+        [EnemyProjectileFrameId.PolypRock] = 0x9340,
     };
     /// <summary>The frame whose installed artwork key is <paramref name="key"/>, if one is.</summary>
     internal static bool TryFrame(ushort key, out EnemyProjectileFrameId frame)

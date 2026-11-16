@@ -12,9 +12,14 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// does not keep (#1602) or because it has none (#1803); the oracle reads past it without a beat. Null when the owner
 /// omits none.
 /// </param>
+/// <param name="GoesTo">
+/// The native entry an owner routine only goes on to (#2167): a routine that loads the instruction pointer with another
+/// list and returns, which the oracle reads as that goto; null for any other word, or when the owner has none.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
     Func<TCue, bool>? EndsList = null,
-    Func<ushort, bool>? Omitted = null)
+    Func<ushort, bool>? Omitted = null,
+    Func<ushort, ushort?>? GoesTo = null)
     where TCue : notnull;

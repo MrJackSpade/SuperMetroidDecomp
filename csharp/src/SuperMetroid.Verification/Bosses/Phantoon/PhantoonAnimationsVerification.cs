@@ -144,7 +144,10 @@ internal static class PhantoonAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         VerifyFlameProducers();
-        foreach ((PhantoonFlameSegment program, ushort entry) in FlameEntries)
+        // The dying flame is no animation of its own (#2166): a resting flame and a rain impact run on into it, and their
+        // plays match its native list.
+        AssertTrue(!PhantoonFlameAnimations.StartingAt.ContainsKey(PhantoonFlameSegment.Dying), "no animation starts at the dying flame");
+        foreach ((PhantoonFlameSegment program, ushort entry) in FlameEntries.Where(item => item.Program != PhantoonFlameSegment.Dying))
         {
             RoomEnemySystem enemies = NewFlameSystem();
             EnemyProjectile flame = SpawnDestroyable(enemies, SpawnRageFlame, "rage");
@@ -166,7 +169,7 @@ internal static class PhantoonAnimationsVerification
                     AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }
             AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Phantoon flame {program}: drop requests");
-            bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.Dying or PhantoonFlameSegment.RainImpact
+            bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.RainImpact
                 or PhantoonFlameSegment.Delete or PhantoonFlameSegment.DestroyableShot;
             AssertEqual(deletes, native.Deleted, $"Phantoon flame {program}: deletion matches the native list");
         }
@@ -175,12 +178,11 @@ internal static class PhantoonAnimationsVerification
         Console.WriteLine($"  Phantoon flame programs: {FlameEntries.Length} programs match bank $86 every update, with the falling counter, drop request and deletion.");
     }
 
-    /// <summary>A projectile system whose drops have a Samus to read.</summary>
+    /// <summary>A projectile system whose flames' drops roll for the Samus each projectile pass hands them.</summary>
     private static RoomEnemySystem NewFlameSystem()
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = () => 128;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 });
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(128, 96));
         return enemies;

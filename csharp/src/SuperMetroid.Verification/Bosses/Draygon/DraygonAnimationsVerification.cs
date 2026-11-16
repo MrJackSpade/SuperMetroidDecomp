@@ -77,11 +77,14 @@ internal static class DraygonAnimationsVerification
         IReadOnlyList<AnimationBeat<DraygonFrame, DraygonCue>> beats = DraygonAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<DraygonSegment>>();
+        // The beat the reading stood before at each place it reached, the HUD-split callbacks it skips included (#2166).
+        var beatAt = new Dictionary<ushort, int>();
         ushort cursor = entry;
         while (true)
         {
             int beat = addresses.Count;
             string at = $"Draygon {segment} beat {beat}";
+            beatAt.TryAdd(cursor, beat);
             if (cursor != entry && ProgramAt(cursor) is { } next)
             {
                 controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
@@ -103,6 +106,15 @@ internal static class DraygonAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.GoTo:
+                    if (operand != entry && beatAt.TryGetValue(operand, out int loopBeat) && loopBeat > 0)
+                    {
+                        // A goto back to a beat its own list already showed (#2166) loops the list from there: the dying
+                        // explosions' lead-in plays once before their loop.
+                        controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
+                            new(NativeEnemyControlKind.LoopStart, loopBeat, segment, null, operand));
+                        controls.Add(new(NativeEnemyControlKind.Goto, beat, segment, null, cursor, loopBeat));
+                        return Finish();
+                    }
                     controls.Add(new(NativeEnemyControlKind.Goto, beat,
                         ProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));
                     return Finish();
@@ -254,8 +266,9 @@ internal static class DraygonAnimationsVerification
                 paralysed = true;
                 AssertEqual(Started(DraygonSegment.Rest), state.Playback(state.Tail), $"{at}: the tail sleeps");
                 AnimationPlayback<DraygonSegment> armsPlayback = state.Playback(arms);
-                AssertEqual(DraygonSegment.BodyDyingExplosionsLoop, armsPlayback.Animation.Phases[armsPlayback.Place.Phase].Segment,
-                    $"{at}: the running arms keep their own program, as the native final store replaces the paralysis");
+                AnimationPhase<DraygonSegment> running = armsPlayback.Animation.Phases[armsPlayback.Place.Phase];
+                AssertEqual((DraygonSegment.BodyDyingExplosions, 8), (running.Segment, running.FirstBeat),
+                    $"{at}: the running arms keep their own program, its explosions' loop, as the native final store replaces the paralysis");
             }
         }
         AssertTrue(paralysed, "the dying sequence reaches the paralysis");
@@ -283,7 +296,7 @@ internal static class DraygonAnimationsVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertEqual<Enum?>(DraygonShotMotion.GoopStuckToSamus, goop.Motion, "the goop touch sticks the goop to Samus");
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopFirst), goop.PresentationOperandAddress,
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopSpiky), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.FrameHold.RawValue, "the goop's first frame lasts ten updates");
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");
@@ -322,6 +335,15 @@ internal static class DraygonAnimationsVerification
             }
             if (IsProjectileGoTo(word))
             {
+                if (operand != entry && addresses.IndexOf(operand) is var loopBeat and > 0)
+                {
+                    // A goto back to a beat its own list already showed (#2166) loops the list from there: the wall
+                    // turret shot's bloom and firing play once before its flight loops.
+                    controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
+                        new(NativeEnemyControlKind.LoopStart, loopBeat, segment, null, operand));
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat, segment, null, cursor, loopBeat));
+                    return Finish();
+                }
                 if (ProjectileProgramAt(operand) is { } target)
                 {
                     controls.Add(new(NativeEnemyControlKind.Goto, beat, target, null, cursor));

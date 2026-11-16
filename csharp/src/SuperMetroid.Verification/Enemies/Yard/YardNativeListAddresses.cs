@@ -55,9 +55,7 @@ internal static class YardNativeListAddresses
         new NativeProgramEntry<YardSegment>(YardSegment.HidingUpsideLeftMovingDown, 0xcbd2),
         new NativeProgramEntry<YardSegment>(YardSegment.HidingUpsideRightMovingDown, 0xcbec),
         new NativeProgramEntry<YardSegment>(YardSegment.AirborneFacingLeft, 0xcc06),
-        new NativeProgramEntry<YardSegment>(YardSegment.AirborneFacingLeftLoop, 0xcc0e),
         new NativeProgramEntry<YardSegment>(YardSegment.AirborneFacingRight, 0xcc1e),
-        new NativeProgramEntry<YardSegment>(YardSegment.AirborneFacingRightLoop, 0xcc26),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

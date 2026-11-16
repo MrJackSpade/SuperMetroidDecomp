@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Animation;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>One piece of the broken n00b tube: the crack, a glass shard or a released-air bubble, and how it starts.</summary>
@@ -9,14 +7,14 @@ public sealed class NoobTubePiece
     /// <param name="definition">Which kind of piece it is.</param>
     /// <param name="offset">Where it appears from the tube's block.</param>
     /// <param name="velocity">The speed it starts with.</param>
-    /// <param name="animation">The animation it starts.</param>
+    /// <param name="start">How it starts moving.</param>
     internal NoobTubePiece(NoobTubeProjectileDefinition definition, Offset16<RoomPixels> offset, EightEightVector<RoomPixels> velocity,
-        Animation<NoobTubeProjectileSegment> animation)
+        NoobTubePieceStart start)
     {
         Definition = definition;
         Offset = offset;
         Velocity = velocity;
-        Animation = animation;
+        Start = start;
     }
 
     /// <summary>Which kind of piece it is: the crack, a glass shard or a released-air bubble.</summary>
@@ -31,6 +29,6 @@ public sealed class NoobTubePiece
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; }
 
-    /// <summary>The animation the piece starts.</summary>
-    internal Animation<NoobTubeProjectileSegment> Animation { get; }
+    /// <summary>How the piece starts moving, which the tube's behaviour turns into the animation it plays.</summary>
+    internal NoobTubePieceStart Start { get; }
 }

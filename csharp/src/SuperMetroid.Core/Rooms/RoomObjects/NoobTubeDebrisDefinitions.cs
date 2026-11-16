@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Enemies.NoobTube;
 using P = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileSegment;
 using S = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeShard;
 
@@ -16,7 +15,7 @@ public static class NoobTubeDebrisDefinitions
 
     /// <summary>The tube's crack, which spreads across the glass where the tube cracks.</summary>
     public static NoobTubePiece Crack { get; } =
-        new(NoobTubeProjectileDefinition.Crack, CrackOffset, EightEightVector<RoomPixels>.Zero, NoobTubeProjectileAnimations.StartingWith(P.Crack));
+        new(NoobTubeProjectileDefinition.Crack, CrackOffset, EightEightVector<RoomPixels>.Zero, new NoobTubePieceStart.AtSegment(P.Crack));
 
     /// <summary>
     /// The ten glass shards in the order they burst, each placed from the crack and flying off at its own speed in 256ths
@@ -67,10 +66,10 @@ public static class NoobTubeDebrisDefinitions
 
     /// <summary>Shard <paramref name="shard"/>, <paramref name="fromCrack"/> from the crack, flying off at <paramref name="velocity"/>.</summary>
     private static NoobTubePiece Shard(Offset16<RoomPixels> fromCrack, EightEightVector<RoomPixels> velocity, NoobTubeShard shard) =>
-        new(NoobTubeProjectileDefinition.Shard, CrackOffset + fromCrack, velocity, NoobTubeProjectileAnimations.ShardAnimations[shard]);
+        new(NoobTubeProjectileDefinition.Shard, CrackOffset + fromCrack, velocity, new NoobTubePieceStart.ShardFlight(shard));
 
     /// <summary>A bubble at <paramref name="offset"/> from the tube's block, rising at the bubbles' initial speed.</summary>
     private static NoobTubePiece Bubble(Offset16<RoomPixels> offset) =>
         new(NoobTubeProjectileDefinition.ReleasedAirBubble, offset,
-            new EightEightVector<RoomPixels>(SignedEightEight.Zero, BubbleInitialYVelocity), NoobTubeProjectileAnimations.StartingWith(P.ReleasedAirBubble));
+            new EightEightVector<RoomPixels>(SignedEightEight.Zero, BubbleInitialYVelocity), new NoobTubePieceStart.AtSegment(P.ReleasedAirBubble));
 }

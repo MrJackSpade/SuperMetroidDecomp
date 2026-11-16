@@ -146,16 +146,26 @@ internal sealed class DefinitionFrames(CoreModel model, UnitScanner scanner, Beh
             foreach (Unit target in scanner.Scan(unit, context).Targets.Where(t => scanner.IsDispatch(t, behaviour)))
             {
                 pending.Enqueue(target);
-                // A constructed entity's members are what the dispatcher calls for the definition's slot.
+                // A constructed entity's members are what the dispatcher calls for the definition's slot, with those of the
+                // bases its behaviour's own code declares for it (#2146: CrocomireEntity under the body and the tongue).
                 if (target.IsConstructor && model.IsEntityType(target.Type))
                 {
-                    foreach (Unit member in model.UnitsOf(target.Type))
-                        pending.Enqueue(member);
+                    for (INamedTypeSymbol? type = target.Type; type is not null; type = type.BaseType?.OriginalDefinition)
+                    {
+                        foreach (Unit member in model.UnitsOf(type))
+                            pending.Enqueue(member);
+                        if (type.BaseType?.OriginalDefinition is not { } baseType || !OwnEntityType(baseType))
+                            break;
+                    }
                 }
             }
         }
         return dispatch;
     }
+
+    /// <summary>Whether <paramref name="type"/> is an entity type the behaviour's own code declares.</summary>
+    private bool OwnEntityType(INamedTypeSymbol type) =>
+        model.IsEntityType(type) && model.OwnersOf(type) is { } owners && owners.Contains(behaviour.Type);
 
     /// <summary>Gives <paramref name="name"/> to <paramref name="seeds"/> and everything they run.</summary>
     private static void Spread(IEnumerable<Unit> seeds, string name, Dictionary<Unit, HashSet<string>> owners, Dictionary<Unit, List<Unit>> runs)

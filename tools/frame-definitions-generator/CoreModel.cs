@@ -923,6 +923,15 @@ internal sealed class CoreModel
         if (type.ContainingType is { } container)
             contexts.Add(container.OriginalDefinition);
         _owners.Add(type, Resolving);
+        // A base never constructed itself, outside every type, whose derived types are all one behaviour's code is that
+        // behaviour's code split across types (#2146: CrocomireEntity under the body's and the tongue's entities), as a
+        // nested type is; a base deriving into several behaviours' code, or into shared code, stays shared.
+        if (contexts.Count == 0 && SingleDerivedOwner(type) is { } derivedOwner)
+        {
+            var single = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default) { derivedOwner };
+            _owners[type] = single;
+            return single;
+        }
         HashSet<INamedTypeSymbol>? owners = new(SymbolEqualityComparer.Default);
         bool contributed = false;
         foreach (INamedTypeSymbol context in contexts)
@@ -944,6 +953,44 @@ internal sealed class CoreModel
         _owners[type] = result;
         return result;
     }
+
+    /// <summary>
+    /// The one behaviour whose code every type deriving directly from <paramref name="type"/> is; null when no type derives
+    /// from it, or one is shared code, still being resolved, or another behaviour's.
+    /// </summary>
+    private INamedTypeSymbol? SingleDerivedOwner(INamedTypeSymbol type)
+    {
+        if (_derived is null)
+        {
+            _derived = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            foreach (INamedTypeSymbol candidate in Types)
+            {
+                if (candidate.BaseType is { } baseType && IsSource(baseType.OriginalDefinition))
+                {
+                    if (!_derived.TryGetValue(baseType.OriginalDefinition, out List<INamedTypeSymbol>? derived))
+                        _derived.Add(baseType.OriginalDefinition, derived = []);
+                    derived.Add(candidate.OriginalDefinition);
+                }
+            }
+        }
+        if (!_derived.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
+            return null;
+        INamedTypeSymbol? owner = null;
+        foreach (INamedTypeSymbol derivedType in derivedTypes)
+        {
+            // The marker of a type still being resolved is empty, so it, like shared code, gives no single owner.
+            if (ResolveOwners(derivedType) is not { Count: 1 } owners)
+                return null;
+            INamedTypeSymbol single = owners.First();
+            if (owner is not null && !SymbolEqualityComparer.Default.Equals(owner, single))
+                return null;
+            owner = single;
+        }
+        return owner;
+    }
+
+    /// <summary>Every Core type deriving directly from each Core class, built on first use.</summary>
+    private Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>? _derived;
 
     /// <summary>Indexes, for every Core interface and overridable member, the Core members implementing or overriding it.</summary>
     private void BuildDispatch()

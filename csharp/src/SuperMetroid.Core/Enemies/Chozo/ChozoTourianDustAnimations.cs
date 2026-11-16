@@ -18,20 +18,20 @@ internal static class ChozoTourianDustAnimations
         [P.Footsteps] =
         [
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
-            Show(EnemyProjectileFrameId.ChozoTourianDustFootstepsFirst, 2),
-            Show(EnemyProjectileFrameId.ChozoTourianDustFootstepsSecond, 2),
-            Show(EnemyProjectileFrameId.ChozoTourianDustFootstepsThird, 2),
-            Show(EnemyProjectileFrameId.ChozoTourianDustFootstepsFourth, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffTrio, 2),
+            Show(EnemyProjectileFrameId.ChozoDustCloudsDense, 2),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.TourianDescentDust] =
         [
             Cue(new EnemyProjectileCommonCue.Signal(CK.ReturnToOrigin)),
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
-            Show(EnemyProjectileFrameId.ChozoTourianDustTourianDescentDustFirst, 2),
-            Show(EnemyProjectileFrameId.ChozoTourianDustTourianDescentDustSecond, 2),
-            Show(EnemyProjectileFrameId.ChozoTourianDustTourianDescentDustThird, 2),
-            Show(EnemyProjectileFrameId.ChozoTourianDustTourianDescentDustFourth, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffTwin, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffPairTwin, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffTrioTwin, 2),
+            Show(EnemyProjectileFrameId.ChozoDustCloudsDenseTwin, 2),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });

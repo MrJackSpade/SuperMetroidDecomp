@@ -16,23 +16,23 @@ internal static class DragonFireballAnimations
     {
         [P.RisingLeft] =
         [
-            Show(EnemyProjectileFrameId.DragonFireballRisingLeftFirst, 5),
-            Show(EnemyProjectileFrameId.DragonFireballRisingLeftSecond, 5),
+            Show(EnemyProjectileFrameId.DragonFireballRisingLeftFlaring, 5),
+            Show(EnemyProjectileFrameId.DragonFireballRisingLeftCompact, 5),
         ],
         [P.RisingRight] =
         [
-            Show(EnemyProjectileFrameId.DragonFireballRisingRightFirst, 5),
-            Show(EnemyProjectileFrameId.DragonFireballRisingRightSecond, 5),
+            Show(EnemyProjectileFrameId.DragonFireballRisingRightFlaring, 5),
+            Show(EnemyProjectileFrameId.DragonFireballRisingRightCompact, 5),
         ],
         [P.FallingLeft] =
         [
-            Show(EnemyProjectileFrameId.DragonFireballFallingLeftFirst, 5),
-            Show(EnemyProjectileFrameId.DragonFireballFallingLeftSecond, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFallingLeftFlaring, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFallingLeftCompact, 5),
         ],
         [P.FallingRight] =
         [
-            Show(EnemyProjectileFrameId.DragonFireballFallingRightFirst, 5),
-            Show(EnemyProjectileFrameId.DragonFireballFallingRightSecond, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFallingRightFlaring, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFallingRightCompact, 5),
         ],
     });
 

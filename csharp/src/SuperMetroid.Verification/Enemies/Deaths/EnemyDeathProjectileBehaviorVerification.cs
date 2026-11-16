@@ -49,7 +49,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");
         }
         AssertEqual(EnemyDeathProjectileSegment.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.EnemyPickupEnergySmallDark),
             dying.PresentationOperandAddress, "the drop's first frame shows on the conversion's own pass");
 
         dying.StateOf<EnemyPickupState>().Lifetime = 1;

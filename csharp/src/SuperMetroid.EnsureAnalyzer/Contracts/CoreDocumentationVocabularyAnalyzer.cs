@@ -885,7 +885,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// A memory symbol of the original program in a comment: a lower-case name joined by underscores (<c>toriz_var_00</c>,
     /// <c>palette_change_num</c>) (#1632). The installed artwork's frame names are the snake case of Core's own frame
-    /// identities (<c>draygon_goop_first</c> is <c>DraygonGoopFirst</c>), so a name whose Pascal-case form Core's code spells
+    /// identities (<c>draygon_goop_spiky</c> is <c>DraygonGoopSpiky</c>), so a name whose Pascal-case form Core's code spells
     /// is a presentation key, not a symbol.
     /// </summary>
     private static readonly Regex MemorySymbol = new(@"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b", RegexOptions.CultureInvariant);

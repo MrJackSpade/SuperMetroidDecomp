@@ -18,30 +18,30 @@ internal static class EyeDoorProjectileAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.EyeDoorInitialFirst, 4),
-            Show(EnemyProjectileFrameId.EyeDoorInitialSecond, 3),
-            Show(EnemyProjectileFrameId.EyeDoorInitialThird, 2),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingFaint, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallRing, 3),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingCored, 2),
             Cue(new(K.AimAtSamus)),
             Cue(new(K.StartFlight)),
         ],
         [P.FlyingLoop] =
         [
-            Show(EnemyProjectileFrameId.EyeDoorFlyingLoop, 16),
+            Show(EnemyProjectileFrameId.EyeDoorBallWhole, 16),
         ],
         [P.Impact] =
         [
             Cue(new(K.StopMoving)),
-            Show(EnemyProjectileFrameId.EyeDoorImpactFirst, 2),
-            Show(EnemyProjectileFrameId.EyeDoorImpactSecond, 3),
-            Show(EnemyProjectileFrameId.EyeDoorImpactThird, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingCoredTwin, 2),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingTwin, 3),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingFaintTwin, 4),
             Cue(new(K.Delete)),
         ],
         [P.Shot] =
         [
-            Show(EnemyProjectileFrameId.EyeDoorShotFirst, 4),
-            Show(EnemyProjectileFrameId.EyeDoorShotSecond, 4),
-            Show(EnemyProjectileFrameId.EyeDoorShotThird, 4),
-            Show(EnemyProjectileFrameId.EyeDoorShotFourth, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallFireCloud, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallFireCloudSpreading, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallFireCloudBreaking, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallFireCloudEmbers, 4),
             Cue(new(K.Delete)),
         ],
     });

@@ -16,18 +16,18 @@ internal static class NuclearWaffleProjectileAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialFirst, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialSecond, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialThird, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialFourth, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialFifth, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialSixth, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialSeventh, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialEighth, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialNinth, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialTenth, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialEleventh, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleInitialTwelfth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballSwirl, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballBlazing, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballMottled, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballSwirlTurned, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballBlazingRinged, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballMottledDense, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballSwirlTwin, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballBlazingTwin, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballMottledTurned, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballSwirlTurnedTwin, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballBlazingRingedTwin, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleFireballMottledSparse, 3),
         ],
     });
 

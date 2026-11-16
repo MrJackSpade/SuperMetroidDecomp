@@ -8,8 +8,8 @@ public static class EnemyProjectileSpritemapDefinitions
     /// <summary>The installed names of the Ceres arrival frames and Skree/Metaree debris their bank-$86 programs select.</summary>
     internal static readonly string[] FrameNames =
     [
-        "ceres_elevator_pad_first",
-        "ceres_elevator_pad_second",
+        "ceres_elevator_pad_unlit",
+        "ceres_elevator_pad_lit",
         "ceres_elevator_platform",
         "skree_debris",
         "metaree_debris",

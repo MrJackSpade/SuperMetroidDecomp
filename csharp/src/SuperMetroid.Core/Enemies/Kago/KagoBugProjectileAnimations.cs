@@ -24,38 +24,38 @@ internal static class KagoBugProjectileAnimations
     {
         [P.Landed] =
         [
-            Show(EnemyProjectileFrameId.KagoBugLandedFirst, 5),
+            Show(EnemyProjectileFrameId.KagoBugCrouched, 5),
             Cue(new(K.StartIdle)),
-            Show(EnemyProjectileFrameId.KagoBugLandedSecond, LandedIdleDuration),
+            Show(EnemyProjectileFrameId.KagoBugStanding, LandedIdleDuration),
         ],
         [P.Falling] =
         [
-            Hold(EnemyProjectileFrameId.KagoBugFalling),
+            Hold(EnemyProjectileFrameId.KagoBugStandingTwin),
         ],
         [P.JumpStart] =
         [
-            Show(EnemyProjectileFrameId.KagoBugJumpStartFirst, 16),
-            Show(EnemyProjectileFrameId.KagoBugJumpStartSecond, 5),
+            Show(EnemyProjectileFrameId.KagoBugCrouchedTwin, 16),
+            Show(EnemyProjectileFrameId.KagoBugStandingTwinB, 5),
             Cue(new(K.StartJump)),
         ],
         [P.JumpLoop] =
         [
-            Hold(EnemyProjectileFrameId.KagoBugJumpLoop),
+            Hold(EnemyProjectileFrameId.KagoBugLeaping),
         ],
         [P.Shot] =
         [
             Cue(new(K.DrawFromSharedSheet)),
-            Show(EnemyProjectileFrameId.KagoBugShotFirst, 4),
-            Show(EnemyProjectileFrameId.KagoBugShotSecond, 4),
-            Show(EnemyProjectileFrameId.KagoBugShotThird, 4),
-            Show(EnemyProjectileFrameId.KagoBugShotFourth, 4),
-            Show(EnemyProjectileFrameId.KagoBugShotFifth, 4),
+            Show(EnemyProjectileFrameId.KagoBugSpark, 4),
+            Show(EnemyProjectileFrameId.KagoBugFlareBall, 4),
+            Show(EnemyProjectileFrameId.KagoBugFlareRingCored, 4),
+            Show(EnemyProjectileFrameId.KagoBugFlareRing, 4),
+            Show(EnemyProjectileFrameId.KagoBugFlareRingFading, 4),
             Cue(new(K.SpawnDrop)),
             Cue(new(K.Delete)),
         ],
         [P.Waiting] =
         [
-            Hold(EnemyProjectileFrameId.KagoBugWaiting),
+            Hold(EnemyProjectileFrameId.KagoBugCurledUp),
         ],
     });
 

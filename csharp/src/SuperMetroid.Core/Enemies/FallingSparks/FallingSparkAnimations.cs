@@ -17,23 +17,23 @@ internal static class FallingSparkAnimations
     {
         [P.Falling] =
         [
-            Show(EnemyProjectileFrameId.FallingSparkFallingFirst, 3),
-            Show(EnemyProjectileFrameId.FallingSparkFallingSecond, 3),
-            Show(EnemyProjectileFrameId.FallingSparkFallingThird, 3),
+            Show(EnemyProjectileFrameId.FallingSparkUpright, 3),
+            Show(EnemyProjectileFrameId.FallingSparkDiagonal, 3),
+            Show(EnemyProjectileFrameId.FallingSparkUprightSmall, 3),
         ],
         [P.HitFloor] =
         [
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorFirst, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorSecond, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorThird, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorFourth, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorFifth, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorSixth, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorSeventh, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorEighth, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorNinth, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorTenth, 1),
-            Show(EnemyProjectileFrameId.FallingSparkHitFloorEleventh, 1),
+            Show(EnemyProjectileFrameId.FallingSparkUprightTwin, 1),
+            Show(EnemyProjectileFrameId.FallingSparkBlank, 1),
+            Show(EnemyProjectileFrameId.FallingSparkUprightTwinB, 1),
+            Show(EnemyProjectileFrameId.FallingSparkBlankTwin, 1),
+            Show(EnemyProjectileFrameId.FallingSparkDiagonalTwin, 1),
+            Show(EnemyProjectileFrameId.FallingSparkBlankTwinB, 1),
+            Show(EnemyProjectileFrameId.FallingSparkDiagonalTwinB, 1),
+            Show(EnemyProjectileFrameId.FallingSparkBlankTwinC, 1),
+            Show(EnemyProjectileFrameId.FallingSparkUprightSmallTwin, 1),
+            Show(EnemyProjectileFrameId.FallingSparkBlankTwinD, 1),
+            Show(EnemyProjectileFrameId.FallingSparkUprightSmallTwinB, 1),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });

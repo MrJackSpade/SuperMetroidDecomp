@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots;

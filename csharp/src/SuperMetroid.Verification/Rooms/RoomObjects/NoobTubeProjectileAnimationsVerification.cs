@@ -4,7 +4,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.TestSupport.MovieReplay;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 

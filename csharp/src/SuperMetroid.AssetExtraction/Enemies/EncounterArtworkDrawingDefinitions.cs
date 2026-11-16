@@ -1,18 +1,15 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

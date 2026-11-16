@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -9,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 internal static class CinematicSpritemapSourceDefinitions
 {
     /// <summary>Bank $8C, where every cinematic spritemap is stored.</summary>
-    private const byte Bank = 0x8c;
+    internal const byte Bank = 0x8c;
 
     /// <summary>
     /// Every pose in the cartridge's order of its spritemap pointers, which the import composes and identifies the
@@ -226,14 +225,4 @@ internal static class CinematicSpritemapSourceDefinitions
         new(CinematicSpritePose.LogoLeftCircleTipAndBlade, new(Bank, 0xbb66)),
         new(CinematicSpritePose.LogoLeftCircleWhole, new(Bank, 0xbbc2)),
     ];
-
-    /// <summary>
-    /// The further spritemaps the cartridge's lists select for a pose, each drawing the pose's own picture: the escape
-    /// pod's long trail is stored three times, over three characters of identical pixels, which its flicker steps through.
-    /// </summary>
-    internal static readonly IReadOnlyDictionary<CinematicSpritePose, SnesAddress[]> SamePictureSpritemaps =
-        new Dictionary<CinematicSpritePose, SnesAddress[]>
-    {
-        [CinematicSpritePose.EscapePodLongTrail] = [new(Bank, 0xbc4f), new(Bank, 0xbc56)],
-    };
 }

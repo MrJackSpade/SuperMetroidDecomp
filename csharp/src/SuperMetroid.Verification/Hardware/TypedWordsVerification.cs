@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
@@ -7,7 +6,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -110,7 +108,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(CountsRunBelowZero.MaximumValue, CountsRunBelowZero.DecrementWrapping(CountsRunBelowZero.MinimumValue), "the unchecked decrement wraps the smallest count");
     // The HUD draws a count's digits from the word the cartridge stores, so a count below zero shows that word's value.
     foreach (int count in new[] { CountsRunBelowZero.MinimumValue, -1, 0, 1, CountsRunBelowZero.MaximumValue })
-        AssertEqual((int)SamusCountWords.Encode(count), CountsRunBelowZero.HudShown(count), $"the HUD shows count {count} as its stored word's digits");
+        AssertEqual(SamusCountWords.Encode(count), CountsRunBelowZero.HudShown(count), $"the HUD shows count {count} as its stored word's digits");
     AssertEqual(32767, CountsRunBelowZero.MaximumValue, "the largest count is the largest word that reads as zero or more");
     AssertEqual(-32768, CountsRunBelowZero.MinimumValue, "the smallest count is the first word that reads as below zero");
 
@@ -220,7 +218,7 @@ internal static void VerifyTypedNativeWords()
         "SNES raw angle wraps at one turn");
     AssertEqual(RotationAngle.Zero, RotationAngle.WrappedSteps(0x100),
         "SNES table angle wraps at 256 units");
-    AssertEqual((ushort)0x41ab, RotationAngle.FromRaw(0x40ab).TurnedBySteps(1).RawValue,
+    AssertEqual((ushort)0x41ab, RotationAngleConstants.FromRaw(0x40ab).TurnedBySteps(1).RawValue,
         "SNES whole-unit addition retains fractional angle byte");
     AssertEqual((short)-0x4000, RotationAngle.Zero.SignedDeltaTo(RotationAngle.ThreeQuarterTurn),
         "SNES signed raw delta crosses wrap seam");

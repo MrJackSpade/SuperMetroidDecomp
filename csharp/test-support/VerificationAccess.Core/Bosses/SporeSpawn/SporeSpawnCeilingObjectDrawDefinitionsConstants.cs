@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Cartridge values and helpers of <see cref="SporeSpawnCeilingObjectDrawDefinitions"/> that only verification reads.</summary>

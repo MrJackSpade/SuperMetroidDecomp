@@ -34,7 +34,7 @@ internal static class CeresRidleyBodyPublicationVerification
         RidleyEnemyState ridley = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.");
         ridley.GetawayActive = true;
-        ridley.FloorAngle = RotationAngle.FromRaw(1);
+        ridley.FloorAngle = RotationAngleConstants.FromRaw(1);
         ridley.FloorOffset = new Offset16<FloorPixels>(-128, 32);
         ridley.FloorCenter = new Position16<FloorPixels>(64, 64);
         // The getaway setup's starting table position and animation frames ($A6:A2E3).

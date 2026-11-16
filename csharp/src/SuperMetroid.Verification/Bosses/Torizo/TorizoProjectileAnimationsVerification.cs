@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoNativeListAddresses;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;

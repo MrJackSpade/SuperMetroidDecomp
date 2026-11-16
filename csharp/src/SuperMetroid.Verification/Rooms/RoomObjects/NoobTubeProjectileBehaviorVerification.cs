@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
-using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions;
 using static SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

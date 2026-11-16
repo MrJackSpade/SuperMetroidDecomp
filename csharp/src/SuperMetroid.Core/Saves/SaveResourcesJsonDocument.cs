@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Current and acquired player-resource quantities persisted in a save slot.</summary>

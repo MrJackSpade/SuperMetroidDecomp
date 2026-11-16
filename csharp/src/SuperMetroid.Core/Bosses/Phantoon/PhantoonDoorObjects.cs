@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using static SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChangeDefinitions;

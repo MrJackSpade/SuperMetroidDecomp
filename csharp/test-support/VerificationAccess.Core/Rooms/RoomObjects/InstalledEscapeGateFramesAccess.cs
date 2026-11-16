@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 

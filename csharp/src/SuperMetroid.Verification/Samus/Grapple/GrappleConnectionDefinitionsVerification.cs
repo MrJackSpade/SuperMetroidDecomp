@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
@@ -121,7 +120,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             int address = 0x9bc43e + i * 10;
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
-            return new GrappleConnectionDefinitions.SpecialConnection(RotationAngle.FromRaw(checked(Word(address))), SamusPoseNumbering.FromNumber(Word(address + 2)),
+            return new GrappleConnectionDefinitions.SpecialConnection(RotationAngleConstants.FromRaw(checked(Word(address))), SamusPoseNumbering.FromNumber(Word(address + 2)),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
                 SamusGrappleConnectionNative.Kinds.Decode(Word(address + 8), "grapple connection function"));
         }).ToArray();
@@ -139,7 +138,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new(100, 200));
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
-            g.Angle = RotationAngle.FromRaw((ushort)angle);
+            g.Angle = RotationAngleConstants.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle.RawValue == angle);
             AssertEqual(index >= 0, special(samus, g, new(100, 200), out _), "Exact native special angle, no tolerance");
             if (index < 0)

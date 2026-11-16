@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Bosses.Kraid.KraidPartCue;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 

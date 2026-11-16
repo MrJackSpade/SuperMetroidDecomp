@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 

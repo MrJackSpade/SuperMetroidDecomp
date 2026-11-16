@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
@@ -36,7 +35,7 @@ internal static class CollectibleTimelinesVerification
 
         // A shot Chozo orb shows the empty block, its burst and the empty block, three updates each, then its item's
         // first look.
-        CollectibleFixture orb = LoadCollectible(bus, header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)), roomArgument: 79, precollected: false);
+        CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
         orb.RoomObjects.Step(orb.Level);
         AssertTrue(orb.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(orb.Block), "the orb accepts the shot");
         var burst = new List<RoomBlockAppearance>();
@@ -51,7 +50,7 @@ internal static class CollectibleTimelinesVerification
 
         // A shot block crumbles from whole to dust, four updates each, then the Missile Tank shows its two looks, four
         // updates each, twenty-two times; its block forms again from dust, four updates each, and returns whole.
-        CollectibleFixture shot = LoadCollectible(bus, header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)), roomArgument: 150, precollected: false);
+        CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 150, precollected: false);
         RoomTerrainBlock concealed = shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain;
         AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.Block), "the shot block accepts the shot");
         var reveal = new List<RoomBlockAppearance>();

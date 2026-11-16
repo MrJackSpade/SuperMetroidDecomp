@@ -1,12 +1,10 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.World;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Runtime;
 

@@ -27,8 +27,7 @@ internal static class AcidStatueFirstEntryVerification
         RoomDefinition sourceRoom = RoomDefinitions.MainHall;
         RoomDefinition destinationRoom = RoomDefinitions.AcidStatue;
         const ushort drainedAcidY = 0x02d2;
-
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        _ = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Verification.Enemies.Metroids;

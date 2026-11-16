@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

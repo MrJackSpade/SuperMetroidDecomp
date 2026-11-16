@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -14,17 +13,14 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 internal sealed class CeresFallingTiles
 {
-    /// <summary>The loaded room the tiles fall in.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The enemy sound queue a tile's fall sounds in.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds the tiles to the loaded room, its enemy projectiles and the enemy sound queue.</summary>
-    internal CeresFallingTiles(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
+    internal CeresFallingTiles(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
-        _room = room;
         _projectiles = projectiles;
         _audio = audio;
     }

@@ -102,8 +102,6 @@ internal static class DraygonFrameToolingDefinitions
         DraygonFrame.TailFacingRightFinalWhipsLoopSeventh,
         DraygonFrame.TailFacingRightFinalWhipsLoopEighth,
     ];
-    /// <summary>How many frames the programs show.</summary>
-    internal static int FrameCount => CartridgeOrder.Length;
     /// <summary>The facing-left roots, from $A5:A2DF.</summary>
     internal static readonly FacingRoots FacingLeft = new(0xa2df, 0xa40b, 0xa4a3, 0xa4ef, 0xa55b);
     /// <summary>The facing-right roots, from $A5:A607.</summary>

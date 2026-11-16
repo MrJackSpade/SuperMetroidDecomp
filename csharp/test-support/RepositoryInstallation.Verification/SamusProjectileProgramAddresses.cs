@@ -23,7 +23,7 @@ internal static class SamusProjectileProgramAddresses
     /// <summary>The list entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(SamusProjectileSegment program) => Layout.BeatPositions[program][0];
 
-    /// <inheritdoc cref="SamusProjectileListLayout.Prefix"/>
+    /// <inheritdoc cref="SamusProjectileListLayoutAccess2.extension(SamusProjectileListLayout).Prefix"/>
     internal static ushort Prefix(SamusProjectileSegment program) => Layout.Prefix(program);
 
     /// <inheritdoc cref="SamusProjectileListLayout.Position(SamusProjectileSegmentBeat)"/>

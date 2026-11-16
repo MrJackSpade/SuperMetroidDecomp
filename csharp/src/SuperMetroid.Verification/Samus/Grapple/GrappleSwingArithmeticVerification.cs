@@ -27,7 +27,7 @@ internal static class GrappleSwingArithmeticVerification
             {
                 for (int raw = 0; raw <= ushort.MaxValue; raw++)
                 {
-                    RotationAngle angle = RotationAngle.FromRaw(raw);
+                    RotationAngle angle = RotationAngleConstants.FromRaw(raw);
                     var expected = ReplacedGravity(angle, submerged, velocity);
                     var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Angle = angle, Submerged = submerged, AngularVelocity = velocity };
                     SamusGrappleSwing.CalculateGravity(grapple);

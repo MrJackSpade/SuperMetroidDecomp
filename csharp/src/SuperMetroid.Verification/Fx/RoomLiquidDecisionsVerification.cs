@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Drawing;

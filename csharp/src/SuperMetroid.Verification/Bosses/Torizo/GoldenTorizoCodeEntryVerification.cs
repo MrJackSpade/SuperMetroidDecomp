@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;

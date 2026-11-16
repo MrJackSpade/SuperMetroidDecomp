@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -380,11 +379,11 @@ internal static void VerifyControllerInputLatch()
         directional.NewlyPressed,
         "typed newly-pressed view preserves every rising edge in a chord");
     AssertTrue(
-        (directional.CurrentButtons & ControllerButtons.HorizontalDirections) == ControllerButton.Right,
+        (directional.CurrentButtons & ControllerButtonsConstants.HorizontalDirections) == ControllerButton.Right,
         "exact-Right comparison ignores unrelated action buttons");
     directional.Latch((ControllerButton.Right | ControllerButton.Left | ControllerButton.A));
     AssertTrue(
-        (directional.CurrentButtons & ControllerButtons.HorizontalDirections) != ControllerButton.Right,
+        (directional.CurrentButtons & ControllerButtonsConstants.HorizontalDirections) != ControllerButton.Right,
         "exact-Right comparison rejects opposed horizontal input");
     AssertEqual(ControllerButton.Left, directional.NewlyPressed,
         "typed newly-pressed view reports only the added direction");

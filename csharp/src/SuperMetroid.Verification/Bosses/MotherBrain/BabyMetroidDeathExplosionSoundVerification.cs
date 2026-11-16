@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Baby Metroid death sounds and Mother Brain escape effects use their native sound libraries.</summary>
 internal static class BabyMetroidDeathExplosionSoundVerification

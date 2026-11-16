@@ -29,20 +29,7 @@ internal sealed class DefinitionObjects
     internal static DefinitionObjects Process { get; } = new();
 
     /// <summary>Guards the catalogs' indexes, whose path and resolution caches every capture and restore share.</summary>
-    private readonly Lock gate = new();
-
-    /// <summary>The catalogs and what each may hold, read from the game assembly's declarations on first use.</summary>
-    private Declarations? declarations;
-
-    /// <summary>Every catalog of the game's static members, in their prefixes' ordinal order, none indexed until needed.</summary>
-    internal IReadOnlyList<DefinitionCatalog> Catalogs
-    {
-        get
-        {
-            lock (gate)
-                return Declared.Catalogs;
-        }
-    }
+    internal readonly Lock gate = new();
 
     /// <summary>
     /// The catalogs that may hold an object of <paramref name="type"/> where a game can reach it, in their prefixes'
@@ -95,7 +82,7 @@ internal sealed class DefinitionObjects
     }
 
     /// <summary>The catalogs and what each may hold; callers hold the lock.</summary>
-    private Declarations Declared => declarations ??= Declare();
+    internal Declarations Declared => field ??= Declare();
 
     /// <summary>
     /// Every type of the game's assembly with static read-only fields holding a reference, each as a catalog of those
@@ -128,6 +115,6 @@ internal sealed class DefinitionObjects
     /// <param name="Catalogs">Every catalog, in its prefix's ordinal order.</param>
     /// <param name="ByPrefix">Each catalog by the prefix its roots' names begin with.</param>
     /// <param name="Exposure">Which catalogs may hold an object of each type.</param>
-    private sealed record Declarations(IReadOnlyList<DefinitionCatalog> Catalogs, IReadOnlyDictionary<string, DefinitionCatalog> ByPrefix,
+    internal sealed record Declarations(IReadOnlyList<DefinitionCatalog> Catalogs, IReadOnlyDictionary<string, DefinitionCatalog> ByPrefix,
         DefinitionExposure Exposure);
 }

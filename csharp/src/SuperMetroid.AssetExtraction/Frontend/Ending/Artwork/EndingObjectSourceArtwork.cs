@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
@@ -41,7 +40,7 @@ public class EndingObjectSourceArtwork
     }
 
     /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
-    private readonly RoomBackgroundTilemapAtlas[] fragments;
+    internal readonly RoomBackgroundTilemapAtlas[] fragments;
 
     /// <summary>The same maps keyed by the explosion map each one holds.</summary>
     private readonly Dictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> fragmentsById;
@@ -55,9 +54,6 @@ public class EndingObjectSourceArtwork
     public RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; }
     /// <summary>The post-shot logo's 32x32 map.</summary>
     public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
-
-    /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
-    public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => fragments;
 
     /// <summary>One 32-by-32-cell explosion map.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four maps.</exception>
@@ -91,23 +87,4 @@ public class EndingObjectSourceArtwork
             throw new ArgumentOutOfRangeException(nameof(family), family, "The family is not an ending family."),
         _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined cinematic family."),
     };
-
-    /// <summary>
-    /// Identity of every selected ending/credits map and the compositions its sheets are composed from; the characters are
-    /// import data the installation never holds (#1636).
-    /// </summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog-v2", content =>
-    {
-        content.AppendTiles("waiting-map", WaitingTilemap.Tiles.Span);
-        content.AppendTiles("post-credits-fragment-b", PostCreditsFragmentB.Tiles.Span);
-        content.AppendTiles("logo-map", PostShotLogoMap.Tiles.Span);
-        content.Append("fragment-count", Fragments.Count);
-        foreach (RoomBackgroundTilemapAtlas fragment in Fragments)
-            content.AppendTiles("fragment", fragment.Tiles.Span);
-        content.Append("cloud-sprites", Convert.FromHexString(CloudSprites.ContentIdentity));
-        content.Append("explosion-sprites", Convert.FromHexString(ExplosionSprites.ContentIdentity));
-        content.Append("completion-text-sprites", Convert.FromHexString(CompletionTextSprites.ContentIdentity));
-        content.Append("reward-sprites", Convert.FromHexString(RewardSprites.ContentIdentity));
-        content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
-    });
 }

@@ -1,6 +1,4 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -15,6 +13,5 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="FlarePlacement">Charge-flare placement.</param>
 /// <param name="Grapple">The grapple's flare placement and swing frames.</param>
 /// <param name="FrameBindings">Timed projectile frame sprite choices.</param>
-[ArchitectureReview("context-bag", "The installed projectile presentation the game read; every member is loaded document data or its identity, not a service.")]
 public sealed record InstalledProjectilePresentation(string ContentSha256,
     ChargeFlarePlacements FlarePlacement, InstalledGrapplePresentation Grapple, InstalledProjectileFrameBindings FrameBindings);

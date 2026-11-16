@@ -1,12 +1,5 @@
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

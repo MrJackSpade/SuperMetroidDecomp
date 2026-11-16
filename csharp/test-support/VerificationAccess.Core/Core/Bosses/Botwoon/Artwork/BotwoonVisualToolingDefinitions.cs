@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Spatial;
-namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
+﻿namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 /// <summary>Development-tool members of <see cref="BotwoonVisualDefinitions"/>; never linked by player hosts.</summary>
 internal static class BotwoonVisualToolingDefinitions

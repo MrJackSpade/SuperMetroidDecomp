@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;

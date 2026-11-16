@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;

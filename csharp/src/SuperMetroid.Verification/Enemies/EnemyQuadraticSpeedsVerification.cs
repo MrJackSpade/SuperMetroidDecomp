@@ -6,9 +6,6 @@ using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.World;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies;
 

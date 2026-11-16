@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Animation;
@@ -318,7 +317,7 @@ internal static class CrocomireAnimationsVerification
     internal static IEnumerable<ushort> TypedBodySpritemaps(bool skeleton) =>
         Enum.GetValues<CrocomireBodySegment>()
             .SelectMany(segment => CrocomireBodyAnimations.Segments.Beats(segment))
-            .Select(beat => beat.ShownFrame).OfType<CrocomireBodyFrame>().Where(frame => CrocomireBodyFramesTooling.IsSkeleton(frame) == skeleton)
+            .Select(beat => beat.ShownFrame).OfType<CrocomireBodyFrame>().Where(frame => CrocomireBodyFramesToolingConstants.IsSkeleton(frame) == skeleton)
             .Select(frame => CrocomireBodyFramesTooling.Spritemap(frame))
             .Distinct();
 

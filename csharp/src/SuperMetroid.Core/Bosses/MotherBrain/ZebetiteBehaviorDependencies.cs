@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;

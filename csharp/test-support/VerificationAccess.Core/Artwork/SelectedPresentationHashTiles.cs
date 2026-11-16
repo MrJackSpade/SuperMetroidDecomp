@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.AssetExtraction.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Hashes placed tiles into an installed content identity (#1467): only the import pipeline holds tilemaps.</summary>
 internal static class SelectedPresentationHashTiles

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;

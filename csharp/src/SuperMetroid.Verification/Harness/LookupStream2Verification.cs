@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -613,7 +612,7 @@ internal static class LookupStream2Verification
         AssertEqual(97, visibleTiles.Count, "Dead Torizo native visible tile count");
         AssertEqual(true, visibleTiles.SetEquals(copiedTiles),
             "Dead Torizo twelve native MVNs copy exactly the 25-part stationary composition");
-        byte[] planar = ReadDeadTorizoRomBytes(rom, SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheets.DeadTorizoSheet), CorpseSheets.DeadTorizoSheetByteCount);
+        byte[] planar = ReadDeadTorizoRomBytes(rom, SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(rom, CorpseSheets.DeadTorizoSheet), CorpseSheets.DeadTorizoSheetByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();

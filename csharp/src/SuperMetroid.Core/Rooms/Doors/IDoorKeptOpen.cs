@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Doors;

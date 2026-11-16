@@ -70,10 +70,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
     internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowStep));
 
-    /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
-    internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
-        definitionId is EnemyDefinitionId.WorkRobot or EnemyDefinitionId.UnpoweredWorkRobot;
-
     /// <summary>Initializes the Robot.</summary>
     internal void InitializeWorkRobot(RoomEnemyPlace place)
     {

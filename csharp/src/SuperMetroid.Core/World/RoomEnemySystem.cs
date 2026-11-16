@@ -533,8 +533,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <inheritdoc/>
     MotherBrainEnemyState? IEnemyDisplaySources.MotherBrain => MotherBrainEncounter.MotherBrain;
     /// <inheritdoc/>
-    DraygonEnemyState? IEnemyDisplaySources.Draygon => DraygonBehavior.Parts.Draygon;
-    /// <inheritdoc/>
     PhantoonEnemyState? IEnemyDisplaySources.Phantoon => PhantoonBehavior.Combat.Phantoon;
     /// <inheritdoc/>
     RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
@@ -633,7 +631,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
         MorphBallEyeBehavior = new MorphBallEyeBehavior(Audio, Places);
-        ProcessingWindow = new EnemyProcessingWindow(FrameContext, new MorphBallEyeBeamStep(MorphBallEyeBehavior), Room, Places);
+        ProcessingWindow = new EnemyProcessingWindow(FrameContext, new MorphBallEyeBeamStep(MorphBallEyeBehavior), Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);
         RidleyEncounter = new RidleyEncounter(session);
@@ -677,14 +675,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, Places = Places, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, DoorPassage = doorPassage, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, DoorPassage = doorPassage, RoomFx = RoomFx, FrameContext = FrameContext });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
-        PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
+        PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Projectiles);
         PowampBehavior = new PowampBehavior(Terrain, Projectiles, Places, Collision, DeathsAndDrops);
         PolypBehavior = new PolypBehavior(Room, Projectiles);
         PlatformsBehavior = new PlatformsBehavior(Terrain);
         PipeBugsBehavior = new PipeBugsBehavior(Places);
         PhantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding, FrameResults = BossFrameResults });
         OwtchBehavior = new OwtchBehavior(Room);
-        OldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(Room, Projectiles, Audio);
+        OldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(Projectiles, Audio);
         NuclearWaffleBehavior = new NuclearWaffleBehavior(Projectiles, EffectActors, Audio);
         NorfairRioBehavior = new NorfairRioBehavior(Room, Terrain, Places, Audio);
         NorfairLavaJumpingEnemyBehavior = new NorfairLavaJumpingEnemyBehavior(Room, Places, Audio);
@@ -718,7 +716,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
         DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
         DragonBehavior = new DragonBehavior(Projectiles, Places, Collision, Audio);
-        DownwardGateBehavior = new DownwardGateBehavior(Room, Projectiles);
+        DownwardGateBehavior = new DownwardGateBehavior(Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, Places);
         DachoraBehavior = new DachoraBehavior(Terrain, Places, Audio);
@@ -728,8 +726,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx, Places);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
-        CeresFallingTiles = new CeresFallingTiles(Room, Projectiles, Audio);
-        SaveStationElectricity = new SaveStationElectricity(Room, Projectiles);
+        CeresFallingTiles = new CeresFallingTiles(Projectiles, Audio);
+        SaveStationElectricity = new SaveStationElectricity(Projectiles);
         CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter });
         CacatacBehavior = new CacatacBehavior(Room, Projectiles, Audio);
         BullBehavior = new BullBehavior(compatibility.BullInheritance);

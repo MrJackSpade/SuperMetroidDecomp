@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.World;
 
 /// <summary>Verification access to <see cref="SamusState"/> members production does not use.</summary>
 internal static class SamusStateAccess

@@ -21,12 +21,12 @@ internal static class EscapeDachoraAnimations
         new([new(P.RunningAroundHighTideLeft, 0, 13, 5), new(P.RunningAroundHighTideRight, 0, 13, 5)], AnimationEnd.LoopsFrom(0));
 
     /// <summary>The pause, the acceleration, then the sprint at full speed for good.</summary>
-    private static readonly Animation<P> RunningForEscape = new(
+    internal static readonly Animation<P> RunningForEscape = new(
         [new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscapeAccelerating, 0, 24, 1), new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)],
         AnimationEnd.LoopsFrom(2));
 
     /// <summary>The acceleration, then the sprint at full speed for good.</summary>
-    private static readonly Animation<P> RunningForEscapeAccelerating = new(
+    internal static readonly Animation<P> RunningForEscapeAccelerating = new(
         [new(P.RunningForEscapeAccelerating, 0, 24, 1), new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)], AnimationEnd.LoopsFrom(1));
 
     /// <summary>
@@ -164,17 +164,6 @@ internal static class EscapeDachoraAnimations
             Cue(new(K.MoveRight)),
         ],
     });
-
-    /// <summary>The animation that starts at each segment an owner can start or restart at: the run for the escape's.</summary>
-    internal static IReadOnlyDictionary<EscapeDachoraSegment, Animation<EscapeDachoraSegment>> StartingAt { get; } = new Dictionary<EscapeDachoraSegment, Animation<EscapeDachoraSegment>>
-    {
-        [P.RunningForEscape] = RunningForEscape,
-        [P.RunningForEscapeAccelerating] = RunningForEscapeAccelerating,
-        [P.RunningForEscapeMaximumSpeed] = new([new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
-    };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EscapeDachoraSegment> StartingWith(EscapeDachoraSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

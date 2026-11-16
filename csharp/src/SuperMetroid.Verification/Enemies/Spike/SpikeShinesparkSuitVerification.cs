@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

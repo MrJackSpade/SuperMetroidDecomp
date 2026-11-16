@@ -1,7 +1,4 @@
-using SuperMetroid.Core;
 using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -142,7 +139,6 @@ public static class ProjectilePresentationFiles
         return Hash(System.Text.Encoding.ASCII.GetBytes(Hash(files.FlarePlacement.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
     /// <summary>The installed projectile presentation documents whose contents form the presentation identity (#633, #1636).</summary>
-    [ArchitectureReview("context-bag", "The projectile presentation's source files read for one extraction; every member is file content, not a service.")]
     private sealed record ProjectilePresentationSourceFiles
     {
         /// <summary>Charge-flare placement data relative to Samus's pose.</summary>

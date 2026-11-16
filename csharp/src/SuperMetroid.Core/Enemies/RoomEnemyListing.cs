@@ -75,15 +75,6 @@ internal static class RoomEnemyListing
     }
 
     /// <summary>
-    /// Whether <paramref name="place"/> lies among the places the room's population, or a spawn since, has filled
-    /// (<see cref="EnemyPlaces.EnemyCount"/>).
-    /// </summary>
-    /// <param name="enemies">The room's enemy places.</param>
-    /// <param name="place">The place in question.</param>
-    internal static bool IsFilled(this EnemyPlaces enemies, RoomEnemyPlace place) =>
-        Ensure.NotNull(place).Ordinal < Ensure.NotNull(enemies).EnemyCount;
-
-    /// <summary>
     /// Whether room loading has initialized <paramref name="enemy"/> (<see cref="IRoomLoadProgress"/>). Loading
     /// initializes the room's population in the order it lists it, so its progress is measured by that order.
     /// </summary>

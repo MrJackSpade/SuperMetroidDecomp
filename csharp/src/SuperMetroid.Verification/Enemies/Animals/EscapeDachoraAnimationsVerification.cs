@@ -51,7 +51,7 @@ internal static class EscapeDachoraAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var branches = new List<(ushort Target, AnimationContinuation<EscapeDachoraSegment> Then, string At)>();
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries,
-            EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt, EscapeDachoraFrameToolingDefinitions.Spritemap,
+            EscapeDachoraAnimations.Segments, EscapeDachoraAnimationsConstants.StartingAt, EscapeDachoraFrameToolingDefinitions.Spritemap,
             Rules(branches), countedEntries: CountedLaps);
         Dictionary<EscapeDachoraSegment, NativeEnemyList<EscapeDachoraSegment>> lists = NativeEnemyAnimationOracle.Lists(cartridge, Bank, Entries,
             EscapeDachoraAnimations.Segments, EscapeDachoraFrameToolingDefinitions.Spritemap, Rules([]));
@@ -59,13 +59,13 @@ internal static class EscapeDachoraAnimationsVerification
         AssertEqual(6, branches.Count, "every branch cue of the laps is read");
         foreach ((ushort target, AnimationContinuation<EscapeDachoraSegment> then, string at) in branches)
         {
-            AssertEqual(target, NativeEnemyAnimationOracle.PointerOf(lists, Entries, EscapeDachoraAnimations.StartingAt,
+            AssertEqual(target, NativeEnemyAnimationOracle.PointerOf(lists, Entries, EscapeDachoraAnimationsConstants.StartingAt,
                 new AnimationPlayback<EscapeDachoraSegment>(then.Animation, then.Place), counted), $"{at}: the branch continues where its native target points");
             bool countsDown = then.Place.Beat != AnimationPlace.NotEntered
                 && then.Animation.Phases[then.Place.Phase] is { IsRepeated: true } phase && then.Place.Beat == phase.BeatCount;
             AssertEqual(countsDown, then.CountsOn, $"{at}: a branch into a lap's count-down counts on the plays left, and only it does");
         }
-        Console.WriteLine($"  escape Dachora animations: {Entries.Length} segments ({beats} beats), {EscapeDachoraAnimations.StartingAt.Count + CountedLaps.Count} animations and {branches.Count} branches match bank $B3.");
+        Console.WriteLine($"  escape Dachora animations: {Entries.Length} segments ({beats} beats), {EscapeDachoraAnimationsConstants.StartingAt.Count + CountedLaps.Count} animations and {branches.Count} branches match bank $B3.");
     }
 
     /// <summary>

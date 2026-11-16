@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.TestSupport.MovieReplay;

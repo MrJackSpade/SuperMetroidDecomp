@@ -62,22 +62,20 @@ internal sealed class PauseScreen
 
     /// <summary>
     /// <paramref name="picture"/> placed where the pause screen shows it, in <paramref name="shading"/> (#1512): with its
-    /// origin on the page's corner, which lies <see cref="PageRowsHiddenAboveScreen"/> above the screen's top, so the
-    /// screen shows each page from the row below its first (#1555).
+    /// installed origin on the screen's corner. The import installs each page's pictures, frame and equipment page alike,
+    /// where the screen shows them against its markers, icons and selectors (#1555, #2207).
     /// </summary>
-    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading)
-    {
-        PlacedPlanePicture atCorner = PlacedPlanePicture.WithOriginAt(picture, default, shading);
-        return atCorner with { Corner = atCorner.Corner.WithY(atCorner.Corner.Y - PageRowsHiddenAboveScreen) };
-    }
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading) =>
+        PlacedPlanePicture.WithOriginAt(picture, default, shading);
 
     /// <summary>
-    /// The pixel rows of each pause page, frame and equipment page alike, that the screen hides above its top (#1705):
-    /// the screen shows each page from the row below its first, while the map's marker and icons are placed from the
-    /// page's first row. The pause screen keeps this one-row offset between its pages and its sprites, as gameplay keeps
-    /// <see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>, so every marker shows where the original shows it.
+    /// How far the frame <paramref name="area"/>'s pause screen shows lies from the screen's corner, as a scroll (#2207):
+    /// the map shows through the frame's opening, so it is scrolled with the frame, which its installed backdrop picture
+    /// places.
     /// </summary>
-    internal const int PageRowsHiddenAboveScreen = 1;
+    /// <exception cref="InvalidDataException">The installed pause pictures hold no backdrop for the area.</exception>
+    internal Offset16<PlanePixels> FrameScroll(AreaId area) =>
+        -AtCorner(Pictures.Frame(PauseFramePictures.BackdropFrame(area)), PictureShading.Standard).Corner;
 
     /// <summary><paramref name="picture"/> placed on the frame's corner in the standard colours the import pre-coloured it in under the pause colours (#1512).</summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) => AtCorner(picture, PictureShading.Standard);

@@ -129,6 +129,17 @@ internal static class PauseMenuVerification
             "downloaded pause map horizontal centering");
         AssertEqual(-24, pause.MapScroll.Y,
             "downloaded pause map vertical centering");
+        // The import installs the frame's pictures one pixel row above their page cells and the map scrolls with the frame
+        // (#2207): the screen shows the frame and the map from their second row against the marker placed from the first,
+        // exactly where it showed them while the screen raised them itself.
+        DisplayLayer[] shownLayers = pause.CaptureRenderSnapshot().Layers.ToArray();
+        PicturedPlaneLayer frameLayer = shownLayers.OfType<PicturedPlaneLayer>().First();
+        AssertTrue(frameLayer.Plane.Pictures.Length != 0 && frameLayer.Plane.Pictures.All(picture => (picture.Corner.Y + 1) % 8 == 0),
+            "pause frame pictures lie one row above their page cells");
+        PictureGridLayer mapLayer = shownLayers.OfType<PictureGridLayer>().Single();
+        AssertEqual(new Offset16<PlanePixels>(124, -23), mapLayer.Scroll, "pause map scrolls one row past its centering, with its frame");
+        AssertEqual(SuperMetroid.Core.Frontend.Map.MapFrameOpening.Window(new(0, 1)), mapLayer.Window,
+            "pause map shows through the frame's opening one row above the opening's page cells");
         // The display packet shows the marker's first pulse frame where Samus's map cell lies on the scrolled map.
         SpriteSheetFrame markerFrame = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.MapSprites)
             .Frame(SuperMetroid.Core.Frontend.Map.MapSpriteNames.Name(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorSmall));

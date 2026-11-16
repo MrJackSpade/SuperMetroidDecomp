@@ -29,21 +29,21 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public static class SamusBodyPlacementDecoding
 {
     /// <summary>Decodes every pose's placement from the cartridge's tables.</summary>
-    /// <param name="graphicsYOffsets">Each pose's signed art origin, in the cartridge's pose order.</param>
+    /// <param name="artOrigins">Each pose's signed art origin, in the cartridge's pose order.</param>
     /// <param name="landingOffsets">The landing table's unsigned rises.</param>
     /// <param name="postureOffsets">The posture-transition table's signed offsets below the drawn point.</param>
     /// <param name="drainedOffsets">The drained-body table's signed offsets below the drawn point.</param>
     /// <returns>Each pose with a record, with its placement.</returns>
     /// <exception cref="InvalidDataException">A table has the wrong length.</exception>
     public static Dictionary<SamusPoseId, SamusBodyPosePlacement> Decode(
-        IReadOnlyList<int> graphicsYOffsets, IReadOnlyList<int> landingOffsets, IReadOnlyList<int> postureOffsets,
+        IReadOnlyList<int> artOrigins, IReadOnlyList<int> landingOffsets, IReadOnlyList<int> postureOffsets,
         IReadOnlyList<int> drainedOffsets)
     {
-        Ensure.NotNull(graphicsYOffsets);
+        Ensure.NotNull(artOrigins);
         Ensure.NotNull(landingOffsets);
         Ensure.NotNull(postureOffsets);
         Ensure.NotNull(drainedOffsets);
-        if (graphicsYOffsets.Count != SamusBodySources.PoseCount || landingOffsets.Count != LandingByteCount ||
+        if (artOrigins.Count != SamusBodySources.PoseCount || landingOffsets.Count != LandingByteCount ||
             postureOffsets.Count != PostureByteCount || drainedOffsets.Count != DrainedByteCount)
             throw new InvalidDataException("Samus body placement tables have an invalid length.");
         var placements = new Dictionary<SamusPoseId, SamusBodyPosePlacement>();
@@ -53,7 +53,7 @@ public static class SamusBodyPlacementDecoding
             if (!SamusPoseNumbering.NamesPose(number))
                 continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
-            int origin = graphicsYOffsets[number];
+            int origin = artOrigins[number];
             placements.Add(pose, new SamusBodyPosePlacement(origin,
                 FrameRises(pose, number, origin, landingOffsets, postureOffsets, drainedOffsets)));
         }

@@ -194,7 +194,7 @@ require their input directories. Keep all ROMs and generated game resources out 
 Samus's body, atmosphere, overlay and death pictures are installed whole in the sprite sheets. The
 body pages, frame selectors, pose-half compositions, the atmospheric lists and the arm cannon's cover
 appearances they are composed from are the import's data and are not installed (#1636, #1638).
-`game/samus-body/samus-body.json` holds, for each pose, its signed art origin (`graphicsYOffset`) and
+`game/samus-body/samus-body.json` holds, for each pose, its signed art origin (`artOrigin`) and
 each animation frame her body sheet pictures with how many pixels above her drawn point that frame's
 body origin sits; the body sheet's frames are named from it. Edit the rises to move a frame's picture
 without changing movement or collision.
@@ -939,9 +939,10 @@ cartridge lookup still determines whether a block is revealed, how many
 blocks are copied, extension traversal, and Brinstar-only behavior.
 Its `extensionExitBlock` is the metatile an extension chain shows when its next
 step leaves the room backward.
-The same file contains four `tanks` (the Energy, Missile, Super Missile
-and Power Bomb tanks' reveal blocks; every other item is revealed as the first
-of its own pictures) and `rooms` with special reveal tiles.
+The same file contains `tanks`, each tank's reveal block keyed by its kind
+(`EnergyTank`, `MissileTank`, `SuperMissileTank`, `PowerBombTank`; every other
+item is revealed as the first of its own pictures) (#2115), and `rooms` with
+special reveal tiles.
 Each room tile's `x`, `y`, and `word` are visual-only: the first two are block
 coordinates, and the word's low ten bits select a metatile while bit 11 selects
 the cartridge's vertical row swap. Keep each room's `overlay` name and the

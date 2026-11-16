@@ -207,7 +207,7 @@ internal sealed class GameplayActorDrawing
                 }
             }
             else if (_player.Samus.Shinespark.Phase is
-                     ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle)
+                     ShinesparkPhase.Crash or ShinesparkPhase.CrashHold)
             {
                 // The shinespark crash's drawing takes over at the instant an active
                 // shinespark crashes. Unlike the default drawing, it intentionally

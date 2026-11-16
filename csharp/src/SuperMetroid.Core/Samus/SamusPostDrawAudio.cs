@@ -30,8 +30,8 @@ public static class SamusPostDrawAudio
             return;
 
         samus.AudioRequests.QueueSound(SamusSound.SpinJumpEnd, priority: SoundRequestPriority.Essential);
-        // Resume on the NEXT post-draw pass, after the spin-end sound. The runtime
-        // supplies normalized controls, so X here is the configured Shoot action.
+        // Resume on the NEXT post-draw pass, after the spin-end sound, while Shoot is still
+        // held.
         if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
             (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
             samus.ResumeChargingBeamSoundPending = true;

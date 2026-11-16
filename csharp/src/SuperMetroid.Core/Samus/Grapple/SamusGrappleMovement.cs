@@ -64,19 +64,19 @@ public static class SamusGrappleMovement
         bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
-        int graphicsYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset :
+        int artOrigin = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin : SamusPoseMetadata.ReadArtOrigin(samus);
+        int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin :
             SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
         // The hand and flare offsets and the pose's offsets are a few pixels each, so their differences are ordinary.
         grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);
-        grapple.FlareOffset = new(flare.X, flare.Y - graphicsYOffset);
+        grapple.FlareOffset = new(flare.X, flare.Y - artOrigin);
 
         // The endpoint offset is a signed 1/65536-pixel displacement from Samus plus the firing
         // origin. Firing clears both axes, fraction and whole alike.
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         // Firing's shade and sound setup.
-        grapple.QuarterVelocity = FixedVector<RoomPixels>.Zero;
+        grapple.ExtensionSubstep = FixedVector<RoomPixels>.Zero;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.FiringExtension;
         grapple.AngularVelocity = AngularSpeed.Zero;
@@ -87,7 +87,7 @@ public static class SamusGrappleMovement
         grapple.CollisionBounceTimer = 0;
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
-        grapple.SpecialAngleHandling = false;
+        grapple.CloseCollision = false;
         grapple.SlowScrolling = false; // Firing clears the slow-scroll flag.
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
@@ -178,13 +178,13 @@ public static class SamusGrappleMovement
         // The rope moves its end in four equal substeps, probing after each; each keeps parts of the
         // update before's substep, so together they need not add up to the extension speed
         // (GrappleExtensionStepCarryover).
-        grapple.QuarterVelocity = new(
-            GrappleExtensionStepCarryover.Step(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
-            GrappleExtensionStepCarryover.Step(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
+        grapple.ExtensionSubstep = new(
+            GrappleExtensionStepCarryover.Step(grapple.ExtensionVelocity.X, grapple.ExtensionSubstep.X),
+            GrappleExtensionStepCarryover.Step(grapple.ExtensionVelocity.Y, grapple.ExtensionSubstep.Y));
         GrappleBlockReaction finalReaction = GrappleBlockReaction.Passes;
         for (int substep = 0; substep < GrappleExtensionStepCarryover.Substeps; substep++)
         {
-            grapple.EndpointOffset += grapple.QuarterVelocity;
+            grapple.EndpointOffset += grapple.ExtensionSubstep;
             PublishFiringGeometry(samus, grapple);
 
             GrappleBlockReaction reaction = ReactAtEndpoint(
@@ -207,7 +207,7 @@ public static class SamusGrappleMovement
         }
 
         // The rope collision does not stop when an intermediate probe reports a solid block it
-        // does not connect to. It executes all four quarter-velocity probes and returns only the
+        // does not connect to. It runs all four substep probes and returns only the
         // fourth reaction to the firing step. At high running speed a thin solid cell can
         // therefore be sampled and then cleared before the grapple decides whether to
         // cancel. Green Hill Zone's Grapple/Speed Booster gate exploit depends on this
@@ -242,8 +242,9 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Executes one connected grapple-phase call: Shoot holds the rope, left/right pump the swing, newly pressed
-    /// up/down adjust rope length. A release or drop leaves its pose for the frame's pose update to commit.
+    /// Runs one update of the connected grapple. Releasing Shoot lets go of the beam, Left and Right pump the swing, and
+    /// a fresh press of Up or Down adjusts the rope's length.
+    /// A release or drop leaves its pose for the frame's pose update to commit.
     /// </summary>
     internal static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction newlyPressedInput, Func<Position16<RoomPixels>, GrappleEnemyCollision> enemyCollision)
     {
@@ -310,10 +311,10 @@ public static class SamusGrappleMovement
             samus,
             grapple);
 
-        // The special-angle snap checks all eight special angles only when the collision raised the close-body
-        // flag. A match replaces pendulum positioning for this frame with that angle's exact
+        // The special-angle snap checks all eight special angles only after a close collision
+        // (CloseCollision). A match replaces pendulum positioning for this frame with that angle's exact
         // pose, anchor-relative body offset, and locked/wallgrab phase.
-        if (grapple.SpecialAngleHandling &&
+        if (grapple.CloseCollision &&
             TryHandleSpecialAngle(samus,
                 grapple,
                 previousPosition,
@@ -530,8 +531,8 @@ public static class SamusGrappleMovement
         SamusPoseId targetPose = SelectDroppedPose(samus);
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
-        // The drop clears these speeds now, but publishes its pose to the transitional
-        // slot. Normal movement still runs before that pose is committed.
+        // The drop clears these speeds now, but publishes its pose as the pending pose
+        // change. Normal movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
         bool emptyMovement = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Grappling;
@@ -916,7 +917,7 @@ public static class SamusGrappleMovement
         // reinterpreted as room terrain.
         grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
         grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
-        grapple.SpecialAngleHandling = false;
+        grapple.CloseCollision = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
 
@@ -1191,7 +1192,7 @@ public static class SamusGrappleMovement
         grapple.VelocityCorrection = AngularSpeed.Zero;
         grapple.JumpImpulse = AngularSpeed.Zero;
         grapple.CollisionBounceTimer = 0;
-        grapple.SpecialAngleHandling = false;
+        grapple.CloseCollision = false;
         // Dropping and wall jumping clear the slow-scroll flag.
         grapple.SlowScrolling = false;
         grapple.WallJumpTimer = 0;

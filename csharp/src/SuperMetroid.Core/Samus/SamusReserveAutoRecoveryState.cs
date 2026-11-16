@@ -69,8 +69,9 @@ public sealed class SamusReserveAutoRecoveryState
         if (completed)
         {
             // The reserve-recovery state clears the one shared freeze flag before it restores
-            // normal control. X-Ray phase five deliberately checks that flag and skips
-            // cleanup when it is zero, which is the game's Reserve Mode glitch.
+            // normal control. The X-ray beam's last step (XrayBeamPhase.Finish) deliberately
+            // checks that flag and skips its cleanup while time runs, which is the game's
+            // Reserve Mode glitch.
             samus.Xray.ClearSharedFreezeForReserveMode();
             // Restoring Samus's control restores her normal input and movement modes unless
             // Mother Brain's rainbow-beam pair holds them.

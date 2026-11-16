@@ -66,7 +66,7 @@ public sealed class SamusGrappleState
     /// speed, but it keeps parts of the update before's (<see cref="GrappleExtensionStepCarryover"/>), so it is state
     /// rather than a pure function of the speed.
     /// </summary>
-    public FixedVector<RoomPixels> QuarterVelocity { get; set; }
+    public FixedVector<RoomPixels> ExtensionSubstep { get; set; }
     /// <summary>Gets or sets the physical hand-origin offset from Samus.</summary>
     public Offset16<RoomPixels> OriginOffset { get; set; }
     /// <summary>Gets or sets the drawn flare's offset from Samus.</summary>
@@ -148,10 +148,10 @@ public sealed class SamusGrappleState
     public bool ValidateAnchorEnemy { get; set; }
 
     /// <summary>
-    /// The close-collision flag. A close collision at minimum rope length
-    /// requests the exact locked/wallgrab angle lookup; successful swing motion clears it.
+    /// Whether the swing collided while the rope was at its shortest: such a collision has the next update look for the
+    /// locked or wall-grab angle Samus snaps to, and successful swing motion clears it.
     /// </summary>
-    public bool SpecialAngleHandling { get; set; }
+    public bool CloseCollision { get; set; }
 
     /// <summary>
     /// Set by the swing while it is fast,

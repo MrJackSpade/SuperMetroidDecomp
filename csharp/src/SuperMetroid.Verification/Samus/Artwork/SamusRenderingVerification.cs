@@ -75,14 +75,14 @@ internal static void VerifySamusRenderingSlice()
     // Frames 0-3 each last ten calls. The fifth byte is command $F6, which returns a
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(0, samus.AnimationNumber, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
-    SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationNumber, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(0, samus.AnimationNumber, "healthy $F6 command loops standing animation");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
@@ -90,11 +90,11 @@ internal static void VerifySamusRenderingSlice()
     samus.Health = 29;
     SamusPresentation.InitializeAnimation(samus);
     for (int tick = 0; tick < 40; tick++)
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(5, samus.AnimationNumber, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 
     // The item transition's two poses, chosen by equipment (#1473). Only the unused poses $3F/$40 hold one in retail;

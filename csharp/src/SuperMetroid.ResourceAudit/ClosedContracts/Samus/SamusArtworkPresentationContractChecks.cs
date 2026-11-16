@@ -24,8 +24,8 @@ internal static class SamusArtworkPresentationContractChecks
             class SamusArtConsumer {
                 void Inspect(InstalledSamusBodyArtwork body, SamusSpritemapSources compositions,
                     SamusAtmosphericSourceArtwork atmosphere, SamusArmCannonSourceArtwork arm) {
-                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
-                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose);
+                    body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
+                    body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose);
                     body.OriginRise(0, 0);
                     compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
                     compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, SamusBodyHalf.Top, 0), out _);
@@ -75,7 +75,7 @@ internal static class SamusArtworkPresentationContractChecks
         }
         AuditReport partial = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText("""
             namespace SuperMetroid.Core.Samus.Artwork {
-                public sealed partial class InstalledSamusBodyArtwork { void Change() { graphicsYOffsets[0] = 0; } }
+                public sealed partial class InstalledSamusBodyArtwork { void Change() { artOrigins[0] = 0; } }
             }
             """, path: "fixture-extra-body-partial.cs"))), true);
         Require(partial.Classifications.Count == 5 && partial.UnresolvedCount == 8,

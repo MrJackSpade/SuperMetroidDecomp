@@ -156,7 +156,7 @@ public sealed class SamusBodySources
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
             SamusBodyPosePlacement placement = placements[pose];
-            content.Append("graphics y offset", placement.GraphicsYOffset);
+            content.Append("art origin", placement.ArtOrigin);
             if (placement.FrameRises is not { } rises)
                 continue;
             content.Append("frame rise count", rises.Length);
@@ -193,7 +193,7 @@ public sealed class SamusBodySources
     private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts, InstalledFrames installed) => new()
     {
         OriginRises = installed.OriginRises.ToDictionary(pose => pose.Key, pose => (IReadOnlyDictionary<SamusAnimationFrame, int>)NamedRises(pose.Key, pose.Value)),
-        GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
+        ArtOrigins = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.ArtOrigin),
         DeathSteps = Ensure.NotNull(parts.DeathSteps),
         ArmCannon = Ensure.NotNull(parts.ArmCannon).Gameplay,
     };
@@ -220,7 +220,7 @@ public sealed class SamusBodySources
     /// </summary>
     /// <param name="shown">The frames her body can show in each pose and the picture each draws, as the import decided them.</param>
     internal InstalledSamusBody InstalledBody(SamusShownFrames shown) =>
-        new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
+        new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.ArtOrigin),
             SheetFrames(originRises, Spritemaps, Ensure.NotNull(shown)), shown, DeathSteps, ArmCannon.Installed(shown));
 
     /// <summary>

@@ -22,12 +22,12 @@ internal static class SamusArtOriginRangeVerification
                 [high] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationFrame.Start] = 0 },
                 [low] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationFrame.Start] = 0 },
             },
-            GraphicsYOffsets = new Dictionary<SamusPoseId, int> { [high] = 200, [low] = -200 },
+            ArtOrigins = new Dictionary<SamusPoseId, int> { [high] = 200, [low] = -200 },
             DeathSteps = installed.DeathSteps,
             ArmCannon = installed.ArmCannon,
         });
-        AssertEqual(200, artwork.GraphicsYOffset(high), "an art origin above 127 pixels is kept");
-        AssertEqual(-200, artwork.GraphicsYOffset(low), "an art origin below -128 pixels is kept");
+        AssertEqual(200, artwork.ArtOrigin(high), "an art origin above 127 pixels is kept");
+        AssertEqual(-200, artwork.ArtOrigin(low), "an art origin below -128 pixels is kept");
         Console.WriteLine("Samus art origins: origins past a signed byte's range are kept exactly.");
     }
 }

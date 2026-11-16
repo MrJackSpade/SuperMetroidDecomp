@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
@@ -76,8 +77,8 @@ internal static class GameplayContentIdentityVerification
             entries.Add(entry with { Visual = visual });
         }
         AssertEqual(42, entries.Count, "complete compiled drawable rule fixture");
-        var items = new RoomBlockAppearance[InstalledXrayOverlays.TankCount];
-        if (edit == "xray-item") items[^1] = RoomBlockAppearance.Of(1);
+        Dictionary<InWorldCollectibleKind, RoomBlockAppearance> items = InstalledXrayOverlays.TankKinds.ToDictionary(tank => tank, _ => default(RoomBlockAppearance));
+        if (edit == "xray-item") items[InWorldCollectibleKind.PowerBombTank] = RoomBlockAppearance.Of(1);
         XrayRoomOverlayVisual[] tiles =
         [
             new(new(1, 2), RoomBlockAppearance.Of(3)),

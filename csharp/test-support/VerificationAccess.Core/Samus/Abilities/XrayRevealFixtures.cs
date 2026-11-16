@@ -43,5 +43,5 @@ internal static class XrayRevealFixtures
     /// </summary>
     internal static InstalledXrayReveals Complete(Func<XrayRevealShape, XrayRevealVisualBlocks> shown) =>
         new(EveryDrawable(shown), InstalledXrayOverlays.FromOverlaysForVerification(
-            Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount), []));
+            InstalledXrayOverlays.TankKinds.ToDictionary(tank => tank, _ => RoomBlockAppearance.Of(0)), []));
 }

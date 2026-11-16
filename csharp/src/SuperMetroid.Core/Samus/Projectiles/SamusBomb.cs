@@ -50,7 +50,7 @@ public sealed class SamusBomb
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
-    /// <summary>The slot's projectile animation and where it stands in it (#1600); null marks an inactive slot, and a consumed timed frame plays it past that record.</summary>
+    /// <summary>The bomb's animation and where it stands in it (#1600); null while no bomb is placed here, and a timed frame that has run out plays it on past that frame.</summary>
     internal AnimationPlayback<SamusProjectileSegment>? Playback { get; set; }
     /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next animation cue.</summary>
     public WrappingCountdown FrameHold { get; internal set; }

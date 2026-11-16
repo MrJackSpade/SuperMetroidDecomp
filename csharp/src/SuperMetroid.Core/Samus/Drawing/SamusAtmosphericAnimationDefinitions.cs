@@ -1,6 +1,8 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Calculated uniform/progressive frame cadence with narrowly retained original atmospheric exposure choreography. These selected animation holds are not a fluid or damage integration law.</summary>
+/// <summary>
+/// How long each picture of the splashes, lava spray, bubbles and dust Samus raises shows, and how dust and spray drift.
+/// </summary>
 internal static class SamusAtmosphericAnimationDefinitions
 {
     /// <summary>Each footstep frame shows for three ticks, as authored.</summary>
@@ -21,7 +23,11 @@ internal static class SamusAtmosphericAnimationDefinitions
     internal const int BubbleStepCount = 8;
     /// <summary>The steps of a dust cloud, each one tick longer than the one before.</summary>
     internal const int DustStepCount = 4;
-    /// <summary>The updates each of the diving splash's nine steps shows, in step order: nine retained exposure choices for the drawn ripple/jet/droplet choreography; discrete frame art does not determine these holds. Preserve old-frame reload and the final hold of seven, which no step shows.</summary>
+    /// <summary>
+    /// The updates each of the diving splash's nine steps lasts, in step order, as authored. A step that ends hands its
+    /// own length to the step after it (<see cref="SamusParticle.Advance"/>), so each later step lasts as long as the one
+    /// before it.
+    /// </summary>
     internal static IReadOnlyList<int> DivingSplashStepUpdates { get; } = [2, 2, 3, 3, 3, 5, 5, 6, 7];
     /// <summary>Dust rises one pixel on each update it is shown.</summary>
     internal static readonly Offset16<RoomPixels> DustDrift = new(0, -1);

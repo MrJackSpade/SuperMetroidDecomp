@@ -37,8 +37,9 @@ public static class XrayRevealVisualFiles
     /// room showed, since a chain leaving the room reveals nothing (#1792); revision 10 names the reactions as the room's area
     /// resolves them, so Brinstar's own Speed Booster blocks are named for themselves alone (#1805); revision 11 writes no
     /// block for an appearance that shows nothing (#2100).
+    /// Revision 12 keys each tank's reveal block by the tank's kind instead of its place in a list (#2115).
     /// </summary>
-    private const int FormatVersion = 11;
+    private const int FormatVersion = 12;
 
     /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -112,7 +113,8 @@ public static class XrayRevealVisualFiles
             .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(reaction => reaction.ToString()).ToList().IndexOf(entry.Reactions[0]))
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
-        // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in tank order.
+        // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in the order of
+        // the tanks' draws, and are installed keyed by the tank's kind (#2115).
         for (int draw = 0; draw < CollectibleBlockPairs.InTurn.Count; draw++)
         {
             CollectibleBlockPairs.Pair pair = CollectibleBlockPairs.InTurn[draw];
@@ -121,12 +123,13 @@ public static class XrayRevealVisualFiles
             if (ItemDrawAppearance(bus, draw) != firstFrame)
                 throw new InvalidDataException($"The X-ray reveals the item in block pair {pair} other than by the pair's first frame.");
         }
-        RoomBlockAppearance[] tanks = Enumerable.Range(CollectibleBlockPairs.InTurn.Count, InstalledXrayOverlays.TankCount)
-            .Select(index => ItemDrawAppearance(bus, index)).ToArray();
+        var tanks = new Dictionary<InWorldCollectibleKind, RoomBlockAppearance>();
+        for (int place = 0; place < RoomObjectCollectibleDrawDefinitions.TankKinds.Length; place++)
+            tanks.Add(RoomObjectCollectibleDrawDefinitions.TankKinds[place], ItemDrawAppearance(bus, CollectibleBlockPairs.InTurn.Count + place));
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlayDefinitions.All
             .Select(overlay => ReadRoomOverlay(bus, overlay)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new XrayRevealVisualDocument(FormatVersion, entries, [.. tanks.Select(AppearanceDocument.Of)], rooms),
+            new XrayRevealVisualDocument(FormatVersion, entries, tanks.ToDictionary(tank => tank.Key, tank => AppearanceDocument.Of(tank.Value)), rooms),
             JsonOptions);
         using var file = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
         file.Write(json);
@@ -134,7 +137,7 @@ public static class XrayRevealVisualFiles
 
     /// <summary>Validates the installed version-nine X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
     /// <param name="directory">Family directory containing the installed reveal JSON.</param>
-    /// <returns>A ROM-independent catalog with copied rule operands, four tank reveals, and ordered special-room tile lists.</returns>
+    /// <returns>A ROM-independent catalog with copied rule operands, each tank kind's reveal, and ordered special-room tile lists.</returns>
     /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">The format, strict JSON schema, rule coverage/shape, a rule's block count, or overlay identities are invalid.</exception>
@@ -153,11 +156,11 @@ public static class XrayRevealVisualFiles
             foreach (Enum? reaction in ReadingsNamed(entry))
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
-        RoomBlockAppearance[] tanks;
+        Dictionary<InWorldCollectibleKind, RoomBlockAppearance> tanks;
         XrayRoomOverlayBlocks[] rooms;
         try
         {
-            tanks = [.. document.Tanks.Select(tank => tank.ToAppearance())];
+            tanks = document.Tanks.ToDictionary(tank => tank.Key, tank => tank.Value.ToAppearance());
             rooms = [.. document.Rooms.Select(room => new XrayRoomOverlayBlocks(OverlayNamed(room.Overlay),
                 room.Tiles.Select(tile => new XrayRoomOverlayVisual(tile.Block, tile.Appearance.ToAppearance())).ToArray()))];
         }
@@ -174,7 +177,7 @@ public static class XrayRevealVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null ||
             document.Tanks is null || document.Rooms is null ||
-            document.Tanks.Length != InstalledXrayOverlays.TankCount || document.Tanks.Any(tank => tank is null) ||
+            document.Tanks.Values.Any(tank => tank is null) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
         if (!document.Rooms.Select(room => room.Overlay).SequenceEqual(XrayRoomOverlayDefinitions.All.Select(overlay => overlay.Name), StringComparer.Ordinal))
@@ -328,10 +331,10 @@ public static class XrayRevealVisualFiles
     /// <summary>Complete editable rule, tank, and room-overlay families for the installed format.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Entries">Every drawable rule's blocks.</param>
-    /// <param name="Tanks">The four tanks' reveal appearances.</param>
+    /// <param name="Tanks">Each tank's reveal appearance, keyed by the tank's kind.</param>
     /// <param name="Rooms">The special rooms' overlays.</param>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
-        AppearanceDocument[] Tanks, XrayRoomOverlayEntry[] Rooms);
+        Dictionary<InWorldCollectibleKind, AppearanceDocument> Tanks, XrayRoomOverlayEntry[] Rooms);
 
     /// <summary>An appearance as the document writes it (#2100).</summary>
     /// <param name="Block">The block shown, or null where nothing shows.</param>

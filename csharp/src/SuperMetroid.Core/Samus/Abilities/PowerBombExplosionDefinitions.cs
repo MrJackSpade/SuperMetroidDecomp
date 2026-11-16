@@ -46,8 +46,8 @@ public static class PowerBombExplosionDefinitions
     /// <summary>Crystal Flash's shorter explosion radius limit: thirty-two pixels.</summary>
     public static readonly PowerBombRadius CrystalFlashRadiusLimit = PowerBombRadius.FromWholePixels(32);
     /// <summary>
-    /// Maximum component of the first Crystal Flash color:
-    /// levels (14,14,10). This is a lifetime count, not replacement artwork.
+    /// The updates Crystal Flash's afterglow fades for after an explosion that stopped in the first glow band; each further
+    /// band the explosion reached lengthens it by one update (<see cref="PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps"/>).
     /// </summary>
-    internal const int CrystalFlashInitialFadeSteps = 14;
+    internal const int CrystalFlashShortestAfterglowUpdates = 14;
 }

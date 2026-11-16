@@ -26,29 +26,27 @@ public sealed class InstalledXrayOverlays
     internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
     /// <summary>Copies tank blocks and ordered special-room blocks, requiring all compiled overlay sources without changing item collection or room object state.</summary>
-    /// <param name="tankBlocks">Exactly four appearances, one for each tank kind in tank order: Energy, Missile, Super Missile, Power Bomb.</param>
+    /// <param name="tankBlocks">The block the X-ray reveals for each tank kind, keyed by the kind: one for each of <see cref="TankKinds"/> and no other.</param>
     /// <param name="rooms">Nonempty ordered block lists keyed by overlay; each list is copied.</param>
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>
-    /// <exception cref="InvalidDataException">Tank values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
-    public InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankBlocks,
+    /// <exception cref="InvalidDataException">The tank blocks name other kinds than the tanks or miss one, or the room lists, duplicate overlays or required-overlay coverage are invalid.</exception>
+    public InstalledXrayOverlays(IReadOnlyDictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks,
         IEnumerable<XrayRoomOverlayBlocks> rooms)
         : this(tankBlocks, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
     {
     }
 
     /// <summary>Copies validated tank and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
-    internal InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankBlocks,
+    internal InstalledXrayOverlays(IReadOnlyDictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks,
         IEnumerable<XrayRoomOverlayBlocks> rooms,
         IEnumerable<XrayRoomOverlayDefinition> requiredOverlays)
     {
         Ensure.NotNull(tankBlocks);
         Ensure.NotNull(rooms);
-        RoomBlockAppearance[] inTankOrder = tankBlocks.ToArray();
-        if (inTankOrder.Length != TankCount)
-            throw new InvalidDataException($"X-ray tank visuals require {TankCount} appearances.");
-        this.tankBlocks = [];
-        for (int place = 0; place < TankCount; place++)
-            this.tankBlocks.Add(RoomObjectCollectibleDrawDefinitions.TankKinds[place], inTankOrder[place]);
+        if (tankBlocks.Count != TankKinds.Count || TankKinds.Any(tank => !tankBlocks.ContainsKey(tank)))
+            throw new InvalidDataException(
+                $"X-ray tank visuals name {string.Join(", ", tankBlocks.Keys)} instead of exactly the tank kinds {string.Join(", ", TankKinds)}.");
+        this.tankBlocks = tankBlocks.ToDictionary();
         this.rooms = new Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]>();
         foreach ((XrayRoomOverlayDefinition overlay, IReadOnlyList<XrayRoomOverlayVisual> visuals) in rooms)
         {
@@ -63,7 +61,7 @@ public sealed class InstalledXrayOverlays
     }
 
     /// <summary>The tank kinds, whose installed reveals this holds.</summary>
-    public static int TankCount => RoomObjectCollectibleDrawDefinitions.TankKinds.Length;
+    public static IReadOnlyCollection<InWorldCollectibleKind> TankKinds { get; } = RoomObjectCollectibleDrawDefinitions.TankKinds.AsReadOnly();
 
     /// <summary>Selects the installed reveal block of tank kind <paramref name="tank"/>, independently of whether it has been collected.</summary>
     /// <returns>The selected appearance.</returns>

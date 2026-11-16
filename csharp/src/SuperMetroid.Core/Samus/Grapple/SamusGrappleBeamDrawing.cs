@@ -102,7 +102,7 @@ public static class SamusGrappleBeamDrawing
         bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
         var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
         var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
-        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
         int physicalYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
@@ -110,7 +110,7 @@ public static class SamusGrappleBeamDrawing
         grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
             origin.X, origin.Y - physicalYOffset);
         grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(
-            flare.X, flare.Y - graphicsYOffset);
+            flare.X, flare.Y - artOrigin);
     }
 
 

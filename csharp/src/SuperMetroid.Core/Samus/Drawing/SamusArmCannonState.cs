@@ -96,11 +96,11 @@ public sealed class SamusArmCannonState
         SamusProjectileDirection direction = placement.Direction(frame);
 
         Offset16<RoomPixels> offset = placement.Offset(frame);
-        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
 
         // The cover is published wherever it lies, off the screen included; the display clips it (#1587).
         Offset16<ScreenPixels> place =
-            (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
+            (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, artOrigin)).RelativeToCamera(cameraPosition);
         // The cover's direction and picture name its sheet frame; a closed cover returned above.
         InstalledSpriteSheets sheets = samus.Presentation.Sheets;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),

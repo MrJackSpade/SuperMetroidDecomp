@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
-    internal readonly Dictionary<SamusPoseId, int> graphicsYOffsets;
+    internal readonly Dictionary<SamusPoseId, int> artOrigins;
     /// <summary>Where each pose's installed animation frames place the body, by frame of the pose's animation.</summary>
     private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> originRises;
 
@@ -38,15 +38,15 @@ public sealed class InstalledSamusBodyArtwork
     {
         Ensure.NotNull(content);
         Ensure.NotNull(content.OriginRises);
-        Ensure.NotNull(content.GraphicsYOffsets);
+        Ensure.NotNull(content.ArtOrigins);
         Ensure.NotNull(content.DeathSteps);
         Ensure.NotNull(content.ArmCannon);
         if (content.OriginRises.Values.Any(frames => frames is null))
             throw new InvalidDataException("Samus body placements name a pose without a frame list.");
-        if (content.GraphicsYOffsets.Count != content.OriginRises.Count ||
-            content.OriginRises.Keys.Any(pose => !content.GraphicsYOffsets.ContainsKey(pose)))
+        if (content.ArtOrigins.Count != content.OriginRises.Count ||
+            content.OriginRises.Keys.Any(pose => !content.ArtOrigins.ContainsKey(pose)))
             throw new InvalidDataException("Samus art origins do not cover exactly the poses with body frames.");
-        this.graphicsYOffsets = content.GraphicsYOffsets.ToDictionary();
+        this.artOrigins = content.ArtOrigins.ToDictionary();
         this.originRises = content.OriginRises.ToDictionary();
         DeathSteps = content.DeathSteps;
         ArmCannon = content.ArmCannon;
@@ -54,10 +54,10 @@ public sealed class InstalledSamusBodyArtwork
 
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     /// <exception cref="InvalidDataException">The pose has no art origin.</exception>
-    public int GraphicsYOffset(SamusPoseId pose) =>
-        graphicsYOffsets.TryGetValue(pose, out int offset)
-            ? offset
-            : throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
+    public int ArtOrigin(SamusPoseId pose) =>
+        artOrigins.TryGetValue(pose, out int origin)
+            ? origin
+            : throw new InvalidDataException($"Pose {pose} has no art origin.");
 
     /// <summary>
     /// How many pixels above Samus's drawn point the body's origin sits when <paramref name="pose"/> shows

@@ -7,7 +7,7 @@ internal static class SamusArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork", "samus-complete-placement-offsets",
-            ["GraphicsYOffset"],
+            ["ArtOrigin"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusBodyArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyArtworkContent.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseId.cs"),

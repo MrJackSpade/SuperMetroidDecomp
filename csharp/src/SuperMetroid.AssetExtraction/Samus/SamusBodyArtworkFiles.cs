@@ -45,9 +45,10 @@ public static class SamusBodyArtworkFiles
     /// spritemaps, and the atmospheric lists and the arm cannon's appearances are import data (#1638). Revision fourteen
     /// installs the body without the cartridge's digest and the arm cannon and death documents without manifests (#1693).
     /// Revision fifteen keys each pose's frames by their names in the pose's animation, the segment and the frame within it,
-    /// and installs the frames each pose shows with the picture frame each draws (#2048).
+    /// and installs the frames each pose shows with the picture frame each draws (#2048). Revision sixteen names each
+    /// pose's art origin <c>artOrigin</c> (#2113).
     /// </summary>
-    private const int FormatVersion = 15;
+    private const int FormatVersion = 16;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -93,7 +94,7 @@ public static class SamusBodyArtworkFiles
         // The pose tables are read by the cartridge's pose numbers and installed by pose name (#1595).
         Dictionary<SamusPoseId, int> poseFirstFrames = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
             pose => BodyFrame(posePointers[SamusPoseNumbers.Number(pose)]));
-        int[] graphicsYOffsets = Enumerable.Range(0, SamusBodySources.PoseCount)
+        int[] artOrigins = Enumerable.Range(0, SamusBodySources.PoseCount)
             .Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
@@ -129,7 +130,7 @@ public static class SamusBodyArtworkFiles
             .Select(index => (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.DrainedVerticalOffsets.Value + index))).ToArray();
         // The placement tables are decoded here, once; the installation holds each pose's and frame's placement (#1517).
         Dictionary<SamusPoseId, SamusBodyPosePlacement> placements =
-            SamusBodyPlacementDecoding.Decode(graphicsYOffsets, landingOffsets, postureOffsets, drainedOffsets);
+            SamusBodyPlacementDecoding.Decode(artOrigins, landingOffsets, postureOffsets, drainedOffsets);
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
             topSetStarts, bottomSetStarts, poseFirstFrames, placements,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
@@ -151,7 +152,7 @@ public static class SamusBodyArtworkFiles
                 SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose =>
                 {
                     SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-                    return new PoseFrames(installed.GraphicsYOffset(pose),
+                    return new PoseFrames(installed.ArtOrigin(pose),
                         installed.FramesOf(pose).ToDictionary(pair => animation.NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
                         installed.ShownFrames.PictureFrames[pose].OrderBy(pair => pair.Key).ToDictionary(
                             pair => animation.NameOf(pair.Key), pair => animation.NameOf(pair.Value), StringComparer.Ordinal));
@@ -176,7 +177,7 @@ public static class SamusBodyArtworkFiles
             if (manifest.Version != FormatVersion || manifest.Poses is null || !SamusPoseNumbers.CoversRecordedPoses(manifest.Poses) ||
                 manifest.Poses.Values.Any(pose => pose is null || pose.Frames is null || pose.Shows is null))
                 throw new InvalidDataException("Samus body manifest does not match this installation.");
-            return new InstalledSamusBody(manifest.Poses.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
+            return new InstalledSamusBody(manifest.Poses.ToDictionary(pose => pose.Key, pose => pose.Value.ArtOrigin),
                 manifest.Poses.ToDictionary(pose => pose.Key, pose =>
                 {
                     SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose.Key);
@@ -414,7 +415,7 @@ public static class SamusBodyArtworkFiles
     internal sealed record GameManifest(int Version, Dictionary<SamusPoseId, PoseFrames> Poses);
 
     /// <summary>One pose's art origin, the body frames the body sheet pictures of it and the frames it shows.</summary>
-    /// <param name="GraphicsYOffset">
+    /// <param name="ArtOrigin">
     /// The pose's art origin, -128 through 127: how many pixels above Samus's center the arm cannon, the Grapple beam, the
     /// charge flare and the speed-booster echoes are drawn.
     /// </param>
@@ -425,7 +426,7 @@ public static class SamusBodyArtworkFiles
     /// <param name="Shows">
     /// Each animation frame the pose shows, by its name in the pose's animation, with the name of the picture frame it draws.
     /// </param>
-    internal sealed record PoseFrames(int GraphicsYOffset, Dictionary<string, int> Frames, Dictionary<string, string> Shows);
+    internal sealed record PoseFrames(int ArtOrigin, Dictionary<string, int> Frames, Dictionary<string, string> Shows);
 
     /// <summary>
     /// The extracted body, import data (#1638): split-DMA identities, pose selectors, each pose's and frame's body placement,

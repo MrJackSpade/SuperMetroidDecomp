@@ -312,6 +312,13 @@ service may name the check that confirms the behaviour it reproduces. A check th
 check`), the condition a replay tests, treating a value as another with no breakage told, an inventory and a frozen
 enemy stay English.
 
+Outside hardware owners SME6454 also reads a controller button's letter used as the name of a gameplay action (#2113),
+the letters read case-sensitively: a letter that is an action (`A is Jump`, `X here is the configured Shoot action`, `X is
+the default shoot binding`), an action that is a letter (`Jump is A`), a letter before an action's button, binding or
+action (`the B run button`) and a letter in brackets after an action (`Shoot (X)`). Core reads typed gameplay actions,
+and which button the player binds to each is the host's, so Core names the action (Shoot, Jump, Dash). A coordinate
+(`X is the sample`), an article (`A binding names a frame`), X-ray and a letter alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

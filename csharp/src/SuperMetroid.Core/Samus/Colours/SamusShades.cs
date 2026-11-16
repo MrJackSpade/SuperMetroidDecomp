@@ -27,7 +27,7 @@ public static class SamusShades
     public static PictureShade Suit(SamusSuit suit) => new($"Suit{suit}", 0);
 
     /// <summary>The suit under one step of a charged beam's pulse or the pseudo Screw Attack's hold.</summary>
-    public static PictureShade Charge(SamusChargeShade palette) => new($"Charge{palette.Kind}{palette.Suit}", palette.Step);
+    public static PictureShade Charge(SamusChargeShade shade) => new($"Charge{shade.Kind}{shade.Suit}", shade.Step);
 
     /// <summary>The suit under one frame of the Hyper Beam's full-body glow, which the drained Samus and the Hyper shot show.</summary>
     public static PictureShade HyperBeamSuit(int frame) => new("HyperBeamSuit", frame);
@@ -36,8 +36,8 @@ public static class SamusShades
     public static PictureShade HyperShot(int frame) => new("HyperShot", frame);
 
     /// <summary>The suit under one shade of a full-body cycle: Speed Booster, Screw Attack or a shinespark's glow.</summary>
-    public static PictureShade FullBodyCycle(SamusFullBodyCycleShade palette) =>
-        new($"{palette.Family}{palette.Suit}", palette.Shade);
+    public static PictureShade FullBodyCycle(SamusFullBodyCycleShade shade) =>
+        new($"{shade.Family}{shade.Suit}", shade.Shade);
 
     /// <summary>The suit under the hurt flash's bright colours or its cinematic grey restoration.</summary>
     public static PictureShade Hurt(SamusHurtColorVariant variant) => new($"Hurt{variant}", 0);

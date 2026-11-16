@@ -48,10 +48,10 @@ internal static class XrayRevealVisualInstallationVerification
         InstalledXrayOverlays overlays = stock.Overlays;
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         // The tanks' draws follow the four that reveal the item in each block pair (#1538).
-        for (int tank = 0; tank < InstalledXrayOverlays.TankCount; tank++)
+        for (int tank = 0; tank < RoomObjectCollectibleDrawDefinitions.TankKinds.Length; tank++)
         {
             ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + (SuperMetroid.Core.Compatibility.CollectibleBlockPairs.InTurn.Count + tank) * 2);
-            InWorldCollectibleKind kind = InWorldCollectibleKind.EnergyTank + tank;
+            InWorldCollectibleKind kind = RoomObjectCollectibleDrawDefinitions.TankKinds[tank];
             AssertEqual(RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))),
                 overlays.TankBlock(kind), $"stock X-ray {kind} reveal");
         }
@@ -91,6 +91,10 @@ internal static class XrayRevealVisualInstallationVerification
         AssertEqual(2, tallBlocks.Length, "the tall reveal lists its two blocks");
         AssertTrue(document.AsObject().ContainsKey("tanks") && !document.AsObject().ContainsKey("tankMetatiles"),
             "the tanks' reveal blocks are installed as tanks");
+        // Each tank's reveal block is installed under its kind, not by its place in a list (#2115).
+        AssertTrue(document.Required("tanks").AsObject().Select(tank => tank.Key).Order(StringComparer.Ordinal)
+                .SequenceEqual(InstalledXrayOverlays.TankKinds.Select(kind => kind.ToString()).Order(StringComparer.Ordinal)),
+            "the tanks' reveal blocks are installed keyed by each tank kind");
         int originalTop = tallBlocks[0];
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid(), []);

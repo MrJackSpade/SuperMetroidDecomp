@@ -16,10 +16,8 @@ public enum NorfairPipeBugAction
     LeaderStagger,
     /// <summary>Moves a formation member by its role's stagger offset from where its rise ended.</summary>
     Stagger,
-    /// <summary>Flies a released Norfair formation member left.</summary>
-    FlyLeft,
-    /// <summary>Flies a released Norfair formation member right.</summary>
-    FlyRight,
+    /// <summary>Flies a released Norfair formation member the way it departed (<see cref="NorfairPipeBugState.FlightDirection"/>).</summary>
+    Fly,
     /// <summary>Waits for one Norfair member's stagger target.</summary>
     WaitForStagger,
 }

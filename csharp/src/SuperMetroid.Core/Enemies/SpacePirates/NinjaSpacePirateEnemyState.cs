@@ -15,6 +15,9 @@ public sealed class NinjaSpacePirateEnemyState
     /// <summary>Movement/decision action.</summary>
     public NinjaSpacePirateAction Action { get; internal set; }
 
+    /// <summary>The way the Pirate spin jumps, divekicks or walks back to its post (#2165).</summary>
+    public HorizontalDirection Heading { get; internal set; }
+
     /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateSegment ActiveAnimation { get; set; }
 

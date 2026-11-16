@@ -13,6 +13,9 @@ internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnem
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunWorkRobotMainAi(Place, frame);
 
+    /// <summary>The powered robot rejects a bomb's damage until Phantoon is defeated (#2164).</summary>
+    protected override EnemyBombReaction OwnBombReaction => Species.PoweredWorkRobotBombReaction;
+
     /// <summary>The powered robot returns before common shot AI until Phantoon is defeated.</summary>
     public bool AdmitsShots() => Species.IsAreaBossDefeated;
 }

@@ -22,13 +22,14 @@ internal static class TorizoStateQuantitiesVerification
         var state = new TorizoEnemyState(isGolden: true);
         place.SetSpeciesState(state);
         var inputs = new TorizoCueInputs { Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 };
-        void Apply(TorizoCueKind kind) =>
-            AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place, state, inputs, new TorizoCue.Signal(kind),
+        void ApplyCue(TorizoCue cue) =>
+            AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place, state, inputs, cue,
                     TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
-                $"{kind} runs on");
+                $"{cue} runs on");
+        void Apply(TorizoCueKind kind) => ApplyCue(new TorizoCue.Signal(kind));
 
         state.DecisionCounter = 7;
-        Apply(TorizoCueKind.SteppedLeftWithLeftFoot);
+        ApplyCue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Left));
         AssertEqual(8, state.DecisionCounter, "a stepping cue counts one decision step");
 
         state.SamusSpaceJumpFrames = 360;
@@ -48,7 +49,7 @@ internal static class TorizoStateQuantitiesVerification
         AssertEqual(24, jump.Y.InTwoHundredFiftySixthsOfPixel, "the jump acceleration adds to the vertical velocity across zero");
 
         state.Posture = TorizoPostureFlags.TurningAround;
-        Apply(TorizoCueKind.SteppedRightWithLeftFoot);
+        ApplyCue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left));
         AssertEqual(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, state.Posture,
             "a stepping cue replaces all three posture latches");
         Apply(TorizoCueKind.SetTurningAround);

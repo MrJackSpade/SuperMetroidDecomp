@@ -250,10 +250,10 @@ internal sealed class KraidLimbs
             case KraidPhase.FootSecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, foot, part);
                 return;
-            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalking when part.WalkDirection == HorizontalDirection.Right:
                 RunKraidSecondPhaseWalkingRight(body, foot);
                 return;
-            case KraidPhase.FootSecondPhaseWalkingLeft:
+            case KraidPhase.FootSecondPhaseWalking:
                 RunKraidSecondPhaseWalkingLeft(body, foot);
                 return;
             case KraidPhase.GrowBreakCeilingPlatforms:
@@ -427,7 +427,8 @@ internal sealed class KraidLimbs
     {
         _access.RequireKraidState(foot).WalkTargetX = targetX;
         part.ThinkTimer = thinkTimer;
-        _access.Part(foot).Phase = rightward ? KraidPhase.FootSecondPhaseWalkingRight : KraidPhase.FootSecondPhaseWalkingLeft;
+        _access.Part(foot).Phase = KraidPhase.FootSecondPhaseWalking;
+        _access.RequireKraidState(foot).FootState.WalkDirection = rightward ? HorizontalDirection.Right : HorizontalDirection.Left;
         _access.StartKraidPartAnimation(foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
     }
 

@@ -207,6 +207,13 @@ internal static class EnemySpeciesCapabilitiesVerification
             if (definition == EnemyDefinitionId.Powamp)
                 place.SetSpawnSettings(new SuperMetroid.Core.Enemies.Powamp.PowampSpawnSettings(
                     SuperMetroid.Core.Enemies.Powamp.PowampPart.Body, GrappleTravelDistance: 0));
+            // A Morph Ball eye placement names the eye or its beam mount, and a Rio's or a lava jumper's whether it leads or
+            // follows (#2164); the leading part and the eye carry the species' members.
+            if (definition == EnemyDefinitionId.MorphBallEye)
+                place.SetSpawnSettings(new SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeSpawnSettings(HorizontalDirection.Right,
+                    SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyePart.Eye, SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountSide.Left));
+            if (definition is EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Squeept)
+                place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
             place.Bind(definition, HeaderOf(definition));
             IEnemyEntity entity = place.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
             bound++;

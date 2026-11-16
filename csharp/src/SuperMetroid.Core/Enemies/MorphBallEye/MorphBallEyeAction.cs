@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The behaviour a morph-ball eye's main AI runs.
+/// The behaviour a morph-ball eye body's main AI runs; its beam mount runs none.
 /// Its values are arbitrary.
 /// </summary>
 public enum MorphBallEyeAction
@@ -14,6 +14,4 @@ public enum MorphBallEyeAction
     Active,
     /// <summary>Waits for the 32-update closing countdown to reach zero or wrap negative, then resumes proximity waiting.</summary>
     Deactivating,
-    /// <summary>A beam mount shows its mount pose; it does not track Samus or own the beam.</summary>
-    ShowingMount,
 }

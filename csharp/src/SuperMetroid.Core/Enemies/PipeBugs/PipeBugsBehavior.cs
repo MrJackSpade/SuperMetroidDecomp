@@ -163,12 +163,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunNorfairPipeBugStaggerWait(place, state, samus);
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
-            case NorfairPipeBugAction.FlyLeft:
-                AddPipeBugLinearVelocity(place, axis: Axis.Horizontal, state.FlightSpeeds.Negative);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case NorfairPipeBugAction.FlyRight:
-                AddPipeBugLinearVelocity(place, axis: Axis.Horizontal, state.FlightSpeeds.Positive);
+            case NorfairPipeBugAction.Fly:
+                AddPipeBugLinearVelocity(place, axis: Axis.Horizontal,
+                    state.FlightDirection == HorizontalDirection.Left ? state.FlightSpeeds.Negative : state.FlightSpeeds.Positive);
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             default:
@@ -192,17 +189,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case YellowPipeBugAction.EmergenceDelay:
                 RunYellowPipeBugDelay(place, state);
                 return;
-            case YellowPipeBugAction.FlyLeft:
-                RunYellowPipeBugStraightFlight(place, state, samus, camera, direction: HorizontalDirection.Left);
+            case YellowPipeBugAction.Fly:
+                RunYellowPipeBugStraightFlight(place, state, samus, camera, state.FlightDirection);
                 return;
-            case YellowPipeBugAction.FlyRight:
-                RunYellowPipeBugStraightFlight(place, state, samus, camera, direction: HorizontalDirection.Right);
-                return;
-            case YellowPipeBugAction.ArcLeft:
-                RunYellowPipeBugArc(place, state, camera, direction: HorizontalDirection.Left);
-                return;
-            case YellowPipeBugAction.ArcRight:
-                RunYellowPipeBugArc(place, state, camera, direction: HorizontalDirection.Right);
+            case YellowPipeBugAction.Arc:
+                RunYellowPipeBugArc(place, state, camera, state.FlightDirection);
                 return;
             default:
                 throw new InvalidDataException(
@@ -387,14 +378,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.FormationCounter = 0;
         place.AnimationClock.Restart();
+        state.Action = NorfairPipeBugAction.Fly;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0)
         {
-            state.Action = NorfairPipeBugAction.FlyRight;
+            state.FlightDirection = HorizontalDirection.Right;
             state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugSegment.GametFlyingRight), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Action = NorfairPipeBugAction.FlyLeft;
+            state.FlightDirection = HorizontalDirection.Left;
             state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugSegment.GametFlyingLeft), AnimationPlace.StartOfAnimation);
         }
     }
@@ -464,16 +456,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.EmergenceDelay != 0)
             return;
         place.AnimationClock.Restart();
-        if (place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left)
-        {
-            state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingLeft), AnimationPlace.StartOfAnimation);
-            state.Action = YellowPipeBugAction.FlyLeft;
-        }
-        else
-        {
-            state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingRight), AnimationPlace.StartOfAnimation);
-            state.Action = YellowPipeBugAction.FlyRight;
-        }
+        state.FlightDirection = place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing;
+        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.FlightDirection == HorizontalDirection.Left
+            ? PipeBugSegment.GeegaFlyingLeft
+            : PipeBugSegment.GeegaFlyingRight), AnimationPlace.StartOfAnimation);
+        state.Action = YellowPipeBugAction.Fly;
     }
 
     /// <summary>Advances yellow flight and begins its single quadratic arc after passing Samus by the threshold.</summary>
@@ -496,9 +483,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!passedSamus)
             return;
 
-        state.Action = direction == HorizontalDirection.Left
-            ? YellowPipeBugAction.ArcLeft
-            : YellowPipeBugAction.ArcRight;
+        state.Action = YellowPipeBugAction.Arc;
         state.ArcCounter = PipeBugDefinitions.YellowArcStart;
         state.ArcRising = true;
         state.Playback = StartPipeBugAnimation(place,
@@ -545,9 +530,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ArcCompleted = true;
         state.ArcRising = true;
-        state.Action = direction == HorizontalDirection.Left
-            ? YellowPipeBugAction.FlyLeft
-            : YellowPipeBugAction.FlyRight;
+        state.Action = YellowPipeBugAction.Fly;
         state.Playback = StartPipeBugAnimation(place,
             direction == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft

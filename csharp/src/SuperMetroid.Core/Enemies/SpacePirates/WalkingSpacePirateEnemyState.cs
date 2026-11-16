@@ -17,6 +17,9 @@ public sealed class WalkingSpacePirateEnemyState
     /// <summary>The current behaviour.</summary>
     public WalkingSpacePirateAction Action { get; internal set; }
 
+    /// <summary>The way the Pirate walks (#2165).</summary>
+    public HorizontalDirection Heading { get; internal set; }
+
     /// <summary>The left patrol post's room column: a leftward walk turns back once the Pirate passes it.</summary>
     public int LeftPostX { get; internal set; }
 

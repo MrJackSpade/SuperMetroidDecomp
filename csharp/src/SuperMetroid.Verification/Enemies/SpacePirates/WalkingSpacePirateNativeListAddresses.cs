@@ -33,7 +33,9 @@ internal static class WalkingSpacePirateNativeListAddresses
     {
         [0xfc68] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaser>("V", "a laser to the left", laser => laser.Direction == HorizontalDirection.Left),
         [0xfc90] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaser>("V", "a laser to the right", laser => laser.Direction == HorizontalDirection.Right),
-        [0xfcb8] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.Begin>("E"),
+        // The routine setter begins an action, a walk with its heading (#2165).
+        [0xfcb8] = new NativeCueShape<WalkingSpacePirateCue>(nameof(WalkingSpacePirateCue.Begin),
+            cue => cue is WalkingSpacePirateCue.Begin or WalkingSpacePirateCue.BeginHeading, "E"),
         [0xfcc8] = NativeCueShape<WalkingSpacePirateCue>.Exactly(new WalkingSpacePirateCue.Signal(WalkingSpacePirateCueKind.ChooseMovement)),
     };
 }

@@ -8,48 +8,62 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 internal static class DraygonNativeWords
 {
-    /// <summary>The bank-$A5 routine word naming each <see cref="DraygonPhase"/> after the fight begins: the body's record word A.</summary>
-    internal static readonly NativeWordIdentities<DraygonPhase> Phases = new(new Dictionary<DraygonPhase, ushort>
-    {
-        [DraygonPhase.IntroInitialDelay] = 0x871b,
-        [DraygonPhase.IntroDance] = 0x878b,
-        [DraygonPhase.SwoopRightSetup] = 0x87f4,
-        [DraygonPhase.SwoopRightDescending] = 0x88b1,
-        [DraygonPhase.SwoopRightApex] = 0x8922,
-        [DraygonPhase.SwoopRightAscending] = 0x8951,
-        [DraygonPhase.SwoopLeftSetup] = 0x89b3,
-        [DraygonPhase.SwoopLeftDescending] = 0x8a00,
-        [DraygonPhase.SwoopLeftApex] = 0x8a50,
-        [DraygonPhase.SwoopLeftAscending] = 0x8a90,
-        [DraygonPhase.GoopRightSetup] = 0x8b0a,
-        [DraygonPhase.GoopRight] = 0x8b52,
-        [DraygonPhase.GoopRightTail] = 0x8bae,
-        [DraygonPhase.GoopRightRecovery] = 0x8c33,
-        [DraygonPhase.GoopLeftSetup] = 0x8c8e,
-        [DraygonPhase.GoopLeft] = 0x8cd4,
-        [DraygonPhase.GoopLeftTail] = 0x8d30,
-        [DraygonPhase.GoopLeftRecovery] = 0x8db2,
-        [DraygonPhase.TryGrabSamus] = 0x8e19,
-        [DraygonPhase.RepelGrapple] = 0x8f10,
-        [DraygonPhase.CarrySamus] = 0x8f1e,
-        [DraygonPhase.FlailWithSamus] = 0x8fd6,
-        [DraygonPhase.TailWhipWithSamus] = 0x90d4,
-        [DraygonPhase.FinalTailWhips] = 0x9105,
-        [DraygonPhase.FinalTailWhipsWait] = 0x9124,
-        [DraygonPhase.ReleaseSamus] = 0x9128,
-        [DraygonPhase.FlyStraightUp] = 0x9154,
-        [DraygonPhase.Dying] = 0x9185,
-        [DraygonPhase.DyingWaitForEvirs] = 0x9294,
-        [DraygonPhase.DyingFinish] = 0x92ab,
-    });
+    /// <summary>
+    /// The bank-$A5 routine word naming each <see cref="DraygonPhase"/> after the fight begins, the body's record word A,
+    /// and for a swoop or goop pass the way it travels (#2165), the cartridge giving each way a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(DraygonPhase Phase, HorizontalDirection? Pass)> Phases =
+        new(new Dictionary<(DraygonPhase Phase, HorizontalDirection? Pass), ushort>
+        {
+            [(DraygonPhase.IntroInitialDelay, null)] = 0x871b,
+            [(DraygonPhase.IntroDance, null)] = 0x878b,
+            [(DraygonPhase.SwoopSetup, HorizontalDirection.Right)] = 0x87f4,
+            [(DraygonPhase.SwoopDescending, HorizontalDirection.Right)] = 0x88b1,
+            [(DraygonPhase.SwoopApex, HorizontalDirection.Right)] = 0x8922,
+            [(DraygonPhase.SwoopAscending, HorizontalDirection.Right)] = 0x8951,
+            [(DraygonPhase.SwoopSetup, HorizontalDirection.Left)] = 0x89b3,
+            [(DraygonPhase.SwoopDescending, HorizontalDirection.Left)] = 0x8a00,
+            [(DraygonPhase.SwoopApex, HorizontalDirection.Left)] = 0x8a50,
+            [(DraygonPhase.SwoopAscending, HorizontalDirection.Left)] = 0x8a90,
+            [(DraygonPhase.GoopSetup, HorizontalDirection.Right)] = 0x8b0a,
+            [(DraygonPhase.GoopApproach, HorizontalDirection.Right)] = 0x8b52,
+            [(DraygonPhase.GoopTail, HorizontalDirection.Right)] = 0x8bae,
+            [(DraygonPhase.GoopRecovery, HorizontalDirection.Right)] = 0x8c33,
+            [(DraygonPhase.GoopSetup, HorizontalDirection.Left)] = 0x8c8e,
+            [(DraygonPhase.GoopApproach, HorizontalDirection.Left)] = 0x8cd4,
+            [(DraygonPhase.GoopTail, HorizontalDirection.Left)] = 0x8d30,
+            [(DraygonPhase.GoopRecovery, HorizontalDirection.Left)] = 0x8db2,
+            [(DraygonPhase.TryGrabSamus, null)] = 0x8e19,
+            [(DraygonPhase.RepelGrapple, null)] = 0x8f10,
+            [(DraygonPhase.CarrySamus, null)] = 0x8f1e,
+            [(DraygonPhase.FlailWithSamus, null)] = 0x8fd6,
+            [(DraygonPhase.TailWhipWithSamus, null)] = 0x90d4,
+            [(DraygonPhase.FinalTailWhips, null)] = 0x9105,
+            [(DraygonPhase.FinalTailWhipsWait, null)] = 0x9124,
+            [(DraygonPhase.ReleaseSamus, null)] = 0x9128,
+            [(DraygonPhase.FlyStraightUp, null)] = 0x9154,
+            [(DraygonPhase.Dying, null)] = 0x9185,
+            [(DraygonPhase.DyingWaitForEvirs, null)] = 0x9294,
+            [(DraygonPhase.DyingFinish, null)] = 0x92ab,
+        });
 
-    /// <summary>The bank-$A5 routine word naming each <see cref="DraygonEyeAction"/>.</summary>
-    internal static readonly NativeWordIdentities<DraygonEyeAction> EyeActions = new(new Dictionary<DraygonEyeAction, ushort>
-    {
-        [DraygonEyeAction.Inert] = 0x804b,
-        [DraygonEyeAction.FacingLeft] = 0xc48d,
-        [DraygonEyeAction.FacingRight] = 0xc513,
-    });
+    /// <summary>
+    /// The bank-$A5 routine word naming each <see cref="DraygonEyeAction"/> and, for a tracking eye, the way it faces
+    /// (#2165).
+    /// </summary>
+    internal static readonly NativeWordIdentities<(DraygonEyeAction Action, HorizontalDirection? Facing)> EyeActions =
+        new(new Dictionary<(DraygonEyeAction Action, HorizontalDirection? Facing), ushort>
+        {
+            [(DraygonEyeAction.Inert, null)] = 0x804b,
+            [(DraygonEyeAction.Tracking, HorizontalDirection.Left)] = 0xc48d,
+            [(DraygonEyeAction.Tracking, HorizontalDirection.Right)] = 0xc513,
+        });
+
+    /// <summary>The way the tracking eye <paramref name="word"/> names faces, or a failure naming <paramref name="meaning"/>.</summary>
+    internal static HorizontalDirection TrackingFacing(int word, string meaning) =>
+        EyeActions.Decode(word, meaning) is (DraygonEyeAction.Tracking, { } facing)
+            ? facing
+            : throw new InvalidDataException($"${word:X4} is not a tracking {meaning}.");
 
     /// <summary>Pre-instruction <c>$84:DB64</c>, accepting missiles and Super Missiles.</summary>
     public const ushort MissileHitFrameBehavior = 0xdb64;

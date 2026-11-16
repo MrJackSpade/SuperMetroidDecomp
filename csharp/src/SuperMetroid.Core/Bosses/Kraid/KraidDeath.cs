@@ -164,10 +164,9 @@ internal sealed class KraidDeath
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalking:
             case KraidPhase.FootSecondPhaseWalkToStart:
             case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.FootSecondPhaseWalkingLeft:
             case KraidPhase.MainAttackWithMouthOpen:
             case KraidPhase.FingernailInitialize:
             case KraidPhase.FingernailFire:

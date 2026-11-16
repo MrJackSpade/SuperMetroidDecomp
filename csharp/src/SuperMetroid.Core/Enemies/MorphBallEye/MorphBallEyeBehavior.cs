@@ -39,39 +39,40 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        Ensure.NotNull(place).SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount
+            ? new MorphBallEyeMountEntity(this, place, common)
+            : new MorphBallEyeEntity(this, place, common);
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
-    /// <summary>Initializes a closed body from its spawn facing, or offsets a beam mount and resets the room-global beam.</summary>
-    internal void InitializeMorphBallEye(RoomEnemyPlace place)
+    /// <summary>Initializes a closed eye body from its spawn facing.</summary>
+    internal void InitializeMorphBallEyeBody(RoomEnemyPlace place)
     {
-        MorphBallEyeSpawnSettings settings = place.SpawnSettings<MorphBallEyeSpawnSettings>();
-        var state = new MorphBallEyeEnemyState(settings.Part == MorphBallEyePart.BeamMount
-            ? MorphBallEyeAction.ShowingMount
-            : MorphBallEyeAction.WaitForSamus);
+        var state = new MorphBallEyeEnemyState(MorphBallEyeAction.WaitForSamus);
         place.SetSpeciesState(state);
+        ShowNothingUntilAnimated(place);
 
-        place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
-        place.AnimationClock.Restart();
+        // The placement's facing is fixed by its mounting, not a live facing test.
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(place.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
+            ? MorphBallEyeSegment.FacingRightClosed
+            : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
 
-        if (settings.Part != MorphBallEyePart.BeamMount)
-        {
-            // The placement's facing is fixed by its mounting, not a live facing test.
-            state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
-                ? MorphBallEyeSegment.FacingRightClosed
-                : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
+        // The eye placed where a beam mount listed right before it found its followed place is the eye that
+        // mount's beam follows.
+        if (_places.ListedBeforeOrNone(place, 1) is { } before && IsPlacedBeamMount(before) && _followedPlaces.Of(before) == place)
+            BeamFollowedEye = place;
+    }
 
-            // The eye placed where a beam mount listed right before it found its followed place is the eye that
-            // mount's beam follows.
-            if (_places.ListedBeforeOrNone(place, 1) is { } before && IsPlacedBeamMount(before) && _followedPlaces.Of(before) == place)
-                BeamFollowedEye = place;
-            return;
-        }
+    /// <summary>Offsets a beam mount to its side of the eye, starts its pose and resets the room-global beam.</summary>
+    internal void InitializeMorphBallEyeMount(RoomEnemyPlace place)
+    {
+        var state = new MorphBallEyeMountState();
+        place.SetSpeciesState(state);
+        ShowNothingUntilAnimated(place);
 
-        var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
+        var mount = MorphBallEyeGeometry.Mount(place.SpawnSettings<MorphBallEyeSpawnSettings>().MountSide);
         place.Position += mount.Offset;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
@@ -85,11 +86,20 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         BeamFollowedEye = null;
     }
 
+    /// <summary>
+    /// Readies a newly placed eye body or mount to animate: it shows no frame until its animation's first step, which the
+    /// restarted clock takes on its first update.
+    /// </summary>
+    private static void ShowNothingUntilAnimated(RoomEnemyPlace place)
+    {
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        place.Frame = EnemyFrameId.Empty;
+        place.AnimationClock.Restart();
+    }
+
     /// <summary>Whether <paramref name="place"/> holds a beam mount placed in this room, which recorded its followed place.</summary>
     private bool IsPlacedBeamMount(RoomEnemyPlace place) =>
-        place.DefinitionId == EnemyDefinitionId.MorphBallEye
-        && place.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount
-        && _followedPlaces.IsPlaced(place);
+        place.Entity is MorphBallEyeMountEntity && _followedPlaces.IsPlaced(place);
 
     /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
@@ -104,8 +114,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         switch (state.Action)
         {
-            case MorphBallEyeAction.ShowingMount:
-                return;
             case MorphBallEyeAction.WaitForSamus:
                 WaitForSamusNearMorphBallEye(place, state, samus);
                 return;
@@ -308,8 +316,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace body = MorphBallEyeBeam.Body
             ?? throw new InvalidDataException("Morph-ball eye beam has no eye body.");
-        if (body.DefinitionId != EnemyDefinitionId.MorphBallEye ||
-            body.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount)
+        if (body.Entity is not MorphBallEyeEntity)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye beam lost its body in enemy place {body.Ordinal}.");
@@ -317,9 +324,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         return body;
     }
 
+    /// <summary>Advances a beam mount's typed animation: its mount pose, which raises no cue.</summary>
+    internal static void AdvanceMorphBallEyeMountTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, MorphBallEyeAnimations.Segments,
+            static (MorphBallEyeMountState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye mount's cue-free animation raised {cue}."));
+
     /// <summary>
-    /// Advances MorphBallEye's typed animation: a tracking eye shows the pose its aim chose this update for good, until the
-    /// next update's tracking chooses again; otherwise its eyelid or mount animation plays.
+    /// Advances the eye body's typed animation: a tracking eye shows the pose its aim chose this update for good, until the
+    /// next update's tracking chooses again; otherwise its eyelid animation plays.
     /// </summary>
     internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {

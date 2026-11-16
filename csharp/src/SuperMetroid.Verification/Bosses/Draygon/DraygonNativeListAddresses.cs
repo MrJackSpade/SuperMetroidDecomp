@@ -117,8 +117,8 @@ internal static class DraygonNativeListAddresses
     internal static DraygonCue CueOf(ushort callback, ushort[] operands) => callback switch
     {
         0x94dd => new DraygonCue.StartPartAnimations(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
-        0xc47b => new DraygonCue.SetEyeAction(DraygonNativeWords.EyeActions.Decode(operands[0], "Draygon eye function")),
-        0x9736 => new DraygonCue.SetOwnEyeAction(DraygonNativeWords.EyeActions.Decode(operands[0], "Draygon eye function")),
+        0xc47b => new DraygonCue.TrackWithEye(DraygonNativeWords.TrackingFacing(operands[0], "Draygon eye function")),
+        0x9736 => new DraygonCue.TrackWithOwnEye(DraygonNativeWords.TrackingFacing(operands[0], "Draygon eye function")),
         // The cartridge scrolls the body's layer by its operands, which shifts the picture the opposite way.
         0x9e0a => new DraygonCue.ShiftBodyPicture(new(-unchecked((short)operands[0]), -unchecked((short)operands[1]))),
         0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),

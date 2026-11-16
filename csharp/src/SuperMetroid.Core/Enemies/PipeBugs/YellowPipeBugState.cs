@@ -16,6 +16,9 @@ public sealed class YellowPipeBugState
     /// <summary>The current action, one of the yellow actions.</summary>
     public YellowPipeBugAction Action { get; internal set; }
 
+    /// <summary>The way the bug flies and arcs (#2165): its placement's facing, taken as it emerges.</summary>
+    public HorizontalDirection FlightDirection { get; internal set; }
+
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen; its Y ends the arc.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 

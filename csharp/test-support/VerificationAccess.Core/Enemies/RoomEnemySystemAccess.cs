@@ -211,7 +211,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Squeept follower state for every physical slot a follower occupies.</summary>
         internal IReadOnlyList<NorfairLavaJumperFollowerState?> NorfairLavaJumperFollowerStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NorfairLavaJumpingEnemyEntity, NorfairLavaJumperFollowerState>())];
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NorfairLavaJumperFollowerEntity, NorfairLavaJumperFollowerState>())];
 
         /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates =>

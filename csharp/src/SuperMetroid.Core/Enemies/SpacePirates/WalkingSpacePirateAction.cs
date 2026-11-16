@@ -11,9 +11,9 @@ public enum WalkingSpacePirateAction
     /// </summary>
     StandingStill,
 
-    /// <summary>Walk left, fall when unsupported, and turn at a wall, ledge, or patrol post.</summary>
-    WalkingLeft,
-
-    /// <summary>Walk right, fall when unsupported, and turn at a wall, ledge, or patrol post.</summary>
-    WalkingRight,
+    /// <summary>
+    /// Walk its heading's way (<see cref="WalkingSpacePirateEnemyState.Heading"/>), fall when unsupported, and turn at a
+    /// wall, ledge, or patrol post.
+    /// </summary>
+    Walking,
 }

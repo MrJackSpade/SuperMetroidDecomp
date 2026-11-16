@@ -133,9 +133,16 @@ internal static class NativeEnemyFamilyStateImport
         {
             bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
             // A part whose setup has not given it a phase records no word; it rests.
-            kraidPartRecord.Phase = words.A == 0
-                ? KraidPhase.Resting
-                : deathWait ? KraidPhase.DeathWaitBeforeFadeIn : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
+            (KraidPhase kraidPhase, HorizontalDirection? kraidWalk) = words.A == 0
+                ? (KraidPhase.Resting, null)
+                : deathWait ? (KraidPhase.DeathWaitBeforeFadeIn, null) : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
+            kraidPartRecord.Phase = kraidPhase;
+            // Only the foot's walk names the way it walks (#2165).
+            if (kraidWalk is { } walk)
+            {
+                (kraidPartRecord as KraidFootState ?? throw new InvalidDataException($"Enemy {enemy.Ordinal} walks Kraid's body but is not his foot."))
+                    .WalkDirection = walk;
+            }
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
             if (kraidPartRecord is KraidNailState kraidNail)
@@ -223,9 +230,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
-            draygonRecord.Phase = words.A == 0
-                ? DraygonPhase.None
+            (DraygonPhase phase, HorizontalDirection? pass) = words.A == 0
+                ? (DraygonPhase.None, null)
                 : DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
+            draygonRecord.Phase = phase;
+            // Only a swoop or goop pass names the way it travels (#2165).
+            if (pass is { } passDirection)
+                draygonRecord.PassDirection = passDirection;
             switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
@@ -248,7 +259,13 @@ internal static class NativeEnemyFamilyStateImport
         {
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
             if (words.A != 0)
-                draygonEyeRecord.Action = DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
+            {
+                (DraygonEyeAction eyeAction, HorizontalDirection? eyeFacing) = DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
+                draygonEyeRecord.Action = eyeAction;
+                // Only a tracking eye names the way it faces (#2165).
+                if (eyeFacing is { } facing)
+                    draygonEyeRecord.Facing = facing;
+            }
             // The game compares only the look angle's low byte, the bearing it stored.
             draygonEyeRecord.LookAngle = new Bearing(words.F & byte.MaxValue);
         }
@@ -285,7 +302,13 @@ internal static class NativeEnemyFamilyStateImport
         {
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
             if (words.A != 0)
-                shitroidRecord.Action = MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
+            {
+                (ShitroidAction shitroidAction, HorizontalDirection? side) = MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
+                shitroidRecord.Action = shitroidAction;
+                // Only the departing flight names the side of Samus it flies to (#2165).
+                if (side is { } departureSide)
+                    shitroidRecord.DepartureSide = departureSide;
+            }
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.ColourTimer = LittleEndianBytes.HighByte(words.D);
@@ -336,13 +359,30 @@ internal static class NativeEnemyFamilyStateImport
                 norfairPipeBug.Action = NorfairPipeBugAction.Stagger;
                 norfairPipeBug.StaggerOffset = staggerRole.StaggerOffset;
             }
+            else if (PipeBugsNativeWords.NorfairPipeBugFlights.TryDecode(words.A, out HorizontalDirection flight))
+            {
+                // Each way a member flies has a routine of its own (#2165).
+                norfairPipeBug.Action = NorfairPipeBugAction.Fly;
+                norfairPipeBug.FlightDirection = flight;
+            }
             else
             {
                 norfairPipeBug.Action = PipeBugsNativeWords.NorfairPipeBugActions.Decode(words.A, "recorded NorfairPipeBugAction");
             }
         }
         if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
-            yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
+        {
+            // Each way a flight or arc goes has a routine of its own (#2165).
+            if (PipeBugsNativeWords.YellowPipeBugFlights.TryDecode(words.A, out (YellowPipeBugAction Action, HorizontalDirection Direction) yellowFlight))
+            {
+                yellowPipeBug.Action = yellowFlight.Action;
+                yellowPipeBug.FlightDirection = yellowFlight.Direction;
+            }
+            else
+            {
+                yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
+            }
+        }
         if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
         if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteBodyState magdolliteBody)
@@ -527,14 +567,22 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
         {
-            wallSpacePirateRecord.Action = SpacePiratesNativeWords.WallSpacePirateActions.Decode(words.A, "recorded WallSpacePirateAction");
+            (WallSpacePirateAction wallAction, HorizontalDirection? wall) = SpacePiratesNativeWords.WallSpacePirateActions.Decode(words.A, "recorded WallSpacePirateAction");
+            wallSpacePirateRecord.Action = wallAction;
+            // An attack's routine names no wall: the Pirate stays on the one it clung to (#2165).
+            if (wall is { } clung)
+                wallSpacePirateRecord.Wall = clung;
             wallSpacePirateRecord.ClimbDirection = SpacePiratesNativeWords.WallClimbDirections.Decode(words.C, "recorded WallSpacePirateClimbDirection");
             wallSpacePirateRecord.WallJumpArcCenter = new(words.D, words.E);
             wallSpacePirateRecord.WallJumpArcAngle = RotationAngle.FromSteps(checked((byte)words.F));
         }
         if (enemy.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
         {
-            ninjaSpacePirateRecord.Action = SpacePiratesNativeWords.NinjaSpacePirateActions.Decode(words.A, "recorded NinjaSpacePirateAction");
+            (NinjaSpacePirateAction ninjaAction, HorizontalDirection? ninjaHeading) = SpacePiratesNativeWords.NinjaSpacePirateActions.Decode(words.A, "recorded NinjaSpacePirateAction");
+            ninjaSpacePirateRecord.Action = ninjaAction;
+            // Only a move that goes one way names its heading (#2165).
+            if (ninjaHeading is { } heading)
+                ninjaSpacePirateRecord.Heading = heading;
             ninjaSpacePirateRecord.PostsMidpointX = words.D;
             ninjaSpacePirateRecord.LeftPostX = words.E;
             ninjaSpacePirateRecord.RightPostX = words.F;
@@ -639,7 +687,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.SkulteraStates[index] is { } skultera)
         {
-            skultera.Action = SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
+            (skultera.Action, skultera.Heading) = SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
             skultera.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             skultera.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
             // Only the angle word's low byte is ever read; movement discards its high byte.
@@ -657,7 +705,11 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
         {
-            walkingPirate.Action = SpacePiratesNativeWords.WalkingSpacePirateActions.Decode(words.A, "recorded WalkingSpacePirateAction");
+            (WalkingSpacePirateAction walkingAction, HorizontalDirection? walkingHeading) = SpacePiratesNativeWords.WalkingSpacePirateActions.Decode(words.A, "recorded WalkingSpacePirateAction");
+            walkingPirate.Action = walkingAction;
+            // Only a walk names its heading (#2165).
+            if (walkingHeading is { } walk)
+                walkingPirate.Heading = walk;
             walkingPirate.LeftPostX = words.E;
             walkingPirate.RightPostX = words.F;
         }

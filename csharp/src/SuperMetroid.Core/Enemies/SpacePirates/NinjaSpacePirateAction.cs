@@ -12,26 +12,16 @@ public enum NinjaSpacePirateAction
     Initial,
     /// <summary>Chooses flinch, kick, jump, or claw attacks.</summary>
     Active,
-    /// <summary>Rises during a leftward post-to-post spin jump.</summary>
-    SpinJumpLeftRising,
-    /// <summary>Falls during a leftward post-to-post spin jump.</summary>
-    SpinJumpLeftFalling,
-    /// <summary>Rises during a rightward post-to-post spin jump.</summary>
-    SpinJumpRightRising,
-    /// <summary>Falls during a rightward post-to-post spin jump.</summary>
-    SpinJumpRightFalling,
+    /// <summary>Rises during a post-to-post spin jump its heading's way (<see cref="NinjaSpacePirateEnemyState.Heading"/>).</summary>
+    SpinJumpRising,
+    /// <summary>Falls during a post-to-post spin jump its heading's way.</summary>
+    SpinJumpFalling,
     /// <summary>Waits at the jump peak for a divekick opportunity.</summary>
     ReadyToDivekick,
-    /// <summary>Begins the leftward divekick jump.</summary>
-    DivekickLeftJump,
-    /// <summary>Performs the leftward collision-bearing dive.</summary>
-    DivekickLeftDive,
-    /// <summary>Walks leftward back to the authored post.</summary>
-    DivekickLeftWalkToPost,
-    /// <summary>Begins the rightward divekick jump.</summary>
-    DivekickRightJump,
-    /// <summary>Performs the rightward collision-bearing dive.</summary>
-    DivekickRightDive,
-    /// <summary>Walks rightward back to the authored post.</summary>
-    DivekickRightWalkToPost,
+    /// <summary>Begins the divekick jump toward its heading.</summary>
+    DivekickJump,
+    /// <summary>Performs the collision-bearing dive its heading's way.</summary>
+    DivekickDive,
+    /// <summary>Walks its heading's way back to the authored post.</summary>
+    DivekickWalkToPost,
 }

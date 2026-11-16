@@ -27,7 +27,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.WalkingLeft] =
         [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.WalkingLeft)),
+            Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Left)),
         ],
         [P.WalkingLeftLoop] =
         [
@@ -70,7 +70,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.WalkingRight] =
         [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.WalkingRight)),
+            Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Right)),
         ],
         [P.WalkingRightLoop] =
         [

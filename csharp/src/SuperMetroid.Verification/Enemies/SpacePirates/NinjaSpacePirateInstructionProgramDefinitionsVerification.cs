@@ -97,10 +97,10 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             expectedFirstXOffset: 32));
         Suite(nameof(VerifyDive), () => VerifyDive(
             NinjaSpacePirateSegment.DivekickLeftDive,
-            NinjaSpacePirateAction.DivekickLeftDive));
+            HorizontalDirection.Left));
         Suite(nameof(VerifyDive), () => VerifyDive(
             NinjaSpacePirateSegment.DivekickRightDive,
-            NinjaSpacePirateAction.DivekickRightDive));
+            HorizontalDirection.Right));
         Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: false));
         Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: true));
         Suite(nameof(VerifyDivekickRiseSpeed), () => VerifyDivekickRiseSpeed(movingRight: false));
@@ -123,8 +123,9 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             state.Speed = new SignedEightEight(64);
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(place, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
-            AssertEqual(movingRight ? NinjaSpacePirateAction.DivekickRightWalkToPost : NinjaSpacePirateAction.DivekickLeftWalkToPost,
-                state.Action, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
+            AssertEqual(NinjaSpacePirateAction.DivekickWalkToPost, state.Action, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
+            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, state.Heading,
+                $"ninja Pirate dive {(movingRight ? "right" : "left")} walks back its way (#2165)");
             AssertEqual(state.SpawnPosition.Y, place.Position.Y.Whole, "the landing restores the spawn row");
             // This last descent adds the speed's low byte to the fraction ($B2:F9D5) before the landing.
             AssertEqual((ushort)(diveFraction + 64), place.Position.Y.Fraction, "the landing keeps the dive's Y fraction");
@@ -141,9 +142,11 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus) = CreateSystem();
             NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
-            NinjaSpacePirateAction rising = movingRight ? NinjaSpacePirateAction.DivekickRightJump : NinjaSpacePirateAction.DivekickLeftJump;
-            NinjaSpacePirateAction diving = movingRight ? NinjaSpacePirateAction.DivekickRightDive : NinjaSpacePirateAction.DivekickLeftDive;
+            NinjaSpacePirateAction rising = NinjaSpacePirateAction.DivekickJump;
+            NinjaSpacePirateAction diving = NinjaSpacePirateAction.DivekickDive;
+            HorizontalDirection heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
             state.Action = rising;
+            state.Heading = heading;
             state.Speed = new SignedEightEight(initialDiveSpeed);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
@@ -167,6 +170,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
 
                 AssertEqual(ushort.MaxValue + 1 - speedStep, (int)nativeSpeed, "the native speed word wraps below zero on the last rising update");
                 AssertEqual(diving, state.Action, $"ninja divekick rise ends on update {update}, when the speed turns negative");
+                AssertEqual(heading, state.Heading, "the dive goes the rise's way (#2165)");
                 AssertEqual(new SignedEightEight(initialDiveSpeed), state.Speed, "the dive starts again from the initial speed");
                 break;
             }
@@ -186,8 +190,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(place, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(nativeSpeed, state.Speed.RawValue, "the dive's speed word wraps from zero to its negative raw value");
             AssertEqual(-64, state.Speed.InTwoHundredFiftySixthsOfPixel, "the wrapped dive speed reads as minus 64");
-            AssertEqual(movingRight ? NinjaSpacePirateAction.DivekickRightWalkToPost : NinjaSpacePirateAction.DivekickLeftWalkToPost,
-                state.Action, "a negative dive speed lands the dive");
+            AssertEqual(NinjaSpacePirateAction.DivekickWalkToPost, state.Action, "a negative dive speed lands the dive");
         }
 
         // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
@@ -209,15 +212,16 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
 
         // Checks the dive's function switch, shared gold palette, and attack sound.
-        void VerifyDive(NinjaSpacePirateSegment program, NinjaSpacePirateAction action)
+        void VerifyDive(NinjaSpacePirateSegment program, HorizontalDirection heading)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
                 new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, place, samus, 3);
-            AssertEqual(action, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Action,
-                $"ninja Pirate dive program {program} function");
+            NinjaSpacePirateEnemyState diving = enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].");
+            AssertEqual(NinjaSpacePirateAction.DivekickDive, diving.Action, $"ninja Pirate dive program {program} function");
+            AssertEqual(heading, diving.Heading, $"ninja Pirate dive program {program} dives its way (#2165)");
             AssertEqual(SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash, place.Shading,
                 $"ninja Pirate dive program {program} gold wall look");
             AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),

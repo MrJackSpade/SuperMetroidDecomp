@@ -15,17 +15,18 @@ internal static class RioOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
+        parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
+        NorfairRioBehavior.InitializeNorfairRio(parent);
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
-        enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
+        follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
+        enemies.NorfairRioBehavior.InitializeNorfairRioFollower(follower);
+        // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
         AssertTrue(parent.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is not null &&
-            parent.EntityState<NorfairRioEntity, NorfairRioFollowerState>() is null &&
-            follower.EntityState<NorfairRioEntity, NorfairRioFollowerState>() is not null &&
-            follower.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is null,
+            parent.SpeciesState<NorfairRioFollowerState>() is null &&
+            follower.EntityState<NorfairRioFollowerEntity, NorfairRioFollowerState>() is not null &&
+            follower.SpeciesState<NorfairRioEnemyState>() is null,
             "parameter one's sign bit selects the follower, which keeps only its own follower state");
         Console.WriteLine("Rio owned state: the follower selection matches.");
     }

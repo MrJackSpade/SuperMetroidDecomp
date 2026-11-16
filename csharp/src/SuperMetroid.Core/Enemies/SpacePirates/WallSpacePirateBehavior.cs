@@ -37,9 +37,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateOptions flags = place.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
         bool startsOnRight = (flags & WallSpacePirateOptions.StartsOnRightWall) != WallSpacePirateOptions.None;
         bool slowJump = (flags & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None;
-        var state = new WallSpacePirateEnemyState(startsOnRight
-            ? WallSpacePirateAction.ClimbingRightWall
-            : WallSpacePirateAction.ClimbingLeftWall);
+        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing,
+            startsOnRight ? HorizontalDirection.Right : HorizontalDirection.Left);
         place.SetSpeciesState(state);
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(startsOnRight
@@ -64,23 +63,16 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         switch (state.Action)
         {
-            case WallSpacePirateAction.ClimbingLeftWall:
+            case WallSpacePirateAction.Climbing:
+                // A Pirate on the left wall fires and jumps right, and one on the right wall left.
                 if (WallSpacePirateCanAttack(place, samus))
                 {
                     StartWallSpacePirateAnimation(
                         place,
                         state,
-                        WallSpacePirateSegment.FireAndJumpRight);
-                }
-                return;
-
-            case WallSpacePirateAction.ClimbingRightWall:
-                if (WallSpacePirateCanAttack(place, samus))
-                {
-                    StartWallSpacePirateAnimation(
-                        place,
-                        state,
-                        WallSpacePirateSegment.FireAndJumpLeft);
+                        state.Wall == HorizontalDirection.Left
+                            ? WallSpacePirateSegment.FireAndJumpRight
+                            : WallSpacePirateSegment.FireAndJumpLeft);
                 }
                 return;
 
@@ -88,12 +80,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 // The attack animation moves and times the pirate; its cues ready the jump.
                 return;
 
-            case WallSpacePirateAction.WallJumpingRight:
-                StepWallSpacePirateJump(place, state, direction: HorizontalDirection.Right);
-                return;
-
-            case WallSpacePirateAction.WallJumpingLeft:
-                StepWallSpacePirateJump(place, state, direction: HorizontalDirection.Left);
+            case WallSpacePirateAction.WallJumping:
+                StepWallSpacePirateJump(place, state, direction: state.Wall);
                 return;
 
             default:
@@ -264,6 +252,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 return null;
             case WallSpacePirateCue.Begin begin:
                 state.Action = begin.Action;
+                return null;
+            case WallSpacePirateCue.BeginOnWall begin:
+                state.Action = begin.Action;
+                state.Wall = begin.Wall;
                 return null;
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
                 Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);

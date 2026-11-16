@@ -37,8 +37,8 @@ internal static class RidleyAnimations
         [P.OpeningRoarFacingRight] = OpeningRoar(Side.Right),
         [P.DeathRoar] = [UnlessFacingLeft(P.DeathRoarFacingRight), .. DeathRoar(Side.Left)],
         [P.DeathRoarFacingRight] = DeathRoar(Side.Right),
-        [P.TurnFromLeftToRight] = Turn(F.Left, K.FlipRight, F.Right),
-        [P.TurnFromRightToLeft] = Turn(F.Right, K.FlipLeft, F.Left),
+        [P.TurnFromLeftToRight] = Turn(F.Left, HorizontalDirection.Right, F.Right),
+        [P.TurnFromRightToLeft] = Turn(F.Right, HorizontalDirection.Left, F.Left),
         [P.Fireballing] =
         [
             UnlessFacingLeft(P.FireballingFacingRight),
@@ -142,12 +142,12 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>Turns from <paramref name="from"/> through the forward pose to <paramref name="to"/>.</summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] Turn(F from, RidleyBodyCueKind flip, F to) =>
+    private static AnimationBeat<F, RidleyBodyCue>[] Turn(F from, HorizontalDirection flip, F to) =>
     [
         Cue(K.FaceForward),
         Show(from, 1),
         Show(F.Forward, 8),
-        Cue(flip),
+        Cue(new RidleyBodyCue.Flip(flip)),
         Show(F.Forward, 1),
         Show(to, 1),
     ];

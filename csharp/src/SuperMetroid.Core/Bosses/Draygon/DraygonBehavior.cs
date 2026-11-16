@@ -105,53 +105,35 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.IntroDance:
                 Intro.RunDraygonIntroDance(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopRightSetup:
+            case DraygonPhase.SwoopSetup when state.PassDirection == HorizontalDirection.Right:
                 Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopRightDescending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounter, RightSwoop);
-                break;
-            case DraygonPhase.SwoopRightApex:
-                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
-                break;
-            case DraygonPhase.SwoopRightAscending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounter, RightSwoop);
-                break;
-            case DraygonPhase.SwoopLeftSetup:
+            case DraygonPhase.SwoopSetup:
                 Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopLeftDescending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounter, LeftSwoop);
+            case DraygonPhase.SwoopDescending:
+                Swoops.DescendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state));
                 break;
-            case DraygonPhase.SwoopLeftApex:
+            case DraygonPhase.SwoopApex when state.PassDirection == HorizontalDirection.Right:
+                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
+                break;
+            case DraygonPhase.SwoopApex:
                 Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopLeftAscending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounter, LeftSwoop);
+            case DraygonPhase.SwoopAscending:
+                Swoops.AscendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state));
                 break;
-            case DraygonPhase.GoopRightSetup:
-                Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Right, samus, frameCounter);
+            case DraygonPhase.GoopSetup:
+                Goop.SetupDraygonGoopPass(state, state.PassDirection, samus, frameCounter);
                 break;
-            case DraygonPhase.GoopRight:
-                Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
+            case DraygonPhase.GoopApproach:
+                Goop.ApproachSamusForDraygonGoop(state, state.PassDirection, samus, frameCounter);
                 break;
-            case DraygonPhase.GoopRightTail:
-                Goop.FireDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
+            case DraygonPhase.GoopTail:
+                Goop.FireDraygonGoop(state, state.PassDirection, samus, frameCounter);
                 break;
-            case DraygonPhase.GoopRightRecovery:
-                Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Right, samus);
-                break;
-            case DraygonPhase.GoopLeftSetup:
-                Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Left, samus, frameCounter);
-                break;
-            case DraygonPhase.GoopLeft:
-                Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounter);
-                break;
-            case DraygonPhase.GoopLeftTail:
-                Goop.FireDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounter);
-                break;
-            case DraygonPhase.GoopLeftRecovery:
-                Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Left, samus);
+            case DraygonPhase.GoopRecovery:
+                Goop.ExitDraygonGoopPass(state, state.PassDirection, samus);
                 break;
             case DraygonPhase.TryGrabSamus:
                 Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter);
@@ -206,22 +188,23 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
     }
 
-    /// <summary>One side of Draygon's swoop: the direction it travels and the arm animations and phases that side uses.</summary>
+    /// <summary>One side of Draygon's swoop: the direction it travels and the arm animations that side uses.</summary>
     /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
     /// <param name="ArmsNearApex">The arms animation started as the path nears its lowest point.</param>
     /// <param name="ArmsIdle">The arms animation restored as the ascent passes the same point.</param>
-    /// <param name="Apex">The phase that recalculates velocity at the bottom of the swoop.</param>
-    /// <param name="Ascending">The phase that climbs back up after the apex.</param>
-    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle,
-        DraygonPhase Apex, DraygonPhase Ascending);
+    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
 
     /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonSegment.ArmsFacingRightNearSwoopApex,
-        DraygonSegment.ArmsFacingRightIdle, DraygonPhase.SwoopRightApex, DraygonPhase.SwoopRightAscending);
+        DraygonSegment.ArmsFacingRightIdle);
 
     /// <summary>The mirrored swoop from the right edge to the left.</summary>
     internal static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonSegment.ArmsFacingLeftNearSwoopApex,
-        DraygonSegment.ArmsFacingLeftIdle, DraygonPhase.SwoopLeftApex, DraygonPhase.SwoopLeftAscending);
+        DraygonSegment.ArmsFacingLeftIdle);
+
+    /// <summary>The side of the swoop Draygon's pass flies (#2165).</summary>
+    private static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
+        state.PassDirection == HorizontalDirection.Right ? RightSwoop : LeftSwoop;
 
     /// <summary>
     /// The X Draygon parks at off the left edge (-80, wrapped into the coordinate range); a goop pass leftwards ends once

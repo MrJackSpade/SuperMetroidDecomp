@@ -55,14 +55,15 @@ public enum KraidPhase
     AdvanceHeadAnimationAndTimer,
     /// <summary>Counts the second-phase foot's think delay and selects a walking target.</summary>
     FootSecondPhaseThinking,
-    /// <summary>The backward-walk entry moving the body toward its rightward target.</summary>
-    FootSecondPhaseWalkingRight,
+    /// <summary>
+    /// The walk moving the body toward its target its foot's way (<see cref="KraidFootState.WalkDirection"/>): backward
+    /// toward a rightward target, forward toward a leftward one.
+    /// </summary>
+    FootSecondPhaseWalking,
     /// <summary>Walks to the second-phase starting point before its setup delay.</summary>
     FootSecondPhaseWalkToStart,
     /// <summary>Initializes second-phase foot thinking after the starting-point walk.</summary>
     FootSecondPhaseInitialize,
-    /// <summary>The forward-walk entry moving the body toward its leftward target.</summary>
-    FootSecondPhaseWalkingLeft,
     /// <summary>Runs the open-mouth head animation, spat-rock cadence, and reopen continuation.</summary>
     MainAttackWithMouthOpen,
     /// <summary>Selects the fingernail's starting side, animation, and firing transition.</summary>

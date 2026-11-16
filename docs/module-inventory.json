@@ -114,7 +114,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
-      "files": 958,
+      "files": 961,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -6387,8 +6387,7 @@
         "SuperMetroid.AssetExtraction"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Bosses"
+        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
@@ -6419,8 +6418,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Bosses"
+        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
@@ -6433,8 +6431,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Bosses"
+        "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
     {
@@ -25062,6 +25059,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Escape"
       ]
@@ -33974,19 +33972,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyBodyFrameDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Ridley.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyBreakupFrameDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -33994,9 +33979,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -34009,6 +33991,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Assets"
       ]
@@ -34361,6 +34344,26 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyHealthBand.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Ridley",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyHealthBandDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Ridley",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -34735,6 +34738,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Animation",
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -34889,17 +34893,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBreakupFrame.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Ridley",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
       ]
     },
     {
@@ -34971,7 +34966,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
@@ -35106,6 +35100,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -35134,6 +35129,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -35356,6 +35352,26 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyHealthShade.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Ridley",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyHealthShadeDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Ridley",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -35825,6 +35841,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets"
       ]
     },
@@ -35865,7 +35882,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
@@ -36017,16 +36033,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColorDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColours.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -36105,6 +36111,16 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnHealthBand.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.SporeSpawn",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -36568,6 +36584,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/GoldenTorizoHealthBand.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Torizo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/GoldenTorizoHealthBandDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.Torizo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -36873,16 +36909,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoCombatDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Bosses",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Bosses.Torizo",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoCue.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -37109,6 +37135,9 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -93437,6 +93466,22 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Bosses/BossHealthBandsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Bosses",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/Assertions"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Bosses/BossMapMarkersVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -102054,21 +102099,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Verification/Enemies/Artwork/ExtendedFrameSequenceVerification.cs",
-      "module": "csharp/src/SuperMetroid.Verification",
-      "role": "verification",
-      "namespace": "SuperMetroid.Verification.Enemies.Artwork",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -118475,10 +118505,12 @@
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -130636,7 +130668,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Bosses"
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -132349,6 +132381,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
@@ -137389,7 +137422,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Bosses"
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -150585,6 +150618,7 @@
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Gameplay",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Runtime",
         "csharp/src/SuperMetroid.Core/Samus",

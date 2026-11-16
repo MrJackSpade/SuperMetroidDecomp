@@ -53163,19 +53163,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyBodyFrameDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyBodyFrameDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyBreakupFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -53576,6 +53563,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyHealthBand",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyHealthBand.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyHealthBandDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyHealthBandDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyHits",
@@ -54211,19 +54224,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBreakupFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBreakupFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBreakupPieceEntity",
       "kind": "class",
       "scope": "product",
@@ -54326,19 +54326,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions.BodyFrame",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyCollisionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitionsAccess",
@@ -54831,6 +54818,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyHealthShade",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyHealthShade.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyHealthShadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyInertia",
@@ -55666,19 +55679,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColours",
       "kind": "class",
       "scope": "product",
@@ -55830,6 +55830,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBand",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnHealthBand.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -56396,6 +56409,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Torizo.GoldenTorizoHealthBand",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/GoldenTorizoHealthBand.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.GoldenTorizoHealthBandDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/GoldenTorizoHealthBandDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoAnimation",
       "kind": "enum",
       "scope": "product",
@@ -56802,19 +56841,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoCombatDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoCombatDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoCue",
@@ -147051,6 +147077,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.BossHealthBandsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/BossHealthBandsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.BossMapMarkersVerification",
       "kind": "static class",
       "scope": "test",
@@ -153637,19 +153676,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Artwork/ExtendedCollisionReferenceVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/ExtendedFrameSequenceVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

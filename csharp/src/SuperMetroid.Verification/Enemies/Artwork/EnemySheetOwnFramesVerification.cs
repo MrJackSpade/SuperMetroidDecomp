@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
@@ -328,10 +327,6 @@ internal static class EnemySheetOwnFramesVerification
 
     /// <summary><paramref name="reached"/> with the frames <paramref name="pinned"/> a definition's own reactions set.</summary>
     private static HashSet<EnemyFrameId> With(HashSet<EnemyFrameId> reached, EnemyFrameId[] pinned) => [.. reached, .. pinned];
-
-    /// <summary>Every frame <paramref name="table"/> maps a family frame to.</summary>
-    private static HashSet<EnemyFrameId> TableFrames<TFrame>(EnemyFrameTable<TFrame> table) where TFrame : notnull =>
-        [.. table.Select(entry => entry.Value)];
 
     /// <summary>The frames <paramref name="starts"/> reach in animations that show installed frames outright.</summary>
     private static HashSet<EnemyFrameId> Reach<TSegment, TEvent>(AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,

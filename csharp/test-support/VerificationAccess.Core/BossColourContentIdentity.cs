@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;

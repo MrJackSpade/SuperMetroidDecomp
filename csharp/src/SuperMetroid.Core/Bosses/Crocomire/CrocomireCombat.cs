@@ -140,8 +140,8 @@ internal sealed class CrocomireCombat
         private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
         {
             CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
-            int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
-            int acceleration = piece.Acceleration;
+            SignedSixteenSixteen maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
+            SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)
             {
                 acceleration += CrocomireSpikeMotion.AccelerationDelta(piece.Piece);
@@ -150,10 +150,10 @@ internal sealed class CrocomireCombat
             }
             piece.Acceleration = acceleration;
 
-            // The acceleration's whole part is added to the velocity in 256ths of a pixel: a fraction that passes a whole
-            // pixel raises the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The
-            // piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
-            SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(UnsignedEightEight.Whole(acceleration)))
+            // The velocity gains the acceleration's whole 256ths of a pixel: a fraction that passes a whole pixel raises
+            // the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The piece starts at
+            // rest and its whole velocity stays at or below its cap of at most six pixels.
+            SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.InTwoFiftySixths))
                 .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
             projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 

@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="BaseScroll">The vertical scroll the band stretches from and the lines below it show, any whole number of rows.</param>
 /// <param name="FirstLine">The band's first screen line, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the band's last, <paramref name="FirstLine"/> through the screen's height.</param>
-/// <param name="Slope">The rows the band falls behind per line, in 1/65536ths of a row, zero or more.</param>
-public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLine, int EndLine, int Slope) : LineScroll
+/// <param name="Slope">The rows the band falls behind per line (#2181).</param>
+public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLine, int EndLine, UnsignedSixteenSixteen Slope) : LineScroll
 {
     /// <summary>The band's first screen line.</summary>
     public int FirstLine
@@ -31,11 +31,4 @@ public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLin
         get;
         init => field = Ensure.BetweenInclusive(FirstLine, ScreenGeometry.ScreenHeightPixels, value);
     } = Ensure.BetweenInclusive(FirstLine, ScreenGeometry.ScreenHeightPixels, EndLine);
-
-    /// <summary>The rows the band falls behind per line, in 1/65536ths of a row, zero or more.</summary>
-    public int Slope
-    {
-        get;
-        init => field = Ensure.AtLeastZero(value);
-    } = Ensure.AtLeastZero(Slope);
 }

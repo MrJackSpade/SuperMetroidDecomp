@@ -143,6 +143,12 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public SignedEightEight WithWholePixelsAtMost(int maximumWhole) =>
         WholePixels > maximumWhole ? FromParts(maximumWhole, FractionSubpixels) : this;
 
+    /// <summary>
+    /// The part of a pixel this value holds past its whole pixels, its whole pixels dropped: zero through 255 256ths, the
+    /// whole pixels taken toward decreasing coordinates for a negative value (#2181).
+    /// </summary>
+    public SignedEightEight WithoutWholePixels() => FromParts(0, FractionSubpixels);
+
     /// <summary>The velocity's speed regardless of direction; the most negative value has none within the type's range and fails.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The value is the most negative one.</exception>
     public SignedEightEight Magnitude() => IsNegative ? -this : this;

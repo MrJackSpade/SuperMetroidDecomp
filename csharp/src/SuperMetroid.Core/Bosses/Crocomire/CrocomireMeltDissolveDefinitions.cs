@@ -12,7 +12,7 @@ internal static class CrocomireMeltDissolveDefinitions
     /// The fixed shuffled order in which the dissolve visits all columns 0 through 48, not samples of motion or geometry.
     /// Replacing this order with a new shuffle changes the dissolve.
     /// </remarks>
-    internal static ReadOnlySpan<byte> ColumnOrder =>
+    internal static ReadOnlySpan<int> ColumnOrder =>
     [
         43, 40, 33, 31, 44, 16, 22, 23,
         15, 0, 6, 7, 11, 8, 1, 42,

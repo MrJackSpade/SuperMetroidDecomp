@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <remarks>
 /// The game keeps the queued steps, the death-phase delay, the rumble step and the vertical acceleration in
 /// one value; the reaction timer, the vertical speed and the skeleton speed's fraction in a second; and the
-/// projectile counter, the vertical subpixel and the skeleton speed's whole pixels in a third (#1476). Each is held on
+/// projectile counter, the carried vertical fraction and the skeleton speed's whole pixels in a third (#1476). Each is held on
 /// its own here because no phase's behaviour depends on what another meaning left behind: every phase starts its
 /// values (the bridge collapse and each melt pass start the sink from rest, the pause loads its delay, the rumble its
 /// first step, the skeleton its speed) except where one phase hands the same meaning to the next (a hop's sink
@@ -109,13 +109,17 @@ public sealed class CrocomireEnemyState
     public int ShotsSpat { get; internal set; }
 
     /// <summary>
-    /// While the body sinks or rises: the vertical position below a whole pixel carried between frames, in 256ths of a
-    /// pixel, less than one pixel.
+    /// While the body sinks or rises: the part of a pixel his travel has carried between updates, less than one pixel
+    /// (#2181). The sinks and rises keep it apart from his position's own fraction, which they never move and his
+    /// skeleton's later arc moves from.
     /// </summary>
-    public int VerticalSubpixel
+    /// <exception cref="ArgumentOutOfRangeException">The value set is negative or reaches a whole pixel.</exception>
+    public SignedEightEight VerticalFraction
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, EightEight.FromWhole(1) - 1, value);
+        internal set => field = value.IsNegative || value.WholePixels != 0
+            ? throw new ArgumentOutOfRangeException(nameof(value), value, "Crocomire's carried vertical fraction is less than one pixel and never negative.")
+            : value;
     }
 
     /// <summary>
@@ -125,13 +129,13 @@ public sealed class CrocomireEnemyState
     internal SignedSixteenSixteen SkeletonVelocity { get; set; }
 
     /// <summary>
-    /// Starts a sink from rest: clears the vertical speed and subpixel, then sets the starting acceleration of
+    /// Starts a sink from rest: clears the vertical speed and carried fraction, then sets the starting acceleration of
     /// <paramref name="acceleration"/> per frame per frame.
     /// </summary>
     internal void StartVerticalMotion(SignedEightEight acceleration)
     {
         VerticalSpeed = SignedEightEight.Zero;
-        VerticalSubpixel = 0;
+        VerticalFraction = SignedEightEight.Zero;
         VerticalAcceleration = acceleration;
     }
 }

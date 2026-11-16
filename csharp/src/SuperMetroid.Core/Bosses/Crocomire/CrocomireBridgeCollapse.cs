@@ -229,8 +229,8 @@ internal sealed class CrocomireBridgeCollapse
             .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkSpeedWhole);
         state.VerticalSpeed = speed;
 
-        SignedEightEight travelled = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(state.VerticalSubpixel) + speed;
-        state.VerticalSubpixel = travelled.FractionSubpixels;
+        SignedEightEight travelled = state.VerticalFraction + speed;
+        state.VerticalFraction = travelled.WithoutWholePixels();
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + travelled.WholePixels);
         // The acid hides his body below its row wherever this update leaves him, which is where his body is shown.
         HideCrocomireSunkenBody(state, camera);
@@ -259,9 +259,9 @@ internal sealed class CrocomireBridgeCollapse
             speed = CrocomireBehavior.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;
 
-        // The rise moves up: the subpixel less the speed, its whole pixels zero or below.
-        SignedEightEight remaining = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(state.VerticalSubpixel) - speed;
-        state.VerticalSubpixel = remaining.FractionSubpixels;
+        // The rise moves up: the carried fraction less the speed, its whole pixels zero or below.
+        SignedEightEight remaining = state.VerticalFraction - speed;
+        state.VerticalFraction = remaining.WithoutWholePixels();
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + remaining.WholePixels);
     }
 

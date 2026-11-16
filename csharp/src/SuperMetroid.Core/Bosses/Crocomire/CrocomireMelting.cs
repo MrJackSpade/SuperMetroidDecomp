@@ -209,11 +209,10 @@ internal sealed class CrocomireMelting
         int firstLine = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0,
             CrocomireMeltingDefinitions.DistortionLines);
         int rows = death.LowestDistortionSourceRow - death.DistortionSourceRow;
-        // The source row rises a whole row less the slope's fraction each line, so it first reaches the lowest row on the
-        // line after its rise passes one row short of it.
-        int row = SixteenSixteen.FromWhole(1);
-        int slope = checked((int)death.DistortionStep.RawValue);
-        int bandLines = rows <= 0 ? 0 : (rows - 1) * row / (row - slope) + 1;
+        // The source row rises a whole row less the slope each line, so it first reaches the lowest row on the line after
+        // its rise passes one row short of it.
+        UnsignedSixteenSixteen slope = death.DistortionStep;
+        int bandLines = rows <= 0 ? 0 : (new UnsignedSixteenSixteen(1, 0) - slope).WholeStepsWithin(rows - 1) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
         death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, state.Body.Position.Y.Whole,
             ScreenLine(firstLine), ScreenLine(endLine), slope);

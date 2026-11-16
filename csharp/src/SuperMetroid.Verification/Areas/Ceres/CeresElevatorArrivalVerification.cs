@@ -195,9 +195,23 @@ internal static class CeresElevatorArrivalVerification
                     break;
                 }
                 VerificationAssertions.AssertTrue(index < beats.Count, $"{at}: {program} has a beat for the native frame");
-                var frame = VerificationAssertions.AssertIs<AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame>(beats[index++], $"{at}: frame");
-                VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(frame.Shown)), $"{at}: spritemap");
+                AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue> beat = beats[index++];
+                if (beat is AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame held)
+                {
+                    // A list's only frame followed by its goto back to the list shows that frame again and again, for good,
+                    // whatever duration it names (#2068, #2096).
+                    VerificationAssertions.AssertTrue(index == 1
+                            && cartridge.ReadCartridgeWord(address + 4) == CeresElevatorArrivalDefinitions.GotoOpcode
+                            && cartridge.ReadCartridgeWord(address + 6) == entry,
+                        $"{at}: a held frame is its list's only frame, followed by the goto back to the list");
+                    VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(held.Shown)), $"{at}: held frame's spritemap");
+                }
+                else
+                {
+                    var frame = VerificationAssertions.AssertIs<AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.Frame>(beat, $"{at}: frame");
+                    VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
+                    VerificationAssertions.AssertEqual(operand, EnemyProjectileCompositionSources.Spritemap(CeresElevatorArrivalAnimations.Frame(frame.Shown)), $"{at}: spritemap");
+                }
                 cursor = unchecked((ushort)(cursor + 4));
             }
             VerificationAssertions.AssertEqual(beats.Count, index, $"Ceres elevator {program} ends where its native list does");

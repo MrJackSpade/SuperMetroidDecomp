@@ -7,7 +7,7 @@ public enum DoorRoomEvent
     None,
 
     /// <summary>
-    /// The Ceres elevator shaft is shown as a turning floor, unrotated, about room point (128, 1008). The room load
+    /// The Ceres elevator shaft is shown as a turning floor, unrotated, about the shaft's rotation centre. The room load
     /// installs that view before graphics and actors initialize, so the setup only requires it.
     /// </summary>
     ShowsTurningFloor,

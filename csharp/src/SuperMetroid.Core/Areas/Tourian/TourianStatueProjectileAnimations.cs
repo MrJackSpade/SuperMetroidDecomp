@@ -72,9 +72,6 @@ internal static class TourianStatueProjectileAnimations
         [
             Show(EnemyProjectileFrameId.TourianStatueBaseDecoration, 128),
             Cue(new TourianStatueProjectileCue.Signal(K.FollowReveal)),
-        ],
-        [P.BaseDecorationLoop] =
-        [
             Hold(EnemyProjectileFrameId.TourianStatueBaseDecorationLoop),
         ],
         [P.Ridley] =
@@ -88,20 +85,18 @@ internal static class TourianStatueProjectileAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at. A particle starts its counted animation
-    /// directly, with the counter its spawn cleared: its first play counts that zero down, wrapping it, so the animation
-    /// replays the longest count more times before it holds.
+    /// The animation that starts at each segment an owner can start or restart at. A particle plays its run again and
+    /// again until it sinks out of the statues' screen.
     /// </summary>
     internal static IReadOnlyDictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>> StartingAt { get; } = new Dictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>
     {
         [P.Delete] = new([new(P.Delete, 0, 1, 1)], AnimationEnd.Holds),
         [P.Splash] = new([new(P.Splash, 0, 5, 1)], AnimationEnd.Holds),
         [P.EyeGlow] = new([new(P.EyeGlow, 0, 17, 1)], AnimationEnd.Holds),
-        [P.Particle] = new([new(P.Particle, 0, 5, 1), new(P.Particle, 0, 5, WrappingCountdown.LongestStart)], AnimationEnd.Holds),
+        [P.Particle] = new([new(P.Particle, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Tail] = new([new(P.Tail, 0, 8, 1)], AnimationEnd.Holds),
         [P.Soul] = new([new(P.Soul, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BaseDecoration] = new([new(P.BaseDecoration, 0, 2, 1), new(P.BaseDecorationLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.BaseDecorationLoop] = new([new(P.BaseDecorationLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.BaseDecoration] = new([new(P.BaseDecoration, 0, 3, 1)], AnimationEnd.Holds),
         [P.Ridley] = new([new(P.Ridley, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Phantoon] = new([new(P.Phantoon, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
     };

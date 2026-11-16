@@ -13,6 +13,12 @@ internal static class CeresDoorQuakeDefinitions
     /// </summary>
     internal static readonly RandomChance StrongQuake = RandomChance.Lowest(128, new RandomSampleField(0, 12));
 
+    /// <summary>The updates the station's strong escape quake shakes before a door chooses the next.</summary>
+    internal const int StrongQuakeFrames = 4;
+
+    /// <summary>The updates the station's light escape quake shakes before a door chooses the next.</summary>
+    internal const int LightQuakeFrames = 2;
+
     /// <summary>
     /// The animation of each explosion of the elevator door's destruction (#1619): the lowest 16384 of the 65536 samples, a
     /// quarter, burst as smoke; the rest as small explosions.

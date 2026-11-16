@@ -38,6 +38,30 @@ internal static class DownwardGateObjectsVerification
     }
 
     /// <summary>
+    /// Checks the resident gate's column test as a plain range (#2095): Samus lies inside a gate standing at row 2 from
+    /// its top row through the fifth row down, in its own column only. The rows above its top, which the cartridge's
+    /// unsigned compare reads as far below, and the row past its fifth lie outside it.
+    /// </summary>
+    internal static void VerifyDownwardGateColumn()
+    {
+        SamusState? samus = null;
+        var places = new RoomObjectPlaceList(new SuperMetroid.Core.Compatibility.RoomObjectPlaces());
+        var gates = new GateObjects(new FixtureRoomSamus(() => samus), places, new RoomObjectSoundQueue(GameplayAudioRequests.Standalone()));
+        RoomObjectPlace gate = places.Spawn() ?? throw new InvalidOperationException("An empty room has a place for the gate.");
+        gate.Block = new Position16<RoomBlocks>(6, 2);
+        foreach ((int column, int row, bool inside) in new[]
+        {
+            (6, 0, false), (6, 1, false), (6, 2, true), (6, 4, true), (6, 6, true), (6, 7, false), (5, 3, false), (7, 3, false),
+        })
+        {
+            samus = CreateSamus(SuperMetroid.Core.Samus.Poses.SamusPoseId.ForwardFacingPowerSuitPose, new Position16<RoomPixels>(column * 16 + 8, row * 16 + 8));
+            AssertEqual(inside, gates.IsSamusInsideDownwardGateColumn(gate),
+                $"Samus in block ({column}, {row}) lies {(inside ? "inside" : "outside")} the column of the gate at (6, 2)");
+        }
+        Console.WriteLine("Downward gate column: Samus wakes a gate only from its own column, its top row through its fifth.");
+    }
+
+    /// <summary>
     /// Reproduces all eight gate-trigger dispatches in constructed rooms and checks the
     /// resident gate plus bank-$86 actor handoff independently of any long controller route.
     /// </summary>
@@ -48,6 +72,7 @@ internal static class DownwardGateObjectsVerification
         Suite(nameof(VerifyDownwardGateDrawDefinitions), () => VerifyDownwardGateDrawDefinitions());
         Suite(nameof(VerifyDownwardGateVisuals), () => VerifyDownwardGateVisuals());
         Suite(nameof(VerifyDownwardGateSetupAndProjectile), () => VerifyDownwardGateSetupAndProjectile());
+        Suite(nameof(VerifyDownwardGateColumn), () => VerifyDownwardGateColumn());
 
         var cases = new DownwardGateObjectsCase[]
         {

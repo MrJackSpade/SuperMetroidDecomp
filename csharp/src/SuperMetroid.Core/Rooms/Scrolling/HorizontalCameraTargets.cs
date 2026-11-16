@@ -4,15 +4,19 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal static class HorizontalCameraTargets
 {
     /// <summary>
-    /// Select Samus's screen-relative target. Normal tracking places
-    /// Samus 32 pixels either side of viewport center; boss tracking uses its distinct
-    /// facing policy. Edge modes ignore facing. The camera keeps the game's reversal rules.
+    /// Select Samus's screen-relative target (<see cref="HorizontalCameraTargetDefinitions"/>). Normal tracking places
+    /// Samus behind the viewport's centre on the side she faces away from; boss tracking uses its distinct facing policy.
+    /// Edge modes ignore facing. The camera keeps the game's reversal rules.
     /// </summary>
     internal static int Offset(CameraDistanceMode mode, bool facingRight) => mode switch
     {
-        CameraDistanceMode.NormalTracking => 256 / 2 + (facingRight ? -32 : 32),
-        CameraDistanceMode.BossTracking => facingRight ? 64 : 80,
-        CameraDistanceMode.RightEdge => 256 - 32,
+        CameraDistanceMode.NormalTracking => ScreenGeometry.ScreenWidthPixels / 2 + (facingRight
+            ? -HorizontalCameraTargetDefinitions.NormalTrackingLead
+            : HorizontalCameraTargetDefinitions.NormalTrackingLead),
+        CameraDistanceMode.BossTracking => facingRight
+            ? HorizontalCameraTargetDefinitions.BossTrackingFacingRightX
+            : HorizontalCameraTargetDefinitions.BossTrackingFacingLeftX,
+        CameraDistanceMode.RightEdge => ScreenGeometry.ScreenWidthPixels - HorizontalCameraTargetDefinitions.RightEdgeInset,
         _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
     };
 }

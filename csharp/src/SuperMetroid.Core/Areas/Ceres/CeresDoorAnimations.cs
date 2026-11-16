@@ -115,62 +115,48 @@ internal static class CeresDoorAnimations
         [P.ElevatorDoor] =
         [
             Cue(new(K.MakeIntangible)),
-        ],
-        [P.ElevatorDoorLoop] =
-        [
-            Show(EnemyFrameId.CeresElevatorDoorBlocked, 1),
+            Hold(EnemyFrameId.CeresElevatorDoorBlocked),
         ],
         [P.ElevatorRoomWall] =
         [
             Cue(new(K.GoToIfRidleyNotEscaped, Target: P.DoorFacingLeft)),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeInvisible)),
-        ],
-        [P.ElevatorRoomWallLoop] =
-        [
-            Show(EnemyFrameId.CeresDoorFacingLeftClosed, 1),
+            Hold(EnemyFrameId.CeresDoorFacingLeftClosed),
         ],
         [P.GetawayChamberLeftWall] =
         [
             Cue(new(K.MakeIntangible)),
-        ],
-        [P.GetawayChamberLeftWallLoop] =
-        [
-            Show(EnemyFrameId.CeresGetawayChamberLeftWall, 1),
+            Hold(EnemyFrameId.CeresGetawayChamberLeftWall),
         ],
         [P.GetawayChamberRightWall] =
         [
             Cue(new(K.MakeIntangible)),
-        ],
-        [P.GetawayChamberRightWallLoop] =
-        [
-            Show(EnemyFrameId.CeresGetawayChamberRightWall, 1),
+            Hold(EnemyFrameId.CeresGetawayChamberRightWall),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner starts or a cue branches to. An open door is only reached
+    /// from the segment before it, and the elevator room's door and walls and the getaway chamber's walls rest on their
+    /// picture for good once their setup has run.
+    /// </summary>
     internal static IReadOnlyDictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt { get; } = new Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>
     {
         [P.RidleyRoomDoor] = new([new(P.RidleyRoomDoor, 0, 12, 1), new(P.RidleyRoomDoorWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(4)),
         [P.RidleyRoomDoorWait] = new([new(P.RidleyRoomDoorWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
         [P.DoorFacingRight] = new([new(P.DoorFacingRight, 0, 4, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.OpenFacingRight] = new([new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CloseFacingRight] = new([new(P.CloseFacingRight, 0, 6, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
         [P.ClosedFacingRight] = new([new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
         [P.ClosedFacingRightWait] = new([new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
         [P.DoorFacingLeft] = new([new(P.DoorFacingLeft, 0, 4, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.OpenFacingLeft] = new([new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.CloseFacingLeft] = new([new(P.CloseFacingLeft, 0, 6, 1), new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
         [P.ClosedFacingLeft] = new([new(P.ClosedFacingLeft, 0, 2, 1), new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
         [P.ClosedFacingLeftWait] = new([new(P.ClosedFacingLeftWait, 0, 9, 1), new(P.OpenFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ElevatorDoor] = new([new(P.ElevatorDoor, 0, 1, 1), new(P.ElevatorDoorLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ElevatorDoorLoop] = new([new(P.ElevatorDoorLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ElevatorRoomWall] = new([new(P.ElevatorRoomWall, 0, 3, 1), new(P.ElevatorRoomWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ElevatorRoomWallLoop] = new([new(P.ElevatorRoomWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GetawayChamberLeftWall] = new([new(P.GetawayChamberLeftWall, 0, 1, 1), new(P.GetawayChamberLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GetawayChamberLeftWallLoop] = new([new(P.GetawayChamberLeftWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GetawayChamberRightWall] = new([new(P.GetawayChamberRightWall, 0, 1, 1), new(P.GetawayChamberRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.GetawayChamberRightWallLoop] = new([new(P.GetawayChamberRightWallLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ElevatorDoor] = new([new(P.ElevatorDoor, 0, 2, 1)], AnimationEnd.Holds),
+        [P.ElevatorRoomWall] = new([new(P.ElevatorRoomWall, 0, 4, 1)], AnimationEnd.Holds),
+        [P.GetawayChamberLeftWall] = new([new(P.GetawayChamberLeftWall, 0, 2, 1)], AnimationEnd.Holds),
+        [P.GetawayChamberRightWall] = new([new(P.GetawayChamberRightWall, 0, 2, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -178,6 +164,9 @@ internal static class CeresDoorAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CeresDoorCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2096): a blocked door or a wall rests on its picture.</summary>
+    private static AnimationBeat<EnemyFrameId, CeresDoorCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, CeresDoorCue> Cue(CeresDoorCue cue) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Event(cue);

@@ -133,7 +133,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // The update that turns the shaft to a tilt is the first of the updates it holds it.
         var rotation = CeresShaftRotation.Read(TiltSteps);
         HoldFramesLeft = rotation.HoldFrames - 1;
-        Transform = new TurningFloorTransform(rotation.Tilt, CeresShaftRotationCenter);
+        Transform = new TurningFloorTransform(rotation.Tilt, CeresShaftRotationDefinitions.RotationCenter);
 
         // The forward sweep turns clockwise one step at a time; after its last tilt the turn reverses at the full
         // clockwise tilt. The backward sweep turns back until its last tilt hands over to the forward sweep at the full
@@ -161,14 +161,14 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>
-    /// Applies the elevator trigger's asymmetric bounds: X in (112,144], Y in [75,128),
-    /// with both whole and fractional vertical speed zero.
+    /// Applies the elevator trigger's asymmetric bounds (<see cref="CeresElevatorDepartureDefinitions"/>), with both whole
+    /// and fractional vertical speed zero.
     /// </summary>
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
-        samus.Position.X.Whole > 112 &&
-        samus.Position.X.Whole <= 144 &&
-        samus.Position.Y.Whole >= 75 &&
-        samus.Position.Y.Whole < 128 &&
+        samus.Position.X.Whole > CeresElevatorDepartureDefinitions.LeftOfTriggerX &&
+        samus.Position.X.Whole <= CeresElevatorDepartureDefinitions.TriggerRightX &&
+        samus.Position.Y.Whole >= CeresElevatorDepartureDefinitions.TriggerTopY &&
+        samus.Position.Y.Whole < CeresElevatorDepartureDefinitions.BelowTriggerY &&
         samus.Kinematics.YSpeed.Whole == 0 &&
         samus.Kinematics.YSpeed.Fraction == 0;
 
@@ -181,8 +181,5 @@ public sealed class CeresElevatorShaftRoomMainState
         carryover.LeaveTurnStep(TiltSteps + CeresShaftRotationDefinitions.FullTiltSteps, backward: Sweep == CeresShaftSweep.Backward);
 
     /// <summary>Starts the shaft level, as the elevator door's setup leaves it, about its fixed rotation center.</summary>
-    private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationCenter);
-
-    /// <summary>The room point the shaft's turning floor always rotates about, set by both the elevator door's setup and room main.</summary>
-    internal static readonly Position16<RoomPixels> CeresShaftRotationCenter = new(128, 1008);
+    private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter);
 }

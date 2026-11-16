@@ -825,7 +825,7 @@ internal sealed class RoomLoader
         // Samus, her projectiles, and the rotating elevator's steam a single authoritative
         // producer. Ordinary doors clear it so stale rotating-view math cannot leak across rooms.
         TurningFloorTransform? initialFloorTransform = door.EntersCeresElevatorShaft
-            ? TurningFloorTransform.Level(CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
+            ? TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter)
             : null;
         _display.ActiveTurningFloor = initialFloorTransform;
         // The Ceres elevator door setup levels the shaft before it is

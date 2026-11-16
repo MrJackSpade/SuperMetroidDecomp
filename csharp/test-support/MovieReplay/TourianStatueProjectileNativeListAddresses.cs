@@ -24,13 +24,9 @@ internal static class TourianStatueProjectileNativeListAddresses
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
-        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.BaseDecorationLoop, BaseDecorationLoop),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
     ];
-
-    /// <summary>$86:B862, where the base decoration's list rests after installing its movement.</summary>
-    private const ushort BaseDecorationLoop = 0xb862;
 
     /// <summary>$86:B818, the spawn-tail routine the particle's list would run on into once its counter ran out.</summary>
     private const ushort ParticleListEnd = 0xb818;

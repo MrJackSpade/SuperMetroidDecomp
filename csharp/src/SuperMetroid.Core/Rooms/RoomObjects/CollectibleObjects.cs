@@ -256,25 +256,25 @@ internal sealed class CollectibleObjects
         switch (kind)
         {
             case InWorldCollectibleKind.EnergyTank:
-                samus.MaxHealth += 100;
+                samus.MaxHealth += CollectibleCapacityDefinitions.EnergyTankEnergy;
                 samus.Health = samus.MaxHealth;
                 return;
             case InWorldCollectibleKind.ReserveTank:
-                samus.MaxReserveEnergy += 100;
+                samus.MaxReserveEnergy += CollectibleCapacityDefinitions.ReserveTankEnergy;
                 if (samus.ReserveTankMode == ReserveTankMode.None)
                     samus.ReserveTankMode = ReserveTankMode.Auto;
                 return;
             case InWorldCollectibleKind.MissileTank:
-                samus.MaxMissiles += 5;
-                samus.Missiles += 5;
+                samus.MaxMissiles += CollectibleCapacityDefinitions.MissileTankMissiles;
+                samus.Missiles += CollectibleCapacityDefinitions.MissileTankMissiles;
                 return;
             case InWorldCollectibleKind.SuperMissileTank:
-                samus.MaxSuperMissiles += 5;
-                samus.SuperMissiles += 5;
+                samus.MaxSuperMissiles += CollectibleCapacityDefinitions.SuperMissileTankSuperMissiles;
+                samus.SuperMissiles += CollectibleCapacityDefinitions.SuperMissileTankSuperMissiles;
                 return;
             case InWorldCollectibleKind.PowerBombTank:
-                samus.MaxPowerBombs += 5;
-                samus.PowerBombs += 5;
+                samus.MaxPowerBombs += CollectibleCapacityDefinitions.PowerBombTankPowerBombs;
+                samus.PowerBombs += CollectibleCapacityDefinitions.PowerBombTankPowerBombs;
                 return;
             case InWorldCollectibleKind.Bombs:
             case InWorldCollectibleKind.HiJumpBoots:

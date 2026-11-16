@@ -68,8 +68,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(particle, 3);
         EnemyProjectile tail = Single(RoomEnemyProjectileKind.TourianStatueTail);
         Run(particle, 2);
-        AssertEqual<int?>(ushort.MaxValue, NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<TourianStatueProjectileAnimation>(particle.Animation, "the particle's animation").Playback),
-            "after its first play the particle has the longest count of plays left, as the cartridge's unset timer wraps from zero");
+        // The particle loops its run (#2096): the cartridge's cleared counter would replay it longer than any particle falls.
+        AssertEqual(new AnimationPlace(0, 1), AssertIs<TourianStatueProjectileAnimation>(particle.Animation, "the particle's animation").Playback.Place,
+            "after its first play the particle shows its run's first frame again");
         AssertEqual((ushort)0xb806, NativePointer(particle),
             "particle counted branch immediately begins its next display cycle");
 

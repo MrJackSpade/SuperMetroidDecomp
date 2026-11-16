@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres elevator arrival projectiles' typed animations (#641, #1600): the pad alternates two poses and the platform holds
-/// one, each for one update at a time, until landing redirects both to the delete.
+/// The Ceres elevator arrival projectiles' typed animations (#641, #1600): the pad alternates two poses, each for one update
+/// at a time, and the platform rests on its one pose, until landing redirects both to the delete.
 /// </summary>
 internal static class CeresElevatorArrivalAnimations
 {
@@ -21,12 +21,15 @@ internal static class CeresElevatorArrivalAnimations
         ],
         [P.Platform] =
         [
-            Show(CeresElevatorArrivalPose.Platform, 1),
+            new AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame(CeresElevatorArrivalPose.Platform),
         ],
         [P.Delete] = [],
     });
 
-    /// <summary>The animation that starts at each segment: the pad and platform loop, and the delete ends at once.</summary>
+    /// <summary>
+    /// The animation that starts at each segment: the pad loops its two poses, the platform rests on its pose for good, and
+    /// the delete ends at once.
+    /// </summary>
     internal static IReadOnlyDictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>> StartingAt { get; } = new Dictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>>
     {
         [P.Pad] = new([new(P.Pad, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),

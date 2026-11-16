@@ -17,6 +17,12 @@ public static class TourianStatueSequenceDefinitions
     /// <summary>The pixels the statue lowers before the descent completes.</summary>
     public const int DescentDistance = 240;
 
+    /// <summary>The dust puffs the descent raises.</summary>
+    public const int DescentDustPuffs = 4;
+
+    /// <summary>The room point, in whole pixels, the descent's dust puffs return to whenever they restart.</summary>
+    public static Position16<RoomPixels> DescentDustAnchor { get; } = new(128, 188);
+
     /// <summary>
     /// The medium up-and-down earthquake, shaking both layers, the descent sustains every update it runs
     /// (<see cref="SuperMetroid.Core.Fx.RoomEarthquake.Sustain"/>), so the shake lasts past its end.

@@ -151,10 +151,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             {
                 // The distance test subtracts the two positions, takes the
                 // wrapped difference, then its distance independently
-                // on each axis. If either distance is at least 48 pixels, the door branches.
+                // on each axis. If Samus is distant along either axis, the door branches.
                 int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
                 int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
-                return xDistance >= 48 || yDistance >= 48 ? cue.Target : null;
+                return xDistance >= CeresDoorApproachDefinitions.DistantPixels || yDistance >= CeresDoorApproachDefinitions.DistantPixels
+                    ? cue.Target
+                    : null;
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
                 // The test reads whether the current area's boss is saved

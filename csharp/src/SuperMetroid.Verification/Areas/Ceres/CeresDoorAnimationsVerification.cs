@@ -24,7 +24,7 @@ internal static class CeresDoorAnimationsVerification
                     'T' => NativeEnemyAnimationOracle.EntryOf(Entries, cue.Target),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
-            }));
+            }), onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Ceres door animations: {Entries.Length} segments ({beats} beats) match bank $A6.");
     }
 }

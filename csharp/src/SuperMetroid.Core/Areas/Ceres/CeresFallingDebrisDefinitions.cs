@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// How the debris falling in Ceres's pre-elevator hall during the escape chooses its piece, from the current random
-/// sample read without drawing (#1548), and where each piece falls from.
+/// sample read without drawing (#1548), where each piece falls from and how it falls.
 /// </summary>
 internal static class CeresFallingDebrisDefinitions
 {
@@ -20,4 +20,16 @@ internal static class CeresFallingDebrisDefinitions
     /// </summary>
     internal static readonly ImmutableArray<int> ColumnX =
         [80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 272, 304, 336, 368, 400];
+
+    /// <summary>The room Y, in whole pixels, every piece starts its fall at, whatever its column.</summary>
+    internal const int StartingY = 42;
+
+    /// <summary>The downward speed a piece starts its fall with: a sixteenth of a pixel per update.</summary>
+    internal static readonly SignedEightEight StartingFallSpeed = SignedEightEight.FromParts(0, 16);
+
+    /// <summary>
+    /// The speed a falling piece gains each update before it moves: a sixteenth of a pixel per update, so its first
+    /// update already moves it an eighth of a pixel.
+    /// </summary>
+    internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromParts(0, 16);
 }

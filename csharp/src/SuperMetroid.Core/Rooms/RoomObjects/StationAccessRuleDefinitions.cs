@@ -14,4 +14,7 @@ internal static class StationAccessRuleDefinitions
     /// <summary>The missile station: access blocks either side.</summary>
     internal static StationAccessRule Missile { get; } = new(StationKind.Missile, 1, -1, StationAccessBehavior.MissileRight, StationAccessBehavior.MissileLeft,
         StationAnimation.Missile, AcquiredAnimation: null);
+
+    /// <summary>Every station's access rule: the map, energy and missile stations'.</summary>
+    internal static IReadOnlyList<StationAccessRule> All { get; } = [Map, Energy, Missile];
 }

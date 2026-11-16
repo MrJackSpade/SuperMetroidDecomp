@@ -29,14 +29,17 @@ internal static class CeresDoorNativeListAddresses
         new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingLeft, 0xf5ea),
         new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingLeftWait, 0xf5ee),
         new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ElevatorDoor, 0xf610),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ElevatorDoorLoop, 0xf612),
         new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ElevatorRoomWall, 0xf61a),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ElevatorRoomWallLoop, 0xf622),
         new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.GetawayChamberLeftWall, 0xf62a),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.GetawayChamberLeftWallLoop, 0xf62c),
         new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.GetawayChamberRightWall, 0xf634),
-        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.GetawayChamberRightWallLoop, 0xf636),
     ];
+
+    /// <summary>The segments no owner starts and no cue branches to, which animations only run on into (#2096).</summary>
+    internal static readonly IReadOnlySet<CeresDoorSegment> OnlyRunOnInto = new HashSet<CeresDoorSegment>
+    {
+        CeresDoorSegment.OpenFacingRight,
+        CeresDoorSegment.OpenFacingLeft,
+    };
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, CeresDoorNativeListAddressesInstruction> Instructions = new()

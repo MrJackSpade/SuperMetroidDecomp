@@ -78,7 +78,7 @@ internal sealed class TourianObjects
         place.Become(new EscapeAcidRiseObject(_samus, _roomFx));
         return true;
     }
-    /// <summary>Spawns the clear or crumble of the access floor at block (6,12).</summary>
+    /// <summary>Spawns the clear or crumble of the access floor at its block (<see cref="TourianAccessObjectDefinitions.FloorBlock"/>).</summary>
     /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
@@ -86,7 +86,7 @@ internal sealed class TourianObjects
         if (_places.Spawn() is not { } place)
             return false;
 
-        place.Block = level.GridBlock(new(6, 12));
+        place.Block = level.GridBlock(TourianAccessObjectDefinitions.FloorBlock);
         place.Become(new TerrainChangeObject(change));
         return true;
     }

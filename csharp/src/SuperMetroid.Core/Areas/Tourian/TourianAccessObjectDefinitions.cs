@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>The changes the room objects that clear or crumble the Tourian access floor make.</summary>
 internal static class TourianAccessObjectDefinitions
 {
+    /// <summary>The block the access floor's clearing or crumbling room object stands at, where the crumble starts down.</summary>
+    internal static readonly Position16<RoomBlocks> FloorBlock = new(6, 12);
+
     /// <summary>The rows the crumble walks down.</summary>
     internal const int CrumbleRows = 6;
 

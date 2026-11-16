@@ -28,10 +28,10 @@ internal sealed class CeresEscapeQuake(EnemyRoomBinding room, RoomEarthquake ear
 
         if (CeresDoorQuakeDefinitions.StrongQuake.IsTakenBy(room.Random.Read()))
         {
-            earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, reach), 4);
+            earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, reach), CeresDoorQuakeDefinitions.StrongQuakeFrames);
             return;
         }
 
-        earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, reach), 2);
+        earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, reach), CeresDoorQuakeDefinitions.LightQuakeFrames);
     }
 }

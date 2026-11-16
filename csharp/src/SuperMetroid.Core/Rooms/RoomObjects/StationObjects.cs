@@ -316,17 +316,10 @@ internal sealed class StationObjects
         if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
             return false;
 
-        // The access blocks sit beside their station on its row; the step to the station runs through the room's blocks in
-        // reading order, as the station's setup placed them.
-        int columnsToStation = access switch
-        {
-            StationAccessBehavior.MapRight => -1,
-            StationAccessBehavior.MapLeft => 2,
-            StationAccessBehavior.EnergyRight or StationAccessBehavior.MissileRight => -1,
-            StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft => 1,
-            StationAccessBehavior.SaveFloor => 0,
-            _ => throw new InvalidOperationException($"Undefined station access {access}."),
-        };
+        // The save station's floor access is the station's own block. A map, energy or missile station's access blocks sit
+        // beside it on its row, where its setup stepped through the room's blocks in reading order to place them; the step
+        // back to the station reverses that.
+        int columnsToStation = access == StationAccessBehavior.SaveFloor ? 0 : ColumnsToStationFrom(access);
         Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
 
         foreach (RoomObjectPlace place in _places.FromLastPlace)
@@ -397,13 +390,30 @@ internal sealed class StationObjects
         return false;
     }
 
-    /// <summary>Applies the game's wrapping coordinate test before queuing any save side effect.</summary>
+    /// <summary>The columns from a map, energy or missile station's access block back to the station, by the rule that placed it.</summary>
+    /// <exception cref="InvalidOperationException">No station's rule places <paramref name="access"/>.</exception>
+    private static int ColumnsToStationFrom(StationAccessBehavior access)
+    {
+        foreach (StationAccessRule rule in StationAccessRuleDefinitions.All)
+        {
+            if (rule.ColumnsToStationFrom(access) is { } columns)
+                return columns;
+        }
+        throw new InvalidOperationException($"No station's access rule places access {access}.");
+    }
+
+    /// <summary>
+    /// Whether Samus stands centred on the save station's floor, tested before any save side effect queues: the point
+    /// <see cref="SaveStationTriggerGeometry.HorizontalProbeOffset"/> pixels left of her lies in the block's column. A
+    /// Samus nearer the room's left edge than that has no such point in the room.
+    /// </summary>
     private bool IsSaveStationTriggerCentered(Position16<RoomBlocks> block)
     {
         IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
-        int probeX = CoordinateAxis.Wrap(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset);
-        return RoomGridConversions.PixelToBlock(probeX) == block.X;
+        int samusX = samus.Position.X.Whole;
+        return samusX >= SaveStationTriggerGeometry.HorizontalProbeOffset &&
+            RoomGridConversions.PixelToBlock(samusX - SaveStationTriggerGeometry.HorizontalProbeOffset) == block.X;
     }
 
     /// <summary>Samus, whom <paramref name="owner"/> reads and changes.</summary>

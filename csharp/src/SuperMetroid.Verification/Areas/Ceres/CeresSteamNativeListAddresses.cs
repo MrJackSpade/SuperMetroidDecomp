@@ -30,6 +30,18 @@ internal static class CeresSteamNativeListAddresses
         new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.RightPuffing, 0xf0fd),
     ];
 
+    /// <summary>
+    /// The rests between puffs, which no owner starts and no cue branches to: a dormant or puffing vent's animation only
+    /// runs on into them (#2096).
+    /// </summary>
+    internal static readonly IReadOnlySet<CeresSteamSegment> OnlyRunOnInto = new HashSet<CeresSteamSegment>
+    {
+        CeresSteamSegment.UpResting,
+        CeresSteamSegment.LeftResting,
+        CeresSteamSegment.DownResting,
+        CeresSteamSegment.RightResting,
+    };
+
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<CeresSteamCue>> Instructions = new()
     {

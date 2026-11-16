@@ -1,8 +1,16 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres escape shaft's rotation steps: how far each tilts the shaft and how long the shaft holds it.</summary>
+/// <summary>
+/// The Ceres escape shaft's rotation: the point it turns about, how far each step tilts the shaft and how long the shaft
+/// holds it.
+/// </summary>
 public static class CeresShaftRotationDefinitions
 {
+    /// <summary>
+    /// The room point the shaft's turning floor always rotates about, set both by the elevator door's setup, which shows
+    /// the shaft level, and by the room's main behaviour as it turns.
+    /// </summary>
+    public static Position16<RoomPixels> RotationCenter { get; } = new(128, 1008);
 
     /// <summary>The steps of the shaft's full tilt either way from level (#1895).</summary>
     public const int FullTiltSteps = 34;

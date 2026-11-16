@@ -19,8 +19,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction,
-    /// wrapping as the game's coordinate does.
+    /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction.
     /// </summary>
     public FixedCoordinate TrackedY { get; private set; }
 
@@ -109,9 +108,11 @@ public sealed class MaridiaElevatubeRoomMainState
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
         // The game's range test is exactly the inclusive range of the maximum speed either
-        // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
-        // wraps as the game's coordinate does, so an overflowed candidate is judged by whether its wrapped value reads as negative.
-        SignedEightEight candidate = Velocity + Acceleration;
+        // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The velocity
+        // never passes the maximum speed and the acceleration is an eighth of a pixel, so their sum stays far inside the
+        // velocity's range.
+        SignedEightEight candidate = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            Velocity.InTwoHundredFiftySixthsOfPixel + Acceleration.InTwoHundredFiftySixthsOfPixel);
         if (candidate >= -MaridiaElevatubeDefinitions.MaximumSpeed && candidate <= MaridiaElevatubeDefinitions.MaximumSpeed)
             Velocity = candidate;
 

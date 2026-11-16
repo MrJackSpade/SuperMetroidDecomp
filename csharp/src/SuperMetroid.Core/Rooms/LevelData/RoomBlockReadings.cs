@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="Grapple">The reaction grapple blocks read, or null for none.</param>
 /// <param name="Slope">The shape and mirroring slopes read.</param>
 /// <param name="ExtensionOffset">The signed offset extensions read, in blocks (or rows).</param>
-/// <param name="DoorLink">The entry of the room's door list door blocks read.</param>
+/// <remarks>Where a door block leads is its room's own (<see cref="RoomDoorBlock"/>, #2090), not a reading.</remarks>
 public sealed record RoomBlockReadings(
     ShootableReaction? Shootable,
     BombableReaction? Bombable,
@@ -25,9 +25,4 @@ public sealed record RoomBlockReadings(
     SpikeReaction? Spike,
     GrappleReaction? Grapple,
     SlopeGeometry Slope,
-    int ExtensionOffset,
-    int DoorLink)
-{
-    /// <summary>The entry of the room's door list door blocks read.</summary>
-    public int DoorLink { get; } = Ensure.AtLeastZero(DoorLink);
-}
+    int ExtensionOffset);

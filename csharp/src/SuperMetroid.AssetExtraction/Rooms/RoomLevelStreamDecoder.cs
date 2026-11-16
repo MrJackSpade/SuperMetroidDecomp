@@ -37,14 +37,11 @@ internal static class RoomLevelStreamDecoder
     {
         if (areas.Count == 0)
             throw new ArgumentException($"Room level {level} belongs to no area.", nameof(areas));
-        if (stream.Length < SizeWordBytes)
-            throw new InvalidDataException($"Room level {level} has no size word.");
-        int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(stream);
-        int blockCount = layerBytes / sizeof(ushort);
-        int behaviorOffset = SizeWordBytes + layerBytes;
+        LevelLayers layers = Layers(level, stream, widthInBlocks);
+        int layerBytes = layers.LayerBytes;
+        int blockCount = layers.BlockCount;
+        int behaviorOffset = layers.BehaviorOffset;
         int backgroundOffset = behaviorOffset + blockCount;
-        if ((layerBytes & 1) != 0 || blockCount == 0 || blockCount % widthInBlocks != 0 || stream.Length < backgroundOffset)
-            throw new InvalidDataException($"Room level {level} has an invalid foreground or behaviour layer.");
         int availableBackgroundBytes = Math.Min(layerBytes, stream.Length - backgroundOffset);
         if ((availableBackgroundBytes & 1) != 0)
             throw new InvalidDataException($"Room level {level} ends inside a background level word.");
@@ -82,7 +79,57 @@ internal static class RoomLevelStreamDecoder
     }
 
     /// <summary>
-    /// A block's behaviour as the installation holds it (#1805). A block of a kind that reads no reaction holds the byte's
+    /// The position in its room's door list each door block of the level leads through, by block (#2090): the import
+    /// resolves each through the lists of the rooms whose states use the level, which are not the level's.
+    /// </summary>
+    /// <param name="level">The level, for messages.</param>
+    /// <param name="stream">The complete decompressed level.</param>
+    /// <param name="widthInBlocks">The width every room state using the level gives it.</param>
+    /// <exception cref="InvalidDataException">The level's size word, foreground or behaviours are malformed.</exception>
+    internal static IReadOnlyDictionary<Position16<RoomBlocks>, int> DoorLinks(RoomLevelId level, ReadOnlySpan<byte> stream,
+        int widthInBlocks)
+    {
+        LevelLayers layers = Layers(level, stream, widthInBlocks);
+        int blockCount = layers.BlockCount;
+        var size = new Extent16<RoomBlocks>(checked((ushort)widthInBlocks), checked((ushort)(blockCount / widthInBlocks)));
+        var links = new Dictionary<Position16<RoomBlocks>, int>();
+        for (int index = 0; index < blockCount; index++)
+        {
+            RoomTerrainBlock block = RoomLevelWordCodec.Decode(
+                BinaryPrimitives.ReadUInt16LittleEndian(stream[(SizeWordBytes + index * sizeof(ushort))..]));
+            if (block.Collision == RoomCollisionType.DoorBlock)
+                links.Add(size.CellAtRowMajorIndex(index), RoomBlockBehaviorCodec.DoorLinkOf(stream[layers.BehaviorOffset + index]));
+        }
+        return links;
+    }
+
+    /// <summary>
+    /// The level's layers: the foreground's byte count, the grid's block count, and where the behaviour bytes start.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The size word is missing or the foreground or behaviour layer is malformed.</exception>
+    private static LevelLayers Layers(RoomLevelId level, ReadOnlySpan<byte> stream,
+        int widthInBlocks)
+    {
+        if (stream.Length < SizeWordBytes)
+            throw new InvalidDataException($"Room level {level} has no size word.");
+        int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(stream);
+        int blockCount = layerBytes / sizeof(ushort);
+        int behaviorOffset = SizeWordBytes + layerBytes;
+        if ((layerBytes & 1) != 0 || blockCount == 0 || blockCount % widthInBlocks != 0 || stream.Length < behaviorOffset + blockCount)
+            throw new InvalidDataException($"Room level {level} has an invalid foreground or behaviour layer.");
+        return new LevelLayers(layerBytes, blockCount, behaviorOffset);
+    }
+
+    /// <summary>A decompressed level's layers.</summary>
+    /// <param name="LayerBytes">The foreground's byte count.</param>
+    /// <param name="BlockCount">The grid's block count.</param>
+    /// <param name="BehaviorOffset">Where the behaviour bytes start in the decompressed level.</param>
+    private readonly record struct LevelLayers(int LayerBytes, int BlockCount, int BehaviorOffset);
+
+    /// <summary>
+    /// A block's behaviour as the installation holds it (#1805). A door block holds none: where it leads is its room's own
+    /// (<see cref="DoorLinks"/>, #2090), and nothing changes a retail door block to a kind that reads a behaviour without
+    /// writing one. A block of another kind that reads no reaction holds the byte's
     /// behaviour with the areas' meanings left unresolved, which a room's load resolves in its area. A reacting block holds
     /// the reaction its kind reads in the level's areas, which must agree, as the first behaviour holding that reaction:
     /// where an area's table gives several entries one meaning (Maridia's quicksand surface), the block keeps the first
@@ -96,6 +143,8 @@ internal static class RoomLevelStreamDecoder
     private static RoomBlockBehavior InstalledBehavior(RoomLevelId level, int index, RoomCollisionType kind, int value,
         IReadOnlyCollection<AreaId> areas)
     {
+        if (kind == RoomCollisionType.DoorBlock)
+            return RoomBlockBehavior.None;
         if (BlockReactionFamilies.Of(kind) is not { } family)
             return RoomBlockBehaviorCodec.Decode(value);
         RoomBlockBehavior? installed = null;

@@ -65,10 +65,23 @@ internal static class LevelBlockReactionImportVerification
                 continue;
             InstalledRoomLevel level = RoomLevelStreamDecoder.Decode(new RoomLevelId("KeptBlocks"), Level(kind, keptValues),
                 keptValues.Count, [area]);
+            IReadOnlyDictionary<Position16<RoomBlocks>, int> links = RoomLevelStreamDecoder.DoorLinks(new RoomLevelId("KeptBlocks"),
+                Level(kind, keptValues), keptValues.Count);
             for (int index = 0; index < keptValues.Count; index++)
             {
                 RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, keptValues[index]);
                 RoomBlockBehavior installed = level.Behaviors[index].In(area);
+                if (kind == RoomCollisionType.DoorBlock)
+                {
+                    // #2090: a door block holds no behaviour; the low seven bits of its byte are where in its room's door
+                    // list it leads, which the import resolves through each room's list.
+                    AssertEqual(RoomBlockBehavior.None, installed, $"door block with BTS ${keptValues[index]:X2} in {area} holds no behaviour");
+                    AssertEqual(keptValues[index] & 0x7f, links[new Position16<RoomBlocks>(index, 0)],
+                        $"door block with BTS ${keptValues[index]:X2} in {area} leads through its byte's door-list position");
+                    kept++;
+                    continue;
+                }
+                AssertEqual(0, links.Count, $"a {kind} block leads through no door");
                 if (family is null)
                     AssertEqual(behavior, installed, $"{kind} block with BTS ${keptValues[index]:X2} in {area} keeps its behaviour");
                 foreach (BlockReactionFamily other in Enum.GetValues<BlockReactionFamily>())

@@ -180,13 +180,12 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.DoorBlock:
-                        // Resolves behaviour through the current room's door
-                        // list. A normal destination publishes the door, enters
+                        // Finds where the door block leads. A normal destination publishes the door, enters
                         // the door-transition game state, and reports no collision, so this scan must allow
                         // Samus into the doorway. Elevator pseudo-destinations are not doors
                         // and fall through to the ordinary solid clipping.
-                        DoorListEntry horizontalDoor = terrain.Level.ResolveDoorCollision(
-                            block.Behavior,
+                        DoorBlockExit horizontalDoor = terrain.Level.ResolveDoorCollision(
+                            block,
                             state.CollisionPose.ForRoomCollision(),
                             move.PublishDoorSideEffects);
                         if (horizontalDoor.IsElevatorPseudoDoor)
@@ -544,8 +543,8 @@ public static class SamusBlockCollision
                     // Is the vertical twin of the reaction above. Preserve
                     // its collision result here; the room-level owner publishes the same
                     // door entry for the frontend game-state loop to consume.
-                    DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
-                        block.Behavior,
+                    DoorBlockExit verticalDoor = terrain.Level.ResolveDoorCollision(
+                        block,
                         state.CollisionPose.ForRoomCollision(),
                         move.PublishDoorSideEffects);
                     if (verticalDoor.IsElevatorPseudoDoor)

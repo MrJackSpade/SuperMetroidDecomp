@@ -20,7 +20,7 @@ internal static class MaridiaPipeIncomingDoorSeed
         {
             var block = level.GetCollisionBlock(level.Size.CellAtRowMajorIndex(index));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            if (level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
+            if (level.ResolveDoorCollision(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
             entry = block;
         }
         if (entry is not { } entryBlock) throw new InvalidDataException("Plasma Spark has no matching northern elevatube door block.");

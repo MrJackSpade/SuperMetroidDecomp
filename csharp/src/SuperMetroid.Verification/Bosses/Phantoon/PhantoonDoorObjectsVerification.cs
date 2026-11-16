@@ -214,8 +214,8 @@ internal static class PhantoonDoorObjectsVerification
     }
 
     /// <summary>
-    /// A room whose door columns, from the door's top block, hold <paramref name="door"/>; the door's blocks link to a
-    /// door and the cap's lead to the block above, as the room's own do.
+    /// A room whose door columns, from the door's top block, hold <paramref name="door"/>; the door's blocks hold no
+    /// behaviour and the cap's lead to the block above, as the room's own do.
     /// </summary>
     private static RoomLevelData DoorRoom(Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> door)
     {
@@ -226,7 +226,7 @@ internal static class PhantoonDoorObjectsVerification
         {
             int index = RoomSize.RowMajorIndex(top + cell);
             terrain[index] = block;
-            behaviors[index] = cell.X == 0 ? RoomBlockBehavior.LinkingDoor(2) : cell.Y == 0 ? RoomBlockBehavior.None : RoomBlockBehavior.Extending(-1);
+            behaviors[index] = cell.X == 0 ? RoomBlockBehavior.None : cell.Y == 0 ? RoomBlockBehavior.None : RoomBlockBehavior.Extending(-1);
         }
         return CreateRoom(RoomSize, terrain, behaviors);
     }

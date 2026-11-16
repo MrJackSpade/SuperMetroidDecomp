@@ -25,8 +25,8 @@ internal static class PauseDoorShinesparkVerification
     /// <summary>A plain solid block: the wall behind the door column.</summary>
     private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
-    /// <summary>The door column's behaviour: entry three of the Parlor door list.</summary>
-    private static readonly RoomBlockBehavior ParlorExitDoor = RoomBlockBehavior.LinkingDoor(3);
+    /// <summary>Where the door column leads: the Tourian elevator room's door into its save room.</summary>
+    private static readonly DoorBlockExit TourianSaveDoor = DoorDefinitions.Resolve(0xdad5, 3);
 
     /// <summary>Confirms normal and terminal fade frames publish the door transition in native order without extra source-room movement.</summary>
     internal static void VerifyPauseDoorShinespark()
@@ -44,14 +44,15 @@ internal static class PauseDoorShinesparkVerification
             foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
             var words = new RoomTerrainBlock[32 * 16];
             var bts = new RoomBlockBehavior[words.Length];
+            var doorBlocks = new List<RoomDoorBlock>();
             for (int row = 0; row < 16; row++)
             {
                 words[row * 32 + 10] = Door;
-                bts[row * 32 + 10] = ParlorExitDoor;
+                doorBlocks.Add(new RoomDoorBlock(new(10, row), TourianSaveDoor));
                 words[row * 32 + 12] = Solid;
             }
             var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts,
-            doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
+            doorBlocks: doorBlocks);
             runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();

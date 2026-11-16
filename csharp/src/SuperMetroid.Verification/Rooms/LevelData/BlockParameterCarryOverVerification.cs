@@ -26,7 +26,6 @@ internal static class BlockParameterCarryOverVerification
         (nameof(RoomBlockBehavior.Grapple), behavior => behavior.Grapple, reading => RoomBlockBehavior.Reacting((GrappleReaction)reading)),
         (nameof(RoomBlockBehavior.Slope), behavior => behavior.Slope, reading => RoomBlockBehavior.Sloping((SlopeGeometry)reading)),
         (nameof(RoomBlockBehavior.ExtensionOffset), behavior => behavior.ExtensionOffset, reading => RoomBlockBehavior.Extending((int)reading)),
-        (nameof(RoomBlockBehavior.DoorLink), behavior => behavior.DoorLink, reading => RoomBlockBehavior.LinkingDoor((int)reading)),
     ];
 
     /// <summary>Compares every written reading's every other reading with the codec's decoding of the game's byte.</summary>

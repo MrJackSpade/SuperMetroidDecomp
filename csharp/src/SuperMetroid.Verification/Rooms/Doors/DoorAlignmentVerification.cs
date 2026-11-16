@@ -102,7 +102,6 @@ internal static class DoorAlignmentVerification
         RoomLevelData level = runtime.Room.LoadedLevelData;
         int doorX = -1;
         int doorY = -1;
-        RoomBlockBehavior behavior = RoomBlockBehavior.None;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
@@ -110,14 +109,13 @@ internal static class DoorAlignmentVerification
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             DoorDefinition? candidate = level.ResolveDoorCollision(
-                block.Behavior,
+                block,
                 SamusPoseId.MovingRightNormalPose.ForRoomCollision(),
                 publishDoorSideEffects: false).Door;
             if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;
-            behavior = block.Behavior;
             break;
         }
         AssertTrue(doorX >= 0, "door-alignment route contains its retail destination door");
@@ -133,7 +131,7 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));
         runtime.GameTime.Load(frames: 58, seconds: 56, minutes: 34, hours: 12);

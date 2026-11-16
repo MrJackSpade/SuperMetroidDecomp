@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>The retail game's 597 physical doors.</summary>
 /// <remarks>Each door names its destination room, direction and closing behavior, closing-cap block, destination
 /// screen, Samus push speed and setup.
-/// The elevators are places in a room's door list (<see cref="RoomDoorListDefinitions"/>), not doors.</remarks>
+/// An elevator's door blocks lead to the elevator pseudo-door (<see cref="DoorBlockExit.ElevatorPseudoDoor"/>), not a door.</remarks>
 public static class DoorDefinitions
 {
     /// <summary>Retail doors in their authored order.</summary>

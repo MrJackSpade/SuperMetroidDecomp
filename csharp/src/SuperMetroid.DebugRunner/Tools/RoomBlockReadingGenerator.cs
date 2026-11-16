@@ -64,7 +64,7 @@ internal static class RoomBlockReadingGenerator
         return text.ToString();
     }
 
-    /// <summary>One kept behaviour's source, its slope, extension and door readings on a second line at <paramref name="indent"/>.</summary>
+    /// <summary>One kept behaviour's source, its slope and extension readings on a second line at <paramref name="indent"/>.</summary>
     private static string Readings(RoomBlockReadings readings, string indent) => new StringBuilder()
         .Append("new(")
         .Append(Reaction(readings.Shootable)).Append(", ")
@@ -74,7 +74,7 @@ internal static class RoomBlockReadingGenerator
         .Append(Reaction(readings.Spike)).Append(", ")
         .Append(Reaction(readings.Grapple)).Append(",\n").Append(indent)
         .Append("new(SlopeShapeDefinitions.").Append(readings.Slope.Shape.Name).Append(", BlockMirroring.").Append(readings.Slope.Mirroring).Append("), ")
-        .Append(readings.ExtensionOffset).Append(", ").Append(readings.DoorLink).Append(')')
+        .Append(readings.ExtensionOffset).Append(')')
         .ToString();
 
     /// <summary>A reading's source: the reaction by its type and name, or null for a kind with no reaction (#1742).</summary>

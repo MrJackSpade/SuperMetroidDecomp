@@ -29,8 +29,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// reaction as its position in the collision-kind document's <c>reactions</c> list for the kind's family, which names
 /// the reactions; a slope writes its shape as its position in the document's <c>slopeShapes</c> list, which names the
 /// shapes (#1805), then its mirroring's code; an extension writes its offset as a
-/// signed byte, -128 through 127; a door writes the entry of the room's door list it selects, 0 through 127; air,
-/// unrevealed air and solid blocks write nothing and hold <see cref="RoomBlockBehavior.None"/>. The load rebuilds every
+/// signed byte, -128 through 127; air, unrevealed air, solid and door blocks write nothing and hold
+/// <see cref="RoomBlockBehavior.None"/>. Where each door block leads is its room's own and installed by name beside the
+/// levels (<see cref="RoomDoorBlockFiles"/>, #2090). The load rebuilds every
 /// other reading from the one written, as the game reads one behaviour under every kind
 /// (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>).
 /// </para>
@@ -47,10 +48,11 @@ public static class RoomLevelStreamFiles
     /// level data, 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693), 5 writes each
     /// block's behaviour as the reading its collision kind takes instead of the game's behaviour byte (#1709), and 6 names
     /// each reacting kind's reactions, written by position, instead of a list code and an entry, and names unrevealed air
-    /// (#1722), and 7 names the slope shapes, written by position, and writes each reacting block's reaction as its room's
-    /// area resolves it (#1805).
+    /// (#1722), 7 names the slope shapes, written by position, and writes each reacting block's reaction as its room's
+    /// area resolves it (#1805), and 8 writes nothing for a door block, whose door the room door-blocks document names
+    /// (#2090).
     /// </summary>
-    private const int FormatVersion = 7;
+    private const int FormatVersion = 8;
 
     /// <summary>The collision kinds in the order the level files write them by position.</summary>
     private static readonly ImmutableArray<RoomCollisionType> CollisionKinds = [.. Enum.GetValues<RoomCollisionType>()];
@@ -80,7 +82,10 @@ public static class RoomLevelStreamFiles
     /// <returns><c>level-</c> followed by the level's name and <c>.bin</c>.</returns>
     public static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
 
-    /// <summary>Decompresses and decodes every distinct retail room level and writes each as typed blocks.</summary>
+    /// <summary>
+    /// Decompresses and decodes every distinct retail room level and writes each as typed blocks, and where each room's door
+    /// blocks lead (<see cref="RoomDoorBlockFiles"/>).
+    /// </summary>
     /// <param name="bus">Non-null import-capable cartridge source for the compressed levels identified by <see cref="RoomVisualLayoutFiles.RetailLevels"/>.</param>
     /// <param name="directory">Family directory, created if absent; receives new per-level files and the collision-kind document.</param>
     /// <remarks>Create-new writes refuse existing files and do not roll back earlier outputs.</remarks>
@@ -94,13 +99,16 @@ public static class RoomLevelStreamFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
+        var doorLinks = new Dictionary<RoomLevelId, IReadOnlyDictionary<Position16<RoomBlocks>, int>>();
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
             byte[] stream = RomDataReader.Decompress(cartridge, RoomLevelSourceDefinitions.Addresses[level]);
             byte[] file = Encode(level, RoomLevelStreamDecoder.Decode(level, stream, width, RoomVisualLayoutFiles.RetailLevelAreas[level]));
+            doorLinks.Add(level, RoomLevelStreamDecoder.DoorLinks(level, stream, width));
             using var output = new FileStream(Path.Combine(directory, LevelFileName(level)), FileMode.CreateNew, FileAccess.Write);
             output.Write(file);
         }
+        RoomDoorBlockFiles.Extract(directory, doorLinks);
         using var kinds = new FileStream(Path.Combine(directory, CollisionKindsFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(kind => kind.ToString())],
             Families.ToDictionary(family => family.ToString(),
@@ -109,7 +117,10 @@ public static class RoomLevelStreamFiles
             JsonOptions);
     }
 
-    /// <summary>Reads the collision kinds the level files name, then every retail level's file, and builds the catalog.</summary>
+    /// <summary>
+    /// Reads the collision kinds the level files name, then every retail level's file and where each room's door blocks lead,
+    /// and builds the catalog.
+    /// </summary>
     /// <param name="directory">Family directory containing every retail level's file and the collision-kind document.</param>
     /// <returns>A ROM-independent catalog of every level's typed terrain.</returns>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
@@ -147,7 +158,7 @@ public static class RoomLevelStreamFiles
                 throw new InvalidDataException($"Room-level file {path} is {installed.Size.X} blocks wide; its rooms are {width}.");
             levels.Add(level, installed);
         }
-        return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All);
+        return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All, RoomDoorBlockFiles.Load(directory));
     }
 
     /// <summary>Writes one level as the installed file format.</summary>
@@ -204,10 +215,6 @@ public static class RoomLevelStreamFiles
                 writer.Write(checked((sbyte)behavior.ExtensionOffset));
                 rebuilt = RoomBlockBehavior.Extending(behavior.ExtensionOffset);
                 break;
-            case BehaviorReading.DoorLink:
-                writer.Write(checked((byte)behavior.DoorLink));
-                rebuilt = RoomBlockBehavior.LinkingDoor(behavior.DoorLink);
-                break;
             case BehaviorReading.Nothing:
                 rebuilt = RoomBlockBehavior.None;
                 break;
@@ -247,8 +254,6 @@ public static class RoomLevelStreamFiles
             }
             case BehaviorReading.Extension:
                 return RoomBlockBehavior.Extending(reader.ReadSByte());
-            case BehaviorReading.DoorLink:
-                return RoomBlockBehavior.LinkingDoor(reader.ReadByte());
             case BehaviorReading.Nothing:
                 return RoomBlockBehavior.None;
             default:
@@ -261,12 +266,12 @@ public static class RoomLevelStreamFiles
     {
         RoomCollisionType.Slope => BehaviorReading.Slope,
         RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => BehaviorReading.Extension,
-        RoomCollisionType.DoorBlock => BehaviorReading.DoorLink,
         RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
             RoomCollisionType.BombableAir or RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
             RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock =>
             BehaviorReading.Reaction,
-        RoomCollisionType.Air or RoomCollisionType.UnrevealedAir or RoomCollisionType.SolidBlock => BehaviorReading.Nothing,
+        RoomCollisionType.Air or RoomCollisionType.UnrevealedAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock =>
+            BehaviorReading.Nothing,
         _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
     };
 
@@ -431,9 +436,6 @@ public static class RoomLevelStreamFiles
 
         /// <summary>The kind reads a signed offset to the block it collides as.</summary>
         Extension,
-
-        /// <summary>The kind reads an entry of the room's door list.</summary>
-        DoorLink,
     }
 
     /// <summary>

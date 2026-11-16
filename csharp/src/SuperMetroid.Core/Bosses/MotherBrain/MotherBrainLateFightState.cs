@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// What only the late fight keeps (the brain's fall, the beam's sound, the health colours, the corpse and the Baby's
@@ -74,41 +74,35 @@ internal sealed class MotherBrainLateFightState
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
     }
 
-    /// <summary>Selects the forward body animation for the animation delay and applies the forward target rules.</summary>
-    internal MotherBrainWalkResult RequestWalkForward(int targetX, int animationDelay)
+    /// <summary>Walks her body forwards at <paramref name="speed"/>, by the forward target rules.</summary>
+    internal MotherBrainWalkResult RequestWalkForward(int targetX, MotherBrainWalkSpeed speed)
     {
-        MotherBrainBodySegment segment = animationDelay switch
+        MotherBrainBodySegment segment = speed switch
         {
-            2 => MotherBrainBodySegment.WalkForwardReallyFast,
-            4 => MotherBrainBodySegment.WalkForwardFast,
-            6 => MotherBrainBodySegment.WalkForwardMedium,
-            8 => MotherBrainBodySegment.WalkForwardSlow,
-            10 => MotherBrainBodySegment.WalkForwardReallySlow,
-            _ => throw new InvalidOperationException(
-                $"Unsupported painful forward animation delay {animationDelay}."),
+            MotherBrainWalkSpeed.ReallyFast => MotherBrainBodySegment.WalkForwardReallyFast,
+            MotherBrainWalkSpeed.Fast => MotherBrainBodySegment.WalkForwardFast,
+            MotherBrainWalkSpeed.Medium => MotherBrainBodySegment.WalkForwardMedium,
+            MotherBrainWalkSpeed.Slow => MotherBrainBodySegment.WalkForwardSlow,
+            MotherBrainWalkSpeed.ReallySlow => MotherBrainBodySegment.WalkForwardReallySlow,
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainWalkSpeed)} {speed}."),
         };
         return MakeBodyWalkForwards(targetX, segment);
     }
 
-    /// <summary>Selects the backward body animation for the animation delay and applies the backward target rules.</summary>
-    internal MotherBrainWalkResult RequestWalkBackward(int targetX, int animationDelay)
+    /// <summary>Walks her body backwards at <paramref name="speed"/>, by the backward target rules.</summary>
+    internal MotherBrainWalkResult RequestWalkBackward(int targetX, MotherBrainWalkSpeed speed)
     {
-        MotherBrainBodySegment segment = animationDelay switch
+        MotherBrainBodySegment segment = speed switch
         {
-            2 => MotherBrainBodySegment.WalkBackwardReallyFast,
-            4 => MotherBrainBodySegment.WalkBackwardFast,
-            6 => MotherBrainBodySegment.WalkBackwardMedium,
-            8 => MotherBrainBodySegment.WalkBackwardSlow,
-            10 => MotherBrainBodySegment.WalkBackwardReallySlow,
-            _ => throw new InvalidOperationException(
-                $"Unsupported painful backward animation delay {animationDelay}."),
+            MotherBrainWalkSpeed.ReallyFast => MotherBrainBodySegment.WalkBackwardReallyFast,
+            MotherBrainWalkSpeed.Fast => MotherBrainBodySegment.WalkBackwardFast,
+            MotherBrainWalkSpeed.Medium => MotherBrainBodySegment.WalkBackwardMedium,
+            MotherBrainWalkSpeed.Slow => MotherBrainBodySegment.WalkBackwardSlow,
+            MotherBrainWalkSpeed.ReallySlow => MotherBrainBodySegment.WalkBackwardReallySlow,
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainWalkSpeed)} {speed}."),
         };
         return MakeBodyWalkBackwards(targetX, segment);
     }
-
-    /// <summary>Requests the slow backward body animation until its target is reached.</summary>
-    internal MotherBrainWalkResult RequestWalkBackwardReallySlow(int targetX) =>
-        MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallySlow);
 
     /// <summary>
     /// Makes the body walk forwards. An overshoot of the target reports it reached first; at
@@ -116,7 +110,7 @@ internal sealed class MotherBrainLateFightState
     /// ahead of the 128 arena limit that also reports the target reached. Only a standing body
     /// inside both limits starts the walk.
     /// </summary>
-    internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
+    private MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
     {
         if (BodyPosition.X > targetX)
             return MotherBrainWalkResult.Reached;
@@ -134,7 +128,7 @@ internal sealed class MotherBrainLateFightState
     /// mid-pose then reports it waiting, ahead of the 48 arena limit that also reports
     /// the target reached. Only a standing body inside both limits starts the walk.
     /// </summary>
-    internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
+    private MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
     {
         if (BodyPosition.X <= targetX)
             return MotherBrainWalkResult.Reached;

@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The timing of each stage of Mother Brain's drained stagger.</summary>
 internal static class MotherBrainPainfulWalking
 {
-    /// <summary>The animation delay of <paramref name="stage"/>.</summary>
-    internal static int AnimationDelay(int stage) => MotherBrainPainfulWalkingDefinitions.AnimationDelays[Pair(stage)];
+    /// <summary>How fast she staggers in <paramref name="stage"/>.</summary>
+    internal static MotherBrainWalkSpeed Speed(int stage) => MotherBrainPainfulWalkingDefinitions.Speeds[Pair(stage)];
 
     /// <summary>How far the neck turns each update in <paramref name="stage"/>.</summary>
     internal static RotationAngle NeckTurn(int stage) => MotherBrainPainfulWalkingDefinitions.NeckTurns[Pair(stage)];

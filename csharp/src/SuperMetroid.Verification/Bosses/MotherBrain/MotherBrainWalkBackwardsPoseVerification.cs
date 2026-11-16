@@ -16,7 +16,7 @@ internal static class MotherBrainWalkBackwardsPoseVerification
         {
             var sequence = MotherBrainLateFightFixtures.NewSequence();
             sequence.DrainedByBaby.PainfulWalkingForward = false;
-            sequence.DrainedByBaby.PainfulWalkingAnimationDelay = 0x0002;
+            sequence.DrainedByBaby.PainfulWalkingSpeed = MotherBrainWalkSpeed.ReallyFast;
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(x);
             sequence.Encounter.Pose = pose;
             return sequence;

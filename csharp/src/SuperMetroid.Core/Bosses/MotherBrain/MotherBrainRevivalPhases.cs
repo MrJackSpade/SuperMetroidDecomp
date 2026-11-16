@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain reviving and killing the Baby Metroid: signs of life, waking, walking up and the attacks on the baby.</summary>
 internal sealed class MotherBrainRevivalPhases
@@ -127,7 +127,7 @@ internal sealed class MotherBrainRevivalPhases
         // helper is retried after every body-animation call until X has overshot 80.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            _state.RequestWalkForward(80, 4);
+            _state.RequestWalkForward(80, MotherBrainWalkSpeed.Fast);
             // Past X 80 she has overshot the walk's target; the walk's limit at X 128 lies beyond it.
             bool reachedWalkTarget = _state.BodyPosition.X > 80;
             if (reachedWalkTarget)
@@ -167,7 +167,7 @@ internal sealed class MotherBrainRevivalPhases
         if (stoodUp)
         {
             Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttack;
-            _state.RequestWalkForward(80, 10);
+            _state.RequestWalkForward(80, MotherBrainWalkSpeed.ReallySlow);
             return true;
         }
         return false;
@@ -214,7 +214,7 @@ internal sealed class MotherBrainRevivalPhases
         // This phase has no state transition. It requests stand-up and a
         // fast backward walk toward X 64 every call until the Baby overwrites it.
         _state.MakeBodyStandUp();
-        _state.RequestWalkBackward(64, 4);
+        _state.RequestWalkBackward(64, MotherBrainWalkSpeed.Fast);
         return false;
     }
 

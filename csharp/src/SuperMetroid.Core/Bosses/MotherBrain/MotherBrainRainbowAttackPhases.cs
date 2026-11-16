@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Progression;
 
@@ -43,8 +43,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
 
-    /// <summary>Index of the offset pair the latest beam explosion used, cycling through the eight pairs.</summary>
-    public int ExplosionIndex { get; private set; }
+    /// <summary>The place of the next beam explosion's offset among the explosion offsets, cycling through them in order.</summary>
+    public int NextExplosion { get; private set; }
 
     /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
     public bool BeamActive { get; internal set; }
@@ -58,7 +58,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
         _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
         AngularWidth = NarrowestWidth;
-        ExplosionIndex = 0;
+        NextExplosion = 0;
         ExplosionTimer.Count = 0;
         SoundAttemptsLeft = MotherBrainBeamDefinitions.SoundAttempts;
         _state.RainbowBeamSoundPlaying = false;
@@ -91,10 +91,6 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.RainbowPhase = MotherBrainRainbowPhase.StartCharging;
         Encounter.PhaseTimer.Count = 256;
     }
-
-    /// <summary>Requests the slow forward body animation until its target is reached.</summary>
-    internal MotherBrainWalkResult RequestWalkForwardReallySlow(int targetX) =>
-        _state.MakeBodyWalkForwards(targetX, MotherBrainBodySegment.WalkForwardReallySlow);
 
     /// <summary>Widens the beam by one and a half steps up to twelve and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
@@ -148,9 +144,9 @@ internal sealed class MotherBrainRainbowAttackPhases
             return null;
 
         ExplosionTimer.Count = 8;
-        ExplosionIndex = (ExplosionIndex + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
-        return new MotherBrainRainbowExplosionRequest(
-            MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[ExplosionIndex]);
+        Offset16<RoomPixels> offset = MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[NextExplosion];
+        NextExplosion = (NextExplosion + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
+        return new MotherBrainRainbowExplosionRequest(offset);
     }
 
     /// <summary>Drains one health with Varia or two without, clamping health below zero to zero.</summary>
@@ -241,7 +237,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowRetractNeck()
     {
-        MotherBrainWalkResult retract = _state.RequestWalkBackwardReallySlow(targetX: 40);
+        MotherBrainWalkResult retract = _state.RequestWalkBackward(40, MotherBrainWalkSpeed.ReallySlow);
         if (retract.ReachedTarget)
         {
             _state.RetractHead();
@@ -463,8 +459,8 @@ internal sealed class MotherBrainRainbowAttackPhases
                 // The lower-head step performs this call before installing the later
                 // finish-off phase. It starts one complete really-slow forward
                 // body animation when Mother Brain is standing and left of 128.
-                RequestWalkForwardReallySlow(
-                    CoordinateAxis.Wrap(_state.BodyPosition.X + 16));
+                _state.RequestWalkForward(
+                    CoordinateAxis.Wrap(_state.BodyPosition.X + 16), MotherBrainWalkSpeed.ReallySlow);
                 _state.BabyArrivalReadyingElapsed = 0;
                 _state.BabyMetroidSpawned = false;
                 Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;

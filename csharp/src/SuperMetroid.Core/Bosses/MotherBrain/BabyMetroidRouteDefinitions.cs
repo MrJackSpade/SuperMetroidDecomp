@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class BabyMetroidRouteDefinitions
 {
     /// <summary>What every route leg's gradual acceleration divides the remaining distance by: sixteen, its gentlest pull.</summary>
-    internal const int AccelerationDivisor = 16;
+    internal const int AccelerationDivisor = BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor;
 
     /// <summary>
     /// The route's legs, in the order the Baby flies them: each steers to its waypoint and reverses off screen with its

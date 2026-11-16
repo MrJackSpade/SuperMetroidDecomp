@@ -64,18 +64,18 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Walks Mother Brain backwards toward X 40 at the slow gait; the walk's hard floor at X=48 can report arrival
-    /// before target 40.
+    /// Walks Mother Brain backwards toward the back of the room at the slow gait; the walk's limit of her walks can report
+    /// arrival before she reaches it.
     /// </summary>
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)
     {
-        int targetMinusBody = CoordinateAxis.Difference(40, state.Body.Position.X.Whole);
+        int targetMinusBody = CoordinateAxis.Difference(MotherBrainFightDefinitions.BackOfRoomX, state.Body.Position.X.Whole);
         if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 48) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, MotherBrainFightDefinitions.BackLimitX) < 0)
             return true;
 
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardSlow);
@@ -94,7 +94,7 @@ internal sealed class MotherBrainAttacks
             return;
 
         int random = _room.Random.Read();
-        if (state.Head.Health >= 4500)
+        if (state.Head.Health >= MotherBrainFightDefinitions.FullStrengthHealth)
         {
             if (MotherBrainRandomDefinitions.AttacksAtFullStrength.IsTakenBy(random))
             {
@@ -195,8 +195,8 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        int verticalDistance = CoordinateAxis.Distance(state.Head.Position.Y.Whole + 4, samus.Position.Y.Whole);
-        WeightedRandomChoice<MotherBrainSecondPhaseAttack> attacks = verticalDistance < 32
+        int verticalDistance = CoordinateAxis.Distance(state.Head.Position.Y.Whole + MotherBrainFightDefinitions.AttackMeasureBelowHead, samus.Position.Y.Whole);
+        WeightedRandomChoice<MotherBrainSecondPhaseAttack> attacks = verticalDistance < MotherBrainFightDefinitions.NearAttackHeight
             ? MotherBrainRandomDefinitions.NearAttack
             : MotherBrainRandomDefinitions.FarAttack;
         MotherBrainSecondPhaseAttack attack = attacks.Choose(random);
@@ -244,7 +244,7 @@ internal sealed class MotherBrainAttacks
         int random = _room.Random.Read();
         if (!MotherBrainRandomDefinitions.BombWalkStaysPut.IsTakenBy(random))
         {
-            int targetX = MotherBrainRandomDefinitions.BombWalkShortRetreat.IsTakenBy(random) ? 96 : 64;
+            int targetX = MotherBrainRandomDefinitions.BombWalkShortRetreat.IsTakenBy(random) ? MotherBrainFightDefinitions.BombWalkShortRetreatX : MotherBrainFightDefinitions.BombWalkLongRetreatX;
             int targetMinusBody = CoordinateAxis.Difference(targetX, state.Body.Position.X.Whole);
             if (targetMinusBody < 0)
             {
@@ -295,7 +295,7 @@ internal sealed class MotherBrainAttacks
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombFired;
-        state.PhaseTimer.Count = 44;
+        state.PhaseTimer.Count = MotherBrainFightDefinitions.AfterBombUpdates;
     }
 
     /// <summary>Waits after the bomb, then stands her up in the update the wait ends.</summary>
@@ -342,7 +342,7 @@ internal sealed class MotherBrainAttacks
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 48) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, MotherBrainFightDefinitions.BackLimitX) < 0)
             return true;
 
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardMedium);
@@ -449,7 +449,7 @@ internal sealed class MotherBrainAttacks
         if (state.WalkCounter.IsEmpty)
         {
             state.WalkCounter = MotherBrainWalkCredit.Of(1);
-            if (state.Body.Position.X.Whole >= 48)
+            if (state.Body.Position.X.Whole >= MotherBrainFightDefinitions.BackLimitX)
             {
                 MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardFast);
                 return;
@@ -463,7 +463,7 @@ internal sealed class MotherBrainAttacks
                 StartMotherBrainForwardWalk(state);
                 return;
             }
-            if (state.Body.Position.X.Whole >= 48)
+            if (state.Body.Position.X.Whole >= MotherBrainFightDefinitions.BackLimitX)
                 return;
         }
 
@@ -475,8 +475,8 @@ internal sealed class MotherBrainAttacks
     /// <summary>Starts the body animation and state for a forward step.</summary>
     private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
     {
-        state.WalkCounter = MotherBrainWalkCredit.Of(128);
-        if (state.Body.Position.X.Whole < 128)
+        state.WalkCounter = MotherBrainWalkCredit.Of(MotherBrainFightDefinitions.AfterStepCredit);
+        if (state.Body.Position.X.Whole < MotherBrainFightDefinitions.FrontLimitX)
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkForwardMedium);
     }
 

@@ -59,6 +59,12 @@ public static class MotherBrainDeathDefinitions
         new(24, 116),
     ];
 
+    /// <summary>The updates between the escape door's dust bursts.</summary>
+    internal const int EscapeDoorDustIntervalUpdates = 4;
+
+    /// <summary>The block the escape door opens at, in the room's left wall.</summary>
+    internal static readonly Position16<RoomBlocks> EscapeDoorBlock = new(0, 6);
+
     /// <summary>The door the escape door's block leads through: from Mother Brain's room into the escape's first room.</summary>
     public static readonly DoorDefinition EscapeDoor = TourianDoorDefinitions.MotherBrainToTourianEscape1;
 

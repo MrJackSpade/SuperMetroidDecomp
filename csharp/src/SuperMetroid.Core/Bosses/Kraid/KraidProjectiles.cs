@@ -55,7 +55,7 @@ internal sealed class KraidProjectiles
         lint.Frame = EnemyFrameId.KraidLintBudding;
         KraidLintState part = _parts.LintStateOf(state, lint);
         part.Phase = KraidLintPhase.Inactive;
-        part.LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
+        part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ internal sealed class KraidProjectiles
         _access.SetKraidPartAnimation(state, nail, KraidPartSegment.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailTurned0;
         nailPart.Phase = KraidNailPhase.WaitBeforeLaunch;
-        nailPart.PhaseTimer = 64;
+        nailPart.PhaseTimer = KraidArenaDefinitions.NailLaunchDelayUpdates;
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
@@ -185,7 +185,7 @@ internal sealed class KraidProjectiles
                 return;
 
             case KraidNailPhase.WaitForLint:
-                if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, 256) >= 0)
+                if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, KraidArenaDefinitions.SecondScreenX) >= 0)
                 {
                     part.Phase = KraidNailPhase.Fire;
                     nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
@@ -224,12 +224,12 @@ internal sealed class KraidProjectiles
             part.AlternateSpawn = false;
             RoomEnemyPlace body = _parts.Body;
             nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(CoordinateAxis.Wrap(
-                body.Position.X.Whole - body.Radius.X - nail.Radius.X)), CoordinateAxis.Wrap(_parts.Arm.Position.Y.Whole + 128)));
+                body.Position.X.Whole - body.Radius.X - nail.Radius.X)), CoordinateAxis.Wrap(_parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm)));
             return;
         }
 
         part.AlternateSpawn = true;
-        nail.Position = nail.Position.WithWhole(new(50, 240));
+        nail.Position = nail.Position.WithWhole(KraidArenaDefinitions.AlternateNailStart);
         part.NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(1, 0));
         part.Phase = KraidNailPhase.WaitForLint;
         nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);
@@ -309,10 +309,10 @@ internal sealed class KraidProjectiles
         lint.Position = lint.Position.WithWrappedWholeX(
             part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
         part.LintTravel++;
-        if (part.LintTravel >= 32)
+        if (part.LintTravel >= KraidArenaDefinitions.LintEmergePixels)
         {
             part.Phase = KraidLintPhase.Charge;
-            part.PhaseTimer = 30;
+            part.PhaseTimer = KraidArenaDefinitions.LintChargeUpdates;
         }
     }
 
@@ -335,13 +335,13 @@ internal sealed class KraidProjectiles
     private static void FireKraidLint(RoomEnemyPlace lint, KraidLintState part, SamusState samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
-        if (CoordinateAxis.Difference(lint.Position.X.Whole, 56) < 0)
+        if (CoordinateAxis.Difference(lint.Position.X.Whole, KraidArenaDefinitions.LintIntangibleX) < 0)
             lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
-        if (CoordinateAxis.Difference(lint.Position.X.Whole, 32) < 0)
+        if (CoordinateAxis.Difference(lint.Position.X.Whole, KraidArenaDefinitions.LintReturnX) < 0)
         {
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
             part.Phase = KraidLintPhase.AlignToKraidBeforeProducing;
-            part.PhaseTimer = 300;
+            part.PhaseTimer = KraidArenaDefinitions.LintReloadUpdates;
             part.LintTravel = 0;
         }
 

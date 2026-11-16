@@ -10,7 +10,7 @@ public static class PhantoonRainPatternDefinitions
     public static PhantoonRainPattern UpperRight { get; } = new(71, new(168, 64));
 
     /// <summary>He reappears at the room's right.</summary>
-    public static PhantoonRainPattern Right { get; } = new(136, new(208, 96));
+    public static PhantoonRainPattern Right { get; } = new(PhantoonPathDefinitions.RightAppearance, PhantoonPathDefinitions.RightAppearancePosition);
 
     /// <summary>He reappears low, right of centre.</summary>
     public static PhantoonRainPattern LowerRight { get; } = new(201, new(168, 128));
@@ -19,7 +19,7 @@ public static class PhantoonRainPatternDefinitions
     public static PhantoonRainPattern UpperLeft { get; } = new(334, new(88, 64));
 
     /// <summary>He reappears at the room's left.</summary>
-    public static PhantoonRainPattern Left { get; } = new(399, new(48, 96));
+    public static PhantoonRainPattern Left { get; } = new(PhantoonPathDefinitions.LeftAppearance, PhantoonPathDefinitions.LeftAppearancePosition);
 
     /// <summary>He reappears low, left of centre.</summary>
     public static PhantoonRainPattern LowerLeft { get; } = new(465, new(88, 128));

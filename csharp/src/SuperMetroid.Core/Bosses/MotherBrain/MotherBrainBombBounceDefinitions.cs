@@ -7,8 +7,23 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainBombBounceDefinitions
 {
-    /// <summary>The ordinary fall gravity, used before the first bounce.</summary>
-    internal const int FallAcceleration = 7;
+    /// <summary>The ordinary fall gravity, used before the first bounce: seven 256ths of a pixel an update.</summary>
+    internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(7);
+
+    /// <summary>The bomb's sideways speed as it leaves her mouth: 224 256ths of a pixel an update, rightward.</summary>
+    internal static readonly SignedEightEight LaunchSpeedX = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224);
+
+    /// <summary>The bomb's vertical speed as it leaves her mouth: a pixel an update, downward.</summary>
+    internal static readonly SignedEightEight LaunchSpeedY = SignedEightEight.FromPixels(1);
+
+    /// <summary>The upward speed each floor bounce restarts the bomb's fall at: two pixels an update.</summary>
+    internal static readonly SignedEightEight BounceRise = SignedEightEight.FromPixels(-2);
+
+    /// <summary>The X at or right of which the bomb bounces off the arena's right wall.</summary>
+    internal const int RightWallX = 240;
+
+    /// <summary>The height of the floor the bomb bounces on.</summary>
+    internal const int FloorY = 208;
 
     /// <summary>The drag taken from the bomb's sideways speed on every update of its first fall, stopping at rest.</summary>
     internal static readonly SignedEightEight FallDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
@@ -16,6 +31,16 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
     internal static readonly SignedEightEight BounceSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(112);
 
-    /// <summary>The gravity after each bounce, from the first to the eighth and last.</summary>
-    internal static readonly int[] BounceAccelerations = [16, 32, 64, 112, 176, 240, 304, 368];
+    /// <summary>The gravity after each bounce, from the first to the eighth and last, in 256ths of a pixel an update.</summary>
+    internal static readonly SignedEightEight[] BounceAccelerations =
+    [
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(112),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(176),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(240),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(304),
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(368),
+    ];
 }

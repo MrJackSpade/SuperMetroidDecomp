@@ -9,11 +9,20 @@ public static class PhantoonPathDefinitions
     /// <summary>The path's last place, where a figure-eight run backwards from its start begins (#1940).</summary>
     public const int LastPlace = Length - 1;
 
-    /// <summary>The place on the path he reappears at on the right of his room, at X 208 (#1940).</summary>
+    /// <summary>The place on the path he reappears at on the right of his room, at <see cref="RightAppearancePosition"/> (#1940).</summary>
     public const int RightAppearance = 136;
 
-    /// <summary>The place on the path he reappears at on the left of his room, at X 48 (#1940).</summary>
+    /// <summary>The place on the path he reappears at on the left of his room, at <see cref="LeftAppearancePosition"/> (#1940).</summary>
     public const int LeftAppearance = 399;
+
+    /// <summary>The height he reappears at, on either side of his room.</summary>
+    public const int AppearanceY = 96;
+
+    /// <summary>Where he reappears on the right of his room, at <see cref="RightAppearance"/> on the path.</summary>
+    public static Position16<RoomPixels> RightAppearancePosition { get; } = new(208, AppearanceY);
+
+    /// <summary>Where he reappears on the left of his room, at <see cref="LeftAppearance"/> on the path.</summary>
+    public static Position16<RoomPixels> LeftAppearancePosition { get; } = new(48, AppearanceY);
 
     /// <summary>Lossless keypad notation for unit steps with screen Y increasing downward; source rows are formatting only.</summary>
     /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. The movement cursor crosses string-row boundaries without resetting.</remarks>

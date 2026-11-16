@@ -43,11 +43,11 @@ internal static class LookupSmallGameTablesVerification
     private static void VerifyMotherBrainBombBounceAccelerations(ISnesAddressSpace rom)
     {
         // The cartridge's table holds the fall gravity, then each bounce's, then a zero where the bomb expires.
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration.InTwoHundredFiftySixthsOfPixel,
             "The table's first entry is the ordinary fall gravity");
         for (int bounces = 1; bounces <= MotherBrainBombBounces.Count; bounces++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
-                MotherBrainBombBounces.YAcceleration(bounces), $"Bomb gravity after bounce {bounces}");
+                MotherBrainBombBounces.YAcceleration(bounces)?.InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
         int expiry = MotherBrainBombBounces.Count + 1;
         AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * expiry),
             "The cartridge ends the bounces with a zero");

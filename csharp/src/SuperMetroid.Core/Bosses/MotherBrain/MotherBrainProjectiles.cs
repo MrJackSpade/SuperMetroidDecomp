@@ -265,7 +265,7 @@ internal sealed class MotherBrainProjectiles
             if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs, samus))
                 return;
 
-            int acceleration;
+            SignedEightEight acceleration;
             if (bombState.Bounces == 0)
             {
                 // Only the initial fall applies its horizontal drag: the speed loses it, stopping at rest, and keeps its
@@ -375,15 +375,15 @@ internal sealed class MotherBrainProjectiles
             if (tube.DustPending)
             {
                 dependencies.Projectiles.SpawnDustOrExplosion(
-                    new(projectile.Position.X.Whole, CoordinateAxis.Wrap(projectile.Position.Y.Whole + 8)),
+                    new(projectile.Position.X.Whole, CoordinateAxis.Wrap(projectile.Position.Y.Whole + MotherBrainTubeCollapseDefinitions.CeilingTubeDustBelow)),
                     MiscDustAnimation.SmallDustCloud);
                 tube.DustPending = false;
             }
 
-            // A tube falls from the ceiling to its floor at 208 and is removed there, so its speed stays a few pixels an update.
-            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6));
+            // A tube falls from the ceiling to its floor and is removed there, so its speed stays a few pixels an update.
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + MotherBrainTubeCollapseDefinitions.TubeGravity);
             projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-            if (projectile.Position.Y.Whole < 208)
+            if (projectile.Position.Y.Whole < MotherBrainTubeCollapseDefinitions.CeilingTubeFloorY)
                 return;
 
             Position16<RoomPixels> position = projectile.Position.Whole;
@@ -543,13 +543,13 @@ internal sealed class MotherBrainProjectiles
             }
 
             // This private collision path intentionally ignores Samus's current invincibility
-            // timer. It writes a fresh 96 only after applying suit-divided damage.
+            // timer. It writes a fresh invincibility only after applying suit-divided damage.
             if (MotherBrainOnionRingOverlapsSamus(ring, samus))
             {
                 Position16<RoomPixels> ringPosition = ring.Position.Whole;
                 SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
-                samus.InvincibilityTimer = WrappingCountdown.Start(96);
-                samus.KnockbackTimer = 5;
+                samus.InvincibilityTimer = WrappingCountdown.Start(EnemyCollisionDefinitions.SamusProjectileHitInvincibilityUpdates);
+                samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
                 samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0
                     ? KnockbackHorizontalDirection.Right
                     : KnockbackHorizontalDirection.Left;
@@ -560,8 +560,8 @@ internal sealed class MotherBrainProjectiles
             int signedY = CoordinateAxis.AsSigned(ring.Position.Y.Whole);
             int signedX = CoordinateAxis.AsSigned(ring.Position.X.Whole);
             int screenX = CoordinateAxis.Difference(ring.Position.X.Whole, cameraX);
-            if (signedY < 32 || ring.Position.Y.Whole >= 216 || signedX < 0 ||
-                screenX < 0 || screenX >= 248)
+            if (signedY < MotherBrainOnionRingDefinitions.ArenaTopY || ring.Position.Y.Whole >= MotherBrainOnionRingDefinitions.ArenaFloorY || signedX < 0 ||
+                screenX < 0 || screenX >= MotherBrainOnionRingDefinitions.ScreenRightEdgeX)
             {
                 dependencies.Earthquake.Start(ExplosionShake, 10);
                 ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
@@ -669,23 +669,23 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Advances a bomb through its trajectory and reports arena-boundary expiry.</summary>
     private static bool MoveMotherBrainBomb(
         EnemyProjectile bomb,
-        int acceleration)
+        SignedEightEight acceleration)
     {
         // Every floor bounce restarts the fall at two pixels an update upward, and between bounces the bomb falls back no
-        // further than from the height its launch reaches to its floor at 208, so the speed stays within a few pixels an update.
-        bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration));
+        // further than from the height its launch reaches to its floor, so the speed stays within a few pixels an update.
+        bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + acceleration);
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
         // Both boundaries check whether the wrapped difference is negative. X reflects without clamping; the floor
-        // clamps Y to 208 and resets the two authored bounce velocities.
-        if (CoordinateAxis.Difference(bomb.Position.X.Whole, 240) >= 0)
+        // clamps Y to its height and resets the two authored bounce velocities.
+        if (CoordinateAxis.Difference(bomb.Position.X.Whole, MotherBrainBombBounceDefinitions.RightWallX) >= 0)
             bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.Negated());
-        if (CoordinateAxis.Difference(bomb.Position.Y.Whole, 208) < 0)
+        if (CoordinateAxis.Difference(bomb.Position.Y.Whole, MotherBrainBombBounceDefinitions.FloorY) < 0)
             return false;
 
-        bomb.Position = bomb.Position.WithWholeY(208);
+        bomb.Position = bomb.Position.WithWholeY(MotherBrainBombBounceDefinitions.FloorY);
         SignedEightEight bounceSpeed = bomb.StateOf<MotherBrainBombState>().BounceSpeed;
-        bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), SignedEightEight.FromPixels(-2));
+        bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), MotherBrainBombBounceDefinitions.BounceRise);
         return true;
     }
 
@@ -776,19 +776,19 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Difference(beam.Position.X.Whole, MotherBrainHandBeamDefinitions.ArenaBottomRight.X) >= 0;
 
     /// <summary>
-    /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds twelve
-    /// units of gravity per frame, and switches to its four-frame splash at world Y 215.
+    /// Moves the falling drool. The actor uses signed 1/256-pixel velocity, adds its gravity
+    /// each frame, and switches to its four-frame splash at the floor.
     /// </summary>
     internal static void DropMotherBrainDrool(
         EnemyProjectile drool)
     {
-        // The drool splashes once it falls to 215, so its speed stays a few pixels an update.
-        drool.Velocity = drool.Velocity.WithY(drool.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12));
+        // The drool splashes once it falls to the floor, so its speed stays a few pixels an update.
+        drool.Velocity = drool.Velocity.WithY(drool.Velocity.Y + MotherBrainFightDefinitions.DroolGravity);
         drool.Position = drool.Position.AdvanceY(drool.Velocity.Y.ToSixteenSixteenDelta());
-        if (drool.Position.Y.Whole < 215)
+        if (drool.Position.Y.Whole < MotherBrainFightDefinitions.DroolFloorY)
             return;
 
-        drool.Position = drool.Position.WithWrappedWholeY(drool.Position.Y.Whole - 4);
+        drool.Position = drool.Position.WithWrappedWholeY(drool.Position.Y.Whole - MotherBrainFightDefinitions.DroolSplashRise);
         drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.DroolHitFloor));
     }
 
@@ -798,7 +798,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state)
     {
         RoomEnemyPlace head = state.Head;
-        ring.Position = ring.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 10), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
+        ring.Position = ring.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.MouthOffset);
     }
 
     /// <summary>Checks ring contact against Samus's current hitbox.</summary>
@@ -842,15 +842,15 @@ internal sealed class MotherBrainProjectiles
         Position16<RoomPixels> camera)
     {
         if (CoordinateAxis.AsSigned(turret.Position.Y.Whole) < 0 ||
-            CoordinateAxis.AsSigned(turret.Position.Y.Whole + 16 - camera.Y) < 0 ||
-            CoordinateAxis.Wrap(turret.Position.Y.Whole + 16 - camera.Y) >= EnemyView.Extent)
+            CoordinateAxis.AsSigned(turret.Position.Y.Whole + MotherBrainTurretDefinitions.ViewOffset.Y - camera.Y) < 0 ||
+            CoordinateAxis.Wrap(turret.Position.Y.Whole + MotherBrainTurretDefinitions.ViewOffset.Y - camera.Y) >= EnemyView.Extent)
         {
             return false;
         }
 
         return CoordinateAxis.AsSigned(turret.Position.X.Whole) >= 0 &&
-            CoordinateAxis.AsSigned(turret.Position.X.Whole + 4 - camera.X) >= 0 &&
-            CoordinateAxis.Wrap(turret.Position.X.Whole + 4 - camera.X) < 264;
+            CoordinateAxis.AsSigned(turret.Position.X.Whole + MotherBrainTurretDefinitions.ViewOffset.X - camera.X) >= 0 &&
+            CoordinateAxis.Wrap(turret.Position.X.Whole + MotherBrainTurretDefinitions.ViewOffset.X - camera.X) < MotherBrainTurretDefinitions.ViewWidth;
     }
 
     /// <summary>Runs the bullet property flicker, 1/256-pixel movement, and point collision.</summary>

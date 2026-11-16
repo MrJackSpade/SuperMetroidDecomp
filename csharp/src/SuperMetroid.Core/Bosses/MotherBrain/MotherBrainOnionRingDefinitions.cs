@@ -9,6 +9,15 @@ internal static class MotherBrainOnionRingDefinitions
     /// <summary>The speed an onion ring flies at along its aim: four pixels and 80 256ths an update.</summary>
     internal static readonly SignedEightEight Speed = SignedEightEight.FromParts(4, 80);
 
+    /// <summary>The height above which a flying onion ring bursts against the ceiling.</summary>
+    internal const int ArenaTopY = 32;
+
+    /// <summary>The height at or below which a flying onion ring bursts against the floor.</summary>
+    internal const int ArenaFloorY = 216;
+
+    /// <summary>How far right of the camera's left edge a flying onion ring bursts at the screen's edge.</summary>
+    internal const int ScreenRightEdgeX = 248;
+
     /// <summary>The lowest aim an onion ring launches at: a sixteenth of a turn.</summary>
     internal static readonly TrigonometryAngle LowestAim = new(16);
 

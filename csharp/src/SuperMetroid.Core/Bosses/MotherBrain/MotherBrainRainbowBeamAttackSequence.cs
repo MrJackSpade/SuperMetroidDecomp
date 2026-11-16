@@ -120,7 +120,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Applies the head's attack-counter step; the counter stops at twelve.
     /// </summary>
     internal void IncrementLiveBabyMetroidAttackCounter() =>
-        Revival.BabyMetroidAttackCounter = Math.Min(Revival.BabyMetroidAttackCounter + 1, 12);
+        Revival.BabyMetroidAttackCounter = Math.Min(Revival.BabyMetroidAttackCounter + 1, MotherBrainLateFightDefinitions.BabyAttackCountLimit);
 
     /// <summary>Applies the head's attack-counter reset step.</summary>
     internal void ResetLiveBabyMetroidAttackCounter() => Revival.BabyMetroidAttackCounter = 0;

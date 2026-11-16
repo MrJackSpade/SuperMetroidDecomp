@@ -13,6 +13,15 @@ internal static class MotherBrainTurretDefinitions
     /// </summary>
     internal static SpriteGraphics Graphics { get; } = SpriteGraphics.SharedIn(PictureShading.Standard);
 
+    /// <summary>
+    /// How far right of and below a turret's position its on-screen test measures: a turret shows while that point lies
+    /// within <see cref="ViewWidth"/> of the camera's left edge and within the enemies' view below its top.
+    /// </summary>
+    internal static readonly Offset16<RoomPixels> ViewOffset = new(4, 16);
+
+    /// <summary>The width, from the camera's left edge, a turret's on-screen test admits.</summary>
+    internal const int ViewWidth = 264;
+
     /// <summary>Minimum random rotation delay the turret's rotation applies.</summary>
     internal const int MinimumRotationDelay = 32;
 

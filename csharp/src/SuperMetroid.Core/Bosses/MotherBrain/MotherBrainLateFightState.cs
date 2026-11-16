@@ -107,7 +107,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>
     /// Makes the body walk forwards. An overshoot of the target reports it reached first; at
     /// equality the walk is still requested. A body still mid-pose then reports it waiting,
-    /// ahead of the 128 arena limit that also reports the target reached. Only a standing body
+    /// ahead of the arena's front limit that also reports the target reached. Only a standing body
     /// inside both limits starts the walk.
     /// </summary>
     private MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
@@ -116,7 +116,7 @@ internal sealed class MotherBrainLateFightState
             return MotherBrainWalkResult.Reached;
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (BodyPosition.X >= 128)
+        if (BodyPosition.X >= MotherBrainFightDefinitions.FrontLimitX)
             return MotherBrainWalkResult.Reached;
         SetBodyAnimation(segment);
         return MotherBrainWalkResult.WalkInstalled;
@@ -125,7 +125,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>
     /// Makes the body walk backwards. Reaching or passing the target reports it reached first, so a walk
     /// can complete the AI phase on the frame its movement step arrives. A body still
-    /// mid-pose then reports it waiting, ahead of the 48 arena limit that also reports
+    /// mid-pose then reports it waiting, ahead of the arena's back limit that also reports
     /// the target reached. Only a standing body inside both limits starts the walk.
     /// </summary>
     private MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
@@ -134,7 +134,7 @@ internal sealed class MotherBrainLateFightState
             return MotherBrainWalkResult.Reached;
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (BodyPosition.X < 48)
+        if (BodyPosition.X < MotherBrainFightDefinitions.BackLimitX)
             return MotherBrainWalkResult.Reached;
         SetBodyAnimation(segment);
         return MotherBrainWalkResult.WalkInstalled;

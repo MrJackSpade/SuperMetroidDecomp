@@ -45,11 +45,11 @@ internal sealed class MotherBrainDrainedByBabyPhases
         }
 
         MotherBrainWalkResult walk = PainfulWalkingForward
-            ? _state.RequestWalkForward(72, PainfulWalkingSpeed)
-            : _state.RequestWalkBackward(40, PainfulWalkingSpeed);
+            ? _state.RequestWalkForward(MotherBrainFightDefinitions.StaggerFrontX, PainfulWalkingSpeed)
+            : _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, PainfulWalkingSpeed);
         if (walk.ReachedTarget)
         {
-            int timerIndex = Math.Min(PainfulWalkingStage, 7);
+            int timerIndex = Math.Min(PainfulWalkingStage, MotherBrainPainfulWalkingDefinitions.StageCount - 1);
             PainfulWalkingPauseTimer = MotherBrainPainfulWalking.PauseTimer(timerIndex);
         }
     }
@@ -61,14 +61,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyTakenAback()
     {
         // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
-        // actor turn, changes form/neck geometry, seeds 48, and falls through so
-        // that this first regain-balance call immediately decrements it to 47.
+        // actor turn, changes form/neck geometry, seeds the regain-balance wait, and falls through so
+        // that this first regain-balance call immediately decrements it.
         Encounter.Form = MotherBrainForm.DrainedByBabyMetroid;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
         Encounter.DrainedPhase = MotherBrainDrainedPhase.RegainBalance;
-        Encounter.PhaseTimer.Count = 48;
+        Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.RegainBalanceUpdates;
         return true;
     }
 
@@ -102,18 +102,18 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The head animation owns any decrement; retaining the write gate avoids
         // fabricating a body-side countdown that does not exist in this step.
         if (Encounter.BrainMainShakeTimer == 0)
-            Encounter.BrainMainShakeTimer = 50;
+            Encounter.BrainMainShakeTimer = MotherBrainFightDefinitions.BrainShakeUpdates;
         requests.RainbowColours = true;
         StepPainfulWalking();
 
-        // The outer phase updates speed and neck delta after every step of the painful walk, so the sixth step is seen
+        // The outer phase updates speed and neck delta after every step of the painful walk, so the beam's last step is seen
         // on the update that ends the pause before it, before its forward walk has begun.
         if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
         {
             PainfulWalkingSpeed = MotherBrainPainfulWalking.Speed(PainfulWalkingStage);
             Encounter.NeckTurnPerUpdate = MotherBrainPainfulWalking.NeckTurn(PainfulWalkingStage);
         }
-        if (PainfulWalkingStage == 6)
+        if (PainfulWalkingStage == MotherBrainFightDefinitions.BeamRunsOutStage)
         {
             _state.RainbowBeamSoundPlaying = false;
             Encounter.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;
@@ -130,7 +130,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut()
     {
         StepPainfulWalking();
-        if (PainfulWalkingStage >= 8)
+        if (PainfulWalkingStage >= MotherBrainPainfulWalkingDefinitions.StageCount)
         {
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
@@ -149,7 +149,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom()
     {
         // The walk back is the really-slow backward walk, the painful walk's last animation.
-        MotherBrainWalkResult moveToBack = _state.RequestWalkBackward(40, MotherBrainWalkSpeed.ReallySlow);
+        MotherBrainWalkResult moveToBack = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow);
         if (moveToBack.ReachedTarget)
         {
             Encounter.DrainedPhase = MotherBrainDrainedPhase.GoIntoLowPowerMode;
@@ -175,7 +175,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
                 return false;
             _state.SetBodyAnimation(MotherBrainBodySegment.CrouchFast);
             Encounter.DrainedPhase = MotherBrainDrainedPhase.PrepareTransitionToGrey;
-            Encounter.PhaseTimer.Count = 64;
+            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.BeforeGreyUpdates;
         }
         return false;
     }
@@ -190,7 +190,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             Encounter.DrainedGreying.Restart();
             Encounter.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
-            Encounter.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
             return true;
         }
         return false;
@@ -204,16 +204,16 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
 
-            // The body greys over eight steps, one each time the timer runs out; the ninth finishes the transition
+            // The body greys over its grey steps, one each time the timer runs out; the ninth finishes the transition
             // without new colours.
             int greyStep = Encounter.DrainedGreying.TakeStep();
-            if (greyStep < 8)
+            if (greyStep < MotherBrainFightDefinitions.GreySteps)
                 requests.DrainColourStep = greyStep;
-            if (greyStep >= 8)
+            if (greyStep >= MotherBrainFightDefinitions.GreySteps)
             {
-                Encounter.Head.Health = 36000;
+                Encounter.Head.Health = MotherBrainFightDefinitions.ThirdPhaseHealth;
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
                 Encounter.SmallPurpleBreathGenerationEnabled = false;
                 Encounter.Form = MotherBrainForm.SecondPhase;

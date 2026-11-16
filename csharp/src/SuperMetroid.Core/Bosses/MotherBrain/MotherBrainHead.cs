@@ -53,7 +53,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state = _places.ListedBefore(head, 1).RequireSpeciesState<MotherBrainEnemyState>();
         head.SetSpeciesState(state);
 
-        head.Health = 3000;
+        head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;
         // The head shows her brain's hit area from its next animation update on (#2220); the visible brain runs a
         // separate animation.
         head.AnimationClock.StepOnNextUpdate();
@@ -103,7 +103,7 @@ internal sealed class MotherBrainHead
                     state,
                     samus);
                 Position16<RoomPixels> brainAnchor = state.NeckJoints[MotherBrainNeckJointDefinitions.BrainAnchor];
-                head.Position = head.Position.WithWhole(new(brainAnchor.X, CoordinateAxis.Wrap(brainAnchor.Y - 21)));
+                head.Position = head.Position.WithWhole(brainAnchor + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
                 state.DrawBrain = true;
                 state.DrawNeck = true;
                 return;
@@ -311,7 +311,7 @@ internal sealed class MotherBrainHead
         switch (cue)
         {
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ShakeBrain }:
-                state.BrainMainShakeTimer = 50;
+                state.BrainMainShakeTimer = MotherBrainFightDefinitions.BrainShakeUpdates;
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);
@@ -357,7 +357,7 @@ internal sealed class MotherBrainHead
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
                 // The attack cry step skips the attack cry once the attack counter reaches eleven.
-                if (MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).Revival.BabyMetroidAttackCounter != 11)
+                if (MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).Revival.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
                     _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
@@ -388,11 +388,11 @@ internal sealed class MotherBrainHead
         RoomEnemyPlace head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The laser leaves her mouth, sixteen pixels right of and four below her head, travelling right. It is the head's
+        // The laser leaves her mouth, right of and below her head, travelling right. It is the head's
         // shot, so it deals Mother Brain's contact damage at her laser's speed.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
             head,
-            head.Position.Whole + new Offset16<RoomPixels>(16, 4),
+            head.Position.Whole + MotherBrainFightDefinitions.BeamOffset,
             direction: HorizontalDirection.Right);
         if (laser is not null)
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, priority: SoundRequestPriority.Normal);
@@ -408,7 +408,7 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> target)
     {
         RoomEnemyPlace head = state.Head;
-        Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
+        Position16<RoomPixels> mouth = head.Position.Whole + MotherBrainFightDefinitions.MouthOffset;
         TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // The clamp performs two signed comparisons within one turn. The
@@ -436,9 +436,9 @@ internal sealed class MotherBrainHead
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         bomb.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb));
         RoomEnemyPlace head = state.Head;
-        bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
+        bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
         bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
-        bomb.Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224), SignedEightEight.FromPixels(1));
+        bomb.Velocity = new(MotherBrainBombBounceDefinitions.LaunchSpeedX, MotherBrainBombBounceDefinitions.LaunchSpeedY);
         bomb.State = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
         state.RecordBombSpawned();
     }
@@ -513,7 +513,7 @@ internal sealed class MotherBrainHead
         breath.State = new MotherBrainProjectileState(state);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig));
         RoomEnemyPlace head = state.Head;
-        breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
+        breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
     }
 
     /// <summary>Runs the small-breath spawn and the breath's initializer.</summary>
@@ -531,7 +531,7 @@ internal sealed class MotherBrainHead
         breath.State = new MotherBrainProjectileState(state);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall));
         RoomEnemyPlace head = state.Head;
-        breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
+        breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
         state.SmallPurpleBreathActive = true;
     }
 

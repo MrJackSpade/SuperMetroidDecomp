@@ -12,6 +12,9 @@ public static class PhantoonFlameSpawns
     /// <summary>The spiral flames' start angles, in the order they spawn.</summary>
     internal static IReadOnlyList<TrigonometryAngle> SpiralStarts => PhantoonFlameSpawnDefinitions.SpiralStarts;
 
+    /// <summary>The intro's starting flames.</summary>
+    internal static int StartingFlameCount => PhantoonFlameSpawnDefinitions.StartingFlameStarts.Length;
+
     /// <summary>The start angle of the intro's starting flame <paramref name="order"/>, zero (the first to appear) through seven.</summary>
     internal static TrigonometryAngle StartingFlameStart(int order) =>
         At(PhantoonFlameSpawnDefinitions.StartingFlameStarts, order, nameof(order));

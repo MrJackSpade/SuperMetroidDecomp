@@ -45,6 +45,36 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     /// </summary>
     internal static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromParts(0, 16);
 
+    /// <summary>
+    /// What a gentle approach divides the remaining distance by: sixteen, the pull of its approaches to Mother Brain, the
+    /// ceiling, Samus and its route, and of the stare-down and the legs staging the final charge.
+    /// </summary>
+    internal const int GentleAccelerationDivisor = 16;
+
+    /// <summary>How far left of Samus the Baby stares Mother Brain down from.</summary>
+    internal const int StareDownOffsetX = -4;
+
+    /// <summary>The height the Baby stares Mother Brain down from.</summary>
+    internal const int StareDownY = 96;
+
+    /// <summary>The point just past the screen's right edge the Baby flies to after staring Mother Brain down.</summary>
+    internal static readonly Position16<RoomPixels> RightEdgePoint = new(272, 64);
+
+    /// <summary>Where the Baby stages its final charge.</summary>
+    internal static readonly Position16<RoomPixels> FinalChargeStart = new(305, 160);
+
+    /// <summary>Where the final charge's start aims the Baby.</summary>
+    internal static readonly Position16<RoomPixels> FinalChargeAim = new(290, 128);
+
+    /// <summary>What the final charge's start divides the remaining distance by: six, a much firmer pull than sixteen.</summary>
+    internal const int ChargeStartDivisor = 6;
+
+    /// <summary>Where on Mother Brain's brain the final charge aims: 32 pixels above it.</summary>
+    internal static readonly Offset16<RoomPixels> FinalChargeOffset = new(0, -32);
+
+    /// <summary>What the final charge divides the remaining distance by: four, its firmest pull.</summary>
+    internal const int FinalChargeDivisor = 4;
+
     /// <summary>The fastest the Baby approaches a point, on each axis, in either direction: five pixels an update.</summary>
     internal static readonly SignedEightEight ApproachMaximumSpeed = SignedEightEight.FromPixels(5);
 

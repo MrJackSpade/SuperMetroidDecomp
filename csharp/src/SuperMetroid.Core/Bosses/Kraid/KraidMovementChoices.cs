@@ -26,6 +26,9 @@ public static class KraidMovementChoices
         internal static readonly ImmutableArray<Destination> SearchOrder = [Leftmost, Left, Middle, Starting, Right, Rightmost];
     }
 
+    /// <summary>The starting destination: where Kraid's grown body walks first, once he has reached his start.</summary>
+    internal static int StartingX => Destination.Starting.X;
+
     /// <summary>
     /// Kraid's movement positions and choices and their target/timer pairs.
     /// Unlisted positions select the 352 row. Random choices four through seven

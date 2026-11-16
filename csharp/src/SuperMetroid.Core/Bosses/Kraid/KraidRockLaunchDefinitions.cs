@@ -42,6 +42,9 @@ public static class KraidRockLaunchDefinitions
     /// </summary>
     internal static SignedEightEight CeilingRockGravity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
+    /// <summary>The upward speed a rock thrown up by Kraid's rise or growth starts with: five pixels an update.</summary>
+    internal static SignedEightEight RisingRockRise { get; } = SignedEightEight.FromPixels(-5);
+
     /// <summary>The horizontal speed a spat rock gains each update, drifting back toward Kraid's side.</summary>
     internal static SignedEightEight RockDrift { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
 

@@ -98,6 +98,13 @@ internal sealed class KraidParts
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
     };
 
+    /// <summary>Places each lint at its height beside <paramref name="body"/> as Kraid thinks between attacks.</summary>
+    internal void PlaceLintsAtBodyHeights(RoomEnemyPlace body)
+    {
+        foreach ((KraidLintPart part, int height) in KraidArenaDefinitions.LintHeights)
+            Lint(part).Position = Lint(part).Position.WithWrappedWholeY(body.Position.Y.Whole + height);
+    }
+
     /// <summary>His three lints, top first.</summary>
     internal IEnumerable<RoomEnemyPlace> Lints
     {

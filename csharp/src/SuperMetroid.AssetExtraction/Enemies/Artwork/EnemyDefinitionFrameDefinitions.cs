@@ -49,6 +49,10 @@ internal static class EnemyDefinitionFrameDefinitions
     private static readonly EnemyFrameId[] CeresElevatorRoomWallFrames =
     [
         EnemyFrameId.CeresDoorFacingLeftClosed,
+        EnemyFrameId.CeresDoorFacingLeftQuarterOpen,
+        EnemyFrameId.CeresDoorFacingLeftHalfOpen,
+        EnemyFrameId.CeresDoorFacingLeftThreeQuartersOpen,
+        EnemyFrameId.CeresDoorFacingLeftOpen,
         EnemyFrameId.CeresDoorFacingRightClosed,
         EnemyFrameId.CeresDoorOrWallSmallSquare,
     ];

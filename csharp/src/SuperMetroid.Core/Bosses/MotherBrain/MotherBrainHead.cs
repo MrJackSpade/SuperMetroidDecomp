@@ -27,8 +27,6 @@ internal sealed class MotherBrainHead
     private readonly EnemyPresentation _presentation;
     /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
     /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
     private readonly IMotherBrainRoomActors _roomActors;
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
@@ -44,7 +42,6 @@ internal sealed class MotherBrainHead
         _audio = dependencies.Audio;
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
-        _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _roomActors = dependencies.RoomActors;
         _projectileAttacks = dependencies.ProjectileAttacks;
     }

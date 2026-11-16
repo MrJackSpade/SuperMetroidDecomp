@@ -112631,19 +112631,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.StationSetupGate",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationSetupGate.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.TerrainChange",
       "kind": "record",
       "scope": "product",

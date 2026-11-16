@@ -320,7 +320,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
-      "files": 470,
+      "files": 469,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -59741,8 +59741,7 @@
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Progression",
-        "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Spatial"
+        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -67853,7 +67852,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Compatibility"
+        "csharp/src/SuperMetroid.Core/Compatibility",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -68348,16 +68348,6 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationOperationPhase.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.RoomObjects",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationSetupGate.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
       "namespace": "SuperMetroid.Core.Rooms.RoomObjects",
@@ -128458,12 +128448,9 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Input",
-        "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Runtime",
         "csharp/src/SuperMetroid.Core/World",
@@ -129605,6 +129592,7 @@
         "csharp/src/SuperMetroid.Core/Runtime",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
+        "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationImporters"

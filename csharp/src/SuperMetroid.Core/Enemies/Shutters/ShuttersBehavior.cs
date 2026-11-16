@@ -471,8 +471,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        // The initial action calls through its parameter table during this very AI
-        // call; it does not spend a frame setting the selected wait action.
+        // The initial action selects the action its trigger mode names and runs it on this same update; it does not
+        // spend a frame setting the selected wait action.
         // Keep Initial live until activation writes the moving action, as the game does.
         switch (state.Action == VerticalShutterAction.Initial
             ? SelectInitialVerticalShutterAction(state) : state.Action)

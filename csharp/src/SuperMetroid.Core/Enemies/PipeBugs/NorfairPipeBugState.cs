@@ -30,8 +30,7 @@ public sealed class NorfairPipeBugState
     internal void CountFormationTick() => FormationCounter++;
 
     /// <summary>
-    /// Whether the member's count has reached its <see cref="StaggerTarget"/>, judged as the game does by their difference
-    /// wrapped to sixteen bits and read as signed.
+    /// Whether the member's count has reached its <see cref="StaggerTarget"/>.
     /// </summary>
     internal bool HasReachedStaggerTarget => FormationCounter >= StaggerTarget;
 

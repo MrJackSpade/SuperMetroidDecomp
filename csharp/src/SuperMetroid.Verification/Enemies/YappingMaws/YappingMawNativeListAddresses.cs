@@ -39,12 +39,12 @@ internal static class YappingMawNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, YappingMawNativeListAddressesInstruction> Instructions = new()
     {
-        [0xa0c7] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.HoldSamus, "", YappingMawAim.UpRight),
-        [0xa0d9] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.HoldSamus, "", YappingMawAim.UpLeft),
-        [0xa0eb] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.HoldSamus, "", YappingMawAim.DownRight),
-        [0xa0fd] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.HoldSamus, "", YappingMawAim.DownLeft),
-        [0xa10f] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.HoldSamus, "", YappingMawAim.Up),
-        [0xa121] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.HoldSamus, "", YappingMawAim.Down),
-        [0xa133] = new YappingMawNativeListAddressesInstruction(YappingMawCueKind.PlayBiteSound, ""),
+        [0xa0c7] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.HoldSamus(YappingMawAim.UpRight), ""),
+        [0xa0d9] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.HoldSamus(YappingMawAim.UpLeft), ""),
+        [0xa0eb] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.HoldSamus(YappingMawAim.DownRight), ""),
+        [0xa0fd] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.HoldSamus(YappingMawAim.DownLeft), ""),
+        [0xa10f] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.HoldSamus(YappingMawAim.Up), ""),
+        [0xa121] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.HoldSamus(YappingMawAim.Down), ""),
+        [0xa133] = new YappingMawNativeListAddressesInstruction(new YappingMawCue.Signal(YappingMawCueKind.PlayBiteSound), ""),
     };
 }

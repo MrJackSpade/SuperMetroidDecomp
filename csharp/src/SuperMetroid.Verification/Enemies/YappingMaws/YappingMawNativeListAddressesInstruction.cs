@@ -2,8 +2,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 
-/// <summary>The kind and operands of one yapping maw native list addresses instruction.</summary>
-/// <param name="Kind">The kind.</param>
+/// <summary>The cue one yapping maw native list addresses instruction must become, and its operands.</summary>
+/// <param name="Cue">The cue the routine becomes: a hold routine's cue carries the aim whose mouth offset it holds Samus at (#2071).</param>
 /// <param name="Operands">The operands.</param>
-/// <param name="Aim">The aim whose mouth offset the routine holds Samus at, which the cue must carry (#2071).</param>
-internal readonly record struct YappingMawNativeListAddressesInstruction(YappingMawCueKind Kind, string Operands, YappingMawAim? Aim = null);
+internal readonly record struct YappingMawNativeListAddressesInstruction(YappingMawCue Cue, string Operands);

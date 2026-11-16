@@ -81,8 +81,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             Previous: _places.ListedBeforeOrNone(place, 1),
             Next: _places.ListedAfterOrNone(place, 1)));
         state.Motion = definition.Motion;
-        // Initialization subtracts the parallel all-zero table; synchronization
-        // uses the same authored velocity directly.
+        // Initialization and synchronization both take the segment's authored angular velocity unchanged.
         state.AngularVelocity = definition.AngularVelocity;
         state.OrbitAngle = definition.InitialOrbitAngle;
 
@@ -438,13 +437,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveShaktoolSegmentForAnimation(RoomEnemyPlace place, TrigonometryAngle angle)
     {
         // X reads the shared signed sine at the angle and Y the sine a quarter turn behind it, the negative cosine.
-        SignedEightEight xVelocity = ReadShaktoolCommonSineSample(angle);
-        SignedEightEight yVelocity = ReadShaktoolCommonSineSample(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn));
+        SignedEightEight xVelocity = SineVelocity(angle);
+        SignedEightEight yVelocity = SineVelocity(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn));
         place.Position = place.Position.Advance(new(xVelocity.ToSixteenSixteenDelta(), yVelocity.ToSixteenSixteenDelta()));
     }
 
     /// <summary>The shared enemy sine velocity at <paramref name="angle"/>: one pixel per update at its peak.</summary>
-    internal static SignedEightEight ReadShaktoolCommonSineSample(TrigonometryAngle angle) =>
+    internal static SignedEightEight SineVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>

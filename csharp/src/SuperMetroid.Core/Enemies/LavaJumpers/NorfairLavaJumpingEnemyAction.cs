@@ -11,6 +11,6 @@ public enum NorfairLavaJumpingEnemyAction
     RiseBeforeAnimationSwitch,
     /// <summary>Continue the signed 1/256-pixel arc until the flip animation's cue signals completion, then clear the handshake and enter final falling.</summary>
     MoveUntilAnimationSignal,
-    /// <summary>Continue descent until Y modulo 256 reaches 240, then restore spawn whole coordinates, start the hidden/rising animation, and disable offscreen processing without clearing subpositions.</summary>
+    /// <summary>Continue descent until the jumper reaches the bottom block row of a room screen, back in the lava, then restore spawn whole coordinates, start the hidden/rising animation, and disable offscreen processing without clearing subpositions.</summary>
     FallBackIntoLava,
 }

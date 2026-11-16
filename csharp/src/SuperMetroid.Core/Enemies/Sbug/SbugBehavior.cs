@@ -41,16 +41,14 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new SbugEnemyState(place, SbugAction.WaitForSamus)
         {
-            // Enemy extension arrays are cleared with the room before initialization: no loop
-            // is requested or installed until the first direction is selected.
+            // A new Sbug has no animation: none is requested or installed until it selects its first direction.
             RequestedAnimation = null,
             InstalledAnimation = null,
         };
         place.SetSpeciesState(state);
 
-        // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
-        // the shared helper apply signs later from the initial angle. The side velocities instead use the signed,
-        // intentionally imperfect short multiply.
+        // The forward velocity uses the unsigned quarter-circle magnitudes and lets the shared helper apply signs later
+        // from the initial angle. The side velocities instead use the signed short circle product.
         int speed = state.Speed;
         RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn);
@@ -347,7 +345,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         int phase) =>
         UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.TurnedBySteps(phase).StepsIntoHalfTurn));
 
-    /// <summary>Samples the signed short multiply path for X and Y phase offsets.</summary>
+    /// <summary>The side speeds along X and Y: the short circle products of the angle turned a quarter and a half turn on.</summary>
     private static void CalculateSignedSbugVelocities(
         TrigonometryAngle angle,
         int speed,

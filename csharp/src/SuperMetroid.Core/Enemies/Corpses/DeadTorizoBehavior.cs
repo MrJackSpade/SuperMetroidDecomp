@@ -273,9 +273,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     };
 
-    /// <summary>Starts the same rotting tail on direct Samus contact.</summary>
+    /// <summary>Starts the corpse rotting when Samus touches it.</summary>
     internal static void ReactToDeadTorizoTouch(EnemyTouchContext context) =>
-        // Touch and shot share one reaction. Contact does not enter common damage; it makes the corpse solid
-        // and starts the exact rotting table immediately.
+        // Touch and shot share one reaction. Contact does no damage: it makes the corpse ignore Samus and starts it
+        // rotting at once.
         TriggerDeadTorizoRotting(context.Place);
 }

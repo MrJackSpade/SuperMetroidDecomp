@@ -233,9 +233,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the shared tail after touch, shot, or power-bomb common AI. A dead
-    /// body deletes its wing; a surviving body mirrors every timer and handler that affects
-    /// visible hurt and freeze rendering into that wing, which only shows.
+    /// Runs after a touch, shot or power bomb. A dead body deletes its wing; a surviving body shows its hurt flash and
+    /// freeze on that wing too, which only shows.
     /// </summary>
     private void ResolveDragonCombatAfterCommon(RoomEnemyPlace actor)
     {
@@ -387,11 +386,5 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The fireball is retained above the viewport; horizontal distance is never consulted.
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        // Dragon keeps no per-frame publication; its sounds are queued as they happen.
     }
 }

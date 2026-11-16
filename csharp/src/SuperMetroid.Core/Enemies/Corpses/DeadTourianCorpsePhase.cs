@@ -7,8 +7,8 @@ public enum DeadTourianCorpsePhase
     Waiting,
     /// <summary>Counts sixteen AI calls after the collision before rotting.</summary>
     PreRotDelay,
-    /// <summary>Rots one step of the corpse's rotting table per AI call.</summary>
+    /// <summary>Rots the corpse one step of its rot schedule each update, its pixel rows falling from the foot up.</summary>
     Rotting,
-    /// <summary>Does nothing: the rotting table is exhausted.</summary>
+    /// <summary>Does nothing: every row of the corpse has fallen.</summary>
     Finished,
 }

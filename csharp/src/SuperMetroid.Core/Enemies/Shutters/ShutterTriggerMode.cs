@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
-/// <summary>What starts a shutter moving, from its population's first parameter.</summary>
+/// <summary>What starts a shutter moving, as its placement authors it.</summary>
 public enum ShutterTriggerMode
 {
     /// <summary>Moves once its initial wait expires.</summary>

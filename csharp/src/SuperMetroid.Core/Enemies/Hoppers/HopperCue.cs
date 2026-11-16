@@ -1,6 +1,18 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>One cue of the Sidehoppers' and Dessgeegas' animations: what it does, with the values it acts on.</summary>
-/// <param name="Kind">What the cue does.</param>
-/// <param name="Sound">The enemy-library sound a <see cref="HopperCueKind.PlaySound"/> cue queues.</param>
-internal readonly record struct HopperCue(HopperCueKind Kind, SoundEffectId? Sound = null);
+internal abstract record HopperCue
+{
+    /// <summary>Closes the hierarchy to the cues declared here.</summary>
+    private HopperCue()
+    {
+    }
+
+    /// <summary>Queues an enemy-library sound.</summary>
+    /// <param name="Sound">The sound the cue queues.</param>
+    internal sealed record PlaySound(SoundEffectId Sound) : HopperCue;
+
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
+    /// <param name="Kind">What the cue does.</param>
+    internal sealed record Signal(HopperCueKind Kind) : HopperCue;
+}

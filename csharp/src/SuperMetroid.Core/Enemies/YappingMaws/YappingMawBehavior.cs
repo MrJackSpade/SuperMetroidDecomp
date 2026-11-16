@@ -44,16 +44,16 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Yapping Maw's animations: holding a grabbed Samus at a mouth offset, or the bite sound.</summary>
     private void ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case YappingMawCueKind.HoldSamus:
-                SetYappingMawHeldOffset(state, cue.Aim ?? throw new InvalidDataException("A Yapping Maw hold cue carries no aim."));
+            case YappingMawCue.HoldSamus hold:
+                SetYappingMawHeldOffset(state, hold.Aim);
                 break;
-            case YappingMawCueKind.PlayBiteSound:
+            case YappingMawCue.Signal { Kind: YappingMawCueKind.PlayBiteSound }:
                 PlayYappingMawAttackSound(state);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(YappingMawCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Yapping Maw cue {cue}.");
         }
     }
 
@@ -84,10 +84,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             ? YappingMawSegment.AttackingDown
             : YappingMawSegment.AttackingUp));
 
-        // Projectile slots are searched from the last downward, and the body segments are
-        // spawned as links 3, 2, 1, 0, each recording its place under its link.
-        // Allocate in that order, then keep the links in root-to-mouth order.
-        for (int parameter = 3; parameter >= 0; parameter--)
+        // The body links are spawned mouth end first, link 3 down to link 0, so each takes the projectile place the pool
+        // gives it in that order; the Maw keeps them in root-to-mouth order.
+        for (int link = 3; link >= 0; link--)
         {
             EnemyProjectile? body = _projectiles.AllocateEnemyProjectile();
             if (body is null)
@@ -105,7 +104,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? YappingMawBodyProjectileSegment.FacingDown
                 : YappingMawBodyProjectileSegment.FacingUp));
-            state.BodyProjectiles[parameter] = body;
+            state.BodyProjectiles[link] = body;
         }
 
         // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
@@ -147,10 +146,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Yapping Maw has no behaviour for action {state.Action}.");
         }
 
-        // The mouth actor owns the final point. The four projectiles own root, quarter, half,
-        // and three-quarter points of the tongue. The game writes coordinates even
-        // though their frame behaviours are empty; the projectile pass advances only their one-frame
-        // map selection and permanent rest step.
+        // The mouth owns the final point. The four body links own the root, quarter, half and three-quarter points of
+        // the tongue; they do nothing of their own but show their picture where the Maw places them each update.
         PositionYappingMawBodyProjectile(state, 0, state.Origin);
         PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
         PositionYappingMawBodyProjectile(state, 2, YappingMawLinkPosition(state, 1));
@@ -455,7 +452,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyShades.FrozenLook;
     }
 
-    /// <summary>Animation behaviour used by all six held-Samus offset cues.</summary>
+    /// <summary>Holds a grabbed Samus at the mouth offset of <paramref name="aim"/>, as the hold cue asks.</summary>
     internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
         YappingMawAim aim)

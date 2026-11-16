@@ -20,19 +20,14 @@ internal static class HopperAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    for (int index = 0; index < operands.Length; index++)
+                    // The sound routine's cue is its operand decoded to the cue's sound; every other routine's cue is fixed.
+                    HopperCue expected = instruction.Operands switch
                     {
-                        switch (instruction.Operands[index])
-                        {
-                            case 'V':
-                                AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[index]), cue.Sound,
-                                    $"{at}: library-two sound");
-                                break;
-                            default:
-                                throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}.");
-                        }
-                    }
+                        "V" => new HopperCue.PlaySound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
+                        "" => instruction.Cue ?? throw new InvalidOperationException($"{at}: the routine names no cue."),
+                        _ => throw new InvalidOperationException($"Undefined operand roles {instruction.Operands}."),
+                    };
+                    AssertEqual(expected, cue, $"{at}: cue");
                 }));
         Console.WriteLine($"  Hopper animations: {Entries.Length} segments ({beats} beats) and {HopperAnimations.StartingAt.Count} animations match bank $A3.");
     }

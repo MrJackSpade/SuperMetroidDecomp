@@ -177,9 +177,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         bool applyCommonTouch = samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
         if (!applyCommonTouch)
         {
-            // Every overlapping actor queues its sound independently. Using the
-            // legacy one-value family field here collapsed a room full of attached actors
-            // into one request and erased the game's sound-backlog processing delay.
+            // Every attached Mochtroid queues its own drain sound, so a room full of them queues one each.
             if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
@@ -195,10 +193,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
         {
-            // Common touch would publish 96/5 here, but the Mochtroid's touch clears both values before
-            // Samus's movement phase can consume them. Apply only the suit-divided health
-            // change; starting Samus's knockback and trying to undo its pose would
-            // introduce side effects the game never reaches.
+            // The Mochtroid's touch hurts Samus without knocking her back: only the suit-divided damage applies.
             SamusSuitDamage.Hurt(samus, place.Definition.Damage);
         }
         else

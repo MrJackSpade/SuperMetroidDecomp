@@ -35,22 +35,22 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
     private HopperSegment? ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case HopperCueKind.ProcessOffScreen:
+            case HopperCue.Signal { Kind: HopperCueKind.ProcessOffScreen }:
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
                 break;
-            case HopperCueKind.StopProcessingOffScreen:
+            case HopperCue.Signal { Kind: HopperCueKind.StopProcessingOffScreen }:
                 place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
                 break;
-            case HopperCueKind.PlaySound:
-                _audio.QueueEnemySound(cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound."), priority: SoundRequestPriority.Normal);
+            case HopperCue.PlaySound sound:
+                _audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal);
                 break;
-            case HopperCueKind.ReadyToHop:
+            case HopperCue.Signal { Kind: HopperCueKind.ReadyToHop }:
                 state.ReadyToHop = true;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(HopperCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined hopper cue {cue}.");
         }
         return null;
     }

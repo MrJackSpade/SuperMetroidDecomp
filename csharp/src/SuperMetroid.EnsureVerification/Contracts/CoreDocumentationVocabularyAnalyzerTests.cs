@@ -746,5 +746,27 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>X is the sample modulo 128; Y is the tangent; A held animation stays held; A binding names a frame.</summary>\nint F => 0; }");
         Expect("class P { // X-ray is shoot-free; a is jump; the X button; Shoot alone.\n }");
         Expect(CompatibilityService + "/// <summary>Evidence: the game reads B as Run and A is Jump.</summary>\n[CompatibilityService(\"buttons\")] class Buttons { }");
+        // Reviewed or approved wording and the port's history told against its present, in every type (#2139).
+        Expect("class P { /// <summary>Reviewed three-line grouping of the Ceres warning.</summary>\nint F => 0; }", "('Reviewed')");
+        Expect("class P { /// <summary>The approved wording of each warning line.</summary>\nint F => 0; }", "('approved')");
+        Expect("class P { /// <remarks>The omitted term is small; the reviewed 1e-19 margin covers rounding.</remarks>\nint F => 0; }", "('reviewed')");
+        Expect("class P { /// <remarks>Replacing a corrupt permutation with defaults used to hide bad save data. The loader now gets the bindings.</remarks>\nint F => 0; }",
+            "('used to hide bad save data. The loader now')");
+        Expect("class P { // The ordinary update below used to be gated on movement.\n }", "('used to be')");
+        Expect(CompatibilityService + "/// <summary>Evidence: the reviewed cadence holds.</summary>\n[CompatibilityService(\"cadence\")] class Cadence { }", "('reviewed')");
+        // A thing used to do something with no present told against it is English.
+        Expect("class P { /// <summary>Supplies the enemy counter used to pace dust sounds.</summary>\nint F => 0; }");
+        // The port's narration, the original's steps and graphics backups, and numbered story events, outside hardware owners (#2139).
+        Expect("class P { // Preserve the managed input order on idle frames.\n }", "('managed')");
+        Expect("class P { /// <summary>Forgets the bosses, as an otherwise unused original step does.</summary>\nint F => 0; }", "('original step')");
+        Expect("class P { /// <summary>Prepares the pause screen, backing up gameplay graphics.</summary>\nint F => 0; }", "('backing up gameplay graphics')");
+        Expect("class P { /// <summary>Restores gameplay graphics on a blank display.</summary>\nint F => 0; }", "('Restores gameplay graphics')");
+        Expect("class P { /// <summary>Global story-event bits.</summary>\nint F => 0; }", "('story-event bits')");
+        Expect("class P { /// <summary>Checks a persistent event bit.</summary>\nint F => 0; }", "('event bit')");
+        Expect("class P { /// <summary>Whether <paramref name=\"eventNumber\"/> is set.</summary>\nbool Has(int eventNumber) => false; }", "('eventNumber')");
+        Expect("class P { // the event number the door reads\n }", "('event number')");
+        // Original alone, restoring a value, graphics alone, a story event, a number and a bit, and a hardware owner are English.
+        Expect("class P { /// <summary>Returns to the original position, restoring the colour; the graphics; the story event; a number; a bit.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the managed copy restores gameplay graphics as an original step; event bit 3.</summary>\n[CompatibilityService(\"pause\")] class Pause { }");
     }
 }

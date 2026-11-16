@@ -28,9 +28,7 @@ public static class PhantoonTimerDefinitions
     }
 
     /// <summary>RNG&amp;7 selects the vulnerable window.</summary>
-    /// <remarks>Narrow approved nonsense retention: RNG/frame buckets have no temporal or physical ordering. These
-    /// exact permutations specify the random choice policy; inventing a function for them would only re-encode the same
-    /// ordering. This does not exempt any other combat phase, motion, fade, placement or flame delay.</remarks>
+    /// <remarks>The eight choices have no order in time or space: the list itself is how the random number chooses.</remarks>
     internal static readonly DurationChoice[] VulnerableChoices =
         [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Long];

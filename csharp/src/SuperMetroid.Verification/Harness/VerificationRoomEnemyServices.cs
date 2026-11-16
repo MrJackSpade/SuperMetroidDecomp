@@ -77,11 +77,11 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     }
 
     /// <summary>Queries a global event through the fixture override or loaded services.</summary>
-    public bool Has(StoryEvent eventNumber) =>
-        HasEvent is { } has ? has(eventNumber) : Loaded("read global event bits").Events.Has(eventNumber);
+    public bool Has(StoryEvent storyEvent) =>
+        HasEvent is { } has ? has(storyEvent) : Loaded("read story events").Events.Has(storyEvent);
 
     /// <summary>Forwards event writes to loaded room services.</summary>
-    public void Set(StoryEvent eventNumber) => Loaded("set a global event bit").Events.Set(eventNumber);
+    public void Set(StoryEvent storyEvent) => Loaded("mark a story event").Events.Set(storyEvent);
 
     /// <summary>Reads the Zebetite count through the case override or loaded services; writes go to loaded services.</summary>
     int IZebetiteProgress.ZebetitesDestroyed

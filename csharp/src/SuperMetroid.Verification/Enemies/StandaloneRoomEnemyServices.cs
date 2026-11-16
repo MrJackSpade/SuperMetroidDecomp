@@ -95,9 +95,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
             "the required cartridge-state service.");
 
         /// <summary>Fails when an actor queries event bits without an installed event service.</summary>
-        public bool Has(StoryEvent eventNumber) => throw Missing("read global event bits");
+        public bool Has(StoryEvent storyEvent) => throw Missing("read story events");
         /// <summary>Fails when an actor tries to publish an event without an installed service.</summary>
-        public void Set(StoryEvent eventNumber) => throw Missing("set a global event bit");
+        public void Set(StoryEvent storyEvent) => throw Missing("mark a story event");
         /// <summary>Fails when a Zebetite reads or advances the Zebetite count without an installed progress service.</summary>
         public int ZebetitesDestroyed
         {

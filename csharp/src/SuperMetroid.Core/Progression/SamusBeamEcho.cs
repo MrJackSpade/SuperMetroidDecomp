@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The beam projectiles that are neither a fired shot nor a special-attack particle, but echoes drawn and damaged from
-/// the echo-and-trail projectile table.
+/// The beam projectiles that are neither a fired shot nor a special-attack particle: the trail and the echo a special
+/// attack or a drained Shinespark crash leaves, each drawn and damaging as the beam it names.
 /// </summary>
 public enum SamusBeamEcho
 {

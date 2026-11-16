@@ -26,8 +26,8 @@ internal static class FileSelectDataNavigation
         if (!Selectable(selected))
             throw new InvalidDataException($"Submenu item {selected} is not selectable.");
 
-        // Preserve the managed input order, including validation on idle frames
-        // and Up priority when both directions are pressed. The file select plays the sound.
+        // The selection is checked even on an update with no press, and Up wins when both directions are pressed. The
+        // file select plays the sound.
         int step = (pressed & ControllerButton.Up) != ControllerButton.None ? -1
             : (pressed & ControllerButton.Down) != ControllerButton.None ? 1 : 0;
         if (step == 0) return selected;

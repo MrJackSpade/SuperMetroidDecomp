@@ -39,7 +39,7 @@ public enum SpriteSourceKind
     RoomEffectActor,
     /// <summary>The Ceres elevator arrival's moving pad or its platform.</summary>
     CeresElevatorArrival,
-    /// <summary>Dead Torizo's sand heap, drawn after the enemy queue.</summary>
+    /// <summary>Dead Torizo's sand heap, drawn after the enemies.</summary>
     DeadTorizoSandHeap,
     /// <summary>A segment of Ridley's tail, drawn from the tip to the base.</summary>
     RidleyTail,

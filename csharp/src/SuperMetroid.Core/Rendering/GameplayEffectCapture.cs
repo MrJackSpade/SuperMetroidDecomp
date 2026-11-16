@@ -61,9 +61,9 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// Describes the Norfair heat-haze the background's vertical scroll wave (#1468), or null without it: around the
-    /// background row the screen's top shows, below the camera row it hides (#1514), its samples counted from the
-    /// camera's row.
+    /// Describes lava's or acid's vertical heat haze as a wave over the background's vertical scroll (#1468), or null for a
+    /// liquid without it: its lines move about the background row the screen's top shows (#1514), and its samples are
+    /// counted from the camera's row.
     /// </summary>
     /// <param name="fx">The room effect the frame shows.</param>
     /// <param name="backgroundVerticalScroll">The background camera's top row.</param>

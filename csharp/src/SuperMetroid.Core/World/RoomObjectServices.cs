@@ -18,7 +18,7 @@ public sealed record RoomObjectServices
     /// <summary>The area's boss, mini-boss and Torizo defeat bits.</summary>
     public required IAreaBossFlagReader Bosses { get; init; }
 
-    /// <summary>Global event bits room objects read and set.</summary>
+    /// <summary>The story events that have happened, which room objects read and mark.</summary>
     public required IGlobalEventFlags Events { get; init; }
 
     /// <summary>Tourian entrance statue progress for grey-door conditions.</summary>

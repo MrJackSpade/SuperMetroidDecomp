@@ -111,7 +111,7 @@ public enum SpriteSheetId
     AreaMapBackgroundMaridia,
     /// <summary>The file-select world map's background picture in Tourian's world-map colours (#1392).</summary>
     AreaMapBackgroundTourian,
-    /// <summary>The HUD's images and the cleared cell pause shows on its HUD plane, in the pause colours (#1392, #1466).</summary>
+    /// <summary>The HUD's images and the blank the pause screen shows across the HUD, in the pause colours (#1392, #1466).</summary>
     PauseHud,
     /// <summary>The opening cinematic's scene pictures: its scene pages, Samus's portrait and the portrait's eye frames (#1467).</summary>
     IntroScenePictures,

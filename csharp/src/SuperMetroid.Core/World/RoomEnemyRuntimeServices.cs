@@ -28,7 +28,7 @@ internal sealed class RoomEnemyRuntimeServices(
 {
     /// <summary>Exposes the system-owned RNG to enemy AI without a raw system-state dependency.</summary>
     public IEnemyRandomNumbers Random => this;
-    /// <summary>Exposes persistent global event bits to enemy AI.</summary>
+    /// <summary>The story events that have happened, which the enemies read and mark.</summary>
     public IGlobalEventFlags Events => progress;
     /// <summary>Exposes the persistent Zebetite count to the Zebetites.</summary>
     public IZebetiteProgress ZebetiteProgress => progress;

@@ -9,7 +9,7 @@ internal static class EscapeTypewriterLines
     /// <summary>Ceres uses three warning lines while Zebes uses two.</summary>
     internal static int LineCount(EscapeTypewriterMessageId id) => Ensure.Listed(EscapeTypewriterDefinitions.LineCounts, id);
 
-    /// <summary>Builds one selected warning line and where it starts from reviewed wording and line spacing.</summary>
+    /// <summary>Builds one warning line from its wording, starting where the line spacing places it.</summary>
     internal static EscapeTypewriterLine Line(EscapeTypewriterMessageId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));

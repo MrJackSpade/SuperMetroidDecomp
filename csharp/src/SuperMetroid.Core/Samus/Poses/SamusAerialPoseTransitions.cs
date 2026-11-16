@@ -726,7 +726,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies the normal-jump pose initializer after a normal-jump
-    /// transition has selected one of the six approved launch bodies.
+    /// transition has selected one of the six launch bodies.
     /// </summary>
     /// <remarks>
     /// This deliberately receives the already-selected target instead of testing the

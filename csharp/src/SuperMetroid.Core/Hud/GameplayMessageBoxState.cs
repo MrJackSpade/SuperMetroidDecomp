@@ -194,10 +194,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     }
                     else
                     {
-                        // The four completion notices hold for only ten updates;
-                        // equipment descriptions hold for 360. Treating
-                        // every ordinary message as equipment left Samus locked in a map
-                        // station while its access-loop sound continued for six seconds.
+                        // The four completion notices hold for only ten updates; equipment descriptions hold for 360.
                         MinimumDisplayFramesRemaining = MessageId is
                             GameplayMessageId.MapDataAccessCompleted or
                             GameplayMessageId.EnergyRechargeCompleted or

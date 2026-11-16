@@ -14,7 +14,7 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>The game RNG.</summary>
     IEnemyRandomNumbers Random { get; }
 
-    /// <summary>Global event bits.</summary>
+    /// <summary>The story events that have happened.</summary>
     IGlobalEventFlags Events { get; }
 
     /// <summary>How many Zebetites have been destroyed.</summary>

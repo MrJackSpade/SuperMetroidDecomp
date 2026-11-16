@@ -58,6 +58,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// review cited under its ticket. #2105 adds to the review trail, in every type, the review inventory and fix history,
 /// and, outside hardware owners, a check of the repository cited by its kind or its name.
 /// #2113 adds, outside hardware owners, a controller button's letter used as the name of a gameplay action.
+/// #2139 adds to the review trail, in every type, reviewed or approved wording and a port's history told against its
+/// present ("X used to ... now", "used to be"); and, outside hardware owners, the port's narration of itself (managed
+/// code), the original's steps and programs, its backing up and restoring of graphics, and a story event named by a
+/// number or as a bit.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -628,6 +632,42 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// More of the review trail in prose (#2139), read in every Core type: anything reviewed or approved (the reviewed
+    /// wording, a reviewed margin, the approved launch bodies) and the port's history told against its present: what
+    /// something used to do before what it does now (replacing it with defaults used to hide bad data; the loader now
+    /// gets the bindings) and what used to be (the update used to be gated). Core states what the game does; which
+    /// wording a review approved and what the port did before are the repository's history, not the game's. English
+    /// stays legal: a thing used to do something (the counter used to pace the dust) with no present told against it.
+    /// </summary>
+    private static readonly Regex ApprovalAndHistoryProse = new(
+        @"\b(?:reviewed|approved)\b|\bused\s+to\s+be\b|\bused\s+to\b[^.;]*?(?:\.\s+[^.;]*?)?\bnow\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The port's narration of itself and of the original program in prose (#2139), outside hardware owners: managed code
+    /// set against the original (the managed menu, the managed input order), the original's steps, programs and code (an
+    /// otherwise unused original step) and its backing up and restoring of graphics (backing up gameplay graphics,
+    /// restores gameplay graphics). Core is the game: it names what the menu, the input or the pause does, never that it
+    /// is the managed version of something, which step of the original it is, or how the original kept its pictures.
+    /// English stays legal: original alone (the original position), restoring a value or a colour, and graphics alone.
+    /// </summary>
+    private static readonly Regex PortNarrationProse = new(
+        @"\bmanaged\b|\boriginal\s+(?:steps?|programs?|code)\b" +
+        @"|\b(?:back(?:s|ed|ing)?[-\s]+up|restor(?:e|es|ed|ing))\s+(?:[\w'-]+\s+){0,2}?graphics\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A story event named by a number or as a bit in prose (#2139), outside hardware owners, markup included: an event
+    /// number, spaced, hyphenated or run together (the event number, <c>eventNumber</c>), and an event or story-event bit
+    /// (global event bits, a persistent event bit, story-event bits). The original numbered its story events and kept
+    /// them as bits; Core names each <c>StoryEvent</c> and says whether it has happened. English stays legal: an event,
+    /// a story event, a number and a bit alone.
+    /// </summary>
+    private static readonly Regex StoryEventNumberProse = new(
+        @"\bevent[-\s]?numbers?\b|\b(?:story[-\s]+)?events?[-\s]+bits?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A check of the repository cited in prose (#2105), outside hardware owners: a check, test or suite named by its kind
     /// (the Tourian animation lookup check, the eye-fade verification checks every shade, a parity check, the regression
     /// test, the Ridley full-movie check) and a check's name set as code (<c>&lt;c&gt;BeamCallbackTablesVerification&lt;/c&gt;</c>,
@@ -916,6 +956,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ReimplementationProse.Match(text) is { Success: true } reimplementation ? reimplementation.Value
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
             : !generated && ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
+            : !generated && ApprovalAndHistoryProse.Match(text) is { Success: true } approvalOrHistory ? approvalOrHistory.Value
             : IsInHardwareOwner(owner) ? null
             : CitedCheckProse.Match(text) is { Success: true } citedCheck ? citedCheck.Value
             : Address.Match(text) is { Success: true } address ? address.Value
@@ -952,6 +993,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ProgramStructureProse.Match(Markup.Replace(text, " ")) is { Success: true } programStructure ? programStructure.Value
             : DisplayEffectProse.Match(Markup.Replace(text, " ")) is { Success: true } displayEffect ? displayEffect.Value
             : ButtonLetterActionProse.Match(Markup.Replace(text, " ")) is { Success: true } buttonLetter ? buttonLetter.Value
+            : PortNarrationProse.Match(text) is { Success: true } portNarration ? portNarration.Value
+            : StoryEventNumberProse.Match(text) is { Success: true } storyEventNumber ? storyEventNumber.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

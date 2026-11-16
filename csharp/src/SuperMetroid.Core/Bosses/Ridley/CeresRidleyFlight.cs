@@ -34,9 +34,9 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Sets up the Ceres branch of Ridley's initializer and begins his encounter, which his body holds from then on (#2231);
-    /// Norfair Ridley's branch is his own part's. The initializer's branch for a Ceres Ridley whose boss is already dead
-    /// never runs: the room's state once its boss is dead places no Ridley, only its door.
+    /// Sets Ceres Ridley up as he spawns and begins his encounter, which his body holds from then on (#2231); Norfair
+    /// Ridley sets himself up. A Ceres Ridley whose boss is already dead never spawns: the room's state once its boss is
+    /// dead places no Ridley, only its door.
     /// </summary>
     internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
     {
@@ -54,7 +54,7 @@ internal sealed class CeresRidleyFlight
         place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginCeres(place, ridley);
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Initial);
-        // Ceres Ridley's initialization ends by queuing music zero (stop).
+        // Ceres Ridley's setup ends by stopping the music.
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
         // He arrives with the door's, container's and Baby's colours, his own hidden in black for his eye and body fades.
@@ -82,13 +82,12 @@ internal sealed class CeresRidleyFlight
         return RidleyAnimations.FireballingEnd.For(state.Flight.FacingDirection);
     }
 
-    /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>
+    /// <summary>Slows Ridley's rise by 20/256 of a pixel an update until he climbs past line 80, where he starts hovering.</summary>
     internal static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // The fallthrough from the rise deliberately applies both -16 and +20 on the crossing
-        // frame. Do not combine these into a single acceleration outside this state.
+        // On the update the rise starts slowing, his speed takes both the rise's -16 and the slowing's +20.
         // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
         state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(20));
         if (CoordinateAxis.Difference(place.Position.Y.Whole, 80) < 0)
@@ -104,8 +103,8 @@ internal sealed class CeresRidleyFlight
         CeresRidleyState state,
         SamusState samus)
     {
-        // Ceres Ridley never loses the ordinary enemy health. His shot AI increments
-        // this separate counter and the fight treats 100 contacts as the scripted win condition.
+        // Ceres Ridley never loses health. Each shot that hits him counts here, and the fight ends in the fake
+        // retreat once 100 have.
         if (state.HitCounter >= 100)
         {
             state.FightMode = RidleyFightMode.NotFighting;
@@ -114,8 +113,8 @@ internal sealed class CeresRidleyFlight
             return;
         }
 
-        // The fight's other end is Samus's energy falling below 30.
-        // The low-energy check jumps into the real retreat, so its first acceleration runs this call.
+        // The fight's other end is Samus's energy falling below 30: the real retreat starts and takes its first
+        // acceleration in this same update.
         if (samus.Health < 30)
         {
             state.FightMode = RidleyFightMode.NotFighting;
@@ -124,8 +123,7 @@ internal sealed class CeresRidleyFlight
             return;
         }
 
-        // The shared cooldown/return-to-hover movement: accelerate toward (192, 100)
-        // with the hover's divisor of 16.
+        // He returns to his hover: he accelerates toward (192, 100) with the hover's inertia of 16.
         AccelerateRidleyToward(place, state.Flight, target: new(192, 100), divisor: 16);
         if (!RidleyFlight.IsWithinRectangle(place, new(192, 100), new(8, 8)))
         {
@@ -159,9 +157,7 @@ internal sealed class CeresRidleyFlight
             return;
 
         state.FireballBasePosition = place.Position.Whole;
-        // The fireball phase starts the complete retail mouth/fireball animation.
-        // Its fireball cues calculate and spawn actors; leaving this
-        // assignment out produces correct boss motion with a conspicuously silent attack.
+        // The fireball phase starts his mouth-and-fireball animation, whose cues aim and spawn the fireballs.
         RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.Fireballing);
         state.Phase = CeresRidleyPhase.FireballShooting;
         state.PhaseTimer.Count = 224;
@@ -171,7 +167,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Selects the next fireball target from the base position and a jitter drawn from the current random number.</summary>
     internal void TickCeresRidleyFireballShooting(RoomEnemyPlace place, CeresRidleyState state)
     {
-        // The attack choice reads RandomNumberSeed without generating a number.
+        // The aim reads the room's current random number without drawing a new one.
         int random = _room.Random.Read();
         int jitter = BossRandomRolls.InLowerHalf(random)
             ? RidleyRandomDefinitions.FireballJitter.Of(random)
@@ -247,8 +243,8 @@ internal sealed class CeresRidleyFlight
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // The shared Ridley phase steers toward (192,128). Ceres uses this only for
-        // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
+        // Ridley steers toward (192,128). Only the fake retreat after 100 hits takes the Baby back; the retreat
+        // at Samus's low energy leaves without it.
         AccelerateRidleyToward(place, state.Flight, new(192, 128), 15);
         if (CoordinateAxis.Difference(place.Position.X.Whole, 192) >= 0)
             state.Phase = CeresRidleyPhase.FakeRetreatRising;
@@ -293,9 +289,9 @@ internal sealed class CeresRidleyFlight
     /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the getaway delay, a countdown of 64.</summary>
     internal void TickCeresRidleyRetreat(RoomEnemyPlace place, CeresRidleyState state)
     {
-        // The retreat accelerates toward the off-screen point. The above-the-line check
-        // is performed before the common movement pass; once the origin is above Y=-128
-        // the delay is installed and falls through into its first step, so it runs out on its 65th step.
+        // The retreat accelerates toward the off-screen point, and the check against the line comes before his
+        // movement. Once he is above Y=-128 the delay starts and takes its first step in the same update, so it runs
+        // out on its 65th step.
         AccelerateRidleyToward(place, state.Flight, Position16<RoomPixels>.Wrapped(192, -128), 15);
         if (CoordinateAxis.AsSigned(place.Position.Y.Whole + 128) < 0)
         {
@@ -312,14 +308,14 @@ internal sealed class CeresRidleyFlight
             return;
 
         // The retreat places the two wall actors before the getaway begins. The getaway scene shows the chamber's walls
-        // itself (#1545); the actors draw nothing, but they take two enemy places (SpawnCeresRidleyGetawayWalls).
+        // itself (#1545); the actors draw nothing, but they take two enemy places.
         SpawnCeresRidleyGetawayWalls();
         state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
         state.Tail.Action = RidleyTailAction.None;
         state.Phase = CeresRidleyPhase.PublishEscapeHandoff;
 
-        // The retreat recolours the chamber: its walls and the scenery that shares the retreat colours. The game also copied those
-        // colours into Ridley's own sprite colours; his sprites here keep their own colours (#1544).
+        // The retreat recolours the chamber: its walls and the scenery that shares the retreat colours. Ridley keeps
+        // his own colours (#1544).
         state.Colours.ShowRetreat();
     }
 
@@ -384,8 +380,7 @@ internal sealed class CeresRidleyFlight
     /// Places the getaway's two wall actors at the chamber's walls (#1545). They draw nothing: the getaway scene shows the
     /// walls (<see cref="CeresEscape.ChamberWalls"/>). They are kept because gameplay can observe them: each takes
     /// the first free enemy place and extends the room's filled places, and on the update after this one they are
-    /// touchable, before their first animation step makes them ignore Samus and her weapons. Evidence: the original's
-    /// retreat spawns the two door-family enemies, whose animations start with the intangibility step.
+    /// touchable, before their first animation step makes them ignore Samus and her weapons.
     /// </summary>
     private void SpawnCeresRidleyGetawayWalls()
     {

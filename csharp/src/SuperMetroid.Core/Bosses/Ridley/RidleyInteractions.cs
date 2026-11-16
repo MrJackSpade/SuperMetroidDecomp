@@ -83,9 +83,8 @@ internal static class RidleyInteractions
         if (!RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId))
             return null;
 
-        // The sprite component offsets in an installed composition are editable.
-        // Contact and shot collision instead use the eleven fixed authored
-        // body frames and their engine-owned hitbox lists.
+        // An installed picture's composition may be edited; touch and shots still meet the hitboxes of the eleven
+        // body frames the game defines.
         foreach (RidleyCollisionComponent component in
                  RidleyCollision.ComponentsAt(enemy.Frame))
         {

@@ -2,11 +2,11 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Area-dependent initializer properties for Ridley's fireball and directional afterburn.</summary>
+/// <summary>How much Ridley's fireball and directional afterburn hurt Samus, by area.</summary>
 internal static class RidleyProjectileDamageDefinitions
 {
-    /// <summary>The fireball afterburn's damage by area. All property flags are identical; only the
-    /// damage differs. The afterburn selects Norfair, Tourian, or the default row for every other area.</summary>
+    /// <summary>The fireball and afterburn's damage by area: 60 in Norfair, 80 in Tourian and 3 everywhere else; nothing
+    /// else about them changes with the area.</summary>
     internal static readonly Dictionary<AreaId, int> DamageByArea = new()
     {
         [AreaId.Crateria] = 3,

@@ -5,6 +5,6 @@ internal enum BombTorizoHandDraw
 {
     /// <summary>Intact Chozo hand and surrounding stone.</summary>
     Intact,
-    /// <summary>Final five-run cleared-hand area.</summary>
+    /// <summary>The cleared stone where the hand stood, once its statue has crumbled.</summary>
     Cleared,
 }

@@ -78,7 +78,7 @@ internal sealed class NorfairRidleyDeath
     /// <summary>
     /// Runs the death explosions. An authored-position small explosion appears every five calls while the
     /// acid lowers. When its countdown of 160 runs out, Samus is released and Ridley's twelve
-    /// independently moving body/tail breakup enemies are allocated from the real place pool.
+    /// independently moving body and tail pieces take places in the room's enemy list.
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
         RoomEnemyPlace body,
@@ -189,9 +189,8 @@ internal sealed class NorfairRidleyDeath
 
         void SpawnPart(RidleyExplosionPart part)
         {
-            // The embedded entries all use the same zero position and properties and name one
-            // body part. Initialization replaces position and animation from the still-live
-            // shared Ridley joints below.
+            // Every piece spawns at the room's origin with the same properties and names its part; its setup
+            // places it where that part of Ridley still stands and starts its animation.
             RoomEnemyPlacement population = new(
                 EnemyDefinitionId.RidleyBreakupPiece,
                 Position: Position16<RoomPixels>.Zero,
@@ -200,7 +199,7 @@ internal sealed class NorfairRidleyDeath
                 Presence: EnemyPresence.None,
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
-            // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
+            // Each piece's setup starts it from where its part of Ridley stands.
             if (_lifecycle.SpawnEnemyJoining(population, new RidleyBreakupSource(state, body.Position.Whole)) is null)
             {
                 throw new InvalidOperationException(
@@ -209,7 +208,7 @@ internal sealed class NorfairRidleyDeath
         }
     }
 
-    /// <summary>Runs the breakup actor's initialization AI for one of its 23 pieces, from the breakup it joined.</summary>
+    /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
     internal void InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment)
     {
         RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
@@ -246,7 +245,7 @@ internal sealed class NorfairRidleyDeath
         });
     }
 
-    /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>
+    /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>
     internal void RunNorfairRidleyExplosionMain(RoomEnemyPlace fragment, SamusState samus)
     {
         if (RidleyCadenceDefinitions.BreakupFragmentHidden.IsSetIn(fragment.FrameCounter))
@@ -265,8 +264,8 @@ internal sealed class NorfairRidleyDeath
         if (fragmentState.Lifetime.StepKeepsRunning())
             return;
 
-        // The breakup actor runs the small enemy death: clear the place immediately and
-        // retain the fragment's definition and position in the shared explosion-to-pickup actor.
+        // A piece's lifetime ends in the small enemy death: it leaves its place at once, and the explosion it
+        // becomes keeps its definition and position for the pickup it may leave.
         _deathsAndDrops.StartGenericEnemyDeath(fragment, EnemyDeathExplosion.Small, samus);
     }
 }

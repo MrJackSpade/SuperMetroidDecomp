@@ -49,12 +49,12 @@ internal static class TurnArcPicksVerification
     {
         EnemyFrameId[] byOrientation =
         [
-            EnemyFrameId.RidleyBreakupTailTipFirst, EnemyFrameId.RidleyBreakupTailTipSecond, EnemyFrameId.RidleyBreakupTailTipThird,
-            EnemyFrameId.RidleyBreakupTailTipFourth, EnemyFrameId.RidleyBreakupTailTipFifth, EnemyFrameId.RidleyBreakupTailTipSixth,
-            EnemyFrameId.RidleyBreakupTailTipSeventh, EnemyFrameId.RidleyBreakupTailTipEighth, EnemyFrameId.RidleyBreakupTailTipNinth,
-            EnemyFrameId.RidleyBreakupTailTipTenth, EnemyFrameId.RidleyBreakupTailTipEleventh, EnemyFrameId.RidleyBreakupTailTipTwelfth,
-            EnemyFrameId.RidleyBreakupTailTipThirteenth, EnemyFrameId.RidleyBreakupTailTipFourteenth, EnemyFrameId.RidleyBreakupTailTipFifteenth,
-            EnemyFrameId.RidleyBreakupTailTipSixteenth,
+            EnemyFrameId.RidleyTailTipPointingToward180, EnemyFrameId.RidleyTailTipPointingToward157, EnemyFrameId.RidleyTailTipPointingToward135,
+            EnemyFrameId.RidleyTailTipPointingToward112, EnemyFrameId.RidleyTailTipPointingToward90, EnemyFrameId.RidleyTailTipPointingToward67,
+            EnemyFrameId.RidleyTailTipPointingToward45, EnemyFrameId.RidleyTailTipPointingToward22, EnemyFrameId.RidleyTailTipPointingToward0,
+            EnemyFrameId.RidleyTailTipPointingToward337, EnemyFrameId.RidleyTailTipPointingToward315, EnemyFrameId.RidleyTailTipPointingToward292,
+            EnemyFrameId.RidleyTailTipPointingToward270, EnemyFrameId.RidleyTailTipPointingToward247, EnemyFrameId.RidleyTailTipPointingToward225,
+            EnemyFrameId.RidleyTailTipPointingToward202,
         ];
         // The replaced pick: the direction turned half a pose on, in sixteenths of a turn.
         for (int direction = 0; direction < 256; direction++)

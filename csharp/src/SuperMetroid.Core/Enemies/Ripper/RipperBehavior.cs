@@ -151,8 +151,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         if (place.FrozenTimer == 0)
             return;
         place.Frame = place.RequireSpeciesState<RipperEnemyState>().XVelocity.WholePixels < 0
-            ? EnemyFrameId.RipperSharedFrozenLeft
-            : EnemyFrameId.RipperSharedFrozenRight;
+            ? EnemyFrameId.RipperFrozenFacingLeft
+            : EnemyFrameId.RipperFrozenFacingRight;
     }
 
     /// <summary>Starts a Ripper-family enemy's state on its place.</summary>

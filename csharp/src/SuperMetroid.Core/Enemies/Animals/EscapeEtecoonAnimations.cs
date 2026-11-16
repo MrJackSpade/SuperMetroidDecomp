@@ -21,17 +21,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningLeftLowTideLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopFirst, 5),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 5),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopThird, 5),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftStretched, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftPushingOff, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 5),
         ],
         [P.RunningLeftHighTide] =
         [
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopFirst, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopThird, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftStretched, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftPushingOff, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 3),
         ],
         [P.RunningRightLowTide] =
         [
@@ -39,17 +39,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningRightLowTideLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopFirst, 6),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 6),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopThird, 6),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightStretched, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightPushingOff, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 6),
         ],
         [P.RunningRightHighTide] =
         [
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopFirst, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopThird, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightStretched, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightPushingOff, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 3),
         ],
         [P.RunningForEscape] =
         [
@@ -57,17 +57,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningForEscapeLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopFirst, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopThird, 3),
-            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightStretched, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightPushingOff, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 3),
         ],
         [P.Stationary] =
         [
-            Show(EnemyFrameId.EscapeEtecoonStationaryFirst, 64),
-            Show(EnemyFrameId.EscapeEtecoonStationarySecond, 8),
-            Show(EnemyFrameId.EscapeEtecoonStationaryThird, 64),
-            Show(EnemyFrameId.EscapeEtecoonStationaryFourth, 8),
+            Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
+            Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8),
+            Show(EnemyFrameId.EscapeEtecoonLookingLeft, 64),
+            Show(EnemyFrameId.EscapeEtecoonTurningRight, 8),
         ],
         [P.ExpressGratitudeThenEscape] =
         [
@@ -75,16 +75,16 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.ExpressGratitudeThenEscapeLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopFirst, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftStretched, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopThird, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftPushingOff, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoonStationaryFirst, 64),
-            Show(EnemyFrameId.EscapeEtecoonStationarySecond, 8),
+            Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
+            Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8),
         ],
     });
 

@@ -17,32 +17,32 @@ internal static class ZoaAnimations
         [P.FacingLeftShooting] =
         [
             Cue(new(ZoaSpeedDefinitions.SlowLaunchSpeed)),
-            Show(EnemyFrameId.ZoaFacingLeftShootingFirst, 64),
+            Show(EnemyFrameId.ZoaDartingFacingLeftTailTucked, 64),
             Cue(new(ZoaSpeedDefinitions.MiddleLaunchSpeed)),
-            Show(EnemyFrameId.ZoaFacingLeftShootingSecond, 8),
+            Show(EnemyFrameId.ZoaDartingFacingLeftTailKicking, 8),
             Cue(new(ZoaSpeedDefinitions.FastLaunchSpeed)),
-            Show(EnemyFrameId.ZoaFacingLeftShootingThird, 48),
+            Show(EnemyFrameId.ZoaDartingFacingLeftTailExtended, 48),
         ],
         [P.FacingLeftRising] =
         [
-            Show(EnemyFrameId.ZoaFacingLeftRisingFirst, 4),
-            Show(EnemyFrameId.ZoaFacingLeftRisingSecond, 4),
-            Show(EnemyFrameId.ZoaFacingLeftRisingThird, 4),
+            Show(EnemyFrameId.ZoaSwimmingFacingLeftLegsIn, 4),
+            Show(EnemyFrameId.ZoaSwimmingFacingLeftLegsPaddling, 4),
+            Show(EnemyFrameId.ZoaSwimmingFacingLeftLegsOut, 4),
         ],
         [P.FacingRightShooting] =
         [
             Cue(new(ZoaSpeedDefinitions.SlowLaunchSpeed)),
-            Show(EnemyFrameId.ZoaFacingRightShootingFirst, 64),
+            Show(EnemyFrameId.ZoaDartingFacingRightTailTucked, 64),
             Cue(new(ZoaSpeedDefinitions.MiddleLaunchSpeed)),
-            Show(EnemyFrameId.ZoaFacingRightShootingSecond, 8),
+            Show(EnemyFrameId.ZoaDartingFacingRightTailKicking, 8),
             Cue(new(ZoaSpeedDefinitions.FastLaunchSpeed)),
-            Show(EnemyFrameId.ZoaFacingRightShootingThird, 48),
+            Show(EnemyFrameId.ZoaDartingFacingRightTailExtended, 48),
         ],
         [P.FacingRightRising] =
         [
-            Show(EnemyFrameId.ZoaFacingRightRisingFirst, 4),
-            Show(EnemyFrameId.ZoaFacingRightRisingSecond, 4),
-            Show(EnemyFrameId.ZoaFacingRightRisingThird, 4),
+            Show(EnemyFrameId.ZoaSwimmingFacingRightLegsIn, 4),
+            Show(EnemyFrameId.ZoaSwimmingFacingRightLegsPaddling, 4),
+            Show(EnemyFrameId.ZoaSwimmingFacingRightLegsOut, 4),
         ],
     });
 

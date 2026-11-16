@@ -16,20 +16,20 @@ internal static class BullAnimations
     {
         [P.Normal] =
         [
-            Show(EnemyFrameId.BullNormalFirst, 10),
-            Show(EnemyFrameId.BullNormalSecond, 10),
-            Show(EnemyFrameId.BullNormalFirst, 10),
-            Show(EnemyFrameId.BullNormalThird, 10),
+            Show(EnemyFrameId.BullTentaclesUpright, 10),
+            Show(EnemyFrameId.BullTentaclesTilted, 10),
+            Show(EnemyFrameId.BullTentaclesUpright, 10),
+            Show(EnemyFrameId.BullTentaclesTiltedFurther, 10),
         ],
         [P.Shot] =
         [
         ],
         [P.ShotLoop] =
         [
-            Show(EnemyFrameId.BullNormalFirst, 3),
-            Show(EnemyFrameId.BullNormalSecond, 3),
-            Show(EnemyFrameId.BullNormalFirst, 3),
-            Show(EnemyFrameId.BullNormalThird, 3),
+            Show(EnemyFrameId.BullTentaclesUpright, 3),
+            Show(EnemyFrameId.BullTentaclesTilted, 3),
+            Show(EnemyFrameId.BullTentaclesUpright, 3),
+            Show(EnemyFrameId.BullTentaclesTiltedFurther, 3),
         ],
     });
 

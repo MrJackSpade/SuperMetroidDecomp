@@ -496,8 +496,8 @@ The installed `game/enemy-tiles/enemy-frame-displays.json` holds what the game r
 its `displayFrames` table binds each named native
 frame to a named frame every enemy showing it shows, letting an artist rearrange
 the visible sequence without moving its native frame boundaries. For example,
-setting `"boyon_idle_loop_first": "boyon_idle_loop_second"` displays the second Boyon composition
-whenever the first is selected by gameplay. Native frame duration, collision
+setting `"boyon_resting_round": "boyon_resting_glinting"` displays the glinting Boyon composition
+whenever the round one is selected by gameplay. Native frame duration, collision
 selection, enemy hitboxes, movement, and damage remain engine-owned. A malformed
 document fails with a load error. Runtime drawing has no ROM-spritemap fallback.
 The examples above are not an exhaustive family list. A required

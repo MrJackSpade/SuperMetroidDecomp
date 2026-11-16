@@ -362,5 +362,5 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the right-moving frame, including values outside the normal direction range.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
-        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;
+        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenFacingLeft : EnemyFrameId.TripperFrozenFacingRight;
 }

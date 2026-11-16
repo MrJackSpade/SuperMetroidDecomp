@@ -16,26 +16,26 @@ internal static class ShutterAnimations
     {
         [P.GrowingTenPixels] =
         [
-            Show(EnemyFrameId.ShutterGrowingTenPixels, 1),
+            Show(EnemyFrameId.ShutterTenPixelsLong, 1),
         ],
         [P.GrowingTwentyPixels] =
         [
-            Show(EnemyFrameId.ShutterGrowingTwentyPixels, 1),
+            Show(EnemyFrameId.ShutterTwentyPixelsLong, 1),
         ],
         [P.GrowingThirtyPixels] =
         [
-            Show(EnemyFrameId.ShutterGrowingThirtyPixels, 1),
+            Show(EnemyFrameId.ShutterThirtyPixelsLong, 1),
         ],
         [P.FortyPixels] =
         [
-            Show(EnemyFrameId.ShutterFortyPixels, 1),
+            Show(EnemyFrameId.ShutterFortyPixelsLong, 1),
         ],
         [P.KamerPlatform] =
         [
-            Show(EnemyFrameId.KamerPlatformFirst, 10),
-            Show(EnemyFrameId.KamerPlatformSecond, 10),
-            Show(EnemyFrameId.KamerPlatformThird, 10),
-            Show(EnemyFrameId.KamerPlatformFourth, 10),
+            Show(EnemyFrameId.KamerLightDark, 10),
+            Show(EnemyFrameId.KamerLightDim, 10),
+            Show(EnemyFrameId.KamerLightLit, 10),
+            Show(EnemyFrameId.KamerLightBright, 10),
         ],
     });
 

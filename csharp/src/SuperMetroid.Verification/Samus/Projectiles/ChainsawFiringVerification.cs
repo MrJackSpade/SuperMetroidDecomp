@@ -153,7 +153,7 @@ internal static class ChainsawFiringVerification
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);
         target.Health = 1000;
-        target.Frame = EnemyFrameId.SkulteraSwimmingLeftLoopFirst;
+        target.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
         combat.System.StepStandaloneFrame(combat.System.StandaloneFrame(combat.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combatProjectiles, combatShared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),

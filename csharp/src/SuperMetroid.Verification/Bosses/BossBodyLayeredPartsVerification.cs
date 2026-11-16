@@ -61,7 +61,7 @@ internal static class BossBodyLayeredPartsVerification
             compared++;
         }
 
-        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyChargingFirst));
+        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
         Compare("showing his body");
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -130,8 +130,8 @@ internal static class BossBodyLayeredPartsVerification
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Phantoon);
         EnemyFrameId[] eyes =
         [
-            EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeballCentered, EnemyFrameId.PhantoonEyeOpenFirst, EnemyFrameId.PhantoonEyeOpenSecond,
-            EnemyFrameId.PhantoonEyeOpenThird, EnemyFrameId.PhantoonEyeLookingUp, EnemyFrameId.PhantoonEyeLookingUpRight, EnemyFrameId.PhantoonEyeLookingRight,
+            EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeballCentered, EnemyFrameId.PhantoonEyeClosedTwin, EnemyFrameId.PhantoonEyeHalfOpen,
+            EnemyFrameId.PhantoonEyeballCenteredTwin, EnemyFrameId.PhantoonEyeLookingUp, EnemyFrameId.PhantoonEyeLookingUpRight, EnemyFrameId.PhantoonEyeLookingRight,
             EnemyFrameId.PhantoonEyeLookingDownRight, EnemyFrameId.PhantoonEyeLookingDown, EnemyFrameId.PhantoonEyeLookingDownLeft, EnemyFrameId.PhantoonEyeLookingLeft, EnemyFrameId.PhantoonEyeLookingUpLeft,
         ];
         int compared = 0;
@@ -142,8 +142,8 @@ internal static class BossBodyLayeredPartsVerification
                 var parts = new BossBodyParts(BossBodyOwner.Phantoon);
                 parts.Show(EnemyDefinitionId.PhantoonBody, sheet.Frame(body));
                 parts.Show(EnemyDefinitionId.PhantoonEye, sheet.Frame(eye));
-                parts.Show(EnemyDefinitionId.PhantoonTentacles, sheet.Frame(EnemyFrameId.PhantoonTentaclesFirst));
-                parts.Show(EnemyDefinitionId.PhantoonMouth, sheet.Frame(EnemyFrameId.PhantoonMouthInitial));
+                parts.Show(EnemyDefinitionId.PhantoonTentacles, sheet.Frame(EnemyFrameId.PhantoonTentaclesNarrow));
+                parts.Show(EnemyDefinitionId.PhantoonMouth, sheet.Frame(EnemyFrameId.PhantoonMouthOpen));
                 AssertLayered(parts.Publish(), BossBodyOwner.Phantoon, sources, SideBySideCanvas, $"Phantoon's {body} with his {eye}");
                 compared++;
             }
@@ -154,7 +154,7 @@ internal static class BossBodyLayeredPartsVerification
     /// <summary>A part showing a frame that paints nothing is not drawn: the part beneath it shows whole.</summary>
     private static void CheckPartShowingNothing(BossBodySheet sheet)
     {
-        BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyChargingFirst);
+        BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent);
         var nothing = new BossBodyFrame("Nothing", picture: null, body.Anchor, depth: null);
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
         SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");

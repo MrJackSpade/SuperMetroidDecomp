@@ -17,26 +17,26 @@ internal static class WaverAnimations
     {
         [P.SteadyFacingLeft] =
         [
-            Show(EnemyFrameId.WaverSteadyLeft, 1),
+            Show(EnemyFrameId.WaverLevelFacingLeft, 1),
         ],
         [P.SteadyFacingRight] =
         [
-            Show(EnemyFrameId.WaverSteadyRight, 1),
+            Show(EnemyFrameId.WaverLevelFacingRight, 1),
         ],
         [P.SpinningFacingLeft] =
         [
-            Show(EnemyFrameId.WaverSpinningFacingLeftFirst, 8),
-            Show(EnemyFrameId.WaverSpinningFacingLeftSecond, 8),
-            Show(EnemyFrameId.WaverSpinningFacingLeftThird, 8),
-            Show(EnemyFrameId.WaverSpinningFacingLeftFourth, 8),
+            Show(EnemyFrameId.WaverRollingFacingLeftEdgeOn, 8),
+            Show(EnemyFrameId.WaverRollingFacingLeftTilted, 8),
+            Show(EnemyFrameId.WaverRollingFacingLeftUnderside, 8),
+            Show(EnemyFrameId.WaverRollingFacingLeftTurningBack, 8),
             Cue(new(K.FinishSpin)),
         ],
         [P.SpinningFacingRight] =
         [
-            Show(EnemyFrameId.WaverSpinningFacingRightFirst, 8),
-            Show(EnemyFrameId.WaverSpinningFacingRightSecond, 8),
-            Show(EnemyFrameId.WaverSpinningFacingRightThird, 8),
-            Show(EnemyFrameId.WaverSpinningFacingRightFourth, 8),
+            Show(EnemyFrameId.WaverRollingFacingRightEdgeOn, 8),
+            Show(EnemyFrameId.WaverRollingFacingRightTilted, 8),
+            Show(EnemyFrameId.WaverRollingFacingRightUnderside, 8),
+            Show(EnemyFrameId.WaverRollingFacingRightTurningBack, 8),
             Cue(new(K.FinishSpin)),
         ],
     });

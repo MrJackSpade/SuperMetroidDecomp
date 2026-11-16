@@ -16,18 +16,18 @@ internal static class NuclearWaffleAnimations
     {
         [P.BodyLoop] =
         [
-            Show(EnemyFrameId.NuclearWaffleBodyLoopFirst, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopSecond, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopThird, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopFourth, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopFifth, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopSixth, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopFirst, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopSecond, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopSeventh, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopFourth, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopFifth, 3),
-            Show(EnemyFrameId.NuclearWaffleBodyLoopEighth, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned0, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned45, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned90, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned135, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned180, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned225, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned0, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned45, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned270, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned135, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned180, 3),
+            Show(EnemyFrameId.NuclearWaffleBodyTurned315, 3),
         ],
     });
 

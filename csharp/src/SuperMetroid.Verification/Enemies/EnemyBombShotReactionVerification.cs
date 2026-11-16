@@ -129,7 +129,7 @@ internal static class EnemyBombShotReactionVerification
         place.Radius = definition.Radius;
         place.Health = 1000;
         place.FrozenTimer = frozenTimer;
-        place.Frame = EnemyFrameId.EffectActorDudShotFirst;
+        place.Frame = EnemyFrameId.EffectActorDudShotDot;
         return (enemies, place);
     }
 

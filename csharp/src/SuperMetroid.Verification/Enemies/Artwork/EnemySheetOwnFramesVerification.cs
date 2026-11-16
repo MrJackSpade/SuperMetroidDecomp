@@ -153,7 +153,7 @@ internal static class EnemySheetOwnFramesVerification
     /// </summary>
     private static EnemySheetOwnFrameFamily PlatformsFamily()
     {
-        EnemyFrameId[] frozen = [EnemyFrameId.TripperFrozenMovingLeft, EnemyFrameId.TripperFrozenMovingRight];
+        EnemyFrameId[] frozen = [EnemyFrameId.TripperFrozenFacingLeft, EnemyFrameId.TripperFrozenFacingRight];
         return new("Tripper and Kamer", PlatformAnimations.Segments.Frames.ToHashSet().Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
@@ -206,7 +206,7 @@ internal static class EnemySheetOwnFramesVerification
     /// </summary>
     private static EnemySheetOwnFrameFamily RippersFamily()
     {
-        EnemyFrameId[] frozen = [EnemyFrameId.RipperSharedFrozenLeft, EnemyFrameId.RipperSharedFrozenRight];
+        EnemyFrameId[] frozen = [EnemyFrameId.RipperFrozenFacingLeft, EnemyFrameId.RipperFrozenFacingRight];
         return new("Ripper", RipperAnimations.Segments.Frames.ToHashSet().Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {

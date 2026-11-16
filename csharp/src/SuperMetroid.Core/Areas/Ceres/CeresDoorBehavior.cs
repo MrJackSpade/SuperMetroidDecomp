@@ -112,7 +112,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     internal void Start(RoomEnemyPlace place, CeresDoorSegment animation)
     {
         Ensure.NotNull(place);
-        place.Frame = EnemyFrameId.CeresDoorOrWallInitial;
+        place.Frame = EnemyFrameId.CeresDoorOrWallSmallSquare;
         place.AnimationClock.Restart();
         place.SetSpeciesState(new CeresDoorAnimationState
         {

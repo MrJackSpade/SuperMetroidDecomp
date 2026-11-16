@@ -21,10 +21,10 @@ internal static class BoyonAnimations
         ],
         [P.IdleLoop] =
         [
-            Show(EnemyFrameId.BoyonIdleLoopFirst, 10),
-            Show(EnemyFrameId.BoyonIdleLoopSecond, 10),
-            Show(EnemyFrameId.BoyonIdleLoopThird, 10),
-            Show(EnemyFrameId.BoyonIdleLoopSecond, 10),
+            Show(EnemyFrameId.BoyonRestingRound, 10),
+            Show(EnemyFrameId.BoyonRestingGlinting, 10),
+            Show(EnemyFrameId.BoyonRestingSquat, 10),
+            Show(EnemyFrameId.BoyonRestingGlinting, 10),
         ],
         [P.Bouncing] =
         [
@@ -33,12 +33,12 @@ internal static class BoyonAnimations
         ],
         [P.BouncingLoop] =
         [
-            Show(EnemyFrameId.BoyonBouncingLoopFirst, 5),
-            Show(EnemyFrameId.BoyonBouncingLoopSecond, 5),
-            Show(EnemyFrameId.BoyonBouncingLoopThird, 5),
-            Show(EnemyFrameId.BoyonBouncingLoopFourth, 5),
-            Show(EnemyFrameId.BoyonBouncingLoopThird, 5),
-            Show(EnemyFrameId.BoyonBouncingLoopSecond, 5),
+            Show(EnemyFrameId.BoyonBouncingBulging, 5),
+            Show(EnemyFrameId.BoyonBouncingStarShaped, 5),
+            Show(EnemyFrameId.BoyonBouncingStarSpread, 5),
+            Show(EnemyFrameId.BoyonBouncingStarSpiked, 5),
+            Show(EnemyFrameId.BoyonBouncingStarSpread, 5),
+            Show(EnemyFrameId.BoyonBouncingStarShaped, 5),
         ],
     });
 

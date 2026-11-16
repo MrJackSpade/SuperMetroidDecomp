@@ -17,14 +17,14 @@ internal static class BlueBrinstarFaceBlockAnimations
         [P.SamusLeft] =
         [
             Show(EnemyFrameId.FaceBlockNeutral, 48),
-            Show(EnemyFrameId.BlueBrinstarFaceBlockSamusLeftSecond, 16),
-            Show(EnemyFrameId.BlueBrinstarFaceBlockSamusLeftThird, 16),
+            Show(EnemyFrameId.BlueBrinstarFaceBlockGlancingLeft, 16),
+            Show(EnemyFrameId.BlueBrinstarFaceBlockLookingLeft, 16),
         ],
         [P.SamusRight] =
         [
             Show(EnemyFrameId.FaceBlockNeutral, 48),
-            Show(EnemyFrameId.BlueBrinstarFaceBlockSamusRightSecond, 16),
-            Show(EnemyFrameId.BlueBrinstarFaceBlockSamusRightThird, 16),
+            Show(EnemyFrameId.BlueBrinstarFaceBlockGlancingRight, 16),
+            Show(EnemyFrameId.BlueBrinstarFaceBlockLookingRight, 16),
         ],
         [P.Initial] =
         [

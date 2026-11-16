@@ -21,10 +21,10 @@ internal static class PlatformAnimations
         ],
         [P.SuspensorPlatformLoop] =
         [
-            Show(EnemyFrameId.SuspensorPlatformFirst, 10),
-            Show(EnemyFrameId.SuspensorPlatformSecond, 10),
-            Show(EnemyFrameId.SuspensorPlatformThird, 10),
-            Show(EnemyFrameId.SuspensorPlatformFourth, 10),
+            Show(EnemyFrameId.SuspensorPlatformLightDark, 10),
+            Show(EnemyFrameId.SuspensorPlatformLightDim, 10),
+            Show(EnemyFrameId.SuspensorPlatformLightLit, 10),
+            Show(EnemyFrameId.SuspensorPlatformLightBright, 10),
         ],
         [P.SuspensorPlatformHeadingRight] =
         [
@@ -36,10 +36,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingLeftLoop] =
         [
-            Show(EnemyFrameId.TripperMovingLeftLoopFirst, 7),
-            Show(EnemyFrameId.TripperMovingLeftLoopSecond, 8),
-            Show(EnemyFrameId.TripperMovingLeftLoopFirst, 7),
-            Show(EnemyFrameId.TripperMovingLeftLoopThird, 8),
+            Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
+            Show(EnemyFrameId.TripperHoveringFacingLeftJetLong, 8),
+            Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
+            Show(EnemyFrameId.TripperHoveringFacingLeftJetLongTwin, 8),
         ],
         [P.TripperMovingRight] =
         [
@@ -47,10 +47,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingRightLoop] =
         [
-            Show(EnemyFrameId.TripperMovingRightLoopFirst, 7),
-            Show(EnemyFrameId.TripperMovingRightLoopSecond, 8),
-            Show(EnemyFrameId.TripperMovingRightLoopFirst, 7),
-            Show(EnemyFrameId.TripperMovingRightLoopThird, 8),
+            Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
+            Show(EnemyFrameId.TripperHoveringFacingRightJetLong, 8),
+            Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
+            Show(EnemyFrameId.TripperHoveringFacingRightJetLongTwin, 8),
         ],
         [P.TripperStillMovingLeft] =
         [
@@ -58,10 +58,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingLeftLoop] =
         [
-            Show(EnemyFrameId.TripperStillMovingLeftLoopFirst, 7),
-            Show(EnemyFrameId.TripperStillMovingLeftLoopSecond, 8),
-            Show(EnemyFrameId.TripperStillMovingLeftLoopFirst, 7),
-            Show(EnemyFrameId.TripperStillMovingLeftLoopThird, 8),
+            Show(EnemyFrameId.TripperThrustingLeftJetMedium, 7),
+            Show(EnemyFrameId.TripperThrustingLeftJetShort, 8),
+            Show(EnemyFrameId.TripperThrustingLeftJetMedium, 7),
+            Show(EnemyFrameId.TripperThrustingLeftJetLong, 8),
         ],
         [P.TripperStillMovingRight] =
         [
@@ -69,10 +69,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingRightLoop] =
         [
-            Show(EnemyFrameId.TripperStillMovingRightLoopFirst, 7),
-            Show(EnemyFrameId.TripperStillMovingRightLoopSecond, 8),
-            Show(EnemyFrameId.TripperStillMovingRightLoopFirst, 7),
-            Show(EnemyFrameId.TripperStillMovingRightLoopThird, 8),
+            Show(EnemyFrameId.TripperThrustingRightJetMedium, 7),
+            Show(EnemyFrameId.TripperThrustingRightJetShort, 8),
+            Show(EnemyFrameId.TripperThrustingRightJetMedium, 7),
+            Show(EnemyFrameId.TripperThrustingRightJetLong, 8),
         ],
     });
 

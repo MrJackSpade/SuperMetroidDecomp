@@ -16,9 +16,9 @@ internal static class WreckedShipGhostAnimations
     {
         [P.Floating] =
         [
-            Show(EnemyFrameId.WreckedShipGhostFloatingFirst, 16),
-            Show(EnemyFrameId.WreckedShipGhostFloatingSecond, 16),
-            Show(EnemyFrameId.WreckedShipGhostFloatingThird, 16),
+            Show(EnemyFrameId.WreckedShipGhostWispsAtRest, 16),
+            Show(EnemyFrameId.WreckedShipGhostWispsCurling, 16),
+            Show(EnemyFrameId.WreckedShipGhostWispsStretched, 16),
         ],
     });
 

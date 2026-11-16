@@ -18,36 +18,36 @@ internal static class RinkaAnimations
         [P.Ordinary] =
         [
             Cue(new(K.Hide)),
-            Show(EnemyFrameId.RinkaOrdinary, 64),
+            Show(EnemyFrameId.RinkaWhiteHot, 64),
             Cue(new(K.Fire)),
         ],
         [P.OrdinaryLoop] =
         [
-            Show(EnemyFrameId.RinkaOrdinary, 16),
-            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
-            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
-            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
-            Show(EnemyFrameId.RinkaOrdinaryLoopFifth, 5),
-            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
-            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
-            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
+            Show(EnemyFrameId.RinkaWhiteHot, 16),
+            Show(EnemyFrameId.RinkaYellow, 8),
+            Show(EnemyFrameId.RinkaOrange, 7),
+            Show(EnemyFrameId.RinkaRed, 6),
+            Show(EnemyFrameId.RinkaDarkRed, 5),
+            Show(EnemyFrameId.RinkaRed, 6),
+            Show(EnemyFrameId.RinkaOrange, 7),
+            Show(EnemyFrameId.RinkaYellow, 8),
         ],
         [P.Special] =
         [
             Cue(new(K.HideAndProcessOffScreen)),
-            Show(EnemyFrameId.RinkaOrdinary, 64),
+            Show(EnemyFrameId.RinkaWhiteHot, 64),
             Cue(new(K.Fire)),
         ],
         [P.SpecialLoop] =
         [
-            Show(EnemyFrameId.RinkaOrdinary, 16),
-            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
-            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
-            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
-            Show(EnemyFrameId.RinkaOrdinaryLoopFifth, 5),
-            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
-            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
-            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
+            Show(EnemyFrameId.RinkaWhiteHot, 16),
+            Show(EnemyFrameId.RinkaYellow, 8),
+            Show(EnemyFrameId.RinkaOrange, 7),
+            Show(EnemyFrameId.RinkaRed, 6),
+            Show(EnemyFrameId.RinkaDarkRed, 5),
+            Show(EnemyFrameId.RinkaRed, 6),
+            Show(EnemyFrameId.RinkaOrange, 7),
+            Show(EnemyFrameId.RinkaYellow, 8),
         ],
     });
 

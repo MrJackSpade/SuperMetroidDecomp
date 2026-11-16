@@ -26,15 +26,15 @@ internal static class ShaktoolAnimations
         ],
         [P.SawHandPrimaryPiece] =
         [
-            Show(EnemyFrameId.ShaktoolSawHandPrimaryPieceFirst, 10),
-            Show(EnemyFrameId.ShaktoolSawHandPrimaryPieceSecond, 10),
-            Show(EnemyFrameId.ShaktoolSawHandPrimaryPieceThird, 10),
+            Show(EnemyFrameId.ShaktoolSawHandPrimaryPieceTurned0, 10),
+            Show(EnemyFrameId.ShaktoolSawHandPrimaryPieceTurned30, 10),
+            Show(EnemyFrameId.ShaktoolSawHandPrimaryPieceTurned60, 10),
         ],
         [P.SawHandFinalPiece] =
         [
-            Show(EnemyFrameId.ShaktoolSawHandFinalPieceFirst, 3),
-            Show(EnemyFrameId.ShaktoolSawHandFinalPieceSecond, 3),
-            Show(EnemyFrameId.ShaktoolSawHandFinalPieceThird, 3),
+            Show(EnemyFrameId.ShaktoolSawHandFinalPieceTurned0, 3),
+            Show(EnemyFrameId.ShaktoolSawHandFinalPieceTurned30, 3),
+            Show(EnemyFrameId.ShaktoolSawHandFinalPieceTurned60, 3),
         ],
         [P.ArmPieceHeadBobBack] =
         [

@@ -16,44 +16,44 @@ internal static class PuyoAnimations
     {
         [P.GroundedFast] =
         [
-            Show(EnemyFrameId.PuyoGroundedFastFirst, 5),
-            Show(EnemyFrameId.PuyoGroundedFastSecond, 5),
-            Show(EnemyFrameId.PuyoGroundedFastThird, 5),
-            Show(EnemyFrameId.PuyoGroundedFastSecond, 5),
+            Show(EnemyFrameId.PuyoGroundedTall, 5),
+            Show(EnemyFrameId.PuyoGroundedFlattening, 5),
+            Show(EnemyFrameId.PuyoGroundedFlat, 5),
+            Show(EnemyFrameId.PuyoGroundedFlattening, 5),
         ],
         [P.GroundedMedium] =
         [
-            Show(EnemyFrameId.PuyoGroundedFastFirst, 8),
-            Show(EnemyFrameId.PuyoGroundedFastSecond, 8),
-            Show(EnemyFrameId.PuyoGroundedFastThird, 8),
-            Show(EnemyFrameId.PuyoGroundedFastSecond, 8),
+            Show(EnemyFrameId.PuyoGroundedTall, 8),
+            Show(EnemyFrameId.PuyoGroundedFlattening, 8),
+            Show(EnemyFrameId.PuyoGroundedFlat, 8),
+            Show(EnemyFrameId.PuyoGroundedFlattening, 8),
         ],
         [P.GroundedSlow] =
         [
-            Show(EnemyFrameId.PuyoGroundedFastFirst, 10),
-            Show(EnemyFrameId.PuyoGroundedFastSecond, 10),
-            Show(EnemyFrameId.PuyoGroundedFastThird, 10),
-            Show(EnemyFrameId.PuyoGroundedFastSecond, 10),
+            Show(EnemyFrameId.PuyoGroundedTall, 10),
+            Show(EnemyFrameId.PuyoGroundedFlattening, 10),
+            Show(EnemyFrameId.PuyoGroundedFlat, 10),
+            Show(EnemyFrameId.PuyoGroundedFlattening, 10),
         ],
         [P.TiltedFarRight] =
         [
-            Show(EnemyFrameId.PuyoAirborneFifth, 1),
+            Show(EnemyFrameId.PuyoAirborneClosing, 1),
         ],
         [P.TiltedRight] =
         [
-            Show(EnemyFrameId.PuyoAirborneFourth, 1),
+            Show(EnemyFrameId.PuyoAirborneHalfClosed, 1),
         ],
         [P.Upright] =
         [
-            Show(EnemyFrameId.PuyoAirborneThird, 1),
+            Show(EnemyFrameId.PuyoAirborneSpread, 1),
         ],
         [P.TiltedLeft] =
         [
-            Show(EnemyFrameId.PuyoAirborneSecond, 1),
+            Show(EnemyFrameId.PuyoAirborneHalfOpen, 1),
         ],
         [P.TiltedFarLeft] =
         [
-            Show(EnemyFrameId.PuyoAirborneFirst, 1),
+            Show(EnemyFrameId.PuyoAirborneOpening, 1),
         ],
     });
 

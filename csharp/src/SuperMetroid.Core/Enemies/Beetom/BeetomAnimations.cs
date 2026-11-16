@@ -21,32 +21,32 @@ internal static class BeetomAnimations
         ],
         [P.CrawlingLeftLoop] =
         [
-            Show(EnemyFrameId.BeetomCrawlingLeftLoopFirst, 10),
-            Show(EnemyFrameId.BeetomCrawlingLeftLoopSecond, 10),
-            Show(EnemyFrameId.BeetomCrawlingLeftLoopThird, 10),
-            Show(EnemyFrameId.BeetomCrawlingLeftLoopSecond, 10),
+            Show(EnemyFrameId.BeetomCrawlingLeftLegsTucked, 10),
+            Show(EnemyFrameId.BeetomCrawlingLeftLegsMid, 10),
+            Show(EnemyFrameId.BeetomCrawlingLeftLegsOut, 10),
+            Show(EnemyFrameId.BeetomCrawlingLeftLegsMid, 10),
         ],
         [P.HopLeft] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Show(EnemyFrameId.BeetomHopLeftFirst, 4),
-            Show(EnemyFrameId.BeetomHopLeftSecond, 8),
-            Show(EnemyFrameId.BeetomHopLeftFirst, 4),
-            Show(EnemyFrameId.BeetomCrawlingLeftLoopFirst, 1),
+            Show(EnemyFrameId.BeetomHoppingLeftLegPushing, 4),
+            Show(EnemyFrameId.BeetomHoppingLeftLegStretched, 8),
+            Show(EnemyFrameId.BeetomHoppingLeftLegPushing, 4),
+            Show(EnemyFrameId.BeetomCrawlingLeftLegsTucked, 1),
         ],
         [P.DrainingLeft] =
         [
-            Show(EnemyFrameId.BeetomDrainingLeftFirst, 5),
-            Show(EnemyFrameId.BeetomDrainingLeftSecond, 5),
-            Show(EnemyFrameId.BeetomDrainingLeftThird, 5),
-            Show(EnemyFrameId.BeetomDrainingLeftSecond, 48),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreenBright, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreen, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreenDim, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreen, 48),
         ],
         [P.DrainingLeftLoop] =
         [
-            Show(EnemyFrameId.BeetomDrainingLeftLoopFirst, 5),
-            Show(EnemyFrameId.BeetomDrainingLeftLoopSecond, 5),
-            Show(EnemyFrameId.BeetomDrainingLeftLoopThird, 5),
-            Show(EnemyFrameId.BeetomDrainingLeftLoopSecond, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemRedBright, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemRed, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemRedDim, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingLeftGemRed, 5),
         ],
         [P.CrawlingRight] =
         [
@@ -54,32 +54,32 @@ internal static class BeetomAnimations
         ],
         [P.CrawlingRightLoop] =
         [
-            Show(EnemyFrameId.BeetomCrawlingRightLoopFirst, 10),
-            Show(EnemyFrameId.BeetomCrawlingRightLoopSecond, 10),
-            Show(EnemyFrameId.BeetomCrawlingRightLoopThird, 10),
-            Show(EnemyFrameId.BeetomCrawlingRightLoopSecond, 10),
+            Show(EnemyFrameId.BeetomCrawlingRightLegsTucked, 10),
+            Show(EnemyFrameId.BeetomCrawlingRightLegsMid, 10),
+            Show(EnemyFrameId.BeetomCrawlingRightLegsOut, 10),
+            Show(EnemyFrameId.BeetomCrawlingRightLegsMid, 10),
         ],
         [P.HopRight] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Show(EnemyFrameId.BeetomHopRightFirst, 4),
-            Show(EnemyFrameId.BeetomHopRightSecond, 8),
-            Show(EnemyFrameId.BeetomHopRightFirst, 4),
-            Show(EnemyFrameId.BeetomCrawlingRightLoopFirst, 1),
+            Show(EnemyFrameId.BeetomHoppingRightLegPushing, 4),
+            Show(EnemyFrameId.BeetomHoppingRightLegStretched, 8),
+            Show(EnemyFrameId.BeetomHoppingRightLegPushing, 4),
+            Show(EnemyFrameId.BeetomCrawlingRightLegsTucked, 1),
         ],
         [P.DrainingRight] =
         [
-            Show(EnemyFrameId.BeetomDrainingRightFirst, 5),
-            Show(EnemyFrameId.BeetomDrainingRightSecond, 5),
-            Show(EnemyFrameId.BeetomDrainingRightThird, 5),
-            Show(EnemyFrameId.BeetomDrainingRightSecond, 48),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemGreenBright, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemGreen, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemGreenDim, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemGreen, 48),
         ],
         [P.DrainingRightLoop] =
         [
-            Show(EnemyFrameId.BeetomDrainingRightLoopFirst, 5),
-            Show(EnemyFrameId.BeetomDrainingRightLoopSecond, 5),
-            Show(EnemyFrameId.BeetomDrainingRightLoopThird, 5),
-            Show(EnemyFrameId.BeetomDrainingRightLoopSecond, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemRedBright, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemRed, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemRedDim, 5),
+            Show(EnemyFrameId.BeetomLatchedFacingRightGemRed, 5),
         ],
     });
 

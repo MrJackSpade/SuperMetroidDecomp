@@ -15,7 +15,7 @@ internal static class CrocomireTongueCollisionDefinitionsConstants
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
         return (ushort)(index < 4
-            ? CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueFightFirst) + 10 * index
-            : CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueMeltingPoseFirst) + 10 * (index - 4));
+            ? CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireTongueCurlingDown) + 10 * index
+            : CrocomireNativeWords.TongueFrames.Word(EnemyFrameId.CrocomireArmAloneBent) + 10 * (index - 4));
     }
 }

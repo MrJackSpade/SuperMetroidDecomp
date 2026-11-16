@@ -16,108 +16,108 @@ internal static class EtecoonAnimations
     {
         [P.LookRightAtSamusAndRunLeft] =
         [
-            Show(EnemyFrameId.EtecoonLookRightAtSamusAndRunLeft, 5),
+            Show(EnemyFrameId.EtecoonLookingRight, 5),
         ],
         [P.BeginRunningLeft] =
         [
-            Show(EnemyFrameId.EtecoonBeginRunningLeft, 1),
+            Show(EnemyFrameId.EtecoonTurningLeft, 1),
         ],
         [P.RunningLeft] =
         [
-            Show(EnemyFrameId.EtecoonRunningLeftFirst, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftSecond, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftThird, 5),
-            Show(EnemyFrameId.EtecoonRunningLeftSecond, 5),
+            Show(EnemyFrameId.EtecoonRunningLeftStretched, 5),
+            Show(EnemyFrameId.EtecoonRunningLeftBunched, 5),
+            Show(EnemyFrameId.EtecoonRunningLeftPushingOff, 5),
+            Show(EnemyFrameId.EtecoonRunningLeftBunched, 5),
         ],
         [P.WallJumpLeft] =
         [
-            Show(EnemyFrameId.EtecoonWallJumpLeft, 8),
+            Show(EnemyFrameId.EtecoonLeapingLeft, 8),
         ],
         [P.WallJumpLeftLoop] =
         [
-            Show(EnemyFrameId.EtecoonWallJumpLeftLoopFirst, 3),
-            Show(EnemyFrameId.EtecoonWallJumpLeftLoopSecond, 3),
-            Show(EnemyFrameId.EtecoonWallJumpLeftLoopThird, 3),
-            Show(EnemyFrameId.EtecoonWallJumpLeftLoopFourth, 3),
+            Show(EnemyFrameId.EtecoonSpinningLeftTurned0, 3),
+            Show(EnemyFrameId.EtecoonSpinningLeftTurned90, 3),
+            Show(EnemyFrameId.EtecoonSpinningLeftTurned180, 3),
+            Show(EnemyFrameId.EtecoonSpinningLeftTurned270, 3),
         ],
         [P.HoppingFacingLeft] =
         [
-            Show(EnemyFrameId.EtecoonHoppingFacingLeft, 1),
+            Show(EnemyFrameId.EtecoonHopCrouchFacingLeft, 1),
         ],
         [P.ContinueHoppingFacingLeft] =
         [
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingLeftFirst, 12),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingLeftSecond, 12),
+            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, 12),
+            Show(EnemyFrameId.EtecoonHopArmsUpFacingLeft, 12),
         ],
         [P.HitCeiling] =
         [
-            Show(EnemyFrameId.EtecoonHitCeilingFirst, 6),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingLeftSecond, 12),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingLeftFirst, 12),
+            Show(EnemyFrameId.EtecoonHopArmsFlungFacingLeft, 6),
+            Show(EnemyFrameId.EtecoonHopArmsUpFacingLeft, 12),
+            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, 12),
         ],
         [P.WallJumpLeftEligible] =
         [
-            Show(EnemyFrameId.EtecoonWallJumpLeftEligible, 1),
+            Show(EnemyFrameId.EtecoonClingingFacingLeft, 1),
         ],
         [P.LookLeftAtSamusAndRunRight] =
         [
-            Show(EnemyFrameId.EtecoonLookLeftAtSamusAndRunRight, 5),
+            Show(EnemyFrameId.EtecoonLookingLeft, 5),
         ],
         [P.BeginRunningRight] =
         [
-            Show(EnemyFrameId.EtecoonBeginRunningRight, 1),
+            Show(EnemyFrameId.EtecoonTurningRight, 1),
         ],
         [P.RunningRight] =
         [
-            Show(EnemyFrameId.EtecoonRunningRightFirst, 5),
-            Show(EnemyFrameId.EtecoonRunningRightSecond, 5),
-            Show(EnemyFrameId.EtecoonRunningRightThird, 5),
-            Show(EnemyFrameId.EtecoonRunningRightSecond, 5),
+            Show(EnemyFrameId.EtecoonRunningRightStretched, 5),
+            Show(EnemyFrameId.EtecoonRunningRightBunched, 5),
+            Show(EnemyFrameId.EtecoonRunningRightPushingOff, 5),
+            Show(EnemyFrameId.EtecoonRunningRightBunched, 5),
         ],
         [P.WallJumpRight] =
         [
-            Show(EnemyFrameId.EtecoonWallJumpRight, 8),
+            Show(EnemyFrameId.EtecoonLeapingRight, 8),
         ],
         [P.JumpingRight] =
         [
-            Show(EnemyFrameId.EtecoonJumpingRightFirst, 3),
-            Show(EnemyFrameId.EtecoonJumpingRightSecond, 3),
-            Show(EnemyFrameId.EtecoonJumpingRightThird, 3),
-            Show(EnemyFrameId.EtecoonJumpingRightFourth, 3),
+            Show(EnemyFrameId.EtecoonSpinningRightTurned0, 3),
+            Show(EnemyFrameId.EtecoonSpinningRightTurned90, 3),
+            Show(EnemyFrameId.EtecoonSpinningRightTurned180, 3),
+            Show(EnemyFrameId.EtecoonSpinningRightTurned270, 3),
         ],
         [P.HoppingFacingRight] =
         [
-            Show(EnemyFrameId.EtecoonHoppingFacingRight, 1),
+            Show(EnemyFrameId.EtecoonHopCrouchFacingRight, 1),
         ],
         [P.ContinueHoppingFacingRight] =
         [
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightFirst, 12),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightSecond, 12),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightThird, 6),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightSecond, 12),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightFirst, 12),
+            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 12),
+            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 12),
+            Show(EnemyFrameId.EtecoonHopArmsFlungFacingRight, 6),
+            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 12),
+            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 12),
         ],
         [P.WallJumpRightEligible] =
         [
-            Show(EnemyFrameId.EtecoonWallJumpRightEligible, 1),
+            Show(EnemyFrameId.EtecoonClingingFacingRight, 1),
         ],
         [P.Initial] =
         [
-            Show(EnemyFrameId.EtecoonHoppingFacingRight, 8),
+            Show(EnemyFrameId.EtecoonHopCrouchFacingRight, 8),
         ],
         [P.Flexing] =
         [
         ],
         [P.FlexingLoop] =
         [
-            Show(EnemyFrameId.EtecoonHoppingFacingRight, 8),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightFirst, 8),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightSecond, 8),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightThird, 8),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightSecond, 8),
-            Show(EnemyFrameId.EtecoonContinueHoppingFacingRightFirst, 8),
-            Show(EnemyFrameId.EtecoonFlexingLoopFifth, 32),
-            Show(EnemyFrameId.EtecoonLookLeftAtSamusAndRunRight, 32),
+            Show(EnemyFrameId.EtecoonHopCrouchFacingRight, 8),
+            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 8),
+            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 8),
+            Show(EnemyFrameId.EtecoonHopArmsFlungFacingRight, 8),
+            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 8),
+            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 8),
+            Show(EnemyFrameId.EtecoonFacingViewer, 32),
+            Show(EnemyFrameId.EtecoonLookingLeft, 32),
         ],
     });
 

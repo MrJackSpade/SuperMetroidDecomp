@@ -28,11 +28,11 @@ internal static class EncounterArtworkDrawingDefinitions
     /// <summary>The frames Mother Brain's dead brain shows as a corpse, the only frames the game shows her corpse's rot in.</summary>
     internal static readonly EnemyFrameId[] MotherBrainCorpseFrames =
     [
-        EnemyFrameId.MotherBrainHeadDecapitatedLoop,
-        EnemyFrameId.MotherBrainHeadDecapitatedSecond,
-        EnemyFrameId.MotherBrainHeadStretchingPhaseThreeFirst,
-        EnemyFrameId.MotherBrainHeadCorpseFourth,
-        EnemyFrameId.MotherBrainHeadCorpseLoop,
+        EnemyFrameId.MotherBrainDarkHeadEyeShut,
+        EnemyFrameId.MotherBrainDarkHeadEyeOpen,
+        EnemyFrameId.MotherBrainDarkHeadEyeGlaring,
+        EnemyFrameId.MotherBrainHeadCorpseSlumping,
+        EnemyFrameId.MotherBrainHeadCorpseSlumped,
     ];
 
     /// <summary>
@@ -131,13 +131,13 @@ internal static class EncounterArtworkDrawingDefinitions
 
     /// <summary>The faces of Mother Brain's dead brain, which her legs' look holds.</summary>
     private static readonly EnemyFrameId[] MotherBrainDeadBrainFaces =
-        [EnemyFrameId.MotherBrainHeadDecapitatedLoop, EnemyFrameId.MotherBrainHeadDecapitatedSecond, EnemyFrameId.MotherBrainHeadStretchingPhaseThreeFirst];
+        [EnemyFrameId.MotherBrainDarkHeadEyeShut, EnemyFrameId.MotherBrainDarkHeadEyeOpen, EnemyFrameId.MotherBrainDarkHeadEyeGlaring];
 
     /// <summary>Her collapsed corpse, which her corpse's look holds.</summary>
-    private static readonly EnemyFrameId[] MotherBrainCollapsedCorpse = [EnemyFrameId.MotherBrainHeadCorpseFourth, EnemyFrameId.MotherBrainHeadCorpseLoop];
+    private static readonly EnemyFrameId[] MotherBrainCollapsedCorpse = [EnemyFrameId.MotherBrainHeadCorpseSlumping, EnemyFrameId.MotherBrainHeadCorpseSlumped];
 
     /// <summary>The faces of her living brain her legs' look holds; her other living faces are her room's load.</summary>
-    private static readonly EnemyFrameId[] MotherBrainAttackFaces = [EnemyFrameId.MotherBrainHeadStretchingPhaseThreeSecond, EnemyFrameId.MotherBrainHeadStretchingPhaseThreeThird];
+    private static readonly EnemyFrameId[] MotherBrainAttackFaces = [EnemyFrameId.MotherBrainDarkHeadJawDropping, EnemyFrameId.MotherBrainDarkHeadJawDropped];
 
     /// <summary>Her onion rings, whose characters her legs' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainRings =

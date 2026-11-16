@@ -17,27 +17,27 @@ internal static class DeadTourianAnimations
     {
         [P.SidehopperHopping] =
         [
-            Show(EnemyFrameId.DeadSidehopperHopBody, 2),
-            Show(EnemyFrameId.DeadSidehopperHopCrouched, 4),
-            Show(EnemyFrameId.DeadSidehopperHopBody, 5),
-            Show(EnemyFrameId.DeadSidehopperHopCrouched, 48),
-            Show(EnemyFrameId.DeadSidehopperHopBody, 5),
-            Show(EnemyFrameId.DeadSidehopperHopCrouched, 4),
-            Show(EnemyFrameId.DeadSidehopperHopBody, 5),
-            Show(EnemyFrameId.DeadSidehopperHopCrouched, 4),
+            Show(EnemyFrameId.DeadSidehopperLegsBent, 2),
+            Show(EnemyFrameId.DeadSidehopperLegsCrouched, 4),
+            Show(EnemyFrameId.DeadSidehopperLegsBent, 5),
+            Show(EnemyFrameId.DeadSidehopperLegsCrouched, 48),
+            Show(EnemyFrameId.DeadSidehopperLegsBent, 5),
+            Show(EnemyFrameId.DeadSidehopperLegsCrouched, 4),
+            Show(EnemyFrameId.DeadSidehopperLegsBent, 5),
+            Show(EnemyFrameId.DeadSidehopperLegsCrouched, 4),
             Cue(new(K.EndHop)),
         ],
         [P.SidehopperIdle] =
         [
-            Show(EnemyFrameId.DeadSidehopperIdle, 1),
+            Show(EnemyFrameId.DeadSidehopperLegsStraight, 1),
         ],
         [P.SidehopperCorpse] =
         [
-            Show(EnemyFrameId.DeadSidehopperCorpse, 1),
+            Show(EnemyFrameId.DeadSidehopperSprawled, 1),
         ],
         [P.SidehopperInitiallyDead] =
         [
-            Show(EnemyFrameId.DeadSidehopperInitiallyDead, 1),
+            Show(EnemyFrameId.DeadSidehopperSprawledLegsUp, 1),
         ],
         [P.ZoomerCorpseOnItsBack] =
         [

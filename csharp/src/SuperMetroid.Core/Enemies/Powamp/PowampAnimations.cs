@@ -16,33 +16,33 @@ internal static class PowampAnimations
     {
         [P.BodyFast] =
         [
-            Show(EnemyFrameId.PowampBodyFastFirst, 5),
-            Show(EnemyFrameId.PowampBodyFastSecond, 5),
-            Show(EnemyFrameId.PowampBodyFastThird, 5),
+            Show(EnemyFrameId.PowampBodyTailLeft, 5),
+            Show(EnemyFrameId.PowampBodyTailDown, 5),
+            Show(EnemyFrameId.PowampBodyTailRight, 5),
         ],
         [P.BodySlow] =
         [
-            Show(EnemyFrameId.PowampBodyFastFirst, 9),
-            Show(EnemyFrameId.PowampBodyFastSecond, 9),
-            Show(EnemyFrameId.PowampBodyFastThird, 9),
+            Show(EnemyFrameId.PowampBodyTailLeft, 9),
+            Show(EnemyFrameId.PowampBodyTailDown, 9),
+            Show(EnemyFrameId.PowampBodyTailRight, 9),
         ],
         [P.BalloonInflatingFromDeflated] =
         [
-            Show(EnemyFrameId.PowampBalloonInflateFirst, 1),
+            Show(EnemyFrameId.PowampBalloonSmall, 1),
         ],
         [P.BalloonInflatingFromHalfway] =
         [
-            Show(EnemyFrameId.PowampBalloonInflateSecond, 6),
-            Show(EnemyFrameId.PowampBalloonInflateThird, 160),
+            Show(EnemyFrameId.PowampBalloonHalfInflated, 6),
+            Show(EnemyFrameId.PowampBalloonInflated, 160),
         ],
         [P.BalloonStartSinking] =
         [
-            Show(EnemyFrameId.PowampBalloonInflateThird, 1),
-            Show(EnemyFrameId.PowampBalloonInflateSecond, 6),
+            Show(EnemyFrameId.PowampBalloonInflated, 1),
+            Show(EnemyFrameId.PowampBalloonHalfInflated, 6),
         ],
         [P.BalloonDeflated] =
         [
-            Show(EnemyFrameId.PowampBalloonInflateFirst, 160),
+            Show(EnemyFrameId.PowampBalloonSmall, 160),
         ],
     });
 

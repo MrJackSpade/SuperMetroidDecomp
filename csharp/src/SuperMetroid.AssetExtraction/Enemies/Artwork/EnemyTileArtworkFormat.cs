@@ -16,9 +16,9 @@ public static class EnemyTileArtworkFormat
     /// 84 binds them no more, as the burst is Samus's weapon effect, composed with her projectile pictures (#1713); 85
     /// extracts no artwork for the Reflec, which nothing shows, keeps the artwork three graphics sets load for no enemy apart
     /// from the enemies' and binds no Stoke frame (#1686); 86 keeps the Ceres door header's artwork apart from the
-    /// station's doors and walls, each its own actor (#1989).
+    /// station's doors and walls, each its own actor (#1989); 87 names each frame for what its picture shows (#2069).
     /// </summary>
-    public const int Version = 86;
+    public const int Version = 87;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

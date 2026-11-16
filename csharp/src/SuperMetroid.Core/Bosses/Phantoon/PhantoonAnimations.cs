@@ -25,23 +25,23 @@ internal static class PhantoonAnimations
         [P.EyeHitboxBody] = Still(F.PhantoonEyeHitboxBody),
         [P.EyeOpen] =
         [
-            Show(F.PhantoonEyeOpenFirst, EyelidFrameDuration),
-            Show(F.PhantoonEyeOpenSecond, EyelidFrameDuration),
-            Show(F.PhantoonEyeOpenThird, 1),
+            Show(F.PhantoonEyeClosedTwin, EyelidFrameDuration),
+            Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
+            Show(F.PhantoonEyeballCenteredTwin, 1),
             Cue(C.PlayMaterializationSound),
             Cue(C.BeginEyeTracking),
         ],
         [P.EyeClosed] = Still(F.PhantoonEyeClosed),
         [P.EyeCloseAndPickNewPattern] =
         [
-            Show(F.PhantoonEyeOpenThird, 1),
-            Show(F.PhantoonEyeOpenSecond, EyelidFrameDuration),
+            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
             Cue(C.PickNewPattern),
         ],
         [P.EyeClose] =
         [
-            Show(F.PhantoonEyeOpenThird, 1),
-            Show(F.PhantoonEyeOpenSecond, EyelidFrameDuration),
+            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
         ],
         [P.EyeballCentered] =
         [
@@ -58,18 +58,18 @@ internal static class PhantoonAnimations
         [P.EyeLookingUpLeft] = Still(F.PhantoonEyeLookingUpLeft),
         [P.Tentacles] =
         [
-            Show(F.PhantoonTentaclesFirst, TentacleFrameDuration),
-            Show(F.PhantoonTentaclesSecond, TentacleFrameDuration),
-            Show(F.PhantoonTentaclesThird, TentacleFrameDuration),
-            Show(F.PhantoonTentaclesSecond, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesNarrow, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesSpreading, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesSpread, TentacleFrameDuration),
+            Show(F.PhantoonTentaclesSpreading, TentacleFrameDuration),
         ],
         [P.MouthSpawnFlame] =
         [
-            Show(F.PhantoonMouthSpawnFlameFirst, MouthFrameDuration),
-            Show(F.PhantoonMouthSpawnFlameSecond, MouthFrameDuration),
+            Show(F.PhantoonMouthNarrow, MouthFrameDuration),
+            Show(F.PhantoonMouthHalfOpen, MouthFrameDuration),
             Cue(C.SpawnCasualFlame),
         ],
-        [P.MouthInitial] = Still(F.PhantoonMouthInitial),
+        [P.MouthInitial] = Still(F.PhantoonMouthOpen),
     });
 
     /// <summary>

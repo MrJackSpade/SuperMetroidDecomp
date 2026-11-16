@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
-
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>

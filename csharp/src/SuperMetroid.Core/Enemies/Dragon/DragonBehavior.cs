@@ -149,8 +149,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.Action = DragonAction.Attacking;
         }
 
-        // The 1/65536-pixel constant is exactly -1.0, so both
-        // subpositions remain untouched while body and wing rise one whole pixel.
+        // Body and wing rise exactly one whole pixel, so both fractions stay untouched.
         RoomEnemyPlace wing = bodyState.Wing;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole - 1);

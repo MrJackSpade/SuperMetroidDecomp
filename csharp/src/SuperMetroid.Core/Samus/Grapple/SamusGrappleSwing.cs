@@ -39,9 +39,9 @@ public static class SamusGrappleSwing
     {
         // A fast swing selects the slow-scrolling camera branch.
         grapple.SlowScrolling = grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
-        // The swing calls the same position helper used by terrain probes. Besides scaling the
+        // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
-        // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
+        // CalculateCollisionPoint; using one point prevents visible art from disagreeing
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             grapple,

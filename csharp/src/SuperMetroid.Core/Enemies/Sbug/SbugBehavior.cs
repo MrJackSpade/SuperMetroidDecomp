@@ -155,9 +155,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SbugHeading relativeHeading)
     {
-        // The angle of Samus from the enemy uses zero-up/clockwise units. Subtracting it from
-        // 64 converts to Sbug's zero-right/counter-clockwise mathematical convention;
-        // adding 128 selects the exact opposite direction for moving away from Samus.
+        // The Sbug heads along its bearing to Samus, or, moving away from her, the opposite way.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle();
         state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
@@ -313,7 +311,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// A forward speed as the displacement it moves the Sbug by, along its axis or, when <paramref name="against"/>,
-    /// against it; a speed of 32768 pixels or more reads as the other way, as the game's 1/65536-pixel addition does.
+    /// against it; a speed of 32768 pixels or more moves the Sbug the other way, as it does in the game.
     /// </summary>
     private static SignedSixteenSixteen ForwardDisplacement(UnsignedSixteenSixteen speed, bool against)
     {

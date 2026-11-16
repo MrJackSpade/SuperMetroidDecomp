@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
@@ -78,10 +78,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The game treats each coordinate difference as signed, divides it by four,
-        // takes that result as 256ths of a pixel, and subtracts it from velocity.
-        // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
-        // accumulated fraction is observable before either whole component reaches ±3.
+        // Each axis's speed moves toward Samus by a 256th of a pixel an update for every four
+        // pixels between them: a proportional attraction toward Samus, not a fixed-speed seek,
+        // and the speed's fraction shows before either whole part reaches three pixels.
         int yDifference = CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole);
         SignedSixteenSixteen yVelocity = ClampMochtroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMochtroidYVelocity(state, yVelocity);

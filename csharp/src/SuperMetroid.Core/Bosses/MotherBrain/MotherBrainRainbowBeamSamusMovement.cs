@@ -3,20 +3,17 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The four Samus-position helpers
-/// used by Mother Brain's phase-two rainbow beam.
+/// The four ways Mother Brain's phase-two rainbow beam moves Samus: toward the wall, toward the middle of the wall, the
+/// start of her fall and the fall itself.
 /// </summary>
 /// <remarks>
-/// This state belongs to Mother Brain, not to Samus's movement-type step. Pose type
-/// 27, the locked pose type, deliberately returns without moving; the enemy AI calls
-/// these helpers separately after it has locked Samus. Keeping that ownership explicit
-/// prevents a future runtime from accidentally applying both ordinary and forced movement.
+/// This movement belongs to Mother Brain, not to Samus's own movement: while the beam locks her, her own movement does
+/// not move her, and Mother Brain's attack moves her instead. Keeping that ownership explicit prevents a future runtime
+/// from applying both her own and the forced movement.
 ///
-/// The helpers add a peculiar 1/256-pixel velocity to only the coarse half of Samus's
-/// sub-pixel position, in 256ths of a pixel. The finer part is untouched, the addition's overflow
-/// enters the whole-pixel addition, and both current and previous positions are overwritten
-/// with the result. This implementation spells out those steps instead of using
-/// floating point or the ordinary 1/65536-pixel movement helpers.
+/// Each move adds its velocity to Samus's position in 256ths of a pixel only: the finer part of her position is
+/// untouched, a fraction past a whole pixel carries into the whole pixels, and her current and previous positions both
+/// take the result.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
@@ -198,7 +195,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // The push moves only in 256ths of a pixel; precision finer than that is never read or changed.
         position.MovedBy(velocity);
 
-    /// <summary>Records Samus's position before a forced movement helper mutates it.</summary>
+    /// <summary>Records Samus's position before a forced move changes it.</summary>
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;
 
     /// <summary>Packages the previous position with whether the active arena clamp reached its boundary.</summary>

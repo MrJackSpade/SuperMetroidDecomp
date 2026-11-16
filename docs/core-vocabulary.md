@@ -371,6 +371,17 @@ definition bits and the typed representation. Core names the places a room lists
 the speeds and the frame shown; a table alone, a speed table, an index alone and a bug that is not the original's stay
 English.
 
+Outside hardware owners SME6454 also reads, outside markup (#2172), the machine's 16.16 arithmetic named by its
+sixty-five-thousandths: a 1/65536-pixel or 1/65536th addition, add, sum, helper, form, space, constant or arithmetic, with
+up to two words between (`the game's 1/65536-pixel additions`, `one 1/65536-pixel add`, `the 1/65536-pixel collision
+helper`, `in signed 1/65536-pixel form`); paired additions, adds, subtractions or sums, spaced or hyphenated (`the game's
+paired additions`); and a routine run or called as a helper or controller (`Runs the linked-segment placement helper`,
+`runs the last segment's collision/reversal controller`, `calls the previous-pose helper`). Core says what the value or
+the step does: the speed moves the position, a fraction past a whole pixel carries into the whole pixels, the segment is
+placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`, `a 1/65536-pixel velocity`),
+things the game pairs, an addition alone, the player's controller with its input, buttons or port, and a helper or
+controller nothing runs or calls stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

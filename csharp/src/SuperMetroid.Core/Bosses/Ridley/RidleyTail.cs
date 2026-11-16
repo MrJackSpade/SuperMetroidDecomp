@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -35,8 +35,8 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Runs the neutral-tail controller, the segment update,
-    /// and the position/distance chains. The controller deliberately
+    /// Moves the tail: the neutral tail's swing, the segment update,
+    /// and the position/distance chains. The swing deliberately
     /// adds the preceding segment's direction when deriving every later offset;
     /// retaining that documented anomaly is why the tail curls and rotates at the game's
     /// rate.

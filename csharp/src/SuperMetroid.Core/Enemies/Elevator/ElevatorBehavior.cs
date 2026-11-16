@@ -265,7 +265,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
     }
 
-    /// <summary>The direct 1/65536-pixel addition used by both travel directions.</summary>
+    /// <summary>Moves the elevator vertically by <paramref name="velocity"/>, as it travels either way.</summary>
     private static void AddElevatorYVelocity(RoomEnemyPlace place, SignedSixteenSixteen velocity)
     {
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(velocity));

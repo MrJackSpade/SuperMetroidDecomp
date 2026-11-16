@@ -394,7 +394,7 @@ public sealed class SamusDrainedState
         samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        // Shared rainbow setup calls the previous-pose helper before lock.
+        // The shared rainbow setup records the pose history before the lock.
         samus.CommitPoseHistory();
         // The shared rainbow setup locks Samus's input and movement after changing art.
         samus.Control.LockForRainbowBeam();

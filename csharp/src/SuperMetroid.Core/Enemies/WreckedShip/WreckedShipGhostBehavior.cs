@@ -179,7 +179,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.StableDirectionTimer = WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration;
     }
 
-    /// <summary>Runs the white-flash ramp and its flicker helper.</summary>
+    /// <summary>Brightens the ghost toward its white flash, flickering as it brightens; once no colour changes, it fades to its own colours.</summary>
     internal static void RunWreckedShipGhostBrightening(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)

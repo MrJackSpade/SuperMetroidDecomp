@@ -152,8 +152,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             cameraPosition: camera,
             enemyFrameCounter: place.FrameCounter,
             randomNumber: _room.Random.Read());
-        // Both outcomes of the heal helper call the sound helper after the
-        // energy write. Use the phase that ran, including its final full-health call.
+        // Both outcomes of healing Samus queue the energy sound after her energy rises.
+        // Use the phase that ran, including its final full-health update.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))

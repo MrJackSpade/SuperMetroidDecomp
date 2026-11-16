@@ -836,12 +836,11 @@ public sealed class BabyMetroidCutsceneState
         return Trigonometry.MultiplySignedSine(speed, angle);
     }
 
-    /// <summary>Advances 1/65536-pixel position from 1/256-pixel velocity while leaving the position's finer-than-256ths part untouched.</summary>
+    /// <summary>Moves the Baby by its velocity, in 256ths of a pixel, leaving the position's finer-than-256ths part untouched.</summary>
     private void MoveAccordingToVelocity()
     {
-        // The velocity's fraction is added to the position's 256ths of a pixel and its
-        // whole part to the whole pixels, with the fraction's overflow. That is exactly a 1/65536-pixel
-        // add of the 1/256-pixel velocity: the position's finer part is unchanged.
+        // The velocity moves the position in 256ths of a pixel: a fraction past a whole pixel
+        // carries into the whole pixels, and the position's finer part is unchanged.
         Position = Position.Advance(Velocity.ToSixteenSixteen());
     }
 

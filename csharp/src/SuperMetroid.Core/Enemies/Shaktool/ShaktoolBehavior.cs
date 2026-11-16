@@ -117,7 +117,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the linked-segment placement helper.</summary>
+    /// <summary>Places the segment on its orbit around the segment before it in the chain.</summary>
     internal void PositionShaktoolAroundPreviousSegment(
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
@@ -130,7 +130,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToTrigonometryAngle()));
     }
 
-    /// <summary>Runs the common orbit step.</summary>
+    /// <summary>
+    /// Places the segment on its orbit and turns the orbit on, by the segment's own angular speed, or by the straightening
+    /// turn while the chain straightens, which also moves the target on.
+    /// </summary>
     private void AdvanceShaktoolOrbit(RoomEnemyPlace place, ShaktoolSegmentState state)
     {
         PositionShaktoolAroundPreviousSegment(place, state);
@@ -151,7 +154,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             : state.OrbitAngle + increment;
     }
 
-    /// <summary>Runs middle-segment orientation selection.</summary>
+    /// <summary>
+    /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, restarting
+    /// the animation for that facing.
+    /// </summary>
     internal void AdvanceAndOrientShaktoolCenter(
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
@@ -172,7 +178,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Runs the last segment's collision/reversal controller.</summary>
+    /// <summary>
+    /// Moves the chain's last segment along its orbit through the room's terrain: striking terrain reverses the chain;
+    /// otherwise the segment curls the chain toward its target until it straightens.
+    /// </summary>
     private void DriveShaktoolTail(
         RoomEnemyPlace place,
         ShaktoolSegmentState state,
@@ -183,8 +192,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> candidate = place.Position.Whole;
         Offset16<RoomPixels> step = candidate - previous;
 
-        // The helper restores only whole pixels before collision. Subpositions
-        // remain those the orbit step produced, a subtle asymmetry that affects wall alignment.
+        // Only the whole pixels go back before the terrain move; the fractions stay where the
+        // orbit left them, a subtle asymmetry that affects how the segment meets a wall.
         place.Position = place.Position.WithWhole(previous);
         SignedSixteenSixteen xDisplacement = SignedSixteenSixteen.FromWholePixels(step.X);
         bool collided = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -281,7 +290,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the endpoint/angle reversal helper.</summary>
+    /// <summary>
+    /// Turns the chain end for end: the head's facing reverses, the segments mirrored across the chain trade orbit angles
+    /// and the two saws trade places.
+    /// </summary>
     private void ReverseShaktoolChainEndpoints(RoomEnemyPlace anySegment)
     {
         IReadOnlyList<ShaktoolChainSegment> group = GetShaktoolGroup(anySegment);
@@ -321,8 +333,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the per-segment convergence speed calculation: a sixty-fourth of the whole steps left to the target in the
-    /// orbit direction, four 256ths of a step for each.
+    /// Sets the speed the segment turns toward its target at: a sixty-fourth of the whole steps left to the target in the
+    /// orbit's direction, four 256ths of a step an update for each.
     /// </summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
@@ -332,7 +344,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngularVelocity = turnLeft.WholeStep.DividedBy(ShaktoolOrbitDefinitions.ConvergenceShares);
     }
 
-    /// <summary>Runs group synchronization.</summary>
+    /// <summary>Puts every segment of the chain at the target angle, each turning at its own angular speed.</summary>
     private void SynchronizeShaktoolOrbitTargets(RoomEnemyPlace anySegment, RotationAngle target)
     {
         foreach (ShaktoolChainSegment segment in GetShaktoolGroup(anySegment))
@@ -369,7 +381,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         IReadOnlyList<ShaktoolChainSegment> group = _chains.Of(anySegment).Chain;
         foreach (ShaktoolChainSegment segment in group)
         {
-            // Group helpers also run during the remainder of the lethal update, reaching the killed segment's cleared state.
+            // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
             if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
             {
                 throw new InvalidDataException(
@@ -422,7 +434,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the one-frame sine movement helper.</summary>
+    /// <summary>Moves the segment one update along <paramref name="angle"/>, a pixel at most, as its cue raises or lowers it.</summary>
     private static void MoveShaktoolSegmentForAnimation(RoomEnemyPlace place, TrigonometryAngle angle)
     {
         // X reads the shared signed sine at the angle and Y the sine a quarter turn behind it, the negative cosine.

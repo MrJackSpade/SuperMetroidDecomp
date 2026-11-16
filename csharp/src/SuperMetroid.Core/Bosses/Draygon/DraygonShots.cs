@@ -187,7 +187,7 @@ internal sealed class DraygonShots
             samus.XSpeedDivisor = 0;
         }
     }
-    /// <summary>Moves a Draygon projectile in 1/65536-pixel space by its angle and speed.</summary>
+    /// <summary>Moves a Draygon projectile along its angle at its speed.</summary>
     internal static void MoveDraygonProjectile(EnemyProjectile projectile) =>
         projectile.StateOf<AngledFlightState>().Advance(projectile);
 

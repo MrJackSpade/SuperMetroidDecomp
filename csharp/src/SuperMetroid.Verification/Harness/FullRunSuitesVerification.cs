@@ -619,6 +619,13 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Torizo.TorizoBellyGlowEndVerification.VerifyTorizoBellyGlowEnd),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoRestingLandingVerification.VerifyTorizoRestingLanding),
             SuperMetroid.Verification.Bosses.Torizo.TorizoRestingLandingVerification.VerifyTorizoRestingLanding),
+        new(nameof(SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification.VerifyGoldenTorizoCartridgeCombatFallback),
+            () => SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification.VerifyGoldenTorizoCartridgeCombatFallback(
+                SuperMetroid.Verification.Harness.RepositoryInputsVerification.RepositoryRomPath,
+                SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation)),
+        new(nameof(SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerification.VerifySamusBodyArtwork),
+            () => SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerification.VerifySamusBodyArtwork(
+                SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(SuperMetroid.Verification.Bosses.Kraid.KraidHeightPhasesVerification.VerifyKraidHeightPhases),
             SuperMetroid.Verification.Bosses.Kraid.KraidHeightPhasesVerification.VerifyKraidHeightPhases),
         new(nameof(SuperMetroid.Verification.Enemies.Cacatac.CacatacAttackChanceVerification.VerifyCacatacAttackChance),

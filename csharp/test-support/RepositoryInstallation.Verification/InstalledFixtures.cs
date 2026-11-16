@@ -166,6 +166,21 @@ internal static class InstalledFixtures
     /// <summary>The ending's colours the import decodes from the cartridge, which the installed ending sheets are pre-coloured in.</summary>
     internal static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteSet EndingColours => endingColours.Value;
 
+    /// <summary>
+    /// Every shade of the ending's screen the import installs, by shade (#1512, #1544), coloured from
+    /// <see cref="EndingColours"/> and the palette effects' installed colours, which only the import reads (#1583).
+    /// </summary>
+    private static readonly Lazy<IReadOnlyDictionary<PictureShade, SheetShade>> endingScreenShades =
+        Shared<IReadOnlyDictionary<PictureShade, SheetShade>>("ending screen shades", () =>
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingScreenShades.Screen(EndingColours, ImportMaps.RoomPaletteFx)
+                .ToDictionary(shade => shade.Shade));
+
+    /// <summary>
+    /// Every shade of the ending's screen the import installs, by shade, built once from the shared fixtures it is coloured
+    /// from: every ending state's shown colours are read through the same shades.
+    /// </summary>
+    internal static IReadOnlyDictionary<PictureShade, SheetShade> EndingScreenShadesByShade => endingScreenShades.Value;
+
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));

@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Checks intro discovery actor OAM against native spritemaps and the rendered scene.</summary>
 internal static class IntroDiscoveryActorSpriteArtworkVerification
 {
-    /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production
+    /// <summary>Compares stock OAM at visible and wrapped origins, then composes the production
     /// discovery scene without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
@@ -73,7 +73,9 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         AssertEqual(IntroCinematicPhase.BabyDiscovery, stockState.Phase,
             "discovery actor visual probe reached the lit gameplay palette");
         (stockState.CurrentBabyDiscovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, crossfadeFinishing: false);
-        _ = stockState.RenderArtwork();
+        // The scene is where production reads the discovery actors' artwork: composing it draws every actor, and the
+        // renderer that would draw its pixels holds only installed pictures, never the cartridge (#2060).
+        _ = stockState.CaptureTranslatedRenderSnapshot();
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production discovery actors never reread nineteen native spritemaps");
 

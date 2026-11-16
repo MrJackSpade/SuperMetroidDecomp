@@ -26,8 +26,6 @@ internal static class EndingPlanetBoundaryVerification
             audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Stage.Phase, "planet crossfade reached");
-        // The ending's installed shades, which every compared frame's shown colours are read through, are built once.
-        var shownShades = EndingShownColours.InstalledShades(ending);
         // Rebuild the upper VRAM image from D8C1/D8E1/D901/D921/D941/D961.
         // In particular D961 transfers only $1000 font bytes at byte $A000.
         byte[] nativeVram = ending.ShownVram().ToArray();
@@ -45,7 +43,7 @@ internal static class EndingPlanetBoundaryVerification
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-            RgbColor[] snapshotColours = EndingShownColours.Of(ending, shownShades);
+            RgbColor[] snapshotColours = EndingShownColours.Of(ending);
             var projection = snapshot.LayersOf<TurningFloorLayer>().Single();
             // The native floor shows what the reconstruction's floor shows in the frame's colours. Where the live floor shows
             // exactly that at every floor point it stands in for it, drawing the same pixels without composing and laying
@@ -103,7 +101,7 @@ internal static class EndingPlanetBoundaryVerification
             if (liveFloors.Length > 0)
             {
                 floorFrames++;
-                RgbColor[] liveColours = EndingShownColours.Of(ending, shownShades);
+                RgbColor[] liveColours = EndingShownColours.Of(ending);
                 byte[] reconstructed = ending.ShownVram();
                 nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
                 // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction. Where every

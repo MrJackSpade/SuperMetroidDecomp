@@ -235,7 +235,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggHatchedLeft] =
         [
-            Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.ShotPipeBug, Priority: SoundRequestPriority.Normal)),
+            Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.RisingSqueaks, Priority: SoundRequestPriority.Normal)),
             Cue(new TorizoProjectileCue.Signal(K.StartEggCharge)),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftClawsRaised, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftClawsLowered, 6),
@@ -244,7 +244,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EggHatchedRight] =
         [
-            Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.ShotPipeBug, Priority: SoundRequestPriority.Normal)),
+            Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.RisingSqueaks, Priority: SoundRequestPriority.Normal)),
             Cue(new TorizoProjectileCue.Signal(K.StartEggCharge)),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightClawsRaised, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightClawsLowered, 6),

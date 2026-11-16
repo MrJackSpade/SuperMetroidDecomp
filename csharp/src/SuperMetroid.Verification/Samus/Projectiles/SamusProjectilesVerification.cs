@@ -1279,7 +1279,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.None),
         "resident red door receives power-beam family for native rejection");
     residentDoorObjects.Step(residentDoorLevel);
-    AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal)),
+    AssertTrue(residentDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShot, SoundRequestPriority.Normal)),
         "wrong colored-door weapon queues native dud sound");
     AssertEqual(0, residentDoorObjects.ColoredDoors.Single().HitCounter,
         "wrong colored-door weapon does not advance threshold counter");
@@ -1370,7 +1370,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(greyDoorObjects.TryNotifyColoredDoorHit(new(2, 6), SamusProjectileType.None),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorObjects.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShotOnDoor, SoundRequestPriority.Normal)),
+    AssertTrue(greyDoorObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.DudShot, SoundRequestPriority.Normal)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent(StoryEvent.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");

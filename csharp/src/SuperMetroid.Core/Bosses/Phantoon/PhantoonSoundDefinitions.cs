@@ -13,16 +13,16 @@ internal static class PhantoonSoundDefinitions
     internal static SoundEffectId CasualFlame => RoomSound.PhantoonFlame;
 
     /// <summary>Phantoon's cry, queued when a shot hurts or kills Phantoon.</summary>
-    internal static readonly SoundEffectId ShotCry = EnemySound.PhantoonCry;
+    internal static readonly SoundEffectId ShotCry = EnemySound.Shriek;
 
-    /// <summary>The high cry, queued as the dying Phantoon turns wavy.</summary>
-    internal static readonly SoundEffectId DyingCry = EnemySound.MotherBrainHighCry;
+    /// <summary>The long wail, queued as the dying Phantoon turns wavy.</summary>
+    internal static readonly SoundEffectId DyingCry = EnemySound.LongWail;
 
     /// <summary>The small explosion, queued after a big death explosion.</summary>
     internal static readonly SoundEffectId BigDeathExplosionSound = EnemySound.SmallExplosion;
 
-    /// <summary>The fireball impact, queued after any other death explosion.</summary>
-    internal static readonly SoundEffectId DeathExplosionSound = EnemySound.FireballImpact;
+    /// <summary>The rolling rumble, queued after any other death explosion.</summary>
+    internal static readonly SoundEffectId DeathExplosionSound = EnemySound.RollingRumble;
 
     /// <summary>The casual-flame sound's request priority.</summary>
     internal static readonly SoundRequestPriority CasualFlamePriority = SoundRequestPriority.Normal;

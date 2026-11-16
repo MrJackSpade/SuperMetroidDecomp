@@ -224,12 +224,12 @@ internal static class AudioVerification
 
         var sfx = AudioQueues.Standalone();
         sfx.AdvanceFrame(default); // consume reset upload/port writes
-        sfx.QueueSound(EnemySound.DudShotOnDoor, priority: SoundRequestPriority.Normal);
+        sfx.QueueSound(EnemySound.DudShot, priority: SoundRequestPriority.Normal);
         IReadOnlyList<AudioRequest> request = sfx.AdvanceFrame(default);
-        AssertEqual(new AudioRequest.RequestSound(EnemySound.DudShotOnDoor), request.Single(), "SFX request write");
+        AssertEqual(new AudioRequest.RequestSound(EnemySound.DudShot), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(EnemySound.DudShotOnDoor))).Count,
+            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(EnemySound.DudShot))).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(
@@ -286,10 +286,10 @@ internal static class AudioVerification
         AssertEqual<SoundEffectId>(SamusSound.MenuCursor,
             SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x37),
             "the import decodes library one's request $37 to the menu cursor");
-        AssertEqual<SoundEffectId>(EnemySound.DudShotOnDoor,
+        AssertEqual<SoundEffectId>(EnemySound.DudShot,
             SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x57),
             "the import decodes library two's request $57 to the door's dud-shot sound");
-        AssertEqual(0x57, SoundEffectCommands.Command(EnemySound.DudShotOnDoor),
+        AssertEqual(0x57, SoundEffectCommands.Command(EnemySound.DudShot),
             "the door's dud-shot sound encodes back to library two's request $57");
 
         // Verify the upload reader follows contiguous ROM pointer arithmetic across a

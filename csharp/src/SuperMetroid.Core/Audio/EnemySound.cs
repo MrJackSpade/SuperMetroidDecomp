@@ -64,22 +64,32 @@ public enum EnemySound
     TourianStatueParticle,
     /// <summary>The glass tube in Maridia shattering.</summary>
     GlassTubeShatter,
-    /// <summary>A spike platform stopping, or a Tatori hitting a wall.</summary>
-    SpikePlatformStop,
-    /// <summary>A Chozo statue grabbing Samus; a high-priority sound.</summary>
-    ChozoGrab,
+    /// <summary>A two-pulse low clank near 125 Hz (0.44 s): a Kzan landing, or a Tatori hitting a wall.</summary>
+    HeavyClank,
+    /// <summary>
+    /// Three quick low pulses (0.25 s): a Chozo statue grabbing Samus, also each Crocomire fight projectile leaving his
+    /// mouth; a high-priority sound.
+    /// </summary>
+    Rattle,
     /// <summary>The Dachora's cry.</summary>
     DachoraCry,
-    /// <summary>A Fune spitting; a high-priority sound.</summary>
-    FuneSpit,
+    /// <summary>
+    /// A steady 2.2 kHz tone cut off by a low drop (0.31 s): a Fune or Namihe spitting; a high-priority sound.
+    /// </summary>
+    HighSpit,
     /// <summary>A shot fly hit.</summary>
     ShotFly,
-    /// <summary>A Skree or a wall or ninja space pirate hit.</summary>
-    ShotSkree,
-    /// <summary>A pipe bug or a Choot hit, also a Golden Torizo egg hatching.</summary>
-    ShotPipeBug,
-    /// <summary>A Zero, Sidehopper or Zoomer hit.</summary>
-    ShotZoomer,
+    /// <summary>
+    /// A two-pulse screech warbling between 1.9 and 3 kHz (0.39 s): a Skree, Metaree, wall or ninja Space Pirate hit.
+    /// </summary>
+    Screech,
+    /// <summary>
+    /// Three squeaks rising from 1.2 to 1.6 kHz (0.28 s): a pipe bug or Choot hit, a Golden Torizo egg hatching,
+    /// Crocomire's acid burn.
+    /// </summary>
+    RisingSqueaks,
+    /// <summary>Three squeaks between 580 and 780 Hz (0.28 s): a Zoomer, Zeela, Sova, Zero or Sidehopper hit.</summary>
+    LowSqueaks,
     /// <summary>A small explosion, as an enemy dies.</summary>
     SmallExplosion,
     /// <summary>A big explosion: the Ceres door, Crocomire and its wall, Draygon's tail and Mother Brain.</summary>
@@ -90,47 +100,67 @@ public enum EnemySound
     ShotTorizo,
     /// <summary>A heavy rumble: Mother Brain rising, Crocomire's wall exploding, Spore Spawn hardening.</summary>
     HeavyRumble,
-    /// <summary>Ridley's fireball striking a surface, Crocomire's post-death rumble, Phantoon exploding.</summary>
-    FireballImpact,
+    /// <summary>
+    /// A rolling rumble of a dozen low pulses near 90 Hz (1.13 s): Crocomire's hidden wall rumbling, Phantoon's death
+    /// explosions.
+    /// </summary>
+    RollingRumble,
     /// <summary>Spore Spawn hit or opening up; a high-priority sound.</summary>
     ShotSporeSpawn,
-    /// <summary>Kraid's roar, also Crocomire's dying cry; a high-priority sound.</summary>
-    KraidRoar,
+    /// <summary>
+    /// A roar rising from 2.9 to 4.1 kHz (0.64 s): Kraid's attack and dying roars, also the start of Crocomire's second
+    /// melt; a high-priority sound.
+    /// </summary>
+    Roar,
     /// <summary>Kraid's dying cry; a high-priority sound.</summary>
     KraidDyingCry,
     /// <summary>A yapping maw.</summary>
     YappingMaw,
-    /// <summary>A super Desgeega hit, or Crocomire destroying its wall.</summary>
-    ShotSuperDesgeega,
+    /// <summary>
+    /// A squeal stepping up from 2.6 to 4.6 kHz (0.54 s): a large Dessgeega hit, or Crocomire's spike wall breaking apart.
+    /// </summary>
+    SteppedSqueal,
     /// <summary>A Brinstar plant chewing.</summary>
     PlantChewing,
     /// <summary>An Etecoon's wall jump.</summary>
     EtecoonWallJump,
     /// <summary>An Etecoon's cry.</summary>
     EtecoonCry,
-    /// <summary>A Cacatac's spikes, or a Golden Torizo egg released.</summary>
-    CacatacSpikes,
+    /// <summary>
+    /// A low thump swelling to its peak 0.19 s in, near 100 Hz (0.39 s): a Cacatac's spikes, or a Golden Torizo egg
+    /// released.
+    /// </summary>
+    LowThump,
     /// <summary>The Etecoons' theme; a high-priority sound.</summary>
     EtecoonTheme,
-    /// <summary>A Rio, Squeept or Dragon hit.</summary>
-    ShotRio,
+    /// <summary>
+    /// Three squeaks rising from 920 Hz to 1.5 kHz and falling back (0.36 s): a Rio, Geruta, Squeept or Dragon hit.
+    /// </summary>
+    Squeaks,
     /// <summary>A refill or map station's arm extending.</summary>
     StationEngaged,
     /// <summary>A refill or map station's arm retracting.</summary>
     StationDisengaged,
-    /// <summary>A Dachora's Speed Booster.</summary>
-    DachoraSpeedBooster,
+    /// <summary>The Speed Booster's run, as the Dachora runs; its clip is Samus's Speed Booster's.</summary>
+    SpeedBooster,
     /// <summary>A Tatori spinning.</summary>
     TatoriSpinning,
-    /// <summary>A Dachora's shinespark.</summary>
-    DachoraShinespark,
-    /// <summary>A Dachora's shinespark ending.</summary>
-    DachoraShinesparkEnd,
-    /// <summary>A Dachora storing a shinespark.</summary>
-    DachoraStoredShinespark,
-    /// <summary>An Owtch, Viola, Ripper, Tripper, suspensor platform, Yard, yapping maw or Atomic hit.</summary>
-    ShotRipper,
-    /// <summary>A rushing whoosh (#2079): an Alcoon spitting fire, Fake Kraid's lint launching, a ninja pirate's spin jump.</summary>
+    /// <summary>A shinespark's launch, as the Dachora launches, also Crocomire's bridge collapsing under him.</summary>
+    Shinespark,
+    /// <summary>
+    /// A shinespark ending, as the Dachora strikes the ceiling; its clip is Samus's shinespark end's.
+    /// </summary>
+    ShinesparkEnd,
+    /// <summary>A shinespark stored, as the Dachora charges; its clip is Samus's stored shinespark's.</summary>
+    StoredShinespark,
+    /// <summary>
+    /// A short buzz near 220 Hz (0.25 s): an Owtch, Multiviola, Ripper, Tripper, suspensor platform, Yard, yapping maw or
+    /// Atomic hit.
+    /// </summary>
+    LowBuzz,
+    /// <summary>
+    /// A rushing whoosh (#2079): an Alcoon spitting fire, Fake Kraid's lint launching, a ninja pirate's spin jump.
+    /// </summary>
     Whoosh,
     /// <summary>A boulder bouncing.</summary>
     BoulderBounce,
@@ -144,8 +174,8 @@ public enum EnemySound
     ShotWaver,
     /// <summary>A Torizo's sonic boom.</summary>
     TorizoSonicBoom,
-    /// <summary>A Skultera, Sciser or Zoa hit.</summary>
-    ShotSkultera,
+    /// <summary>A two-pulse hiss near 6.5 kHz (0.32 s): a Skultera, Sciser or Zoa hit.</summary>
+    Hiss,
     /// <summary>An Evir hit.</summary>
     ShotEvir,
     /// <summary>A Chozo statue's or a Torizo's footsteps.</summary>
@@ -166,18 +196,22 @@ public enum EnemySound
     ShotBeetom,
     /// <summary>A suit acquired: the Varia or Gravity Suit's transformation.</summary>
     SuitAcquired,
-    /// <summary>A door or gate shot with a shot it ignores, or an Oum hit.</summary>
-    DudShotOnDoor,
-    /// <summary>A Mochtroid hit, or a Metroid's cry.</summary>
-    ShotMochtroid,
+    /// <summary>
+    /// A shot doing nothing: a door, gate, eye door or the noob tube shot with a shot it ignores, or an Oum's shell shot.
+    /// </summary>
+    DudShot,
+    /// <summary>A squeal rising from 3.5 to 5.4 kHz (0.43 s): a Mochtroid hit, or a Metroid's cry.</summary>
+    RisingSqueal,
     /// <summary>Ridley's roar; a high-priority sound.</summary>
     RidleyRoar,
     /// <summary>A Metroid hit, or a Metroid's cry.</summary>
     ShotMetroid,
-    /// <summary>A Skree launching its dive.</summary>
-    SkreeDive,
-    /// <summary>A Skree striking the ground.</summary>
-    SkreeBurrow,
+    /// <summary>
+    /// The screech <see cref="Screech"/> plays, as the library's own sound: a Skree or Metaree launching its dive.
+    /// </summary>
+    DiveScreech,
+    /// <summary>A Skree or Metaree striking the ground as it burrows.</summary>
+    Burrow,
     /// <summary>A Sidehopper jumping.</summary>
     SidehopperJump,
     /// <summary>
@@ -185,8 +219,10 @@ public enum EnemySound
     /// spitting, an Alcoon emerging.
     /// </summary>
     LowThud,
-    /// <summary>A Holtz, Desgeega, Viola, Alcoon or Botwoon hit.</summary>
-    ShotHoltz,
+    /// <summary>
+    /// A two-pulse warble near 520 to 600 Hz (0.33 s): a Holtz, Dessgeega, Viola, Alcoon or Botwoon hit.
+    /// </summary>
+    LowWarble,
     /// <summary>A Dragon's or Magdollite's fire spit, or a fire pillar.</summary>
     FireSpit,
     /// <summary>Mother Brain's hand beam.</summary>
@@ -195,8 +231,11 @@ public enum EnemySound
     HoltzCry,
     /// <summary>A Rio's cry.</summary>
     RioCry,
-    /// <summary>A Ki-Hunter or walking space pirate hit, or a space pirate attacking.</summary>
-    ShotSpacePirate,
+    /// <summary>
+    /// A yell dipping from 2.2 to 1.2 kHz and back (0.33 s): a Ki-Hunter or walking Space Pirate hit, a ninja Pirate's claw
+    /// throw or divekick, a wall Pirate's jump, a walking Pirate reflecting a shot.
+    /// </summary>
+    Yell,
     /// <summary>A laser of a space pirate, Mother Brain, a Torizo or a work robot.</summary>
     Laser,
     /// <summary>A work robot's step.</summary>
@@ -219,8 +258,10 @@ public enum EnemySound
     Silence,
     /// <summary>The Baby Metroid's cry; a high-priority sound.</summary>
     BabyMetroidCry,
-    /// <summary>Phantoon's or Draygon's cry; a high-priority sound.</summary>
-    PhantoonCry,
+    /// <summary>
+    /// A noisy shriek between 6.4 and 9.2 kHz (0.51 s): Phantoon's cry, or Draygon's roar; a high-priority sound.
+    /// </summary>
+    Shriek,
     /// <summary>Crocomire's cry; a high-priority sound.</summary>
     CrocomireCry,
     /// <summary>Crocomire's skeleton collapsing; a high-priority sound.</summary>
@@ -241,8 +282,11 @@ public enum EnemySound
     BotwoonSpit,
     /// <summary>The Baby Metroid's guilt; a high-priority sound.</summary>
     BabyMetroidGuilt,
-    /// <summary>Mother Brain's high-pitched cry, also Phantoon's dying cry; it interrupts any sound of the library.</summary>
-    MotherBrainHighCry,
+    /// <summary>
+    /// A wail falling from 1.3 kHz to 950 Hz and rising to 1.85 kHz (1.4 s): Mother Brain's high-pitched cry, also
+    /// Phantoon's dying cry; it interrupts any sound of the library.
+    /// </summary>
+    LongWail,
     /// <summary>Mother Brain charging her rainbow beam.</summary>
     MotherBrainRainbowCharge,
 }

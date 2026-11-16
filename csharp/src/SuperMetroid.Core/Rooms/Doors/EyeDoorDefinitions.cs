@@ -9,7 +9,7 @@ internal static class EyeDoorDefinitions
     public static readonly SoundEffectId ProjectileSound = EnemySound.AcidSpit;
 
     /// <summary>The sound of a shot the eye shrugs off.</summary>
-    public static readonly SoundEffectId RejectedShotSound = EnemySound.DudShotOnDoor;
+    public static readonly SoundEffectId RejectedShotSound = EnemySound.DudShot;
 
     /// <summary>The collision of the live eye: a shootable block.</summary>
     public const RoomCollisionType EyeCollision = RoomCollisionType.ShootableBlock;

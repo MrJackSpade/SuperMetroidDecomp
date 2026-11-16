@@ -16,7 +16,7 @@ internal static class KraidSoundDefinitions
     internal static SoundEffectId LintFire { get; } = RoomSound.KraidLint;
 
     /// <summary>Kraid's roar, cried by the attack and dying roars of the head animation.</summary>
-    internal static SoundEffectId HeadRoar { get; } = EnemySound.KraidRoar;
+    internal static SoundEffectId HeadRoar { get; } = EnemySound.Roar;
 
     /// <summary>Kraid's death cry, cried by the death head animation.</summary>
     internal static SoundEffectId HeadDyingCry { get; } = EnemySound.KraidDyingCry;

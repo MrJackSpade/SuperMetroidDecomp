@@ -41,7 +41,7 @@ internal sealed class MotherBrainCryChecks : IConvertedMovieChecks
         }
         SoundEffectId? requested = audio.SoundHandshakes.Awaited(SoundEffectLibrary.Enemies);
         if (requested != lastRequested && requested is SoundEffectId cry &&
-            (cry == EnemySound.MotherBrainLowCry || cry == EnemySound.MotherBrainHighCry))
+            (cry == EnemySound.MotherBrainLowCry || cry == EnemySound.LongWail))
             cries++;
         lastRequested = requested;
         return [];

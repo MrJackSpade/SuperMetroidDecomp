@@ -495,7 +495,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.PlayEggReleasedSound }:
-                PlayTorizoSound(EnemySound.CacatacSpikes);
+                PlayTorizoSound(EnemySound.LowThump);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.PlayLaserSound }:

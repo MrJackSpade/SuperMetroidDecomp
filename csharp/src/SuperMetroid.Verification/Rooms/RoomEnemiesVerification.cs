@@ -181,7 +181,7 @@ internal static void VerifyRoomEnemyLoading()
 
     RoomEnemyDefinition definition = place.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
-    AssertEqual<SoundEffectId?>(EnemySound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
+    AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(EnemyGrappleResponse.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
     // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
     AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
@@ -615,7 +615,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrozenTimer = 0;
     ripper.InvincibilityTimer = 0;
     ripper.AiStates = EnemyAiStates.None;
-    SoundEffectId expectedHurtCry = EnemySound.ShotRipper;
+    SoundEffectId expectedHurtCry = EnemySound.LowBuzz;
     AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
         request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3);

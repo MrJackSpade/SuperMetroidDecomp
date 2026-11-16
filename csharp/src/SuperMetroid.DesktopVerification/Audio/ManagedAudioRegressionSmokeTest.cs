@@ -72,7 +72,7 @@ public static class ManagedAudioRegressionSmokeTest
             tally);
         RunSoundScenario(
             "library-2-door",
-            [EnemySound.DudShotOnDoor],
+            [EnemySound.DudShot],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
@@ -82,7 +82,7 @@ public static class ManagedAudioRegressionSmokeTest
             "three-library-overlap-and-cancel",
             [
                 SamusSound.UnchargedPowerBeam,
-                EnemySound.DudShotOnDoor,
+                EnemySound.DudShot,
                 RoomSound.BabyMetroidCry1,
             ],
             tally,

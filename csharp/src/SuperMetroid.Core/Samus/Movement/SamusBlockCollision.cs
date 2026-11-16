@@ -740,8 +740,11 @@ public static class SamusBlockCollision
     /// <summary>
     /// Runs the shared bomb-block setup for non-solid cells without consuming its collision result.
     /// </summary>
-    private static void ActivateCollisionBombableAir(SamusTerrain terrain, RoomCollisionBlock block,
-        SamusState? owner, bool explicitAdmission)
+    private static void ActivateCollisionBombableAir(
+        SamusTerrain terrain,
+        RoomCollisionBlock block,
+        SamusState? owner,
+        bool explicitAdmission)
     {
         // The game's horizontal and vertical air reactions invoke the same setup as solid
         // bomb blocks, but ignores its collision result. A refused break, or one with no room left for its

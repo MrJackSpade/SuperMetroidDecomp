@@ -429,7 +429,8 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingSuitShadeRestore(
-        SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+        SamusColours colours,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
         if (!SuitShadeRestoreRequested)
@@ -814,5 +815,4 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>The most whole pixels Samus's speed moves her in one update, either way.</summary>
     private const int LargestWholeDisplacement = 15;
-
 }

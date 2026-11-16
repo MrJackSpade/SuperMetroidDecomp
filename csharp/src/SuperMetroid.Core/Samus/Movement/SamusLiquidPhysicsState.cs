@@ -70,7 +70,10 @@ public sealed class SamusLiquidPhysicsState
     /// <param name="particles">The splashes, bubbles, spray and dust her presentation shows.</param>
     /// <param name="audioRequests">Samus's audio requests, which her liquid, landing and footstep sounds join.</param>
     /// <param name="periodicDamage">Samus's periodic damage, which her liquids add to and a dry room's configuration drops.</param>
-    internal SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles, GameplayAudioRequests audioRequests,
+    internal SamusLiquidPhysicsState(
+        BreathBubbleAndLavaSprayWaits effectWaits,
+        SamusParticles particles,
+        GameplayAudioRequests audioRequests,
         SamusPeriodicDamage periodicDamage)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
@@ -143,7 +146,6 @@ public sealed class SamusLiquidPhysicsState
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; private set; }
-
 
     /// <summary>
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's

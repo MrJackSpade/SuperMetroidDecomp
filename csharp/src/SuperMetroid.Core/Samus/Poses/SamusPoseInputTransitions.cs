@@ -61,5 +61,4 @@ public static class SamusPoseInputTransitions
                 ProspectivePose: rule.TargetPose),
             UsesPoseDefinitionFallback: false);
     }
-
 }

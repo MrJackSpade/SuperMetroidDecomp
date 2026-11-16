@@ -18,7 +18,6 @@ public static class SamusMovementDefinitions
     /// <summary>Falling movement: fast-fall timer before the animation tick.</summary>
     public const int FastFallAnimationTimer = 8;
 
-
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {

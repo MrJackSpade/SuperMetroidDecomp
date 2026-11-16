@@ -358,8 +358,7 @@ public static class SamusKnockbackMovement
         // radius 10 moves Samus down nine pixels while preserving her feet. Reading the
         // previous pose instead of assuming a hurt pose also covers the no-animation
         // path, where both radii ordinarily match and the alignment is a no-op.
-        int previousRadius = SamusPoseMetadata.ReadPoseYRadius(
-            unchecked(samus.PoseHistory.PreviousPose));
+        int previousRadius = SamusPoseMetadata.ReadPoseYRadius(samus.PoseHistory.PreviousPose);
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 
@@ -428,5 +427,4 @@ public static class SamusKnockbackMovement
             samus.HorizontalSpeed);
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
-
 }

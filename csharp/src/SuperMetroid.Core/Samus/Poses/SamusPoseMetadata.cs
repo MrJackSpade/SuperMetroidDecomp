@@ -622,7 +622,8 @@ internal static class SamusPoseMetadata
 
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
     /// <remarks>The newly pressed actions feed the transition-shot test.</remarks>
-    public static bool TrySetupPublishedBombJump(SamusState samus,
+    public static bool TrySetupPublishedBombJump(
+        SamusState samus,
         RoomLevelData level,
         bool timeIsFrozen,
         int frameCounter,

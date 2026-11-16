@@ -9,15 +9,17 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Samus's pose transitions: grounded, aerial, posture and morph-ball changes, turn and wall-jump handling, and the collision checks a larger new pose must pass, applied to the Samus state it owns.</summary>
 internal static class SamusPoseTransitions
 {
-
     /// <summary>
     /// Installs the ordinary or aimed falling pose selected by the walk-off transition when a
     /// grounded movement probe finds no floor. Starting the fall clears vertical
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
-    public static void ApplyWalkedOffFloorTransition(SamusState samus,
-        RoomLevelData level, SamusPoseId targetPose,
-        int frameCounter, ISamusRoomObjects roomObjects)
+    public static void ApplyWalkedOffFloorTransition(
+        SamusState samus,
+        RoomLevelData level,
+        SamusPoseId targetPose,
+        int frameCounter,
+        ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
         bool supportedSource =
@@ -94,7 +96,8 @@ internal static class SamusPoseTransitions
     /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
     /// point remains for cinematic movement and focused collision-free fixtures only.
     /// </remarks>
-    public static void ApplyAerialLanding(SamusState samus,
+    public static void ApplyAerialLanding(
+        SamusState samus,
         bool wasSpinning,
         GameplayAction controllerInput = GameplayAction.None)
     {
@@ -122,7 +125,8 @@ internal static class SamusPoseTransitions
     /// True when the selected landing pose fit. False means the game's collision retained the
     /// source pose or selected its stable-crouch fallback; the game then does not settle Samus on the landing.
     /// </returns>
-    public static bool TryApplyAerialLanding(SamusState samus,
+    public static bool TryApplyAerialLanding(
+        SamusState samus,
         RoomLevelData level,
         bool wasSpinning,
         GameplayAction controllerInput,
@@ -181,7 +185,8 @@ internal static class SamusPoseTransitions
     }
 
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
-    private static SamusPoseId SelectAerialLandingPose(SamusState samus,
+    private static SamusPoseId SelectAerialLandingPose(
+        SamusState samus,
         bool wasSpinning,
         GameplayAction controllerInput)
     {
@@ -247,7 +252,8 @@ internal static class SamusPoseTransitions
     /// Both select the ordinary normal landing; the expansion from radius ten to 21 still runs the full
     /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
-    public static bool TryApplyCompactAerialLanding(SamusState samus,
+    public static bool TryApplyCompactAerialLanding(
+        SamusState samus,
         RoomLevelData level,
         int frameCounter,
         ISamusRoomObjects roomObjects)

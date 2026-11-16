@@ -35,5 +35,4 @@ public sealed record SamusAnimationStep
 
     /// <summary>Whether the room has a boss, which suppresses the running-footstep sound.</summary>
     public bool BossPresent { get; init; } = false;
-
 }

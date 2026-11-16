@@ -18,7 +18,6 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Half a 256-pixel screen: the camera's centre.</summary>
     private const int HalfScreen = 128;
 
-
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
     /// <param name="scrolls">Room-sized grid of directional scroll states.</param>
     public ScrollBoundaryCamera(RoomScrollGrid scrolls)

@@ -804,5 +804,4 @@ public static class SamusAerialMovement
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
     }
-
 }

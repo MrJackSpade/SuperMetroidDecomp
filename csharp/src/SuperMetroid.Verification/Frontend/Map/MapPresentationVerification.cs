@@ -214,7 +214,7 @@ internal static class MapPresentationVerification
             runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidColors?.Eyes();
 
             runtime.Artwork.SamusBodyArt = SamusBody.Gameplay;
-            runtime.RoomObjectVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;
+            runtime.RoomObjectVisuals.Rebind(RoomObjectFixtures.Installed with { RoomObjectElevatorPlatformVisuals = elevatorPlatform });
         }
     }
 

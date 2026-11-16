@@ -358,7 +358,7 @@ internal static class ShotBlockObjectProgramsVerification
             InstalledRoomObjectShotBlockVisuals visuals)
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
-            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
+            var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectShotBlockVisuals = visuals });
             AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(block), 0, SamusProjectileType.None, true),
                 "visual-only test allocates the production shot-block PLM");
             roomObjects.Step(level);

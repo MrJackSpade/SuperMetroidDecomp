@@ -97,7 +97,7 @@ public sealed class TourianStatueSequence
     /// The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in each update and so the
     /// order in which a waiting statue can claim the one release that plays at a time.
     /// </summary>
-    internal readonly List<StatueBlockAnimation> statues = [];
+    private readonly List<StatueBlockAnimation> _statues = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
     /// <summary>Calls left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
@@ -125,7 +125,7 @@ public sealed class TourianStatueSequence
     /// <param name="roomObjects">The room's room-object system.</param>
     internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
-        statues.Clear();
+        _statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
         _holdCalls = 0;
         Descent = SignedSixteenSixteen.Zero;
@@ -158,7 +158,7 @@ public sealed class TourianStatueSequence
     /// Spawns the four statue animations in order. They run in the order they were spawned, so the spawn order also
     /// decides which waiting statue claims the one release that plays at a time.
     /// </summary>
-    internal void SpawnStatueAnimations()
+    private void SpawnStatueAnimations()
     {
         Spawn(TourianGreyStatues.Kraid);
         Spawn(TourianGreyStatues.Phantoon);
@@ -171,7 +171,7 @@ public sealed class TourianStatueSequence
             if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
                 throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
 
-            statues.Add(new(definition));
+            _statues.Add(new(definition));
         }
     }
 
@@ -182,7 +182,7 @@ public sealed class TourianStatueSequence
     public void StepBlockAnimations()
     {
         if (_assists.Current.TourianStatuesOpen) return;
-        foreach (StatueBlockAnimation statueAnimation in statues)
+        foreach (StatueBlockAnimation statueAnimation in _statues)
         {
             if (!statueAnimation.CountDown() || statueAnimation.Playback is not { } playback) continue;
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;

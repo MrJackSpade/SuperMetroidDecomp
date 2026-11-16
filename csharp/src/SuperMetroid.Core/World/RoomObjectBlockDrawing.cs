@@ -14,10 +14,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     private readonly RoomObjectVisuals _visuals = Ensure.NotNull(visuals);
 
     /// <inheritdoc/>
-    public TCatalog Installed<TCatalog>(string family) where TCatalog : class =>
-        _visuals.Catalog<TCatalog>() ?? throw new InvalidDataException($"No installed {family} visuals are bound to draw its frame.");
+    public TCatalog Installed<TCatalog>() where TCatalog : class => _visuals.Catalog<TCatalog>();
 
     /// <inheritdoc/>
     public RoomBlockAppearance SetupBlock(RoomObjectSetupBlock block) =>
-        Installed<InstalledRoomObjectSetupBlocks>("room-object setup block").Shown(block);
+        Installed<InstalledRoomObjectSetupBlocks>().Shown(block);
 }

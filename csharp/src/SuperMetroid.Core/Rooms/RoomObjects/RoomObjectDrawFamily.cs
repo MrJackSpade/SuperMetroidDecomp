@@ -44,7 +44,7 @@ internal class RoomObjectDrawFamily<TFrame> where TFrame : struct
         Func<TCatalog, RoomObjectFrameDraw<TFrame>, RoomObjectFrameImage> image) where TCatalog : class
     {
         Ensure.NotNull(image);
-        return new(name, shape, (drawing, draw) => image(drawing.Installed<TCatalog>(name), draw));
+        return new(name, shape, (drawing, draw) => image(drawing.Installed<TCatalog>(), draw));
     }
 
     /// <summary>The shape <paramref name="shapes"/> give <paramref name="frame"/>.</summary>
@@ -62,7 +62,7 @@ internal class RoomObjectDrawFamily<TFrame> where TFrame : struct
     internal RoomBlockShape Shape(TFrame frame) => _shape(frame);
 
     /// <summary>The installed picture <paramref name="draw"/> shows.</summary>
-    /// <exception cref="InvalidDataException">The family's pictures are not installed, or lack the frame.</exception>
+    /// <exception cref="InvalidDataException">The family's pictures lack the frame.</exception>
     internal RoomObjectFrameImage Image(IRoomObjectDrawing drawing, RoomObjectFrameDraw<TFrame> draw) =>
         _image(Ensure.NotNull(drawing), Ensure.NotNull(draw));
 

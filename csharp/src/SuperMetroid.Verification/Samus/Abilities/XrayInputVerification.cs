@@ -70,8 +70,7 @@ internal static class XrayInputVerification
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var horizontalPixels = DisplayRendering.Render(horizontal);
         var probe = runtime.Room.LoadedLevelData.GetObjectCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
-        InstalledXrayReveals installedReveals = runtime.Xray.XrayRevealVisuals
-            ?? throw new InvalidOperationException("Verification requires the runtime's installed X-ray reveals.");
+        InstalledXrayReveals installedReveals = runtime.Xray.XrayRevealVisuals;
         AssertEqual(255, (installedReveals.Apply(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires an X-ray reveal for the probed air block.")).Blocks?.TopLeft,
             "the installed air reveal replaces decorative wall art with the blank metatile");
         var ordinaryPixels = DisplayRendering.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));

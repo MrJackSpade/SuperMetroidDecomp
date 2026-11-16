@@ -55,18 +55,20 @@ internal static class RoomObjectFixtures
     private static readonly Lazy<InstalledMotherBrainFakeDeathFrames> MotherBrainFakeDeathFrames = new(() => InstalledMotherBrainFakeDeathFrames.Stock());
 
     /// <summary>
-    /// A PLM system bound to no room: families that need room services fail at that dependency. A room object shows only
-    /// its installed pictures (#1557), so a fixture that names no artwork draws with the repository installation's.
+    /// A PLM system bound to no room, drawing with the repository installation's room-object pictures: families that need
+    /// room services fail at that dependency.
     /// </summary>
-    /// <param name="visuals">The installed artwork, or null for the repository installation's.</param>
-    internal static RoomObjectSystem Unbound(RoomObjectVisuals? visuals = null)
+    internal static RoomObjectSystem Unbound() => Unbound(Installed);
+
+    /// <summary>
+    /// A PLM system bound to no room, drawing with <paramref name="artwork"/> (#2290): families that need room services fail
+    /// at that dependency. A room object shows only its installed pictures (#1557), so a check that draws one family with
+    /// its own pictures replaces that family's in the repository installation's whole set.
+    /// </summary>
+    /// <param name="artwork">Every family's installed pictures.</param>
+    internal static RoomObjectSystem Unbound(RoomObjectArtwork artwork)
     {
-        visuals ??= Installed();
-        visuals.RoomObjectDraygonCannonVisuals ??= DraygonCannonFrames.Value;
-        visuals.RoomObjectPhantoonDoorVisuals ??= PhantoonDoorFrames.Value;
-        visuals.RoomObjectMotherBrainGlassVisuals ??= MotherBrainGlassFrames.Value;
-        visuals.RoomObjectEscapeGateVisuals ??= EscapeGateFrames.Value;
-        visuals.RoomObjectMotherBrainFakeDeathVisuals ??= MotherBrainFakeDeathFrames.Value;
+        var visuals = new RoomObjectVisuals(artwork);
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
@@ -100,8 +102,11 @@ internal static class RoomObjectFixtures
     internal static void LoadPopulation(RoomObjectSystem fixture, RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services) =>
         LoadPopulation(ref fixture, room, population, services);
 
-    /// <summary>Every room-object family's pictures as the repository installation holds them.</summary>
-    private static RoomObjectVisuals Installed() => new()
+    /// <summary>Every room-object family's pictures as the repository installation holds them, read once per process.</summary>
+    internal static RoomObjectArtwork Installed => InstalledArtwork.Value;
+
+    /// <summary>The repository installation's room-object pictures, read once per process.</summary>
+    private static readonly Lazy<RoomObjectArtwork> InstalledArtwork = new(() => new RoomObjectArtwork
     {
         RoomObjectShotBlockVisuals = InstalledRoomObjectShotBlockVisuals.Stock(),
         RoomObjectGrappleBlockVisuals = InstalledRoomObjectGrappleBlockVisuals.Stock(),
@@ -132,7 +137,7 @@ internal static class RoomObjectFixtures
         RoomObjectCollectibleVisuals = InstalledRoomObjectCollectibleVisuals.Stock(),
         RoomObjectRevealAndWallVisuals = InstalledRoomObjectRevealAndWallVisuals.Stock(),
         RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock(),
-    };
+    });
 
     /// <summary>The installed artwork a fixture draws with; editing it changes what the fixture draws.</summary>
     internal static RoomObjectVisuals VisualsOf(RoomObjectSystem fixture) =>

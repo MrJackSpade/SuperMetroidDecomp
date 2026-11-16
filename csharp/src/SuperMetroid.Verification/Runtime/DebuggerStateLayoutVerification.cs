@@ -172,25 +172,25 @@ internal static class DebuggerStateLayoutVerification
     }
 
     /// <summary>
-    /// #2060: a state holding the room-object visuals captures and restores them. Their store finds each bound catalog by
-    /// its type, so the state holds those types: each is written as the identity of the type it names, and the restored
-    /// store finds the catalog under this build's type again, with its pictures, and finds none for a family left unbound.
+    /// #2060: a state holding the room-object visuals captures and restores them. Their store finds each catalog by its
+    /// type, so the state holds those types: each is written as the identity of the type it names, and the restored store
+    /// finds every family's catalog under this build's type again, with its pictures (#2290).
     /// </summary>
     internal static void VerifyDebuggerStateRestoresRoomObjectVisuals()
     {
         RoomObjectSetupBlock block = Enum.GetValues<RoomObjectSetupBlock>()[0];
         var shown = RoomBlockAppearance.Of(5, BlockMirroring.Horizontal);
-        var visuals = new SuperMetroid.Core.World.RoomObjectVisuals
+        var visuals = new SuperMetroid.Core.World.RoomObjectVisuals(RoomObjectFixtures.Installed with
         {
             RoomObjectSetupBlocks = new InstalledRoomObjectSetupBlocks(new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance> { [block] = shown }),
-        };
+        });
 
         var restored = DeserializeDebuggerGraph<SuperMetroid.Core.World.RoomObjectVisuals>(SerializeDebuggerGraph(visuals));
         AssertTrue(!ReferenceEquals(visuals, restored), "the restore builds its own room-object visuals");
-        AssertTrue(restored.Catalog<InstalledRoomObjectSetupBlocks>() is { } catalog && catalog.Shown(block) == shown,
+        AssertTrue(restored.Catalog<InstalledRoomObjectSetupBlocks>().Shown(block) == shown,
             "the restored visuals find the bound setup-block pictures by their type, showing what they showed");
-        AssertTrue(restored.Catalog<InstalledRoomObjectGrappleBlockVisuals>() is null,
-            "the restored visuals find no pictures for a family left unbound");
+        AssertTrue(restored.Catalog<InstalledRoomObjectGrappleBlockVisuals>() is not null,
+            "the restored visuals find every other family's pictures too");
         Console.WriteLine("Debugger state room-object visuals: the catalog store restores each catalog under its type.");
     }
 

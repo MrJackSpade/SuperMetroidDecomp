@@ -10,9 +10,7 @@ internal interface IRoomObjectDrawing
 {
     /// <summary>The installed pictures of type <typeparamref name="TCatalog"/>, one family's catalog.</summary>
     /// <typeparam name="TCatalog">The catalog's type.</typeparam>
-    /// <param name="family">The family's name, which a failure names.</param>
-    /// <exception cref="InvalidDataException">The catalog is not installed.</exception>
-    TCatalog Installed<TCatalog>(string family) where TCatalog : class;
+    TCatalog Installed<TCatalog>() where TCatalog : class;
 
     /// <summary>
     /// What <paramref name="block"/>, a block a setup or a reaction writes of its own accord, shows: its installed picture

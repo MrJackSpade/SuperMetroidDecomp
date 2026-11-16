@@ -43,7 +43,7 @@ internal static class LookupTourianSpawnVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-        var objects = runtime.TourianStatues.statues;
+        var objects = runtime.TourianStatues.Statues;
         AssertEqual(expected.Count, objects.Count, "Production spawn count");
         for (int index = 0; index < objects.Count; index++)
         {

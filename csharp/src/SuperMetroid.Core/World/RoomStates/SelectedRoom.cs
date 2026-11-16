@@ -36,8 +36,10 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;
 
     /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the compiled room definitions.</summary>
+    /// <param name="room">The room.</param>
+    /// <param name="selection">The progress and equipment the room's state conditions read (#2290).</param>
     public static SelectedRoom LoadUsingCompiledSelection(
         RoomDefinition room,
-        RoomStateSelectionContext selection = default) =>
+        RoomStateSelectionContext selection) =>
         new(Ensure.NotNull(room), RoomStateSelection.Select(room, selection));
 }

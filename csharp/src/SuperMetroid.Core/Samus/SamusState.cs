@@ -173,6 +173,15 @@ public sealed class SamusState
     /// </summary>
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
+    /// <summary>The periodic damage liquids, spikes, heat, the grapple's spikes and turrets, and enemies add to through an update.</summary>
+    public SamusPeriodicDamage PeriodicDamage { get; } = new();
+
+    /// <summary>
+    /// The room Samus is in, which her footstep and landing effects read by area and room. Every room load sets it;
+    /// until the first does, it is Landing Site, the room the game's cleared area and room state name.
+    /// </summary>
+    public RoomDefinition Room { get; set; } = RoomDefinitions.LandingSite;
+
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
     /// Its fields are the values documented on
@@ -585,7 +594,7 @@ public sealed class SamusState
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation(artwork);
-        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests);
+        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests, PeriodicDamage);
         Kinematics = new SamusKinematicsState();
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.

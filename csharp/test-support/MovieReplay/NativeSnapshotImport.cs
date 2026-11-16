@@ -306,7 +306,7 @@ internal static class NativeSnapshotImport
         }
         samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
         samus.LiquidPhysics.LiquidPhysicsType = SamusLiquidMediumCodec.FromNative(W(NativeSnapshotMemory.LiquidPhysicsType));
-        samus.LiquidPhysics.PendingPeriodicDamage = new SuperMetroid.Core.Spatial.UnsignedSixteenSixteen(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage));
+        PrivateState.Set(samus.PeriodicDamage, nameof(SamusPeriodicDamage.Pending), new SuperMetroid.Core.Spatial.UnsignedSixteenSixteen(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage)));
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.

@@ -587,7 +587,7 @@ public static class SamusGrappleSwing
         if (damage == 0)
             return;
 
-        samus.LiquidPhysics.AccumulatePeriodicDamage(
+        samus.PeriodicDamage.Accumulate(
             subDamage: 0,
             wholeDamage: damage);
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);

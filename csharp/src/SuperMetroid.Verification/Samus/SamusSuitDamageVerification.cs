@@ -70,7 +70,7 @@ internal static class SamusSuitDamageVerification
     }
 
     /// <summary>
-    /// Compares the periodic damage a suit lets through with the 8.8 shift <c>ApplyPeriodicDamage</c> wrote out
+    /// Compares the periodic damage a suit lets through with the 8.8 shift <c>SamusPeriodicDamage.Apply</c> wrote out
     /// (#1632), for every fraction and each suit combination: every whole damage below 256, all the periodic damage the
     /// game's producers reach in one update, takes the replaced shift's division, and whole damage of 256 or more is
     /// divided as a whole instead of losing its points past the lowest eight bits (#1795).

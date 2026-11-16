@@ -709,7 +709,7 @@ public static class SamusGrappleMovement
                         return GrappleBlockReaction.Passes;
                     if (spike == SpikeReaction.TurretSpike)
                     {
-                        samus.LiquidPhysics.AccumulatePeriodicDamage(
+                        samus.PeriodicDamage.Accumulate(
                             subDamage: 0,
                             wholeDamage: 1);
                         return GrappleBlockReaction.Connects;
@@ -1139,9 +1139,9 @@ public static class SamusGrappleMovement
         return CompleteFiringCancellation(level, samus);
     }
 
-    /// <summary>Adds a grapple sound request to Samus's movement sound queue.</summary>
+    /// <summary>Adds a grapple sound request to Samus's audio requests.</summary>
     private static void QueueGrappleSound(SamusState samus, SoundRequest request) =>
-        samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.Priority);
+        samus.AudioRequests.QueueSound(request.SoundEffect, request.Priority);
 
     /// <returns>The release pose, which the frame's pose update commits (<see cref="ApplyReleasePose"/>).</returns>
     private static SamusPoseId CompleteQueuedRelease(

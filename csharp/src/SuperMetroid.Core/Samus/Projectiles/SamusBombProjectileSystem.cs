@@ -353,11 +353,11 @@ public sealed class SamusBombProjectileSystem
         if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             if (SamusSpinSound.Select(samus) is { } spinSound)
-                samus.LiquidPhysics.QueueMovementSound(spinSound, priority: SoundRequestPriority.High);
+                samus.AudioRequests.QueueSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }
         if (samus.BeamCharge.HasCharged(ChargeSoundFlareThreshold))
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
+            samus.AudioRequests.QueueSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
     /// <summary>The flare count from which a charging beam's loop is audible.</summary>

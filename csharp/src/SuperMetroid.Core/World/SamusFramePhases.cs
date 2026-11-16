@@ -1364,7 +1364,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             // X-ray freezes time and therefore clears
             // rather than applies accumulated damage; fatal zero-energy game-state
             // acquisition remains the outer seam.
-            samus.LiquidPhysics.ApplyPeriodicDamage(
+            samus.PeriodicDamage.Apply(
                 samus,
                 timeIsFrozen: _freeze.TimeIsFrozen);
             // Locked, elevator and appearance movement modes omit the low-energy check; the gunship setup

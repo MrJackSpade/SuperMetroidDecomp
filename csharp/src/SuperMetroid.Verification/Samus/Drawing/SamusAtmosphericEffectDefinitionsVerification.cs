@@ -128,7 +128,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(AreaId.Maridia);
+            samus.Room = RoomDefinitions.FirstIn(AreaId.Maridia);
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
@@ -155,7 +155,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            runner.LiquidPhysics.Room = room;
+            runner.Room = room;
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
@@ -170,7 +170,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.LiquidPhysics.Room = room;
+            landing.Room = room;
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             landing.LiquidPhysics.BeginFrameSoundRequests();
@@ -211,7 +211,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            landing.LiquidPhysics.Room = room;
+            landing.Room = room;
             landing.LiquidPhysics.EffectWaits.HoldBubbles(9);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(

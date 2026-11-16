@@ -377,7 +377,7 @@ spikeLevel, spikeSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtur
             $"firing spike BTS ${behavior:X2} connection flag");
         AssertEqual(expectedCancellation, spikeReaction.Phase == GrapplePhase.CancelPending,
             $"firing spike BTS ${behavior:X2} cancellation flag");
-        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+        AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
             $"firing spike BTS ${behavior:X2} periodic damage");
     }
 
@@ -840,7 +840,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         // A collision opens the kick window; the fresh Samus had none open.
         AssertEqual(16, spikeBlockSamus.Grapple.CollisionBounceTimer,
             $"solid grapple spike BTS ${behavior:X2} remains collision");
-        AssertEqual(expectedDamage, spikeBlockSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+        AssertEqual(expectedDamage, spikeBlockSamus.PeriodicDamage.Pending.Whole,
             $"solid grapple spike BTS ${behavior:X2} damage table");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x003c,
             spikeBlockSamus.InvincibilityTimer.RawValue,
@@ -878,7 +878,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
 
         AssertEqual(0, spikeAirSamus.Grapple.CollisionBounceTimer,
             $"grapple spike-air BTS ${behavior:X2} remains noncollision");
-        AssertEqual(expectedDamage, spikeAirSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+        AssertEqual(expectedDamage, spikeAirSamus.PeriodicDamage.Pending.Whole,
             $"grapple spike-air BTS ${behavior:X2} damage table");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x003c,
             spikeAirSamus.InvincibilityTimer.RawValue,

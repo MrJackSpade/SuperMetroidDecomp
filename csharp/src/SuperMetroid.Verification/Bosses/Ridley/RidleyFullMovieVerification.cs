@@ -436,7 +436,7 @@ internal static class RidleyFullMovieVerification
         foreach (AreaId samusArea in new[] { AreaId.Ceres, AreaId.Norfair, AreaId.Tourian })
         {
             var samus = runtime.Player.IntroducedSamus;
-            samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(samusArea);
+            samus.Room = RoomDefinitions.FirstIn(samusArea);
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0], afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(norfairDamage, fireball.Damage, $"the Norfair room's fireball damage with Samus's record in {samusArea}");

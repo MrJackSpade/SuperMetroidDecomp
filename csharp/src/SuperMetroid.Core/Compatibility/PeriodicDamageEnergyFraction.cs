@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted once an update, at the end of Samus's update, where the periodic damage the update accumulated is reduced
-/// by her suit and applied (<c>SamusLiquidPhysicsState.ApplyPeriodicDamage</c>); a fatal result empties it
+/// by her suit and applied (<c>SamusPeriodicDamage.Apply</c>); a fatal result empties it
 /// (<see cref="None"/>). A value owned by Samus's state, starting empty with each new Samus. Evidence: the original
 /// periodic damage subtracts the fraction from Samus's held fraction of one energy's
 /// <see cref="FractionalEnergyDrain.PartsPerEnergy"/> parts and takes one more energy when the subtraction borrows,

@@ -95,7 +95,7 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         int wholeDamage)
     {
-        samus.LiquidPhysics.AccumulatePeriodicDamage(subDamage: 0, wholeDamage);
+        samus.PeriodicDamage.Accumulate(subDamage: 0, wholeDamage);
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
 

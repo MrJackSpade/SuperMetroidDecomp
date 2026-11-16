@@ -42,7 +42,6 @@ internal static class SuitPickupPeriodicDamageVerification
         samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
         // `$84:88F3` equips the suit before the message box and the pickup routine.
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
-        samus.LiquidPhysics.PendingPeriodicDamage = default;
         runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
@@ -58,8 +57,8 @@ internal static class SuitPickupPeriodicDamageVerification
         while (runtime.SuitPickup.IsActive)
         {
             AssertTrue(pickupFrames < 4096, "the suit transformation finishes");
-            samus.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.DamagePerUpdate.Fraction, ColourEffectHeatData.DamagePerUpdate.Whole);
-            reference.LiquidPhysics.AccumulatePeriodicDamage(ColourEffectHeatData.DamagePerUpdate.Fraction, ColourEffectHeatData.DamagePerUpdate.Whole);
+            samus.PeriodicDamage.Accumulate(ColourEffectHeatData.DamagePerUpdate.Fraction, ColourEffectHeatData.DamagePerUpdate.Whole);
+            reference.PeriodicDamage.Accumulate(ColourEffectHeatData.DamagePerUpdate.Fraction, ColourEffectHeatData.DamagePerUpdate.Whole);
             int healthBefore = samus.Health;
             int fractionBefore = samus.EnergyFraction.Parts;
             runtime.StepFrame(0);
@@ -70,24 +69,24 @@ internal static class SuitPickupPeriodicDamageVerification
                 $"the empty suit beta skips $90:E9CE on pickup frame {pickupFrames}");
             AssertEqual(fractionBefore, samus.EnergyFraction.Parts,
                 $"no sub-unit damage lands on pickup frame {pickupFrames}");
-            AssertEqual(reference.LiquidPhysics.PendingPeriodicDamage.Fraction, samus.LiquidPhysics.PendingPeriodicDamage.Fraction,
+            AssertEqual(reference.PeriodicDamage.Pending.Fraction, samus.PeriodicDamage.Pending.Fraction,
                 $"fractional periodic damage stays pending on pickup frame {pickupFrames}");
-            AssertEqual(reference.LiquidPhysics.PendingPeriodicDamage.Whole, samus.LiquidPhysics.PendingPeriodicDamage.Whole,
+            AssertEqual(reference.PeriodicDamage.Pending.Whole, samus.PeriodicDamage.Pending.Whole,
                 $"whole periodic damage stays pending on pickup frame {pickupFrames}");
         }
 
         AssertTrue(pickupFrames > 0, "the transformation spans gameplay frames");
-        AssertTrue(reference.LiquidPhysics.PendingPeriodicDamage.Whole > 0, "the pickup accumulated whole units of damage");
+        AssertTrue(reference.PeriodicDamage.Pending.Whole > 0, "the pickup accumulated whole units of damage");
         // The frame whose HDMA pass restores the normal handlers runs ordinary beta, which
         // applies everything pending at once, halved for the now-equipped Varia Suit.
-        reference.LiquidPhysics.ApplyPeriodicDamage(reference, timeIsFrozen: false);
+        reference.PeriodicDamage.Apply(reference, timeIsFrozen: false);
         AssertTrue(reference.Health < samus.MaxHealth, "the deferred damage costs energy");
         AssertEqual(reference.Health, samus.Health,
             "the first ordinary beta applies all pickup-time damage, halved by Varia");
         AssertEqual(reference.EnergyFraction.Parts, samus.EnergyFraction.Parts,
             "the first ordinary beta applies the halved fractional damage");
-        AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Fraction, "$90:E9CE clears the fractional word");
-        AssertEqual(0, samus.LiquidPhysics.PendingPeriodicDamage.Whole, "$90:E9CE clears the whole word");
+        AssertEqual(0, samus.PeriodicDamage.Pending.Fraction, "$90:E9CE clears the fractional word");
+        AssertEqual(0, samus.PeriodicDamage.Pending.Whole, "$90:E9CE clears the whole word");
         Console.WriteLine($"  Suit pickup periodic damage: {pickupFrames} pickup frames keep energy; the deferred damage lands afterwards.");
     }
 

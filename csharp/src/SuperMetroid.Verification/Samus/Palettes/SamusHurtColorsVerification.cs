@@ -66,7 +66,8 @@ internal static class SamusHurtColorsVerification
             Hurt = catalog,
             Suits = SamusSuitColorFile.Read(new MemoryStream(SamusSuitColorExtractor.Extract(rom))),
         };
-        samus.LiquidPhysics.CinematicActive = cinematic;
+        if (cinematic)
+            samus.Presentation.PresentInCinematic();
         var samusColours = new SamusColours();
         var guarded = NewForbiddenHurtColorBus(rom);
         // Each call starts from a sentinel shade, so the suit's shade shows whether that call changed it and, when it

@@ -21,8 +21,11 @@ public sealed class DemoInputState
     /// <summary>Whether the next <see cref="Step"/> plays the recording: the playback runs and its recording has not ended.</summary>
     public bool IsPlaying => Enabled && Position is not null;
 
-    /// <summary>Frames remaining in the active demo input, wrapping at sixteen bits.</summary>
-    public WrappingCountdown FrameHold { get; private set; }
+    /// <summary>
+    /// Updates remaining in the active demo input: at least one while the recording plays, since every recorded input lasts
+    /// at least one update (<see cref="DemoInput.Duration"/>), and zero once the recording has ended or been cleared.
+    /// </summary>
+    public int FrameHold { get; private set; }
 
     /// <summary>The actions the demo currently holds in place of the player's held actions.</summary>
     public GameplayAction Held { get; private set; }
@@ -46,7 +49,7 @@ public sealed class DemoInputState
     {
         Enabled = false;
         Position = null;
-        FrameHold = WrappingCountdown.Start(0);
+        FrameHold = 0;
         Held = 0;
         NewlyPressed = 0;
         PreviousHeld = 0;
@@ -64,7 +67,7 @@ public sealed class DemoInputState
     public void Load(DemoInputRecordingId recording)
     {
         Position = DemoPlaybackPosition.Start(recording);
-        FrameHold = WrappingCountdown.Start(1);
+        FrameHold = 1;
     }
 
     /// <summary>
@@ -78,7 +81,7 @@ public sealed class DemoInputState
     public void SwitchTo(DemoInputRecordingId recording, int frameHold = 1)
     {
         Position = DemoPlaybackPosition.Start(recording);
-        FrameHold = WrappingCountdown.Start(frameHold);
+        FrameHold = frameHold;
     }
 
     /// <summary>
@@ -91,12 +94,8 @@ public sealed class DemoInputState
         if (!Enabled || Position is not { } position)
             return;
 
-        // The countdown wraps below zero to 65535. In particular, a zero duration wraps and lasts
-        // 65,536 updates; using an int countdown would quietly change malformed or
-        // intentionally unusual recorded input data.
-        CountdownStep frameHold = FrameHold.Decrement();
-        FrameHold = frameHold.Remaining;
-        if (frameHold.IsZero)
+        FrameHold--;
+        if (FrameHold == 0)
             PlayNextInput(position, cue);
         RememberPressed();
     }
@@ -108,7 +107,7 @@ public sealed class DemoInputState
     /// </summary>
     public void End()
     {
-        FrameHold = WrappingCountdown.Start(0);
+        FrameHold = 0;
         EndInput();
         RememberPressed();
     }
@@ -151,7 +150,7 @@ public sealed class DemoInputState
         }
 
         DemoInput input = recording.Inputs[position.NextInput];
-        FrameHold = WrappingCountdown.Start(input.Duration);
+        FrameHold = input.Duration;
         Held = input.Held;
         NewlyPressed = input.NewlyPressed;
         Position = position with { NextInput = position.NextInput + 1 };

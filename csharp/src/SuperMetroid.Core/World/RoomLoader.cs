@@ -915,14 +915,14 @@ internal sealed class RoomLoader
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
         loadingSamus.Shinespark.ResetProjectileEchoStorage();
-        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.MapPresentation.PowerBombGlowColors);
+        var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.MapPresentation.PowerBombGlowColors, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), _artwork.SamusArtwork);
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
-        _artwork.BindProjectiles(projectiles, bombs);
+        _artwork.BindProjectiles(bombs);
 
         // The room-object loader walks the room's placements once. Each placement takes the highest free place among the
         // room's room objects before its setup runs, so a room object its setup deletes at once frees that place for the

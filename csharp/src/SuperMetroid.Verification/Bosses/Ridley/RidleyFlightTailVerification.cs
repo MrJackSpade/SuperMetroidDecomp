@@ -96,7 +96,7 @@ internal static class RidleyFlightTailVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         RidleyTailAngle? samusTarget = state.ClockwiseWhipTarget;
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         projectiles.Pool.ShotCount.Restore(1);
         projectiles.Shots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Shots[0].Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
@@ -104,7 +104,7 @@ internal static class RidleyFlightTailVerification
         aim(state, samus, 0);
         RidleyTailAngle? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
-        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)), new SuperMetroid.Core.Samus.Colours.SamusColours());
+        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), new SuperMetroid.Core.Samus.Colours.SamusColours());
         aim(state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;

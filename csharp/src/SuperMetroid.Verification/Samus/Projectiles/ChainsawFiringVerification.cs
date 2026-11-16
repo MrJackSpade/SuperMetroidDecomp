@@ -181,19 +181,16 @@ internal static class ChainsawFiringVerification
             "Chainsaw interference fixture loads the resident yellow door");
         interferenceObjects.Step(interferenceLevel);
 
-        var interferenceReactions = new List<BombBlockReaction>();
-        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+        SamusBombProjectileSystem.ReactToPowerBombBoundary(
             interferenceLevel,
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            interferenceReactions,
             interferenceObjects,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
-        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+        SamusBombProjectileSystem.ReactToPowerBombBoundary(
             interferenceLevel,
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            interferenceReactions,
             interferenceObjects,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         interferenceObjects.Step(interferenceLevel);
@@ -208,19 +205,16 @@ internal static class ChainsawFiringVerification
             RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
         var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new RoomBlockBehavior[25], new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid(), []);
         var breakingObjects = RoomObjectFixtures.Unbound();
-        var breakingReactions = new List<BombBlockReaction>();
-        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+        SamusBombProjectileSystem.ReactToPowerBombBoundary(
             breakingLevel,
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            breakingReactions,
             breakingObjects,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
-        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+        SamusBombProjectileSystem.ReactToPowerBombBoundary(
             breakingLevel,
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            breakingReactions,
             breakingObjects,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,

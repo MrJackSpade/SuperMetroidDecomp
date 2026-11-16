@@ -37,7 +37,7 @@ internal static class ChargeFlarePlacementVerification
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
         var stock = ChargeFlarePlacementFile.Load(new MemoryStream(json));
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock));
-        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, ChargeFlareComponent, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork objects = InstalledFixtures.ProjectileArtwork();
@@ -155,7 +155,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject, InstalledFixtures.BoundContent)) && beforeSystem.SequenceEqual(GraphDigest(system, InstalledFixtures.BoundContent)), "Flare drawing changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
         {
-            var hyperSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var hyperSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             hyperSystem.Charge.FlareCounter = 30;
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
                 hyperSystem.Charge.Flare(component).Show(new(2, hyperSystem.Charge.Flare(component).Hold));

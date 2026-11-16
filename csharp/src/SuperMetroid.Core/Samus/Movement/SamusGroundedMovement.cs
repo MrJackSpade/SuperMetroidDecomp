@@ -37,7 +37,7 @@ public static class SamusGroundedMovement
         int frameCounter,
         bool elevatorIsMoving,
         ISamusRoomObjects roomObjects,
-        bool publishDoorSideEffects = true)
+        bool publishDoorSideEffects)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);

@@ -47,12 +47,10 @@ internal sealed class ChainsawFuse
         // cleared the projectile. The latter case consequently runs as no projectile, while both paths use the live Power
         // Bomb's centre and radius rather than the Chainsaw's position. Preserve the inclusive edge traversal and its
         // synchronous room-object mutations.
-        var reactions = new List<BombBlockReaction>();
-        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+        SamusBombProjectileSystem.ReactToPowerBombBoundary(
             level,
             sharedProjectiles.PowerBombExplosion.Position,
             sharedProjectiles.PowerBombExplosion.Blast.ExplosionRadius,
-            reactions,
             roomObjects,
             shot.Type);
     }

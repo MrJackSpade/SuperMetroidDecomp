@@ -391,14 +391,14 @@ internal static class InstalledFixtures
     /// </summary>
     internal static SamusProjectileSystem CreateProjectileSystem()
     {
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: Projectiles.FrameBindings));
         projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return projectiles;
     }
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new(GameplayAudioRequests.Standalone(), Maps.PowerBombGlowColors) { FrameBindings = Projectiles.FrameBindings };
+        new(GameplayAudioRequests.Standalone(), Maps.PowerBombGlowColors, SamusArtwork());
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
@@ -412,12 +412,14 @@ internal static class InstalledFixtures
     /// </summary>
     /// <param name="body">The body artwork to bind in place of the installation's own.</param>
     /// <param name="armCannon">The arm-cannon placements to bind in place of the body artwork's own.</param>
+    /// <param name="projectileFrames">The projectile frames to bind in place of the installation's own.</param>
     internal static SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding SamusArtwork(InstalledSamusBodyArtwork? body = null,
-        SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork? armCannon = null)
+        SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork? armCannon = null,
+        InstalledProjectileFrameBindings? projectileFrames = null)
     {
         var binding = new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding(body ?? SamusBody.Gameplay,
             RepositoryInstallation.SamusBody.ShownFrames, SpriteSheets,
-            Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames);
+            Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames, projectileFrames ?? Projectiles.FrameBindings);
         if (armCannon is not null)
             binding.ArmCannon = armCannon;
         return binding;
@@ -449,7 +451,6 @@ internal static class InstalledFixtures
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             NarrationPresentation = Maps.IntroNarration,
         };
-        intro.BindProjectileFrames(Projectiles.FrameBindings);
         intro.BindSpriteSheets(CinematicSheetFixtures.WithIntro(characterArtwork ?? IntroArtwork));
         return intro;
     }

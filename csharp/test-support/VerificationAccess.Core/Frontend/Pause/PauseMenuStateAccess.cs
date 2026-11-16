@@ -131,5 +131,6 @@ internal static class PauseMenuStateAccess
     private static SamusBombProjectileSystem NoFrozenBombs() =>
         new(GameplayAudioRequests.Standalone(), new InstalledPowerBombGlowColors(
             new RgbColor[PowerBombGlowColorFormat.Count(PowerBombGlowSequence.PreExplosion)],
-            new RgbColor[PowerBombGlowColorFormat.Count(PowerBombGlowSequence.Explosion)]));
+            new RgbColor[PowerBombGlowColorFormat.Count(PowerBombGlowSequence.Explosion)]),
+            global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
 }

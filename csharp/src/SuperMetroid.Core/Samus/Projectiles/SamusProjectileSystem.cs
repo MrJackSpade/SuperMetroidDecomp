@@ -92,8 +92,9 @@ public sealed class SamusProjectileSystem
     /// What each of the room's shot places keeps for its next projectile's horizontal sub-pixel position, created by the
     /// room's builder with the room's shot pool.
     /// </param>
+    /// <param name="artwork">The Samus artwork whose projectile frames the shots draw, rebound with the host's artwork.</param>
     internal SamusProjectileSystem(GameplayAudioRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
-        LeftMuzzleSubpixelCarry muzzleCarry)
+        LeftMuzzleSubpixelCarry muzzleCarry, SamusArtworkBinding artwork)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         SamusProjectileOverreads overreads = Ensure.NotNull(samusOverreads).Projectiles;
@@ -103,7 +104,7 @@ public sealed class SamusProjectileSystem
         Pool = new SamusShotPool(muzzleCarry);
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio(AudioRequests);
-        Animation = new ProjectileAnimation(Charge, Pool);
+        Animation = new ProjectileAnimation(Charge, Pool, Ensure.NotNull(artwork));
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, Pool, TerrainCollision, overreads.UnauthoredBeamFiring);
         Trails = new ProjectileTrails();
@@ -577,9 +578,9 @@ public sealed class SamusProjectileSystem
     /// elevator boarding and the intro flashback. A room's load builds a new system instead,
     /// whose held charge is the session's.
     /// </summary>
-    public void Reset(SamusState? samus = null)
+    public void Reset()
     {
-        ClearProjectileData(samus);
+        ClearProjectileData();
         Charge.ClearCount();
         Charge.PreviousCharge = BeamChargeLevel.None;
         Charge.ChargedShotGlow = ChargedShotGlow.None;
@@ -591,13 +592,8 @@ public sealed class SamusProjectileSystem
     /// Clears projectile storage without the flare
     /// counter, flare animation state or charge glow state, which <see cref="Reset"/> clears after it.
     /// </summary>
-    private void ClearProjectileData(SamusState? samus)
+    private void ClearProjectileData()
     {
-        if (samus is not null)
-        {
-            samus.HorizontalSpeed.ClearSpeedEchoes();
-            samus.Shinespark.ResetProjectileEchoStorage();
-        }
         Combos.OrbitTurnPerUpdate = TrigonometryAngle.Zero;
         Pool.ClearAll();
         Trails.Clear();

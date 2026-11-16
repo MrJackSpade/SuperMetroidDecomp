@@ -165,7 +165,7 @@ public sealed class ScrollBoundaryCamera
         FixedPosition<RoomPixels> previous,
         FixedPosition<RoomPixels> current,
         HorizontalCameraContext context,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         if (!Enum.IsDefined(context.CameraDistance))
             throw new ArgumentOutOfRangeException(nameof(context), $"Undefined camera distance {context.CameraDistance}.");
@@ -211,7 +211,7 @@ public sealed class ScrollBoundaryCamera
     /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
     /// The camera's scroll speeds are not recalculated. A negative Samus X skips both axes.
     /// </summary>
-    public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen = false)
+    public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen)
     {
         if (CoordinateAxis.AsSigned(samus.X) >= 0)
         {
@@ -250,7 +250,7 @@ public sealed class ScrollBoundaryCamera
         FixedPosition<RoomPixels> previous,
         FixedPosition<RoomPixels> current,
         VerticalCameraContext context,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         Speed = Speed.WithY(CalculateDistanceMovedPlusOne(previous.Y, current.Y));
 

@@ -100,12 +100,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles()
     {
-        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = fixtureFrames } };
+        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
         // A Super Missile impact starts the room's earthquake, so the system is bound to one, as a room load binds it (#1594).
         created.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return created;
     }
-    SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = fixtureFrames };
+    SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.Maps.PowerBombGlowColors, InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
     ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
     RoomLevelData air = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
@@ -251,10 +251,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerBombs = CreateSyntheticBombs();
     // The shot shows the installed Spazer compositions, which the Spazer sheet holds (#1513): the synthetic bindings give
     // the Spazer shot's first frame the power beam's composition, which the Spazer sheet does not hold (#1534).
-    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
-    {
-        Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
-    };
+    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), spazerFlickerBombs);
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();

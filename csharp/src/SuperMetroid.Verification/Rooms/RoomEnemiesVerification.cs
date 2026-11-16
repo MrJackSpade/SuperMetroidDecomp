@@ -326,7 +326,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
-    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
     var shotsEarthquake = new RoomEarthquake();
     shots.Earthquakes.BindRoomEarthquake(shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
@@ -351,7 +351,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
 
     int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,
-        new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors));
+        new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
     AssertEqual(2, hits,
         "blocking enemy projectile visits Super Missile owner and linked slot");

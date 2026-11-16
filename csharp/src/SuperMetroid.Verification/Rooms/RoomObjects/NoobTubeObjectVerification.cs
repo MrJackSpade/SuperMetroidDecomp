@@ -131,15 +131,11 @@ internal static class NoobTubeObjectVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "intact n00b-tube draw installs live type-$C collision");
-        var reactions = new List<BombBlockReaction>();
-        SamusBombProjectileSystem.CollectSingleBombedBlockReaction(
+        SamusBombProjectileSystem.ReactToBombedBlock(
             level,
             new(blockX, blockY),
-            reactions,
             roomObjects,
             SamusBombProjectileSystem.PowerBombType);
-        AssertEqual(1, reactions.Count,
-            "Power Bomb boundary visits the live n00b-tube origin");
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
         AssertEqual(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger),

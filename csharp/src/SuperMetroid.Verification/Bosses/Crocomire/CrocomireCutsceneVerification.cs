@@ -151,13 +151,13 @@ internal static class CrocomireCutsceneVerification
             var context = new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: true, distance);
             camera.SetPosition(new Position16<RoomPixels>(544, 0));
             for (int frame = 0; frame < 16; frame++)
-                camera.TrackMovedSamusHorizontally(point, point, context);
+                camera.TrackMovedSamusHorizontally(point, point, context, timeIsFrozen: false);
             AssertEqual((ushort)512, camera.PixelPosition.X, "left cutscene autoscroll settles to native screen two");
-            camera.TrackMovedSamusHorizontally(point, point.WithX(point.X.WithWhole(638)), context);
+            camera.TrackMovedSamusHorizontally(point, point.WithX(point.X.WithWhole(638)), context, timeIsFrozen: false);
             AssertEqual((ushort)512, camera.PixelPosition.X, "moving left cannot expose the far side of the spike wall");
-            camera.TrackMovedSamusHorizontally(point, point.WithX(point.X.WithWhole(640)), context);
+            camera.TrackMovedSamusHorizontally(point, point.WithX(point.X.WithWhole(640)), context, timeIsFrozen: false);
             AssertEqual((ushort)512, camera.PixelPosition.X, "moving right cannot expose the far side of the holding wall");
-            camera.TrackMovedSamusHorizontally(point.WithX(point.X.WithWhole(750)), point.WithX(point.X.WithWhole(751)), context);
+            camera.TrackMovedSamusHorizontally(point.WithX(point.X.WithWhole(750)), point.WithX(point.X.WithWhole(751)), context, timeIsFrozen: false);
             AssertEqual((ushort)512, camera.PixelPosition.X, "rightward target near holding wall stays within screen two");
         }
         state.DeathPhase = CrocomireDeathPhase.ClearWallAndOpenScrolls;

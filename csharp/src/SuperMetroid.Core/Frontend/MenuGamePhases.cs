@@ -312,7 +312,6 @@ internal sealed class MenuGamePhases(FrontendSession session)
             UnauthoredBoostCadence = session.unauthoredBoostCadence,
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
-        cinematic.BindProjectileFrames(session.Artwork.ProjectileFrameBindings);
         return cinematic;
     }
 }

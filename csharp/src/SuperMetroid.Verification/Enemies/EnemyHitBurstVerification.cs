@@ -91,7 +91,7 @@ internal static class EnemyHitBurstVerification
         })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health: 1000, frozenTimer);
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
@@ -326,14 +326,14 @@ internal static class EnemyHitBurstVerification
     /// <summary>One uncharged beam of <paramref name="beam"/> at <see cref="Place"/>, flying right.</summary>
     private static (SamusProjectileSystem Shots, SamusBombProjectileSystem Bombs) ShotAt(SamusBeamCombination beam)
     {
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(beam, charged: false);
         shot.Damage = 20;
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(Place);
         shot.Radius = new(4, 4);
-        return (shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors));
+        return (shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
     }
 
     /// <summary>Runs the enemy hit burst checks.</summary>

@@ -38,7 +38,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // A fast swing selects the slow-scrolling camera branch.
-        grapple.SlowScrolling = Math.Abs(grapple.AngularVelocity) >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
+        grapple.SlowScrolling = grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
         // The swing calls the same position helper used by terrain probes. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
@@ -69,41 +69,32 @@ public static class SamusGrappleSwing
         SamusState samus,
         SamusGrappleState grapple)
     {
-        int absoluteVelocity = Math.Abs(grapple.AngularVelocity);
-        int doubledVelocity = absoluteVelocity * 2;
-        int cosine = ReadSignedSine(grapple.Angle + RotationAngle.QuarterTurn);
+        AngularSpeed swingSpeed = grapple.AngularVelocity.Magnitude;
+        AngularSpeed releaseSpeed = swingSpeed + swingSpeed;
+        UnitComponent cosine = ReadSignedSine(grapple.Angle + RotationAngle.QuarterTurn);
 
-        // The swing speed is a short angular velocity doubled and the component at most one, so each product stays
-        // below 2^24 65536ths of a pixel and never wraps.
-        samus.Kinematics.YSpeed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(Math.Abs(cosine), doubledVelocity);
+        // Samus leaves at twice the swing's speed, each step of turn a pixel, along each axis's share of the rope's
+        // direction. The swing speed is at most four and a half steps and the component at most one, so each speed
+        // stays below 2^24 65536ths of a pixel and never wraps.
+        samus.Kinematics.YSpeed = cosine.SizeTimes(releaseSpeed);
 
         // The release selects Y direction from both angular-velocity sign and cosine sign.
         // Keeping that branch literal avoids deriving a screen-coordinate convention.
-        bool movingDown = grapple.AngularVelocity >= 0 ? cosine >= 0 : cosine < 0;
+        bool movingDown = grapple.AngularVelocity.IsNegative ? cosine.IsNegative : !cosine.IsNegative;
         samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-        int phaseOffset = QuarterTurnSteps - ReleaseLeadStepsPerSwingStep * EightEight.WholeOf(absoluteVelocity);
-        int horizontalSine = Math.Abs(Trigonometry.SignedSine(grapple.Angle.TurnedBySteps(-phaseOffset).ToTrigonometryAngle()));
-        samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(horizontalSine, doubledVelocity);
+        int phaseOffset = QuarterTurnSteps - ReleaseLeadStepsPerSwingStep * swingSpeed.WholeSteps;
+        UnitComponent horizontal = UnitComponent.SineOf(grapple.Angle.TurnedBySteps(-phaseOffset).ToTrigonometryAngle());
+        samus.HorizontalSpeed.BaseSpeed = horizontal.SizeTimes(releaseSpeed);
     }
-
-
-    /// <summary>Scales a signed 1/256-step trigonometric component, preserving exact positive and negative unit endpoints.</summary>
-    private static int ScaleCoordinate(int sine, int length) => sine switch
-    {
-        -256 => -length,
-        256 => length,
-        < 0 => -(EightEight.Multiply(-sine, length)),
-        _ => EightEight.Multiply(sine, length),
-    };
 
 
     /// <summary>
     /// The signed negative cosine of <paramref name="angle"/>'s whole step: the sine a quarter turn behind it.
     /// </summary>
-    internal static int ReadSignedSine(RotationAngle angle) =>
-        Trigonometry.SignedSine((angle - RotationAngle.QuarterTurn).ToTrigonometryAngle());
+    internal static UnitComponent ReadSignedSine(RotationAngle angle) =>
+        UnitComponent.SineOf((angle - RotationAngle.QuarterTurn).ToTrigonometryAngle());
 
 
     /// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
@@ -133,32 +124,34 @@ public static class SamusGrappleSwing
             grapple.Angle < RotationAngle.ThreeQuarterTurn;
         if (!inPumpArc)
         {
-            grapple.DirectionInputAcceleration = 0;
+            grapple.DirectionInputAcceleration = AngularSpeed.Zero;
             return;
         }
 
         if ((controllerInput & GameplayAction.Left) != GameplayAction.None)
         {
-            if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
+            if (HangsStraightDown(grapple) && grapple.AngularVelocity == AngularSpeed.Zero)
                 grapple.AngularVelocity = GrappleBeamDefinitions.Physics.MotionlessPumpKick;
-            grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
-                : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
+            grapple.DirectionInputAcceleration = DirectionInputPush(grapple);
             return;
         }
 
         if ((controllerInput & GameplayAction.Right) != GameplayAction.None)
         {
-            if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
+            if (HangsStraightDown(grapple) && grapple.AngularVelocity == AngularSpeed.Zero)
                 grapple.AngularVelocity = -GrappleBeamDefinitions.Physics.MotionlessPumpKick;
-            grapple.DirectionInputAcceleration = grapple.Submerged
-                ? -(GrappleBeamDefinitions.Physics.DirectionInputMagnitude / 2)
-                : -GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
+            grapple.DirectionInputAcceleration = -DirectionInputPush(grapple);
             return;
         }
 
-        grapple.DirectionInputAcceleration = 0;
+        grapple.DirectionInputAcceleration = AngularSpeed.Zero;
     }
+
+
+    /// <summary>How hard a held direction pushes the swing toward increasing angles: half as hard under water.</summary>
+    private static AngularSpeed DirectionInputPush(SamusGrappleState grapple) => grapple.Submerged
+        ? GrappleBeamDefinitions.Physics.DirectionInputMagnitude.DividedBy(2)
+        : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
 
 
     /// <summary>Walks each intermediate rope length against terrain, stopping at the last clear length to prevent tunneling.</summary>
@@ -240,43 +233,40 @@ public static class SamusGrappleSwing
         // A submerged swing takes half the gravity, and the upper quadrants a quarter of that, the halving's odd part
         // dropped before the quarter is taken.
         RotationAngle angle = grapple.Angle;
-        int gravity = grapple.Submerged
-            ? GrappleBeamDefinitions.Physics.GravityMagnitude / SubmergedGravityShare
+        AngularSpeed gravity = grapple.Submerged
+            ? GrappleBeamDefinitions.Physics.GravityMagnitude.DividedBy(SubmergedGravityShare)
             : GrappleBeamDefinitions.Physics.GravityMagnitude;
+        AngularSpeed correction = GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
         if (angle >= RotationAngle.ThreeQuarterTurn)
         {
-            grapple.VelocityCorrection =
-                -(GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude / UpperQuadrantShare);
-            grapple.GravityAcceleration = -(gravity / UpperQuadrantShare);
+            grapple.VelocityCorrection = -correction.DividedBy(UpperQuadrantShare);
+            grapple.GravityAcceleration = -gravity.DividedBy(UpperQuadrantShare);
         }
         else if (angle >= RotationAngle.HalfTurn)
         {
             // The hang test compares only the whole step: every angle within the half turn's step hangs straight down.
             if (HangsStraightDown(grapple))
             {
-                grapple.GravityAcceleration = 0;
-                grapple.VelocityCorrection = 0;
-                if (Math.Abs(grapple.AngularVelocity) < GrappleBeamDefinitions.Physics.RestingAngularVelocity)
-                    grapple.AngularVelocity = 0;
+                grapple.GravityAcceleration = AngularSpeed.Zero;
+                grapple.VelocityCorrection = AngularSpeed.Zero;
+                if (grapple.AngularVelocity.Magnitude < GrappleBeamDefinitions.Physics.RestingAngularVelocity)
+                    grapple.AngularVelocity = AngularSpeed.Zero;
             }
             else
             {
-                grapple.VelocityCorrection =
-                    -GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
+                grapple.VelocityCorrection = -correction;
                 grapple.GravityAcceleration = -gravity;
             }
         }
         else if (angle >= RotationAngle.QuarterTurn)
         {
-            grapple.VelocityCorrection =
-                GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
+            grapple.VelocityCorrection = correction;
             grapple.GravityAcceleration = gravity;
         }
         else
         {
-            grapple.VelocityCorrection =
-                GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude / UpperQuadrantShare;
-            grapple.GravityAcceleration = gravity / UpperQuadrantShare;
+            grapple.VelocityCorrection = correction.DividedBy(UpperQuadrantShare);
+            grapple.GravityAcceleration = gravity.DividedBy(UpperQuadrantShare);
         }
     }
 
@@ -284,19 +274,16 @@ public static class SamusGrappleSwing
     /// <summary>Combines input, gravity, and sign-sensitive correction before clamping pendulum angular velocity.</summary>
     internal static void IntegrateAngularVelocity(SamusGrappleState grapple)
     {
-        int velocity = grapple.AngularVelocity +
+        AngularSpeed velocity = grapple.AngularVelocity +
             grapple.DirectionInputAcceleration + grapple.GravityAcceleration;
 
         // The swing adds the small correction when the velocity and the angle lean opposite ways: a negative velocity
         // with an angle in the first half-turn, or a non-negative one with an angle in the second, so the test turns
         // over where the angle comes round to zero.
-        if ((velocity < 0) != (grapple.Angle >= RotationAngle.HalfTurn))
+        if (velocity.IsNegative != (grapple.Angle >= RotationAngle.HalfTurn))
             velocity += grapple.VelocityCorrection;
 
-        grapple.AngularVelocity = Math.Clamp(
-            velocity,
-            -GrappleBeamDefinitions.Physics.MaximumAngularVelocity,
-            GrappleBeamDefinitions.Physics.MaximumAngularVelocity);
+        grapple.AngularVelocity = velocity.LimitedTo(GrappleBeamDefinitions.Physics.MaximumAngularVelocity);
     }
 
 
@@ -312,16 +299,12 @@ public static class SamusGrappleSwing
         if (grapple.CollisionBounceTimer != 0 &&
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
-            grapple.JumpImpulse = grapple.AngularVelocity switch
-            {
-                > 0 => grapple.Submerged
-                    ? (GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
-                    : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
-                < 0 => grapple.Submerged
-                    ? -(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude / 2)
-                    : -GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
-                _ => 0,
-            };
+            AngularSpeed impulse = grapple.Submerged
+                ? GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.DividedBy(2)
+                : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude;
+            grapple.JumpImpulse = grapple.AngularVelocity == AngularSpeed.Zero ? AngularSpeed.Zero
+                : grapple.AngularVelocity.IsNegative ? -impulse
+                : impulse;
         }
     }
 
@@ -335,17 +318,18 @@ public static class SamusGrappleSwing
         // The angular movement first converts angular velocity into an angle delta, then walks from the
         // current whole angle step to the target one step at a time. Fractional-only motion
         // within the same step has no sweep, exactly as the target-step equality branch.
-        int combined = grapple.AngularVelocity + grapple.JumpImpulse;
-        int factor = grapple.Submerged ? GrappleBeamDefinitions.Physics.SubmergedSwingSpeedScale : GrappleBeamDefinitions.Physics.SwingSpeedScale;
-        int magnitude = EightEight.Multiply(Math.Abs(combined), factor);
-        if (magnitude == 0)
+        // A submerged swing turns through only a share of its speed, rounded toward no turning.
+        AngularSpeed combined = grapple.AngularVelocity + grapple.JumpImpulse;
+        AngularSpeed turn = grapple.Submerged
+            ? combined.ScaledBy(GrappleBeamDefinitions.Physics.SubmergedSwingShare, GrappleBeamDefinitions.Physics.SubmergedSwingParts)
+            : combined;
+        if (turn == AngularSpeed.Zero)
             return;
 
-        int signedDelta = combined < 0 ? -magnitude : magnitude;
-        RotationAngle targetAngle = grapple.Angle.TurnedByFractionsOfStep(signedDelta);
+        RotationAngle targetAngle = grapple.Angle.TurnedBy(turn);
         TrigonometryAngle targetStep = targetAngle.ToTrigonometryAngle();
         TrigonometryAngle lastSafeStep = grapple.Angle.ToTrigonometryAngle();
-        int stepDirection = combined < 0 ? -1 : 1;
+        int stepDirection = combined.IsNegative ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
         // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a
@@ -375,8 +359,8 @@ public static class SamusGrappleSwing
                     // This bit asks the swing to compare against the eight exact locked and
                     // wallgrab angles. Velocity is stopped instead of reflected.
                     grapple.SpecialAngleHandling = true;
-                    grapple.AngularVelocity = 0;
-                    grapple.JumpImpulse = 0;
+                    grapple.AngularVelocity = AngularSpeed.Zero;
+                    grapple.JumpImpulse = AngularSpeed.Zero;
                 }
                 else
                 {
@@ -405,10 +389,7 @@ public static class SamusGrappleSwing
 
         // The angular movement damps the temporary jump impulse toward zero after a successful
         // angle step. This impulse is separate from angular velocity and must not be folded in.
-        if (grapple.JumpImpulse > 0)
-            grapple.JumpImpulse = Math.Max(0, grapple.JumpImpulse - GrappleBeamDefinitions.Physics.JumpImpulseDecay);
-        else if (grapple.JumpImpulse < 0)
-            grapple.JumpImpulse = Math.Min(0, grapple.JumpImpulse + GrappleBeamDefinitions.Physics.JumpImpulseDecay);
+        grapple.JumpImpulse = grapple.JumpImpulse.SlowedTowardRest(GrappleBeamDefinitions.Physics.JumpImpulseDecay);
     }
 
 
@@ -445,8 +426,8 @@ public static class SamusGrappleSwing
         TrigonometryAngle angle,
         int distance)
     {
-        int xSine = Trigonometry.SignedSine(angle);
-        int yNegativeCosine = Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn);
+        UnitComponent xSine = UnitComponent.SineOf(angle);
+        UnitComponent yNegativeCosine = UnitComponent.SineOf(angle - TrigonometryAngle.QuarterTurn);
 
         // For a block anchor, the collision point biases the position within the block toward the side from
         // which the rope leaves the block, one pixel nearer the block's start for a negative component. This one-pixel
@@ -457,8 +438,8 @@ public static class SamusGrappleSwing
             CoordinateAxis.Wrap(BiasedWithinBlock(grapple.Anchor.Y, yNegativeCosine)));
 
         Position16<RoomPixels> point = grapple.Anchor + new Offset16<RoomPixels>(
-            ScaleCoordinate(xSine, distance),
-            ScaleCoordinate(yNegativeCosine, distance));
+            xSine.ReachOf(distance),
+            yNegativeCosine.ReachOf(distance));
 
         // The helper takes each block column and row within the scan cycle. Rooms are authored within it;
         // keeping the cycle matters where a point wraps around the room's coordinates.
@@ -474,8 +455,8 @@ public static class SamusGrappleSwing
     /// <see cref="AnchorBiasTowardPositive"/> for a <paramref name="ropeComponent"/> that is not negative, or
     /// <see cref="AnchorBiasTowardNegative"/> for a negative one.
     /// </summary>
-    private static int BiasedWithinBlock(int anchor, int ropeComponent) =>
-        RoomGridConversions.BlockStart(anchor) + (ropeComponent >= 0 ? AnchorBiasTowardPositive : AnchorBiasTowardNegative);
+    private static int BiasedWithinBlock(int anchor, UnitComponent ropeComponent) =>
+        RoomGridConversions.BlockStart(anchor) + (ropeComponent.IsNegative ? AnchorBiasTowardNegative : AnchorBiasTowardPositive);
 
 
     /// <summary>Resolves grapple swing collision through block extensions, including damaging spike reactions.</summary>
@@ -600,6 +581,5 @@ public static class SamusGrappleSwing
     /// rounded toward negative values, so an odd negative velocity rebounds one 256th of a step faster than the odd
     /// positive velocity of the same size.
     /// </summary>
-    internal static int ReversedAtHalfSpeed(int velocity) =>
-        -(velocity >= 0 ? velocity / 2 : -((-velocity + 1) / 2));
+    internal static AngularSpeed ReversedAtHalfSpeed(AngularSpeed velocity) => -velocity.HalvedRoundingDown();
 }

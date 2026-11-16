@@ -17,7 +17,7 @@ internal static class GrappleBeamDefinitionsVerification
     /// </summary>
     internal static void VerifySamusGrappleRomData()
     {
-        AssertTrue(GrappleBeamDefinitions.Physics.GravityMagnitude > 0,
+        AssertTrue(GrappleBeamDefinitions.Physics.GravityMagnitude > AngularSpeed.Zero,
             "Grapple gravity magnitude is positive");
         AssertTrue(GrappleBeamDefinitions.Physics.MaximumAngularVelocity >
             GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,

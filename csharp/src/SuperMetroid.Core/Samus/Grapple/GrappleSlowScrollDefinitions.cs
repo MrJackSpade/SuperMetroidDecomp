@@ -22,8 +22,8 @@ internal static class GrappleSlowScrollDefinitions
     public const int TopEdgeY = 112;
 
     /// <summary>
-    /// Swing angular speed from which the swing sets the flag; slower
+    /// Swing angular speed, a quarter of a step an update either way, from which the swing sets the flag; slower
     /// swings clear it.
     /// </summary>
-    public const int FastSwingAngularSpeed = 64;
+    public static readonly AngularSpeed FastSwingAngularSpeed = AngularSpeed.FromFractionsOfStep(64);
 }

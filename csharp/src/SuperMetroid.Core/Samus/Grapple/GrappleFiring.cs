@@ -17,23 +17,23 @@ internal static class GrappleFiring
     /// </remarks>
     internal static GrappleLaunchDefinition Launch(SamusProjectileDirection direction)
     {
-        int x = direction switch
+        SignedEightEight x = direction switch
         {
-            SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight => DiagonalVelocity,
-            SamusProjectileDirection.Right => CardinalVelocity,
-            SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft => -DiagonalVelocity,
-            SamusProjectileDirection.Left => -CardinalVelocity,
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight => DiagonalSpeed,
+            SamusProjectileDirection.Right => CardinalSpeed,
+            SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft => -DiagonalSpeed,
+            SamusProjectileDirection.Left => -CardinalSpeed,
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => 0,
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => SignedEightEight.Zero,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {direction}."),
         };
-        int y = direction switch
+        SignedEightEight y = direction switch
         {
-            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => -CardinalVelocity,
-            SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => -DiagonalVelocity,
-            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft => DiagonalVelocity,
-            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => CardinalVelocity,
-            SamusProjectileDirection.Right or SamusProjectileDirection.Left => 0,
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => -CardinalSpeed,
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => -DiagonalSpeed,
+            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft => DiagonalSpeed,
+            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => CardinalSpeed,
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => SignedEightEight.Zero,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {direction}."),
         };
         RotationAngle angle = direction switch
@@ -48,7 +48,7 @@ internal static class GrappleFiring
             SamusProjectileDirection.UpLeft => RotationAngle.QuarterTurn + RotationAngle.EighthTurn,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {direction}."),
         };
-        return new(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(x, y), angle);
+        return new(new EightEightVector<RoomPixels>(x, y), angle);
     }
 
     /// <summary>X and Y hand anchors selected by firing pose.

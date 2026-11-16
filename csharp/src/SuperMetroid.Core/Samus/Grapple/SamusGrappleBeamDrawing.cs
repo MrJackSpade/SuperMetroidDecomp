@@ -209,11 +209,11 @@ public static class SamusGrappleBeamDrawing
 
     /// <summary>
     /// The displacement along one axis from one rope picture's centre to the next: one segment's spacing scaled by the
-    /// draw direction's signed sine <paramref name="sine"/>, in 256ths, keeping the fraction so diagonal and backward
+    /// draw direction's share <paramref name="component"/> along the axis, keeping the fraction so diagonal and backward
     /// steps add up exactly.
     /// </summary>
-    private static SignedSixteenSixteen SegmentStep(int sine) =>
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sine * GrappleBeamDefinitions.Rendering.SegmentSpacing);
+    private static SignedSixteenSixteen SegmentStep(UnitComponent component) =>
+        component.ExactReachOf(GrappleBeamDefinitions.Rendering.SegmentSpacing);
 
     /// <summary>
     /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of

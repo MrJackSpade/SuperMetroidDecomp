@@ -16,8 +16,8 @@ internal static class GrappleSwingArithmeticVerification
     {
         int[] velocities =
         [
-            -GrappleBeamDefinitions.Physics.MaximumAngularVelocity, -257, -256, -255, -1, 0, 1, 255, 256, 257,
-            GrappleBeamDefinitions.Physics.MaximumAngularVelocity,
+            -GrappleBeamDefinitions.Physics.MaximumAngularVelocity.FractionsOfStep, -257, -256, -255, -1, 0, 1, 255, 256, 257,
+            GrappleBeamDefinitions.Physics.MaximumAngularVelocity.FractionsOfStep,
         ];
         int gravityCompared = 0, gravityMismatches = 0;
         string? firstGravityMismatch = null;
@@ -29,10 +29,10 @@ internal static class GrappleSwingArithmeticVerification
                 {
                     RotationAngle angle = RotationAngle.FromRaw(raw);
                     var expected = ReplacedGravity(angle, submerged, velocity);
-                    var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Angle = angle, Submerged = submerged, AngularVelocity = velocity };
+                    var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Angle = angle, Submerged = submerged, AngularVelocity = AngularSpeed.FromFractionsOfStep(velocity) };
                     SamusGrappleSwing.CalculateGravity(grapple);
                     gravityCompared++;
-                    if ((grapple.GravityAcceleration, grapple.VelocityCorrection, grapple.AngularVelocity) != expected)
+                    if ((grapple.GravityAcceleration.FractionsOfStep, grapple.VelocityCorrection.FractionsOfStep, grapple.AngularVelocity.FractionsOfStep) != expected)
                     {
                         gravityMismatches++;
                         firstGravityMismatch ??= $"angle {raw}, submerged {submerged}, velocity {velocity}: expected {expected}, " +
@@ -46,10 +46,10 @@ internal static class GrappleSwingArithmeticVerification
 
         int bounceMismatches = 0;
         string? firstBounceMismatch = null;
-        for (int velocity = -ushort.MaxValue - 1; velocity <= ushort.MaxValue + 1; velocity++)
+        for (int velocity = short.MinValue; velocity <= short.MaxValue; velocity++)
         {
-            int expected = -(velocity >> 1);
-            int actual = SamusGrappleSwing.ReversedAtHalfSpeed(velocity);
+            AngularSpeed expected = AngularSpeed.FromFractionsOfStep(-(velocity >> 1));
+            AngularSpeed actual = SamusGrappleSwing.ReversedAtHalfSpeed(AngularSpeed.FromFractionsOfStep(velocity));
             if (actual != expected)
             {
                 bounceMismatches++;
@@ -58,14 +58,102 @@ internal static class GrappleSwingArithmeticVerification
         }
 
         AssertEqual(0, bounceMismatches, $"bounce reversed half speed against the replaced shift; first: {firstBounceMismatch}");
-        Console.WriteLine($"Grapple swing arithmetic: {gravityCompared} gravity cases and every bounce velocity give the replaced shifts' results.");
+        int typedCases = VerifyTypedSwingArithmetic();
+        Console.WriteLine($"Grapple swing arithmetic: {gravityCompared} gravity cases, every bounce velocity and {typedCases} typed-speed cases give the replaced arithmetic's results.");
+    }
+
+    /// <summary>
+    /// Compares the typed angular speeds, unit components and launch speeds (#2110) with the raw 256ths arithmetic they
+    /// replaced: the submerged swing's share of its turn, the clamp to the fastest swing, the jump impulse's decay, the
+    /// rope's segment step, the octant angle of an offset and the launch velocities, over every value each can take.
+    /// </summary>
+    /// <returns>The cases compared.</returns>
+    private static int VerifyTypedSwingArithmetic()
+    {
+        int cases = 0;
+        int fastest = GrappleBeamDefinitions.Physics.MaximumAngularVelocity.FractionsOfStep;
+        int impulse = GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.FractionsOfStep;
+        int decay = GrappleBeamDefinitions.Physics.JumpImpulseDecay.FractionsOfStep;
+        for (int combined = -(fastest + impulse); combined <= fastest + impulse; combined++)
+        {
+            // The replaced turn: the combined speed's size times 160/256, then its sign restored.
+            int size = EightEight.Multiply(Math.Abs(combined), 160);
+            AssertEqual(AngularSpeed.FromFractionsOfStep(combined < 0 ? -size : size),
+                AngularSpeed.FromFractionsOfStep(combined).ScaledBy(GrappleBeamDefinitions.Physics.SubmergedSwingShare, GrappleBeamDefinitions.Physics.SubmergedSwingParts),
+                $"submerged swing share of {combined}");
+            AssertEqual(AngularSpeed.FromFractionsOfStep(Math.Clamp(combined, -fastest, fastest)),
+                AngularSpeed.FromFractionsOfStep(combined).LimitedTo(GrappleBeamDefinitions.Physics.MaximumAngularVelocity),
+                $"swing speed {combined} held to the fastest swing");
+            cases += 2;
+        }
+        for (int jump = -impulse; jump <= impulse; jump++)
+        {
+            int expected = jump > 0 ? Math.Max(0, jump - decay) : jump < 0 ? Math.Min(0, jump + decay) : 0;
+            AssertEqual(AngularSpeed.FromFractionsOfStep(expected),
+                AngularSpeed.FromFractionsOfStep(jump).SlowedTowardRest(GrappleBeamDefinitions.Physics.JumpImpulseDecay),
+                $"jump impulse {jump} decays toward rest");
+            cases++;
+        }
+        for (int angle = 0; angle < RotationAngle.StepsPerTurn; angle++)
+        {
+            int sine = Trigonometry.SignedSine(new TrigonometryAngle(angle));
+            AssertEqual(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sine * GrappleBeamDefinitions.Rendering.SegmentSpacing),
+                UnitComponent.SineOf(new TrigonometryAngle(angle)).ExactReachOf(GrappleBeamDefinitions.Rendering.SegmentSpacing),
+                $"rope segment step at angle {angle}");
+            cases++;
+        }
+        for (int y = -160; y <= 160; y++)
+        for (int x = -160; x <= 160; x++)
+        {
+            AssertEqual(ReplacedAngleFromXY(x, y), SamusGrappleMovement.CalculateAngleFromXY(Offset16<RoomPixels>.Of(x, y)),
+                $"angle of offset ({x}, {y})");
+            cases++;
+        }
+        // The replaced launch speeds in 256ths of a pixel an update: twelve times 255 along an axis, twelve times 181 along
+        // each axis of a diagonal.
+        var launches = new Dictionary<SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection, (int X, int Y)>
+        {
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.UpFacingRight] = (0, -3060),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.UpRight] = (2172, -2172),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right] = (3060, 0),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.DownRight] = (2172, 2172),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.DownFacingRight] = (0, 3060),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.DownFacingLeft] = (0, 3060),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.DownLeft] = (-2172, 2172),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left] = (-3060, 0),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.UpLeft] = (-2172, -2172),
+            [SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.UpFacingLeft] = (0, -3060),
+        };
+        foreach ((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection direction, (int X, int Y) expected) in launches)
+        {
+            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(expected.X, expected.Y), GrappleFiring.Launch(direction).Velocity,
+                $"grapple launch velocity toward {direction}");
+            cases++;
+        }
+        return cases;
+    }
+
+    /// <summary>The angle of an offset as the replaced arithmetic computed it: the tangent in 256ths, then its octant steps.</summary>
+    private static RotationAngle ReplacedAngleFromXY(int x, int y)
+    {
+        int absoluteX = Math.Abs(x), absoluteY = Math.Abs(y);
+        if (absoluteX == 0 && absoluteY == 0)
+            return RotationAngle.Zero;
+        bool leanSameWay = (x < 0) == (y < 0);
+        if (absoluteY < absoluteX)
+        {
+            int steps = (256 * absoluteY / absoluteX) * 32 / 256;
+            return (x < 0 ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn).TurnedBySteps(leanSameWay ? steps : -steps);
+        }
+        int reciprocal = (256 * absoluteX / absoluteY) * 32 / 256;
+        return (y < 0 ? RotationAngle.Zero : RotationAngle.HalfTurn).TurnedBySteps(leanSameWay ? -reciprocal : reciprocal);
     }
 
     /// <summary>The quadrant gravity, correction and hang stop as the replaced shifts computed them.</summary>
     private static (int Gravity, int Correction, int Velocity) ReplacedGravity(RotationAngle angle, bool submerged, int velocity)
     {
-        const int gravity = GrappleBeamDefinitions.Physics.GravityMagnitude;
-        const int correction = GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
+        int gravity = GrappleBeamDefinitions.Physics.GravityMagnitude.FractionsOfStep;
+        int correction = GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude.FractionsOfStep;
         if (angle >= RotationAngle.ThreeQuarterTurn)
             return (submerged ? -(gravity >> 3) : -(gravity >> 2), -(correction >> 2), velocity);
         if (angle >= RotationAngle.HalfTurn)

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Spatial;
 /// carrying beneath them from update to update. Its fraction is a rotation angle's, so a speed turns a rotation angle
 /// exactly. The same measure serves the change a turning speed takes each update.
 /// </summary>
-public readonly record struct AngularSpeed
+public readonly record struct AngularSpeed : IComparable<AngularSpeed>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
@@ -81,6 +81,43 @@ public readonly record struct AngularSpeed
         return beyond ? new(cap * FractionsPerStep + Fraction) : this;
     }
 
+    /// <summary>How fast the speed turns, whichever way: the speed itself, or the same speed turning the other way.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The speed is the most negative one, which has no reversal within the range.</exception>
+    public AngularSpeed Magnitude => IsNegative ? -this : this;
+
+    /// <summary>
+    /// The speed scaled by <paramref name="share"/> parts of <paramref name="parts"/> (#2110), rounded toward no turning
+    /// to a whole 256th of a step, as a swing slowed by water turns through only a share of its speed.
+    /// </summary>
+    /// <param name="share">The parts of the speed kept, zero or more.</param>
+    /// <param name="parts">The parts the speed divides into, at least one.</param>
+    public AngularSpeed ScaledBy(int share, int parts) =>
+        new(FractionsOfStep * Ensure.BetweenInclusive(0, int.MaxValue, share) / Ensure.BetweenInclusive(1, int.MaxValue, parts));
+
+    /// <summary>Half the speed, rounded toward decreasing angles to a whole 256th of a step (#2110).</summary>
+    public AngularSpeed HalvedRoundingDown() => new(FractionsOfStep >> 1);
+
+    /// <summary>
+    /// The speed held within <paramref name="most"/> either way (#2110): a speed faster than it toward either side turns
+    /// at it toward that side.
+    /// </summary>
+    /// <param name="most">The fastest the speed may turn, either way; not negative.</param>
+    public AngularSpeed LimitedTo(AngularSpeed most)
+    {
+        int limit = Ensure.BetweenInclusive(0, int.MaxValue, most.FractionsOfStep);
+        return new(Math.Clamp(FractionsOfStep, -limit, limit));
+    }
+
+    /// <summary>
+    /// The speed slowed toward no turning by <paramref name="slowing"/> (#2110), stopping at none rather than passing it.
+    /// </summary>
+    /// <param name="slowing">How much slower the speed turns; not negative.</param>
+    public AngularSpeed SlowedTowardRest(AngularSpeed slowing)
+    {
+        int amount = Ensure.BetweenInclusive(0, int.MaxValue, slowing.FractionsOfStep);
+        return IsNegative ? new(Math.Min(0, FractionsOfStep + amount)) : new(Math.Max(0, FractionsOfStep - amount));
+    }
+
     /// <summary>A speed changed by <paramref name="change"/>, its fractions carrying into its whole steps.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sum turns half a turn or more an update.</exception>
     public static AngularSpeed operator +(AngularSpeed speed, AngularSpeed change) =>
@@ -89,6 +126,21 @@ public readonly record struct AngularSpeed
     /// <summary>The same speed turning the other way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed is the most negative one, which has no reversal within the range.</exception>
     public static AngularSpeed operator -(AngularSpeed speed) => new(-speed.FractionsOfStep);
+
+    /// <inheritdoc />
+    public int CompareTo(AngularSpeed other) => FractionsOfStep.CompareTo(other.FractionsOfStep);
+
+    /// <summary>Whether <paramref name="left"/> turns further toward decreasing angles than <paramref name="right"/>.</summary>
+    public static bool operator <(AngularSpeed left, AngularSpeed right) => left.CompareTo(right) < 0;
+
+    /// <summary>Whether <paramref name="left"/> turns further toward increasing angles than <paramref name="right"/>.</summary>
+    public static bool operator >(AngularSpeed left, AngularSpeed right) => left.CompareTo(right) > 0;
+
+    /// <summary>Whether <paramref name="left"/> turns no further toward increasing angles than <paramref name="right"/>.</summary>
+    public static bool operator <=(AngularSpeed left, AngularSpeed right) => left.CompareTo(right) <= 0;
+
+    /// <summary>Whether <paramref name="left"/> turns no further toward decreasing angles than <paramref name="right"/>.</summary>
+    public static bool operator >=(AngularSpeed left, AngularSpeed right) => left.CompareTo(right) >= 0;
 
     /// <inheritdoc />
     public override string ToString() => $"{FractionsOfStep}/256 step per update";

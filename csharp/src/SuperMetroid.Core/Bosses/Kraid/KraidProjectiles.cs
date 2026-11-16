@@ -531,10 +531,11 @@ internal sealed class KraidProjectiles
     internal void ReactToKraidNailTouch(EnemyTouchContext context)
     {
         _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
-        // A fingernail the touch left in its place dies in the explosion its remaining health names.
+        // A fingernail the touch left in its place dies in the explosion the health the touch left names
+        // (LeftoverNumberDeathExplosion).
         if (!context.Place.IsFree)
             _deathsAndDrops.StartGenericEnemyDeath(context.Place,
-                KraidNailTouchDeathExplosion.AfterTouch(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
+                LeftoverNumberDeathExplosion.Named(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
     }
 
 }

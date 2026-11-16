@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Powamp;
 
 namespace SuperMetroid.Verification.Bosses;
 
@@ -34,8 +35,9 @@ internal static class BossRuleRangesVerification
     }
 
     /// <summary>
-    /// The death explosion rules over every health and place: zero through four name the explosions in their authored
-    /// order and anything past them the small one; a Powamp's first three spike places select small, normal and big.
+    /// The death explosion a leftover number names, over every number a touch's health or a burst's place leaves: zero
+    /// through four name the explosions in their authored order and anything past them, or no number, the small one; a
+    /// Powamp's first three spike places select small, normal and big.
     /// </summary>
     internal static void VerifyDeathExplosionRules()
     {
@@ -45,14 +47,13 @@ internal static class BossRuleRangesVerification
             EnemyDeathExplosion.Small, EnemyDeathExplosion.SamusContact, EnemyDeathExplosion.Normal,
             EnemyDeathExplosion.MiniKraid, EnemyDeathExplosion.Big,
         ];
-        for (int health = 0; health < 1024; health++)
+        for (int number = 0; number < 1024; number++)
         {
-            EnemyDeathExplosion expected = health < expectedByNumber.Length ? expectedByNumber[health] : EnemyDeathExplosion.Small;
-            AssertEqual(expected, FirefleaTouchDeathExplosion.AfterSurvivedTouch(health, order), $"a Fireflea left {health} health");
-            AssertEqual(expected, KraidNailTouchDeathExplosion.AfterTouch(health, order), $"a fingernail left {health} health");
+            EnemyDeathExplosion expected = number < expectedByNumber.Length ? expectedByNumber[number] : EnemyDeathExplosion.Small;
+            AssertEqual(expected, LeftoverNumberDeathExplosion.Named(number, order), $"a leftover number {number}");
         }
-        AssertEqual(EnemyDeathExplosion.Small, FirefleaTouchDeathExplosion.AfterKillingTouch(order), "a Fireflea killed by the touch dies again small");
-        AssertEqual(EnemyDeathExplosion.Small, PowampBurstExplosion.AfterBurst(null, order), "a burst into a full pool");
+        AssertEqual(EnemyDeathExplosion.Small, LeftoverNumberDeathExplosion.Named(null, order), "a leftover that is no number");
+        AssertEqual(EnemyDeathExplosion.Small, PowampBehavior.ExplosionAfterBurst(null), "a burst into a full pool");
         for (int place = 0; place < 18; place++)
         {
             EnemyDeathExplosion expected = place switch
@@ -62,9 +63,10 @@ internal static class BossRuleRangesVerification
                 2 => EnemyDeathExplosion.Big,
                 _ => EnemyDeathExplosion.Small,
             };
-            AssertEqual(expected, PowampBurstExplosion.AfterBurst(place, order), $"a last spike in place {place}");
+            AssertEqual(expected, PowampBehavior.ExplosionAfterBurst(place), $"a last spike in place {place}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => FirefleaTouchDeathExplosion.AfterSurvivedTouch(-1, order), "negative health is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => LeftoverNumberDeathExplosion.Named(-1, order), "a negative number is refused");
+        AssertThrows<ArgumentException>(() => LeftoverNumberDeathExplosion.Named(0, order.Take(4).ToArray()), "the five explosions are required");
         AssertTrue(KilledFingernailStops.SiblingTookAlternateSpawn("waiting", static _ => true), "a living sibling's alternate spawn is read");
         AssertTrue(!KilledFingernailStops.SiblingTookAlternateSpawn<string>(null, static _ => true), "a killed sibling took no alternate spawn");
         AssertTrue(!KilledFingernailStops.SiblingTookAlternateSpawn("launched", static _ => false), "a sibling that took the ordinary spawn");

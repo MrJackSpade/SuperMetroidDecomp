@@ -49,7 +49,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         var clamped = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace clampedEnemy = clamped.Places.InUpdateOrder[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
-        clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, FirefleaTouchDeathExplosion.AfterSurvivedTouch(5, EnemyDeathExplosionDefinitions.AuthoredOrder));
+        clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, LeftoverNumberDeathExplosion.Named(5, EnemyDeathExplosionDefinitions.AuthoredOrder));
         AssertEqual(EnemyDeathProjectileSegment.SmallExplosion,
             ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
             "a Fireflea health above four starts the small explosion");

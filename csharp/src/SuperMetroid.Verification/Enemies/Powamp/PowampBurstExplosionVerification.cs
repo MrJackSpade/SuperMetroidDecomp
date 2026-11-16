@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Verification.Enemies.Powamp;
 
 /// <summary>
 /// #1513: a Powamp shot dead explodes with the explosion its burst's last spike's place in the projectile pool selects,
-/// the <see cref="PowampBurstExplosion"/> compatibility rule, rather than a number read from its graphics.
+/// twice that place names (<see cref="LeftoverNumberDeathExplosion"/>), rather than a number read from its graphics.
 /// </summary>
 internal static class PowampBurstExplosionVerification
 {
@@ -48,8 +49,7 @@ internal static class PowampBurstExplosionVerification
     }
 
     /// <summary>The explosion a Powamp dies with after a burst whose last spike took <paramref name="place"/>.</summary>
-    private static EnemyDeathExplosion ExplosionAfter(int? place) =>
-        PowampBurstExplosion.AfterBurst(place, EnemyDeathExplosionDefinitions.AuthoredOrder);
+    private static EnemyDeathExplosion ExplosionAfter(int? place) => PowampBehavior.ExplosionAfterBurst(place);
 
     /// <summary>Runs the Powamp burst explosion rule check.</summary>
     [VerificationCommand("--powamp-burst-explosion")]

@@ -119,19 +119,14 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _collision.ResolveNormalEnemyTouch(place, samus);
 
-        // The touch kills the Fireflea whatever it left, in the explosion FirefleaTouchDeathExplosion names. Queue that
-        // death animation before clearing the actor so its artwork and sound can run.
-        if (!place.IsFree)
-            _deathsAndDrops.StartGenericEnemyDeath(place, deathAnimation:
-                FirefleaTouchDeathExplosion.AfterSurvivedTouch(place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
-        else
-        {
-            // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the emptied
-            // place. The second explosion appears at the room's top-left corner for whatever the place now holds (nothing,
-            // or the respawn placeholder), clears that placeholder, and counts a second kill.
-            _deathsAndDrops.StartGenericEnemyDeath(place, deathAnimation:
-                FirefleaTouchDeathExplosion.AfterKillingTouch(EnemyDeathExplosionDefinitions.AuthoredOrder));
-        }
+        // The touch kills the Fireflea whatever it left, in the explosion the health the touch left names
+        // (LeftoverNumberDeathExplosion). Queue that death animation before clearing the actor so its artwork and sound
+        // can run. When common attacking contact already ran the death, the Fireflea's touch reaction runs it again on
+        // the emptied place, whose cleared health names the small explosion: the second explosion appears at the room's
+        // top-left corner for whatever the place now holds (nothing, or the respawn placeholder), clears that placeholder,
+        // and counts a second kill.
+        _deathsAndDrops.StartGenericEnemyDeath(place, deathAnimation:
+            LeftoverNumberDeathExplosion.Named(place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
         AdvanceFirefleaDarkness();
     }
 

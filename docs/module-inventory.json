@@ -136,7 +136,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Compatibility",
       "role": "production",
-      "files": 187,
+      "files": 189,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -320,7 +320,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
-      "files": 470,
+      "files": 469,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -363,7 +363,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 512,
+      "files": 514,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -1033,7 +1033,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 1187,
+      "files": 1188,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -37553,6 +37553,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Compatibility/QuicksandSurfaceSpeedLeftover.cs",
+      "module": "csharp/src/SuperMetroid.Core/Compatibility",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Compatibility",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Compatibility/RainbowBeamCameraCheckpoint.cs",
       "module": "csharp/src/SuperMetroid.Core/Compatibility",
       "role": "production",
@@ -38161,6 +38174,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Compatibility/SpeedBoosterJumpBonus.cs",
+      "module": "csharp/src/SuperMetroid.Core/Compatibility",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Compatibility",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -64990,16 +65016,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/BombBlockReaction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Rooms",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Rooms.LevelData",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/BombBlockRestoreDraw.cs",
       "module": "csharp/src/SuperMetroid.Core/Rooms",
       "role": "production",
@@ -69849,7 +69865,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Progression"
       ]
     },
@@ -71798,6 +71813,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusCameraDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Samus",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Samus.Movement",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusCeilingResponse.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -71935,6 +71960,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
@@ -71999,6 +72025,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusLandingParticlePair.cs",
+      "module": "csharp/src/SuperMetroid.Core/Samus",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Samus.Movement",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusLaunchKind.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -72049,6 +72088,19 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusLiquidParticleDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Samus",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Samus.Movement",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -73390,19 +73442,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/BombSpreadHorizontalVelocity.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -88662,7 +88701,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Samus/Projectiles/BombSpreadHorizontalVelocityToolingExtensions.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Samus/Projectiles/BombSpreadLaunchWords.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Samus.Projectiles",
@@ -88672,7 +88711,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Samus"
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -126182,9 +126221,7 @@
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/test-support/Assertions",
-        "csharp/test-support/VerificationAccess.Core",
-        "csharp/test-support/VerificationImporters"
+        "csharp/test-support/Assertions"
       ]
     },
     {
@@ -135706,6 +135743,22 @@
       ]
     },
     {
+      "path": "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCountdownAccess2.cs",
+      "module": "csharp/test-support/VerificationAccess.Core",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.Core.Compatibility",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Compatibility"
+      ]
+    },
+    {
       "path": "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCounterAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
@@ -136005,7 +136058,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Core/Samus/Projectiles/BombSpreadHorizontalVelocityToolingExtensionsAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Core/Samus/Projectiles/BombSpreadLaunchWordsAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Samus.Projectiles",
@@ -136017,7 +136070,6 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling"
       ]

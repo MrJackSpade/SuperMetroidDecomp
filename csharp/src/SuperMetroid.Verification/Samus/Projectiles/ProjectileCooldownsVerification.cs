@@ -66,7 +66,7 @@ internal static class ProjectileCooldownsVerification
             projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared);
             AssertEqual(0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
-            AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
+            AssertEqual(15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
         }
         foreach (ushort beam in new ushort[] { 0, 10 })
         {

@@ -346,12 +346,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case PhantoonPartCue.PlayMaterializationSound:
-                _audio.RequestPhantoonMaterializationSound(
-                    PhantoonSounds.MaterializationSound(
-                        state.MaterializationSoundIndex));
-                state.MaterializationSoundIndex++;
-                if (state.MaterializationSoundIndex >= PhantoonSoundDefinitions.MaterializationSoundCount)
-                    state.MaterializationSoundIndex = 0;
+                _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound);
+                state.NextMaterializationSound = PhantoonSounds.MaterializationSoundAfter(state.NextMaterializationSound);
                 return;
 
             case PhantoonPartCue.BeginEyeTracking:

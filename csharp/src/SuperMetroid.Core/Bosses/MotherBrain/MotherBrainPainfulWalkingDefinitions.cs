@@ -9,8 +9,9 @@ internal static class MotherBrainPainfulWalkingDefinitions
     /// <summary>Each forward/backward pair of stages shares one timing.</summary>
     internal const int StagesPerPair = 2;
 
-    /// <summary>By pair: the first pair is fastest; subsequent pairs add two animation ticks.</summary>
-    internal static readonly int[] AnimationDelays = [2, 6, 8, 10];
+    /// <summary>By pair: how fast she staggers, slowing from her fastest step through middling and slow to her slowest.</summary>
+    internal static readonly MotherBrainWalkSpeed[] Speeds =
+        [MotherBrainWalkSpeed.ReallyFast, MotherBrainWalkSpeed.Medium, MotherBrainWalkSpeed.Slow, MotherBrainWalkSpeed.ReallySlow];
 
     /// <summary>By pair: how far the neck turns each update, slowing from five steps to two, three quarters and a quarter of a step.</summary>
     internal static readonly RotationAngle[] NeckTurns =

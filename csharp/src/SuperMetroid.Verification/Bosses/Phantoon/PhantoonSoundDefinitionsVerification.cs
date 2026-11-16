@@ -11,21 +11,21 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Phantoon's three materialization sounds and their production callback cycle.</summary>
 internal static class PhantoonSoundDefinitionsVerification
 {
-    /// <summary>Compares native sound words and confirms two callback cycles advance the index without rereading the table.</summary>
+    /// <summary>Compares native sound words and confirms two callback cycles advance the next sound without rereading the table.</summary>
     internal static void VerifyPhantoonSoundDefinitions(CartridgeImportAddressSpace rom)
     {
         const int sourceAddress = 0xa7cded;
-        AssertEqual(3, PhantoonSoundDefinitions.MaterializationSoundCount, "Phantoon materialization cycle length");
+        AssertEqual(3, PhantoonSoundDefinitions.MaterializationSounds.Length, "Phantoon materialization cycle length");
         for (int index = 0; index < 3; index++)
         {
             SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
-            AssertEqual(expected, PhantoonSounds.MaterializationSound(index),
+            AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSounds[index],
                 $"Phantoon materialization sound {index}");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => PhantoonSounds.MaterializationSound(3),
-            "Phantoon materialization sound past definitions");
+            () => PhantoonSounds.MaterializationSoundAfter(PhantoonSoundDefinitions.ShotCry),
+            "a sound outside the materialization cycle has no successor in it");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
@@ -34,15 +34,16 @@ internal static class PhantoonSoundDefinitionsVerification
         enemies.BeginPhantoonAsSetUp(state);
         Action<PhantoonEnemyState, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
+        AssertEqual(PhantoonSoundDefinitions.MaterializationSounds[0], state.NextMaterializationSound, "Phantoon's first materialization queues the cycle's first sound");
         for (int call = 0; call < 6; call++)
         {
             int index = call % 3;
             process(state, PhantoonPartCue.PlayMaterializationSound);
-            AssertEqual(PhantoonSounds.MaterializationSound(index),
+            AssertEqual(PhantoonSoundDefinitions.MaterializationSounds[index],
                 (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a Phantoon materialization sound request.")),
                 $"Phantoon materialization callback {call} sound");
-            AssertEqual((index + 1) % 3, state.MaterializationSoundIndex,
-                $"Phantoon materialization callback {call} next index");
+            AssertEqual(PhantoonSoundDefinitions.MaterializationSounds[(index + 1) % 3], state.NextMaterializationSound,
+                $"Phantoon materialization callback {call} next sound");
         }
 
         Console.WriteLine(

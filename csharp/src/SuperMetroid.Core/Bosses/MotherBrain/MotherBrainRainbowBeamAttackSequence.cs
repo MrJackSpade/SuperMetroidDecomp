@@ -19,11 +19,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>
-    /// Signed beam-explosion positions. The index increments before
-    /// lookup, so its initial zero value selects the second position.
+    /// Where the beam's explosions burst from Samus, whom each then follows, in the order they burst: the first beam explosion takes the
+    /// first, and the last is followed by the first again (#2258).
     /// </summary>
     internal static readonly Offset16<RoomPixels>[] ExplosionOffsets =
-        [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
+        [new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7), new(-8, -7)];
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
@@ -169,7 +169,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public void RequestBabyStumbleBackward()
     {
         int targetX = CoordinateAxis.Wrap(State.BodyPosition.X - 1);
-        State.MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallyFast);
+        State.RequestWalkBackward(targetX, MotherBrainWalkSpeed.ReallyFast);
     }
 
     /// <summary>Executes one call through the current Mother Brain body phase.</summary>

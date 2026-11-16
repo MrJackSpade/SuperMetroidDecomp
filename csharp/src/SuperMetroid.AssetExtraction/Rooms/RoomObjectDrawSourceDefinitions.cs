@@ -162,18 +162,6 @@ internal static class RoomObjectDrawSourceDefinitions
     {
         [MotherBrainFakeDeathDraw.FillWall] = new(Bank, 0x94a3),
         [MotherBrainFakeDeathDraw.EscapeDoor] = new(Bank, 0x94b1),
-        [MotherBrainFakeDeathDraw.MuralRow1] = new(Bank, 0x9505),
-        [MotherBrainFakeDeathDraw.MuralRow2] = new(Bank, 0x9523),
-        [MotherBrainFakeDeathDraw.MuralRow3] = new(Bank, 0x9541),
-        [MotherBrainFakeDeathDraw.MuralRow4] = new(Bank, 0x955f),
-        [MotherBrainFakeDeathDraw.MuralRow5] = new(Bank, 0x957d),
-        [MotherBrainFakeDeathDraw.MuralRow6] = new(Bank, 0x959b),
-        [MotherBrainFakeDeathDraw.MuralRow7] = new(Bank, 0x95b9),
-        [MotherBrainFakeDeathDraw.MuralRow8] = new(Bank, 0x95d7),
-        [MotherBrainFakeDeathDraw.MuralRow9] = new(Bank, 0x95f5),
-        [MotherBrainFakeDeathDraw.MuralRow10] = new(Bank, 0x9613),
-        [MotherBrainFakeDeathDraw.MuralRow11] = new(Bank, 0x9631),
-        [MotherBrainFakeDeathDraw.MuralRow12] = new(Bank, 0x964f),
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] = new(Bank, 0x96a9),
         [MotherBrainFakeDeathDraw.ClearCeilingTube] = new(Bank, 0x96b1),
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = new(Bank, 0x96bf),
@@ -272,6 +260,9 @@ internal static class RoomObjectDrawSourceDefinitions
         [TourianAccessDraw.CrumbleThird] = new(Bank, 0x92bb),
         [TourianAccessDraw.Clear] = new(Bank, 0x92c7),
     };
+
+    /// <summary>The top row of Mother Brain's mural; each row below it follows thirty bytes on.</summary>
+    internal static readonly SnesAddress MotherBrainMuralTopRow = new(Bank, 0x9505);
 
     /// <summary>The single-block shot-block breakup frames, six bytes apart.</summary>
     internal static readonly SnesAddress SingleBreakupFirst = new(Bank, 0xa345);

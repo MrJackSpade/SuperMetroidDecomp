@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -207,7 +207,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomFlashImage = MotherBrainRoomFlashImage.First;
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.SpawnBottomLeftTube;
                 state.TubeCollapseTimer.Count = 0;
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
                 state.PhaseTimer.Count = 0;

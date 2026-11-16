@@ -198,6 +198,11 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     int drainCalls = 0;
     int queuedBeamSounds = (wall.SoundQueued ? 1 : 0) + (delay.SoundQueued ? 1 : 0);
+    // The beam's explosions burst at the cartridge's offsets from its second on, wrapping to its first after its last (#2258).
+    Offset16<RoomPixels>[] cartridgeOffsets = [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
+    var burstOffsets = new List<Offset16<RoomPixels>>();
+    if (wall.Explosion is { } firstExplosion)
+        burstOffsets.Add(firstExplosion.Offset);
     int explosions = wall.Explosion is null ? 0 : 1;
     while (attack.Encounter.RainbowPhase is MotherBrainRainbowPhase.StartDrainingSamus or
            MotherBrainRainbowPhase.DrainingSamus)
@@ -206,8 +211,11 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         drainCalls++;
         if (drain.SoundQueued)
             queuedBeamSounds++;
-        if (drain.Explosion is not null)
+        if (drain.Explosion is { } explosion)
+        {
             explosions++;
+            burstOffsets.Add(explosion.Offset);
+        }
     }
 
     AssertEqual(300, drainCalls, "$012B drain timer includes fallthrough call and expires after 300");
@@ -217,6 +225,9 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(100, samus.PowerBombs, "power bombs decrement every drain call");
     AssertEqual(7, queuedBeamSounds, "count six queues seven rainbow beam sound attempts");
     AssertTrue(explosions > 1, "explosion timer continues across wall and drain phases");
+    AssertTrue(burstOffsets.Count > cartridgeOffsets.Length, "the beam's explosions run past the last offset");
+    for (int burst = 0; burst < burstOffsets.Count; burst++)
+        AssertEqual(cartridgeOffsets[(burst + 1) % cartridgeOffsets.Length], burstOffsets[burst], $"beam explosion {burst} bursts at the cartridge's next offset");
     AssertEqual(RotationAngle.FromSteps(12), attack.RainbowAttack.AngularWidth, "drain widening clamps at twelve steps");
     AssertEqual(MotherBrainRainbowPhase.FinishFiring, attack.Encounter.RainbowPhase,
         "drain timer underflow installs finish-firing function");

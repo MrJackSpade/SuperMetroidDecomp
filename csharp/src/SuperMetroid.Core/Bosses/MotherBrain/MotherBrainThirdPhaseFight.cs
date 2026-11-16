@@ -86,7 +86,9 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
 
                 Phase3TargetXPosition = _state.BodyPosition.X + 1;
-                int forwardDelay = (randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay) ? 2 : 0) + 4;
+                MotherBrainWalkSpeed forwardSpeed = randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay)
+                    ? MotherBrainWalkSpeed.Medium
+                    : MotherBrainWalkSpeed.Fast;
 
                 // The forward walk reports arrival for an overshot target or at its X 128 limit. The target lies one
                 // pixel ahead of her, which she has not overshot, so only the limit reports it here.
@@ -97,12 +99,12 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
                 }
 
-                _state.RequestWalkForward(Phase3TargetXPosition, forwardDelay);
+                _state.RequestWalkForward(Phase3TargetXPosition, forwardSpeed);
                 return;
 
             case MotherBrainPhase3WalkingPhase.RetreatQuickly:
                 MotherBrainWalkResult quickRetreat =
-                    _state.RequestWalkBackward(Phase3TargetXPosition, animationDelay: 2);
+                    _state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.ReallyFast);
                 if (!quickRetreat.ReachedTarget)
                     return;
 
@@ -114,7 +116,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
             case MotherBrainPhase3WalkingPhase.RetreatSlowly:
                 MotherBrainWalkResult slowRetreat =
-                    _state.RequestWalkBackward(Phase3TargetXPosition, animationDelay: 4);
+                    _state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.Fast);
                 if (!slowRetreat.ReachedTarget)
                     return;
 
@@ -221,7 +223,7 @@ internal sealed class MotherBrainThirdPhaseFight
         Encounter.PhaseTimer.Count = 32;
         _state.RequestWalkBackward(
             CoordinateAxis.Wrap(_state.BodyPosition.X - 14),
-            animationDelay: 2);
+            MotherBrainWalkSpeed.ReallyFast);
         return false;
     }
 

@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain drained by the Baby Metroid: taken aback, firing back, running out, retreating and turning gray.</summary>
 internal sealed class MotherBrainDrainedByBabyPhases
@@ -19,8 +19,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
     [IntegerQuantity("zero-based count of painful-walk steps taken, 0 through 8")]
     public int PainfulWalkingStage { get; internal set; }
 
-    /// <summary>Walk animation delay derived from the current stage: 2, 4, 6, 8 or 10 updates.</summary>
-    public int PainfulWalkingAnimationDelay { get; internal set; }
+    /// <summary>How fast she staggers in the current stage, slowing as the stages pass.</summary>
+    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; internal set; }
 
     /// <summary>Pause timer used after each completed forward/backward body animation.</summary>
     public int PainfulWalkingPauseTimer { get; private set; }
@@ -45,8 +45,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         }
 
         MotherBrainWalkResult walk = PainfulWalkingForward
-            ? _state.RequestWalkForward(72, PainfulWalkingAnimationDelay)
-            : _state.RequestWalkBackward(40, PainfulWalkingAnimationDelay);
+            ? _state.RequestWalkForward(72, PainfulWalkingSpeed)
+            : _state.RequestWalkBackward(40, PainfulWalkingSpeed);
         if (walk.ReachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, 7);
@@ -83,7 +83,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
-            PainfulWalkingAnimationDelay = 2;
+            PainfulWalkingSpeed = MotherBrainWalkSpeed.ReallyFast;
             PainfulWalkingPauseTimer = 0;
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
@@ -106,12 +106,11 @@ internal sealed class MotherBrainDrainedByBabyPhases
         requests.RainbowColours = true;
         StepPainfulWalking();
 
-        // The outer phase updates delay and neck delta after every step of the painful walk, so the sixth step is seen
+        // The outer phase updates speed and neck delta after every step of the painful walk, so the sixth step is seen
         // on the update that ends the pause before it, before its forward walk has begun.
         if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
         {
-            PainfulWalkingAnimationDelay =
-                MotherBrainPainfulWalking.AnimationDelay(PainfulWalkingStage);
+            PainfulWalkingSpeed = MotherBrainPainfulWalking.Speed(PainfulWalkingStage);
             Encounter.NeckTurnPerUpdate = MotherBrainPainfulWalking.NeckTurn(PainfulWalkingStage);
         }
         if (PainfulWalkingStage == 6)
@@ -150,7 +149,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom()
     {
         // The walk back is the really-slow backward walk, the painful walk's last animation.
-        MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
+        MotherBrainWalkResult moveToBack = _state.RequestWalkBackward(40, MotherBrainWalkSpeed.ReallySlow);
         if (moveToBack.ReachedTarget)
         {
             Encounter.DrainedPhase = MotherBrainDrainedPhase.GoIntoLowPowerMode;

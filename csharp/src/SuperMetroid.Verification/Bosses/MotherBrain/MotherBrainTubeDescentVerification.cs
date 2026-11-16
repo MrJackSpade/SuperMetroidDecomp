@@ -62,8 +62,8 @@ internal static class MotherBrainTubeDescentVerification
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
         AssertTrue(enemies.BossFrameResults.MotherBrainObjects.SequenceEqual(Enumerable.Range(0, 12).Select(row =>
-                new SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSpawnRequest<MotherBrainRoomMutation>(new(2, 2 + row), MotherBrainMuralDefinitions.Rows[row]))),
-            "the mural's twelve rows are drawn in order, each a block below the last");
+                new SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSpawnRequest<MotherBrainRoomMutation>(new(2, 2 + row), MotherBrainRoomMutation.RevealMuralRow))),
+            "the mural's twelve rows are revealed in order, each a block below the last");
         AssertEqual(MotherBrainAscentPhase.SetupPhase2Graphics, state.AscentPhase, "the drawn mural hands off to the phase-two graphics");
         Console.WriteLine($"Mother Brain tube descent: {frame + 1} exact trajectory frames, hide threshold and landing passed.");
         return 0;

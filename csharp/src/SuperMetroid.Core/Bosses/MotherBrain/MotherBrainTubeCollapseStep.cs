@@ -1,47 +1,47 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The steps of the tubes' collapse, run beside Mother Brain's own during her fake death: the falling tubes, the
-/// ceiling's falling pieces and the room's blocks they clear, one after another.
+/// The steps of the collapse of the tubes around Mother Brain's tank during her fake death, run beside her own: each tube
+/// falls in turn, and the room is cleared where it stood. The steps name the tube each drops or clears (#2258).
 /// </summary>
 public enum MotherBrainTubeCollapseStep
 {
-    /// <summary>Admits collapse when four enemy projectiles can still be placed, then requests the bottom-left tube's fall.</summary>
-    WaitForFourFreeProjectileSlots,
-    /// <summary>Requests the removal at block (5,9) and seeds the 32-count top-right delay.</summary>
+    /// <summary>Waits until four enemy projectiles can be placed, then drops the bottom-left tube.</summary>
+    SpawnBottomLeftTube,
+    /// <summary>Clears the bottom-left tube from the room and starts the wait before the top-right tube falls.</summary>
     ClearBottomLeftTube,
-    /// <summary>After its wait runs out, requests the ceiling projectile at pixel (152,47).</summary>
+    /// <summary>Once its wait runs out, drops the top-right tube from the ceiling.</summary>
     SpawnTopRightTube,
-    /// <summary>Clears ceiling block (9,2) and seeds the next 32-count tube delay.</summary>
-    ClearCeilingColumn9,
-    /// <summary>After its wait runs out, requests the ceiling projectile at pixel (104,47).</summary>
+    /// <summary>Clears the ceiling the top-right tube hung from and starts the wait before the top-left tube falls.</summary>
+    ClearTopRightTube,
+    /// <summary>Once its wait runs out, drops the top-left tube from the ceiling.</summary>
     SpawnTopLeftTube,
-    /// <summary>Clears ceiling block (6,2), selects the next falling tube, and starts its wait.</summary>
-    ClearCeilingColumn6,
-    /// <summary>Requests the bottom-right falling tube, whatever room the ceiling's pieces leave.</summary>
+    /// <summary>Clears the ceiling the top-left tube hung from and starts the wait before the bottom-right tube falls.</summary>
+    ClearTopLeftTube,
+    /// <summary>Once its wait runs out, drops the bottom-right tube.</summary>
     SpawnBottomRightTube,
-    /// <summary>Requests the bottom-right removal at block (10,9) and selects the bottom-middle-left falling tube.</summary>
+    /// <summary>Clears the bottom-right tube from the room and starts the wait before the bottom-middle-left tube falls.</summary>
     ClearBottomRightTube,
-    /// <summary>Requests the bottom-middle-left falling tube.</summary>
+    /// <summary>Once its wait runs out, drops the bottom-middle-left tube.</summary>
     SpawnBottomMiddleLeftTube,
-    /// <summary>Removes the side tube at block (6,10) and starts the 32-count upper-middle-left delay.</summary>
+    /// <summary>Clears the bottom-middle-left tube from the room and starts the wait before the top-middle-left tube falls.</summary>
     ClearBottomMiddleLeftTube,
-    /// <summary>After its wait runs out, requests the ceiling projectile at pixel (120,59).</summary>
+    /// <summary>Once its wait runs out, drops the top-middle-left tube from the ceiling.</summary>
     SpawnTopMiddleLeftTube,
-    /// <summary>Clears ceiling tube (7,2) and seeds the 32-count upper-middle-right delay.</summary>
-    ClearCeilingColumn7,
-    /// <summary>After its wait runs out, requests the ceiling projectile at pixel (136,59).</summary>
+    /// <summary>Clears the top-middle-left tube from the ceiling and starts the wait before the top-middle-right tube falls.</summary>
+    ClearTopMiddleLeftTube,
+    /// <summary>Once its wait runs out, drops the top-middle-right tube from the ceiling.</summary>
     SpawnTopMiddleRightTube,
-    /// <summary>Clears ceiling tube (8,2) and selects the bottom-middle-right tube.</summary>
-    ClearCeilingColumn8,
-    /// <summary>Requests the bottom-middle-right tube.</summary>
+    /// <summary>Clears the top-middle-right tube from the ceiling and starts the wait before the bottom-middle-right tube falls.</summary>
+    ClearTopMiddleRightTube,
+    /// <summary>Once its wait runs out, drops the bottom-middle-right tube.</summary>
     SpawnBottomMiddleRightTube,
-    /// <summary>Removes the side tube at block (9,10) and seeds the two-count main-tube delay.</summary>
+    /// <summary>Clears the bottom-middle-right tube from the room and starts the short wait before the main tube falls.</summary>
     ClearBottomMiddleRightTube,
-    /// <summary>After its wait runs out, requests the main falling-tube enemy whose descent carries the head into ascent setup.</summary>
+    /// <summary>Once its wait runs out, drops the main tube, whose fall carries her brain down into the ascent.</summary>
     SpawnMainTube,
-    /// <summary>Removes the remaining tubes at block (7,7) and finishes the collapse.</summary>
+    /// <summary>Clears the main tube's place in the room: the two middle tubes under her tank.</summary>
     ClearBottomMiddleTubes,
-    /// <summary>The finished collapse, which does nothing while the falling tubes fall on their own.</summary>
+    /// <summary>The collapse has dropped every tube; the falling tubes finish their falls on their own.</summary>
     Finished,
 }

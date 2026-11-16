@@ -17,7 +17,7 @@ internal static class PhantoonCasualFlamesVerification
         for (int pattern = 0; pattern < 4; pattern++)
         {
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
-            PhantoonCasualFlameSchedule compiled = PhantoonCasualFlames.Pattern(pattern);
+            PhantoonCasualFlameSchedule compiled = PhantoonCasualFlameDefinitions.Choices[pattern];
             int flames = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
             AssertEqual(flames, compiled.FlameCount, "Native casual flame count");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + 2), compiled.Cooldown, "Native casual flame cooldown");
@@ -44,7 +44,7 @@ internal static class PhantoonCasualFlamesVerification
             int before = calls;
             step(mouth);
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
-            AssertEqual((ushort)(raw & 3), state.CasualFlames.Pattern, "Actual casual RNG pattern selector");
+            AssertEqual(PhantoonCasualFlameDefinitions.Choices[raw & 3], state.CasualFlames.Schedule, "Actual casual RNG burst selector");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), state.CasualFlames.Remaining, "Actual casual initial remaining count");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)), state.CasualFlames.Hold, "Actual casual reverse initial timer");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
@@ -54,7 +54,7 @@ internal static class PhantoonCasualFlamesVerification
         for (int pattern = 0; pattern < 4; pattern++)
         {
             random = (ushort)pattern;
-            state.CasualFlames.Pattern = (ushort)pattern;
+            state.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Choices[pattern];
             state.CasualFlames.Hold = 0;
             state.CasualFlames.Remaining = null;
             ushort timer = 0, count = 0xffff;

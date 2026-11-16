@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -149,7 +149,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         Encounter.Body.Contact = Encounter.Body.Contact.With(EnemyContact.IgnoresSamus);
         Encounter.Head.Contact = Encounter.Head.Contact.With(EnemyContact.IgnoresSamus);
         Encounter.HitboxesEnabled = MotherBrainHitboxParts.None;
-        MotherBrainWalkResult dyingRetreat = _state.RequestWalkBackward(40, animationDelay: 6);
+        MotherBrainWalkResult dyingRetreat = _state.RequestWalkBackward(40, MotherBrainWalkSpeed.Medium);
         if (dyingRetreat.ReachedTarget)
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.IdleWhilstExploding;
@@ -182,7 +182,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // step; only passing it, or reaching the arena's limit at 128, ends the stumble.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
-        MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(96, animationDelay: 2);
+        MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(96, MotherBrainWalkSpeed.ReallyFast);
         if (dyingAdvance.ReachedTarget)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);

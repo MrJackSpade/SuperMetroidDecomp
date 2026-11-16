@@ -112,7 +112,7 @@ internal sealed class MotherBrainFakeDeath
     {
         switch (state.TubeCollapseStep)
         {
-            case MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots:
+            case MotherBrainTubeCollapseStep.SpawnBottomLeftTube:
                 if (_projectiles.EnemyProjectiles.Count(projectile => !projectile.IsActive) < 4)
                     return;
                 SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.BottomLeft);
@@ -128,9 +128,9 @@ internal sealed class MotherBrainFakeDeath
                 if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, new(152, 47));
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn9;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopRightTube;
                 return;
-            case MotherBrainTubeCollapseStep.ClearCeilingColumn9:
+            case MotherBrainTubeCollapseStep.ClearTopRightTube:
                 RequestMotherBrainTubeObject(state, new(9, 2),
                     MotherBrainRoomMutation.ClearCeilingBlock,
                     MotherBrainTubeCollapseStep.SpawnTopLeftTube, 32);
@@ -139,9 +139,9 @@ internal sealed class MotherBrainFakeDeath
                 if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, new(104, 47));
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn6;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopLeftTube;
                 return;
-            case MotherBrainTubeCollapseStep.ClearCeilingColumn6:
+            case MotherBrainTubeCollapseStep.ClearTopLeftTube:
                 RequestMotherBrainTubeObject(state, new(6, 2),
                     MotherBrainRoomMutation.ClearCeilingBlock,
                     MotherBrainTubeCollapseStep.SpawnBottomRightTube, 32);
@@ -172,9 +172,9 @@ internal sealed class MotherBrainFakeDeath
                 if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, MotherBrainTopTubeSegment.TopMiddleLeft, new(120, 59));
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn7;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopMiddleLeftTube;
                 return;
-            case MotherBrainTubeCollapseStep.ClearCeilingColumn7:
+            case MotherBrainTubeCollapseStep.ClearTopMiddleLeftTube:
                 RequestMotherBrainTubeObject(state, new(7, 2),
                     MotherBrainRoomMutation.ClearCeilingTube,
                     MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube, 32);
@@ -183,9 +183,9 @@ internal sealed class MotherBrainFakeDeath
                 if (!state.TubeCollapseTimer.StepRunsOut())
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, MotherBrainTopTubeSegment.TopMiddleRight, new(136, 59));
-                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn8;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearTopMiddleRightTube;
                 return;
-            case MotherBrainTubeCollapseStep.ClearCeilingColumn8:
+            case MotherBrainTubeCollapseStep.ClearTopMiddleRightTube:
                 RequestMotherBrainTubeObject(state, new(8, 2),
                     MotherBrainRoomMutation.ClearCeilingTube,
                     MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube, 32);
@@ -403,10 +403,10 @@ internal sealed class MotherBrainFakeDeath
         {
             _access.RequestMotherBrainObject(
                 new(MotherBrainMuralDefinitions.Column, CoordinateAxis.Wrap(MotherBrainMuralDefinitions.TopBlockRow + row)),
-                MotherBrainMuralDefinitions.Rows[row]);
+                MotherBrainRoomMutation.RevealMuralRow);
         }
         state.MuralRowsDrawn = drawn + MotherBrainMuralDefinitions.RowsEachUpdate;
-        if (state.MuralRowsDrawn == MotherBrainMuralDefinitions.Rows.Count)
+        if (state.MuralRowsDrawn == MotherBrainMuralDefinitions.RowCount)
             state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Graphics;
     }
 

@@ -9,8 +9,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Most of these values belong to neither enemy. A dedicated object therefore keeps both enemies' places in the room
 /// separate while one owner serves the two.
 /// </summary>
-public sealed class MotherBrainEnemyState
+public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
+    /// <inheritdoc />
+    Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacedAt;
+
+    /// <inheritdoc />
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => DeathHidesBodyLayer;
+
     /// <summary>Starts the shared encounter state with her body before her head is attached.</summary>
     /// <param name="body">Her body's place.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>

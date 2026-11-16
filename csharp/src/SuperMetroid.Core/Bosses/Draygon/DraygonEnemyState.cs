@@ -8,8 +8,14 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's encounter-wide state and the values of his body. The four visible enemy parts remain physical <see cref="RoomEnemyPlace"/> instances; the eye's values live
 /// in its own <see cref="DraygonEyeState"/>.
 /// </summary>
-public sealed class DraygonEnemyState
+public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
+    /// <inheritdoc />
+    Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacement;
+
+    /// <summary>His body shows nothing once his body is deleted, as his room keeps showing it (#2194).</summary>
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => Body.Presence.HasAny(EnemyPresence.Deleted);
+
     /// <summary>Anchors the encounter-wide state to Draygon's physical body place.</summary>
     internal DraygonEnemyState(RoomEnemyPlace body) => Body = body;
 

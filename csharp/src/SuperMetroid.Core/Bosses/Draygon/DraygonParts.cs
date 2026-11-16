@@ -60,9 +60,6 @@ internal sealed class DraygonParts
     {
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
-        // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first.
-        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon));
-
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
@@ -70,6 +67,10 @@ internal sealed class DraygonParts
         {
             Phase = DraygonPhase.IntroInitialDelay,
         };
+        // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first; the
+        // room keeps showing it, hidden, once his body is deleted (#2194).
+        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, Draygon));
+        _presentation.BossShadings.Show(BossShadingLayer.Draygon, Draygon.Colours);
         body.SetSpeciesState(Draygon);
         body.Shading = Draygon.Colours.Sprites;
         Draygon.StartAnimation(body, DraygonSegment.BodyFacingLeftIdle);

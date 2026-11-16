@@ -65,7 +65,23 @@ internal sealed class EnemyPresentation
     internal BossBodyParts? BossBody { get; private set; }
 
     /// <summary>A boss's initialization: attaches the body, no part showing anything yet, that its parts show their frames on.</summary>
-    internal void AttachBossBody(BossBodyParts body) => BossBody = Ensure.NotNull(body);
+    internal void AttachBossBody(BossBodyParts body)
+    {
+        BossBody = Ensure.NotNull(body);
+        BossBodyDisplay = body;
+    }
+
+    /// <summary>
+    /// The boss body the room shows (#2194), which the frame-end display latch reads: the one the room's boss attached as
+    /// it set up, kept for the room's lifetime; null in a room no boss has shown a body in.
+    /// </summary>
+    internal IBossBodyDisplay? BossBodyDisplay { get; private set; }
+
+    /// <summary>A boss that draws its own body, as Kraid does, attaches it as it sets up (#2194).</summary>
+    internal void AttachBossBody(IBossBodyDisplay display) => BossBodyDisplay = Ensure.NotNull(display);
+
+    /// <summary>The colour effects the room's bosses show on gameplay's pictures, attached as each sets up (#2194).</summary>
+    internal BossShadings BossShadings { get; } = new();
 
     /// <summary>The attached body.</summary>
     /// <exception cref="InvalidOperationException">No boss has attached one.</exception>

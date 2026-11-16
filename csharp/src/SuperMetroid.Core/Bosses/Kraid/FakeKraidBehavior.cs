@@ -47,7 +47,22 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
     {
-        switch (cue.Kind)
+        switch (cue)
+        {
+            case FakeKraidCue.Spit spit:
+                SpawnFakeKraidSpitPair(place, spit.Direction);
+                return null;
+            case FakeKraidCue.Signal signal:
+                return ApplyFakeKraidSignal(place, signal.Kind, samus, level, camera);
+            default:
+                throw new InvalidOperationException($"Mini-Kraid's animations have no {cue} cue.");
+        }
+    }
+
+    /// <summary>Carries out one signalling cue: the action choice continues at the step or spit animation it selects.</summary>
+    private FakeKraidSegment? ApplyFakeKraidSignal(RoomEnemyPlace place, FakeKraidCueKind kind, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
+    {
+        switch (kind)
         {
             case FakeKraidCueKind.Move:
                 // Walk cue: advance one four-pixel step unless its random reversal
@@ -61,14 +76,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (EnemyView.Contains(place.Position.Whole, camera))
                     RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidCry);
                 return null;
-            case FakeKraidCueKind.SpitLeft:
-                SpawnFakeKraidSpitPair(place, direction: HorizontalDirection.Left);
-                return null;
-            case FakeKraidCueKind.SpitRight:
-                SpawnFakeKraidSpitPair(place, direction: HorizontalDirection.Right);
-                return null;
             default:
-                throw new InvalidOperationException($"Mini-Kraid's animations have no {cue.Kind} cue.");
+                throw new InvalidOperationException($"Mini-Kraid's animations have no {kind} cue.");
         }
     }
 

@@ -16,8 +16,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Powamp];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PowampEntity(this, place, common);
+    /// <summary>
+    /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
+    /// definition; only its placement tells them apart.
+    /// </summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        Ensure.NotNull(place).SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon
+            ? new PowampBalloonEntity(this, place, common)
+            : new PowampBodyEntity(this, place, common);
 
     /// <summary>Clips body rise and sink motion against room collision.</summary>
     private readonly EnemyTerrain _terrain;
@@ -52,29 +58,37 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frames between successive shared body and balloon horizontal wiggle offsets.</summary>
     private const int PowampWiggleFramesPerOffset = 5;
 
-    /// <summary>Initializes the Powamp's balloon or body, each with its own state (#1845).</summary>
-    internal void InitializePowamp(RoomEnemyPlace place)
+    /// <summary>
+    /// Readies either half of a Powamp to animate: the initializer forces animation processing for both halves and clears
+    /// the animation's clock before the half starts its own animation.
+    /// </summary>
+    private static void PrepareToAnimate(RoomEnemyPlace place)
     {
-        // The initializer forces animation processing for both halves and clears the
-        // animation's clock before choosing the half-specific animation.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
+    }
 
+    /// <summary>Initializes a Powamp's balloon with its own state (#1845), deflated at its spawn.</summary>
+    internal static void InitializePowampBalloon(RoomEnemyPlace place)
+    {
+        PrepareToAnimate(place);
         PowampSpawnSettings settings = place.SpawnSettings<PowampSpawnSettings>();
-        if (settings.Part == PowampPart.Balloon)
+        var balloon = new PowampBalloonState
         {
-            var balloon = new PowampBalloonState
-            {
-                RefusesContact = settings.GrappleTravelDistance != 0,
-                Spawn = place.Position.Whole,
-                GrappleTravelDistance = settings.GrappleTravelDistance,
-            };
-            place.SetSpeciesState(balloon);
-            StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
-            return;
-        }
+            RefusesContact = settings.GrappleTravelDistance != 0,
+            Spawn = place.Position.Whole,
+            GrappleTravelDistance = settings.GrappleTravelDistance,
+        };
+        place.SetSpeciesState(balloon);
+        StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
+    }
 
+    /// <summary>Initializes a Powamp's body with its own state (#1845), resting, joined to the balloon its room lists before it.</summary>
+    internal void InitializePowampBody(RoomEnemyPlace place)
+    {
+        PrepareToAnimate(place);
+        PowampSpawnSettings settings = place.SpawnSettings<PowampSpawnSettings>();
         var state = new PowampBodyState(PowampAction.DeflatedResting) { RefusesContact = settings.GrappleTravelDistance != 0 };
         place.SetSpeciesState(state);
         // The body's balloon is the enemy its room lists before it, whatever occupies that place.
@@ -478,7 +492,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private PowampBalloon RequirePowampBalloon(RoomEnemyPlace body)
     {
         RoomEnemyPlace balloon = _balloons.Of(body);
-        if (balloon.DefinitionId != EnemyDefinitionId.Powamp || balloon.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
+        if (balloon.Entity is not PowampBalloonEntity)
         {
             throw new InvalidDataException(
                 $"Powamp body place {body.Ordinal} is not preceded by its balloon half.");
@@ -503,17 +517,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyPowampSpike(context.Projectile, context.Level),
         shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
-    /// <summary>Advances the body's pulse, or the balloon's inflate or sink animation and the poses it shows.</summary>
-    internal static void AdvancePowampTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
-    {
-        if (place.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
-        {
-            EnemyAnimationPlayback.Advance(place, PowampAnimations.Segments,
-                static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-                static (_, cue) => RaisesNoCues(cue));
-            return;
-        }
+    /// <summary>Advances the body's pulse.</summary>
+    internal static void AdvancePowampBodyTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, PowampAnimations.Segments,
+            static (PowampBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => RaisesNoCues(cue));
 
+    /// <summary>Advances the balloon's inflate or sink animation and the poses it shows.</summary>
+    internal static void AdvancePowampBalloonTypedAnimation(RoomEnemyPlace place)
+    {
         if (!place.AnimationClock.Expire())
             return;
         PowampBalloonState balloon = place.RequireSpeciesState<PowampBalloonState>();
@@ -531,49 +543,47 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static AnimationContinuation<PowampSegment>? RaisesNoCues(NoAnimationCue cue) =>
         throw new InvalidOperationException($"Powamp's cue-free animation raised {cue}.");
 
-    /// <summary>Runs the body's main AI; the balloon has none, its body moves it.</summary>
-    internal void RunPowampMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        if (place.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon)
-            return;
-        RunPowampMain(place, place.RequireSpeciesState<PowampBodyState>(), frame.Level);
-    }
-
-    /// <summary>Whether the Powamp half in <paramref name="place"/> refuses touch and shot AI.</summary>
-    private static bool RefusesContact(RoomEnemyPlace place) =>
-        place.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon
-            ? place.RequireSpeciesState<PowampBalloonState>().RefusesContact
-            : place.RequireSpeciesState<PowampBodyState>().RefusesContact;
-
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
-    internal EnemyPowerBombReaction PowampPowerBombReaction => field ??= new()
+    internal EnemyPowerBombReaction PowampBodyPowerBombReaction => field ??= new()
     {
-        AfterCommon = c =>
-        {
-            if (c.Enemy.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
-                ResolvePowampPowerBombAfterCommon(c.Enemy);
-        },
+        AfterCommon = c => ResolvePowampPowerBombAfterCommon(c.Enemy),
     };
 
+    /// <summary>The balloon's Power Bomb reaction: common damage with no tail of its own, its body carrying a hit on to it.</summary>
+    internal EnemyPowerBombReaction PowampBalloonPowerBombReaction => field ??= new();
+
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
-    internal EnemyShotReaction PowampShotReaction => field ??= new()
+    internal EnemyShotReaction PowampBodyShotReaction => field ??= ShotReactionSkipping(static body => body.RequireSpeciesState<PowampBodyState>().RefusesContact);
+
+    /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
+    internal EnemyShotReaction PowampBalloonShotReaction => field ??= ShotReactionSkipping(static balloon => balloon.RequireSpeciesState<PowampBalloonState>().RefusesContact);
+
+    /// <summary>The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so.</summary>
+    private EnemyShotReaction ShotReactionSkipping(Func<RoomEnemyPlace, bool> refusesContact) => new()
     {
         // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
         // overlaps return before common shot AI, so they must not consume or explode the projectile while the
         // body is still visibly deflating.
-        SkipsEnemy = RefusesContact,
+        SkipsEnemy = refusesContact,
         ExemptFromGenericDeath = true,
         // Powamp's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Applies touch behavior only to the body before its fatal-shot state begins.</summary>
-    internal void ReactToPowampTouch(EnemyTouchContext context)
+    /// <summary>Applies touch behavior to the body before its fatal-shot state begins.</summary>
+    internal void ReactToPowampBodyTouch(EnemyTouchContext context)
     {
-        // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
-        // interactive list because their intangibility property excludes them, but retain the handler's literal guard.
-        if (!RefusesContact(context.Place))
+        if (!context.Place.RequireSpeciesState<PowampBodyState>().RefusesContact)
+            ResolvePowampTouch(context.Place, context.Samus);
+    }
+
+    /// <summary>Applies the Powamp's touch to the balloon while it accepts contact.</summary>
+    internal void ReactToPowampBalloonTouch(EnemyTouchContext context)
+    {
+        // Balloons are normally absent from the interactive list because their intangibility property excludes them,
+        // but retain the handler's literal guard.
+        if (!context.Place.RequireSpeciesState<PowampBalloonState>().RefusesContact)
             ResolvePowampTouch(context.Place, context.Samus);
     }
     /// <summary>Fires the Powamp's spikes in eight directions, drawn in <paramref name="look"/>.</summary>

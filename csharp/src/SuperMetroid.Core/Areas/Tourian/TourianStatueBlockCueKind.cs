@@ -6,17 +6,20 @@ internal enum TourianStatueBlockCueKind
     /// <summary>Sets the statue's own animating flag in the shared animation state.</summary>
     MarkAnimating,
 
-    /// <summary>Continues at the cue's target when the statue's grey event already exists.</summary>
-    GoToIfGrey,
+    /// <summary>The statue may already be grey: when its grey event exists, its owner starts its already-grey finish (#2189).</summary>
+    MayAlreadyBeGrey,
 
-    /// <summary>Continues at the cue's target when the statue's area boss is dead.</summary>
-    GoToIfBossDefeated,
+    /// <summary>The statue may be released: when its area boss is dead, its owner starts its release (#2189).</summary>
+    MayBeReleased,
 
     /// <summary>Clears the statue's own animating flag.</summary>
     ClearAnimating,
 
-    /// <summary>Continues at the cue's target while another statue's release is in progress.</summary>
-    GoToIfReleaseInProgress,
+    /// <summary>
+    /// The statue may wait its turn: while another statue's release is in progress, its owner starts it oscillating again
+    /// (#2189).
+    /// </summary>
+    MayWaitItsTurn,
 
     /// <summary>Claims the single release turn by setting the release-in-progress flag.</summary>
     ClaimRelease,

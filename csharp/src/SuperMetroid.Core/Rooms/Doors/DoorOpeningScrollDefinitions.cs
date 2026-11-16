@@ -74,4 +74,25 @@ internal static class DoorOpeningScrollDefinitions
 
     /// <summary>The upward scroll's first updates, which leave the layer scrolls as the setup left them.</summary>
     internal const int UpwardUpdatesBeforeScrollRecalculation = 3;
+
+    /// <summary>
+    /// The block of its screen, the second, from which the doorway nudge moves a coordinate on past its far edge, off the
+    /// screen's near doorway.
+    /// </summary>
+    internal const int DoorwayNudgeNearBlock = 1;
+
+    /// <summary>
+    /// The block of its screen, the fifteenth, from which the doorway nudge moves a coordinate back before its near edge,
+    /// off the screen's far doorway.
+    /// </summary>
+    internal const int DoorwayNudgeFarBlock = 14;
+
+    /// <summary>The pixels the doorway nudge places a coordinate past or before its block.</summary>
+    internal const int DoorwayNudgePixels = 8;
+
+    /// <summary>
+    /// The pixel within its screen from which the door's camera alignment moves the camera on to the next screen, the
+    /// screen's middle; a camera before it moves back to its own screen's edge.
+    /// </summary>
+    internal const int CameraAlignmentNextScreenFrom = 128;
 }

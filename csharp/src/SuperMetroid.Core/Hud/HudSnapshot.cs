@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>Explicit inputs consumed while constructing one HUD state.</summary>
@@ -31,7 +32,7 @@ public readonly record struct HudSnapshot(
         MaxSuperMissiles: 0,
         PowerBombs: 0,
         MaxPowerBombs: 0,
-        EquippedItems: 0,
+        EquippedItems: SamusEquipmentFlags.None,
         SelectedItem: SuperMetroid.Core.Samus.HudItem.Beam,
         ReserveHealth: 0,
         ReserveMode: SuperMetroid.Core.Progression.ReserveTankMode.None);

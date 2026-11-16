@@ -11,7 +11,7 @@ public static class RoomGridConversions
     private const int ScreenPixelBits = 8;
 
     /// <summary>Pixels along a block's side.</summary>
-    private const int BlockPixels = 16;
+    public const int BlockPixels = 16;
 
     /// <summary>Pixels along a half block's side.</summary>
     private const int HalfBlockPixels = 8;

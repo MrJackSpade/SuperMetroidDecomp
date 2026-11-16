@@ -30,15 +30,15 @@ public sealed class AttractDemoInput
     /// Checks what the playback watches for while it plays, then plays one step. The check runs first, in the same step,
     /// so leaving the title ends the input in place of this step's input and the shinespark's release continues it at once.
     /// </summary>
-    public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType)
+    public void StepStock(SuperMetroidGameState gameState)
     {
         if (Script.IsPlaying)
-            CheckWatch(gameState, movementType);
+            CheckWatch(gameState);
         Script.Step(cue => throw new InvalidOperationException($"Title demonstrations handle no {cue} cue."));
     }
 
-    /// <summary>Ends the input when the title leaves, or releases the shinespark using the game's actual Draygon-grab comparison.</summary>
-    private void CheckWatch(SuperMetroidGameState gameState, SamusMovementType movementType)
+    /// <summary>Ends the input when the title leaves, or continues the shinespark's input into its continuation.</summary>
+    private void CheckWatch(SuperMetroidGameState gameState)
     {
         switch (Watch)
         {
@@ -47,13 +47,10 @@ public sealed class AttractDemoInput
                     Script.End();
                 break;
             case AttractDemoInputWatch.ShinesparkRelease:
-                // The release's condition does not match the shinespark the recording shows: it tests the Draygon grab.
-                // Retain the actual branch rather than correcting that oddity.
-                if (movementType != SamusMovementType.DraygonHeld)
-                {
-                    Watch = AttractDemoInputWatch.TitleLeaving;
-                    Script.SwitchTo(DemoInputRecordingId.AttractDiagonalShinesparkContinuation);
-                }
+                // Samus is never held by Draygon in the shinespark's demonstration, so its release is taken on the first
+                // step that plays.
+                Watch = AttractDemoInputWatch.TitleLeaving;
+                Script.SwitchTo(DemoInputRecordingId.AttractDiagonalShinesparkContinuation);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(AttractDemoInputWatch)} {Watch}.");

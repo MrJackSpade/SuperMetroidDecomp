@@ -61,9 +61,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
 
-    /// <summary>The Landing Site entry, if any.</summary>
-    public LandingSiteEntryState? LandingSiteEntry { get; set; }
-
     /// <summary>Samus's projectiles, once the teardown step has built them.</summary>
     public SamusProjectileSystem? Projectiles { get; set; }
 
@@ -131,7 +128,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
             : null,
         ScrollingSky = ScrollingSky,
         Floor = Floor,
-        LandingSiteEntry = LandingSiteEntry,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
         FxOverlay = FxOverlay ?? throw Missing(nameof(FxOverlay)),

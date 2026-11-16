@@ -17,6 +17,12 @@ public static class TourianStatueSequenceDefinitions
     /// <summary>The pixels the statue lowers before the descent completes.</summary>
     public const int DescentDistance = 240;
 
+    /// <summary>The statue room's upper scroll cell, the statues' screen, open aligned to its top while the statues stand raised.</summary>
+    public static Position16<RoomScreens> UpperScrollCell { get; } = new(0, 0);
+
+    /// <summary>The statue room's lower scroll cell, below the statues, closed until they have lowered.</summary>
+    public static Position16<RoomScreens> LowerScrollCell { get; } = new(0, 1);
+
     /// <summary>The dust puffs the descent raises.</summary>
     public const int DescentDustPuffs = 4;
 

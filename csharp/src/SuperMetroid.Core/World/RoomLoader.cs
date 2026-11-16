@@ -247,7 +247,8 @@ internal sealed class RoomLoader
         // appearance before restoring ordinary input.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance,
+            timer: SavedGameAppearanceDefinitions.FirstFrameTimer);
         _player.IntroducedSamus.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -517,7 +518,7 @@ internal sealed class RoomLoader
         DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
         IRoomLoadProgress loaderProgress,
-        int completedLoadingScrollUpdates = 0)
+        int completedLoadingScrollUpdates)
     {
         if (_room.Camera is null || _player.Samus is null)
             throw new InvalidOperationException("A loaded destination and Samus are required.");
@@ -1165,28 +1166,11 @@ internal sealed class RoomLoader
         _player.GroundedSamusMovementEnabled = false;
     }
 
-    /// <summary>Returns room geometry for either supported room path.</summary>
+    /// <summary>Returns the active room's geometry.</summary>
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
-        if (_room.ActiveRoom is not null)
-        {
-            return new ActiveRoomGeometry(
-                _room.ActiveRoom.Area,
-                _room.ActiveRoom.MapPosition,
-                _room.ActiveRoom.UpScroller,
-                _room.ActiveRoom.DownScroller);
-        }
-
-        if (_room.LandingSiteEntry is not null)
-        {
-            return new ActiveRoomGeometry(
-                _room.LandingSiteEntry.Area,
-                _room.LandingSiteEntry.RoomMapPosition,
-                _room.LandingSiteEntry.UpScroller,
-                _room.LandingSiteEntry.DownScroller);
-        }
-
-        throw new InvalidOperationException("No room is active.");
+        SelectedRoom room = _room.ActiveRoom ?? throw new InvalidOperationException("No room is active.");
+        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.UpScroller, room.DownScroller);
     }
 
     /// <summary>
@@ -1213,12 +1197,16 @@ internal sealed class RoomLoader
     /// to eight pixels past that block; any other stays.
     /// </summary>
     private static int NudgeOffScreenLeftEdge(int pixel) =>
-        RoomGridConversions.BlockRowWithinScreen(pixel) == 1 ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(pixel) + 8) : pixel;
+        RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeNearBlock
+            ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(pixel) + DoorOpeningScrollDefinitions.DoorwayNudgePixels)
+            : pixel;
 
     /// <summary>
     /// The doorway nudge's other edge: a room coordinate in its screen's fifteenth block moves to eight pixels before it;
     /// any other stays.
     /// </summary>
     private static int NudgeOffScreenRightEdge(int pixel) =>
-        RoomGridConversions.BlockRowWithinScreen(pixel) == 14 ? CoordinateAxis.Wrap(RoomGridConversions.BlockStart(pixel) - 8) : pixel;
+        RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeFarBlock
+            ? CoordinateAxis.Wrap(RoomGridConversions.BlockStart(pixel) - DoorOpeningScrollDefinitions.DoorwayNudgePixels)
+            : pixel;
 }

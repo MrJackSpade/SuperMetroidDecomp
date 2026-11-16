@@ -414,7 +414,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // including the update which starts an effect. Their frames are shades the import pre-colours the scene's pictures
         // in (#1512); the scene names the frame each running effect shows (#1597). The scene binds no audio requests, so an
         // effect that made a sound would fail loudly (#2057).
-        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
 
         // The cinematic's game state increments the shared cinematic frame counter after running the
         // current phase but before its actors. The pixelation's cadence therefore reads
@@ -433,7 +433,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Backdrop = content.CeresFlight.Backdrop;
         // The setup clears the colour effects and starts the station's navigation lights (#1733).
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        ColourEffects.Start(CeresDestructionSceneDefinitions.NavigationLights, 0);
+        ColourEffects.Start(CeresDestructionSceneDefinitions.NavigationLights, SamusEquipmentFlags.None);
 
         actors.Clear();
         destructionActorRoles.Clear();
@@ -463,7 +463,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         FloorShot = CeresFloorShot.ZebesApproach;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        ColourEffects.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
+        ColourEffects.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, SamusEquipmentFlags.None);
 
         actors.Clear();
         Background = FixedVector<FloorPixels>.Zero;
@@ -718,12 +718,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             case CinematicSpriteCueKind.FadeInZebesText:
                 // The caption starts fading in from black as it first shows (#1733).
-                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeIn, 0);
+                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeIn, SamusEquipmentFlags.None);
                 return;
 
             case CinematicSpriteCueKind.FadeOutZebesText:
                 // The caption fades out to black as its hold ends, and stays black (#1733).
-                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeOut, 0);
+                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeOut, SamusEquipmentFlags.None);
                 return;
 
             case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:

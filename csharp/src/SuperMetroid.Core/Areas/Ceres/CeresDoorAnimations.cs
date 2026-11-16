@@ -33,7 +33,7 @@ internal static class CeresDoorAnimations
         [P.RidleyRoomDoorWait] =
         [
             Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
-            Cue(new(K.GoToIfAreaBossAlive, Target: P.RidleyRoomDoorWait)),
+            Cue(new(K.RidleyRoomDoorWaits)),
             Cue(new(K.MakeVisibleAndTakeDrawingBack)),
         ],
         [P.DoorFacingRight] =
@@ -41,12 +41,12 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
             Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
-            Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingRight)),
+            Cue(new(K.RightDoorAppears)),
         ],
         [P.OpenFacingRight] =
         [
             Show(EnemyFrameId.CeresDoorFacingRightOpen, 2),
-            Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingRight)),
+            Cue(new(K.RightDoorStandsOpen)),
         ],
         [P.CloseFacingRight] =
         [
@@ -65,7 +65,7 @@ internal static class CeresDoorAnimations
         [P.ClosedFacingRightWait] =
         [
             Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
-            Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingRightWait)),
+            Cue(new(K.RightDoorStandsClosed)),
             Cue(new(K.PlayOpeningSound)),
             Show(EnemyFrameId.CeresDoorFacingRightQuarterOpen, 5),
             Show(EnemyFrameId.CeresDoorFacingRightHalfOpen, 5),
@@ -79,12 +79,12 @@ internal static class CeresDoorAnimations
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
             Show(EnemyFrameId.CeresDoorFacingRightClosed, 2),
-            Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingLeft)),
+            Cue(new(K.LeftDoorAppears)),
         ],
         [P.OpenFacingLeft] =
         [
             Show(EnemyFrameId.CeresDoorFacingLeftClosed, 2),
-            Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingLeft)),
+            Cue(new(K.LeftDoorStandsOpen)),
         ],
         [P.CloseFacingLeft] =
         [
@@ -103,7 +103,7 @@ internal static class CeresDoorAnimations
         [P.ClosedFacingLeftWait] =
         [
             Show(EnemyFrameId.CeresDoorFacingLeftClosed, 2),
-            Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingLeftWait)),
+            Cue(new(K.LeftDoorStandsClosed)),
             Cue(new(K.PlayOpeningSound)),
             Show(EnemyFrameId.CeresDoorFacingLeftQuarterOpen, 5),
             Show(EnemyFrameId.CeresDoorFacingLeftHalfOpen, 5),
@@ -119,7 +119,7 @@ internal static class CeresDoorAnimations
         ],
         [P.ElevatorRoomWall] =
         [
-            Cue(new(K.GoToIfRidleyNotEscaped, Target: P.DoorFacingLeft)),
+            Cue(new(K.ElevatorRoomWallAppears)),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeInvisible)),
             Hold(EnemyFrameId.CeresDoorFacingLeftClosed),
@@ -137,7 +137,7 @@ internal static class CeresDoorAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner starts or a cue branches to. An open door is only reached
+    /// The animation that starts at each segment an owner starts, at the door's start or on a waiting door's event. An open door is only reached
     /// from the segment before it, and the elevator room's door and walls and the getaway chamber's walls rest on their
     /// picture for good once their setup has run.
     /// </summary>

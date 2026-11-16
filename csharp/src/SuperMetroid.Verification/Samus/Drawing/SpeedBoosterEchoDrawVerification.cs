@@ -33,7 +33,7 @@ internal static class SpeedBoosterEchoDrawVerification
         var camera = new Position16<RoomPixels>(0x0400, 0x0040);
         var body = new SpriteFrameBuffer();
         body.BeginFrame();
-        samus.Presentation.Draw(samus, body, cameraPosition: camera);
+        samus.Presentation.DrawWithoutFlicker(samus, body, cameraPosition: camera);
         AssertTrue(samus.Presentation.DrawnFrame is not null, "the body has drawn a picture for the echoes to repeat");
 
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;

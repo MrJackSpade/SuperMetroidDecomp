@@ -86,8 +86,6 @@ internal static class RoomSkyTilemapsVerification
                 $"Landing Site command {index} VRAM destination");
             AssertEqual(compiled.ByteCount, (native.TransferByteCount ?? throw new InvalidOperationException("Verification requires native.TransferByteCount.")),
                 $"Landing Site command {index} transfer size");
-            _ = LandingSiteEntryState.Load(
-                NewSkyPageReadGuard(bus, blockLandingList: true), DoorDefinitions.PointerOf(compiledDoor));
             AssertEqual(compiled.Source,
                 LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
@@ -118,19 +116,13 @@ internal static class RoomSkyTilemapsVerification
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
 
-    /// <summary>Rejects installed sky page reads and optionally the compiled Landing Site command list.</summary>
-    private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source, bool blockLandingList = false)
+    /// <summary>Rejects installed sky page reads.</summary>
+    private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         int firstPage = LibraryBackgroundOperands.SkyPageAddress(0);
         guard.Forbid(address => address >= firstPage && address < firstPage + RoomSkyTilemapFormatConstants.TotalByteCount,
             address => $"Scrolling sky reread installed visual source ${address:X6}.");
-        if (blockLandingList)
-            guard.Forbid(address => address >= LandingSiteRomData.LibraryBackgroundListAddress &&
-                    address < LandingSiteRomData.LibraryBackgroundListAddress +
-                        LibraryBackgroundProgramImporter.ByteSpan(source,
-                            unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)),
-                address => $"Landing Site entry reread compiled transfer list ${address:X6}.");
         return guard;
     }
 }

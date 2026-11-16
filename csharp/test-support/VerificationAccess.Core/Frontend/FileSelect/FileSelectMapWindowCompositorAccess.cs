@@ -14,6 +14,6 @@ internal static class FileSelectMapWindowCompositorAccess
         /// </summary>
         internal static RgbaPixel[] Composite(ReadOnlySpan<RgbaPixel> area, ReadOnlySpan<RgbaPixel> roomFrame,
             FileSelectMapWindow window) =>
-            FileSelectMapWindowCompositor.Composite(area, roomFrame, window, new RgbaPixel[SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height]);
+            FileSelectMapWindowCompositor.Composite(area, roomFrame, window, new RgbaPixel[SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels]);
     }
 }

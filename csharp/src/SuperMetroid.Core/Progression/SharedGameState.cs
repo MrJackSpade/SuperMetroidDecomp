@@ -146,7 +146,7 @@ public sealed class SharedGameState
             // Any change, including releasing one member of a multi-button chord, restarts
             // the delay and suppresses filtered input for this update.
             TimedHeldInputTimer = WrappingCountdown.Start(TimedHeldInputTimerReset);
-            TimedHeldInput = 0;
+            TimedHeldInput = ControllerButton.None;
         }
         else
         {
@@ -157,7 +157,7 @@ public sealed class SharedGameState
 
             if (timer.IsNonNegative)
             {
-                TimedHeldInput = 0;
+                TimedHeldInput = ControllerButton.None;
             }
             else
             {

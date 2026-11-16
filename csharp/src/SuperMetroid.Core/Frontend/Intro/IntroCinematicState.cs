@@ -584,7 +584,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
         if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.PageTwoRequested != true)
-            ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay colours.</summary>
@@ -656,7 +656,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
     {
         if (display == IntroSamusDisplay.SamusFirst)
-            ColourEffects.Start(IntroCinematicDefinitions.FightLights, 0);
+            ColourEffects.Start(IntroCinematicDefinitions.FightLights, SamusEquipmentFlags.None);
     }
 
     /// <summary>Starts the second narration page while restoring its caret and fading back from gameplay colors.</summary>
@@ -895,7 +895,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         SamusState samus = FlashbackSamus;
         RoomLevelData level = FlashbackLevel;
-        GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
+        GameplayAction demoInput = CurrentFlashbackDemoInput?.Held ?? GameplayAction.None;
 
         // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding artwork rather than
@@ -928,7 +928,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
-                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? 0, IntroCollisionRoomObjects.Instance);
+                demoInput, frameCounter, CurrentFlashbackDemoInput?.NewlyPressed ?? GameplayAction.None, IntroCollisionRoomObjects.Instance);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {

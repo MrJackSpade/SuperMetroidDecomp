@@ -109,7 +109,7 @@ internal static class GameOverRomDataVerification
 
         menu.Step(ControllerButton.Down);
         AssertEqual(YesNoChoice.No, menu.SelectedItem, "game-over fixed two-row selection toggles to No");
-        AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height, menu.Render().Length,
+        AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels, menu.Render().Length,
             "game-over fixed menu layout renders one frontend frame");
 
         AssertThrows<InvalidDataException>(

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -61,7 +62,7 @@ internal sealed class EndingEscapeScenes
     internal void SetupTopAndBottomCloudEscape()
     {
         _stage.ResetColourEffects();
-        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GreyClouds, 0);
+        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GreyClouds, SamusEquipmentFlags.None);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudPattern, EndingSpriteRole.TopCloudPattern);
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudEdge, EndingSpriteRole.TopCloudEdge);
@@ -117,7 +118,7 @@ internal sealed class EndingEscapeScenes
                 return;
 
             case CinematicSpriteCueKind.FadeExplosionColours:
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, SamusEquipmentFlags.None);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
 
@@ -130,9 +131,9 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.StartZebesExplosion:
                 ExplosionBurstDisplay = true;
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Supernova, 0);
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Explosion, 0);
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.WideExplosion, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Supernova, SamusEquipmentFlags.None);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Explosion, SamusEquipmentFlags.None);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.WideExplosion, SamusEquipmentFlags.None);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -143,7 +144,7 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.ExplosionFinale:
                 ExplosionFinaleDisplay = true;
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.SupernovaFinale, 0);
+                _stage.ColourEffects.Start(EndingColourEffectDefinitions.SupernovaFinale, SamusEquipmentFlags.None);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);

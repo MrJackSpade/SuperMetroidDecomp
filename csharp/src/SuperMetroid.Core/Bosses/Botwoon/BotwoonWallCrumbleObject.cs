@@ -16,7 +16,7 @@ internal sealed class BotwoonWallCrumbleObject() : TerrainChangeObject(BotwoonWa
         RoomScrollGrid scrolls = context.Frame.Scrolls ?? throw new InvalidOperationException(
             "Botwoon's wall crumble requires the active room scroll grid.");
         // The game's opening step sets the first two cells of the scroll grid together.
-        scrolls.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
-        scrolls.SetLogicalState(new(1, 0), RoomScrollState.OpenAlignedToTop);
+        foreach (Position16<RoomScreens> cell in BotwoonWallMutationDefinitions.OpenedScrollCells)
+            scrolls.SetLogicalState(cell, RoomScrollState.OpenAlignedToTop);
     }
 }

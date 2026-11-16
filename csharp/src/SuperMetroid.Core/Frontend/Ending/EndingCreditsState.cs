@@ -126,8 +126,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.WaitForEscapeMusic:
                 if (!audio.HasQueuedMusic)
                 {
-                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Lava, 0);
-                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, 0);
+                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Lava, SamusEquipmentFlags.None);
+                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, SamusEquipmentFlags.None);
                     Stage.Fade.Show(0);
                     Stage.StartFastFade();
                     Stage.Phase = EndingCreditsPhase.FadeInSideCloudEscape;
@@ -411,7 +411,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
         // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
         // The screen binds no audio requests, so an effect that made a sound would fail loudly (#2057).
-        Stage.ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        Stage.ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
         // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-started colour effects when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))

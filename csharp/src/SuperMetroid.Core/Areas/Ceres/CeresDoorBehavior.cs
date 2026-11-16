@@ -136,36 +136,65 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         CeresDoorAnimationState state = place.RequireSpeciesState<CeresDoorAnimationState>();
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments, ref playback,
-            cue => ApplyCue(place, samus, cue) is { } target
-                ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+            cue => ApplyCue(place, samus, cue) is { } started
+                ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of a door's or wall's animation, returning the segment a branch continues at, or null to run on.</summary>
+    /// <summary>The animation a right-facing door starts, standing closed, when it appears with Samus away (#2189).</summary>
+    internal const CeresDoorSegment RightDoorClosedAnimation = CeresDoorSegment.ClosedFacingRight;
+
+    /// <summary>The animation a left-facing door starts, standing closed, when it appears with Samus away (#2189).</summary>
+    internal const CeresDoorSegment LeftDoorClosedAnimation = CeresDoorSegment.ClosedFacingLeft;
+
+    /// <summary>The animation an open right-facing door starts, closing, once Samus is away (#2189).</summary>
+    internal const CeresDoorSegment RightDoorClosingAnimation = CeresDoorSegment.CloseFacingRight;
+
+    /// <summary>The animation an open left-facing door starts, closing, once Samus is away (#2189).</summary>
+    internal const CeresDoorSegment LeftDoorClosingAnimation = CeresDoorSegment.CloseFacingLeft;
+
+    /// <summary>The animation a closed right-facing door starts again, waiting closed, while Samus is away (#2189).</summary>
+    internal const CeresDoorSegment RightDoorWaitingAnimation = CeresDoorSegment.ClosedFacingRightWait;
+
+    /// <summary>The animation a closed left-facing door starts again, waiting closed, while Samus is away (#2189).</summary>
+    internal const CeresDoorSegment LeftDoorWaitingAnimation = CeresDoorSegment.ClosedFacingLeftWait;
+
+    /// <summary>The animation the door of Ridley's room starts again while the area boss is alive (#2189).</summary>
+    internal const CeresDoorSegment RidleyRoomDoorWaitingAnimation = CeresDoorSegment.RidleyRoomDoorWait;
+
+    /// <summary>The animation the elevator room's wall starts, as a left-facing door, until Ceres Ridley has escaped (#2189).</summary>
+    internal const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.DoorFacingLeft;
+
+    /// <summary>
+    /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting
+    /// door's or wall's event, or null to run on.
+    /// </summary>
     private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, SamusState samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
-            case CeresDoorCueKind.GoToIfSamusDistant:
-            {
-                // The door branches when Samus is distant from it along either axis, each distance measured the short
-                // way across the coordinate's wrap.
-                int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
-                int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
-                return xDistance >= CeresDoorApproachDefinitions.DistantPixels || yDistance >= CeresDoorApproachDefinitions.DistantPixels
-                    ? cue.Target
-                    : null;
-            }
-            case CeresDoorCueKind.GoToIfAreaBossAlive:
+            case CeresDoorCueKind.RightDoorAppears:
+                return IsSamusAway(place, samus) ? RightDoorClosedAnimation : null;
+            case CeresDoorCueKind.LeftDoorAppears:
+                return IsSamusAway(place, samus) ? LeftDoorClosedAnimation : null;
+            case CeresDoorCueKind.RightDoorStandsOpen:
+                return IsSamusAway(place, samus) ? RightDoorClosingAnimation : null;
+            case CeresDoorCueKind.LeftDoorStandsOpen:
+                return IsSamusAway(place, samus) ? LeftDoorClosingAnimation : null;
+            case CeresDoorCueKind.RightDoorStandsClosed:
+                return IsSamusAway(place, samus) ? RightDoorWaitingAnimation : null;
+            case CeresDoorCueKind.LeftDoorStandsClosed:
+                return IsSamusAway(place, samus) ? LeftDoorWaitingAnimation : null;
+            case CeresDoorCueKind.RidleyRoomDoorWaits:
                 // The test reads whether the current area's boss is saved
                 // as defeated. Ceres begins with that flag clear, so the door of Ridley's room
                 // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
                 // the boss's defeat together with Ceres's escape status; the next pass then runs on
-                // past the branch and makes the door intangible.
-                return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : cue.Target;
-            case CeresDoorCueKind.GoToIfRidleyNotEscaped:
-                return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
+                // past the wait and makes the door intangible.
+                return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : RidleyRoomDoorWaitingAnimation;
+            case CeresDoorCueKind.ElevatorRoomWallAppears:
+                return Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : ElevatorRoomWallDoorAnimation;
             case CeresDoorCueKind.MakeIntangible:
                 place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
@@ -191,5 +220,16 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresDoorCueKind)} {cue.Kind}.");
         }
+    }
+
+    /// <summary>
+    /// Whether Samus is away from the door: distant from it along either axis, each distance measured the short way across
+    /// the coordinate's wrap.
+    /// </summary>
+    private static bool IsSamusAway(RoomEnemyPlace place, SamusState samus)
+    {
+        int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
+        int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
+        return xDistance >= CeresDoorApproachDefinitions.DistantPixels || yDistance >= CeresDoorApproachDefinitions.DistantPixels;
     }
 }

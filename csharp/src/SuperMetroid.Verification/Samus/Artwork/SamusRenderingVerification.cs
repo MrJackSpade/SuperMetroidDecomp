@@ -130,7 +130,7 @@ internal static void VerifySamusRenderingSlice()
 
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
 
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
@@ -173,7 +173,7 @@ internal static void VerifySamusRenderingSlice()
 
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, SamusAnimationFrame.Start), samus.Presentation.DrawnFrame,
         "running pose draws its frame-zero picture");
@@ -216,7 +216,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0, samus.Kinematics.YSpeed.Whole, "forward setup clears Y speed");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     SamusBodyFrame forward = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException("Power-suit forward drew no body.");
     AssertEqual(new SamusBodyFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusAnimationFrame.Start), forward, "power-suit forward draws its frame-zero picture");
@@ -244,7 +244,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     // The suited forward frame selects bottom set $FF: no bottom transfer. Its whole picture is composed of its own
     // selection alone, with no bottom picture carried from an earlier frame (#1585).
@@ -340,7 +340,7 @@ internal static void VerifySamusRenderingSlice()
         samus.AnimationNumber = frame;
         oamFrame.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
-        samus.Presentation.Draw(samus, oamFrame, cameraPosition: samus.Position.Whole);
+        samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: samus.Position.Whole);
         oam = oamFrame.FinalizeAsOam();
         AssertTrue(oam.LastFinalizedSpriteCount > 0, $"{name} draws the body");
         SamusBodyFrame drawn = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException($"{name} published no body frame.");
@@ -359,7 +359,7 @@ internal static void VerifySamusRenderingSlice()
     oamFrame.BeginFrame();
     // The body is drawn by the pose's own halves rule, and no path of the game shows a pose past the records (#1513).
     AssertThrows<InvalidOperationException>(
-        () => samus.Presentation.Draw(samus, oamFrame, cameraPosition: samus.Position.Whole),
+        () => samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: samus.Position.Whole),
         "a pose past the records is rejected before its malformed movement type is read");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
@@ -370,14 +370,14 @@ internal static void VerifySamusRenderingSlice()
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0082, samus.Presentation.DrawOrigin.Y,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationNumber = 1;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0084, samus.Presentation.DrawOrigin.Y,
         "morph transition frame one reads signed minus-two table byte");
@@ -392,7 +392,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Position = samus.Position.WithWholeY(0x0086);
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0085, samus.Presentation.DrawOrigin.Y,
         "front-facing frame two uses fixed one-pixel graphics offset");
@@ -414,7 +414,7 @@ internal static void VerifySamusRenderingSlice()
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0083, samus.Presentation.DrawOrigin.Y,
         "normal-jump landing frame zero is placed by its own byte");
@@ -424,7 +424,7 @@ internal static void VerifySamusRenderingSlice()
     samus.AnimationNumber = 1;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
+    samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0080, samus.Presentation.DrawOrigin.Y,
         "normal-jump landing frame one is placed by its own byte");
@@ -439,7 +439,7 @@ internal static void VerifySamusRenderingSlice()
     var quarterTurn = new TurningFloorTransform(Math.PI / 2, new Position16<RoomPixels>(0x0480, 0x0080));
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, 
+    samus.Presentation.DrawWithoutFlicker(samus, 
         oamFrame,
         cameraPosition: new(0x0400, 0),
         turningFloor: quarterTurn);

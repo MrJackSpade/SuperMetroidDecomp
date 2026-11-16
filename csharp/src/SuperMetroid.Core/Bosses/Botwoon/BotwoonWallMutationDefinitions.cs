@@ -8,6 +8,12 @@ internal static class BotwoonWallMutationDefinitions
     /// <summary>The room block both wall mutations are spawned at: the wall's top block.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(15, 4);
 
+    /// <summary>
+    /// The scroll cells the wall opens, aligned to their tops, as it starts to crumble or when an already-defeated room
+    /// clears it: the first two screens of the room's top row, in the order they open.
+    /// </summary>
+    internal static IReadOnlyList<Position16<RoomScreens>> OpenedScrollCells { get; } = [new(0, 0), new(1, 0)];
+
     /// <summary>Rows the crumble crumbles, top to bottom.</summary>
     internal const int CrumbleRows = 9;
 

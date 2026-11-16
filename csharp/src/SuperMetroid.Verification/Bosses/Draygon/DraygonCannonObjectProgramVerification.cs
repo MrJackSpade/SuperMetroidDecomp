@@ -48,8 +48,7 @@ internal static class DraygonCannonObjectProgramVerification
         var level = CreateEmptyRoom(new(width, 32));
         var disabled = new List<DraygonWallCannon>();
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(4, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
-            "four retail cannon headers load with cartridge program lists");
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { DraygonCannonDisabled = disabled.Add } });
 
         static void Step(RoomObjectSystem roomObjects, ISnesAddressSpace bus,
             RoomLevelData level) =>

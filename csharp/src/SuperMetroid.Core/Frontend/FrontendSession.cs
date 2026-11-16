@@ -351,7 +351,7 @@ internal sealed class FrontendSession
             slot.MaxPowerBombs,
             slot.EquippedItems,
             // Loading clears the selection before the visible HUD is built.
-            SelectedItem: 0,
+            SelectedItem: HudItem.Beam,
             slot.ReserveEnergy,
             slot.ReserveMode));
     /// <summary>Builds fresh Ceres or saved-game runtime state, including the selected HUD and room.</summary>
@@ -374,7 +374,7 @@ internal sealed class FrontendSession
                 PowerBombs: restartSlot.PowerBombs,
                 MaxPowerBombs: restartSlot.MaxPowerBombs,
                 EquippedItems: restartSlot.EquippedItems,
-                SelectedItem: 0,
+                SelectedItem: HudItem.Beam,
                 ReserveHealth: restartSlot.ReserveEnergy,
                 ReserveMode: restartSlot.ReserveMode));
             runtime.FrameBoundary.PublishWhileLoading();

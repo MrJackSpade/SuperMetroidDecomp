@@ -104,9 +104,6 @@ internal sealed class ActiveRoomState
     /// <summary>Landing Site's scrolling-sky updater after room initialization.</summary>
     public ScrollingSkyState? ScrollingSky => View(c => c.ScrollingSky, s => s.ScrollingSky);
 
-    /// <summary>Door, room and library-background data selected for the current Landing Site entry.</summary>
-    public LandingSiteEntryState? LandingSiteEntry => View(c => c.LandingSiteEntry, s => s.LandingSiteEntry);
-
     /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>
     internal RoomFxOverlayState? FxOverlay => View(c => c.FxOverlay, s => s.FxOverlay);
 

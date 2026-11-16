@@ -52,7 +52,7 @@ internal sealed class RoomObjectPopulationLoader
     /// the next placement can consequently reuse that same highest place. Retail
     /// loads require installed placements; no population or definition is decoded during play.
     /// </summary>
-    public int LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
+    public void LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(population);
@@ -60,7 +60,6 @@ internal sealed class RoomObjectPopulationLoader
         Ensure.NotNull(services.Samus);
         Ensure.NotNull(services.Bosses);
 
-        int spawnedCount = 0;
         for (int placementIndex = 0; placementIndex < population.Placements.Length; placementIndex++)
         {
             RoomObjectPlacement placement = population.Placements.Span[placementIndex];
@@ -109,11 +108,7 @@ internal sealed class RoomObjectPopulationLoader
                     $"{objectKind} at block ({placed.Block.X},{placed.Block.Y}) " +
                     $"with argument {placed.Argument}.");
             }
-
-            spawnedCount++;
         }
-
-        return spawnedCount;
     }
 
     /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's block before setup runs.</summary>

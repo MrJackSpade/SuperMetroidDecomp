@@ -231,13 +231,6 @@ internal static class SuperMetroidRuntimeAccess
             SamusSuitShade.ShowPower(self.Player.Colours);
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             SamusPresentation.InitializeAnimation(self.Player.Samus);
-            if (self.Room.LandingSiteEntry is not null)
-            {
-                // Footstep and landing graphics choose by area and room. Keep the room beside the
-                // FX surface state instead of hard-coding Landing Site behavior into the generic
-                // atmospheric renderer.
-                self.Player.Samus.Room = self.Room.LandingSiteEntry.Room;
-            }
             self.Player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(self.Player.Samus);
         }
     }

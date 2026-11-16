@@ -363,7 +363,7 @@ public static class SamusAerialMovement
         // extra-run-speed epilogue, before canceling boost later in this frame.
         // Turning cannot actively dash, but retained boost still publishes contact
         // damage for this final frame. Clearing the counter is not retroactive.
-        speed.HandleExtraRunSpeed(movementType, controllerInput: 0,
+        speed.HandleExtraRunSpeed(movementType, controllerInput: GameplayAction.None,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));

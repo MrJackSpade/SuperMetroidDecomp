@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -119,7 +120,7 @@ internal sealed class EndingCreditsRoll
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(_stage,
-            () => _stage.ColourEffects.Start(EndingLogoDefinitions.LandingColourEffect, 0));
+            () => _stage.ColourEffects.Start(EndingLogoDefinitions.LandingColourEffect, SamusEquipmentFlags.None));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 

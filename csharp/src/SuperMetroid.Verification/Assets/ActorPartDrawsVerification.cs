@@ -30,7 +30,7 @@ internal static class ActorPartDrawsVerification
         });
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        AssertTrue(samus.Presentation.Draw(samus, sprites, new(0, 0)), "standing Samus draws her body");
+        samus.Presentation.DrawWithoutFlicker(samus, sprites, new(0, 0));
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "standing Samus publishes her body");
         IReadOnlyList<string> violations = PublishedPartDraws.Violations(sprites.Draws);

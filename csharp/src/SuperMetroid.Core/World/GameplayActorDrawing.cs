@@ -167,10 +167,10 @@ internal sealed class GameplayActorDrawing
         {
             if (_player.LastDeathSequenceStep is { DrawPose: true })
             {
-                _player.Samus.Presentation.Draw(_player.Samus, 
+                _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus,
                     _sprites,
                     _room.Camera.PixelPosition,
-                    turningFloor: _display.ActiveTurningFloor);
+                    _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
                 _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Artwork.Sheets);
@@ -197,13 +197,12 @@ internal sealed class GameplayActorDrawing
             {
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
                 {
-                    // Omitting the live counter intentionally selects `Draw`'s default
-                    // even value. The elevator ride draws the body below the ordinary
-                    // invincibility test, so this path cannot flicker twice.
-                    _player.Samus.Presentation.Draw(_player.Samus, 
+                    // The elevator ride draws the body without the ordinary invincibility
+                    // flicker, so this path cannot flicker twice.
+                    _player.Samus.Presentation.DrawWithoutFlicker(_player.Samus,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        turningFloor: _display.ActiveTurningFloor);
+                        _display.ActiveTurningFloor);
                 }
             }
             else if (_player.Samus.Shinespark.Phase is

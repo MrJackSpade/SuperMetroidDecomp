@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -190,7 +191,7 @@ internal sealed class IntroCeresFlightState
 
         // The cinematic's game state runs the colour effects after its actors, including on the update that
         // starts one; their frames are shades the import pre-colours the flight's sheet in (#1733).
-        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
     }
 
     /// <summary>
@@ -291,8 +292,8 @@ internal sealed class IntroCeresFlightState
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
-        ColourEffects.Start(CeresFlightSceneDefinitions.GunshipEngineFlicker, 0);
-        ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, 0);
+        ColourEffects.Start(CeresFlightSceneDefinitions.GunshipEngineFlicker, SamusEquipmentFlags.None);
+        ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, SamusEquipmentFlags.None);
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>

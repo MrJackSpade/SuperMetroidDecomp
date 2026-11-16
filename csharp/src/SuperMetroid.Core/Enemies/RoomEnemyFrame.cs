@@ -22,13 +22,13 @@ internal sealed record RoomEnemyFrame
     public required SamusState Samus { get; init; }
 
     /// <summary>The actions newly pressed this update, distinct from the held actions.</summary>
-    public GameplayAction NewlyPressedControllerInput { get; init; } = 0;
+    public GameplayAction NewlyPressedControllerInput { get; init; } = GameplayAction.None;
 
     /// <summary>The room's terrain and collision data.</summary>
     public required RoomLevelData Level { get; init; }
 
     /// <summary>The actions held this update.</summary>
-    public GameplayAction ControllerInput { get; init; } = 0;
+    public GameplayAction ControllerInput { get; init; } = GameplayAction.None;
 
     /// <summary>Samus's beams and missiles, which enemy collision and custom touch paths read.</summary>
     public required SamusProjectileSystem SamusProjectiles { get; init; }

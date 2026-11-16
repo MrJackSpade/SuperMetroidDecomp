@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -176,6 +177,28 @@ internal sealed class CrocomireBridgeCollapse
         RunCrocomireRise(state);
     }
 
+    /// <summary>
+    /// Runs the body and its body layer while Crocomire, melted once, sinks into the acid again (#2193): each update
+    /// shows the first melt's picture of the rows still above the acid where he stands, before he sinks.
+    /// </summary>
+    internal void RunCrocomireFirstMeltSinkingComposite(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    {
+        _bodyLayer.SpawnCrocomireAcidSmoke(state);
+        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.First);
+        RunCrocomireSink(state, camera);
+    }
+
+    /// <summary>
+    /// Runs the body as Crocomire, melted once, resurfaces (#2193): each update shows the first melt's picture of the rows
+    /// above the acid where he stands, before he rises.
+    /// </summary>
+    internal void RunCrocomireFirstMeltRisingComposite(CrocomireEnemyState state)
+    {
+        _bodyLayer.SpawnCrocomireAcidSmoke(state);
+        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.First);
+        RunCrocomireRise(state);
+    }
+
     /// <summary>Queues periodic acid sounds according to the death-scene timer.</summary>
     internal void RunCrocomireAcidSoundTimer()
     {
@@ -265,24 +288,55 @@ internal sealed class CrocomireBridgeCollapse
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + remaining.WholePixels);
     }
 
-    /// <summary>Selects the body melting animation for the rows still above the acid.</summary>
-    internal static void SelectCrocomireRisingAnimation(CrocomireEnemyState state)
+    /// <summary>
+    /// Starts, afresh on every call, <paramref name="illustration"/>'s melting animation for the rows of Crocomire's body
+    /// still above the acid where he stands: his top row alone from <see cref="CrocomireMeltingDefinitions.TopRowAboveAcidY"/>
+    /// down, his top two rows from <see cref="CrocomireMeltingDefinitions.TopTwoRowsAboveAcidY"/>, his top three from
+    /// <see cref="CrocomireMeltingDefinitions.TopThreeRowsAboveAcidY"/>, and his top four above that.
+    /// </summary>
+    internal static void SelectCrocomireMeltAnimation(CrocomireEnemyState state, CrocomireMeltingIllustration illustration)
     {
         int y = state.Body.Position.Y.Whole;
-        CrocomireBodySegment segment = y < 248
-            ? CrocomireBodySegment.MeltingTwoTopFourRows
-            : y < 264
-                ? CrocomireBodySegment.MeltingTwoTopThreeRows
-                : y < 280
-                    ? CrocomireBodySegment.MeltingTwoTopTwoRows
-                    : CrocomireBodySegment.MeltingTwoTopRow;
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, segment);
+        int rowsAboveAcid = CoordinateAxis.Difference(y, CrocomireMeltingDefinitions.TopRowAboveAcidY) >= 0
+            ? 1
+            : CoordinateAxis.Difference(y, CrocomireMeltingDefinitions.TopTwoRowsAboveAcidY) >= 0
+                ? 2
+                : CoordinateAxis.Difference(y, CrocomireMeltingDefinitions.TopThreeRowsAboveAcidY) >= 0
+                    ? 3
+                    : 4;
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, MeltAnimation(illustration, rowsAboveAcid));
     }
+
+    /// <summary>The body animation showing <paramref name="illustration"/>'s top <paramref name="rowsAboveAcid"/> rows.</summary>
+    private static CrocomireBodySegment MeltAnimation(CrocomireMeltingIllustration illustration, int rowsAboveAcid) =>
+        illustration switch
+        {
+            CrocomireMeltingIllustration.First => rowsAboveAcid switch
+            {
+                1 => CrocomireBodySegment.MeltingOneTopRow,
+                2 => CrocomireBodySegment.MeltingOneTopTwoRows,
+                3 => CrocomireBodySegment.MeltingOneTopThreeRows,
+                4 => CrocomireBodySegment.MeltingOneTopFourRows,
+                _ => throw new ArgumentOutOfRangeException(nameof(rowsAboveAcid), rowsAboveAcid,
+                    "Crocomire's first melting animations show one to four rows above the acid."),
+            },
+            CrocomireMeltingIllustration.Second => rowsAboveAcid switch
+            {
+                1 => CrocomireBodySegment.MeltingTwoTopRow,
+                2 => CrocomireBodySegment.MeltingTwoTopTwoRows,
+                3 => CrocomireBodySegment.MeltingTwoTopThreeRows,
+                4 => CrocomireBodySegment.MeltingTwoTopFourRows,
+                _ => throw new ArgumentOutOfRangeException(nameof(rowsAboveAcid), rowsAboveAcid,
+                    "Crocomire's second melting animations show one to four rows above the acid."),
+            },
+            _ => throw new ArgumentOutOfRangeException(nameof(illustration), illustration,
+                "Crocomire melts through his first and second illustrations only."),
+        };
 
     /// <summary>Completes the acid sink and hands control to the skeleton river sequence.</summary>
     internal void RunCrocomireFinalSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
-        SelectCrocomireRisingAnimation(state);
+        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Second);
         _bodyLayer.SpawnCrocomireAcidSmoke(state);
         RunCrocomireSink(state, camera);
         if (state.DeathPhase != CrocomireDeathPhase.WaitForSamusAtWall)

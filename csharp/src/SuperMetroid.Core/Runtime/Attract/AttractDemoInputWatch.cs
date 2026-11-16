@@ -10,9 +10,8 @@ public enum AttractDemoInputWatch
     TitleLeaving,
 
     /// <summary>
-    /// The diagonal-shinespark demonstration's release: unless Samus is held by Draygon (the game's actual comparison,
-    /// not the shinespark its recording suggests), the shinespark's input continues and the demonstration then watches
-    /// for <see cref="TitleLeaving"/>.
+    /// The diagonal-shinespark demonstration's release: on the first step that plays, the shinespark's input continues
+    /// into its continuation and the demonstration then watches for <see cref="TitleLeaving"/>.
     /// </summary>
     ShinesparkRelease,
 }

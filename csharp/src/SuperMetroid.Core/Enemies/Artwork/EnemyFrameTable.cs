@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -25,15 +24,6 @@ internal sealed class EnemyFrameTable<TFrame> : IEnumerable<KeyValuePair<TFrame,
             _showing.Remove(shown);
             _shared.Add(shown);
         }
-    }
-
-    /// <summary>Whether a family frame shows <paramref name="shown"/>, and which.</summary>
-    /// <exception cref="InvalidOperationException">More than one family frame shows <paramref name="shown"/>.</exception>
-    internal bool TryFind(EnemyFrameId shown, [MaybeNullWhen(false)] out TFrame frame)
-    {
-        if (_shared.Contains(shown))
-            throw new InvalidOperationException($"Installed frame {shown} is shown by more than one {typeof(TFrame).Name}.");
-        return _showing.TryGetValue(shown, out frame);
     }
 
     /// <summary>The installed frame <paramref name="frame"/> shows.</summary>

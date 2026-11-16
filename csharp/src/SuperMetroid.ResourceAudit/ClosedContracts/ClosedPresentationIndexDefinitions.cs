@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Samus.Colours;

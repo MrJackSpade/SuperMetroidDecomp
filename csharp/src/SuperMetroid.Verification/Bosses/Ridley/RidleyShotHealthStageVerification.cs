@@ -35,7 +35,7 @@ internal static class RidleyShotHealthStageVerification
         samus.Control.LockOutPlayer();
         RoomEnemyPlace ridley = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Ridley, ridley.DefinitionId, "slot zero is Norfair Ridley");
-        var state = runtime.Enemies.RidleyEncounter.RequireNorfairRidley(ridley);
+        var state = ridley.RequireSpeciesState<NorfairRidleyState>();
 
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));

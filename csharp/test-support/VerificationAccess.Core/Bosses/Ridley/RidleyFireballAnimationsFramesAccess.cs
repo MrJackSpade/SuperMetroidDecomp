@@ -11,21 +11,21 @@ internal static class RidleyFireballAnimationsFramesAccess
         /// <summary>Every fireball and afterburn frame in installed order: launch, flight, then each afterburn run's five poses.</summary>
         internal static IReadOnlyList<EnemyProjectileFrameId> ProjectileFrames =>
         [
-            EnemyProjectileFrameId.CeresRidleyFireballTurned0, EnemyProjectileFrameId.CeresRidleyFireballTurned0Twin,
-            EnemyProjectileFrameId.CeresRidleyFireballTurned0TwinB, EnemyProjectileFrameId.CeresRidleyFireballTurned90,
-            EnemyProjectileFrameId.CeresRidleyFireballTurned180, EnemyProjectileFrameId.CeresRidleyFireballTurned270,
-            EnemyProjectileFrameId.CeresRidleyFireballSpark, EnemyProjectileFrameId.CeresRidleyFireballFireCloud,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudSpreading, EnemyProjectileFrameId.CeresRidleyFireballFireCloudBreaking,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudEmbers,
-            EnemyProjectileFrameId.CeresRidleyFireballSparkTwin, EnemyProjectileFrameId.CeresRidleyFireballFireCloudTwin,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudSpreadingTwin, EnemyProjectileFrameId.CeresRidleyFireballFireCloudBreakingTwin,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudEmbersTwin,
-            EnemyProjectileFrameId.CeresRidleyFireballSparkTwinB, EnemyProjectileFrameId.CeresRidleyFireballFireCloudTwinB,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudSpreadingTwinB, EnemyProjectileFrameId.CeresRidleyFireballFireCloudBreakingTwinB,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudEmbersTwinB,
-            EnemyProjectileFrameId.CeresRidleyFireballSparkTwinC, EnemyProjectileFrameId.CeresRidleyFireballFireCloudTwinC,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudSpreadingTwinC, EnemyProjectileFrameId.CeresRidleyFireballFireCloudBreakingTwinC,
-            EnemyProjectileFrameId.CeresRidleyFireballFireCloudEmbersTwinC,
+            EnemyProjectileFrameId.RidleyFireballTurned0, EnemyProjectileFrameId.RidleyFireballTurned0Twin,
+            EnemyProjectileFrameId.RidleyFireballTurned0TwinB, EnemyProjectileFrameId.RidleyFireballTurned90,
+            EnemyProjectileFrameId.RidleyFireballTurned180, EnemyProjectileFrameId.RidleyFireballTurned270,
+            EnemyProjectileFrameId.RidleyFireballSpark, EnemyProjectileFrameId.RidleyFireballFireCloud,
+            EnemyProjectileFrameId.RidleyFireballFireCloudSpreading, EnemyProjectileFrameId.RidleyFireballFireCloudBreaking,
+            EnemyProjectileFrameId.RidleyFireballFireCloudEmbers,
+            EnemyProjectileFrameId.RidleyFireballSparkTwin, EnemyProjectileFrameId.RidleyFireballFireCloudTwin,
+            EnemyProjectileFrameId.RidleyFireballFireCloudSpreadingTwin, EnemyProjectileFrameId.RidleyFireballFireCloudBreakingTwin,
+            EnemyProjectileFrameId.RidleyFireballFireCloudEmbersTwin,
+            EnemyProjectileFrameId.RidleyFireballSparkTwinB, EnemyProjectileFrameId.RidleyFireballFireCloudTwinB,
+            EnemyProjectileFrameId.RidleyFireballFireCloudSpreadingTwinB, EnemyProjectileFrameId.RidleyFireballFireCloudBreakingTwinB,
+            EnemyProjectileFrameId.RidleyFireballFireCloudEmbersTwinB,
+            EnemyProjectileFrameId.RidleyFireballSparkTwinC, EnemyProjectileFrameId.RidleyFireballFireCloudTwinC,
+            EnemyProjectileFrameId.RidleyFireballFireCloudSpreadingTwinC, EnemyProjectileFrameId.RidleyFireballFireCloudBreakingTwinC,
+            EnemyProjectileFrameId.RidleyFireballFireCloudEmbersTwinC,
         ];
     }
 }

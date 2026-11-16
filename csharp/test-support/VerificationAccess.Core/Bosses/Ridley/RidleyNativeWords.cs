@@ -78,7 +78,11 @@ internal static class RidleyNativeWords
         [RidleyRevealPhase.WaitBeforeLiftoff] = 0xa478,
     });
 
-    /// <summary>The bank-$A6 routine word naming each <see cref="CeresRidleyPhase"/> (#2227).</summary>
+    /// <summary>
+    /// The bank-$A6 routine word naming each <see cref="CeresRidleyPhase"/> (#2227). Once he has got away the cartridge
+    /// stores the getaway's empty routine ($AA1B), then the self-destruct's ($C04E) and the alarm's ($AA50); the port's
+    /// escape keeps those as its own stages (#2228), so <see cref="CeresRidleyPhase.Escaped"/> names the first.
+    /// </summary>
     internal static readonly NativeWordIdentities<CeresRidleyPhase> CeresPhases = new(new Dictionary<CeresRidleyPhase, ushort>
     {
         [CeresRidleyPhase.LiftoffAccelerating] = 0xa6af,
@@ -97,9 +101,7 @@ internal static class RidleyNativeWords
         [CeresRidleyPhase.RealRetreatRising] = 0xa971,
         [CeresRidleyPhase.RetreatDelay] = 0xa9a0,
         [CeresRidleyPhase.PublishEscapeHandoff] = 0xaa11,
-        [CeresRidleyPhase.Inactive] = 0xaa1b,
-        [CeresRidleyPhase.ActivateSelfDestruct] = 0xc04e,
-        [CeresRidleyPhase.SelfDestructAlarmOnly] = 0xaa50,
+        [CeresRidleyPhase.Escaped] = 0xaa1b,
         [CeresRidleyPhase.FakeRetreatMoveToPosition] = 0xbd9a,
         [CeresRidleyPhase.FakeRetreatRising] = 0xbdbc,
         [CeresRidleyPhase.WaitBeforeRetrievingBaby] = 0xbdf2,
@@ -149,6 +151,6 @@ internal static class RidleyNativeWords
     /// The AI-function word Lower Norfair Ridley's <paramref name="state"/> stands for: his reveal's phase until he lifts
     /// off, then his own.
     /// </summary>
-    internal static ushort NorfairPhaseWord(RidleyEnemyState state) =>
-        state.LiftedOff ? NorfairPhases.Word(state.NorfairPhase) : RevealPhases.Word(state.RevealPhase);
+    internal static ushort NorfairPhaseWord(NorfairRidleyState state) =>
+        state.LiftedOff ? NorfairPhases.Word(state.Phase) : RevealPhases.Word(state.RevealPhase);
 }

@@ -408,8 +408,13 @@ internal static class RoomEnemySystemAccess
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
-        internal bool ResolveRidleySamusContact(SamusState samus) =>
-            self.CeresRidleyBehavior.Hits.ResolveRidleyBodySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
-            self.RidleyTail.ResolveRidleyTailSamusContact(samus);
+        internal bool ResolveRidleySamusContact(SamusState samus)
+        {
+            // Each body resolves its own contact with the encounter it holds (#2231).
+            RoomEnemyPlace body = self.Places.InUpdateOrder.First(place => place.Entity is SuperMetroid.Core.Bosses.Ridley.RidleyEntity);
+            SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState ridley = SuperMetroid.Core.Bosses.Ridley.RidleyEntity.EncounterOf(body);
+            return self.RidleyBody.Contact.ResolveSamusContact(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
+                SuperMetroid.Core.Bosses.Ridley.RidleyTail.ResolveRidleyTailSamusContact(body, ridley, samus);
+        }
     }
 }

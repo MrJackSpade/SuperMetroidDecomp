@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>How fast Ceres Ridley's wings beat for the speed he flies at.</summary>
-internal static class CeresRidleyWingDefinitions
+/// <summary>How fast Ridley's wings beat for the speed he flies at.</summary>
+internal static class RidleyWingDefinitions
 {
     /// <summary>
     /// The frames each update takes off the wing animation timer, slowest flight first; a descending or level flight

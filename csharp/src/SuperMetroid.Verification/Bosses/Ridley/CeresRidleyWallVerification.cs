@@ -19,14 +19,14 @@ internal static class CeresRidleyWallVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
-        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
+        var ridley = runtime.Enemies.CeresRidley();
         var body = runtime.Enemies.Places.InUpdateOrder[0];
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
-        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).CeresPhase = CeresRidleyPhase.LungeMain;
+        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase = CeresRidleyPhase.LungeMain;
         ridley.PhaseTimer = 100;
         ridley.MovementAnimationEnabled = true;
-        ridley.Velocity = ridley.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
+        ridley.Flight.Velocity = ridley.Flight.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
@@ -44,9 +44,9 @@ internal static class CeresRidleyWallVerification
             "accepted display snapshot carries the wall-impact displacement");
         // Stop further attack acceleration so this checks one impact's lifetime, not
         // repeated wall contacts refreshing its timer: the retreat's delay holds him still while it counts down.
-        ridley.CeresPhase = CeresRidleyPhase.RetreatDelay;
+        ridley.Phase = CeresRidleyPhase.RetreatDelay;
         ridley.PhaseTimer = 64;
-        ridley.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
+        ridley.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);

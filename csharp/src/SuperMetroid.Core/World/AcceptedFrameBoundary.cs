@@ -163,7 +163,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     /// <param name="foregroundScroll">The foreground's scroll this frame shows, which scrolls the shaft's floor.</param>
     private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> foregroundScroll) =>
-        Displays is { } displays && CeresRidleyGetaway.FloorTransform(displays.CeresRidley) is { } ridley
+        Displays is { } displays && displays.CeresGetawayFloor is { } ridley
             ? CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls)
         : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, foregroundScroll)
         : null;

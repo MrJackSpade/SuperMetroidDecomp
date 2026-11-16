@@ -33,7 +33,7 @@ internal static class RidleyAcidVerification
         var fx = runtime.RoomFxOverlay;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.NamedBaseY.Whole, "acid starts below the arena");
-        var state = runtime.Enemies.RidleyEncounter.Ridley;
+        var state = runtime.Enemies.NorfairRidley();
         // The shared Ridley state has no Ceres Baby program in Norfair. The
         // global actor-draw seam must not invoke Ceres's private graphics hook.
         var expectedEmptyOam = new OamBuffer();
@@ -46,13 +46,11 @@ internal static class RidleyAcidVerification
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
-        AssertEqual(0, (state ?? throw new InvalidOperationException("Verification requires state.")).BabyPoseDuration,
-            "Norfair Ridley never advances an uninitialized Ceres Baby program");
+        ArgumentNullException.ThrowIfNull(state);
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
         state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
         state.PhaseTimer = 0;
-        state.FadeStep = 0;
         for (int frame = 0; frame < 200 && state.RevealPhase == RidleyRevealPhase.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
@@ -61,7 +59,7 @@ internal static class RidleyAcidVerification
         for (int frame = 0; frame < 400; frame++) fx.RunUpdate(runtime.System, runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false });
         AssertEqual((ushort)440, fx.NamedBaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
-        state.NorfairPhase = NorfairRidleyPhase.DeathRoar;
+        state.Phase = NorfairRidleyPhase.DeathRoar;
         state.PhaseTimer = 0;
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");

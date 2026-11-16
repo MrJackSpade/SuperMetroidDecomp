@@ -89,19 +89,19 @@ internal static class EnemyProjectileDefinitionCatalog
             new(8, 24), 0, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = new(
             new(8, 24), 0, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyFireball] = new(
+        [RoomEnemyProjectileKind.RidleyFireball] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter] = new(
+        [RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter] = new(
+        [RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight] = new(
+        [RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft] = new(
+        [RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp] = new(
+        [RoomEnemyProjectileKind.RidleyVerticalAfterburnUp] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown] = new(
+        [RoomEnemyProjectileKind.RidleyVerticalAfterburnDown] = new(
             new(6, 6), 3, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.CeresFallingDebrisLight] = new(
             new(8, 8), 0, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),

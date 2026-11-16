@@ -545,7 +545,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 else
                     Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
-            if (!deferLoadingOwners && runtime.Enemies.RidleyEncounter.Ridley is { } ridleyState &&
+            if (!deferLoadingOwners && runtime.Enemies.NorfairRidley() is { } ridleyState &&
                 W(NativeSnapshotMemory.EnemyBase) == SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Ridley))
             {
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
@@ -555,43 +555,43 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 ushort nativeFunctionWord = W(NativeSnapshotMemory.RidleyFunction);
                 // Before lift-off he runs his reveal's phases, after it his own (#2227); each table names its own words.
                 if (nativeFunctionWord != RidleyNativeWords.NorfairPhaseWord(ridleyState))
-                    mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.NorfairPhaseName()}");
+                    mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.PhaseName()}");
                 Check("Ridley AI timer", unchecked((ushort)ridleyState.PhaseTimer), NativeSnapshotMemory.RidleyFunctionTimer);
-                Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.TailAction), NativeSnapshotMemory.RidleyTailFunctionIndex);
-                Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
-                Check("Ridley TailWhipRequest", ridleyState.TailWhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
-                Check("Ridley TailExtensionSpeed", ridleyState.TailExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
-                Check("Ridley TailAngleDelta", checked((ushort)ridleyState.TailAngleDelta), NativeSnapshotMemory.RidleyTailAngleDelta);
-                Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.TailMinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
-                Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.TailMaximumCounterClockwiseAngle), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
-                Check("Ridley TailWhipTargetClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.ClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
-                Check("Ridley TailWhipTargetCounterClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.CounterClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
-                Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.IdealInterSegmentTailAngle), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
-                Check("Ridley HorizontalVelocity", ridleyState.Velocity.X.RawValue, NativeSnapshotMemory.RidleyHorizontalVelocity);
-                Check("Ridley VerticalVelocity", ridleyState.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
+                Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.Tail.Action), NativeSnapshotMemory.RidleyTailFunctionIndex);
+                Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
+                Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
+                Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
+                Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.AngleDelta), NativeSnapshotMemory.RidleyTailAngleDelta);
+                Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
+                Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MaximumCounterClockwiseAngle), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
+                Check("Ridley TailWhipTargetClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.ClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
+                Check("Ridley TailWhipTargetCounterClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.CounterClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
+                Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.Tail.IdealInterSegmentAngle), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
+                Check("Ridley HorizontalVelocity", ridleyState.Flight.Velocity.X.RawValue, NativeSnapshotMemory.RidleyHorizontalVelocity);
+                Check("Ridley VerticalVelocity", ridleyState.Flight.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
                 Check("Ridley FightMode", RidleyNativeWords.FightModes.Word(ridleyState.FightMode), NativeSnapshotMemory.RidleyFightMode);
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 // The wing beat is presentation and no longer reproduces the cartridge's four-bit wrap of fast flight (#1935),
                 // so its step and timers are not compared.
-                Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
+                Check("Ridley FacingDirection", RidleyNativeWords.Facings.Word(ridleyState.Flight.FacingDirection), NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", RidleyNativeWords.HealthBands.Word(ridleyState.HealthBand), NativeSnapshotMemory.RidleyHealthStage);
                 Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
                 Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
-                Check("Ridley TailDamage", checked((ushort)ridleyState.TailDamage), NativeSnapshotMemory.RidleyTailDamage);
-                Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
+                Check("Ridley TailDamage", checked((ushort)ridleyState.Tail.Damage), NativeSnapshotMemory.RidleyTailDamage);
+                Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.Flight.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
                 Check("Ridley IntangibilityTimer", checked((ushort)ridleyState.IntangibilityTimer), NativeSnapshotMemory.RidleyIntangibilityTimer);
-                if (ridleyState.LiftedOff && ridleyState.NorfairPhase is NorfairRidleyPhase.SwoopMoveToStart or
+                if (ridleyState.LiftedOff && ridleyState.Phase is NorfairRidleyPhase.SwoopMoveToStart or
                     NorfairRidleyPhase.SwoopAimDown or NorfairRidleyPhase.SwoopAimSideways or
                     NorfairRidleyPhase.SwoopAimUp or NorfairRidleyPhase.SwoopClimb or NorfairRidleyPhase.SwoopRecover)
                     Check("Ridley swoop timer", checked((ushort)ridleyState.SwoopPhaseTimer), NativeSnapshotMemory.RidleySwoopTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.
-                    Check("Ridley tail tip X", ridleyState.TailSegments[6].Position.X, NativeSnapshotMemory.TailTipX);
-                    Check("Ridley tail tip Y", ridleyState.TailSegments[6].Position.Y, NativeSnapshotMemory.TailTipY);
-                    for (int tailIndex = 0; tailIndex < ridleyState.TailSegments.Length; tailIndex++)
+                    Check("Ridley tail tip X", ridleyState.Tail.Segments[6].Position.X, NativeSnapshotMemory.TailTipX);
+                    Check("Ridley tail tip Y", ridleyState.Tail.Segments[6].Position.Y, NativeSnapshotMemory.TailTipY);
+                    for (int tailIndex = 0; tailIndex < ridleyState.Tail.Segments.Length; tailIndex++)
                     {
-                        var segment = ridleyState.TailSegments[tailIndex];
+                        var segment = ridleyState.Tail.Segments[tailIndex];
                         int tailAddress = NativeSnapshotMemory.TailSegments + tailIndex * NativeSnapshotMemory.TailSegmentStride;
                         string tailOwner = $"Ridley tail {tailIndex}";
                         Check(tailOwner + " active", segment.Active ? NativeSnapshotMemory.TailSegmentActive : (ushort)0, tailAddress);
@@ -847,19 +847,19 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " properties", properties, NativeSnapshotMemory.EnemyProjectileProperties + index);
                 switch (projectile.Kind)
                 {
-                    case RoomEnemyProjectileKind.CeresRidleyFireball:
+                    case RoomEnemyProjectileKind.RidleyFireball:
                         // $86:940E consumes F only as a zero/nonzero afterburn gate.
                         // The caller may leave a noncanonical nonzero parameter (e.g. $E).
                         if ((projectile.RemainingAfterburns != 0) !=
                             (W(NativeSnapshotMemory.EnemyProjectileVariableF + index) == 0))
                             mismatches.Add(owner + " fireball afterburn gate differs");
                         break;
-                    case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter:
-                    case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter:
-                    case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight:
-                    case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
-                    case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
-                    case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
+                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter:
+                    case RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter:
+                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight:
+                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft:
+                    case RoomEnemyProjectileKind.RidleyVerticalAfterburnUp:
+                    case RoomEnemyProjectileKind.RidleyVerticalAfterburnDown:
                         // The native chain count is a byte stepped past zero by the afterburn that ends the chain, which
                         // leaves it at $FF; the port's count of afterburns left stays at zero.
                         int nativeRemainingAfterburns = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);

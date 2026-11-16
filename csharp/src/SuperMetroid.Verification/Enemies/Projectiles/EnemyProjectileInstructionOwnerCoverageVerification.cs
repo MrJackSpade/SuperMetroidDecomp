@@ -58,10 +58,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
-                RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CeresRidleyFireball or
-                RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or
-                RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
-                RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or
+                RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.RidleyFireball or
+                RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or
+                RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or
+                RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
                 RoomEnemyProjectileKind.SporeSpawnSpawner or
                 RoomEnemyProjectileKind.BombTorizoLowHealthDrool or

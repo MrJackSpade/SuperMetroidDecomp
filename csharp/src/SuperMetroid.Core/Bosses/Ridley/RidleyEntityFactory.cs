@@ -1,15 +1,16 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The factory for Lower Norfair Ridley, Ceres Ridley and the breakup explosion actor. The two Ridleys share the body
-/// animation and drawing, while Ceres Ridley's initialization and main AI are the Ceres encounter's.
+/// The factory for Lower Norfair Ridley, Ceres Ridley and the breakup explosion actor. Each Ridley body runs its own
+/// encounter over the parts of his body both share (#2229).
 /// </summary>
-/// <param name="ridley">The Lower Norfair Ridley owner.</param>
-/// <param name="ceres">The Ceres Ridley owner.</param>
-/// <param name="encounter">The shared Ridley encounter.</param>
-internal sealed class RidleyEntityFactory(RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter) : IEnemyEntityFactory
+/// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
+/// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
+/// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
+internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
@@ -21,11 +22,11 @@ internal sealed class RidleyEntityFactory(RidleyBehavior ridley, CeresRidleyBeha
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
-            return new NorfairRidleyEntity(ridley, ceres, encounter, place, common);
+            return new NorfairRidleyEntity(norfair, place, common);
         if (definition == EnemyDefinitionId.RidleyCeres)
-            return new CeresRidleyEntity(ridley, ceres, encounter, place, common);
+            return new CeresRidleyEntity(ceres, escape, place, common);
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return new RidleyBreakupPieceEntity(ridley, place, common);
+            return new RidleyBreakupPieceEntity(norfair, place, common);
         throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
     }
 }

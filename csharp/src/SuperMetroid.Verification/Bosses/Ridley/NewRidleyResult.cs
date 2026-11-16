@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 /// <param name="Enemies">The enemies.</param>
 /// <param name="State">The state.</param>
 /// <param name="Body">The body.</param>
-internal readonly record struct NewRidleyResult(RoomEnemySystem Enemies, RidleyEnemyState State, RoomEnemyPlace Body);
+internal readonly record struct NewRidleyResult(RoomEnemySystem Enemies, RidleyEncounterState State, RoomEnemyPlace Body);

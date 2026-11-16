@@ -1,34 +1,57 @@
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ceres Ridley (#2146): the Ceres encounter's flight, which resolves its own shots, and his own reaction to a bomb that
-/// selects his shot reaction.
+/// Ceres Ridley (#2146): the Ceres encounter his body holds from its initialization (#2231), its flight, which resolves its
+/// own shots, and his own reaction to a bomb that selects his shot reaction. Once he has got away his body neither meets
+/// Samus nor draws his tail and wings.
 /// </summary>
-/// <param name="ridley">The Lower Norfair Ridley owner.</param>
-/// <param name="ceres">The Ceres Ridley owner.</param>
-/// <param name="encounter">The shared Ridley encounter.</param>
+/// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
+/// <param name="escape">The station's escape progress, which ends his body's touch and drawing.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresRidleyEntity(
-    RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : RidleyEntity(ridley, ceres, encounter, place, common), IEnemyShotAdmission
+internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : RidleyEntity(ceres.Body, place, common), IEnemyShotAdmission
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Ceres.Flight.InitializeCeresRidley(Place);
+    /// <summary>The Ceres encounter his body holds from its initialization.</summary>
+    internal override CeresRidleyState Encounter => Place.RequireSpeciesState<CeresRidleyState>();
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Ceres.RunCeresRidleyMainAi(Place, frame);
+    public override void Initialize() => ceres.Flight.InitializeCeresRidley(Place);
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) =>
+        ceres.RunCeresRidleyMain(Place, Encounter, frame.Samus, frame.SamusProjectiles);
 
     /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>
-    public override void LiftOff() => CeresRidleyFlight.LiftOff(Encounter.RequireCeresRidley(Place));
+    public override void LiftOff() => CeresRidleyFlight.LiftOff(Encounter);
 
     /// <summary>Ceres Ridley cuts his fireballing short when Samus is low on energy.</summary>
     /// <param name="samus">Samus, whose energy decides the cut.</param>
     public override RidleyBodySegment? CutFireballingShort(SamusState samus) =>
-        CeresRidleyFlight.CutFireballingShort(Encounter.RequireCeresRidley(Place), samus);
+        CeresRidleyFlight.CutFireballingShort(Encounter, samus);
+
+    /// <summary>His body meets Samus until he gets away.</summary>
+    /// <param name="samus">Samus.</param>
+    /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
+    public override void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew)
+    {
+        if (escape.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
+            base.ResolveAfterSamusContact(samus, pseudoScrew);
+    }
+
+    /// <summary>His tail and wings draw until he gets away; the getaway's turning floor shows him then.</summary>
+    /// <param name="sprites">The frame's sprites.</param>
+    /// <param name="camera">The camera.</param>
+    public override void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
+        if (escape.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
+            base.DrawBeforeBody(sprites, camera);
+    }
 
     /// <summary>Runs Ceres Ridley's own reaction to a bomb that selects his shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -36,7 +59,11 @@ internal sealed class CeresRidleyEntity(
     {
         if (context.SelectedShot != RidleyReactions.Shot)
             return base.TryReactToBomb(context);
-        Ceres.Hits.ReactToCeresRidleyBomb(context);
+        // Ridley's shot reaction branches on area index before it ever reaches common vulnerability damage. Ceres therefore
+        // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the
+        // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
+        // escape condition.
+        CeresRidleyHits.ResolveCeresRidleyShotAfterCollision(Place, Encounter);
         return true;
     }
 

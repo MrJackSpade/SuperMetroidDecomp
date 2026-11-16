@@ -33,15 +33,17 @@ internal static class CeresRidleyPicturesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var ridley = new RidleyEnemyState { CeresPhase = CeresRidleyPhase.ActivateSelfDestruct };
-        runtime.Enemies.RidleyEncounter.Ridley = ridley;
+        // The station's escape runs its self-destruct in Ridley's step, paced by his body's update count (#2228).
+        CeresEscape escape = runtime.Enemies.CeresEscape;
+        int ridleyFrameCounter = (runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.")).Body.FrameCounter;
+        escape.BeginSelfDestruct();
         // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
-        while (ridley.CeresPhase == CeresRidleyPhase.ActivateSelfDestruct)
+        while (escape.Stage == CeresEscapeStage.SelfDestruct)
         {
-            runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley);
+            escape.RunRidleysStep(ridleyFrameCounter);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.Enemies.RidleyEncounter.CeresWarning;
+        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.Enemies.CeresEscape.Warning.Overlay;
         AssertTrue(!overlay.Pictures.IsEmpty, "Ceres Ridley's getaway shows its warning over BG1");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);

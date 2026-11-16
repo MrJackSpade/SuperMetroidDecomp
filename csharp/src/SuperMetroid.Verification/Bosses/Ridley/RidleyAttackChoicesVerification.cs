@@ -45,10 +45,10 @@ internal static class RidleyAttackChoicesVerification
         var reference = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // The power bomb explosion of idle bombs, none exploding, which a missed lunge would dodge.
         var powerBomb = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePowerBombExplosion();
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> select = (ridley, ridleyState, target, input, level) =>
-            actual.RidleyBehavior.SelectNorfairRidleyAttack(ridley, ridleyState, target, input, level, powerBomb);
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> runReference = (ridley, ridleyState, target, input, level) =>
-            reference.RidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, powerBomb);
+        Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData> select = (ridley, ridleyState, target, input, level) =>
+            actual.NorfairRidleyBehavior.SelectNorfairRidleyAttack(ridley, ridleyState, target, input, level, powerBomb);
+        Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData> runReference = (ridley, ridleyState, target, input, level) =>
+            reference.NorfairRidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, powerBomb);
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
         actual.VerificationServices().NextRandom = () => { advances++; return random; };
@@ -89,12 +89,8 @@ internal static class RidleyAttackChoicesVerification
         {
             random = (ushort)raw;
             advances = actualReads = referenceReads = 0;
-            var state = new RidleyEnemyState { NorfairPhase = NorfairRidleyPhase.SelectAttack, ZeroHealthLungeCount = 0 };
-            var expected = new RidleyEnemyState
-            {
-                NorfairPhase = native[sample.Row, raw & 7],
-                ZeroHealthLungeCount = sample.Row == 5 ? 1 : 0,
-            };
+            var state = new NorfairRidleyState { Phase = NorfairRidleyPhase.SelectAttack, ZeroHealthLungeCount = 0 };
+            var expected = new NorfairRidleyState { Phase = native[sample.Row, raw & 7], ZeroHealthLungeCount = sample.Row == 5 ? 1 : 0 };
             foreach (var place in new[] { actual.Places.InUpdateOrder[0], reference.Places.InUpdateOrder[0] })
             {
                 place.Health = sample.Health;
@@ -104,10 +100,10 @@ internal static class RidleyAttackChoicesVerification
             select(actual.Places.InUpdateOrder[0], state, sample.Samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
-            AssertEqual(expected.NorfairPhase, state.NorfairPhase, "Native chosen callback executes on the selection frame");
+            AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");
             AssertEqual(expected.PhaseTimer, state.PhaseTimer, "Same-frame selected timer");
-            AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
-            AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
+            AssertEqual(expected.Flight.Velocity.X.RawValue, state.Flight.Velocity.X.RawValue, "Same-frame selected X motion");
+            AssertEqual(expected.Flight.Velocity.Y.RawValue, state.Flight.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");
         }
         Console.WriteLine($"Ridley choices: the 40 reachable native pointers, the attack field on all 65536 samples and {cases.Length * samples.Length} actual selections " +

@@ -214,13 +214,13 @@ internal static class GameplayDisplayFrameTestsVerification
             "door setup $8F:E513 removes the elevator shaft's floor");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
-        RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
-            ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
-        getaway.GetawayActive = true;
-        getaway.FloorAngle = RotationAngle.FromSteps(5);
-        getaway.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(240);
-        getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
-        getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
+        // The station's escape owns the getaway's floor (#2228).
+        CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
+        getaway.Active = true;
+        getaway.Angle = RotationAngle.FromSteps(5);
+        getaway.Zoom = FloorZoom.FromTwoHundredFiftySixths(240);
+        getaway.Center = new Position16<FloorPixels>(128, 120);
+        getaway.Offset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's floor and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -228,7 +228,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
         AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
-        getaway.GetawayActive = false;
+        getaway.Active = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

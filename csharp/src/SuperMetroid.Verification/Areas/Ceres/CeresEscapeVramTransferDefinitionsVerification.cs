@@ -73,10 +73,12 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         AssertEqual(7, spriteList.Length, "Ceres timer-sprite list length");
         AssertEqual(spriteList.Length, CeresEscapeReadyingDefinitions.WarningReadyingDuration, "bringing up the warning takes one update a timer-sprite record");
         int timerPages = Enum.GetValues<EscapeTimerTilePage>().Length;
-        var state = new RidleyEnemyState { CeresEscapeReadying = CeresEscapeReadying.Warning };
+        // The station's escape readies its warning (#2228).
+        CeresEscape escape = system.CeresEscape;
+        escape.Warning.Readying = CeresEscapeReadying.Warning;
         for (int index = 0; index < spriteList.Length; index++)
         {
-            bool finished = system.CeresRidleyBehavior.Getaway.ReadyCeresEscapeWarning(state);
+            bool finished = escape.ReadyWarning();
             TileTransferDefinition expected = spriteList[index];
             AssertEqual(index == spriteList.Length - 1, finished, $"Ceres transfer ${expected.Pointer:X4} list completion");
             AssertEqual(index == spriteList.Length - 1, system.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
@@ -90,15 +92,16 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             .SkipWhile(record => record.Pointer != CeresEscapeVramTransferDefinitions.TimerBackgrounds)];
         AssertEqual(8, backgroundList.Length, "Ceres timer-background list length");
         AssertEqual(backgroundList.Length, CeresEscapeReadyingDefinitions.BackgroundReadyingDuration, "readying the backgrounds takes one update a timer-background record");
-        state.CeresEscapeReadying = CeresEscapeReadying.Backgrounds;
+        escape.Warning.Readying = CeresEscapeReadying.Backgrounds;
         for (int index = 0; index < backgroundList.Length; index++)
-            AssertEqual(index == backgroundList.Length - 1, system.CeresRidleyBehavior.Getaway.ReadyCeresEscapeWarning(state),
+            AssertEqual(index == backgroundList.Length - 1, escape.ReadyWarning(),
                 $"Ceres transfer ${backgroundList[index].Pointer:X4} update completes the list only last");
         AssertTrue(system.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
             "readying the backgrounds shows nothing new over the sprites");
 
         // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
-        system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
+        foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
+            escape.ShowWarningPicture(page);
         var written = new bool[TwoScreenTilemapCells.Count];
         for (int index = 0; index < 4; index++)
         {
@@ -107,7 +110,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;
         }
-        ImmutableArray<int> shownWords = system.RidleyEncounter.CeresWarning.WordsIn(overlay);
+        ImmutableArray<int> shownWords = escape.Warning.Overlay.WordsIn(overlay);
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], shownWords[word] != RoomWrittenOverlay.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");

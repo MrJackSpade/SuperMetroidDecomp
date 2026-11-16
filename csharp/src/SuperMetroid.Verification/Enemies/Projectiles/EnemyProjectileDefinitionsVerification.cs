@@ -227,13 +227,13 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.MotherBrainTopLeftTube or
                         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
                         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
-                        RoomEnemyProjectileKind.CeresRidleyFireball or
-                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
-                        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or
-                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or
-                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
-                        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
-                        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or
+                        RoomEnemyProjectileKind.RidleyFireball or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or
                         RoomEnemyProjectileKind.CeresFallingDebrisLight or
                         RoomEnemyProjectileKind.CeresFallingDebrisDark or
                         RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
@@ -358,13 +358,13 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.MotherBrainTopLeftTube or
                         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
                         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
-                        RoomEnemyProjectileKind.CeresRidleyFireball or
-                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
-                        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or
-                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or
-                        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
-                        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
-                        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or
+                        RoomEnemyProjectileKind.RidleyFireball or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or
                         RoomEnemyProjectileKind.CeresFallingDebrisLight or
                         RoomEnemyProjectileKind.CeresFallingDebrisDark or
                         RoomEnemyProjectileKind.GunshipLiftoffDustCloud or

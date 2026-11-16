@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// The phases Ceres Ridley runs once his lift-off ends the reveal (#2227): his rise, his hover and its attacks, his fake
 /// retreat after his hundredth hit (he rises, drops the Baby and swoops to catch it), his real retreat with the Baby and
-/// the getaway and self-destruct that follow. The state stores the member; its values are arbitrary.
+/// his handoff to the station's escape (<see cref="CeresEscape"/>). The state stores the member; its values are arbitrary.
 /// </summary>
 public enum CeresRidleyPhase
 {
@@ -45,12 +45,11 @@ public enum CeresRidleyPhase
     RealRetreatRising,
     /// <summary>Prepares retreat colours and walls while waiting to publish the getaway.</summary>
     RetreatDelay,
-    /// <summary>Publishes the turning-floor getaway handoff.</summary>
+    /// <summary>Hides Ridley and begins the station's escape with his turning-floor getaway.</summary>
     PublishEscapeHandoff,
-    /// <summary>The inactive body while its getaway presentation owns the scene.</summary>
-    Inactive,
-    /// <summary>Advances the self-destruct graphics, countdown setup, and optional Japanese typewriter phases.</summary>
-    ActivateSelfDestruct,
-    /// <summary>Keeps only the self-destruct alarm's flashing colours running after self-destruct setup.</summary>
-    SelfDestructAlarmOnly,
+    /// <summary>
+    /// He has got away (#2228): the station's escape owns the room, and his AI runs the escape's step in his place in the
+    /// update (nothing during the getaway, then the self-destruct warning and its alarm).
+    /// </summary>
+    Escaped,
 }

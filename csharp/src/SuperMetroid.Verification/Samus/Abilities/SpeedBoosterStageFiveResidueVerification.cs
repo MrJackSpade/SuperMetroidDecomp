@@ -46,19 +46,22 @@ internal static class SpeedBoosterStageFiveResidueVerification
             });
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus)));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
+        // The station's escape flies the getaway (#2228), from its second frame.
+        CeresEscape escape = enemies.CeresEscape;
+        escape.BeginGetaway();
+        escape.Floor.FrameIndex = 1;
 
         // The first NMI advances both: capsule phase one, then wing frame one.
-        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 0);
+        escape.RunGetawayRoomMain(null, 0);
         byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsLowered);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
-        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 4);
+        escape.RunGetawayRoomMain(null, 4);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after a capsule-only frame");
 
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
-        enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor(state, null, 8);
+        escape.RunGetawayRoomMain(null, 8);
         AssertStageFive(cadence, stageFiveQueueOffset,
             NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsRaised),
             "after the getaway queues wing frame zero");

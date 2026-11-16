@@ -1,25 +1,19 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>What Ceres Ridley's body does to Samus and what Samus's weapons do to Ceres Ridley.</summary>
+/// <summary>What Samus's weapons do to Ceres Ridley: each accepted shot or bomb counts toward the hundred that end his fight.</summary>
 [RoomLifetime]
 internal sealed class CeresRidleyHits
 {
-    /// <summary>Performs Samus and projectile contact against Ridley's extended body.</summary>
-    private readonly EnemyCollision _collision;
-    /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
+    /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself, and the station's escape progress.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
-
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyHits(EnemyCollision collision, RidleyEncounter ridleyEncounter)
+    internal CeresRidleyHits(RidleyEncounter ridleyEncounter)
     {
-        _collision = collision;
         _ridleyEncounter = ridleyEncounter;
     }
 
@@ -35,15 +29,13 @@ internal sealed class CeresRidleyHits
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
 
-        if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
+        // Only a room Ceres Ridley has initialized in, before he gets away, meets these shots.
+        if (_ridleyEncounter.CeresRidley is not { } ceres || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             return 0;
 
-        RoomEnemyPlace place = _ridleyEncounter.Parts.Body;
-        if (place.DefinitionId != EnemyDefinitionId.RidleyCeres ||
-            place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || place.Contact.HasAny(EnemyContact.IgnoresSamus))
-        {
+        RoomEnemyPlace place = ceres.Body;
+        if (place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || place.Contact.HasAny(EnemyContact.IgnoresSamus))
             return 0;
-        }
 
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
@@ -58,7 +50,7 @@ internal sealed class CeresRidleyHits
             if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile))
                 continue;
 
-            ResolveCeresRidleyShotAfterCollision(place);
+            ResolveCeresRidleyShotAfterCollision(place, ceres.Ridley);
             return 1;
         }
 
@@ -66,54 +58,31 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Executes the non-Norfair half of Ridley's shot reaction after the projectile
-    /// collision has accepted and marked an overlapping projectile. A shot and a normal bomb both run this exact
-    /// reaction; keeping the reaction here prevents those two collisions from acquiring subtly different cinematic
-    /// rules.
+    /// Executes the Ceres half of Ridley's shot reaction after the projectile collision has accepted and marked an
+    /// overlapping projectile. A shot and a normal bomb both run this exact reaction; keeping the reaction here prevents
+    /// those two collisions from acquiring subtly different cinematic rules.
     /// </summary>
-    private void ResolveCeresRidleyShotAfterCollision(RoomEnemyPlace place)
+    /// <param name="place">Ceres Ridley's body.</param>
+    /// <param name="ridley">His encounter.</param>
+    internal static void ResolveCeresRidleyShotAfterCollision(RoomEnemyPlace place, CeresRidleyState ridley)
     {
-        RidleyEnemyState state = _ridleyEncounter.RequireRidley(place);
-        if (place.DefinitionId != EnemyDefinitionId.RidleyCeres)
-        {
-            throw new InvalidOperationException(
-                $"Enemy place {place.Ordinal} entered Ceres Ridley's shot branch as " +
-                $"definition {place.DefinitionId}.");
-        }
-
         // The hurt flash starts at 13 and selects 14 only when the old nonzero timer is odd.
         // Testing any other property of it (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt flash.
         place.FlashTimer = place.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(place.FlashTimer)
             ? 14
             : 13;
-        state.HitCounter++;
+        ridley.HitCounter++;
 
         // The game draws the hurt flash from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
         // for standalone renderers inspecting the colours before the next enemy update. Only the count's cadence
         // phase is read, and it wraps, so the count before zero reads as the last phase.
-        UpdateRidleyHurtFlash(
+        RidleyBodyContact.UpdateHurtFlash(
             place,
-            state,
+            ridley,
             place.FrameCounter - 1);
-        UpdateCeresRidleyHealthBand(state);
-    }
-
-    /// <summary>
-    /// Runs Ridley's hurt flash and the common extended-enemy
-    /// colour override. Ridley's composite is split between those two writers:
-    /// the ordinary body uses the current execution counter, while the manual tail/wings
-    /// deliberately test the counter after an increment.
-    /// </summary>
-    internal static void UpdateRidleyHurtFlash(
-        RoomEnemyPlace place,
-        RidleyEnemyState state,
-        int enemyMainExecutionCounter)
-    {
-        state.BodyFlashing = place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter);
-        // His drawn parts take the phase one pass ahead of his body's colours.
-        state.TailAndWingsFlashing = place.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
+        UpdateCeresRidleyHealthBand(ridley);
     }
 
     /// <summary>
@@ -121,83 +90,21 @@ internal sealed class CeresRidleyHits
     /// game's missing branch after the 90-shot comparison: 50-69 selects health band zero,
     /// and every value from 70 onward selects health band two.
     /// </summary>
-    internal static void UpdateCeresRidleyHealthBand(RidleyEnemyState state)
+    internal static void UpdateCeresRidleyHealthBand(CeresRidleyState ridley)
     {
-        if (state.FightMode == RidleyFightMode.NotFighting || state.HitCounter < 50)
+        if (ridley.FightMode == RidleyFightMode.NotFighting || ridley.HitCounter < 50)
             return;
 
-        int band = state.HitCounter < 70
+        int band = ridley.HitCounter < 70
             ? CeresRidleyShadeDefinitions.HealthMidBand
             : CeresRidleyShadeDefinitions.HealthLateBand;
-        state.Colours.ShowHealth(band);
-    }
-
-    /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>
-    internal void ReactToCeresRidleyBomb(EnemyBombContext c) =>
-        // Ridley's shot reaction branches on area index before it ever reaches common vulnerability damage. Ceres therefore
-        // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the
-        // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
-        // escape condition.
-        ResolveCeresRidleyShotAfterCollision(c.Enemy);
-
-    /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>
-    /// <param name="samus">Samus.</param>
-    /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
-    internal bool ResolveRidleyBodySamusContact(SamusState samus, PseudoScrewCharge pseudoScrew)
-    {
-        Ensure.NotNull(samus);
-        // Samus contact gates ordinary contact only on the contact-damage mode and Samus's invincibility timer, never on
-        // whether her knockback is still running.
-        if (_ridleyEncounter.Ridley is null)
-            return false;
-
-        RoomEnemyPlace place = _ridleyEncounter.Parts.Body;
-        if (!RidleyInteractions.IsRidleyDefinition(place.DefinitionId) ||
-            place.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
-            !samus.InvincibilityTimer.IsZero)
-        {
-            return false;
-        }
-
-        if (place.Frame is null ||
-            place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || place.Contact.HasAny(EnemyContact.IgnoresSamus))
-        {
-            return false;
-        }
-
-        if (!EnemyCollision.TryFindFrameHitboxReaction(
-                place,
-                samus.Position.Whole,
-                samus.Kinematics.Radius,
-                contactKind: HitboxContactKind.Touch,
-                out EnemyReaction? bodyTouch))
-        {
-            return false;
-        }
-
-        if (bodyTouch != RidleyReactions.FrameHitboxTouch)
-        {
-            throw new InvalidDataException(
-                $"Ridley extended body selected touch reaction {bodyTouch?.ToString() ?? "(unnamed)"}, expected " +
-                $"{RidleyReactions.FrameHitboxTouch} from map {place.Frame}.");
-        }
-
-        // Ridley's touch enters the common touch response that does not check for death. That distinction matters for
-        // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough
-        // to select the forced zero-health lunge and grab Samus for the authored death.
-        _collision.ResolveNormalEnemyTouch(
-            place,
-            samus,
-            pseudoScrew,
-            deathAnimation: TouchDeathAnimation.Skip);
-        return true;
+        ridley.Colours.ShowHealth(band);
     }
 
     /// <summary>
-    /// The shared rectangle walk used by Samus contact and
-    /// projectile contact. Every component offset and every rectangle comes from the
-    /// frame Ridley shows; the tiny 8x8 radius in Ridley's species definition is not his
-    /// body and must never be substituted for this data.
+    /// The shared rectangle walk used by projectile contact. Every component offset and every rectangle comes from the
+    /// frame Ridley shows; the tiny 8x8 radius in Ridley's species definition is not his body and must never be
+    /// substituted for this data.
     /// </summary>
     internal static bool FrameHitboxesOverlapRectangle(
         RoomEnemyPlace place,

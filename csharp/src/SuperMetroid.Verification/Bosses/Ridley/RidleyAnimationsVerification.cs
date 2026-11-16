@@ -45,11 +45,11 @@ internal static class RidleyAnimationsVerification
     private static NewRidleyResult NewRidley(EnemyDefinitionId definition, RidleyFacing facing)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var state = new RidleyEnemyState { FacingDirection = facing };
-        enemies.RidleyEncounter.Ridley = state;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(definition, body.Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(body, "Ridley");
+        RidleyEncounterState state = definition == EnemyDefinitionId.RidleyCeres ? new CeresRidleyState(Position16<RoomPixels>.Zero) : new NorfairRidleyState();
+        state.Flight.FacingDirection = facing;
+        body.HoldRidley(state);
         return new NewRidleyResult(enemies, state, body);
     }
 
@@ -63,18 +63,18 @@ internal static class RidleyAnimationsVerification
     /// <summary>A right-facing Ridley starting a left-facing entry runs its right-facing program in the same update.</summary>
     private static void VerifyFacingBranch()
     {
-        (_, RidleyEnemyState state, RoomEnemyPlace body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.OpeningRoar);
+        (_, RidleyEncounterState state, RoomEnemyPlace body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Right);
+        RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.OpeningRoar);
         Pass(body, samus: null);
-        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingRight), state.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingRight), state.Flight.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right,
             RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing roar shows its first frame at once");
         AssertEqual((ushort)6, body.AnimationClock.Hold.RawValue, "the right-facing roar's first frame lasts six updates");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.OpeningRoar);
+        RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.OpeningRoar);
         Pass(body, samus: null);
-        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingLeft), state.BodyPlayback.Animation, "a left-facing Ridley keeps the left-facing roar");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingLeft), state.Flight.BodyPlayback.Animation, "a left-facing Ridley keeps the left-facing roar");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the left-facing roar shows its first frame");
     }
 
@@ -84,31 +84,31 @@ internal static class RidleyAnimationsVerification
     /// </summary>
     private static void VerifyLowEnergyBranch()
     {
-        (_, RidleyEnemyState state, RoomEnemyPlace body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
-        state.Roaring = true;
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.Fireballing);
+        (_, RidleyEncounterState state, RoomEnemyPlace body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
+        state.Flight.Roaring = true;
+        RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);
         Pass(body, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 29 });
-        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingLeft), state.BodyPlayback.Animation, "low energy in Ceres skips to the fireballing tail");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingLeft), state.Flight.BodyPlayback.Animation, "low energy in Ceres skips to the fireballing tail");
         AssertEqual(8, state.PhaseTimer, "low energy shortens the hover to eight updates");
-        AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
+        AssertTrue(!state.Flight.Roaring, "the fireballing tail clears the roaring flag");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
 
         // A right-facing Ridley's fireballing is cut short to its own right-facing tail (#2175).
         (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Right);
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.Fireballing);
+        RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);
         Pass(body, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 29 });
-        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingRight), state.BodyPlayback.Animation, "low energy in Ceres skips to the right-facing fireballing tail");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingRight), state.Flight.BodyPlayback.Animation, "low energy in Ceres skips to the right-facing fireballing tail");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing tail shows the standing pose");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.Fireballing);
+        RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);
         Pass(body, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 30 });
-        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingFacingLeft), state.BodyPlayback.Animation, "thirty energy keeps the full fireballing");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingFacingLeft), state.Flight.BodyPlayback.Animation, "thirty energy keeps the full fireballing");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.Fireballing);
+        RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);
         Pass(body, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 1 });
-        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingFacingLeft), state.BodyPlayback.Animation, "Lower Norfair Ridley ignores Samus's energy");
+        AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingFacingLeft), state.Flight.BodyPlayback.Animation, "Lower Norfair Ridley ignores Samus's energy");
     }
 
     /// <summary>Runs Ridley's program parity check against the repository cartridge.</summary>

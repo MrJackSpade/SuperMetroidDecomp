@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class NorfairRidleyMovement
 {
     /// <summary>Counts the phase timer down and reports whether it ran past zero.</summary>
-    internal static bool TickRidleyPhaseTimer(RidleyEnemyState state) => --state.PhaseTimer < 0;
+    internal static bool TickRidleyPhaseTimer(NorfairRidleyState state) => --state.PhaseTimer < 0;
 
     /// <summary>Accelerates both 1/256-pixel velocity axes toward a target using inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(
         RoomEnemyPlace place,
-        RidleyEnemyState state,
+        RidleyFlightState flight,
         Position16<RoomPixels> target,
         int divisor,
         int reversalBoost = 0)
     {
         divisor = RidleyInertia.Divisor(divisor);
 
-        state.Velocity = new EightEightVector<RoomPixels>(
+        flight.Velocity = new EightEightVector<RoomPixels>(
             AccelerateNorfairRidleyAxis(
-                state.Velocity.X,
+                flight.Velocity.X,
                 place.Position.X.Whole, target.X,
                 divisor,
                 reversalBoost),
             AccelerateNorfairRidleyAxis(
-                state.Velocity.Y,
+                flight.Velocity.Y,
                 place.Position.Y.Whole, target.Y,
                 divisor,
                 reversalBoost));

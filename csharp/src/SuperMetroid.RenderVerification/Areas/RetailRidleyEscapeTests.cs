@@ -29,7 +29,7 @@ internal static class RetailRidleyEscapeTests
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
-            var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
+            var ridley = runtime.Enemies.CeresRidley();
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
             var floorViews = new HashSet<FloorView>();
@@ -43,17 +43,17 @@ internal static class RetailRidleyEscapeTests
                     triggered = true;
                 }
                 runtime.StepFrame(0);
-                bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).CeresPhaseName());
-                if (ridley.GetawayActive)
+                bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).PhaseName());
+                if (runtime.Enemies.CeresEscape.Floor.Active)
                 {
                     mixedFrames++;
-                    floorViews.Add(CeresRidleyGetaway.FloorTransform(ridley) ?? throw new InvalidOperationException("An active getaway shows its floor."));
+                    floorViews.Add(runtime.Enemies.CeresEscape.ShownFloor ?? throw new InvalidOperationException("An active getaway shows its floor."));
                 }
-                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.GetawayFinished &&
-                    !ridley.GetawayActive && !samus.CeresRidleyEjection.IsActive;
+                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && runtime.Enemies.CeresEscape.Floor.Finished &&
+                    !runtime.Enemies.CeresEscape.Floor.Active && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.
-                if (tick % 8 == 0 || newPhase || ridley.GetawayActive || finished)
+                if (tick % 8 == 0 || newPhase || runtime.Enemies.CeresEscape.Floor.Active || finished)
                 {
                     GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
                     var expected = FrontendScenePixelsAccess.Pixels(frame);
@@ -66,13 +66,13 @@ internal static class RetailRidleyEscapeTests
                     samples++;
                     var packet = new DisplayPacket((ushort)tick, scene);
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                        $"{device.Kind}: Ridley native escape hits={hitThreshold}, tick={tick}, phase={ridley.CeresPhaseName()}");
+                        $"{device.Kind}: Ridley native escape hits={hitThreshold}, tick={tick}, phase={ridley.PhaseName()}");
                 }
                 if (finished) break;
             }
             if (!finished || mixedFrames == 0 || floorViews.Count < 2 || runtime.EscapeTimer.Phase == EscapeTimerPhase.Inactive)
                 throw new InvalidOperationException($"Native escape coverage incomplete: triggered={triggered}, finished={finished}, " +
-                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).CeresPhaseName()}, mode7={mixedFrames}, floor views={floorViews.Count}.");
+                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).PhaseName()}, mode7={mixedFrames}, floor views={floorViews.Count}.");
             Console.WriteLine($"{device.Kind}: native Ridley escape hits={hitThreshold}: {samples} exact samples, " +
                 $"{mixedFrames} Mode-7 frames, {floorViews.Count} floor views, {phases.Count} phases; timer/ejection handoff complete.");
         }

@@ -28,4 +28,7 @@ internal sealed record NorfairRidleyCombatDependencies
 
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
+
+    /// <summary>The room's enemy colours, which his colours attach to as he begins his encounter.</summary>
+    public required EnemyPresentation Presentation { get; init; }
 }

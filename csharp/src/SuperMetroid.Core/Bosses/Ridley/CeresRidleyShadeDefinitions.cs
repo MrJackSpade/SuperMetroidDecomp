@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public static class CeresRidleyShadeDefinitions
 {
-    /// <summary>The black-to-visible body shades, one shown every two Ceres Ridley updates.</summary>
-    public const int BodyFadeShadeCount = 16;
-
     /// <summary>The health band Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
     public const int HealthMidBand = 0;
     /// <summary>

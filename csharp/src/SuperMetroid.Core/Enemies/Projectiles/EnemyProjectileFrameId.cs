@@ -95,58 +95,58 @@ public enum EnemyProjectileFrameId
     CrocomireShotFlareRing,
     /// <summary>Crocomire's shot bursting: a fading ring of light.</summary>
     CrocomireShotFlareRingFading,
-    /// <summary>Ceres Ridley's fireball: a swirl of flame.</summary>
-    CeresRidleyFireballTurned0,
-    /// <summary>Ceres Ridley's fireball: a swirl of flame: the picture of CeresRidleyFireballTurned0, as a frame of its own.</summary>
-    CeresRidleyFireballTurned0Twin,
-    /// <summary>Ceres Ridley's fireball: a swirl of flame: the picture of CeresRidleyFireballTurned0, as a frame of its own.</summary>
-    CeresRidleyFireballTurned0TwinB,
-    /// <summary>Ceres Ridley's fireball: a swirl of flame turned a quarter.</summary>
-    CeresRidleyFireballTurned90,
-    /// <summary>Ceres Ridley's fireball: a swirl of flame turned half round.</summary>
-    CeresRidleyFireballTurned180,
-    /// <summary>Ceres Ridley's fireball: a swirl of flame turned three quarters.</summary>
-    CeresRidleyFireballTurned270,
-    /// <summary>Ceres Ridley's fireball: a small spark.</summary>
-    CeresRidleyFireballSpark,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire.</summary>
-    CeresRidleyFireballFireCloud,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading.</summary>
-    CeresRidleyFireballFireCloudSpreading,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up.</summary>
-    CeresRidleyFireballFireCloudBreaking,
-    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire.</summary>
-    CeresRidleyFireballFireCloudEmbers,
-    /// <summary>Ceres Ridley's fireball: a small spark: the picture of CeresRidleyFireballSpark, as a frame of its own.</summary>
-    CeresRidleyFireballSparkTwin,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire: the picture of CeresRidleyFireballFireCloud, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudTwin,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading: the picture of CeresRidleyFireballFireCloudSpreading, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudSpreadingTwin,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up: the picture of CeresRidleyFireballFireCloudBreaking, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudBreakingTwin,
-    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire: the picture of CeresRidleyFireballFireCloudEmbers, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudEmbersTwin,
-    /// <summary>Ceres Ridley's fireball: a small spark: the picture of CeresRidleyFireballSpark, as a frame of its own.</summary>
-    CeresRidleyFireballSparkTwinB,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire: the picture of CeresRidleyFireballFireCloud, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudTwinB,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading: the picture of CeresRidleyFireballFireCloudSpreading, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudSpreadingTwinB,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up: the picture of CeresRidleyFireballFireCloudBreaking, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudBreakingTwinB,
-    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire: the picture of CeresRidleyFireballFireCloudEmbers, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudEmbersTwinB,
-    /// <summary>Ceres Ridley's fireball: a small spark: the picture of CeresRidleyFireballSpark, as a frame of its own.</summary>
-    CeresRidleyFireballSparkTwinC,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire: the picture of CeresRidleyFireballFireCloud, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudTwinC,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading: the picture of CeresRidleyFireballFireCloudSpreading, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudSpreadingTwinC,
-    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up: the picture of CeresRidleyFireballFireCloudBreaking, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudBreakingTwinC,
-    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire: the picture of CeresRidleyFireballFireCloudEmbers, as a frame of its own.</summary>
-    CeresRidleyFireballFireCloudEmbersTwinC,
+    /// <summary>Ridley's fireball: a swirl of flame.</summary>
+    RidleyFireballTurned0,
+    /// <summary>Ridley's fireball: a swirl of flame: the picture of RidleyFireballTurned0, as a frame of its own.</summary>
+    RidleyFireballTurned0Twin,
+    /// <summary>Ridley's fireball: a swirl of flame: the picture of RidleyFireballTurned0, as a frame of its own.</summary>
+    RidleyFireballTurned0TwinB,
+    /// <summary>Ridley's fireball: a swirl of flame turned a quarter.</summary>
+    RidleyFireballTurned90,
+    /// <summary>Ridley's fireball: a swirl of flame turned half round.</summary>
+    RidleyFireballTurned180,
+    /// <summary>Ridley's fireball: a swirl of flame turned three quarters.</summary>
+    RidleyFireballTurned270,
+    /// <summary>Ridley's fireball: a small spark.</summary>
+    RidleyFireballSpark,
+    /// <summary>Ridley's fireball: a cloud of fire.</summary>
+    RidleyFireballFireCloud,
+    /// <summary>Ridley's fireball: a cloud of fire spreading.</summary>
+    RidleyFireballFireCloudSpreading,
+    /// <summary>Ridley's fireball: a cloud of fire breaking up.</summary>
+    RidleyFireballFireCloudBreaking,
+    /// <summary>Ridley's fireball: the embers of a cloud of fire.</summary>
+    RidleyFireballFireCloudEmbers,
+    /// <summary>Ridley's fireball: a small spark: the picture of RidleyFireballSpark, as a frame of its own.</summary>
+    RidleyFireballSparkTwin,
+    /// <summary>Ridley's fireball: a cloud of fire: the picture of RidleyFireballFireCloud, as a frame of its own.</summary>
+    RidleyFireballFireCloudTwin,
+    /// <summary>Ridley's fireball: a cloud of fire spreading: the picture of RidleyFireballFireCloudSpreading, as a frame of its own.</summary>
+    RidleyFireballFireCloudSpreadingTwin,
+    /// <summary>Ridley's fireball: a cloud of fire breaking up: the picture of RidleyFireballFireCloudBreaking, as a frame of its own.</summary>
+    RidleyFireballFireCloudBreakingTwin,
+    /// <summary>Ridley's fireball: the embers of a cloud of fire: the picture of RidleyFireballFireCloudEmbers, as a frame of its own.</summary>
+    RidleyFireballFireCloudEmbersTwin,
+    /// <summary>Ridley's fireball: a small spark: the picture of RidleyFireballSpark, as a frame of its own.</summary>
+    RidleyFireballSparkTwinB,
+    /// <summary>Ridley's fireball: a cloud of fire: the picture of RidleyFireballFireCloud, as a frame of its own.</summary>
+    RidleyFireballFireCloudTwinB,
+    /// <summary>Ridley's fireball: a cloud of fire spreading: the picture of RidleyFireballFireCloudSpreading, as a frame of its own.</summary>
+    RidleyFireballFireCloudSpreadingTwinB,
+    /// <summary>Ridley's fireball: a cloud of fire breaking up: the picture of RidleyFireballFireCloudBreaking, as a frame of its own.</summary>
+    RidleyFireballFireCloudBreakingTwinB,
+    /// <summary>Ridley's fireball: the embers of a cloud of fire: the picture of RidleyFireballFireCloudEmbers, as a frame of its own.</summary>
+    RidleyFireballFireCloudEmbersTwinB,
+    /// <summary>Ridley's fireball: a small spark: the picture of RidleyFireballSpark, as a frame of its own.</summary>
+    RidleyFireballSparkTwinC,
+    /// <summary>Ridley's fireball: a cloud of fire: the picture of RidleyFireballFireCloud, as a frame of its own.</summary>
+    RidleyFireballFireCloudTwinC,
+    /// <summary>Ridley's fireball: a cloud of fire spreading: the picture of RidleyFireballFireCloudSpreading, as a frame of its own.</summary>
+    RidleyFireballFireCloudSpreadingTwinC,
+    /// <summary>Ridley's fireball: a cloud of fire breaking up: the picture of RidleyFireballFireCloudBreaking, as a frame of its own.</summary>
+    RidleyFireballFireCloudBreakingTwinC,
+    /// <summary>Ridley's fireball: the embers of a cloud of fire: the picture of RidleyFireballFireCloudEmbers, as a frame of its own.</summary>
+    RidleyFireballFireCloudEmbersTwinC,
     /// <summary>Ceres falling debris: a light chunk.</summary>
     CeresFallingDebrisLight,
     /// <summary>Ceres falling debris: a dark chunk.</summary>

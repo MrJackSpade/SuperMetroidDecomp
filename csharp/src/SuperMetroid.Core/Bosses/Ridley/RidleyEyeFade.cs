@@ -1,9 +1,9 @@
-using static SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFadeDefinitions;
+using static SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Steps Ceres Ridley's eye fade through its authored shade schedule.</summary>
-internal static class CeresRidleyEyeFade
+/// <summary>Steps Ridley's eye fade through its authored shade schedule.</summary>
+internal static class RidleyEyeFade
 {
     /// <summary>
     /// The eye fade at one of its steps. The first sixteen steps show shades
@@ -14,14 +14,14 @@ internal static class CeresRidleyEyeFade
     /// the fade.
     /// No step follows the completing one, so a later step is refused.
     /// </remarks>
-    public static CeresRidleyEyeFadeStep Get(int offset) => offset switch
+    public static RidleyEyeFadeStep Get(int offset) => offset switch
     {
-        < 0 => throw new InvalidDataException($"Ceres Ridley eye-fade offset {offset} precedes the authored schedule."),
+        < 0 => throw new InvalidDataException($"Ridley eye-fade offset {offset} precedes the authored schedule."),
         < 16 => new(false, 15 - offset),
         < FadeStepCount => new(false, 0),
         FadeStepCount => new(true, 0),
         _ => throw new InvalidDataException(
-            $"Ceres Ridley eye-fade offset {offset} exceeds the authored " +
+            $"Ridley eye-fade offset {offset} exceeds the authored " +
             $"{FadeStepCount + 1}-entry schedule."),
     };
 }

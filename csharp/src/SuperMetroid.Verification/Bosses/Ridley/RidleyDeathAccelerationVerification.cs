@@ -21,10 +21,10 @@ internal static class RidleyDeathAccelerationVerification
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0xa6c611), "Death movement LDA immediate opcode");
         AssertEqual((byte)16, rom.ReadCartridgeByte(0xa6c612), "Death movement native extra deceleration");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace, RidleyEnemyState> approaching = NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot;
-        Action<RoomEnemyPlace, RidleyEnemyState> roaring = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathRoar;
+        Action<RoomEnemyPlace, NorfairRidleyState> approaching = NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot;
+        Action<RoomEnemyPlace, NorfairRidleyState> roaring = enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathRoar;
         var place = enemies.Places.InUpdateOrder[0];
-        var state = new RidleyEnemyState();
+        var state = new NorfairRidleyState();
         int[] distances = [-256, -64, -16, -1, 0, 1, 16, 64, 256];
         int[] velocities = [-1280, -256, -1, 0, 1, 256, 1280];
         foreach (var step in new[] { approaching, roaring })
@@ -32,11 +32,11 @@ internal static class RidleyDeathAccelerationVerification
         foreach (int velocity in velocities)
         {
             place.Position = new(new(unchecked((ushort)(128 + distance)), 0x8123), new(unchecked((ushort)(328 - distance)), 0x8123));
-            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)velocity)), new SignedEightEight(unchecked((ushort)velocity)));
+            state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)velocity)), new SignedEightEight(unchecked((ushort)velocity)));
             state.PhaseTimer = 20;
             step(place, state);
-            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), place.Position.X.Whole, 128, 16, 16), state.Velocity.X.RawValue, "Death phase native X acceleration");
-            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), place.Position.Y.Whole, 328, 16, 16), state.Velocity.Y.RawValue, "Death phase native Y acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), place.Position.X.Whole, 128, 16, 16), state.Flight.Velocity.X.RawValue, "Death phase native X acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), place.Position.Y.Whole, 328, 16, 16), state.Flight.Velocity.Y.RawValue, "Death phase native Y acceleration");
             AssertEqual(unchecked((ushort)(128 + distance)), place.Position.X.Whole, "Death phase leaves integration to shared movement");
             AssertEqual((ushort)0x8123, place.Position.X.Fraction, "Death phase preserves fractional position");
         }

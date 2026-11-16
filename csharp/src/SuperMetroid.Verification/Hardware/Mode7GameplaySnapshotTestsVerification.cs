@@ -52,18 +52,19 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
-        (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
-        getaway.FloorAngle = RotationAngle.FromSteps(5);
-        getaway.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(240);
-        getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
-        getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
+        // The station's escape owns the getaway's floor (#2228).
+        var getaway = runtime.Enemies.CeresEscape.Floor;
+        getaway.Active = true;
+        getaway.Angle = RotationAngle.FromSteps(5);
+        getaway.Zoom = FloorZoom.FromTwoHundredFiftySixths(240);
+        getaway.Center = new Position16<FloorPixels>(128, 120);
+        getaway.Offset = new Offset16<FloorPixels>(7, 19);
         // The getaway's floor reaches the display at the accepted frame boundary (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = new DisplayPacket(0, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
-        getaway.GetawayActive = false; getaway.FloorZoom = default;
+        getaway.Active = false; getaway.Zoom = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), ScreenGeometry.ScreenHeightPixels + 1), "the HUD cannot cover more than the screen");

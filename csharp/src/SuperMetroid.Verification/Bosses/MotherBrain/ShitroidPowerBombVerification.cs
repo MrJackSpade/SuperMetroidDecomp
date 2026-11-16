@@ -6,6 +6,9 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
+
+using SuperMetroid.Verification.Harness;
+
 /// <summary>Checks the Shitroid's Power Bomb reaction (#1813): the main step it runs reads the power-bomb pass's camera.</summary>
 internal static class ShitroidPowerBombVerification
 {

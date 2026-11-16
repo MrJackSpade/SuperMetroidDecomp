@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

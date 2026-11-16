@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses;
 

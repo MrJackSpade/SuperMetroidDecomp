@@ -24,10 +24,10 @@ internal sealed class GameplayAudioRequests(IGameplayAudioQueues queues)
     private readonly IGameplayAudioQueues queues = Ensure.NotNull(queues);
 
     /// <summary>The update's sound requests, in request order.</summary>
-    internal readonly List<SoundRequest> soundRequests = [];
+    private readonly List<SoundRequest> soundRequests = [];
 
     /// <summary>The update's music requests, in request order.</summary>
-    internal readonly List<GameplayMusicRequest> musicRequests = [];
+    private readonly List<GameplayMusicRequest> musicRequests = [];
 
     /// <summary>The update's sound requests, in the order the sound queues receive them.</summary>
     internal IReadOnlyList<SoundRequest> SoundRequests => soundRequests;

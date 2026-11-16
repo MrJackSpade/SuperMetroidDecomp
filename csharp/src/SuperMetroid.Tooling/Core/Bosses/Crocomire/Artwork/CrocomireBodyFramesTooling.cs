@@ -96,6 +96,9 @@ internal static class CrocomireBodyFramesTooling
         CrocomireBodyFrame.SkeletonFlowingDownRiverTenth,
     ];
 
+    /// <summary>Whether <paramref name="frame"/> is one of the skeleton's frames.</summary>
+    internal static bool IsSkeleton(CrocomireBodyFrame frame) => Array.IndexOf(SkeletonOrder, frame) >= 0;
+
     /// <summary>The installed extended spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(CrocomireBodyFrame frame)
     {

@@ -175,7 +175,7 @@ internal static class AudioVerification
         // retail room state holds, fails at import.
         // #1748: a room that keeps the loaded set names a shared song or the loaded set's area theme; the room below enters
         // with Green Brinstar's set loaded, so each choice plays what that set's track number names.
-        int[] keptSetNumbers = [.. MusicTrackNumbersConstants.SharedTrackNumbers, MusicTrackNumbers.AreaThemeTrack];
+        int[] keptSetNumbers = [.. MusicTrackNumbers.SharedTrackNumbers, MusicTrackNumbers.AreaThemeTrack];
         for (int roomTrack = 0; roomTrack <= byte.MaxValue; roomTrack++)
         {
             if (roomTrack is not (0 or 0x80) && !keptSetNumbers.Contains(roomTrack))

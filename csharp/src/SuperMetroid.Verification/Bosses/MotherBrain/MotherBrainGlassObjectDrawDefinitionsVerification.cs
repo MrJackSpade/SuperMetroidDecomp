@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupGlassLayoutsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainGlassStockVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassObjectProgramVerification;
@@ -16,12 +17,13 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
-
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled Mother Brain glass draw layouts through the guarded production PLM path.</summary>
 internal static class MotherBrainGlassObjectDrawDefinitionsVerification

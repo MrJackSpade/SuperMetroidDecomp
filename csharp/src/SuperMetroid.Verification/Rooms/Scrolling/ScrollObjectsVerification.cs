@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -13,10 +14,12 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks resident room-scroll PLMs through center contact, extensions, Morph Ball, and bomb jump.</summary>
 internal static class ScrollObjectsVerification

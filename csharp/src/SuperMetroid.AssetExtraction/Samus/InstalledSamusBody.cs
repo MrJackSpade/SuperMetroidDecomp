@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

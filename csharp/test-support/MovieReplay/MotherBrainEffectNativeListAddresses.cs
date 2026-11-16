@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

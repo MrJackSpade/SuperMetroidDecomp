@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 

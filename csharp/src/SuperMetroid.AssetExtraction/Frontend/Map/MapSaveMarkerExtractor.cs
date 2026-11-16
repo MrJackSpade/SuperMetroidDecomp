@@ -2,9 +2,11 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

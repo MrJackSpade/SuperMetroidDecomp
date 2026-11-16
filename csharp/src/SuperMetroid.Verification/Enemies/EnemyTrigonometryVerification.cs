@@ -760,7 +760,7 @@ internal static class EnemyTrigonometryVerification
             {
                 tide.SetTideForCheck(liquid, RotationAngle.FromRaw(phase), SignedSixteenSixteen.FromParts(0, 12345));
                 step();
-                short sample = Reference(RotationAngleConstants.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
+                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = option == LiquidTide.Small;
                 bool still = option == LiquidTide.None;
                 int scale = still ? 0 : small ? 8 : 32;

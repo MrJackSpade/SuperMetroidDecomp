@@ -7,6 +7,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

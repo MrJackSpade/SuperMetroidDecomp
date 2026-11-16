@@ -17,4 +17,7 @@ internal static class DeadTorizoCorpseDefinitions
 
     /// <summary>The room point each fallen row's dust cloud is spread right from, whichever room the corpse lies in.</summary>
     internal static readonly Position16<RoomPixels> DustOrigin = new(272, 188);
+
+    /// <summary>The room point the corpse's sand heap is drawn at, whichever room the corpse lies in.</summary>
+    internal static readonly Position16<RoomPixels> SandHeapPosition = new(296, 187);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using D = SuperMetroid.Core.Rooms.RoomObjects.CollectibleDraw;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;

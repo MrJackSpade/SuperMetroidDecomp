@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;

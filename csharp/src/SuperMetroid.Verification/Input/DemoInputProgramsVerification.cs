@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.SamusNativeCodecs;
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;

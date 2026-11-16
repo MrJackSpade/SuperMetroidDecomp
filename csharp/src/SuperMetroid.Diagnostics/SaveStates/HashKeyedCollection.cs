@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Reflection;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 

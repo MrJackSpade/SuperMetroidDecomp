@@ -31,6 +31,8 @@ internal sealed class EnemyCollision
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Connects collision outcomes to enemy-owned projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies the active room's area and environment to collision logic.</summary>
+    private readonly EnemyRoomBinding _room;
     /// <summary>Defines enemy iteration order for the collision passes.</summary>
     private readonly EnemyPlaces _places;
     /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
@@ -157,6 +159,7 @@ internal sealed class EnemyCollision
                 level,
                 usesFrameHitboxes,
                 hitboxTouch,
+                bodyAttack,
                 camera));
             return true;
         }

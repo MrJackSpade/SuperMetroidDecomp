@@ -21,5 +21,5 @@ internal static class CinematicSpritePoseSpritemaps
     /// pose or no pose, otherwise the pose's own spritemap or one that draws the same picture (the escape pod's long trail).
     /// </summary>
     internal static bool Shows(CinematicSpritePose? pose, ushort native) =>
-        pose is { } shown && shown != CinematicSpritePose.Blank ? CinematicSpritemapSourcesConstants.IsDrawnBy(shown, native) : native == 0;
+        pose is { } shown && shown != CinematicSpritePose.Blank ? CinematicSpritemapSources.IsDrawnBy(shown, native) : native == 0;
 }

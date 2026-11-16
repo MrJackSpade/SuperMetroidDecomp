@@ -8,7 +8,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;

@@ -127,10 +127,10 @@ internal static class FamilyTrigonometryVerification
             for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)
             {
                 previous.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
-                segmentState.OrbitAngle = RotationAngleConstants.FromRaw((ushort)angle);
+                segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
                 place(segment, segmentState);
-                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngleConstants.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue + 64]));
-                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngleConstants.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue]));
+                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue + 64]));
+                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue]));
                 if (segment.Position.X != SixteenSixteenWords.ToCoordinate(expectedX) ||
                     segment.Position.Y != SixteenSixteenWords.ToCoordinate(expectedY) ||
                     segmentState.OrbitAngle.RawValue != angle)

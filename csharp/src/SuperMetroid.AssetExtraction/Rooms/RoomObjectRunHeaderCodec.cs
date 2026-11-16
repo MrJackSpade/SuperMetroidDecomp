@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

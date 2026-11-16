@@ -18,7 +18,7 @@ internal static class AreaBlockAnimations
 {
     /// <summary>Direct area/bit behavior selection, shared by retail and audit views.</summary>
     /// <remarks>All eight areas' selections share the horizontal spikes for bit 0. Later bits select named area
-    /// animations, a still object (<c>SelectsStillObject(int, int)</c>) or the empty object. This dispatch
+    /// animations, a still object (<see cref="SelectsStillObject(int, int)"/>) or the empty object. This dispatch
     /// is independently verified against NTSC J/U v1.0 and pinned bank_83.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d); no selection matrix remains.
     /// Callers retain their distinct area bounds and validation order. Area index 7,
@@ -42,6 +42,15 @@ internal static class AreaBlockAnimations
         (AreaId.Maridia, 3) => BlockAnimation.MaridiaSandFalling,
         _ => null,
     };
+
+    /// <summary>
+    /// Whether the FX bit <paramref name="bit"/> of the area numbered <paramref name="areaIndex"/> selects a still
+    /// object, which starts nothing: the vertical spikes in every area, Crateria's lake, Brinstar's plant and the Wrecked
+    /// Ship's screen.
+    /// </summary>
+    internal static bool SelectsStillObject(int areaIndex, int bit) =>
+        bit == 1 || (areaIndex < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count &&
+            SelectsStillObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(areaIndex, "Block-animation area"), bit));
 
     /// <summary>Whether a retail area's FX bit selects a still object, which starts nothing.</summary>
     internal static bool SelectsStillObject(AreaId area, int bit) => new AreaFxBit(area, bit) switch

@@ -12,6 +12,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtwork
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -40,7 +41,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     {
         var draygonBg2Pointers = new HashSet<ushort>();
         // The Draygon oracle matches each typed frame to the operand of its native list frame.
-        for (int index = 0; index < DraygonFrameToolingDefinitionsConstants.FrameCount; index++)
+        for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
         {
             ushort pointer = DraygonFrameToolingDefinitions.Spritemap(DraygonFrameToolingDefinitions.CartridgeOrder[index]);
             if (draygonOamPointers.Contains(pointer))

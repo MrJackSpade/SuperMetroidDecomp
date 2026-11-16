@@ -152,7 +152,7 @@ internal static class EnemySpeciesCapabilitiesVerification
     /// <summary>Every reaction a shot can select: none, the shared ones and each species' own.</summary>
     private static readonly EnemyReaction?[] ProbedReactions =
     [
-        null, .. EnemyReactionConstants.Shared,
+        null, .. EnemyReaction.Shared,
         CeresSteamReactions.Touch,
         CrocomireReactions.ClawTouch, CrocomireReactions.AbsorbedShot, CrocomireReactions.DustShot,
         CrocomireReactions.MouthShot,

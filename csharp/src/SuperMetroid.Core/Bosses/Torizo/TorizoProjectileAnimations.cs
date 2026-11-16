@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;

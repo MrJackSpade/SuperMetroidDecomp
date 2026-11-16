@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;

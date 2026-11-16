@@ -3,7 +3,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

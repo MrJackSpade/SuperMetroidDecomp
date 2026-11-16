@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;

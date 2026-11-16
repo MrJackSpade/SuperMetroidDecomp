@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonObjectProgramVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
@@ -7,6 +8,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

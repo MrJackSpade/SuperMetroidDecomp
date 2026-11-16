@@ -1,9 +1,5 @@
 ﻿using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
-using System.Security.Cryptography;
-using System.Text.Json;
-using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -23,8 +19,6 @@ internal static class EndingTextPresentationAccess
             EndingTextSequence.FinalMessage => self.finalMessage,
             _ => throw new ArgumentOutOfRangeException(nameof(sequence), sequence, null),
         };
-        /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
-        public EndingTypewriterText Typewriter() => new([.. self.percentage], [.. self.finalMessage]);
     }
 
     /// <summary>Copies the Japanese subtitle's tiles for verification.</summary>

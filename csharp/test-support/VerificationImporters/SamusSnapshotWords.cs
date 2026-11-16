@@ -102,9 +102,9 @@ internal static class SamusSnapshotWords
     internal static ChargedShotGlow DecodeChargedShotGlow(ushort word) => word switch
     {
         0 => ChargedShotGlow.None,
-        <= 4 => ChargedShotGlowConstants.Of(ChargedShotGlowKind.ChargedShotFlash, word),
+        <= 4 => ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, word),
         >= HyperBeamGlowMarker and <= HyperBeamGlowMarker + 20 =>
-            ChargedShotGlowConstants.Of(ChargedShotGlowKind.HyperBeamGlow, word - HyperBeamGlowMarker),
+            ChargedShotGlow.Of(ChargedShotGlowKind.HyperBeamGlow, word - HyperBeamGlowMarker),
         _ => throw new InvalidDataException($"Charged-shot glow word ${word:X4} is not a native glow state."),
     };
 

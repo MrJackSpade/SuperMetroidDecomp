@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian;

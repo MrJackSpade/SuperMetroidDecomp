@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
@@ -11,6 +12,7 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;

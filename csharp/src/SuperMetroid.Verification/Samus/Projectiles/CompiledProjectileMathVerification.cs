@@ -46,13 +46,13 @@ internal static class CompiledProjectileMathVerification
         foreach (int rawAngle in AngleHighByteSamples())
         for (int radius = 0; radius <= byte.MaxValue; radius++)
         {
-            int xAngle = RotationAngleConstants.FromRaw(unchecked((ushort)rawAngle)).ToTrigonometryAngle().RawValue;
-            int yAngle = RotationAngleConstants.FromRaw(unchecked((ushort)(rawAngle - 16384))).ToTrigonometryAngle().RawValue;
+            int xAngle = RotationAngle.FromRaw(unchecked((ushort)rawAngle)).ToTrigonometryAngle().RawValue;
+            int yAngle = RotationAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).ToTrigonometryAngle().RawValue;
             ushort xMagnitude = (ushort)(native[(xAngle & 127) + 64] * radius / 256);
             ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
             ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
             ushort y = yAngle < 128 ? yMagnitude : unchecked((ushort)-yMagnitude);
-            if (echo(RotationAngleConstants.FromRaw((ushort)rawAngle), (byte)radius) != new Offset16<RoomPixels>(unchecked((short)x), unchecked((short)y)))
+            if (echo(RotationAngle.FromRaw((ushort)rawAngle), (byte)radius) != new Offset16<RoomPixels>(unchecked((short)x), unchecked((short)y)))
                 throw new InvalidDataException($"Shinespark vector differs: angle={rawAngle:X4}, radius={radius}.");
         }
 

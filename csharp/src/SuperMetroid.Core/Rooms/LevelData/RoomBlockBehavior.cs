@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -153,7 +154,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior None => new(EmptyReadings);
 
     /// <summary>The kept behaviour this one is.</summary>
-    internal RoomBlockReadings Readings => kept ?? EmptyReadings;
+    private RoomBlockReadings Readings => kept ?? EmptyReadings;
 
     /// <summary>The behaviour holding <paramref name="readings"/>, which must be one of the kept behaviours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds exactly these readings.</exception>
@@ -292,6 +293,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// list.
     /// </summary>
     public int DoorLink => Readings.DoorLink;
+
+    /// <summary>Every reading of this behaviour.</summary>
+    public RoomBlockReadings AllReadings => Readings;
 
     /// <summary>The reaction <paramref name="family"/>'s kinds read, or null when they have none for this behaviour.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>

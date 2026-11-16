@@ -21,4 +21,7 @@ public readonly record struct ScreenLineBand
         FirstLine = Ensure.BetweenInclusive(0, DisplayScreen.Height, firstLine);
         EndLine = Ensure.BetweenInclusive(FirstLine, DisplayScreen.Height, endLine);
     }
+
+    /// <summary>Every line below the HUD: the gameplay area.</summary>
+    public static ScreenLineBand Gameplay { get; } = new(DisplayScreen.HudHeight, DisplayScreen.Height);
 }

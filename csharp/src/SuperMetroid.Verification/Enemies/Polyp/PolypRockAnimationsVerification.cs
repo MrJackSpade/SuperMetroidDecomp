@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.TestSupport.MovieReplay.PolypRockNativeListAddresses;
+using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;

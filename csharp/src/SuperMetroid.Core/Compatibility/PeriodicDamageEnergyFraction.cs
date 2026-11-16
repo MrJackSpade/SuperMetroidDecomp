@@ -26,14 +26,17 @@ public readonly record struct PeriodicDamageEnergyFraction
     /// <summary>The held fraction, kept as the drain the shared arithmetic runs on.</summary>
     private readonly FractionalEnergyDrain _held;
 
-    /// <summary>Stores the held fraction; callers use <c>Holding</c> or <see cref="None"/>.</summary>
-    internal PeriodicDamageEnergyFraction(FractionalEnergyDrain held) => _held = held;
+    /// <summary>Stores the held fraction; callers use <see cref="Holding"/> or <see cref="None"/>.</summary>
+    private PeriodicDamageEnergyFraction(FractionalEnergyDrain held) => _held = held;
 
     /// <summary>The fraction held, 0 through one part short of an energy, in <see cref="PartsPerEnergy"/>ths.</summary>
     public int Parts => _held.HeldOver;
 
     /// <summary>No fraction held: a new Samus's, and the one a fatal periodic damage leaves.</summary>
     public static PeriodicDamageEnergyFraction None => default;
+
+    /// <summary>A held fraction of <paramref name="parts"/>, 0 through one part short of an energy, as a recorded state or a check states one.</summary>
+    public static PeriodicDamageEnergyFraction Holding(int parts) => new(FractionalEnergyDrain.HoldingOver(parts));
 
     /// <summary>Whether taking <paramref name="fraction"/> borrows a whole energy: whether it is more than the fraction held.</summary>
     /// <param name="fraction">The fraction of periodic damage, 0 through one part short of an energy.</param>

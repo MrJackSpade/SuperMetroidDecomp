@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;

@@ -533,6 +533,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <inheritdoc/>
     MotherBrainEnemyState? IEnemyDisplaySources.MotherBrain => MotherBrainEncounter.MotherBrain;
     /// <inheritdoc/>
+    DraygonEnemyState? IEnemyDisplaySources.Draygon => DraygonBehavior.Parts.Draygon;
+    /// <inheritdoc/>
     PhantoonEnemyState? IEnemyDisplaySources.Phantoon => PhantoonBehavior.Combat.Phantoon;
     /// <inheritdoc/>
     RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;

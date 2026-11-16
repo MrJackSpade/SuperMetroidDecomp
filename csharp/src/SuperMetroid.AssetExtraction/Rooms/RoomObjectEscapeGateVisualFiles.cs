@@ -1,4 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 

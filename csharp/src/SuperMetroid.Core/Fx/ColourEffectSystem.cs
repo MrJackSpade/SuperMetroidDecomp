@@ -46,17 +46,19 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <summary>Whether the colour effects run at all, checked first each update; it lives on the session.</summary>
     public bool ColourEffectsRun => _session.ColourEffectsRun;
 
+    /// <summary>The update's audio requests the colour effects' sounds join, once the runtime running them binds them.</summary>
+    private GameplayAudioRequests? audioRequests;
+
     /// <summary>
     /// The audio requests the colour effects' sounds join as they make them: the runtime's update's, which it binds before
     /// any effect sounds (#2057). A frontend screen's effects make no sound and bind none.
     /// </summary>
     /// <exception cref="InvalidOperationException">No runtime has bound its audio requests: an effect sounding then has no request to join.</exception>
-    internal GameplayAudioRequests AudioRequests { get => field
-        ?? throw new InvalidOperationException("A colour effect made a sound before a runtime bound its update's audio requests."); private set;
-    }
+    internal GameplayAudioRequests AudioRequests => audioRequests
+        ?? throw new InvalidOperationException("A colour effect made a sound before a runtime bound its update's audio requests.");
 
     /// <summary>Points the colour effects' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
+    internal void BindAudioRequests(GameplayAudioRequests requests) => audioRequests = Ensure.NotNull(requests);
 
     /// <summary>Whether <paramref name="effect"/> is running.</summary>
     public bool IsRunning(ColourEffectId effect) => effects.Exists(running => running.Effect == effect);

@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Harness;
+
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>

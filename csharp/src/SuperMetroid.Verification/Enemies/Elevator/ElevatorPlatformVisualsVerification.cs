@@ -1,4 +1,6 @@
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Elevator.LookupElevatorPlatformStockVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
@@ -12,6 +14,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

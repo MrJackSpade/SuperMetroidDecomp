@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Enemies;
-
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 
 /// <summary>Cartridge values of <see cref="RoomEnemySystem"/> that only verification reads.</summary>

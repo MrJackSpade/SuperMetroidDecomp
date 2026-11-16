@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 
@@ -17,6 +18,18 @@ internal static class SpcDriverSnapshot
     {
         foreach (int value in values)
             state.Add(checked((byte)value));
+    }
+
+    /// <summary>Appends each of <paramref name="values"/> as four little-endian bytes, whatever its range (#1503).</summary>
+    public static void AddValues(List<byte> state, ReadOnlySpan<int> values)
+    {
+        Span<byte> bytes = stackalloc byte[sizeof(int)];
+        foreach (int value in values)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(bytes, value);
+            foreach (byte part in bytes)
+                state.Add(part);
+        }
     }
 
     /// <summary>Appends each driver word in <paramref name="words"/>, in order, low byte first.</summary>

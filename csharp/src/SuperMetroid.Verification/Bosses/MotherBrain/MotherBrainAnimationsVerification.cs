@@ -255,7 +255,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(native.Timer, beam.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, beam.PresentationOperandAddress, $"{at}: frame");
         }
-        AssertEqual(MotherBrainHandBeamAnimationsConstants.StageCount, spawns, "the hand beam spawns the next beam once a stage");
+        AssertEqual(MotherBrainHandBeamAnimations.StageCount, spawns, "the hand beam spawns the next beam once a stage");
         return update;
     }
 

@@ -27,6 +27,13 @@ public sealed record ScrollBands(int BaseScroll, ImmutableArray<ScrollBand> Band
     /// <param name="scroll">The scroll every line shows.</param>
     public static ScrollBands Uniform(int scroll) => new(scroll, []);
 
+    /// <summary>The lines above <paramref name="line"/> at <paramref name="scrollAbove"/>, and the lines from it down at <paramref name="scroll"/>.</summary>
+    /// <param name="scrollAbove">The scroll the lines above show.</param>
+    /// <param name="line">The screen line the second scroll begins on; a line outside the screen leaves one scroll on every line.</param>
+    /// <param name="scroll">The scroll the lines from <paramref name="line"/> down show.</param>
+    public static ScrollBands Split(int scrollAbove, int line, int scroll) =>
+        new(scrollAbove, [new(Math.Clamp(line, 0, ScreenGeometry.ScreenHeightPixels), scroll)]);
+
     /// <summary>Requires bands each beginning below the one before.</summary>
     /// <exception cref="ArgumentException">The bands are out of order.</exception>
     private static ImmutableArray<ScrollBand> RequireDescending(ImmutableArray<ScrollBand> bands)

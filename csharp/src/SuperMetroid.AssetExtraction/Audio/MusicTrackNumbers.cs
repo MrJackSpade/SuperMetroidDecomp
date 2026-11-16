@@ -19,7 +19,7 @@ internal static class MusicTrackNumbers
     internal const int AreaThemeTrack = 5;
 
     /// <summary>Each shared song's track number, the same in every data set.</summary>
-    internal static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
+    private static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
     {
         [MusicTrack.SamusFanfare] = 1,
         [MusicTrack.ItemFanfare] = 2,
@@ -58,6 +58,9 @@ internal static class MusicTrackNumbers
         [MusicDataSet.BabyMetroidEncounter] = [MusicTrack.KraidAndPhantoonBattle, MusicTrack.BabyMetroidTheme, MusicTrack.SilentSong],
         [MusicDataSet.SamusThemeUpperCrateria] = [MusicTrack.SamusTheme],
     }.ToFrozenDictionary();
+
+    /// <summary>The track numbers of the shared songs, which name the same song whichever data set is loaded.</summary>
+    internal static IEnumerable<int> SharedTrackNumbers => SharedNumbers.Values;
 
     /// <summary>The song track <paramref name="number"/> plays with <paramref name="dataSet"/> loaded, or with only the shared songs for none.</summary>
     /// <exception cref="InvalidDataException">No song of the data set, or no shared song, has the number.</exception>

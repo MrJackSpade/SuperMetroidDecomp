@@ -3,11 +3,15 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

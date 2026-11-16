@@ -18,7 +18,7 @@ internal static class FileSelectPresentationVerification
         ISnesAddressSpace bus,
         AreaMapPresentation original)
     {
-        _ = FileSelectSourcePresentationConstants.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus));
+        _ = FileSelectSourcePresentation.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus));
 
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 

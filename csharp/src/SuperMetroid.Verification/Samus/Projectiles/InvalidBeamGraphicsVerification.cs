@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
@@ -11,9 +12,9 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
-
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks Chainsaw beam DMA against native cartridge behavior, and the palette the Chainsaw beam shows.</summary>
 internal static class InvalidBeamGraphicsVerification

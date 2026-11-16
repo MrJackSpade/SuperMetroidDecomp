@@ -523,6 +523,18 @@ internal static class SamusSourceDefinitions
     internal static readonly SnesAddress XrayRoomOverlayBank = new(0x8f, 0x0000);
 
     /// <summary>
+    /// $9B:A4B3: the uncharged trail selector table. Each beam combination's row is a bank-$9B pointer to a direction table
+    /// of placement-list pointers; rows twelve to fifteen read the charged table's first rows.
+    /// </summary>
+    internal static readonly SnesAddress UnchargedTrailSelectors = new(0x9b, 0xa4b3);
+
+    /// <summary>$9B:A4CB: the charged trail selector table, laid out as the uncharged one.</summary>
+    internal static readonly SnesAddress ChargedTrailSelectors = new(0x9b, 0xa4cb);
+
+    /// <summary>$9B:A4E3: the special beam attack trail selector table, laid out as the uncharged one.</summary>
+    internal static readonly SnesAddress SpecialBeamAttackTrailSelectors = new(0x9b, 0xa4e3);
+
+    /// <summary>
     /// $91:B5E8: the running stream word past the five boost stages' words at $91:B5DE, which a Speed Booster echo that
     /// finds the sound queue full selects (#1338, #1473). It names a bank-$91 position below $8000, which shows memory,
     /// not cartridge data: the floor update queue.

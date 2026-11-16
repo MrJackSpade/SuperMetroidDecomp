@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses;

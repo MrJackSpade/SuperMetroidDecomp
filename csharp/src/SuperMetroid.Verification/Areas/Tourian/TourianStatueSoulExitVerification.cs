@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

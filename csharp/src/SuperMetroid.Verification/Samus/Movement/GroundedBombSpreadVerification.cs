@@ -57,9 +57,9 @@ internal static class GroundedBombSpreadVerification
                     long expectedX = 512L * 65536 + tick * (encodedX & 0x7fff) * 256L * ((encodedX & 0x8000) == 0 ? 1 : -1);
                     long expectedY = 512L * 65536 + tick * initialY + 0x1c00L * tick * (tick + 1) / 2;
                     string context = $"hold {hold}, down {keepDown}, tick {tick}, slot {slotIndex}";
-                    AssertEqual((ushort)SixteenSixteenConstants.WholeOf(unchecked((int)expectedX)), slot.Position.X.Whole, $"spread X: {context}");
+                    AssertEqual((ushort)SixteenSixteen.WholeOf(unchecked((int)expectedX)), slot.Position.X.Whole, $"spread X: {context}");
                     AssertEqual((ushort)expectedX, slot.Position.X.Fraction, $"spread X fraction: {context}");
-                    AssertEqual((ushort)SixteenSixteenConstants.WholeOf(unchecked((int)expectedY)), slot.Position.Y.Whole, $"spread Y: {context}");
+                    AssertEqual((ushort)SixteenSixteen.WholeOf(unchecked((int)expectedY)), slot.Position.Y.Whole, $"spread Y: {context}");
                     AssertEqual((ushort)expectedY, slot.Position.Y.Fraction, $"spread Y fraction: {context}");
                     AssertEqual((ushort)(Read(MorphBallBombDefinitions.FuseTimers) - tick), slot.BombTimer.RawValue, $"individual spread fuse: {context}");
                 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;

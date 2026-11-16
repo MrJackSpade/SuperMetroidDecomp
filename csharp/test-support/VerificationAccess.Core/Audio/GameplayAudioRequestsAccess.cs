@@ -4,6 +4,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Audio;

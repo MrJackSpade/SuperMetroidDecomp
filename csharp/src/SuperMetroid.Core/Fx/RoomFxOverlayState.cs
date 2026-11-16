@@ -115,15 +115,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private int lavaSoundTimer;
     /// <summary>Current liquid rise or fall state the room effect's liquid motion selects.</summary>
     private LiquidRisePhase liquidRisePhase;
-
+    /// <summary>The update's audio requests the effect's sounds join, once the runtime running it binds them.</summary>
+    private GameplayAudioRequests? audioRequests;
     /// <summary>
     /// The update's audio requests the effect's sounds join as it makes them: the runtime's, which it binds before the
     /// effect runs (#2057).
     /// </summary>
     /// <exception cref="InvalidOperationException">No runtime has bound its audio requests: a sound then has no request to join.</exception>
-    internal GameplayAudioRequests AudioRequests { get => field
-        ?? throw new InvalidOperationException("The room effect made a sound before a runtime bound its update's audio requests."); private set;
-    }
+    internal GameplayAudioRequests AudioRequests => audioRequests
+        ?? throw new InvalidOperationException("The room effect made a sound before a runtime bound its update's audio requests.");
     /// <summary>
     /// Countdown to the next quake sound while rising lava or acid or the Tourian statues rumble: the sound plays on the
     /// update the countdown runs past zero.
@@ -204,7 +204,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public RoomLiquid? Liquid { get; private set; }
 
     /// <summary>Points the effect's sounds at <paramref name="requests"/>, the update's audio requests of the runtime running it.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
+    internal void BindAudioRequests(GameplayAudioRequests requests) => audioRequests = Ensure.NotNull(requests);
 
     /// <summary>
     /// The earthquake the current effect pass sustains (<see cref="RoomEarthquake.Sustain"/>), if any: rising lava's or

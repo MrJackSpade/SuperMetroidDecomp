@@ -22,7 +22,7 @@ internal static class FileSelectGeometryLookupsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
             "file select geometry oracle revision");
         FileSelectExtraction extraction = FileSelectPresentationExtractor.Extract(rom);
-        FileSelectPresentation presentation = FileSelectSourcePresentationConstants.Load(extraction).Presentation;
+        FileSelectPresentation presentation = FileSelectSourcePresentation.Load(extraction).Presentation;
         FileSelectLayoutDocument document = RequiredJson.Deserialize<FileSelectLayoutDocument>(
             extraction.Layout, ArtworkJson.Options);
         Suite(nameof(VerifyFileSelectMainCursorY), () => VerifyFileSelectMainCursorY(rom, presentation));
@@ -39,7 +39,7 @@ internal static class FileSelectGeometryLookupsVerification
         {
             ushort expected = ReadVerificationWord(rom, 0x81a312 + row * 4);
             AssertEqual(expected, FileSelectCursorPositions.MainSelectionY(row), $"main cursor Y {row}");
-            AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.Main, row).Y,
+            AssertEqual((int)expected, presentation.CursorPosition(FileSelectCursorPage.Main, row).Y,
                 $"extracted main cursor Y {row}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.MainSelectionY, 6));
@@ -54,7 +54,7 @@ internal static class FileSelectGeometryLookupsVerification
         {
             ushort expected = ReadVerificationWord(rom, address + row * 2);
             AssertEqual(expected, FileSelectCursorPositions.DataSelectionY(row), $"data cursor {address:X6}/{row}");
-            AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, row).Y,
+            AssertEqual((int)expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, row).Y,
                 $"extracted data cursor {address:X6}/{row}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.DataSelectionY, 4));
@@ -72,7 +72,7 @@ internal static class FileSelectGeometryLookupsVerification
             AssertEqual((byte)0x8d, FileSelectHelmetYRomByte(rom, instruction + 3), "helmet STA absolute opcode");
             ushort expected = ReadVerificationWord(rom, instruction + 1);
             AssertEqual(expected, FileSelectCursorPositions.HelmetY(slot), $"helmet Y {slot}");
-            AssertEqual(expected, document.HelmetAnchors[slot].Y, $"extracted helmet Y {slot}");
+            AssertEqual((int)expected, document.HelmetAnchors[slot].Y, $"extracted helmet Y {slot}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.HelmetY, 3));
     }

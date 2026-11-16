@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedBg2ReferenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;

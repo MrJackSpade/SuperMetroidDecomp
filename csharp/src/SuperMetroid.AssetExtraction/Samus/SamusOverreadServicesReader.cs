@@ -1,6 +1,10 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Spatial;
 using System.Globalization;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;

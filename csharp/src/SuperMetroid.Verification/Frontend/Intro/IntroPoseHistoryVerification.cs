@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRenderCaptureTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

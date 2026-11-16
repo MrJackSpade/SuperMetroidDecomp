@@ -13,7 +13,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art and live tile updates.</summary>

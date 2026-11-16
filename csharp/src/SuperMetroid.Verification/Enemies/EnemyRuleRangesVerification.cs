@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies;
 

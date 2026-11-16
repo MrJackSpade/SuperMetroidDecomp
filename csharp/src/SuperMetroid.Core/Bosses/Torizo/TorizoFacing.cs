@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

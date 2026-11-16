@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomGraphicsSetCodec
 {
     /// <summary>Each graphics set at the position of its number in the cartridge.</summary>
-    internal static readonly RoomGraphicsSet[] Numbered =
+    private static readonly RoomGraphicsSet[] Numbered =
     [
         RoomGraphicsSet.UpperCrateria, RoomGraphicsSet.RedCrateria, RoomGraphicsSet.LowerCrateria, RoomGraphicsSet.OldTourian, RoomGraphicsSet.WreckedShipPowerOn,
         RoomGraphicsSet.WreckedShipPowerOff, RoomGraphicsSet.GreenBlueBrinstar, RoomGraphicsSet.RedBrinstarKraid, RoomGraphicsSet.StatuesHall, RoomGraphicsSet.HeatedNorfair,
@@ -29,4 +29,12 @@ internal static class RoomGraphicsSetCodec
         (uint)number < (uint)Numbered.Length
             ? Numbered[number]
             : throw new InvalidDataException($"Graphics set number {number} numbers none of the {Numbered.Length} room graphics sets.");
+
+    /// <summary>The number the cartridge gives <paramref name="graphicsSet"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="graphicsSet"/> is not a room graphics set.</exception>
+    public static int Encode(RoomGraphicsSet graphicsSet)
+    {
+        int number = Array.IndexOf(Numbered, graphicsSet);
+        return number >= 0 ? number : throw new ArgumentOutOfRangeException(nameof(graphicsSet), graphicsSet, "Not a room graphics set.");
+    }
 }

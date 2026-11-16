@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
@@ -242,7 +243,7 @@ internal static class TorizoAnimationsVerification
                     TorizoWalkKind.WalkGoldenTorizo => GoldenWalkTable,
                     _ => throw new InvalidOperationException($"Undefined {nameof(TorizoWalkKind)} {walk.Kind}."),
                 };
-                AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(table + value)), walk.Velocity, $"{at}: walking velocity");
+                AssertEqual((int)unchecked((short)cartridge.ReadCartridgeWord(table + value)), walk.Velocity, $"{at}: walking velocity");
                 continue;
             }
             if (role == TorizoOperand.Function)
@@ -430,7 +431,7 @@ internal static class TorizoAnimationsVerification
                     continue;
                 }
                 var walkOn = AssertIs<TorizoCue.WalkOn>(end, $"{at}: walks on");
-                AssertEqual(returnPoint, Entry(walkOn.Walking), $"{at}: walks on where the cartridge's return continued, ${returnPoint:X4}");
+                AssertEqual(returnPoint, (ushort?)Entry(walkOn.Walking), $"{at}: walks on where the cartridge's return continued, ${returnPoint:X4}");
                 walksOn[called] = walkOn.Walking;
             }
         }

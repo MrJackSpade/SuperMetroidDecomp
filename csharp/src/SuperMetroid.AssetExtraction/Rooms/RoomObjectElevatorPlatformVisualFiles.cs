@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 

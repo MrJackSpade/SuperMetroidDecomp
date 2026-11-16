@@ -1,18 +1,22 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Enemies.Elevator;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Compares the three exported elevator platform PLM draw lists with cartridge data and room effects.</summary>
 internal static class LookupElevatorPlatformLayoutsVerification

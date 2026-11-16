@@ -68,6 +68,9 @@ public sealed class EndingTextPresentation
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
+    public EndingTypewriterText Typewriter() => new([.. percentage], [.. finalMessage]);
+
     /// <summary>The installed typewriter text's revision (#1638).</summary>
     public const int TypewriterVersion = 1;
 

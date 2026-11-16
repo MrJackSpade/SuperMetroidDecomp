@@ -1592,14 +1592,14 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = 0 };
 
         samus.Health = 50;
-        samus.EnergyFraction = PeriodicDamageEnergyFractionConstants.Holding(ThreeQuarterUnits);
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits);
         samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 1);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
         AssertEqual(QuarterUnit, samus.EnergyFraction.Parts, "a covered fraction keeps its remainder without borrowing");
 
         samus.Health = 50;
-        samus.EnergyFraction = PeriodicDamageEnergyFractionConstants.Holding(QuarterUnit);
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(QuarterUnit);
         samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 1);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
@@ -1613,7 +1613,7 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         AssertEqual(0, samus.EnergyFraction.Parts, "a fatal borrow clears the fraction instead of wrapping it");
 
         samus.Health = 1;
-        samus.EnergyFraction = PeriodicDamageEnergyFractionConstants.Holding(HalfUnit);
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(HalfUnit);
         samus.LiquidPhysics.AccumulatePeriodicDamage(0, 2);
         samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");

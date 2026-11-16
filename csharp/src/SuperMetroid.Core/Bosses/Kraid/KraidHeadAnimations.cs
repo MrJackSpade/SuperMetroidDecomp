@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
 using P = SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment;
 
 namespace SuperMetroid.Core.Bosses.Kraid;

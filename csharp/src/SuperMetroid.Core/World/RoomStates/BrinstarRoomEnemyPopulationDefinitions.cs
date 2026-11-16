@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;

@@ -12,6 +12,13 @@ public static class ControllerButtons
         ControllerButton.Right | ControllerButton.Left | ControllerButton.Down | ControllerButton.Up |
         ControllerButton.Start | ControllerButton.Select | ControllerButton.Y | ControllerButton.B;
 
+    /// <summary>The four directional-pad bits.</summary>
+    public const ControllerButton DirectionalPad =
+        ControllerButton.Right | ControllerButton.Left | ControllerButton.Down | ControllerButton.Up;
+
+    /// <summary>The mutually opposed horizontal directional bits.</summary>
+    public const ControllerButton HorizontalDirections = ControllerButton.Right | ControllerButton.Left;
+
     /// <summary>Tests whether at least one requested button is present.</summary>
     public static bool HasAny(this ControllerButton input, ControllerButton buttons) =>
         (input & buttons) != ControllerButton.None;

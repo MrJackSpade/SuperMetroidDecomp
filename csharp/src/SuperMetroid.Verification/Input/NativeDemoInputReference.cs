@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.SamusNativeCodecs;
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Verification.Input;

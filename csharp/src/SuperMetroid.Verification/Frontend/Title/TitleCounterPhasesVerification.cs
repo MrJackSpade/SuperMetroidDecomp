@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;

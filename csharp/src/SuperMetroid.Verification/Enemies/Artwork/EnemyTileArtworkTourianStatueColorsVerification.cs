@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -10,6 +11,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;

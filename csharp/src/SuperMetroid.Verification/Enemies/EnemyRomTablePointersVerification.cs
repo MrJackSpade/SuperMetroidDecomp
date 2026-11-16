@@ -1,8 +1,12 @@
+using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelectionVerification;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;

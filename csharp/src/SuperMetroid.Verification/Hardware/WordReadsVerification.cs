@@ -137,7 +137,7 @@ internal static class WordReadsVerification
     }
 
     /// <summary>A byte store that records every read and fails at unmapped addresses.</summary>
-    internal sealed class RecordingByteSource(Dictionary<int, byte> bytes) : IImportCartridgeSource
+    internal sealed class RecordingByteSource(Dictionary<int, byte> bytes) : ISnesMutableMemory, IImportCartridgeSource
     {
         /// <summary>Every CPU address requested, in the order the word helper read it.</summary>
         public List<int> Reads { get; } = [];

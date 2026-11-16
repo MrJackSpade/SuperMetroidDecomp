@@ -56,7 +56,7 @@ internal static class FileSelectNameCasesVerification
         var values = (root.Single(pair => pair.Key.Equals(field, StringComparison.OrdinalIgnoreCase)).Value ?? throw new InvalidOperationException("Verification requires the field's value.")).AsObject();
         AssertTrue(values.Select(pair => pair.Key).ToHashSet(StringComparer.Ordinal).SetEquals(expected),
             $"{field} independent extractor supplies precisely the required identities");
-        _ = FileSelectSourcePresentationConstants.Load(source);
+        _ = FileSelectSourcePresentation.Load(source);
         foreach (string name in expected)
         {
             JsonNode original = values.Required(name);
@@ -76,7 +76,7 @@ internal static class FileSelectNameCasesVerification
         void Reject(string reason)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(root.ToJsonString());
-            AssertThrows<InvalidDataException>(() => FileSelectSourcePresentationConstants.Load(artwork ? source with { Artwork = bytes } : source with { Layout = bytes }),
+            AssertThrows<InvalidDataException>(() => FileSelectSourcePresentation.Load(artwork ? source with { Artwork = bytes } : source with { Layout = bytes }),
                 $"{field} rejects {reason}");
         }
     }

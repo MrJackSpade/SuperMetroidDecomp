@@ -35,7 +35,7 @@ internal static class MotherBrainNeckSineVerification
                 body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
-            ImmutableArray<Position16<RoomPixels>> actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), RotationAngleConstants.FromRaw(lowerAngle), RotationAngleConstants.FromRaw(upperAngle), MotherBrainNeckJointDefinitions.InitialDistances);
+            ImmutableArray<Position16<RoomPixels>> actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), RotationAngle.FromRaw(lowerAngle), RotationAngle.FromRaw(upperAngle), MotherBrainNeckJointDefinitions.InitialDistances);
             AssertSequenceEqual(expectedGeometry, actualGeometry,
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }
@@ -56,8 +56,8 @@ internal static class MotherBrainNeckSineVerification
     {
         ushort referenceX = unchecked((ushort)(body.X - 0x0050));
         ushort referenceY = unchecked((ushort)(body.Y + 0x002e));
-        byte lower = RotationAngleConstants.FromRaw(lowerAngle).ToTrigonometryAngle().RawValue;
-        byte upper = RotationAngleConstants.FromRaw(upperAngle).ToTrigonometryAngle().RawValue;
+        byte lower = RotationAngle.FromRaw(lowerAngle).ToTrigonometryAngle().RawValue;
+        byte upper = RotationAngle.FromRaw(upperAngle).ToTrigonometryAngle().RawValue;
 
         Position16<RoomPixels> Lower(ushort distance) => new(
             unchecked((ushort)(referenceX + 0x0070 +

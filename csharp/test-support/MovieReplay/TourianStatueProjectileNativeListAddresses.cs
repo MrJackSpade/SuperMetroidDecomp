@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

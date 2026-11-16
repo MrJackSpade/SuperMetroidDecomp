@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;

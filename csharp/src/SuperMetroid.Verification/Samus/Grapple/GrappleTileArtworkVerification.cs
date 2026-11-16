@@ -31,7 +31,7 @@ internal static class GrappleTileArtworkVerification
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
-            int actual = GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle))).SourceAddress;
+            int actual = GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle))).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
         }
         int cases = 0;
@@ -57,7 +57,7 @@ internal static class GrappleTileArtworkVerification
             SamusGrappleState Seed() => new(artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.Start(timer),
-                Angle = RotationAngleConstants.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
+                Angle = RotationAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
                 FlareOrigin = new(100, 100), Anchor = new(200, 60), FlareStage = GrappleFlareStage.JustFired,
             };
         }

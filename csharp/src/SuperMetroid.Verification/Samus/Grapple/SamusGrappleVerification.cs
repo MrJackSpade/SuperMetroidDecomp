@@ -972,7 +972,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         wallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: RotationAngleConstants.FromRaw(0x6a00),
+        angle: RotationAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult wallGrab = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, wallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -1050,7 +1050,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         enemyWallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: RotationAngleConstants.FromRaw(0x6a00),
+        angle: RotationAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, enemyWallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -1079,7 +1079,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         expiredWallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: RotationAngleConstants.FromRaw(0x6a00),
+        angle: RotationAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, expiredWallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -1117,7 +1117,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         lockedSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
-        angle: RotationAngleConstants.FromRaw(0xd600),
+        angle: RotationAngle.FromRaw(0xd600),
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult locked = SamusGrappleMovement.Step(new SamusTerrain { Level = lockedLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, lockedSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);

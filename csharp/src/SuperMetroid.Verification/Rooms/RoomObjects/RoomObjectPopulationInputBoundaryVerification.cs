@@ -2,6 +2,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -9,9 +11,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks typed PLM population ownership and execution on a RAM-only bus.</summary>
 internal static class RoomObjectPopulationInputBoundaryVerification

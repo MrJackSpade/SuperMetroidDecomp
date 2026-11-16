@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;

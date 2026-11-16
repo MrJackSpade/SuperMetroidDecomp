@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;

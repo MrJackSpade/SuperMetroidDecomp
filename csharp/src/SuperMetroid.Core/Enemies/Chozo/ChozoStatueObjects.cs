@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;

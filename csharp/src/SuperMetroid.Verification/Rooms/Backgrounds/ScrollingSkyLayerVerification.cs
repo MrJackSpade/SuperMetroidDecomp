@@ -31,7 +31,7 @@ internal static class ScrollingSkyLayerVerification
 
             ScrollingSkyLayer layer = sky.Publish(new Position16<RoomPixels>(0, cameraY))
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-            AssertEqual(cameraY, layer.CameraRow, $"frame {frame} places the bands against the camera");
+            AssertEqual((int)cameraY, layer.CameraRow, $"frame {frame} places the bands against the camera");
             AssertEqual(!frozen, layer.ShowsDrift, $"frame {frame} shows the drift only when time runs");
             AssertEqual(ScrollingSkyBandDefinitions.Bands.Length, layer.Bands.Length, $"frame {frame} publishes every band");
             for (int band = 0; band < layer.Bands.Length; band++)
@@ -40,7 +40,7 @@ internal static class ScrollingSkyLayerVerification
                 AssertEqual(definition.TopRow, layer.Bands[band].FirstRow, $"frame {frame} band {band} top");
                 AssertEqual(band + 1 < layer.Bands.Length ? ScrollingSkyBandDefinitions.Bands[band + 1].TopRow : ScrollingSkyBandDefinitions.EndRow,
                     layer.Bands[band].EndRow, $"frame {frame} band {band} end");
-                AssertEqual(expected[definition.Drift].Whole, layer.Bands[band].Offset, $"frame {frame} band {band} offset");
+                AssertEqual((int)expected[definition.Drift].Whole, layer.Bands[band].Offset, $"frame {frame} band {band} offset");
             }
             AssertEqual(0, layer.Bands[^1].Offset, $"frame {frame} keeps the bottom band still");
         }

@@ -95,6 +95,10 @@ public readonly record struct WrappingCountdown
     /// <param name="phaseFrames">The frames each look lasts: 1, 2, 4 or another positive length.</param>
     public bool IsInAlternatePhase(int phaseFrames) => count / Ensure.BetweenInclusive(1, ushort.MaxValue, phaseFrames) % 2 != 0;
 
+    /// <summary>Whether the frames left are a whole number of <paramref name="periodFrames"/>: a periodic action's frame.</summary>
+    /// <param name="periodFrames">The period, a positive number of frames.</param>
+    public bool IsOnMultipleOf(int periodFrames) => count % Ensure.BetweenInclusive(1, ushort.MaxValue, periodFrames) == 0;
+
     /// <summary>
     /// The position in a cycle of <paramref name="phases"/> looks, each lasting <paramref name="phaseFrames"/> frames, that
     /// the frames left select: a shake offset or palette that steps as the timer runs down.

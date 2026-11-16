@@ -27,4 +27,11 @@ public readonly record struct ShutterRest
     /// <summary>The AI updates a timed rest lasts.</summary>
     /// <exception cref="InvalidOperationException">The rest is permanent and has no length.</exception>
     public int Updates => _updates ?? throw new InvalidOperationException("A permanent shutter rest has no length.");
+
+    /// <summary>Prints the rest as permanent or as its length, without reading a permanent rest's length.</summary>
+    private bool PrintMembers(System.Text.StringBuilder builder)
+    {
+        builder.Append(_updates is { } updates ? $"Updates = {updates}" : "Permanent");
+        return true;
+    }
 }

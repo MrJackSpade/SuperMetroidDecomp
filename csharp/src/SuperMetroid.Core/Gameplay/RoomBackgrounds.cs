@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 

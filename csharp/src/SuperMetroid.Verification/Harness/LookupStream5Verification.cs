@@ -273,7 +273,7 @@ internal static class LookupStream5Verification
                     AssertEqual(0, system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive), "No expiry spiral before selected duration");
                 }
             }
-            AssertEqual(null, state.Phase, "Selected duration stops moving phase");
+            AssertEqual((PhantoonPhase?)null, state.Phase, "Selected duration stops moving phase");
             AssertEqual(PhantoonPartSegment.EyeOpen, state.PlayingProgram(eye), "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
@@ -392,7 +392,7 @@ internal static class LookupStream5Verification
             }
             else
             {
-                AssertEqual(null, state.Phase, "Unhit expiration hands off to eye close");
+                AssertEqual((PhantoonPhase?)null, state.Phase, "Unhit expiration hands off to eye close");
                 AssertEqual(PhantoonPartSegment.InvulnerableBody, state.PlayingProgram(body), "Native invulnerable body handoff");
                 AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.PlayingProgram(eye), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
@@ -1222,7 +1222,7 @@ internal static class LookupStream5Verification
     internal static EnemyTileSourceArtwork LookupStream5CorpseFixtureArtwork(CartridgeImportAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,CorpseSheets.DeadMonsterSheetByteCount)
-            .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(rom, CorpseSheets.DeadMonsterSheet)+index)).ToArray();
+            .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheets.DeadMonsterSheet)+index)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));

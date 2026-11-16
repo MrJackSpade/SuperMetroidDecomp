@@ -14,7 +14,7 @@ public readonly record struct RainbowFramePart
     private const int PartsPerCall = 3;
 
     /// <summary>Holds <paramref name="twoHundredFiftySixths"/> 256ths of a frame, 0 through 255.</summary>
-    internal RainbowFramePart(int twoHundredFiftySixths) =>
+    private RainbowFramePart(int twoHundredFiftySixths) =>
         TwoHundredFiftySixthsOfFrame = Ensure.BetweenInclusive(0, PartsPerFrame - 1, twoHundredFiftySixths);
 
     /// <summary>The part of a frame, in 256ths of a frame, 0 through 255.</summary>
@@ -23,6 +23,10 @@ public readonly record struct RainbowFramePart
 
     /// <summary>No part of a frame.</summary>
     public static RainbowFramePart None => default;
+
+    /// <summary>The part of <paramref name="twoHundredFiftySixths"/> 256ths of a frame, 0 through 255.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The part is a whole frame or more, or below zero.</exception>
+    public static RainbowFramePart Of(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
     /// <summary>
     /// Adds one call's three 256ths of a frame, returning the part left over and whether the addition completed a whole

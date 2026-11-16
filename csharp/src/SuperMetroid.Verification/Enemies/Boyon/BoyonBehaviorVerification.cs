@@ -96,7 +96,7 @@ internal static class BoyonBehaviorVerification
             int multiplier = SelectorMultipliers[multiplierSelector];
             (int baseline, _) = OriginalBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + heightSelector * 2));
             string context = $"Boyon with multiplier {multiplier} and height selector {heightSelector}";
-            AssertEqual(BoyonCurvePlaceConstants.AtEntry(baseline), state.BaselineCurvePlace, $"{context}: baseline");
+            AssertEqual(BoyonCurvePlace.AtEntry(baseline), state.BaselineCurvePlace, $"{context}: baseline");
 
             int index = baseline;
             bool rising = true;
@@ -121,7 +121,7 @@ internal static class BoyonBehaviorVerification
                 string at = $"{context}, update {update}";
                 AssertEqual(y, (int)place.Position.Y.Whole, $"{at}: height");
                 AssertEqual(rising ? BoyonBounceMovement.Rising : BoyonBounceMovement.Falling, state.BounceMovement, $"{at}: rise or fall");
-                AssertEqual(index == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(index), state.CurvePlace, $"{at}: place on the curve");
+                AssertEqual(index == ushort.MaxValue ? BoyonCurvePlace.PastTheTop : BoyonCurvePlace.AtEntry(index), state.CurvePlace, $"{at}: place on the curve");
             }
         }
         Console.WriteLine($"  Boyon arc: {updates} bouncing updates follow the original's heights, rises, falls and curve places.");
@@ -133,7 +133,7 @@ internal static class BoyonBehaviorVerification
         var state = new BoyonEnemyState { SpeedMultiplier = multiplier, JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height) };
         BoyonBehavior.DeriveBoyonArcBaseline(state);
         (int entry, int distance) = OriginalBaseline(samples, multiplier, height);
-        if (state.BaselineCurvePlace != BoyonCurvePlaceConstants.AtEntry(entry) || state.CurvePlace != state.BaselineCurvePlace ||
+        if (state.BaselineCurvePlace != BoyonCurvePlace.AtEntry(entry) || state.CurvePlace != state.BaselineCurvePlace ||
             state.ArcDistance != SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(distance))
             throw new InvalidOperationException($"A Boyon with multiplier {multiplier} and height {height} derives {state.BaselineCurvePlace} at {state.ArcDistance}, not entry {entry} at {distance} 256ths.");
         return 1;

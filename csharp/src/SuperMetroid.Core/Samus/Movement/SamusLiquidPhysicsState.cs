@@ -3,6 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Movement;

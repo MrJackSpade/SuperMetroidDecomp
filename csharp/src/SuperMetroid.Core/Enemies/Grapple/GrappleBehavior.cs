@@ -1,4 +1,9 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies.Grapple;
@@ -9,6 +14,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
 {
     /// <summary>Provides the interactive enemies in order and runs their main AI under the grapple's frame.</summary>
     private readonly IEnemyLifecycle _lifecycle;
+    /// <summary>Guards endpoint checks until a room is loaded.</summary>
+    private readonly EnemyRoomBinding _room;
     /// <summary>Starts the full generic death and drop sequence for grapple-killed enemies.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
@@ -16,6 +23,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     internal GrappleBehavior(IEnemyLifecycle lifecycle, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
     {
         _lifecycle = lifecycle;
+        _room = room;
         _deathsAndDrops = deathsAndDrops;
     }
 

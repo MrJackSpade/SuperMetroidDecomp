@@ -13,13 +13,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct ChargedShotGlow
 {
     /// <summary>The steps an ordinary charged shot's flash starts with.</summary>
-    internal const int ChargedShotFlashSteps = 4;
+    private const int ChargedShotFlashSteps = 4;
 
     /// <summary>The steps the Hyper Beam's glow starts with: two for each of its ten frames.</summary>
-    internal const int HyperBeamGlowSteps = 20;
+    private const int HyperBeamGlowSteps = 20;
 
     /// <summary>Creates a glow of <paramref name="kind"/> with <paramref name="remainingSteps"/> left.</summary>
-    internal ChargedShotGlow(ChargedShotGlowKind kind, int remainingSteps)
+    private ChargedShotGlow(ChargedShotGlowKind kind, int remainingSteps)
     {
         Kind = kind;
         RemainingSteps = remainingSteps;
@@ -34,10 +34,24 @@ public readonly record struct ChargedShotGlow
     /// <summary>The Hyper Beam's glow as its shot starts it.</summary>
     public static ChargedShotGlow HyperBeamGlow { get; } = new(ChargedShotGlowKind.HyperBeamGlow, HyperBeamGlowSteps);
 
+    /// <summary>
+    /// A glow of <paramref name="kind"/> part-way through: an ordinary flash with one through four steps left, or the
+    /// Hyper Beam's glow with zero through twenty; no glow holds none.
+    /// </summary>
+    /// <param name="kind">The glow's kind.</param>
+    /// <param name="remainingSteps">The steps it has left.</param>
+    public static ChargedShotGlow Of(ChargedShotGlowKind kind, int remainingSteps) => kind switch
+    {
+        ChargedShotGlowKind.None => new(kind, Ensure.BetweenInclusive(0, 0, remainingSteps)),
+        ChargedShotGlowKind.ChargedShotFlash => new(kind, Ensure.BetweenInclusive(1, ChargedShotFlashSteps, remainingSteps)),
+        ChargedShotGlowKind.HyperBeamGlow => new(kind, Ensure.BetweenInclusive(0, HyperBeamGlowSteps, remainingSteps)),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, $"Undefined {nameof(ChargedShotGlowKind)}."),
+    };
+
     /// <summary>Which glow this is.</summary>
     public ChargedShotGlowKind Kind { get; }
 
-    /// <summary>The steps the glow has left; see <c>Of</c> for each kind's range.</summary>
+    /// <summary>The steps the glow has left; see <see cref="Of"/> for each kind's range.</summary>
     [IntegerQuantity("charge colour calls the glow has left")]
     public int RemainingSteps { get; }
 

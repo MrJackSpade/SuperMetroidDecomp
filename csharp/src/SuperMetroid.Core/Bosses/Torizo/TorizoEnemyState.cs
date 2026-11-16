@@ -1,4 +1,7 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Input;

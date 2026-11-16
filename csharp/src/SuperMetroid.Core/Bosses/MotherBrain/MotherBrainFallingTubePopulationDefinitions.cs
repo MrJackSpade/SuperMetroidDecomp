@@ -8,6 +8,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainFallingTubePopulationDefinitions
 {
+    /// <summary>The five pieces in the order their spawn parameters and frames count them.</summary>
+    internal static readonly IdentitySequence<MotherBrainTubePiece> Pieces = new(
+        MotherBrainTubePiece.BottomLeft, MotherBrainTubePiece.BottomRight, MotherBrainTubePiece.BottomMiddleLeft,
+        MotherBrainTubePiece.BottomMiddleRight, MotherBrainTubePiece.Main);
 
     /// <summary>
     /// Where each piece is placed as it falls: the main tube at the room's centre, each outer piece 32 pixels and each inner

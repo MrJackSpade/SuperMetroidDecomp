@@ -31,6 +31,12 @@ public static class NoobTubeObjectDefinitions
     /// <summary>How long the break's earthquake lasts, in frames.</summary>
     public const int EarthquakeFrames = 64;
 
+    /// <summary>Glass shards the break spawns.</summary>
+    public const int ShardCount = 10;
+
+    /// <summary>Released-air bubbles the break spawns.</summary>
+    public const int BubbleCount = 6;
+
     /// <summary>How long the first cracked image shows before the tube opens.</summary>
     internal const int CrackedDuration = 48;
 

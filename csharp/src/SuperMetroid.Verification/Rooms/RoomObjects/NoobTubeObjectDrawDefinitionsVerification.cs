@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupNoobTubeStockVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupTubeDrawsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -14,9 +15,10 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Noob Tube draw geometry and editable visual tiles through production PLM drawing.</summary>
 internal static class NoobTubeObjectDrawDefinitionsVerification

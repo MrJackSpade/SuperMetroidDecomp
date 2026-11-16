@@ -40,9 +40,9 @@ internal static class RoomObjectRoomArgumentWords
     internal static IReadOnlyList<DownwardGateShotBlockDefinition> GateTriggersInTableOrder { get; } =
     [
         DownwardGateShotBlockDefinitions.BlueLeft, DownwardGateShotBlockDefinitions.BlueRight,
-        DownwardGateShotBlockDefinitionsConstants.RedLeft, DownwardGateShotBlockDefinitionsConstants.RedRight,
+        DownwardGateShotBlockDefinitions.RedLeft, DownwardGateShotBlockDefinitions.RedRight,
         DownwardGateShotBlockDefinitions.GreenLeft, DownwardGateShotBlockDefinitions.GreenRight,
-        DownwardGateShotBlockDefinitionsConstants.YellowLeft, DownwardGateShotBlockDefinitionsConstants.YellowRight,
+        DownwardGateShotBlockDefinitions.YellowLeft, DownwardGateShotBlockDefinitions.YellowRight,
     ];
 
     /// <summary>The entries of the cartridge's Metroids-cleared table, which a clearance watch's word indexes in steps of two.</summary>

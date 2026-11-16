@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,7 @@ using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerif
 using static SuperMetroid.Verification.Fx.LookupTreadmillArtworkVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillMechanicsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;

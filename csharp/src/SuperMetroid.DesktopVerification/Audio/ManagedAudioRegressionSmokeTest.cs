@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Audio;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core;
+using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.DesktopVerification.Audio;

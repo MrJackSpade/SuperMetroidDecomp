@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Scrolling.LookupScrollProgramsVerification;
@@ -11,9 +12,10 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled room-scroll PLM programs through both catalog lookup and retail execution.</summary>
 internal static class CompiledScrollObjectProgramsVerification

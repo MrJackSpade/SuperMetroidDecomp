@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>

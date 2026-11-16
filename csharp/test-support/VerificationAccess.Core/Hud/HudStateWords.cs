@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.Hud;
 

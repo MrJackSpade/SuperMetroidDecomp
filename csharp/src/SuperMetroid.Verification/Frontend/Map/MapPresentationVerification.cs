@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyColorsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyMode7ColorsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.CrystalFlashColorsVerification;
+using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTypewriterPresentationVerification;
 using static SuperMetroid.Verification.Frontend.FileSelect.Artwork.FileSelectPresentationVerification;
@@ -16,6 +17,8 @@ using static SuperMetroid.Verification.Frontend.Options.Artwork.GameOptionsPrese
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverMenuIndexesVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.Artwork.GameOverPresentationVerification;
 using static SuperMetroid.Verification.Runtime.GameplayHudPresentationVerification;
+using static SuperMetroid.Verification.Runtime.GameplayMessageNoticesVerification;
+using static SuperMetroid.Verification.Runtime.GameplayMessagePanelsVerification;
 using static SuperMetroid.Verification.Hud.HudAtlasVerification;
 using static SuperMetroid.Verification.Assets.IndexedPngVerification;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;

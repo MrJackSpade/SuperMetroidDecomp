@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 [RoomLifetime]
 internal sealed class StationObjects
 {
+
+    /// <summary>The room's system and event state.</summary>
+    private readonly SharedGameState _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>Applies the station and access-arm draws to the room's blocks.</summary>
@@ -23,7 +26,7 @@ internal sealed class StationObjects
     /// <summary>Connects station activation to room state, room-object drawing, the room-object places and sound requests.</summary>
     internal StationObjects(SharedGameState system, IRoomSamusAccess samus, IRoomObjectDrawing drawing, RoomObjectPlaceList places, RoomObjectSoundQueue sounds)
     {
-        System = system;
+        _system = system;
         _samus = samus;
         _drawing = drawing;
         _places = places;
@@ -401,7 +404,7 @@ internal sealed class StationObjects
         _samus.Current ?? throw new InvalidOperationException($"{owner} has no live Samus owner.");
 
     /// <summary>The game's progression, which the stations read and change.</summary>
-    internal SharedGameState System { get; }
+    internal SharedGameState System => _system;
 
     /// <summary>Publishes a station's message or frontend action for this update.</summary>
     internal void Publish(StationActivationEvent activation) => _stationActivationEvents.Add(activation);

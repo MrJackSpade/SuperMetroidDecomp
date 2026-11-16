@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus;
+
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>

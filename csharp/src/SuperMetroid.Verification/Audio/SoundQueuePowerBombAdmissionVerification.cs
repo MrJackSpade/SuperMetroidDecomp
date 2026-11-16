@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
@@ -11,7 +12,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>

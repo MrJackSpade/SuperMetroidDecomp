@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;

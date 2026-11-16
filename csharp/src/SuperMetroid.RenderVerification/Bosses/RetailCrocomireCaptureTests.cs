@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;

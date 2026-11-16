@@ -18,4 +18,7 @@ internal sealed class SpcRam
 
     /// <summary>Zeroes <paramref name="length"/> bytes from <paramref name="start"/>.</summary>
     internal void Clear(int start, int length) => Array.Clear(bytes, start, length);
+
+    /// <summary>A copy of every byte.</summary>
+    internal byte[] Snapshot() => [.. bytes];
 }

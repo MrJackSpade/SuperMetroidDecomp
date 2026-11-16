@@ -12,6 +12,8 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class DeathSequenceRunner
 {
+    /// <summary>Provides installed death colours and explosion sprite compositions.</summary>
+    private readonly RuntimeArtwork _artwork;
     /// <summary>Supplies the active Samus turning-floor transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one frame boundary before each isolated death-state frame.</summary>
@@ -26,7 +28,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>Binds the death-state renderer and runtime services supplied by the gameplay host.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
     {
-        _ = dependencies.Artwork;
+        _artwork = dependencies.Artwork;
         _display = dependencies.Display;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;

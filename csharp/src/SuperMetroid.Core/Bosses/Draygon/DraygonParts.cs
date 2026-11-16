@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -6,6 +7,8 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Earthquakes;
 

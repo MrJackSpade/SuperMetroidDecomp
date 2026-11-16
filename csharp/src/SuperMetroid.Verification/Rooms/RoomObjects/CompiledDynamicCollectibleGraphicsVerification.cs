@@ -15,8 +15,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled item graphics and that a retail room population sets its item up from them.</summary>
 internal static class CompiledDynamicCollectibleGraphicsVerification

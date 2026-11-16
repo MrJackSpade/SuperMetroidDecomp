@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
 

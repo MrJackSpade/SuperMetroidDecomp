@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;

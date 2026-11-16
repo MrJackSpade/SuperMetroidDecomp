@@ -95,4 +95,8 @@ internal static class EyeDoorDraws
     internal static RoomObjectDrawFamily<Draw> Family { get; } =
         RoomObjectDrawFamily<Draw>.Pictured<InstalledRoomObjectEyeDoorVisuals>("eye-door", frame => frame.Blocks,
             (visuals, draw) => visuals.Image(draw));
+
+    /// <summary>Maps the mirrored opening clear to its shared editable visual source.</summary>
+    internal static RoomObjectDraw VisualSource(RoomObjectDraw request) =>
+        request == EyeDoorObjectDrawDefinitions.MirroredOpeningClear ? EyeDoorObjectDrawDefinitions.SharedClear : request;
 }

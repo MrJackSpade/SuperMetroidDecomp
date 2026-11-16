@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;

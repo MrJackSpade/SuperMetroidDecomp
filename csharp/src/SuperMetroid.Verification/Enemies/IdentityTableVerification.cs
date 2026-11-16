@@ -16,7 +16,7 @@ internal static class IdentityTableVerification
     /// <summary>Checks every table against the numbering the casts it replaced relied on.</summary>
     internal static void VerifyIdentityTables()
     {
-        SequenceMatchesValues(MotherBrainFallingTubePopulationDefinitionsConstants2.Pieces, 5, value => (MotherBrainTubePiece)value, "Mother Brain tube pieces");
+        SequenceMatchesValues(MotherBrainFallingTubePopulationDefinitions.Pieces, 5, value => (MotherBrainTubePiece)value, "Mother Brain tube pieces");
 
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];
         var spawned = new List<RidleyExplosionPart>();

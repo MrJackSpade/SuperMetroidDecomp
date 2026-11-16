@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.Polyp;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

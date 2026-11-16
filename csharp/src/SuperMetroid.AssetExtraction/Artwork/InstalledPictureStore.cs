@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;

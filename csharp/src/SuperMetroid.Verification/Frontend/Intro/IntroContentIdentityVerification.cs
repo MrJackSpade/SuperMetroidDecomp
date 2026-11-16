@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 

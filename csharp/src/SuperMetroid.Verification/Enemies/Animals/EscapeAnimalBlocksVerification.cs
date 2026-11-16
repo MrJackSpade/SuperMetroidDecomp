@@ -4,6 +4,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -11,10 +12,11 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.AssetExtraction.Video;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Enemies.Animals;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Verifies the escape-room rescue PLMs using imported room population and the native shot-block sequence.</summary>
 internal static class EscapeAnimalBlocksVerification

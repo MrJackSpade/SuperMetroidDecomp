@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;

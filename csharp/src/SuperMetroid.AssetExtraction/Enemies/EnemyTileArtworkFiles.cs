@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
@@ -447,6 +448,12 @@ public static class EnemyTileArtworkFiles
     /// </summary>
     private const string RetailDefinitionIdsSha256 =
         "26EB49B1B4E24925A9A53D816B9FE5BBFB995EC4AD73B240A766E774E32A3D8B";
+
+    /// <summary>The indexed-PNG import-data file name of <paramref name="definitionId"/>'s tiles, named by its header pointer.</summary>
+    internal static string FileName(EnemyDefinitionId definitionId) => FileName(EnemyDefinitionIds.HeaderPointer(definitionId));
+
+    /// <summary>The import-data RGB5 palette JSON file name of <paramref name="definitionId"/>'s colours, named by its header pointer.</summary>
+    internal static string PaletteFileName(EnemyDefinitionId definitionId) => PaletteFileName(EnemyDefinitionIds.HeaderPointer(definitionId));
 
     /// <summary>The indexed-PNG import-data file name of the tiles the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>
     internal static string FileName(int headerPointer) => $"enemy-{headerPointer:X4}-tiles.png";

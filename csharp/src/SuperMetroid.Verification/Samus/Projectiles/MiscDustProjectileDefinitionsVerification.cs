@@ -49,10 +49,10 @@ internal static class MiscDustProjectileDefinitionsVerification
         MiscDustPlacementDefinition[] placements =
         [
             MiscDustSmokePlacements.Point,
-            MiscDustSmokePlacementsConstants.CentredEightPixelSquare,
-            MiscDustSmokePlacementsConstants.CentredSixteenPixelSquare,
+            MiscDustSmokePlacements.CentredEightPixelSquare,
+            MiscDustSmokePlacements.CentredSixteenPixelSquare,
             MiscDustSmokePlacements.CentredSixteenByThirtyTwoBox,
-            MiscDustSmokePlacementsConstants.CentredThirtyTwoBySixtyFourBox,
+            MiscDustSmokePlacements.CentredThirtyTwoBySixtyFourBox,
         ];
         for (int index = 0; index < placements.Length; index++)
         {

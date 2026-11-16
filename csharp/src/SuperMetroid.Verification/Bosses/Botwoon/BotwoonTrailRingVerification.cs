@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 

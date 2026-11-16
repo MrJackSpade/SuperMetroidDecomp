@@ -63,7 +63,7 @@ internal static class DraygonPrebattleXrayVerification
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
         // His body is drawn whole, on every gameplay line, rather than on the original's band of lines (#1873): what keeps the
         // pre-battle body off the screen is where it is placed, which the checks below confirm.
-        AssertEqual(ScreenLineBandConstants.Gameplay, new ScreenLineBand(r.BackgroundFirstLine, r.BackgroundEndLine),
+        AssertEqual(ScreenLineBand.Gameplay, new ScreenLineBand(r.BackgroundFirstLine, r.BackgroundEndLine),
             "Draygon's body layer shows on every gameplay line");
         var pixels = DisplayRendering.Render(scene);
         var hidden = RenderWithRegisters(r with { ShownLayers = r.ShownLayers & ~ScreenLayers.Background });

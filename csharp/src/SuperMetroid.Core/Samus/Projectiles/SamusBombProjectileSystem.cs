@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

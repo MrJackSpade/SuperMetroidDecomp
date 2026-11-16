@@ -1,3 +1,6 @@
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>

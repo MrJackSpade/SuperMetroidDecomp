@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgra
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;

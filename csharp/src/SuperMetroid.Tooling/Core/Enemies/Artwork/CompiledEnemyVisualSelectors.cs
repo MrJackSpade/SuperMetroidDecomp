@@ -1,6 +1,9 @@
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
 

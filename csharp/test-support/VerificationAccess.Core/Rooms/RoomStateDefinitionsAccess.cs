@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Verification's view of the import pipeline's room-state pointers (<c>RoomStateSources</c>).</summary>
+/// <summary>Verification's view of the import pipeline's room-state pointers (<see cref="RoomStateSources"/>).</summary>
 internal static class RoomStateDefinitionsAccess
 {
     /// <summary>Resolves compiled states by pointer.</summary>

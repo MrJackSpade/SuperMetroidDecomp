@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

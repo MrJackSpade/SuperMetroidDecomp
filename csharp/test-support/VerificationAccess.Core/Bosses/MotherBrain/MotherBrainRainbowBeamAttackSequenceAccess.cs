@@ -1,4 +1,7 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Samus;
+
 /// <summary>Verification access to <see cref="MotherBrainRainbowBeamAttackSequence"/> members production does not use.</summary>
 internal static class MotherBrainRainbowBeamAttackSequenceAccess
 {

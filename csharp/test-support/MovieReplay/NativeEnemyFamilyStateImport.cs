@@ -1,3 +1,4 @@
+using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -32,6 +33,7 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -428,7 +430,7 @@ internal static class NativeEnemyFamilyStateImport
             boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
             boyonRecord.ArcDistance = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
             // The rise leaves the curve index one below the top entry, the word's largest value, past the top.
-            boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(words.E);
+            boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlace.PastTheTop : BoyonCurvePlace.AtEntry(words.E);
             boyonRecord.Bouncing = words.F != 0;
         }
         if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
@@ -444,7 +446,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
-            firefleaRecord.Angle = RotationAngleConstants.FromRaw(words.D);
+            firefleaRecord.Angle = RotationAngle.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);
         }
         if (enemy.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
@@ -845,7 +847,7 @@ internal static class NativeEnemyFamilyStateImport
                 segment.Orientation = new Bearing(bucket).DirectionOfEighth();
                 return;
             case 6:
-                segment.CurlProgress = RotationAngleConstants.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));
+                segment.CurlProgress = RotationAngle.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));
                 return;
             default:
                 if (word != 0)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Verification.Enemies.Metroids;
@@ -15,7 +16,7 @@ internal static class MetroidDrainCountersVerification
     {
         var metroid = new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
         {
-            Drain = FractionalEnergyDrainConstants.HoldingOver(3 * FractionalEnergyDrain.PartsPerEnergy / 16),
+            Drain = FractionalEnergyDrain.HoldingOver(3 * FractionalEnergyDrain.PartsPerEnergy / 16),
         };
         AssertTrue(!metroid.DrainTakesEnergy(3 * FractionalEnergyDrain.PartsPerEnergy / 16), "a fraction equal to what is held over takes no energy");
         AssertEqual(0, metroid.Drain.HeldOver, "nothing is held over after it");

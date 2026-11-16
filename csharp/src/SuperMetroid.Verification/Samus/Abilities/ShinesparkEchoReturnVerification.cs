@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Harness;
+
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Checks that a released crash echo is placed at its radius taken within 256 pixels (#2051).</summary>

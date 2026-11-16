@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.KiHunters;
@@ -15,7 +16,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>

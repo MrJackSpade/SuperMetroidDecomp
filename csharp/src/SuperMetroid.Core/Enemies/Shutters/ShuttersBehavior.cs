@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;

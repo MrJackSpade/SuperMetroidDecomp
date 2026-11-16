@@ -138,24 +138,24 @@ internal static class MotherBrainEncodingDomainsVerification
     private static void VerifyNeckAngleWrapThroughDispatcher()
     {
         // Bobbing down from just above zero wraps past a full turn, which compares above the floor, so it keeps going.
-        RotationAngle lower = RotationAngleConstants.FromRaw(100);
-        RotationAngle upper = RotationAngleConstants.FromRaw(20480);
+        RotationAngle lower = RotationAngle.FromRaw(100);
+        RotationAngle upper = RotationAngle.FromRaw(20480);
         MotherBrainNeckMovement lowerMovement = MotherBrainNeckMovement.BobDown;
         MotherBrainNeckMovement upperMovement = MotherBrainNeckMovement.None;
         MotherBrainNeckKinematics.StepAngles(ref lower, ref upper, ref lowerMovement, ref upperMovement,
-            turn: RotationAngleConstants.FromRaw(1280), brainY: 100, samusY: 100);
+            turn: RotationAngle.FromRaw(1280), brainY: 100, samusY: 100);
         AssertEqual(((100 - 1280) % WordRange + WordRange) % WordRange, lower.RawValue,
             "lower neck bobbing down wraps through a full turn");
         AssertEqual(MotherBrainNeckMovement.BobDown, lowerMovement, "a wrapped lower angle is above the bob floor");
         AssertEqual(20480, upper.RawValue, "an idle upper neck does not move");
 
         // The upper neck's raised limit leads the lower angle; near a full turn that target wraps below the candidate.
-        lower = RotationAngleConstants.FromRaw(64000);
-        upper = RotationAngleConstants.FromRaw(65000);
+        lower = RotationAngle.FromRaw(64000);
+        upper = RotationAngle.FromRaw(65000);
         lowerMovement = MotherBrainNeckMovement.None;
         upperMovement = MotherBrainNeckMovement.BobUp;
         MotherBrainNeckKinematics.StepAngles(ref lower, ref upper, ref lowerMovement, ref upperMovement,
-            turn: RotationAngleConstants.FromRaw(1000), brainY: 100, samusY: 100);
+            turn: RotationAngle.FromRaw(1000), brainY: 100, samusY: 100);
         int target = NativeAdd(64000, 2048);
         int candidate = NativeAdd(65000, 1000);
         AssertEqual(candidate >= target ? target : candidate, upper.RawValue,

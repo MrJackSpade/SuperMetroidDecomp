@@ -1,5 +1,7 @@
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 

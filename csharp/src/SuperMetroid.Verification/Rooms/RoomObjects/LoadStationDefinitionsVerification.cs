@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -5,8 +7,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the named load stations against the cartridge's per-area load-station lists.</summary>

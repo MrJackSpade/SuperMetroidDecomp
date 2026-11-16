@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;

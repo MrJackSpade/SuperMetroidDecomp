@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.TestSupport.MovieReplay.FuneNamiheFireballNativeListAddresses;
+using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;

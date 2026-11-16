@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Nuclear;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

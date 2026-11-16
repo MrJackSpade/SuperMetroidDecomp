@@ -6,6 +6,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Window;
 namespace SuperMetroid.DesktopVerification.Startup;
+using SuperMetroid.Core;
+
 /// <summary>
 /// Exercises the real Windows host with a complete extracted installation but
 /// no installed ROM. Only a test-owned copy is moved; the source file is intact.

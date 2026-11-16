@@ -21,7 +21,7 @@ internal static class FileSelectSlotDestinationsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slot field oracle revision");
         Suite(nameof(VerifyFileSelectSlotLabelSources), () => VerifyFileSelectSlotLabelSources(rom));
         FileSelectExtraction extraction = FileSelectPresentationExtractor.Extract(rom);
-        _ = FileSelectSourcePresentationConstants.Load(extraction);
+        _ = FileSelectSourcePresentation.Load(extraction);
         FileSelectLayoutDocument document = RequiredJson.Deserialize<FileSelectLayoutDocument>(
             extraction.Layout, ArtworkJson.Options);
         FileSelectArtworkDocument artwork = RequiredJson.Deserialize<FileSelectArtworkDocument>(

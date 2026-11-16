@@ -6,6 +6,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;

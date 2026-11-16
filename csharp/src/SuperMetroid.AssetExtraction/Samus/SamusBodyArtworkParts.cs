@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

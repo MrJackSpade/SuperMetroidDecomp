@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;

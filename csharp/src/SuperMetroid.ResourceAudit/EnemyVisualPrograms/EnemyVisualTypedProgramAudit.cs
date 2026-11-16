@@ -17,6 +17,8 @@ using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Animals.Artwork;

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Earthquakes;
 

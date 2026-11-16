@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Frontend.Title;

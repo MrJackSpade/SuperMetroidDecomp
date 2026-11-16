@@ -11,6 +11,7 @@ using static SuperMetroid.Verification.Frontend.Intro.IntroRinkaSpriteArtworkVer
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Map.Artwork;

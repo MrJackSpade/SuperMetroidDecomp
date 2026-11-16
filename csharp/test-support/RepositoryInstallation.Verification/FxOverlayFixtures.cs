@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Rooms;

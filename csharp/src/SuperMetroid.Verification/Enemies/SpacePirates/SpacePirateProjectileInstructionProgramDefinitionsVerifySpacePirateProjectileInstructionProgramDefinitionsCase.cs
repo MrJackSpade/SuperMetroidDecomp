@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
 /// <summary>The direction, program, loop and movement of one space pirate projectile instruction program definitions verify space pirate projectile instruction program definitions case.</summary>

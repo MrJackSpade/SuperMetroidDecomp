@@ -15,10 +15,10 @@ internal static class PhantoonWaveVerification
     /// <summary>Checks setup cadence, native scroll progression, deletion, and debugger state restoration.</summary>
     internal static void VerifyPhantoonWaveLifecycle()
     {
-        var boss = new PhantoonEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()))
-        {
-            Eye = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), Mouth = new RoomEnemyPlace(3, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
-        };
+        var boss = new PhantoonEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
+            new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
+            new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
+            new RoomEnemyPlace(3, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()));
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;

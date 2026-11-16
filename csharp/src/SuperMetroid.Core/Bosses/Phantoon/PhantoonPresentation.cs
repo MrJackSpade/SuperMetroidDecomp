@@ -70,14 +70,4 @@ internal sealed class PhantoonPresentation
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemyPlace body) =>
         Math.Min(PhantoonColorDefinitions.HealthBandCount - 1, Math.Max(0, (body.Health - 1) / PhantoonColorDefinitions.HealthPerBand));
-
-    /// <summary>Restarts a part's animation from its start with a one-tick timer.</summary>
-    internal static void StartPhantoonAnimation(
-        PhantoonEnemyState state,
-        RoomEnemyPlace place,
-        PhantoonPartSegment segment)
-    {
-        place.AnimationClock.StepOnNextUpdate();
-        state.PartPlayback(place) = PhantoonEnemyState.Starting(segment);
-    }
 }

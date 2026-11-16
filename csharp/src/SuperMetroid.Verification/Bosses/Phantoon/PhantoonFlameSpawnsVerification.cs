@@ -55,6 +55,7 @@ internal static class PhantoonFlameSpawnsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             PhantoonPatterns patterns = enemies.PhantoonBehavior.Patterns;
             var body = enemies.Places.InUpdateOrder[0];
+            var phantoon = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = PhantoonNativeWords.FlameSpawnTypes.Decode(
                 LittleEndianBytes.HighByte(parameter), "Phantoon flame spawn type");
@@ -64,9 +65,9 @@ internal static class PhantoonFlameSpawnsVerification
             bool spawned = type switch
             {
                 PhantoonFlameSpawnType.Casual => patterns.SpawnPhantoonCasualFlame(body),
-                PhantoonFlameSpawnType.Enraged => patterns.SpawnPhantoonRageFlame(body, RageStart(rom, index)),
+                PhantoonFlameSpawnType.Enraged => patterns.SpawnPhantoonRageFlame(phantoon, RageStart(rom, index)),
                 PhantoonFlameSpawnType.Rain => patterns.SpawnPhantoonRainFlame(body, index & 15, (index & 240) >> 1),
-                PhantoonFlameSpawnType.Spiral => patterns.SpawnPhantoonSpiralFlame(body, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index))),
+                PhantoonFlameSpawnType.Spiral => patterns.SpawnPhantoonSpiralFlame(phantoon, new TrigonometryAngle(rom.ReadCartridgeByte(SpiralAngleTable + index))),
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };
             AssertTrue(spawned, "Real Phantoon flame allocation succeeds");

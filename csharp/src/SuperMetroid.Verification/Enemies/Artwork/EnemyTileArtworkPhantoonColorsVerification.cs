@@ -63,11 +63,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
-        var state = new PhantoonEnemyState(body)
-        {
-            Eye = eye,
-            Tentacles = tentacles,
-        };
+        var state = new PhantoonEnemyState(body, eye, tentacles, enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
         // His live colour handlers name the shades of his body and room (#1512); the import pre-colours each from the
         // installed colours, which this compares with the catalog.
@@ -75,7 +71,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
-            enemies.PhantoonBehavior.ShowPhantoonHealthColours(body);
+            PhantoonBehavior.ShowPhantoonHealthColours(state);
             AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(band)), Shown(state), $"Phantoon live health restore band {band}");
             AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
@@ -91,7 +87,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         body.Health = unchecked(2 * 312 + 1);
         body.FlashTimer = 8;
         state.Round.HurtFlashShown = true;
-        enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
+        PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");
         AssertTrue(!state.Round.HurtFlashShown, "Phantoon hurt restore clears the flash latch");
 

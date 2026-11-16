@@ -38,18 +38,16 @@ internal static class PhantoonAnimationsVerification
         eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
         tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
         mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
-        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body)
-        {
-            Eye = eye,
-            Tentacles = tentacles,
-            Mouth = mouth,
-        });
+        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, eye, tentacles, mouth));
         return enemies;
     }
 
-    /// <summary>The program a Phantoon part is playing.</summary>
-    internal static PhantoonPartSegment PartProgram(RoomEnemySystem enemies, RoomEnemyPlace part) =>
-        RequireState(enemies).PlayingProgram(part);
+    /// <summary>The program a Phantoon part is playing: its own part of the encounter's, which its setup installed.</summary>
+    internal static PhantoonPartSegment PartProgram(RoomEnemySystem enemies, RoomEnemyPlace part)
+    {
+        _ = RequireState(enemies);
+        return part.RequireSpeciesState<PhantoonPart>().PlayingProgram();
+    }
 
     /// <summary>The system's Phantoon state.</summary>
     private static PhantoonEnemyState RequireState(RoomEnemySystem enemies) =>
@@ -96,7 +94,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemyPlace eye = state.Eye;
-        state.PartPlayback(eye) = PhantoonEnemyState.Starting(PhantoonPartSegment.EyeOpen);
+        eye.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.EyeOpen);
         eye.AnimationClock.StepOnNextUpdate();
         for (int frame = 0; frame < 3; frame++)
         {
@@ -122,7 +120,7 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemyPlace mouth = state.Mouth;
-        state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartSegment.MouthSpawnFlame);
+        mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthSpawnFlame);
         Pass(mouth, forceExpiry: true);
         Pass(mouth, forceExpiry: true);
         AssertEqual(0, ActiveFlames(enemies), "the mouth opens before it spawns");
@@ -189,9 +187,9 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
-    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, RoomEnemyPlace, bool> spawn, string producer)
+    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, PhantoonEnemyState, bool> spawn, string producer)
     {
-        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, enemies.Places.InUpdateOrder[0]), $"the real {producer} producer allocates a flame");
+        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, RequireState(enemies)), $"the real {producer} producer allocates a flame");
         return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
     }
 
@@ -199,18 +197,18 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(starting.Places.InUpdateOrder[0], PhantoonFlameSpawns.StartingFlameStart(0)), "the real starting producer allocates a flame");
+        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStart(0)), "the real starting producer allocates a flame");
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(casual, (patterns, body) => patterns.SpawnPhantoonCasualFlame(body), "casual"), PhantoonFlameSegment.CasualFalling, "casual flame");
+        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body), "casual"), PhantoonFlameSegment.CasualFalling, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
         AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.DestroyableIdle, "rage flame");
     }
 
     /// <summary>Spawns the last flame of an even rage wave, the one the cartridge's first rage parameter starts.</summary>
-    private static bool SpawnRageFlame(PhantoonPatterns patterns, RoomEnemyPlace body) =>
-        patterns.SpawnPhantoonRageFlame(body, PhantoonFlameSpawns.EvenRageWave[^1]);
+    private static bool SpawnRageFlame(PhantoonPatterns patterns, PhantoonEnemyState phantoon) =>
+        patterns.SpawnPhantoonRageFlame(phantoon, PhantoonFlameSpawns.EvenRageWave[^1]);
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>
     private static void AssertStarted(EnemyProjectile flame, PhantoonFlameSegment program, string label) =>

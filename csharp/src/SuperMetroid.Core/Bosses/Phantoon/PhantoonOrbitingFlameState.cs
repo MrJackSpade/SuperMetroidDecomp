@@ -3,12 +3,17 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// What a Phantoon flame circling its body keeps: where on its circle it is, how far it turns each update, the circle's
-/// radius, and, for an intro flame, how long it circles before its circle starts closing.
+/// What a Phantoon flame circling its body keeps: the encounter that spawned it, whose body it circles (#2252), where on
+/// its circle it is, how far it turns each update, the circle's radius, and, for an intro flame, how long it circles
+/// before its circle starts closing.
 /// </summary>
+/// <param name="phantoon">The encounter that spawned the flame.</param>
 /// <param name="angle">The flame's starting angle around the body.</param>
-internal sealed class PhantoonOrbitingFlameState(TrigonometryAngle angle) : EnemyProjectileState
+internal sealed class PhantoonOrbitingFlameState(PhantoonEnemyState phantoon, TrigonometryAngle angle) : EnemyProjectileState
 {
+    /// <summary>The encounter that spawned the flame, which it holds from its spawn; the flame circles its body.</summary>
+    internal PhantoonEnemyState Phantoon { get; } = Ensure.NotNull(phantoon);
+
     /// <summary>The flame's angle around Phantoon's body.</summary>
     internal TrigonometryAngle Angle { get; set; } = angle;
 

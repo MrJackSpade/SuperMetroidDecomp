@@ -31,7 +31,7 @@ internal static class PhantoonPatternsVerification
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body) { Eye = eye };
+            var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
@@ -59,7 +59,7 @@ internal static class PhantoonPatternsVerification
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
         RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.Places.InUpdateOrder[2], Mouth = eyeEnemies.Places.InUpdateOrder[3] };
+        var eyeState = new PhantoonEnemyState(eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -68,7 +68,7 @@ internal static class PhantoonPatternsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
             AssertEqual(PhantoonEyeGaze.EyeAnimation(direction),
-                eyeState.PlayingProgram(trackingEye),
+                eyeState.EyePart.PlayingProgram(),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
@@ -76,7 +76,7 @@ internal static class PhantoonPatternsVerification
             "Phantoon eye direction beyond the eight directions");
         var shotEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var shotBody = shotEnemies.Places.InUpdateOrder[0];
-        var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.Places.InUpdateOrder[1], Tentacles = shotEnemies.Places.InUpdateOrder[2], Mouth = shotEnemies.Places.InUpdateOrder[3] };
+        var shotState = new PhantoonEnemyState(shotBody, shotEnemies.Places.InUpdateOrder[1], shotEnemies.Places.InUpdateOrder[2], shotEnemies.Places.InUpdateOrder[3]);
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             shotEnemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort shotRandom = 0;

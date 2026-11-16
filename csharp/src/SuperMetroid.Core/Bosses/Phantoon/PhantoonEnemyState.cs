@@ -1,12 +1,11 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's encounter: his four parts, body, eye, tentacles and mouth, each its own enemy attached by reference when it
-/// initializes and keeping only its animation here, and the fight's state grouped by what it does (#1933): the phase and
-/// its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the wave,
-/// whether his body shows, and his death.
+/// Phantoon's encounter: his four parts, body, eye, tentacles and mouth, each its own enemy made with the encounter by his
+/// body's setup and keeping its own animation (#2252), and the fight's state grouped by what it does (#1933): the phase
+/// and its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the
+/// wave, whether his body shows, and his death.
 /// </summary>
 public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
@@ -16,14 +15,45 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <inheritdoc />
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
-    /// <summary>Attaches shared encounter state to the body's place.</summary>
-    internal PhantoonEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <summary>Begins the encounter of the body at <paramref name="body"/> and the parts his room lists with it.</summary>
+    /// <param name="body">The place his body occupies.</param>
+    /// <param name="eye">The place his eye occupies.</param>
+    /// <param name="tentacles">The place his tentacles occupy.</param>
+    /// <param name="mouth">The place his mouth occupies.</param>
+    internal PhantoonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
+    {
+        BodyPart = new PhantoonPart(this, body);
+        EyePart = new PhantoonPart(this, eye);
+        TentaclesPart = new PhantoonPart(this, tentacles);
+        MouthPart = new PhantoonPart(this, mouth);
+    }
 
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
-    /// <summary>Gets the body, whose health and position are his; it runs first.</summary>
-    public RoomEnemyPlace Body { get; }
+    /// <summary>His body, whose health and position are his; it runs first.</summary>
+    public PhantoonPart BodyPart { get; }
+
+    /// <summary>His eye, which shares the body's position while keeping its own animation and colour counters.</summary>
+    public PhantoonPart EyePart { get; }
+
+    /// <summary>His tentacles, positioned from the body after its AI pass.</summary>
+    public PhantoonPart TentaclesPart { get; }
+
+    /// <summary>His mouth, positioned from the body after its AI pass.</summary>
+    public PhantoonPart MouthPart { get; }
+
+    /// <summary>Gets the place his body occupies.</summary>
+    public RoomEnemyPlace Body => BodyPart.Place;
+
+    /// <summary>Gets the place his eye occupies.</summary>
+    public RoomEnemyPlace Eye => EyePart.Place;
+
+    /// <summary>Gets the place his tentacles occupy.</summary>
+    public RoomEnemyPlace Tentacles => TentaclesPart.Place;
+
+    /// <summary>Gets the place his mouth occupies.</summary>
+    public RoomEnemyPlace Mouth => MouthPart.Place;
 
     /// <summary>
     /// The encounter phase his body runs; the encounter starts by spawning the flames that circle the room before he
@@ -70,56 +100,6 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <summary>His death.</summary>
     public PhantoonDeathState Death { get; } = new();
 
-    /// <summary>The eye, once attached (<see cref="Eye"/>).</summary>
-    private RoomEnemyPlace? _eye;
-
-    /// <summary>The tentacles, once attached (<see cref="Tentacles"/>).</summary>
-    private RoomEnemyPlace? _tentacles;
-
-    /// <summary>The mouth, once attached (<see cref="Mouth"/>).</summary>
-    private RoomEnemyPlace? _mouth;
-
-    /// <summary>Gets the eye, attached by part initialization and sharing the body's position while retaining its own animation/colour counters.</summary>
-    public RoomEnemyPlace Eye { get => _eye ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set => _eye = value; }
-    /// <summary>Gets the tentacles, attached by part initialization and positioned from the body after its AI pass.</summary>
-    public RoomEnemyPlace Tentacles { get => _tentacles ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set => _tentacles = value; }
-    /// <summary>Gets the mouth, attached by part initialization and positioned from the body after its AI pass.</summary>
-    public RoomEnemyPlace Mouth { get => _mouth ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set => _mouth = value; }
-
-    /// <summary>
-    /// The body's animation playback (#641, #1600). Every part's playback is the invulnerable body's until the part's
-    /// initialization installs its own.
-    /// </summary>
-    private AnimationPlayback<PhantoonPartSegment> _bodyPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
-
-    /// <summary>The eye's animation playback.</summary>
-    private AnimationPlayback<PhantoonPartSegment> _eyePlayback = Starting(PhantoonPartSegment.InvulnerableBody);
-
-    /// <summary>The tentacles' animation playback.</summary>
-    private AnimationPlayback<PhantoonPartSegment> _tentaclesPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
-
-    /// <summary>The mouth's animation playback.</summary>
-    private AnimationPlayback<PhantoonPartSegment> _mouthPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
-
-    /// <summary>The animation starting at <paramref name="segment"/>, before its first play.</summary>
-    internal static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment segment) =>
-        new(PhantoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-
-    /// <summary>The animation playback of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-    internal ref AnimationPlayback<PhantoonPartSegment> PartPlayback(RoomEnemyPlace part)
-    {
-        Ensure.NotNull(part);
-        if (ReferenceEquals(part, Body))
-            return ref _bodyPlayback;
-        if (ReferenceEquals(part, _eye))
-            return ref _eyePlayback;
-        if (ReferenceEquals(part, _tentacles))
-            return ref _tentaclesPlayback;
-        if (ReferenceEquals(part, _mouth))
-            return ref _mouthPlayback;
-        throw new InvalidOperationException($"Enemy {part.DefinitionId} in place {part.Ordinal} is not one of Phantoon's parts.");
-    }
 
     /// <summary>
     /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever

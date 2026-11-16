@@ -79,7 +79,7 @@ internal static class NativeEnemyFamilyStateImport
         int index = enemy.Ordinal;
         // The cartridge gives each of Phantoon's parts' record words a meaning per part (#1476); each part's words belong to
         // the encounter's state grouped by what it does (#1933).
-        if (enemy.SpeciesState<PhantoonEnemyState>() is { } phantoon)
+        if (enemy.SpeciesState<PhantoonPart>()?.Phantoon is { } phantoon)
         {
             EnemyDefinitionId part = enemy.DefinitionId;
             if (part == EnemyDefinitionId.PhantoonEye)

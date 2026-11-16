@@ -185,7 +185,7 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Places.InUpdateOrder[2], Mouth = system.Places.InUpdateOrder[3] };
+            var state = new PhantoonEnemyState(body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
@@ -246,7 +246,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var mouth = system.Places.InUpdateOrder[3];
-            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Places.InUpdateOrder[2], Mouth = mouth };
+            var state = new PhantoonEnemyState(body, eye, system.Places.InUpdateOrder[2], mouth);
             system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
@@ -273,7 +273,7 @@ internal static class LookupStream5Verification
                 }
             }
             AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Selected duration stops moving phase");
-            AssertEqual(PhantoonPartSegment.EyeOpen, state.PlayingProgram(eye), "Expiration starts exact eye-opening program");
+            AssertEqual(PhantoonPartSegment.EyeOpen, state.EyePart.PlayingProgram(), "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
             AssertEqual(1, state.CasualFlames.Hold, "Casual hold still advances on every movement call");
@@ -356,7 +356,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var tentacles = system.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.Places.InUpdateOrder[3] };
+            var state = new PhantoonEnemyState(body, eye, tentacles, system.Places.InUpdateOrder[3]);
             system.BeginPhantoonAsSetUp(state);
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
@@ -392,8 +392,8 @@ internal static class LookupStream5Verification
             else
             {
                 AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Unhit expiration hands off to eye close");
-                AssertEqual(PhantoonPartSegment.InvulnerableBody, state.PlayingProgram(body), "Native invulnerable body handoff");
-                AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.PlayingProgram(eye), "Native close/reselect eye handoff");
+                AssertEqual(PhantoonPartSegment.InvulnerableBody, state.BodyPart.PlayingProgram(), "Native invulnerable body handoff");
+                AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.EyePart.PlayingProgram(), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
                 AssertEqual(true, state.FlameRainRequested, "Unhit expiration requests next rain branch");
             }
@@ -944,10 +944,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        var state = new PhantoonEnemyState(body)
-        {
-            Eye = enemies.Places.InUpdateOrder[1], Tentacles = enemies.Places.InUpdateOrder[2], Mouth = enemies.Places.InUpdateOrder[3],
-        };
+        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort random = 0;
@@ -1259,7 +1256,7 @@ internal static class LookupStream5Verification
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body) { Eye = eye };
+            var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
@@ -1288,7 +1285,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
         RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.Places.InUpdateOrder[2], Mouth = eyeEnemies.Places.InUpdateOrder[3] };
+        var eyeState = new PhantoonEnemyState(eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -1297,7 +1294,7 @@ internal static class LookupStream5Verification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
             AssertEqual(PhantoonEyeGaze.EyeAnimation(direction),
-                eyeState.PlayingProgram(trackingEye),
+                eyeState.EyePart.PlayingProgram(),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(

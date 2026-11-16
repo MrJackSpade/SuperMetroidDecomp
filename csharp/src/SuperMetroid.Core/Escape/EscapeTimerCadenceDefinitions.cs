@@ -1,27 +1,32 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Escape;
 
-/// <summary>The escape timer's countdown quantization expressed as hierarchical rational scheduling.</summary>
+/// <summary>The escape timer's countdown cadence (#2135): the centiseconds each update of its repeating period removes.</summary>
 internal static class EscapeTimerCadenceDefinitions
 {
-    /// <summary>The countdown repeats its schedule every 128 frames of the frame counter.</summary>
-    internal const int PeriodFrames = 128;
     /// <summary>
-    /// The frame counter's place in the countdown's period, 0 through <see cref="PeriodFrames"/> less one, which picks the
-    /// centiseconds the frame removes (#1619): the counter's lowest seven bits, so the schedule repeats every 128 frames.
+    /// The frame counter's place in the countdown's period, which picks the centiseconds the update removes (#1619): the
+    /// counter's lowest seven bits, so the cadence repeats every 128 updates.
     /// </summary>
     internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
+
     /// <summary>Decimal timer time unit: one second contains 100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;
-    /// <summary>The game's nominal sixty updates per second, used to quantize the countdown rate; this is a time-unit parameter, not a host clock dependency.</summary>
-    internal const int NominalFramesPerSecond = 60;
-    /// <summary>One 128-frame period rounded to the nearest whole centisecond: 213 (43 one-unit and 85 two-unit corrections).</summary>
-    internal const int PeriodCentiseconds = (PeriodFrames * CentisecondsPerSecond + NominalFramesPerSecond / 2) / NominalFramesPerSecond;
-    /// <summary>The period divides into four 32-frame budgets of 53, 53, 53 and 54 centiseconds; an exact subdivision.</summary>
-    internal const int QuarterCount = 4;
-    /// <summary>Each quarter divides into two 16-frame halves, front-loading an odd budget's extra unit; the exact budget ordering.</summary>
-    internal const int HalvesPerQuarter = 2;
-    /// <summary>27-centisecond halves preload the running sum with 1 in a 16-unit denominator; the exact initial condition.</summary>
-    internal const int HigherBudgetPhase = 1;
-    /// <summary>26-centisecond halves preload the running sum with 4 in a 16-unit denominator; the exact initial condition.</summary>
-    internal const int LowerBudgetPhase = 4;
+
+    /// <summary>
+    /// The centiseconds each update of the period removes, by its <see cref="PeriodPlace"/>: one or two, 43 ones and 85
+    /// twos, so the 128 updates count 2.13 seconds. Which updates remove one decides the update the escape expires on.
+    /// </summary>
+    internal static readonly ImmutableArray<int> CentisecondsRemoved =
+    [
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+    ];
 }

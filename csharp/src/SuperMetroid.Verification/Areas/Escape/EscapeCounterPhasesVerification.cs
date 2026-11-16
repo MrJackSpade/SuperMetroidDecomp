@@ -28,7 +28,8 @@ internal static class EscapeCounterPhasesVerification
             AssertSameAt((input & 3) == 0, ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate.IsDue(input), "indoor explosion", input);
         }
 
-        AssertEqual(EscapeTimerCadenceDefinitions.PeriodFrames, EscapeTimerCadenceDefinitions.PeriodPlace.Outcomes, "the period place spans the countdown's period");
+        AssertEqual(EscapeTimerCadenceDefinitions.CentisecondsRemoved.Length, EscapeTimerCadenceDefinitions.PeriodPlace.Outcomes,
+            "the cadence authors a step for every place of its period");
         Console.WriteLine("Escape counter phases: every value from 0 through 65535 reads as the expressions they replace.");
     }
 }

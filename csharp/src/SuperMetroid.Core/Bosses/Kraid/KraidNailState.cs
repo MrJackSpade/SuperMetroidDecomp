@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// One of Kraid's fingernails' own state beside what every part holds: the phase it runs, its velocity and which spawn
 /// its last launch took, which its sibling reads.
 /// </summary>
+[ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
 public sealed class KraidNailState : KraidPartState
 {
     /// <summary>Makes a fingernail of <paramref name="kraid"/>'s encounter.</summary>

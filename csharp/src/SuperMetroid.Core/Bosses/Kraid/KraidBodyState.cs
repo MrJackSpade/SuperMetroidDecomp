@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Kraid's body's own state beside what every part holds: the stage he is in and the phase of it he runs, his
 /// head-animation timer, his growth's next ceiling rock and the rising-rock timer of his rise through the floor.
 /// </summary>
+[ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
 public sealed class KraidBodyState : KraidPartState
 {
     /// <summary>Makes the body of <paramref name="kraid"/>'s encounter.</summary>

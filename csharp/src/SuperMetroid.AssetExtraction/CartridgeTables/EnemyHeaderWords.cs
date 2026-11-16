@@ -79,7 +79,6 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.DraygonTail] = 0xdebf,
         [EnemyDefinitionId.DraygonArms] = 0xdeff,
         [EnemyDefinitionId.SporeSpawn] = 0xdf3f,
-        [EnemyDefinitionId.SporeSpawnStalk] = 0xdf7f,
         [EnemyDefinitionId.Boulder] = 0xdfbf,
         [EnemyDefinitionId.KzanTop] = 0xdfff,
         [EnemyDefinitionId.KzanBottom] = 0xe03f,

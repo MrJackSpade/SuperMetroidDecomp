@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Compiled spawn geometry and movement mechanics for Spore Spawn projectiles.</summary>
@@ -13,6 +15,9 @@ internal static class SporeSpawnProjectileDefinitions
     /// <summary>The four ceiling spore emitters in the order he opens them, centred in successive 64-pixel columns of his room.</summary>
     internal static IReadOnlyList<Position16<RoomPixels>> Emitters { get; } =
         [new(32, 520), new(96, 520), new(160, 520), new(224, 520)];
+
+    /// <summary>The chances the drop a shot spore leaves rolls (#2244): mostly a missile, sometimes energy, never a Super Missile or Power Bomb.</summary>
+    internal static readonly EnemyDropChances SporeDropChances = new(SmallEnergy: 10, BigEnergy: 20, Missile: 200, Nothing: 25, SuperMissile: 0, PowerBomb: 0);
 
     /// <summary>A spore's drift path: its signed pixel movement at each step, repeating after the last.</summary>
     internal static readonly Offset16<RoomPixels>[] Drift =

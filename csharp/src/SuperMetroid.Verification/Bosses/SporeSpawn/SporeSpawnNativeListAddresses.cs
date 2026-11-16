@@ -43,7 +43,7 @@ internal static class SporeSpawnNativeListAddresses
         [0xe8b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.RequestDeathDrops)), 0),
         [0xe8ba] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetMovement>(""), 1),
         [0xe8ca] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.ShowDeathShade>(""), 1),
-        [0xe91c] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.TargetDeathShade>(""), 1),
+        [0xe91c] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.ShowDeathShade>(""), 1),
         [0xe96e] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.SpawnHardeningDust)), 0),
         [0xe9b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.SpawnDyingExplosion)), 0),
     };

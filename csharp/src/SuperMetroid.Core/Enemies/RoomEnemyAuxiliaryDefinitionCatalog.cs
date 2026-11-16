@@ -84,25 +84,6 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         DropChances: new EnemyDropChances(30, 30, 50, 60, 85, 0),
         Vulnerability: EnemyVulnerabilityDefinitions.GoldenTorizo);
 
-    /// <summary>Spore Spawn's stalk, whose drop chances pass for every spore impact.</summary>
-    internal static readonly RoomEnemyDefinition SporeSpawnStalk = new(
-        Health: 960,
-        Damage: 12,
-        Radius: new(19, 19),
-        HurtFlashFrames: 8,
-        HurtSoundEffect: null,
-        Boss: AreaBoss.SporeSpawn,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
-        HurtResponse: EnemyHurtResponse.Inert,
-        DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: null,
-        Shot: null,
-        TouchHitboxScan: EnemyHitboxScan.Scanned,
-        ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: new EnemyDropChances(10, 20, 200, 25, 0, 0),
-        Vulnerability: EnemyVulnerabilityDefinitions.SporeSpawn);
-
     /// <summary>
     /// A wall of Ceres Ridley's getaway chamber, which his getaway places (#1989), with the same fields as every Ceres door
     /// and wall.
@@ -125,7 +106,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         DropChances: null,
         Vulnerability: null);
 
-    /// <summary>The cutscene actors', Torizo orbs', Spore Spawn stalk's and getaway chamber walls' definitions, by identity.</summary>
+    /// <summary>The cutscene actors', Torizo orbs' and getaway chamber walls' definitions, by identity.</summary>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
@@ -133,7 +114,6 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubes,
         [EnemyDefinitionId.BombTorizoOrb] = BombTorizoOrb,
         [EnemyDefinitionId.GoldenTorizoOrb] = GoldenTorizoOrb,
-        [EnemyDefinitionId.SporeSpawnStalk] = SporeSpawnStalk,
         [EnemyDefinitionId.CeresGetawayChamberWall] = CeresGetawayChamberWall,
     };
 

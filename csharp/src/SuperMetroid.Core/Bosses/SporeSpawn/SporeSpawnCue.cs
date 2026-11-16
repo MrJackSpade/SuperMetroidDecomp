@@ -8,17 +8,16 @@ internal abstract record SporeSpawnCue
     {
     }
 
-    /// <summary>Shows a death-sequence fade step.</summary>
+    /// <summary>
+    /// Shows a step of his death fade over his body and his room: each step of his hardening, and the last as a defeated
+    /// room loads him, which the door's fade then brings in.
+    /// </summary>
     /// <param name="DeathShadeStep">The death-sequence fade step a death-shade cue shows, zero through six.</param>
     internal sealed record ShowDeathShade(int DeathShadeStep) : SporeSpawnCue;
 
-    /// <summary>Shows a death-sequence fade step as the fade target.</summary>
-    /// <param name="DeathShadeStep">The death-sequence fade step a death-shade cue shows, zero through six.</param>
-    internal sealed record TargetDeathShade(int DeathShadeStep) : SporeSpawnCue;
-
     /// <summary>Requests a sound.</summary>
     /// <param name="Sound">The sound a <see cref="QueueSound"/> cue queues.</param>
-    internal sealed record QueueSound(SoundEffectId? Sound) : SporeSpawnCue;
+    internal sealed record QueueSound(SoundEffectId Sound) : SporeSpawnCue;
 
     /// <summary>Selects the main-AI movement.</summary>
     /// <param name="Movement">The main-AI movement a <see cref="SetMovement"/> cue selects.</param>

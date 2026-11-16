@@ -168,6 +168,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The room camera's distance mode, which Kraid and Crocomire request (#1874).</summary>
     internal RoomCameraDistance CameraDistance { get; } = new();
 
+    /// <summary>The room camera's floor, which Spore Spawn's live fight holds (#2243).</summary>
+    internal RoomCameraFloor CameraFloor { get; } = new();
+
     /// <summary>The Yards, Maridia's shelled crawlers that curl into a ball Samus can kick.</summary>
     internal YardEnemyBehavior YardBehavior { get; }
 
@@ -505,7 +508,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior);
 
     /// <summary>The state and hooks the room main behaviours and scrolling use.</summary>
-    internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(CrocomireBehavior, SporeSpawnBehavior, CameraDistance);
+    internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(CrocomireBehavior, CameraDistance, CameraFloor);
 
     /// <summary>The operations the room loader runs.</summary>
     internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
@@ -640,7 +643,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, Places, Room);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
-        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults, CameraFloor = CameraFloor });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);

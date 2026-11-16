@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.EffectActors;
-using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -51,7 +51,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _presentation = dependencies.Presentation;
+        _cameraFloor = dependencies.CameraFloor;
     }
+
+    /// <summary>The room camera's floor, which his live fight holds at his arena's top (#2243).</summary>
+    private readonly RoomCameraFloor _cameraFloor;
 
     /// <summary>The room's presentation, which shows his colours (#2194).</summary>
     private readonly EnemyPresentation _presentation;
@@ -59,29 +63,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues a sound from the boss or one of its animations as it makes it, after the update's earlier requests.</summary>
     private void RequestSporeSpawnSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
-
-    /// <summary>
-    /// Runs the global scrolling-finished behaviour installed by live Spore Spawn.
-    /// The camera invokes it after both ordinary camera axes have
-    /// finished and before background streaming observes the final camera position.
-    /// </summary>
-    /// <param name="camera">Live room camera whose Y is raised to the arena minimum of 464 room pixels when the hook is active.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="camera"/> is null.</exception>
-    public void RunScrollingFinishedHook(ScrollBoundaryCamera camera)
-    {
-        Ensure.NotNull(camera);
-        if (SporeSpawn?.ScrollClampHookActive != true)
-            return;
-
-        // The hook loads the arena minimum of 464, compares it with the camera's Y, and returns when it is below.
-        // Equality deliberately performs the harmless store; a larger camera Y is
-        // already below the arena ceiling and is therefore left untouched.
-        if (SporeSpawnScrollingHooks.FightMinimumCameraY < camera.PixelPosition.Y)
-            return;
-
-        camera.SetCameraYFromScrollingFinishedHook(
-            SporeSpawnScrollingHooks.FightMinimumCameraY);
-    }
 
     /// <summary>Gets the single boss state and verifies it belongs to the supplied body place.</summary>
     private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemyPlace place)
@@ -114,8 +95,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
         state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(body, segment)).Reverse()];
 
-        state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
-        if (state.LoadedAsDefeated)
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialDead), AnimationPlace.StartOfAnimation);
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
@@ -130,7 +110,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // A full sweep is a global activity override, not an enemy property.
         // Preserve that distinction so all room actors use the same scan.
         _frameContext.RequestFullSweep();
-        state.ScrollClampHookActive = true;
+        _cameraFloor.Hold(SporeSpawnArenaDefinitions.LowestCameraY);
         foreach (Position16<RoomPixels> emitter in SporeSpawnProjectileDefinitions.Emitters)
             SpawnSporeSpawnSpawner(body, emitter);
         UpdateSporeSpawnStalks(state);
@@ -206,15 +186,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = state.Angle.TurnedBySteps(state.AngleDelta);
     }
 
-    /// <summary>Sets up Spore Spawn's death velocity.</summary>
+    /// <summary>Aims Spore Spawn's death drift at the arena's centre: each axis's share of one pixel per update, signed toward it.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         TrigonometryAngle direction = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(SporeSpawnArenaDefinitions.CentreX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnArenaDefinitions.CentreY, body.Position.Y.Whole))).ToTrigonometryAngle();
-        state.DeathAngle = direction.ToAngle();
-        state.DeathVelocityMagnitude = new(
-            EnemyMath.AbsoluteCosineSpeed(direction, 1).AsDisplacement(),
-            EnemyMath.AbsoluteSineSpeed(direction, 1).AsDisplacement());
+        SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(direction, 1).AsDisplacement();
+        SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(direction, 1).AsDisplacement();
+        state.DeathVelocity = new(
+            EnemyMath.CosineIsNegative(direction) ? -across : across,
+            EnemyMath.SineIsNegative(direction) ? -down : down);
     }
 
     /// <summary>Runs Spore Spawn's dying sequence.</summary>
@@ -222,14 +203,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body,
         SporeSpawnEnemyState state)
     {
-        SignedSixteenSixteen xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.ToTrigonometryAngle())
-            ? SignedSixteenSixteen.Zero - state.DeathVelocityMagnitude.X
-            : state.DeathVelocityMagnitude.X;
-        SignedSixteenSixteen yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.ToTrigonometryAngle())
-            ? SignedSixteenSixteen.Zero - state.DeathVelocityMagnitude.Y
-            : state.DeathVelocityMagnitude.Y;
-        body.Position = body.Position.AdvanceX(xDisplacement);
-        body.Position = body.Position.AdvanceY(yDisplacement);
+        body.Position = body.Position.AdvanceX(state.DeathVelocity.X);
+        body.Position = body.Position.AdvanceY(state.DeathVelocity.Y);
 
         if (CoordinateAxis.Distance(body.Position.X.Whole, SporeSpawnArenaDefinitions.CentreX) < SporeSpawnArenaDefinitions.DeathDriftSettleDistance &&
             CoordinateAxis.Distance(body.Position.Y.Whole, SporeSpawnArenaDefinitions.CentreY) < SporeSpawnArenaDefinitions.DeathDriftSettleDistance)
@@ -445,9 +420,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException(
                     $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
             }
-            deathsAndDrops.SpawnEnemyDropFromDefinition(
+            deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 spore.Position.Whole,
-                EnemyDefinitionId.SporeSpawnStalk,
+                SporeSpawnProjectileDefinitions.SporeDropChances,
                 samus);
         }
     }
@@ -555,12 +530,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Damaged = true;
                 state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.CloseAndMove), AnimationPlace.StartOfAnimation);
                 body.AnimationClock.StepOnNextUpdate();
-
-                if (body.Health != state.PreviousHealth)
-                {
-                    state.PreviousHealth = body.Health;
-                    ShowSporeSpawnHealthShade(SporeSpawnHealthBands.Stage(body.Health));
-                }
+                ShowSporeSpawnHealthShade(SporeSpawnHealthBands.Stage(body.Health));
             }
         }
 
@@ -591,7 +561,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.Death), AnimationPlace.StartOfAnimation);
         body.AnimationClock.StepOnNextUpdate();
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
-        state.ScrollClampHookActive = false;
+        _cameraFloor.Release();
         PublishSporeSpawnObject(SporeSpawnCeilingMutation.Crumble);
     }
 
@@ -633,7 +603,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.Processing = body.Processing.With(EnemyProcessing.Animates);
                 return;
             case SporeSpawnCue.QueueSound queueSound:
-                RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));
+                RequestSporeSpawnSound(queueSound.Sound);
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.RequestDeathDrops }:
                 RequestSporeSpawnDeathDrops(samus);
@@ -643,9 +613,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case SporeSpawnCue.ShowDeathShade showDeathShade:
                 ShowSporeSpawnDeathShade(showDeathShade.DeathShadeStep);
-                return;
-            case SporeSpawnCue.TargetDeathShade targetDeathShade:
-                ShowSporeSpawnDeathShade(targetDeathShade.DeathShadeStep);
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
                 SpawnSporeSpawnHardeningDust(state);
@@ -669,8 +636,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Shows step <paramref name="step"/> of his death fade over his body, the room's level and its background (#1512),
-    /// as the import's shades of it. A defeated room's initialization loads it as the fade's target only, which the door's
-    /// fade then brings in, so both copies show it.
+    /// as the import's shades of it.
     /// </summary>
     internal void ShowSporeSpawnDeathShade(int step)
     {

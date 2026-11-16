@@ -23,8 +23,11 @@ internal static class TorizoDeathDefinitions
     /// <summary>The drops a Torizo's death scatters.</summary>
     internal const int DeathDrops = 16;
 
-    /// <summary>The enemy whose drop chances both Torizos' death drops roll: Bomb Torizo's, Golden Torizo's death included.</summary>
-    internal const EnemyDefinitionId DeathDropChances = EnemyDefinitionId.BombTorizo;
+    /// <summary>
+    /// The chances both Torizos' death drops roll, Golden Torizo's as well as Bomb Torizo's (#2244): Bomb Torizo's own,
+    /// never nothing.
+    /// </summary>
+    internal static readonly EnemyDropChances DeathDropChances = new(SmallEnergy: 50, BigEnergy: 50, Missile: 50, Nothing: 0, SuperMissile: 50, PowerBomb: 55);
 
     /// <summary>Bomb Torizo's arena: a 128-by-64-pixel stretch of the upper room.</summary>
     internal static readonly TorizoDropArena BombTorizoArena =

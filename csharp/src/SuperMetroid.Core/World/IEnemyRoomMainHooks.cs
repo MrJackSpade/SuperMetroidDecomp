@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 
@@ -13,8 +12,8 @@ internal interface IEnemyRoomMainHooks
     /// <summary>Crocomire's death sequence, if it has begun.</summary>
     CrocomireDeathState? CrocomireDeath { get; }
 
-    /// <summary>Runs Spore Spawn's scrolling-finished hook when it is installed.</summary>
-    void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera);
+    /// <summary>The lowest Y the room's camera may take, as the room's bosses hold it.</summary>
+    RoomCameraFloor CameraFloor { get; }
 
     /// <summary>How far ahead of Samus the room's camera aims, as the room's bosses requested it.</summary>
     CameraDistanceMode CameraDistance { get; }

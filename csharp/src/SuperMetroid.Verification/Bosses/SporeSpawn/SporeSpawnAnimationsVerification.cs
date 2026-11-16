@@ -84,9 +84,6 @@ internal static class SporeSpawnAnimationsVerification
             case SporeSpawnCue.ShowDeathShade showDeathShade:
                 AssertEqual(operands[0], checked((ushort)(showDeathShade.DeathShadeStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
                 break;
-            case SporeSpawnCue.TargetDeathShade targetDeathShade:
-                AssertEqual(operands[0], checked((ushort)(targetDeathShade.DeathShadeStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
-                break;
             case SporeSpawnCue.Signal:
                 break;
             default:

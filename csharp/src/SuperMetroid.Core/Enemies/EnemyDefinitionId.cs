@@ -138,11 +138,7 @@ public enum EnemyDefinitionId
     /// <remarks>Draygon's arms actor.</remarks>
     DraygonArms,
     /// <summary>Spore Spawn, Brinstar's plant boss.</summary>
-    /// <remarks>Spore Spawn's body, distinct from its stalk.</remarks>
     SporeSpawn,
-    /// <summary>Spore Spawn's stalk.</summary>
-    /// <remarks>Spore impacts roll their drops from this definition's table, not from the Spore Spawn body's.</remarks>
-    SporeSpawnStalk,
     /// <summary>A Boulder, the rock that falls and rolls along the floor.</summary>
     Boulder,
     /// <summary>The top of a Kzan, the block that crushes down and rises back, carrying Samus.</summary>

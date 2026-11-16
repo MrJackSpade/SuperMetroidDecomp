@@ -94,7 +94,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
-        state.HealthBand = 1;
+        state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[1];
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
@@ -121,7 +121,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
-            state.HealthBand = band;
+            state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[band];
             DraygonCombat.ShowDraygonHealthBand(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),

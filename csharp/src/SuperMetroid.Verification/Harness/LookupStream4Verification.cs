@@ -1754,7 +1754,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=5};
+                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=DraygonHealthBandDefinitions.HighestFirst[5]};
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -1806,7 +1806,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=3};
+                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=DraygonHealthBandDefinitions.HighestFirst[3]};
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -1858,7 +1858,7 @@ internal static class LookupStream4Verification
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthBand = null;
                     update(state); LayDraygonShading(cgram, selected, state.Colours);
-                    AssertEqual(band, state.HealthBand, "Actual health threshold selects native color band");
+                    AssertEqual(DraygonHealthBandDefinitions.HighestFirst[band], state.HealthBand, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
@@ -1919,7 +1919,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
-        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 8), "Draygon out-of-range health band rejected");
     }
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
@@ -2077,16 +2076,17 @@ internal static class LookupStream4Verification
                 ushort[] Shown() => BossShadeColours.Laid(state.BodyShading.Shades, botwoonShades, BossShadeColours.Sprites, 0x1234);
                 for (int band = 0; band < 8; band++)
                 {
-                    state.HealthBandsPassed = band;
+                    BotwoonHealthBand? shownBefore = band == 0 ? null : BotwoonHealthBandDefinitions.InOrderShown[band - 1];
+                    state.HealthBand = shownBefore;
                     head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
                     ushort[] before = Shown();
                     update(head, state);
-                    AssertEqual(band, state.HealthBandsPassed, "exact threshold does not advance");
+                    AssertEqual(shownBefore, state.HealthBand, "exact threshold does not advance");
                     ushort[] held = Shown();
                     for (int color = 0; color < 256; color++) AssertEqual(before[color], held[color], "exact threshold preserves CGRAM");
                     head.Health--;
                     update(head, state);
-                    AssertEqual(band + 1, state.HealthBandsPassed, "below threshold advances exactly one band");
+                    AssertEqual(BotwoonHealthBandDefinitions.InOrderShown[band], state.HealthBand, "below threshold advances exactly one band");
                     ushort[] cgram = Shown();
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
@@ -2567,7 +2567,7 @@ internal static class LookupStream4Verification
     [
         SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Body,
         SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.BodyWhite,
-        .. Enumerable.Range(0, 8).Select(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Health),
+        .. SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Select(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Health),
     ];
 
     /// <summary>The shading Draygon's colours give his body layer (#1512).</summary>

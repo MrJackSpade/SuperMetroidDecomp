@@ -31,8 +31,6 @@ public sealed class BotwoonEnemyState
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
-    /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
-    public int SegmentSpacingEntries { get; internal set; }
     /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
     public int InitialDelayTimer { get; internal set; }
     /// <summary>Frames left of the spit-action cooldown, seeded from <see cref="BotwoonFightDefinitions.HiddenSpitCooldown"/> for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
@@ -53,8 +51,11 @@ public sealed class BotwoonEnemyState
     public int LargeExplosionTimer { get; internal set; }
     /// <summary>Frames until the next pair of small wall explosions, active from update 64 and reloaded to four once it runs past zero.</summary>
     public int SmallExplosionTimer { get; internal set; }
-    /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or path steps taken per authored-path update.</summary>
-    public int Speed { get; internal set; }
+    /// <summary>
+    /// His speed stage (#2266): how fast he moves and spits and how far apart his body trails, refreshed from his health
+    /// each time he chooses a walk outside a hole; he starts at full speed.
+    /// </summary>
+    public BotwoonSpeedStage SpeedStage { get; internal set; } = BotwoonSpeedStageDefinitions.Full;
     /// <summary>The hole that direct movement targets and the next walk starts from.</summary>
     public BotwoonHole TargetHole { get; internal set; }
     /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
@@ -73,19 +74,16 @@ public sealed class BotwoonEnemyState
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =
         new(BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden), AnimationPlace.StartOfAnimation);
-    /// <summary>The shading his head and body show: the last health band shown, or his own colours before any (#1512).</summary>
-    internal PictureShading BodyShading => BotwoonHealthBands.LastBandShown(HealthBandsPassed) is { } band
+    /// <summary>The shading his head and body show: the health band he shows, or his own colours before any (#1512).</summary>
+    internal PictureShading BodyShading => HealthBand is { } band
         ? PictureShading.Shaded(BotwoonShades.Health(band))
         : PictureShading.Standard;
-    /// <summary>The health thresholds he has passed, 0 through 8: each shows the next health band, and 8 marks all passed.</summary>
-    public int HealthBandsPassed { get; internal set; }
+    /// <summary>The health band his head and body show (#2266), or null while he still shows his own colours.</summary>
+    public BotwoonHealthBand? HealthBand { get; internal set; }
     /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
     public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
     public int QuarterHealth { get; internal set; }
-    /// <summary>Movement and spit speed choice 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
-    [IntegerQuantity("count of health thresholds passed, zero through two, choosing the speeds")]
-    public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous call; a difference marks that traversal complete.</summary>

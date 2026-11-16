@@ -22,10 +22,10 @@ public static class BotwoonColorFile
         if (document.Version != BotwoonColorFormat.Version)
             throw new InvalidDataException("Botwoon colors require the supported version.");
         if (document.Health is null ||
-            document.Health.Length != BotwoonHealthBandDefinitions.BandCount)
+            document.Health.Length != BotwoonColorFormat.HealthBandCount)
             throw new InvalidDataException("Botwoon colors require eight health bands.");
         return new(new InstalledColourRows(document.Health.Select((frame, index) =>
-            Compile(frame, index)).ToArray(), BotwoonHealthBandDefinitions.BandCount, BotwoonColorFormat.ColorsPerPalette,
+            Compile(frame, index)).ToArray(), BotwoonColorFormat.HealthBandCount, BotwoonColorFormat.ColorsPerPalette,
             "Botwoon health bands"));
     }
 

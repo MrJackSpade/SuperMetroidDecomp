@@ -24,6 +24,6 @@ public static class DraygonShades
     /// <summary>His sprites' white hurt flash.</summary>
     public static PictureShade SpriteWhite { get; } = new("draygon-sprite-white", 0);
 
-    /// <summary>Health band <paramref name="band"/>'s colours, zero through seven, on his body layer.</summary>
-    public static PictureShade Health(int band) => new("draygon-health", band);
+    /// <summary><paramref name="band"/>'s colours on his body layer (#2266).</summary>
+    public static PictureShade Health(DraygonHealthBand band) => new($"draygon-health-{Ensure.NotNull(band).Key}", 0);
 }

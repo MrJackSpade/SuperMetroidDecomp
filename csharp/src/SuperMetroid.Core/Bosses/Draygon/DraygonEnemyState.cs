@@ -152,9 +152,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
 
 
     /// <summary>
-    /// The installed health-shade band 0-7; null until a band is installed.
+    /// The health band his colours show (#2266); null until his initialization shows one.
     /// </summary>
-    public int? HealthBand { get; internal set; }
+    public DraygonHealthBand? HealthBand { get; internal set; }
 
     /// <summary>True after terminal burial records the area boss as defeated; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }

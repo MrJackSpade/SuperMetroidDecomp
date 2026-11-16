@@ -29,7 +29,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     {
         BotwoonColorCatalog native = stock.Bosses.BotwoonColors ??
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
-        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
+        for (int band = 0; band < BotwoonColorFormat.HealthBandCount; band++)
         for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     BotwoonSourceDefinitions.HealthColors +
@@ -52,18 +52,19 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         var state = new BotwoonEnemyState(body: []);
-        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
+        IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
+        for (int band = 0; band < bands.Count; band++)
         {
             ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                 BotwoonHealthBandDefinitions.NativeThresholdAddress + band * sizeof(ushort));
-            state.HealthBandsPassed = band;
+            state.HealthBand = band == 0 ? null : bands[band - 1];
             head.Health = threshold - 1;
             update(head, state);
-            AssertEqual(band + 1, state.HealthBandsPassed,
+            AssertEqual(bands[band], state.HealthBand,
                 $"Botwoon health band {band} preserves native threshold progression");
-            AssertEqual(PictureShading.Shaded(BotwoonShades.Health(band)), state.BodyShading,
+            AssertEqual(PictureShading.Shaded(BotwoonShades.Health(bands[band])), state.BodyShading,
                 $"live Botwoon draws in health band {band}");
-            ushort[] cgram = BossShadeColours.Laid([BotwoonShades.Health(band)], shades, BossShadeColours.Sprites, 0x1234);
+            ushort[] cgram = BossShadeColours.Laid([BotwoonShades.Health(bands[band])], shades, BossShadeColours.Sprites, 0x1234);
             for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
                 AssertEqual(colors.HealthColor(band, color).ToWord(),
                     cgram[BotwoonHealthBandDefinitions.FirstColour + color],
@@ -84,7 +85,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     /// <summary>Guards the migrated Botwoon palette range against live cartridge reads.</summary>
     internal static CartridgeReadGuard NewBotwoonColorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BotwoonSourceDefinitions.HealthColors,
-            BotwoonHealthBandDefinitions.BandCount *
+            BotwoonColorFormat.HealthBandCount *
                 BotwoonColorFormat.ColorsPerPalette * sizeof(ushort),
             address => $"Live Botwoon read migrated color ROM ${address:X6}.");
 }

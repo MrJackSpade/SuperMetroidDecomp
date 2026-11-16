@@ -87,7 +87,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("InstalledPowerBombGlowColors", "Resolve", "sequence") => new(0, Enum.GetValues<PowerBombGlowSequence>().Length),
         ("InstalledPowerBombGlowColors", "Resolve", "index") => new(0, SamusShadeDefinitions.PowerBomb.ExplosionColorCount),
         ("HyperBeamFxColours", "Apply", "frame") => new(0, SamusColourSets.HyperBeamCycleFrames),
-        ("BotwoonColorCatalog", "HealthColor", "band") => new(0, BotwoonHealthBandDefinitions.BandCount),
+        ("BotwoonColorCatalog", "HealthColor", "band") => new(0, BotwoonColorFormat.HealthBandCount),
         ("BotwoonColorCatalog", "HealthColor", "color") => new(0, BotwoonColorFormat.ColorsPerPalette),
         ("BabyMetroidCutsceneColorCatalog", "InitialColor", "color") => new(0, BabyMetroidCutsceneColorFormat.InitialColorCount),
         ("BabyMetroidCutsceneColorCatalog", "FadeColor", "paletteIndex") => new(1, BabyMetroidCutsceneColorDefinitions.FadeFrameCount),

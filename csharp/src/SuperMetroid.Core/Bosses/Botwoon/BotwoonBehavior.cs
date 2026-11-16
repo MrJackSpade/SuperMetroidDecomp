@@ -73,9 +73,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
 
         state.InitialDelayTimer = BotwoonFightDefinitions.OpeningDelay;
-        var initialSpeed = BotwoonSpeeds.ForHealthPhase(0);
-        state.Speed = initialSpeed.MovementSpeed;
-        state.SegmentSpacingEntries = initialSpeed.SegmentSpacingEntries;
+        state.SpeedStage = BotwoonSpeedStageDefinitions.Full;
         state.InsideHole = true;
         state.PreviousInsideHole = true;
         state.InitialAction = true;
@@ -170,7 +168,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         state.PathComplete = false;
         int choice = 0;
-        if (!state.InsideHole && !state.InitialAction && state.HealthPhase == 0)
+        if (!state.InsideHole && !state.InitialAction && state.SpeedStage == BotwoonSpeedStageDefinitions.Full)
             choice = _room.Random.Next(BotwoonNavigationDefinitions.ActionChoice);
         state.InitialAction = false;
 
@@ -279,7 +277,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
-            AddBotwoonAngleVector(head, state.MovementAngle.ToTrigonometryAngle(), state.Speed);
+            AddBotwoonAngleVector(head, state.MovementAngle.ToTrigonometryAngle(), state.SpeedStage.MovementSpeed);
         }
         else
         {
@@ -297,29 +295,28 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         value < -(BotwoonNavigationDefinitions.HoleBearingReach + 1) ? -BotwoonNavigationDefinitions.HoleBearingReach : value > BotwoonNavigationDefinitions.HoleBearingReach ? BotwoonNavigationDefinitions.HoleBearingReach : value;
 
     /// <summary>
-    /// Refreshes the health phase, then draws where the next walk from his hole leads, in the open or inside the wall,
+    /// Refreshes the speed stage, then draws where the next walk from his hole leads, in the open or inside the wall,
     /// and starts it.
     /// </summary>
     private void ChooseBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        UpdateBotwoonHealthPhase(head, state);
+        UpdateBotwoonSpeedStage(head, state);
         int draw = _room.Random.Next(BotwoonNavigationDefinitions.PathDraw);
         StartBotwoonWalk(state, BotwoonNavigation.WalkFrom(state.TargetHole, state.InsideHole, draw));
     }
 
-    /// <summary>Changes traversal speed and body spacing at half and quarter health outside holes.</summary>
-    internal static void UpdateBotwoonHealthPhase(RoomEnemyPlace head, BotwoonEnemyState state)
+    /// <summary>
+    /// Outside a hole, takes the speed stage his health has reached: below half his starting health he speeds up, and below
+    /// a quarter of it again; at no health at all he moves at full speed.
+    /// </summary>
+    internal static void UpdateBotwoonSpeedStage(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         if (state.InsideHole)
             return;
 
-        int phase = 0;
-        if (head.Health != 0 && head.Health < state.HalfHealth)
-            phase = head.Health < state.QuarterHealth ? 2 : 1;
-        state.HealthPhase = phase;
-        var speed = BotwoonSpeeds.ForHealthPhase(phase);
-        state.Speed = speed.MovementSpeed;
-        state.SegmentSpacingEntries = speed.SegmentSpacingEntries;
+        state.SpeedStage = head.Health == 0 || head.Health >= state.HalfHealth ? BotwoonSpeedStageDefinitions.Full
+            : head.Health >= state.QuarterHealth ? BotwoonSpeedStageDefinitions.BelowHalf
+            : BotwoonSpeedStageDefinitions.BelowQuarter;
     }
 
     /// <summary>
@@ -346,7 +343,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
         bool backward = state.PathTraversal == BotwoonPathTraversal.Backward;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
-        for (int taken = 0; taken < state.Speed; taken++)
+        for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
             if (!BotwoonNavigation.HasStep(path, state.PathStep))
             {
@@ -369,14 +366,15 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Spaces thirteen body projectiles along older head-history samples.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
-        int historyIndex = BotwoonTrailRing.PlaceAt(state.RingIndex - state.SegmentSpacingEntries);
+        int spacing = state.SpeedStage.SegmentSpacingEntries;
+        int historyIndex = BotwoonTrailRing.PlaceAt(state.RingIndex - spacing);
         for (int segmentIndex = state.Body.Count - 1; segmentIndex >= 0; segmentIndex--)
         {
             BotwoonSegmentState segment = state.Body[segmentIndex];
 
             ToggleBotwoonSegmentAtHole(state, segment, historyIndex);
             segment.Projectile.Position = segment.Projectile.Position.WithWhole(state.History[historyIndex]);
-            historyIndex = BotwoonTrailRing.PlaceAt(historyIndex - state.SegmentSpacingEntries);
+            historyIndex = BotwoonTrailRing.PlaceAt(historyIndex - spacing);
         }
     }
 
@@ -590,7 +588,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonEnemyState state,
         BotwoonSpitVolley volley)
     {
-        int speed = BotwoonSpeeds.ForHealthPhase(state.HealthPhase).SpitSpeed;
+        int speed = state.SpeedStage.SpitSpeed;
         TrigonometryAngle angle = state.SpitAngle.TurnedBySteps(volley.FirstOffsetSteps).ToTrigonometryAngle();
         for (int projectile = 0; projectile < volley.Count; projectile++)
         {
@@ -600,16 +598,14 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>
-    /// Shows the next health band's colours when Botwoon's health crosses its threshold (#1512): his head and body take
-    /// the import's shade of the band.
+    /// Shows the next health band's colours once Botwoon's health has fallen below its threshold (#1512, #2266), at most
+    /// one band an update: his head and body take the import's shade of the band.
     /// </summary>
     internal static void UpdateBotwoonHealthBand(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        if (state.HealthBandsPassed == BotwoonHealthBandDefinitions.BandCount)
+        if (BotwoonHealthBand.After(state.HealthBand) is not { } next || head.Health >= next.HealthBelow)
             return;
-        if (!BotwoonHealthBands.ShouldAdvance(state.HealthBandsPassed, head.Health))
-            return;
-        state.HealthBandsPassed++;
+        state.HealthBand = next;
         head.Shading = state.BodyShading;
     }
 

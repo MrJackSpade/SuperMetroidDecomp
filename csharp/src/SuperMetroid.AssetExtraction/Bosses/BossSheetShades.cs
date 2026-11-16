@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Draygon;
 using CrocomireBand = SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Band;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -204,7 +205,7 @@ internal static class BossSheetShades
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
             int shown = band;
-            shades.Add(SheetShade.Run(DraygonShades.Health(shown), DraygonBackgroundFirstInk + DraygonHealthFirstColour,
+            shades.Add(SheetShade.Run(DraygonShades.Health(DraygonHealthBandDefinitions.HighestFirst[shown]), DraygonBackgroundFirstInk + DraygonHealthFirstColour,
                 [.. Enumerable.Range(0, DraygonColorDefinitions.HealthBandColorCount).Select(colour => draygon.ResolveHealthBand(shown, colour))]));
         }
         return shades;
@@ -236,10 +237,10 @@ internal static class BossSheetShades
     private static IEnumerable<SheetShade> Botwoon(BossSourceArtwork bosses, int firstInk)
     {
         BotwoonColorCatalog botwoon = bosses.BotwoonColors ?? throw new InvalidDataException("Botwoon is shaded from the installed Botwoon colours.");
-        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
+        for (int band = 0; band < BotwoonColorFormat.HealthBandCount; band++)
         {
             int shown = band;
-            yield return SheetShade.Run(BotwoonShades.Health(shown), firstInk,
+            yield return SheetShade.Run(BotwoonShades.Health(BotwoonHealthBandDefinitions.InOrderShown[shown]), firstInk,
                 [.. Enumerable.Range(0, BotwoonColorFormat.ColorsPerPalette).Select(colour => botwoon.HealthColor(shown, colour))]);
         }
     }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
@@ -81,7 +82,7 @@ internal static class ImportedBossLooks
     extension(DraygonColorCatalog self)
     {
         /// <summary>Shows health band <paramref name="band"/>'s background colours over <paramref name="cgram"/>.</summary>
-        internal void ApplyHealthBand(IPaletteColors cgram, int band) => self.ShowImported(cgram, DraygonShades.Health(band));
+        internal void ApplyHealthBand(IPaletteColors cgram, int band) => self.ShowImported(cgram, DraygonShades.Health(DraygonHealthBandDefinitions.HighestFirst[band]));
 
         /// <summary>
         /// Shows a hurt update over <paramref name="cgram"/>: his material colours with <paramref name="healthBand"/> unless
@@ -92,7 +93,7 @@ internal static class ImportedBossLooks
             self.ShowImported(cgram, whiteFrame ? DraygonShades.BodyWhite : DraygonShades.Body);
             self.ShowImported(cgram, whiteFrame ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
             if (!whiteFrame && healthBand >= 0)
-                self.ShowImported(cgram, DraygonShades.Health(healthBand));
+                self.ShowImported(cgram, DraygonShades.Health(DraygonHealthBandDefinitions.HighestFirst[healthBand]));
         }
 
         /// <summary>Shows his opening's colours over <paramref name="cgram"/>.</summary>

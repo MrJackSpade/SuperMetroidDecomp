@@ -107,7 +107,7 @@ internal static class SamusHyperBeamColorsVerification
             // timer/reload are1, so every call advances and wraps at native limit10.
             AssertEqual((ushort)((call + 1) % 10), installedSamus.Drained.HyperBeamGlowStep,
                 $"Hyper Beam call {call} next frame");
-            AssertEqual(1, installedSamus.Drained.CommonColourTimer,
+            AssertEqual(1, installedSamus.Drained.RainbowGlowStepCountdown,
                 $"Hyper Beam call {call} native timer");
             ushort originalPointer = ReadVerificationWord(rom, 0x91d99e + 2 * (call % 10));
             for (int color = 0; color < 16; color++)

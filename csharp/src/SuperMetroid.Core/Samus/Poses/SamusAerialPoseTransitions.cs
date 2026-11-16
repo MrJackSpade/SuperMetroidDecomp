@@ -331,7 +331,7 @@ internal static class SamusAerialPoseTransitions
     /// </summary>
     /// <remarks>
     /// The eventual seven-pixel horizontal push remains the ordinary wall-jump animation-cue
-    /// path already implemented by <see cref="SamusPresentation.AnimateNoFx"/>. This method performs only the
+    /// path already implemented by <see cref="SamusPresentation.Animate"/>. This method performs only the
     /// immediate cleanup, the X-speed kill, and environment-selected
     /// vertical launch that occur when the wall-jump phase runs.
     /// </remarks>
@@ -892,7 +892,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Runs the unconditional current-state epilogue clear that follows the
-    /// HUD and projectile step. A failed cooldown/slot allocation must lose the bridge too;
+    /// HUD and projectile step. A shot refused by the cooldown or by Samus's shot count must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
     public static void DropPendingTransitionShot(SamusState samus) => samus.PendingTransitionShot = null;

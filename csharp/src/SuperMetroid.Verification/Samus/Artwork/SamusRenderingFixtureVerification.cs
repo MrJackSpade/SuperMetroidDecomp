@@ -94,7 +94,7 @@ internal static class SamusRenderingFixtureVerification
         IReadOnlyDictionary<SamusPoseId, ushort> stockPosePointers = stock.PosePointers;
         var posePointers = OverrideWords(SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
             [.. Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => SamusPoseNumbering.NamesPose(pose) ? stockPosePointers[SamusPoseNumbering.FromNumber(pose)] : (ushort)0)]);
-        int[] offsets = tables.GraphicsYOffsets;
+        int[] offsets = tables.ArtOrigins;
         for (int pose = 0; pose < offsets.Length; pose++)
         {
             int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
@@ -161,16 +161,16 @@ internal static class SamusRenderingFixtureVerification
             : throw new InvalidDataException($"Stock pose {pose} installs no frame placements.");
         return new PlacementTables(
             // A record no pose names is skipped by the decoder, so its table entry is read by nothing.
-            [.. Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => SamusPoseNumbering.NamesPose(pose) ? stock.Placements[SamusPoseNumbering.FromNumber(pose)].GraphicsYOffset : 0)],
+            [.. Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => SamusPoseNumbering.NamesPose(pose) ? stock.Placements[SamusPoseNumbering.FromNumber(pose)].ArtOrigin : 0)],
             Rises(SamusPoseId.NormalLandingRightPose),
             [.. Rises(SamusPoseId.CrouchingTransitionRightPose).Select(rise => -rise)],
             [.. Rises(SamusPoseId.DrainedCrouchingRightPose).Select(rise => -rise)]);
     }
 
     /// <summary>The cartridge's body placement tables, as a fixture overrides them.</summary>
-    /// <param name="GraphicsYOffsets">Each pose's signed art origin, in the cartridge's pose order.</param>
+    /// <param name="ArtOrigins">Each pose's signed art origin, in the cartridge's pose order.</param>
     /// <param name="Landing">The landing table's unsigned rises.</param>
     /// <param name="Posture">The posture-transition table's signed offsets.</param>
     /// <param name="Drained">The drained-body table's signed offsets.</param>
-    private sealed record PlacementTables(int[] GraphicsYOffsets, int[] Landing, int[] Posture, int[] Drained);
+    private sealed record PlacementTables(int[] ArtOrigins, int[] Landing, int[] Posture, int[] Drained);
 }

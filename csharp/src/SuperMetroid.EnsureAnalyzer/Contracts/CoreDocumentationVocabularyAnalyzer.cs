@@ -55,7 +55,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// dispatch, the sound chip's voices and key-off, and words run on to a number. #2080 adds, outside hardware owners, the
 /// original's parameter tables, tail calls, short multiplies, extension arrays, rotting tables and arithmetic modulo 256,
 /// and #2089 its fixed colour, main-screen designation and per-line effects, a type by number and, in every type, a
-/// review cited under its ticket.
+/// review cited under its ticket. #2113 adds, outside hardware owners, a controller button's letter used as the name of
+/// a gameplay action.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -700,6 +701,29 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// A controller button's letter used as the name of a gameplay action in prose (#2113), outside hardware owners: a
+    /// letter that is an action (A is Jump, X here is the configured Shoot action, X is the default shoot binding), an
+    /// action that is a letter (Jump is A), a letter before an action's button, binding or action (the B run button) and a
+    /// letter in brackets after an action (Shoot (X)). The letters are read case-sensitively. Core reads typed gameplay
+    /// actions; which button the player binds to each is the host's, so Core names the action. English stays legal: a
+    /// coordinate (X is the sample, Y is the tangent), an article (A held animation, A binding names a frame) and a letter
+    /// alone.
+    /// </summary>
+    private static readonly Regex ButtonLetterActionProse = new(
+        ButtonLetter + @"(?:\s+here)?\s+(?:is|means|stands\s+for)\s+(?:the\s+)?(?:(?:default|configured|normalized|usual)\s+)?" +
+        ActionWord + @"\b|\b" + ActionWord + @"\s+is\s+(?:the\s+)?" + ButtonLetter +
+        "|" + ButtonLetter + @"\s+" + ActionWord + @"[-\s]+(?:buttons?|bindings?|actions?)\b|\b" + ActionWord + @"\s*\(\s*" +
+        ButtonLetter + @"\s*\)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>A controller button's letter, case-sensitive, standing alone: not a word's first letter, X-ray or a possessive.</summary>
+    private const string ButtonLetter = @"(?-i:\b[ABXYLR]\b)(?![-'])";
+
+    /// <summary>A gameplay action named in prose: jump, run, dash, shoot, fire, item select or cancel, aim or angle up or down.</summary>
+    private const string ActionWord =
+        @"(?:jump|run|dash|shoot|fire|item[-\s]+select|item[-\s]+cancel|aim[-\s]+(?:up|down)|angle[-\s]+(?:up|down))";
+
+    /// <summary>
     /// A word run on to a number in a comment (#2018): a lower-case word of two or more letters followed directly by digits
     /// (<c>counter16</c>, <c>hold3</c>, <c>contains100</c>). It is a garbled numeral or a label of the original; Core
     /// spaces its numbers (a counter of sixteen, a hold of three frames). English stays legal: a file extension
@@ -901,6 +925,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SoundChipProse.Match(Markup.Replace(text, " ")) is { Success: true } soundChip ? soundChip.Value
             : ProgramStructureProse.Match(Markup.Replace(text, " ")) is { Success: true } programStructure ? programStructure.Value
             : DisplayEffectProse.Match(Markup.Replace(text, " ")) is { Success: true } displayEffect ? displayEffect.Value
+            : ButtonLetterActionProse.Match(Markup.Replace(text, " ")) is { Success: true } buttonLetter ? buttonLetter.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

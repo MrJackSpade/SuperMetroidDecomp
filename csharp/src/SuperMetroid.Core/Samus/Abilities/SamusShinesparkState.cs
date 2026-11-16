@@ -62,8 +62,18 @@ public sealed class SamusShinesparkState
     /// </summary>
     public int ShadeStep { get; private set; }
 
-    /// <summary>The shared 30-frame windup/crash countdown.</summary>
-    public int StartStopTimer { get; internal set; }
+    /// <summary>
+    /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
+    /// starts, launching her upward on the update it runs out.
+    /// </summary>
+    public int WindupCountdown { get; internal set; }
+
+    /// <summary>
+    /// The updates the crash still holds its echoes on Samus once its orbit has drawn in:
+    /// <see cref="ShinesparkDefinitions.CrashHoldFrames"/> when the hold starts, finishing the crash on the update it runs
+    /// out.
+    /// </summary>
+    public int CrashHoldCountdown { get; internal set; }
 
     /// <summary>The acceleration a shinespark windup starts its upward motion with.</summary>
     private static readonly SignedSixteenSixteen InitialVerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
@@ -87,7 +97,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     public bool OwnsMovement => Phase is
         ShinesparkPhase.Windup or ShinesparkPhase.Horizontal or ShinesparkPhase.Vertical or
-        ShinesparkPhase.Diagonal or ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle or
+        ShinesparkPhase.Diagonal or ShinesparkPhase.Crash or ShinesparkPhase.CrashHold or
         ShinesparkPhase.CrashFinish;
 
     /// <summary>
@@ -238,7 +248,7 @@ public sealed class SamusShinesparkState
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         _acceleration.StartSpark(InitialVerticalAcceleration);
-        StartStopTimer = ShinesparkDefinitions.WindupFrames;
+        WindupCountdown = ShinesparkDefinitions.WindupFrames;
         ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);
         ShadeStep = 0;
@@ -533,7 +543,7 @@ public sealed class SamusShinesparkState
         if (Phase == ShinesparkPhase.Windup)
         {
             // The windup countdown: exact zero and a count past zero both launch up.
-            bool timedOut = --StartStopTimer <= 0;
+            bool timedOut = --WindupCountdown <= 0;
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
@@ -554,8 +564,8 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
         {
             if (Phase == ShinesparkPhase.Crash)
                 return StepCrashOrbit(samus);
-            if (Phase == ShinesparkPhase.CrashEchoCircle)
-                return StepCrashEchoCircle();
+            if (Phase == ShinesparkPhase.CrashHold)
+                return StepCrashHold();
             if (Phase == ShinesparkPhase.CrashFinish)
                 return FinishCrash(samus, frame.Projectiles);
 
@@ -645,13 +655,13 @@ false);
         SamusSuit suit = equippedItems.ShownSuit();
         bool catalogued = colouring == SamusSpecialColouringKind.SpeedBoosterShine
             ? SamusFullBodyCycleShades.TryStoredShineShade(
-                suit, ShadeStep, out SamusFullBodyCycleShade palette)
+                suit, ShadeStep, out SamusFullBodyCycleShade shade)
             : SamusFullBodyCycleShades.TryActiveShinesparkShade(
-                suit, ShadeStep, out palette);
+                suit, ShadeStep, out shade);
         if (!catalogued)
             throw new InvalidDataException(
                 $"Shinespark colouring {colouring} step {ShadeStep} has no shade.");
-        colours.ShowSuit(SamusShades.FullBodyCycle(palette));
+        colours.ShowSuit(SamusShades.FullBodyCycle(shade));
 
         int steps = colouring == SamusSpecialColouringKind.SpeedBoosterShine
             ? SamusShadeDefinitions.FullBodyCycles.StoredShineSteps
@@ -727,8 +737,8 @@ false);
                 CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
                 if (CrashRadius == 0)
                 {
-                    Phase = ShinesparkPhase.CrashEchoCircle;
-                    StartStopTimer = ShinesparkDefinitions.CrashEchoHoldFrames;
+                    Phase = ShinesparkPhase.CrashHold;
+                    CrashHoldCountdown = ShinesparkDefinitions.CrashHoldFrames;
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = RotationAngle.Zero;
                     SecondCrashEchoAngle = RotationAngle.Zero;
@@ -749,11 +759,11 @@ false);
 false);
     }
 
-    /// <summary>Runs the center echo hold.</summary>
-    private ShinesparkMovementResult StepCrashEchoCircle()
+    /// <summary>Runs one update of the crash's hold, finishing the crash once the hold runs out.</summary>
+    private ShinesparkMovementResult StepCrashHold()
     {
         ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
-        if (--StartStopTimer <= 0)
+        if (--CrashHoldCountdown <= 0)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
 false);

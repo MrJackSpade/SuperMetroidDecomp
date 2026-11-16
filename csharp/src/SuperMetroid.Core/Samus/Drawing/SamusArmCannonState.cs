@@ -25,7 +25,7 @@ public sealed class SamusArmCannonState
     /// <summary>Starts a closed cover placed by <paramref name="artwork"/>'s arm-cannon placements.</summary>
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
-    /// <summary>The installed arm-cannon placements, or none before they are installed.</summary>
+    /// <summary>The installed arm-cannon placements the artwork binds.</summary>
     public InstalledSamusArmCannonArtwork Artwork => _artwork.ArmCannon;
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
@@ -99,11 +99,11 @@ public sealed class SamusArmCannonState
         SamusProjectileDirection direction = placement.Direction(frame);
 
         Offset16<RoomPixels> offset = placement.Offset(frame);
-        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
 
         // The cover is published wherever it lies, off the screen included; the display clips it (#1587).
         Offset16<ScreenPixels> place =
-            (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
+            (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, artOrigin)).RelativeToCamera(cameraPosition);
         // The cover's direction and picture name its sheet frame; a closed cover returned above.
         InstalledSpriteSheets sheets = samus.Presentation.Sheets;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),

@@ -20,12 +20,12 @@ public sealed class InstalledSamusBody
     internal const int AnimationFrames = SamusBodySheetDefinitions.AnimationFrames;
 
     /// <summary>Each pose's art origin.</summary>
-    private readonly Dictionary<SamusPoseId, int> graphicsYOffsets;
+    private readonly Dictionary<SamusPoseId, int> artOrigins;
     /// <summary>Each pose's pictured body frames, in animation order: where each animation frame places the body.</summary>
     private readonly Dictionary<SamusPoseId, SortedDictionary<SamusAnimationFrame, int>> frames;
 
     /// <summary>Validates and holds the body the game binds.</summary>
-    /// <param name="graphicsYOffsets">Each pose with a record's art origin.</param>
+    /// <param name="artOrigins">Each pose with a record's art origin.</param>
     /// <param name="frames">
     /// Each pose with a record's pictured body frames, by frame of the pose's animation: how many pixels above Samus's drawn
     /// point the frame's body origin sits. A pose the body sheet pictures no frame of has none.
@@ -34,26 +34,26 @@ public sealed class InstalledSamusBody
     /// <param name="deathSteps">The order her death sequence steps through and the room's whiteout colours.</param>
     /// <param name="armCannon">Each pose's arm-cannon placement.</param>
     /// <exception cref="InvalidDataException">The art origins or the frames do not cover exactly the poses with records.</exception>
-    internal InstalledSamusBody(IReadOnlyDictionary<SamusPoseId, int> graphicsYOffsets,
+    internal InstalledSamusBody(IReadOnlyDictionary<SamusPoseId, int> artOrigins,
         IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> frames, SamusShownFrames shownFrames,
         SamusDeathSteps deathSteps, SamusArmCannonLayout armCannon)
     {
-        Ensure.NotNull(graphicsYOffsets);
+        Ensure.NotNull(artOrigins);
         Ensure.NotNull(frames);
         ShownFrames = Ensure.NotNull(shownFrames);
         DeathSteps = Ensure.NotNull(deathSteps);
         ArmCannon = Ensure.NotNull(armCannon);
-        if (!SamusPoseNumbers.CoversRecordedPoses(graphicsYOffsets) || !SamusPoseNumbers.CoversRecordedPoses(frames) ||
+        if (!SamusPoseNumbers.CoversRecordedPoses(artOrigins) || !SamusPoseNumbers.CoversRecordedPoses(frames) ||
             !SamusPoseNumbers.CoversRecordedPoses(shownFrames.PictureFrames) || frames.Values.Any(pose => pose is null))
             throw new InvalidDataException("Samus body art origins, frames and shown frames do not cover exactly the poses with records.");
-        this.graphicsYOffsets = graphicsYOffsets.ToDictionary();
+        this.artOrigins = artOrigins.ToDictionary();
         this.frames = frames.ToDictionary(pose => pose.Key, pose => new SortedDictionary<SamusAnimationFrame, int>(pose.Value.ToDictionary()));
         Frames = [.. SamusPoseNumbers.RecordedPoses.OrderBy(SamusPoseNumbers.Number)
             .SelectMany(pose => this.frames[pose].Keys.Select(frame => new SamusBodyFrame(pose, frame)))];
         Gameplay = new InstalledSamusBodyArtwork(new SamusBodyArtworkContent
         {
             OriginRises = this.frames.ToDictionary(pose => pose.Key, pose => (IReadOnlyDictionary<SamusAnimationFrame, int>)pose.Value),
-            GraphicsYOffsets = this.graphicsYOffsets,
+            ArtOrigins = this.artOrigins,
             DeathSteps = deathSteps,
             ArmCannon = armCannon.Gameplay,
         });
@@ -79,7 +79,7 @@ public sealed class InstalledSamusBody
 
     /// <summary>The art origin of <paramref name="pose"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
-    internal int GraphicsYOffset(SamusPoseId pose) => graphicsYOffsets.TryGetValue(pose, out int offset)
+    internal int ArtOrigin(SamusPoseId pose) => artOrigins.TryGetValue(pose, out int offset)
         ? offset
         : throw new ArgumentOutOfRangeException(nameof(pose), pose, "The pose has no record in the pose tables.");
 
@@ -99,7 +99,7 @@ public sealed class InstalledSamusBody
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
             SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-            content.Append("graphics y offset", graphicsYOffsets[pose]);
+            content.Append("art origin", artOrigins[pose]);
             content.Append("frame count", frames[pose].Count);
             foreach ((SamusAnimationFrame frame, int rise) in frames[pose])
             {

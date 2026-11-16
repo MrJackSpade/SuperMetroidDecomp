@@ -19,7 +19,7 @@ public sealed record SamusBodyArtworkContent
     /// Each pose's art origin: how many pixels above Samus's center the arm cannon, the Grapple beam, the charge flare and
     /// the speed-booster echoes are drawn, for the same poses as <see cref="OriginRises"/>.
     /// </summary>
-    public required IReadOnlyDictionary<SamusPoseId, int> GraphicsYOffsets { get; init; }
+    public required IReadOnlyDictionary<SamusPoseId, int> ArtOrigins { get; init; }
 
     /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
     public required SamusDeathSteps DeathSteps { get; init; }

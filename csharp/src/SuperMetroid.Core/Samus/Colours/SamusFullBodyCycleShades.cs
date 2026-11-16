@@ -20,8 +20,8 @@ public static class SamusFullBodyCycleShades
     /// <exception cref="ArgumentOutOfRangeException">The step is outside the suit's list.</exception>
     internal static SamusFullBodyCycleShade ReadScrewAttackShade(SamusSuit suit, int step) =>
         TryShade(suit, step, ScrewAttackSteps, SamusFullBodyCycleFamily.ScrewAttack, ShadeCycleShape.PingPong,
-            out SamusFullBodyCycleShade palette)
-            ? palette
+            out SamusFullBodyCycleShade shade)
+            ? shade
             : throw new ArgumentOutOfRangeException(nameof(step), step, "A Screw Attack step lies within the suit's six-step list.");
 
     /// <summary>
@@ -38,14 +38,14 @@ public static class SamusFullBodyCycleShades
             Math.Min(Ensure.BetweenInclusive(0, ScrewAttackSteps - 1, step), SpeedBoosterLastStep));
 
     /// <summary>Resolves a stored-shine cycle step of the suit's own list to a cycle shade.</summary>
-    public static bool TryStoredShineShade(SamusSuit suit, int step, out SamusFullBodyCycleShade palette) =>
+    public static bool TryStoredShineShade(SamusSuit suit, int step, out SamusFullBodyCycleShade shade) =>
         TryShade(suit, step, StoredShineSteps, SamusFullBodyCycleFamily.StoredShine, ShadeCycleShape.PingPong,
-            out palette);
+            out shade);
 
     /// <summary>Resolves an active-shinespark cycle step of the suit's own list to a cycle shade.</summary>
-    public static bool TryActiveShinesparkShade(SamusSuit suit, int step, out SamusFullBodyCycleShade palette) =>
+    public static bool TryActiveShinesparkShade(SamusSuit suit, int step, out SamusFullBodyCycleShade shade) =>
         TryShade(suit, step, ActiveShinesparkSteps, SamusFullBodyCycleFamily.ActiveShinespark, ShadeCycleShape.Linear,
-            out palette);
+            out shade);
 
     /// <summary>
     /// Resolves a step within the suit's own list to a family's shade, mirroring later steps back toward the first
@@ -57,15 +57,15 @@ public static class SamusFullBodyCycleShades
         int steps,
         SamusFullBodyCycleFamily family,
         ShadeCycleShape shape,
-        out SamusFullBodyCycleShade palette)
+        out SamusFullBodyCycleShade shade)
     {
         if ((uint)step >= (uint)steps)
         {
-            palette = default;
+            shade = default;
             return false;
         }
 
-        palette = new(family, suit, Shade(step, shape));
+        shade = new(family, suit, Shade(step, shape));
         return true;
     }
 

@@ -146,14 +146,13 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Animates Samus, including movement-visible FX delay state.
+    /// Runs one update of Samus's animation: her liquid step first, then her animation frame's countdown.
     /// </summary>
     /// <remarks>
-    /// The liquid effect step publishes water/lava delay buffering, remembered medium,
-    /// atmospheric effects, sound requests, and periodic damage before the timer
-    /// decrement.
+    /// The liquid step publishes the water and lava animation delay, the remembered medium, the splashes and bubbles,
+    /// sound requests and periodic damage before the frame's countdown runs.
     /// </remarks>
-    public static void AnimateNoFx(SamusState samus, SamusAnimationStep step)
+    public static void Animate(SamusState samus, SamusAnimationStep step)
     {
         EnsureAnimationInitialized(samus);
 
@@ -394,8 +393,9 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Draws Samus in her standing and ordinary-running poses.
+    /// Draws Samus's body in her current pose, unless invincibility's flicker hides it on this frame.
     /// </summary>
+    /// <returns>Whether the body was drawn.</returns>
     /// <remarks>
     /// The body is one whole picture (#1513, #1585): her pose at the picture frame the installed <see cref="SamusShownFrames"/> give the
     /// animation frame, placed at the origin the import baked into that installed frame (#1517). The body is always a whole
@@ -515,7 +515,7 @@ internal sealed class SamusPresentation
     {
         Ensure.NotNull(sprites);
         if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter) ||
-            samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle))
+            samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashHold))
         {
             return;
         }
@@ -566,8 +566,8 @@ internal sealed class SamusPresentation
         if (stored is not { } echo)
             return;
 
-        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        Offset16<ScreenPixels> origin = (echo - Offset16<RoomPixels>.Of(0, graphicsYOffset)).RelativeToCamera(cameraPosition);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
+        Offset16<ScreenPixels> origin = (echo - Offset16<RoomPixels>.Of(0, artOrigin)).RelativeToCamera(cameraPosition);
         // An echo repeats the whole picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)
             sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho));

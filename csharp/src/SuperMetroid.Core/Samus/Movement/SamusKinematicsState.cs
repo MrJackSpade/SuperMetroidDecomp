@@ -76,7 +76,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Current snapshot, in the game's order, of the interactive enemies and the collision
-    /// values of the referenced enemy slots.
+    /// values of the enemies it lists.
     /// </summary>
     /// <remarks>
     /// Movement owns this snapshot because every ordinary movement wrapper probes

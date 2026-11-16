@@ -53,7 +53,7 @@ internal static class SamusGrappleMovementAccess
             // block dispatcher opts into bank-$9B's per-frame connection revalidation.
             grapple.ValidateAnchorBlock = false;
             grapple.ValidateAnchorEnemy = false;
-            grapple.SpecialAngleHandling = false;
+            grapple.CloseCollision = false;
             grapple.WallJumpTimer = 0;
             grapple.CancelFromConnectedPose = false;
             SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);

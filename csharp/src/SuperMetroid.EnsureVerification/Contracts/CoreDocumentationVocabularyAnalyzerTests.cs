@@ -716,5 +716,16 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // hardware owner are English.
         Expect("class P { /// <summary>A fixed set of colours; 5 tm; the per-line scroll; a per-line window; the type; checked under water.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the colour math adds the fixed colour to the TM layers, a per-line effect of type-2.</summary>\n[CompatibilityService(\"math\")] class ColourMath { }");
+        // A controller button's letter used as the name of a gameplay action, outside hardware owners (#2113).
+        Expect("class P { // The runtime supplies normalized controls, so X here is the configured Shoot action.\n }", "('X here is the configured Shoot')");
+        Expect("class P { /// <summary>Runs the swing. X is the default shoot binding used by this runtime.</summary>\nint F => 0; }", "('X is the default shoot')");
+        Expect("class P { // Inputs here are normalized: A is Jump, B is Run.\n }", "('A is Jump')");
+        Expect("class P { /// <summary>Starts the turn once Jump is A.</summary>\nint F => 0; }", "('Jump is A')");
+        Expect("class P { string Name => \"Hold the B run button.\"; }", "('B run button')");
+        Expect("class P { // A fresh press of Shoot (X) fires.\n }", "('Shoot (X)')");
+        // A coordinate, an article, X-ray, a lower-case letter, a letter alone and a hardware owner are English.
+        Expect("class P { /// <summary>X is the sample modulo 128; Y is the tangent; A held animation stays held; A binding names a frame.</summary>\nint F => 0; }");
+        Expect("class P { // X-ray is shoot-free; a is jump; the X button; Shoot alone.\n }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the game reads B as Run and A is Jump.</summary>\n[CompatibilityService(\"buttons\")] class Buttons { }");
     }
 }

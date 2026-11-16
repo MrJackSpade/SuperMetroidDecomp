@@ -116,7 +116,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     shine.Shinespark.BeginWindup(shine);
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
         "stored shine installs windup handler");
-    AssertEqual(30, shine.Shinespark.StartStopTimer, "windup timer is 30");
+    AssertEqual(30, shine.Shinespark.WindupCountdown, "windup timer is 30");
     AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed.Whole,
         "windup seeds exact 8.0000 extra speed");
     AssertEqual(new SamusSpeedBoostCounter(4, 0), shine.HorizontalSpeed.SpeedBoostCounter,
@@ -345,9 +345,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     // exact `$90:D383-$D3CC` orbit. One was consumed above, so 39 remain.
     StepFrames(39, frame =>
         horizontal.Shinespark.Step(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, new ShinesparkFrame { FrameCounter = unchecked((ushort)(7 + frame)), Projectiles = horizontalShots }));
-    AssertEqual(ShinesparkPhase.CrashEchoCircle, horizontal.Shinespark.Phase,
+    AssertEqual(ShinesparkPhase.CrashHold, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
-    AssertEqual(30, horizontal.Shinespark.StartStopTimer,
+    AssertEqual(30, horizontal.Shinespark.CrashHoldCountdown,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>

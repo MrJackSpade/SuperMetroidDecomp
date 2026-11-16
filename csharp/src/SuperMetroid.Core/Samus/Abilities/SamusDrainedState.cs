@@ -36,20 +36,23 @@ public sealed class SamusDrainedState
     public HyperBeamColourEffectState HyperBeamColourEffect { get; } = new();
 
     /// <summary>
-    /// The super-special-colouring flag, set by the rainbow start and cleared
-    /// by the rainbow stop during the Baby Metroid death sequence.
+    /// Whether the rainbow glow colours Samus, ahead of every other colouring: the rainbow start sets it and the rainbow
+    /// stop clears it during the Baby Metroid's death.
     /// </summary>
-    public bool RainbowColouringEnabled { get; private set; }
+    public bool RainbowGlowing { get; private set; }
 
     /// <summary>
-    /// Calls each Hyper Beam colouring is held for during the cutscene rainbow cycle, 0 through the Baby's maximum of
-    /// ten: the rainbow start sets it to one, the Baby raises it one at a time and never past its maximum,
-    /// and the rainbow stop clears it. Each colouring advance reloads the common colour timer from it.
+    /// The updates each step of the rainbow glow is held for, 0 through the Baby's maximum of ten: the rainbow start sets
+    /// it to one, the Baby raises it one at a time and never past its maximum, and the rainbow stop clears it. Each step
+    /// the glow moves on restarts <see cref="RainbowGlowStepCountdown"/> from it.
     /// </summary>
-    public int SpecialColouringFrame { get; private set; }
+    public int RainbowGlowHold { get; private set; }
 
-    /// <summary>Common colour timer initialized to one by the rainbow start.</summary>
-    public int CommonColourTimer { get; private set; }
+    /// <summary>
+    /// The updates the rainbow glow's current step still shows for: the rainbow start sets it to one, so the first
+    /// colouring moves the glow on at once, and the rainbow stop clears it.
+    /// </summary>
+    public int RainbowGlowStepCountdown { get; private set; }
 
     /// <summary>
     /// The step of the Hyper Beam glow the rainbow cycle shows, 0 through the glow's step count minus one: cleared by
@@ -146,9 +149,9 @@ public sealed class SamusDrainedState
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowColouringEnabled = true;
-        SpecialColouringFrame = 1;
-        CommonColourTimer = 1;
+        RainbowGlowing = true;
+        RainbowGlowHold = 1;
+        RainbowGlowStepCountdown = 1;
         HyperBeamGlowStep = 0;
         _suitShadeRestoreRequested = false;
     }
@@ -161,8 +164,8 @@ public sealed class SamusDrainedState
     public void HoldRainbowGlowLonger(int longestHold)
     {
         // The hold never exceeds the drained colouring's small maximum, so lengthening it cannot reach a wrap.
-        int lengthened = SpecialColouringFrame + 1;
-        SpecialColouringFrame = lengthened < longestHold ? lengthened : longestHold;
+        int lengthened = RainbowGlowHold + 1;
+        RainbowGlowHold = lengthened < longestHold ? lengthened : longestHold;
     }
 
     /// <summary>
@@ -172,9 +175,9 @@ public sealed class SamusDrainedState
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowColouringEnabled = false;
-        SpecialColouringFrame = 0;
-        CommonColourTimer = 0;
+        RainbowGlowing = false;
+        RainbowGlowHold = 0;
+        RainbowGlowStepCountdown = 0;
         HyperBeamGlowStep = 0;
         _suitShadeRestoreRequested = true;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
@@ -186,9 +189,9 @@ public sealed class SamusDrainedState
     /// <remarks>
     /// While the rainbow colouring is enabled, this colouring has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray colourings. It loads one
-    /// complete Hyper Beam glow shade before touching either timer; the import pre-colours Samus in each of its frames
+    /// complete Hyper Beam glow shade before counting down its hold; the import pre-colours Samus in each of its frames
     /// (#1512). The Baby
-    /// independently raises <see cref="SpecialColouringFrame"/> from one through ten; that
+    /// independently raises <see cref="RainbowGlowHold"/> from one through ten; that
     /// value becomes the delay between steps through the glow's ten shades.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus colours.</returns>
@@ -205,16 +208,16 @@ public sealed class SamusDrainedState
             return true;
         }
 
-        if (!RainbowColouringEnabled)
+        if (!RainbowGlowing)
             return false;
 
-        // The colouring shows the glow's current step before counting down the shared timer.
+        // The colouring shows the glow's current step before counting down its hold.
         colours.ShowSuit(SamusShades.HyperBeamSuit(HyperBeamGlowStep));
 
-        if (--CommonColourTimer > 0)
+        if (--RainbowGlowStepCountdown > 0)
             return true;
 
-        CommonColourTimer = SpecialColouringFrame;
+        RainbowGlowStepCountdown = RainbowGlowHold;
         HyperBeamGlowStep++;
         if (HyperBeamGlowStep >= SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount)
             HyperBeamGlowStep = 0;

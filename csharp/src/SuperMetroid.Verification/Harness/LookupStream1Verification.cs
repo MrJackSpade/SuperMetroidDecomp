@@ -508,7 +508,7 @@ internal static class LookupStream1Verification
             foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
             {
                 SamusBodyPosePlacement placement = template.Placements[pose];
-                content.Append("graphics y offset", placement.GraphicsYOffset);
+                content.Append("art origin", placement.ArtOrigin);
                 if (placement.FrameRises is not { } rises) continue;
                 content.Append("frame rise count", rises.Length);
                 foreach (int rise in rises) content.Append("frame rise", rise);
@@ -562,13 +562,13 @@ internal static class LookupStream1Verification
     {
         int[] native = Enumerable.Range(0, 253).Select(pose => (int)unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         SamusBodySources template = CreateSamusIdentityFixture();
-        SamusBodySources stock = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = native[SamusPoseNumbers.Number(pose.Key)] }), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathSteps = template.DeathSteps, ArmCannon = template.ArmCannon });
+        SamusBodySources stock = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { ArtOrigin = native[SamusPoseNumbers.Number(pose.Key)] }), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathSteps = template.DeathSteps, ArmCannon = template.ArmCannon });
         InstalledSamusBody installed = SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
         for (int pose = 0; pose < 253; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            AssertEqual(native[pose], stock.Gameplay.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "Installed origin is the supplied placement");
-            AssertEqual(native[pose], installed.Gameplay.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "The import installs the native real-pose byte as the pose's origin");
+            AssertEqual(native[pose], stock.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), "Installed origin is the supplied placement");
+            AssertEqual(native[pose], installed.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), "The import installs the native real-pose byte as the pose's origin");
             // The drained poses' origin is their signed correction, four below the centre; the original's unsigned read of
             // it, which nothing fired from those poses reaches, is gone (#1928).
             int expectedOrigin = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
@@ -578,7 +578,7 @@ internal static class LookupStream1Verification
             AssertEqual(expectedOrigin, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Physical projectile origin matches the native byte");
         }
         foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
-            AssertThrows<InvalidDataException>(() => stock.Gameplay.GraphicsYOffset(pose), "Installed graphics excludes adjacent instruction poses");
+            AssertThrows<InvalidDataException>(() => stock.Gameplay.ArtOrigin(pose), "Installed graphics excludes adjacent instruction poses");
         Console.WriteLine("Body graphics origins:253 native installed origins, physical projectile origins and bounds pass.");
     }
 
@@ -954,7 +954,7 @@ internal static class LookupStream1Verification
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer();
-            DrawImportedFlareSpritemap((CartridgeImportAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.Gameplay.GraphicsYOffset(pose))))));
+            DrawImportedFlareSpritemap((CartridgeImportAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.Gameplay.ArtOrigin(pose))))));
             // The flare's picture may be laid out once for several projectile sheet frames whose pictures are identical
             // (#1513), so the draw is matched against each composition that picture stands for.
             Action<SpriteFrameBuffer> drawFlare = frame => draw(frame, samus, Position16<RoomPixels>.Zero, ChargeFlareComponent.MainFlare, null,

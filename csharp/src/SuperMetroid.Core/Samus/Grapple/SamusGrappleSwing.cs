@@ -306,9 +306,9 @@ public static class SamusGrappleSwing
         // The swing only admits this extra angular impulse during the 16-frame terrain-
         // reflection timer. It is separate from ordinary Samus jump velocity and decays
         // inside the angular movement only after a successful angular movement pass.
-        // Inputs here are normalized: A is Jump, B is Run. The Jump-binding test
-        // must agree with the release-window check, or tight anchors become inescapable
-        // using Jump even though the unrelated Dash accidentally supplies the kick.
+        // The kick reads Jump, not Dash. That test must agree with the release-window
+        // check, or tight anchors become inescapable using Jump even though the
+        // unrelated Dash accidentally supplies the kick.
         if (grapple.CollisionBounceTimer != 0 &&
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
@@ -374,7 +374,7 @@ public static class SamusGrappleSwing
                 {
                     // This bit asks the swing to compare against the eight exact locked and
                     // wallgrab angles. Velocity is stopped instead of reflected.
-                    grapple.SpecialAngleHandling = true;
+                    grapple.CloseCollision = true;
                     grapple.AngularVelocity = 0;
                     grapple.JumpImpulse = 0;
                 }
@@ -399,7 +399,7 @@ public static class SamusGrappleSwing
         // these operations is bypassed by the collision return above.
         grapple.Angle = targetAngle;
         grapple.MirroredAngle = targetAngle;
-        grapple.SpecialAngleHandling = false;
+        grapple.CloseCollision = false;
 
         grapple.CollisionBounceTimer = Math.Max(0, grapple.CollisionBounceTimer - 1);
 

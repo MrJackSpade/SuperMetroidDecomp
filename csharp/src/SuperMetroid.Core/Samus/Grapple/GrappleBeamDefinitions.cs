@@ -121,8 +121,8 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>Firing initializes the grapple's pose-change auto-fire timer to ten; the pose-change check decrements before checking the pose.</summary>
         public const int PoseChangeAutoFireFrames = 10;
-        /// <summary>Firing uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
-        public const int DraygonMovingGraphicsYOffset = 6;
+        /// <summary>The art origin firing uses, six pixels, for the moving poses Draygon holds Samus in.</summary>
+        public const int DraygonMovingArtOrigin = 6;
     }
 
     /// <summary>How the rope is drawn: a chain of rope pictures from the muzzle toward the anchor, animated as one.</summary>

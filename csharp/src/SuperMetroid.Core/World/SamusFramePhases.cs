@@ -1348,7 +1348,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))
         {
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
             StepSamusLoadAppearance(room);
         }
 

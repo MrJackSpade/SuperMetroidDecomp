@@ -749,8 +749,8 @@ public static class SamusBlockCollision
         SamusState? owner, bool explicitAdmission)
     {
         // The game's horizontal and vertical air reactions invoke the same setup as solid
-        // bomb blocks, but ignores its collision result. Rejection or exhausted actor slots
-        // must never turn this non-solid cell into a movement obstruction.
+        // bomb blocks, but ignores its collision result. A refused break, or one with no room left for its
+        // effect, must never turn this non-solid cell into a movement obstruction.
         if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
         terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);

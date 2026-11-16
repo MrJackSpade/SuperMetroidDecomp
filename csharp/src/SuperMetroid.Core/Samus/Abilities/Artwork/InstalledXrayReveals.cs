@@ -11,8 +11,8 @@ public sealed class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
-    /// Of every collision kind and each reaction it reads (#1722), the game has 42 drawable pairs; the
-    /// constructor requires exactly those pairs and rejects duplicates. The player edits the blocks in reveals.json while
+    /// Of every collision kind and each reaction it reads (#1722), the constructor requires exactly the pairs whose
+    /// reveal draws blocks and rejects duplicates. The player edits the blocks in reveals.json while
     /// the shape and copy dimensions remain fixed, so no single formula can reproduce every valid installation: retain
     /// this bounded indexed store for the installed visual data.
     /// </remarks>
@@ -84,7 +84,7 @@ public sealed class InstalledXrayReveals
     /// <remarks>
     /// The game has seven reachable revealed-block shapes. Five copy one, Brinstar-only one, wide, tall and square
     /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is
-    /// one of those five copy shapes; across every collision kind and behaviour they cover 305 drawable groups.
+    /// one of those five copy shapes.
     /// </remarks>
     public static bool IsDrawable(XrayRevealShape shape) => shape is
         XrayRevealShape.CopyOne or XrayRevealShape.CopyWide or

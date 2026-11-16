@@ -194,7 +194,7 @@ require their input directories. Keep all ROMs and generated game resources out 
 Samus's body, atmosphere, overlay and death pictures are installed whole in the sprite sheets. The
 body pages, frame selectors, pose-half compositions, the atmospheric lists and the arm cannon's cover
 appearances they are composed from are the import's data and are not installed (#1636, #1638).
-`game/samus-body/samus-body.json` holds, for each pose, its signed art origin (`graphicsYOffset`) and
+`game/samus-body/samus-body.json` holds, for each pose, its signed art origin (`artOrigin`) and
 each animation frame her body sheet pictures with how many pixels above her drawn point that frame's
 body origin sits; the body sheet's frames are named from it. Edit the rises to move a frame's picture
 without changing movement or collision.

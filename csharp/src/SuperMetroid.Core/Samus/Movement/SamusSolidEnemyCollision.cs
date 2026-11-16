@@ -18,7 +18,7 @@ public static class SamusSolidEnemyCollision
     /// </summary>
     /// <param name="state">Samus's current whole/subpixel position and collision radii.</param>
     /// <param name="interactiveEnemies">
-    /// Active interactive enemies in slot order. Non-solid, unfrozen entries remain in
+    /// Active interactive enemies in the room's enemy order. Non-solid, unfrozen entries remain in
     /// the list because the loop encounters and rejects them individually.
     /// </param>
     /// <param name="direction">The probe's direction: left, right, up or down.</param>

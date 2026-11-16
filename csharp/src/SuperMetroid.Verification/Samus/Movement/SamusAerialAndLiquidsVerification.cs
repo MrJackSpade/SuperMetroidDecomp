@@ -66,7 +66,7 @@ internal static void VerifySamusAerialMovement()
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
 level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
-    SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
 
@@ -107,7 +107,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
     // The compiled retail $A4 stream is 05,02,F8,01. Five plus two ticks
     // reach $F8 at byte index two; its operand returns to $01.
     for (int tick = 0; tick < 7; tick++)
-        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
 
@@ -657,7 +657,7 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     submergedSpin.BeamCharge.FlareCounter = 0x003c;
     SamusPresentation.InitializeAnimation(submergedSpin, submergedSpin.PoseFrameNumbered(0));
     for (int tick = 0; tick < 3; tick++)
-        SamusPresentation.AnimateNoFx(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
     submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100);
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialMovement.StepSpinJump(empty, submergedSpin, 0, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);

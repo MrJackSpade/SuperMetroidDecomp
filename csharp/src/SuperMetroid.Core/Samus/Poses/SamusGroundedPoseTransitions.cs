@@ -425,8 +425,8 @@ internal static class SamusGroundedPoseTransitions
             SamusPoseId.FacingLeftNormalPose,
             "Running-left to standing-left");
 
-        // This is the mirrored momentum-index-two cancellation route used from moving right to standing right.
-        // ExtraRunSpeed/Subspeed remain available to standing's ordered movement/clear pass.
+        // This mirrors moving right to standing right: the stop response (SamusMomentumResponse.Stop) cancels
+        // the running momentum, and the extra run speed stays for standing's movement pass to consume before it clears.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
     }
 
@@ -592,7 +592,7 @@ internal static class SamusGroundedPoseTransitions
         {
             // The handed shot makes the turning HUD step treat the one-frame turning
             // state as shooting. The beam producer later fires it in this source pose's
-            // direction when a beam slot can actually be initialized.
+            // direction once Samus's shot count leaves room for another shot.
             samus.PendingTransitionShot = moonwalkSourceShot;
         }
     }

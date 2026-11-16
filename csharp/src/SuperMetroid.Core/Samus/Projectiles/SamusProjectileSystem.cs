@@ -393,10 +393,10 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Handles all allocated ordinary slots, in update order, after the bombs (<see cref="SamusBombProjectileSystem.HandleBombs"/>):
+    /// Runs every shot Samus has in flight, in update order, after the bombs (<see cref="SamusBombProjectileSystem.HandleBombs"/>):
     /// the shots' share of the game's projectile handling.
     /// </summary>
-    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment and the X-ray freeze.</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">Samus's bombs, carrying the shared cooldown and the power bomb the shots read.</param>

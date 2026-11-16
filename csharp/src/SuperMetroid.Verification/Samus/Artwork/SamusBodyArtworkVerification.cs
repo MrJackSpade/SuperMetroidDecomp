@@ -53,7 +53,7 @@ internal static class SamusBodyArtworkVerification
             int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
-                stock.Gameplay.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
+                stock.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodySources.FrameCount; index++)
         {
@@ -167,7 +167,7 @@ internal static class SamusBodyArtworkVerification
         foreach (KeyValuePair<SamusPoseId, SamusBodyPosePlacement> expected in expectedPlacements)
         {
             SamusBodyPosePlacement installed = stock.Placements[expected.Key];
-            AssertEqual(expected.Value.GraphicsYOffset, installed.GraphicsYOffset, $"Samus pose {expected.Key} installed origin");
+            AssertEqual(expected.Value.ArtOrigin, installed.ArtOrigin, $"Samus pose {expected.Key} installed origin");
             AssertTrue(expected.Value.FrameRises is null ? installed.FrameRises is null
                 : installed.FrameRises is { } rises && rises.SequenceEqual(expected.Value.FrameRises),
                 $"Samus pose {expected.Key} installed frame placements");

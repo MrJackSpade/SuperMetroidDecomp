@@ -106,9 +106,9 @@ internal static class SamusPoseMetadata
     /// Physical beam/Grapple origins use their separate compiled correction; replacing
     /// artwork must not shift a projectile's collision position.
     /// </summary>
-    public static int ReadGraphicsYOffset(SamusState samus)
+    public static int ReadArtOrigin(SamusState samus)
     {
-        return samus.Presentation.Artwork.GraphicsYOffset(samus.Pose);
+        return samus.Presentation.Artwork.ArtOrigin(samus.Pose);
     }
 
     /// <summary>True for the four right-facing standing poses that move as <see cref="SamusMovementType.Standing"/>.</summary>

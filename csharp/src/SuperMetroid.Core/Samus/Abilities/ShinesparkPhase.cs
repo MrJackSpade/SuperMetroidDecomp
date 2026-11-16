@@ -17,8 +17,8 @@ public enum ShinesparkPhase
     Diagonal,
     /// <summary>The crash; expands, rotates, then contracts the paired speed echoes around Samus while maintaining the spark colouring timer.</summary>
     Crash,
-    /// <summary>The crash after the echoes finish circling; despite the member name, this phase waits 30 updates after the orbit contracts rather than continuing circular motion.</summary>
-    CrashEchoCircle,
+    /// <summary>The crash's hold once its orbit has drawn in: the echoes stay on Samus for <see cref="ShinesparkDefinitions.CrashHoldFrames"/> updates.</summary>
+    CrashHold,
     /// <summary>The crash's end; releases its echoes on Samus's shots as her shot count leaves room, expires spark state, and publishes the standing-pose completion request.</summary>
     CrashFinish,
 }

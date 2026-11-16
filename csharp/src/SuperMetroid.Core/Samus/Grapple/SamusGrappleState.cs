@@ -13,9 +13,9 @@ public sealed class SamusGrappleState
     /// <summary>The installed artwork the flare's placement, the swing's pictures and the rope draw from.</summary>
     internal SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding Artwork { get; }
 
-    /// <summary>The installed flare origins, or none before they are installed; never changes physical hand offsets.</summary>
+    /// <summary>The installed flare origins the artwork binds; they never change the physical hand offsets.</summary>
     public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements FlarePlacement => Artwork.GrappleFlarePlacement;
-    /// <summary>The installed swing pictures, or none before they are installed; never a collision/body offset source.</summary>
+    /// <summary>The installed swing pictures the artwork binds; they never place her collision or body.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames SwingFrames => Artwork.GrappleSwingFrames;
     /// <summary>Gets or sets the current grapple phase.</summary>
     public GrapplePhase Phase { get; set; }
@@ -71,7 +71,7 @@ public sealed class SamusGrappleState
     /// speed, but it keeps parts of the update before's (<see cref="GrappleExtensionStepCarryover"/>), so it is state
     /// rather than a pure function of the speed.
     /// </summary>
-    public FixedVector<RoomPixels> QuarterVelocity { get; set; }
+    public FixedVector<RoomPixels> ExtensionSubstep { get; set; }
     /// <summary>Gets or sets the physical hand-origin offset from Samus.</summary>
     public Offset16<RoomPixels> OriginOffset { get; set; }
     /// <summary>Gets or sets the drawn flare's offset from Samus.</summary>
@@ -151,10 +151,10 @@ public sealed class SamusGrappleState
     public bool ValidateAnchorEnemy { get; set; }
 
     /// <summary>
-    /// The close-collision flag. A close collision at minimum rope length
-    /// requests the exact locked/wallgrab angle lookup; successful swing motion clears it.
+    /// Whether the swing collided while the rope was at its shortest: such a collision has the next update look for the
+    /// locked or wall-grab angle Samus snaps to, and successful swing motion clears it.
     /// </summary>
-    public bool SpecialAngleHandling { get; set; }
+    public bool CloseCollision { get; set; }
 
     /// <summary>
     /// Set by the swing while it is fast,

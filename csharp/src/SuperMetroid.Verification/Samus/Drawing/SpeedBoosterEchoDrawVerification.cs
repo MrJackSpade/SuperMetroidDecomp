@@ -42,7 +42,7 @@ internal static class SpeedBoosterEchoDrawVerification
         var below = new Position16<RoomPixels>(0x0490, 0x0140);
         AssertTrue(samus.HorizontalSpeed.CaptureSpeedEchoPosition(0, above), "the first echo captures a position above the view");
         AssertTrue(samus.HorizontalSpeed.CaptureSpeedEchoPosition(4, below), "the second echo captures a position below the view");
-        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
 
         var echoes = new SpriteFrameBuffer();
         echoes.BeginFrame();
@@ -50,9 +50,9 @@ internal static class SpeedBoosterEchoDrawVerification
         echoes.FinalizeFrame();
         SpriteDraw[] drawn = [.. echoes.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusEcho)];
         AssertEqual(2, drawn.Length, "both echoes are published, though neither lies in the view");
-        AssertEqual(Offset16<ScreenPixels>.Wrapped(below.X - camera.X, below.Y - graphicsYOffset - camera.Y),
+        AssertEqual(Offset16<ScreenPixels>.Wrapped(below.X - camera.X, below.Y - artOrigin - camera.Y),
             drawn[0].Origin, "the second echo, below the view, is drawn first, where it lies");
-        AssertEqual(Offset16<ScreenPixels>.Wrapped(above.X - camera.X, above.Y - graphicsYOffset - camera.Y),
+        AssertEqual(Offset16<ScreenPixels>.Wrapped(above.X - camera.X, above.Y - artOrigin - camera.Y),
             drawn[1].Origin, "the first echo, above the view, is drawn second, where it lies");
         AssertTrue(CoordinateAxis.AsSigned(drawn[1].Origin.Y) < 0 && drawn[0].Origin.Y >= 224,
             "one echo lies above the view's top and the other below its bottom");

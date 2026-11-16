@@ -77,7 +77,7 @@ internal static class SamusCueValuePlaceReadsVerification
         for (int tick = 1; tick <= ticks; tick++)
         {
             AssertTrue(samus.PendingTransitionalPose is null, $"{pose} at the {writer} has no transition pending before tick {tick}");
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
         }
         AssertEqual<SamusPoseId?>(expected, samus.PendingTransitionalPose, $"{pose} at the {writer} publishes {expected} after {ticks} ticks");
     }

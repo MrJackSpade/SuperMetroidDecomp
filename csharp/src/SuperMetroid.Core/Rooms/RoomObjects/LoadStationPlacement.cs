@@ -19,6 +19,8 @@ public sealed record LoadStationPlacement(
     /// <summary>The camera-relative origin of <see cref="SamusOffset"/>: half a screen right of the camera.</summary>
     public static readonly Offset16<RoomPixels> SamusOffsetOrigin = new(128, 0);
 
-    /// <summary>The room position loading at the station places Samus at, wrapping each axis at sixteen bits.</summary>
-    public Position16<RoomPixels> SamusPosition => CameraPosition + SamusOffsetOrigin + SamusOffset;
+    /// <summary>The room position loading at the station places Samus at.</summary>
+    public Position16<RoomPixels> SamusPosition => Position16<RoomPixels>.Of(
+        CameraPosition.X + SamusOffsetOrigin.X + SamusOffset.X,
+        CameraPosition.Y + SamusOffsetOrigin.Y + SamusOffset.Y);
 }

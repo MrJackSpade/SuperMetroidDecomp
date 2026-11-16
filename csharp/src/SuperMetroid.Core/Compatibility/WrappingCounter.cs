@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Counters that wrap at the top or bottom of their range instead of stopping there, as every counter of the
 /// game does: a count of 0 through 65535 stepped below zero continues from 65535, and one stepped past 65535 continues
-/// from zero; a count of 0 through 255 wraps the same way at 255.
+/// from zero.
 /// <para>
 /// <b>Gameplay behaviour.</b> A counter its owner steps once more than intended keeps going rather than stopping: a
 /// projectile count stepped below zero by a cancelled shot reads as a full table, a palette cycle stepped past its top

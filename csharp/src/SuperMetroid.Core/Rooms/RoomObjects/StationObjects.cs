@@ -91,7 +91,7 @@ internal sealed class StationObjects
 
         IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
-        samus.Position = samus.Position.WithWrappedWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
+        samus.Position = samus.Position.WithWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
         samus.FaceForward();
         samus.Control.LockOutPlayer();
 

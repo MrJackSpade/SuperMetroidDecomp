@@ -25,9 +25,9 @@ public enum CollectiblePhase
     CollectedShotBlockEmpty,
     /// <summary>The collected shot block grows back before restoring its saved block.</summary>
     CollectedShotBlockRespawn,
-    /// <summary>Inventory and persistence have been granted; the room object and its drawn block remain while the synchronous pickup message runs.</summary>
+    /// <summary>The item has been granted and recorded collected; it keeps its place and its block while its pickup message shows.</summary>
     AwaitingMessage,
-    /// <summary>The pickup message has returned and the suspended item sequence is ready for its empty draw or shot-block continuation.</summary>
+    /// <summary>The pickup message has closed: the item next shows its empty block, or leaves its shot block empty.</summary>
     ResumeAfterMessage,
     /// <summary>The empty draw has run; the sequence deletes the room object next pass.</summary>
     EmptyAwaitingDelete,

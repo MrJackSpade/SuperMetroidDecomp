@@ -61,7 +61,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(0xffe0, SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue, "pickup lava velocity");
         AssertEqual(16, SamusEaterObjectDefinitions.HeldInvincibilityFrames, "plant hold sustained invincibility frames");
         AssertEqual(48, SamusEaterObjectDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
-        AssertEqual(2, SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
+        AssertEqual(new UnsignedSixteenSixteen(whole: 2, fraction: 0), SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");
         // The import decodes a clearance watch's word into the event it marks (#1746).
         AssertEqual<RoomObjectRoomArgument?>(MetroidRoomArgument.ObservesNothing,

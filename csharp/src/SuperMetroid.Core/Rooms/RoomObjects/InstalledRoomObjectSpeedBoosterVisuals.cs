@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The installed picture of the bomb-revealed Speed Booster block (#1557). Its type-B collision and timing stay the
-/// game's.
+/// The installed pictures of the bomb-revealed Speed Booster block's frames (#1557); the room object keeps the block's
+/// collision and timing.
 /// </summary>
 public sealed class InstalledRoomObjectSpeedBoosterVisuals
 {

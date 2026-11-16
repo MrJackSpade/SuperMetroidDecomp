@@ -61,6 +61,6 @@ internal static class SamusEaterObjectDefinitions
     /// <summary>The immunity the release gives Samus, in frames.</summary>
     public const int ReleaseInvincibilityFrames = 48;
 
-    /// <summary>The periodic damage each chew deals.</summary>
-    public const int ChewDamage = 2;
+    /// <summary>The periodic damage each chew deals: two whole energy.</summary>
+    public static readonly UnsignedSixteenSixteen ChewDamage = new(whole: 2, fraction: 0);
 }

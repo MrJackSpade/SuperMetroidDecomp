@@ -60,8 +60,8 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// The message returns into the item's suspended script, which draws
-    /// the empty block and deletes itself within the same room-object update.
+    /// The pickup message has closed: each item awaiting it finishes its pickup within the same room-object update, an item
+    /// showing its empty block before it leaves, a shot block's item leaving its block empty.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
@@ -238,9 +238,8 @@ internal sealed class CollectibleObjects
             item.Kind == InWorldCollectibleKind.SpeedBooster &&
             item.Presentation == CollectiblePresentation.ChozoOrb;
 
-        // The item's script grants inventory before the message box opens, but its
-        // following draw/delete steps cannot run until that synchronous call
-        // returns. Keep the existing block and place throughout the fanfare.
+        // The item is granted before its message opens; it keeps its block and its place while the message shows, and
+        // finishes its pickup once the message closes.
         item.Triggered = false;
         item.Timer = 0;
         item.Phase = CollectiblePhase.AwaitingMessage;

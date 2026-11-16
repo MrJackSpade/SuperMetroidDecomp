@@ -280,9 +280,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
         if (!protectedFromHeat && samus is not null)
         {
-            samus.TakePeriodicDamage(
-                ColourEffectHeatData.DamagePerUpdate.Fraction,
-                ColourEffectHeatData.DamagePerUpdate.Whole);
+            samus.TakePeriodicDamage(ColourEffectHeatData.DamagePerUpdate);
             if (ColourEffectHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {

@@ -374,22 +374,49 @@ internal sealed class EnemyProjectileEngine
         projectile.Behavior ?? throw new InvalidOperationException(
             $"Enemy projectile {projectile.Kind} in place {projectile.Place} has no behaviour bound.");
 
-    /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
+    /// <summary>
+    /// Moves one projectile axis by its own velocity on that axis through each crossed room block, colliding with the
+    /// room's terrain (<see cref="EnemyProjectileTerrainCollision"/>) and clamping it flush at the first collision.
+    /// </summary>
     internal static bool MoveProjectileAxis(
         EnemyProjectile projectile,
         RoomLevelData level,
         Axis axis) =>
-        MoveProjectileAxis(projectile, level, axis, axis == Axis.Horizontal ? projectile.Velocity.X : projectile.Velocity.Y);
+        MoveProjectileAxis(projectile, level, axis, EnemyProjectileTerrainCollision.Rule);
 
     /// <summary>
     /// Moves one projectile axis by <paramref name="speed"/> instead of the projectile's own velocity on that axis, through
-    /// each crossed room block, clamping it flush at the first collision.
+    /// each crossed room block, colliding with the room's terrain and clamping it flush at the first collision.
     /// </summary>
     internal static bool MoveProjectileAxis(
         EnemyProjectile projectile,
         RoomLevelData level,
         Axis axis,
-        SignedEightEight speed)
+        SignedEightEight speed) =>
+        MoveProjectileAxis(projectile, level, axis, speed, EnemyProjectileTerrainCollision.Rule);
+
+    /// <summary>
+    /// Moves one projectile axis by its own velocity on that axis through each crossed room block, stopping where
+    /// <paramref name="collision"/> says a block stops it.
+    /// </summary>
+    internal static bool MoveProjectileAxis(
+        EnemyProjectile projectile,
+        RoomLevelData level,
+        Axis axis,
+        EnemyProjectileBlockCollision collision) =>
+        MoveProjectileAxis(projectile, level, axis, axis == Axis.Horizontal ? projectile.Velocity.X : projectile.Velocity.Y, collision);
+
+    /// <summary>
+    /// Moves one projectile axis by <paramref name="speed"/> through each crossed room block, stopping where
+    /// <paramref name="collision"/> says a block stops it: the move then clears the axis's fraction and places the
+    /// projectile where the block aligns it, or flush against the block's face when that does not move it backwards.
+    /// </summary>
+    private static bool MoveProjectileAxis(
+        EnemyProjectile projectile,
+        RoomLevelData level,
+        Axis axis,
+        SignedEightEight speed,
+        EnemyProjectileBlockCollision collision)
     {
         FixedCoordinate current = axis == Axis.Horizontal ? projectile.Position.X : projectile.Position.Y;
         int position = current.Whole;
@@ -416,43 +443,33 @@ internal sealed class EnemyProjectileEngine
             CoordinateAxis.Wrap(perpendicularPosition - perpendicularRadius),
             CoordinateAxis.Wrap(perpendicularPosition + perpendicularRadius - 1),
             axis);
-        for (int tested = 0; tested <= scan.ExtraBlocks; tested++)
+        if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
         {
-            if (ProjectileAxisProbeHitsRoom(
-                    level,
-                    projectile,
-                    scan.Block(tested, level.Size.X),
-                    axis,
-                    movingNegative: movingNegative,
-                    targetEdge: movementEdge,
-                    slopeAlignedPosition: out int? slopeAlignedPosition))
-            {
-                // The horizontal and vertical block scans do not merely reject the
-                // attempted movement. They clear the subposition and place the
-                // projectile flush against the 16-pixel block boundary it reached.
-                // Without this correction a fast downward projectile retains its last
-                // pre-collision coordinate and visibly hovers above the floor.
-                int snappedPosition = slopeAlignedPosition ?? (movingNegative
-                    ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
-                    : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
-                bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (movingNegative
-                    ? snappedPosition <= position
-                    : snappedPosition >= position);
+            // The horizontal and vertical block scans do not merely reject the
+            // attempted movement. They clear the subposition and place the
+            // projectile flush against the 16-pixel block boundary it reached.
+            // Without this correction a fast downward projectile retains its last
+            // pre-collision coordinate and visibly hovers above the floor.
+            int snappedPosition = alignedPosition ?? (movingNegative
+                ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
+                : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
+            bool snapDoesNotMoveBackwards = alignedPosition.HasValue || (movingNegative
+                ? snappedPosition <= position
+                : snappedPosition >= position);
 
-                if (axis == Axis.Horizontal)
-                {
-                    projectile.Position = projectile.Position.WithFractionX(0);
-                    if (snapDoesNotMoveBackwards)
-                        projectile.Position = projectile.Position.WithWholeX(snappedPosition);
-                }
-                else
-                {
-                    projectile.Position = projectile.Position.WithFractionY(0);
-                    if (snapDoesNotMoveBackwards)
-                        projectile.Position = projectile.Position.WithWholeY(snappedPosition);
-                }
-                return true;
+            if (axis == Axis.Horizontal)
+            {
+                projectile.Position = projectile.Position.WithFractionX(0);
+                if (snapDoesNotMoveBackwards)
+                    projectile.Position = projectile.Position.WithWholeX(snappedPosition);
             }
+            else
+            {
+                projectile.Position = projectile.Position.WithFractionY(0);
+                if (snapDoesNotMoveBackwards)
+                    projectile.Position = projectile.Position.WithWholeY(snappedPosition);
+            }
+            return true;
         }
 
         if (axis == Axis.Horizontal)
@@ -465,121 +482,6 @@ internal sealed class EnemyProjectileEngine
         }
         return false;
     }
-
-    /// <summary>Tests a leading-edge block through extension and slope geometry for one projectile move.</summary>
-    private static bool ProjectileAxisProbeHitsRoom(
-        RoomLevelData level,
-        EnemyProjectile projectile,
-        Position16<RoomBlocks> block,
-        Axis axis,
-        bool movingNegative,
-        int targetEdge,
-        out int? slopeAlignedPosition)
-    {
-        slopeAlignedPosition = null;
-        if (block.X >= (uint)level.Size.X ||
-            block.Y >= (uint)level.Size.Y)
-        {
-            return true;
-        }
-
-        // Resolve horizontal- and vertical-extension links before reacting to the final block kind, just as
-        // the projectile collision loop does. Air is open, while a door
-        // remains a wall to an enemy projectile.
-        if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
-            return true;
-
-        RoomCollisionType type = collisionBlock.CollisionType;
-        if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.Slope.IsNonSquare)
-        {
-            // The horizontal scan tests only occupied eight-pixel quadrants touched by the
-            // leading edge. Empty halves of square slopes are not solid walls.
-            int perpendicularPosition = (axis == Axis.Horizontal) ? projectile.Position.Y.Whole : projectile.Position.X.Whole;
-            int perpendicularRadius = (axis == Axis.Horizontal) ? projectile.Radius.Y : projectile.Radius.X;
-            Position16<RoomPixels> blockOrigin = block.ToRoomPixels();
-            int blockStart = (axis == Axis.Horizontal) ? blockOrigin.Y : blockOrigin.X;
-            int firstPixel = Math.Max(blockStart, perpendicularPosition - perpendicularRadius);
-            int lastPixel = Math.Min(RoomGridConversions.BlockEnd(blockStart), perpendicularPosition + perpendicularRadius - 1);
-            for (int half = RoomGridConversions.HalfBlockOf(firstPixel); half <= RoomGridConversions.HalfBlockOf(lastPixel); half++)
-            {
-                bool edgeInSecondHalf = RoomGridConversions.InSecondHalfOfBlock(targetEdge);
-                bool halfIsSecond = RoomGridConversions.IsBlockSecondHalf(half);
-                SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
-                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(edgeInSecondHalf), SquareSlopeQuadrant.RowFor(halfIsSecond))
-                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(halfIsSecond), SquareSlopeQuadrant.RowFor(edgeInSecondHalf));
-                if (!SquareSlopes.IsSolid(collisionBlock.Behavior, quadrant))
-                    continue;
-
-                // The square-slope reaction places the projectile at an eight-pixel
-                // boundary before the collision's full-block clamp.
-                int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
-                slopeAlignedPosition = movingNegative
-                    ? CoordinateAxis.Wrap(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
-                    : CoordinateAxis.Wrap(RoomGridConversions.HalfBlockStart(targetEdge) - radius);
-                return true;
-            }
-            return false;
-        }
-
-        if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.IsNonSquare)
-        {
-            // Horizontal motion ignores non-square slopes; the following
-            // vertical pass owns their height profile. Treating one as a full wall can
-            // consume every Kago falling frame before Y collision is ever attempted.
-            if ((axis == Axis.Horizontal))
-                return false;
-
-            // Vertical projectile collision uses the same 16-sample slope
-            // profiles as Samus's. Only the column containing the projectile center owns
-            // non-square geometry; neighboring columns touched by its radius do not turn
-            // the slope into a full-height wall.
-            if (block.X != RoomGridConversions.PixelToBlock(projectile.Position.X.Whole))
-                return false;
-
-            bool movingUp = movingNegative;
-            if (movingUp != collisionBlock.Behavior.Slope.FlipsVertically)
-                return false;
-
-            int height = EnemyTerrain.ReadNonSquareSlopeHeight(
-                collisionBlock.Behavior,
-                RoomGridConversions.OffsetWithinBlock(projectile.Position.X.Whole, mirrored: collisionBlock.Behavior.Slope.FlipsHorizontally));
-            int edgeWithinBlock = RoomGridConversions.OffsetWithinBlock(targetEdge, mirrored: movingUp);
-            int adjustment = height - edgeWithinBlock - 1;
-            if (movingUp)
-            {
-                if (adjustment > 0)
-                    return false;
-            }
-            else if (height - edgeWithinBlock != 1 && adjustment >= 0)
-            {
-                return false;
-            }
-
-            int blockTop = block.ToRoomPixels().Y;
-            slopeAlignedPosition = movingUp
-                ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(blockTop) + 1 - height + projectile.Radius.Y)
-                : CoordinateAxis.Wrap(blockTop + height - projectile.Radius.Y);
-            return true;
-        }
-
-        return EnemyProjectileBlockIsWall(type);
-    }
-
-    /// <summary>
-    /// The unconditional rows of the enemy-projectile block
-    /// reaction tables. Slopes and extensions are resolved before reaching this test.
-    /// Spike blocks stop projectiles; grapple blocks do not.
-    /// </summary>
-    private static bool EnemyProjectileBlockIsWall(RoomCollisionType type) => type is
-        RoomCollisionType.Slope or
-        RoomCollisionType.HorizontalExtension or
-        RoomCollisionType.SolidBlock or
-        RoomCollisionType.DoorBlock or
-        RoomCollisionType.SpikeBlock or
-        RoomCollisionType.SpecialBlock or
-        RoomCollisionType.ShootableBlock or
-        RoomCollisionType.VerticalExtension or
-        RoomCollisionType.BombableBlock;
 
     /// <summary>
     /// Any block type other than air,

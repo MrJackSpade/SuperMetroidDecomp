@@ -192,8 +192,8 @@ internal sealed class EyeDoorBehavior
         EnemyProjectile projectile,
         RoomLevelData level)
     {
-        if (MoveEyeDoorEffectHorizontally(projectile, level) ||
-            MoveEyeDoorEffectVertically(projectile, level))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Horizontal, EyeDoorEffectCollision.Rule) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule))
         {
             StartEyeDoorProjectileImpact(projectile);
             return;
@@ -213,8 +213,8 @@ internal sealed class EyeDoorBehavior
         EnemyProjectile projectile,
         RoomLevelData level)
     {
-        MoveEyeDoorEffectHorizontally(projectile, level);
-        bool collidedVertically = MoveEyeDoorEffectVertically(projectile, level);
+        EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Horizontal, EyeDoorEffectCollision.Rule);
+        bool collidedVertically = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule);
         if (!projectile.Velocity.Y.IsNegative && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
@@ -278,125 +278,4 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithX(EnemyMath.SineVelocity(shot.Heading, 1));
         projectile.Velocity = projectile.Velocity.WithY(EnemyMath.SineVelocity(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 1));
     }
-
-    /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
-    private static bool MoveEyeDoorEffectHorizontally(
-        EnemyProjectile projectile,
-        RoomLevelData level)
-    {
-        FixedCoordinate moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
-        int edge = projectile.Velocity.X.IsNegative
-            ? CoordinateAxis.Wrap(moved.Whole - projectile.Radius.X)
-            : CoordinateAxis.Wrap(moved.Whole + projectile.Radius.X - 1);
-        if (EyeDoorEffectEdgeIsSolid(
-            level,
-            edge,
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole - projectile.Radius.Y),
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole + projectile.Radius.Y - 1),
-            edge: Axis.Horizontal))
-        {
-            projectile.Position = projectile.Position.WithFractionX(0);
-            projectile.Position = projectile.Position.WithWholeX(SnapEnemyProjectileAxis(projectile.Position.X.Whole, edge, projectile.Radius.X,
-                movingBack: projectile.Velocity.X.IsNegative));
-            return true;
-        }
-
-        projectile.Position = projectile.Position.WithX(moved);
-        return false;
-    }
-
-    /// <summary>
-    /// The collision snap of the projectile block scans: against the blocking block's face, but only
-    /// toward the move. Moving forward it never pulls the projectile back, and moving back it
-    /// never pushes it forward, so a projectile that starts inside a block keeps its position.
-    /// </summary>
-    private static int SnapEnemyProjectileAxis(int current, int edge, int radius, bool movingBack)
-    {
-        if (movingBack)
-        {
-            // The far face of the blocking block: the last pixel of its sixteen, plus one.
-            int face = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(edge) + 1 + radius);
-            return face <= current ? face : current;
-        }
-        // The near face of the blocking block: its first pixel.
-        int near = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(edge) - radius);
-        return near >= current ? near : current;
-    }
-
-    /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>
-    private static bool MoveEyeDoorEffectVertically(
-        EnemyProjectile projectile,
-        RoomLevelData level)
-    {
-        FixedCoordinate moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;
-        int edge = projectile.Velocity.Y.IsNegative
-            ? CoordinateAxis.Wrap(moved.Whole - projectile.Radius.Y)
-            : CoordinateAxis.Wrap(moved.Whole + projectile.Radius.Y - 1);
-        if (EyeDoorEffectEdgeIsSolid(
-            level,
-            edge,
-            CoordinateAxis.Wrap(projectile.Position.X.Whole - projectile.Radius.X),
-            CoordinateAxis.Wrap(projectile.Position.X.Whole + projectile.Radius.X - 1),
-            edge: Axis.Vertical))
-        {
-            projectile.Position = projectile.Position.WithFractionY(0);
-            projectile.Position = projectile.Position.WithWholeY(SnapEnemyProjectileAxis(projectile.Position.Y.Whole, edge, projectile.Radius.Y,
-                movingBack: projectile.Velocity.Y.IsNegative));
-            return true;
-        }
-
-        projectile.Position = projectile.Position.WithY(moved);
-        return false;
-    }
-
-    /// <summary>Scans every touched room block along one projectile collision edge.</summary>
-    /// <remarks>
-    /// The block scan (<see cref="EnemyProjectileBlockScan"/>) counts the blocks to test as the distance from the start's
-    /// block edge to the end, over 16, wrapping past 65535, and tests one more than that, stepping a row down the edge's
-    /// column (horizontal edge) or a block along the edge's row (vertical edge): its first row is taken within the scan
-    /// cycle of 256, and a scan along a row past its end continues on the next row. A first block outside the room's grid
-    /// is a wall. A zero radius on a block boundary makes the count run past zero to 4095, so the scan runs on through the
-    /// room until it meets a solid block.
-    /// </remarks>
-    /// <param name="level">The room's terrain.</param>
-    /// <param name="fixedAxisPixel">The leading edge's pixel on the axis of the move.</param>
-    /// <param name="spanStartPixel">The first pixel of the edge's span across the move.</param>
-    /// <param name="spanEndPixel">The last pixel of the edge's span across the move.</param>
-    /// <param name="edge">The edge scanned: horizontal for a horizontal move, vertical for a vertical one.</param>
-    /// <exception cref="InvalidDataException">The scan runs on past the room's last block.</exception>
-    internal static bool EyeDoorEffectEdgeIsSolid(
-        RoomLevelData level,
-        int fixedAxisPixel,
-        int spanStartPixel,
-        int spanEndPixel,
-        Axis edge)
-    {
-        var scan = EnemyProjectileBlockScan.Across(fixedAxisPixel, spanStartPixel, spanEndPixel, edge);
-        for (int tested = 0; tested <= scan.ExtraBlocks; tested++)
-        {
-            Position16<RoomBlocks> scanned = scan.Block(tested, level.Size.X);
-            // A first block outside the room is a wall, so every later block steps on from a block of the grid; one
-            // that runs on past the room's last block reads terrain the room does not hold.
-            if (tested > 0 && !level.Size.Contains(scanned))
-                throw new InvalidDataException("Enemy projectile block scan ran past the end of the room's level data.");
-            if (EnemyTerrain.ResolveEnemyCollisionBlock(level, scanned) is not { } block)
-                return true;
-
-            if (block.CollisionType is not (
-                RoomCollisionType.Air or
-                RoomCollisionType.SpikeAir or
-                RoomCollisionType.SpecialAir or
-                RoomCollisionType.ShootableAir or
-                RoomCollisionType.UnrevealedAir or
-                RoomCollisionType.BombableAir or
-                RoomCollisionType.HorizontalExtension or
-                RoomCollisionType.VerticalExtension or
-                RoomCollisionType.GrappleBlock))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

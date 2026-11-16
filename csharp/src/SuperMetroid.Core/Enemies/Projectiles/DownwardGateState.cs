@@ -7,21 +7,17 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// its travel it stands at, and how far it has moved toward its next block.
 /// </summary>
 /// <param name="roomObjectBlock">The gate's room block.</param>
-/// <param name="stage">The stage of <see cref="DownwardGateProjectileAnimations.Travel"/> the gate starts at.</param>
-internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, int stage) : EnemyProjectileState
+/// <param name="stage">The stage of its travel the gate starts at (#2284).</param>
+internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, DownwardGateProjectileSegment stage) : EnemyProjectileState
 {
     /// <summary>The gate's room block.</summary>
     internal Position16<RoomBlocks> RoomObjectBlock { get; } = roomObjectBlock;
 
     /// <summary>
-    /// The stage of <see cref="DownwardGateProjectileAnimations.Travel"/> the gate stands at; each block it passes, and the
-    /// wake that starts a closed gate rising, takes it on to the next.
+    /// The stage of its travel the gate stands at, named by the animation that started it; each block it passes, and the
+    /// wake that starts a closed gate rising, takes it on to <see cref="DownwardGateProjectileAnimations.NextStage"/>.
     /// </summary>
-    internal int Stage
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, DownwardGateProjectileAnimations.Travel.Count - 1, value);
-    } = Ensure.BetweenInclusive(0, DownwardGateProjectileAnimations.Travel.Count - 1, stage);
+    internal DownwardGateProjectileSegment Stage { get; set; } = stage;
 
     /// <summary>
     /// How many whole pixels the gate has moved since it last reached a block (#2047); it reaches the next block, and starts

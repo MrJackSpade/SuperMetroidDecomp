@@ -116,8 +116,10 @@ internal sealed class DownwardGateBehavior
     private static void AdvanceDownwardGateStage(EnemyProjectile projectile)
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();
-        gate.Stage++;
-        projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Travel[gate.Stage]));
+        gate.Stage = DownwardGateProjectileAnimations.NextStage.TryGetValue(gate.Stage, out DownwardGateProjectileSegment next)
+            ? next
+            : throw new InvalidOperationException($"A downward gate at stage {gate.Stage} has no stage to go on to.");
+        projectile.StartAnimation(new DownwardGateProjectileAnimation(gate.Stage));
     }
 
     /// <summary>Carries out one cue of the gate's animations.</summary>

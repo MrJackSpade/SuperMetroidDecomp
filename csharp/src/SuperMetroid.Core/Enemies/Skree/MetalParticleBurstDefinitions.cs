@@ -11,4 +11,7 @@ internal static class MetalParticleBurstDefinitions
 
     /// <summary>The inner right particle's launch: 0.375 pixels an update right and just over 4 up.</summary>
     internal static readonly EightEightVector<RoomPixels> InnerRightVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025);
+
+    /// <summary>Every particle's downward acceleration, 80/256 pixel per update each update (#2284).</summary>
+    internal static readonly SignedEightEight Gravity = SignedEightEight.FromParts(0, 80);
 }

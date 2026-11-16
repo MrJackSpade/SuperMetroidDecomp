@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// </summary>
 internal static class SkreeMetareeParticles
 {
-    /// <summary>A particle's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight Gravity = SignedEightEight.FromParts(0, 80);
 
     /// <summary>A Skree's or Metaree's burst particle (#1760): it flies under gravity until it leaves the camera.</summary>
     internal static EnemyProjectileBehavior Behavior { get; } = new SingleMotionProjectileBehavior(
@@ -33,7 +31,7 @@ internal static class SkreeMetareeParticles
     private static void Fly(EnemyProjectile projectile, Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + Gravity);
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + MetalParticleBurstDefinitions.Gravity);
         if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
     }

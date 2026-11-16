@@ -107,6 +107,6 @@ public sealed class YappingMawEnemyState
     /// <summary>Result of the point-based viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
 
-    /// <summary>The root/base object its attack direction selects.</summary>
-    public RoomEffectActor? RootEffectActor { get; internal set; }
+    /// <summary>The root/base object its attack direction selects, which every Maw spawns with (#2284).</summary>
+    public required RoomEffectActor RootEffectActor { get; init; }
 }

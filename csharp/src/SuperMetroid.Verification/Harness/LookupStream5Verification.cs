@@ -1082,26 +1082,27 @@ internal static class LookupStream5Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 // The mount's beam follows the eye listed right after it (#1835).
                 var followed = enemies.Places.InUpdateOrder[1];
+                followed.SetSpawnParameter1(EnemyDefinitionId.MorphBallEye, 0);
                 followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
                 var place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
                 place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
+                place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
                 place.Position = place.Position.WithWhole(new(origin, origin));
-                new Action<RoomEnemyPlace>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(place);
+                new Action<RoomEnemyPlace>(enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount)(place);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
-                MorphBallEyeEnemyState eye = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The mount has no state.");
+                MorphBallEyeMountState mountState = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeMountState>() ?? throw new InvalidOperationException("The mount has no state.");
                 AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
-                    eye.Playback,
+                    mountState.Playback,
                     "Actual directional mount program");
-                AssertEqual(MorphBallEyeAction.ShowingMount, eye.Action, "Mount remains decorative");
+                AssertTrue(place.Entity is MorphBallEyeMountEntity, "Mount remains decorative: it is placed as a mount, whose main AI does nothing");
             }
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
-        body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
         body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
-        new Action<RoomEnemyPlace>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
+        body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
+        new Action<RoomEnemyPlace>(owner.MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;

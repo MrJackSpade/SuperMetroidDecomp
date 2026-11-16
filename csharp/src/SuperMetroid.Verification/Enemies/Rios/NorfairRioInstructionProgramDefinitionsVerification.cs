@@ -66,21 +66,21 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
+        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
+        NorfairRioBehavior.InitializeNorfairRio(parent);
         AssertEqual(new AnimationPlayback<NorfairRioSegment>(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[0].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Playback,
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
+        follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
-        follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
-        enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
+        enemies.NorfairRioBehavior.InitializeNorfairRioFollower(follower);
         AssertEqual(new AnimationPlayback<NorfairRioSegment>(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-            enemies.Places.InUpdateOrder[1].EntityState<NorfairRioEntity, NorfairRioFollowerState>()?.Playback,
+            enemies.Places.InUpdateOrder[1].EntityState<NorfairRioFollowerEntity, NorfairRioFollowerState>()?.Playback,
             "Norfair Rio follower initializer selects ascending flames");
     }
 
@@ -91,6 +91,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         place.Bind(EnemyDefinitionId.Geruta, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();

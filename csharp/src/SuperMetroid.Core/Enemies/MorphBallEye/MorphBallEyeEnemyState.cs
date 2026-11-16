@@ -3,20 +3,20 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The state of the Morph Ball eye. The mount and eye body share a definition, but their spawn part selects their
-/// role.
+/// The state of the Morph Ball eye's body. Its beam mount shares the definition and keeps a
+/// <see cref="MorphBallEyeMountState"/> of its own (#2164).
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal MorphBallEyeEnemyState(MorphBallEyeAction action) => Action = action;
 
-    /// <summary>The animation the enemy plays and where it stands in it (#1600): the eyelid's or the mount's.</summary>
+    /// <summary>The animation the enemy plays and where it stands in it (#1600): the eyelid's.</summary>
     internal AnimationPlayback<MorphBallEyeSegment> Playback { get; set; }
 
     /// <summary>
     /// The pose the open eye looks along while it tracks Samus (#2070), chosen from its angle on each update it tracks; null
-    /// while its eyelid or its mount animation shows instead.
+    /// while its eyelid animation shows instead.
     /// </summary>
     internal EnemyFrameId? Aim { get; set; }
 

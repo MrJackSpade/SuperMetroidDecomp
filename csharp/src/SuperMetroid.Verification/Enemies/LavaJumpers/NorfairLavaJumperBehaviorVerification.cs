@@ -22,11 +22,11 @@ internal static class NorfairLavaJumperBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
+        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.Position = parent.Position.WithWhole(new(256, 480));
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
+        NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
@@ -49,10 +49,10 @@ internal static class NorfairLavaJumperBehaviorVerification
         AssertTrue(parentState.AnimationFinished, "jump animation publishes its finishing handshake");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
+        follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
-        follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
-        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
+        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumperFollower(follower);
         NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,

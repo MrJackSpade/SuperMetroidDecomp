@@ -42,7 +42,10 @@ internal abstract class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlac
     /// <summary>The Work Robot's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot is null ? species.WorkRobotBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot is null ? OwnBombReaction : base.CommonBombDamageReaction(context);
+
+    /// <summary>The robot's own stages around a bomb's common damage: the powered robot's rejection, or the unpowered robot's recoil alone.</summary>
+    protected abstract EnemyBombReaction OwnBombReaction { get; }
 
     /// <summary>The Work Robot's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

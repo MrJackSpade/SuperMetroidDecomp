@@ -21,17 +21,19 @@ internal static class NorfairLavaJumperOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
+        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
         parent.Health = 10;
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
+        NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
-        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
+        follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
+        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumperFollower(follower);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0] ?? throw new InvalidOperationException("The parent has no state.");
         AssertTrue(enemies.NorfairLavaJumperFollowerStates[0] is null && enemies.NorfairLavaJumperFollowerStates[1] is not null,
             "parameter one's sign bit selects the follower");
+        AssertTrue(parent.Entity is NorfairLavaJumpingEnemyEntity && follower.Entity is NorfairLavaJumperFollowerEntity,
+            "the placement builds each part's own entity (#2164): the jumper and its follower");
 
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512);
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumperFollowerMain(follower);

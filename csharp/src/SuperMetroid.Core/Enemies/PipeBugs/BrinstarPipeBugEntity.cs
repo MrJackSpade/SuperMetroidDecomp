@@ -1,0 +1,17 @@
+namespace SuperMetroid.Core.Enemies.PipeBugs;
+
+/// <summary>A Zeb or Zebbo (#2146), the Brinstar Pipe Bugs: it waits in its pipe, emerges and flies at Samus.</summary>
+/// <param name="place">The place the Pipe Bug occupies.</param>
+/// <param name="common">The shared participation.</param>
+internal sealed class BrinstarPipeBugEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+{
+    /// <inheritdoc/>
+    public void Initialize() => PipeBugsBehavior.InitializeBrinstarPipeBug(Place);
+
+    /// <inheritdoc/>
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunBrinstarPipeBugMainAi(Place, frame);
+
+    /// <inheritdoc/>
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceBrinstarPipeBugTypedAnimation(Place);
+}

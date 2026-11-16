@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.Owtch.OwtchCueKind;
 using P = SuperMetroid.Core.Enemies.Owtch.OwtchSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -17,7 +16,7 @@ internal static class OwtchAnimations
     {
         [P.MovingLeft] =
         [
-            Cue(new(K.SetMovingLeft)),
+            Cue(new(HorizontalDirection.Left)),
         ],
         [P.MovingLeftLoop] =
         [
@@ -27,7 +26,7 @@ internal static class OwtchAnimations
         ],
         [P.MovingRight] =
         [
-            Cue(new(K.SetMovingRight)),
+            Cue(new(HorizontalDirection.Right)),
         ],
         [P.MovingRightLoop] =
         [

@@ -16,10 +16,19 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. TorizoPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new TorizoEntity(this, place, common);
+    /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.BombTorizo)
+            return new BombTorizoEntity(this, place, common);
+        if (definition == EnemyDefinitionId.GoldenTorizo)
+            return new GoldenTorizoEntity(this, place, common);
+        throw new InvalidOperationException($"The Torizo species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;

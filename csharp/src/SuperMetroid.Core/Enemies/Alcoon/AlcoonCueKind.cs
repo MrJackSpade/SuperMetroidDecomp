@@ -1,14 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
-/// <summary>What a cue of the Alcoon's animations does: spit a fireball down, ahead or up, move, count a step of its walk, or start walking.</summary>
+/// <summary>What a signalling cue of the Alcoon's animations does: move, count a step of its walk, or start walking.</summary>
 internal enum AlcoonCueKind
 {
-    /// <summary>Spits a fireball downward and plays the fire sound.</summary>
-    FireDownward,
-    /// <summary>Spits a fireball straight ahead and plays the fire sound.</summary>
-    FireHorizontally,
-    /// <summary>Spits a fireball upward and plays the fire sound.</summary>
-    FireUpward,
     /// <summary>Moves without counting a step; a wall turns the Alcoon round to the other walk.</summary>
     Move,
     /// <summary>Starts walking a random number of steps, continuing at the walk for the Alcoon's facing.</summary>

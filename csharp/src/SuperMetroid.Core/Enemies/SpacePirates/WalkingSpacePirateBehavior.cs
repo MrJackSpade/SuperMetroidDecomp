@@ -41,16 +41,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         _projectiles = projectiles;
     }
 
-    /// <summary>The action main AI runs for the stand or walk a cue of <paramref name="kind"/> begins.</summary>
-    internal static WalkingSpacePirateAction ActionBegunBy(WalkingSpacePirateCueKind kind) => kind switch
-    {
-        WalkingSpacePirateCueKind.StandStill => WalkingSpacePirateAction.StandingStill,
-        WalkingSpacePirateCueKind.WalkLeft => WalkingSpacePirateAction.WalkingLeft,
-        WalkingSpacePirateCueKind.WalkRight => WalkingSpacePirateAction.WalkingRight,
-        WalkingSpacePirateCueKind.ChooseMovement or _ =>
-            throw new InvalidOperationException($"A walking Space Pirate {kind} cue begins no stand or walk."),
-    };
-
     /// <summary>
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
@@ -59,18 +49,15 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         switch (cue)
         {
-            case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
-                SpawnWalkingSpacePirateLaser(place, direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
-                return null;
-            case WalkingSpacePirateCue.FireLaserRight fireLaserRight:
-                SpawnWalkingSpacePirateLaser(place, direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
+            case WalkingSpacePirateCue.FireLaser fireLaser:
+                SpawnWalkingSpacePirateLaser(place, direction: fireLaser.Direction, fireLaser.LaserHeight);
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(place, samus);
-            case WalkingSpacePirateCue.Signal begun:
+            case WalkingSpacePirateCue.Begin begin:
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
-                RequireWalkingSpacePirateState(place).Action = ActionBegunBy(begun.Kind);
+                RequireWalkingSpacePirateState(place).Action = begin.Action;
                 return null;
             default:
                 throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");

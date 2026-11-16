@@ -33,15 +33,15 @@ internal static class WallSpacePirateNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<WallSpacePirateCue>> Instructions = new()
     {
-        [0xee40] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.ClimbLeftWall>("V"),
-        [0xee72] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.ClimbRightWall>("V"),
-        [0xeea4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.ChooseLeftWallDirection)),
-        [0xeebc] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.ChooseRightWallDirection)),
-        [0xeed4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PrepareJumpRight)),
-        [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PrepareJumpLeft)),
-        [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.FireLaserLeft)),
-        [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.FireLaserRight)),
-        [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.Signal>("E", "a signal beginning a cling, attack or jump", signal => signal.Kind is WallSpacePirateCueKind.ClingToLeftWall or WallSpacePirateCueKind.ClingToRightWall or WallSpacePirateCueKind.Attack or WallSpacePirateCueKind.JumpToLeftWall or WallSpacePirateCueKind.JumpToRightWall),
+        [0xee40] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.Climb>("V", "a climb on the left wall", climb => climb.Wall == HorizontalDirection.Left),
+        [0xee72] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.Climb>("V", "a climb on the right wall", climb => climb.Wall == HorizontalDirection.Right),
+        [0xeea4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Left)),
+        [0xeebc] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.ChooseClimb(HorizontalDirection.Right)),
+        [0xeed4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Right)),
+        [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Left)),
+        [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.FireLaser(HorizontalDirection.Left)),
+        [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.FireLaser(HorizontalDirection.Right)),
+        [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.Begin>("E"),
         [0xef93] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PlayAttackSound)),
     };
 }

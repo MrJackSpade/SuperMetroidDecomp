@@ -247,20 +247,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 
-    /// <summary>The action main AI runs for the cling, attack or jump a cue of <paramref name="kind"/> begins.</summary>
-    internal static WallSpacePirateAction ActionBegunBy(WallSpacePirateCueKind kind) => kind switch
-    {
-        WallSpacePirateCueKind.ClingToLeftWall => WallSpacePirateAction.ClimbingLeftWall,
-        WallSpacePirateCueKind.ClingToRightWall => WallSpacePirateAction.ClimbingRightWall,
-        WallSpacePirateCueKind.Attack => WallSpacePirateAction.Attacking,
-        WallSpacePirateCueKind.JumpToLeftWall => WallSpacePirateAction.WallJumpingLeft,
-        WallSpacePirateCueKind.JumpToRightWall => WallSpacePirateAction.WallJumpingRight,
-        WallSpacePirateCueKind.ChooseLeftWallDirection or WallSpacePirateCueKind.ChooseRightWallDirection or WallSpacePirateCueKind.FireLaserLeft or
-            WallSpacePirateCueKind.FireLaserRight or WallSpacePirateCueKind.PlayAttackSound or WallSpacePirateCueKind.PrepareJumpLeft or
-            WallSpacePirateCueKind.PrepareJumpRight or _ =>
-            throw new InvalidOperationException($"A wall Space Pirate {kind} cue begins no cling, attack or jump."),
-    };
-
     /// <summary>
     /// Carries out one cue of the wall Space Pirates' animations. A climb continues at the opposite climb after terrain
     /// contact and a random direction choice always continues at the chosen climb, as the cues return those
@@ -271,29 +257,18 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state = place.RequireSpeciesState<WallSpacePirateEnemyState>();
         switch (cue)
         {
-            case WallSpacePirateCue.ClimbLeftWall climbLeftWall:
-                return MoveWallSpacePirateAndReverseOnCollision(place, state, level, climbLeftWall.ClimbPixels, wall: HorizontalDirection.Left);
-            case WallSpacePirateCue.ClimbRightWall climbRightWall:
-                return MoveWallSpacePirateAndReverseOnCollision(place, state, level, climbRightWall.ClimbPixels, wall: HorizontalDirection.Right);
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection }:
-                return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Left);
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }:
-                return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Right);
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PrepareJumpRight }:
-                PrepareWallSpacePirateJump(place, state, direction: HorizontalDirection.Right);
+            case WallSpacePirateCue.Climb climb:
+                return MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall);
+            case WallSpacePirateCue.ChooseClimb choose:
+                return RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall);
+            case WallSpacePirateCue.PrepareJump jump:
+                PrepareWallSpacePirateJump(place, state, direction: jump.Direction);
                 return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PrepareJumpLeft }:
-                PrepareWallSpacePirateJump(place, state, direction: HorizontalDirection.Left);
+            case WallSpacePirateCue.FireLaser laser:
+                FireWallSpacePirateLaser(place, direction: laser.Direction);
                 return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.FireLaserLeft }:
-                FireWallSpacePirateLaser(place, direction: HorizontalDirection.Left);
-                return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.FireLaserRight }:
-                FireWallSpacePirateLaser(place, direction: HorizontalDirection.Right);
-                return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ClingToLeftWall or WallSpacePirateCueKind.ClingToRightWall
-                or WallSpacePirateCueKind.Attack or WallSpacePirateCueKind.JumpToLeftWall or WallSpacePirateCueKind.JumpToRightWall } begun:
-                state.Action = ActionBegunBy(begun.Kind);
+            case WallSpacePirateCue.Begin begin:
+                state.Action = begin.Action;
                 return null;
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
                 Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);

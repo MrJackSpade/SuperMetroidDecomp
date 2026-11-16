@@ -37,30 +37,24 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
     private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
-        switch (cue.Kind)
+        if (cue is FuneNamiheCue.Fire fire)
+        {
+            SpawnFuneNamiheFireball(place, state, fire.Direction, state.Fireball);
+            return null;
+        }
+        FuneNamiheCueKind kind = ((FuneNamiheCue.Signal)cue).Kind;
+        switch (kind)
         {
             case FuneNamiheCueKind.SpitSound:
                 // Shared mouth animation queues the spit sound.
                 QueueFuneNamiheSpitSound();
-                break;
-            case FuneNamiheCueKind.NamiheFireLeft:
-                SpawnFuneNamiheFireball(place, state, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.NamiheFireball);
-                break;
-            case FuneNamiheCueKind.NamiheFireRight:
-                SpawnFuneNamiheFireball(place, state, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.NamiheFireball);
-                break;
-            case FuneNamiheCueKind.FuneFireLeft:
-                SpawnFuneNamiheFireball(place, state, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.FuneFireball);
-                break;
-            case FuneNamiheCueKind.FuneFireRight:
-                SpawnFuneNamiheFireball(place, state, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FinishActivity:
                 // Left/right animations use duplicate steps with identical state effects.
                 state.FinishSpit();
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {kind}.");
         }
         return null;
     }

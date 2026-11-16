@@ -13,10 +13,19 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. CrocomirePartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new CrocomireEntity(this, place, common, _bossArtwork);
+    /// <summary>Crocomire's body, or his tongue (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Crocomire definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.Crocomire)
+            return new CrocomireBodyEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.CrocomireTongue)
+            return new CrocomireTongueEntity(this, place, common);
+        throw new InvalidOperationException($"The Crocomire species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;

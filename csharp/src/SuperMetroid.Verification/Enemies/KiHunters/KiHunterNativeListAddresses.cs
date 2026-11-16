@@ -34,10 +34,10 @@ internal static class KiHunterNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, KiHunterNativeListAddressesInstruction> Instructions = new()
     {
-        [0xf526] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.ReturnToFlying, ""),
-        [0xf5e4] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.StartHop, ""),
-        [0xf67f] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.StartWinglessThinking, ""),
-        [0xf6d2] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.SpitLeft, ""),
-        [0xf6d8] = new KiHunterNativeListAddressesInstruction(KiHunterCueKind.SpitRight, ""),
+        [0xf526] = new KiHunterNativeListAddressesInstruction(new KiHunterCue.Signal(KiHunterCueKind.ReturnToFlying), ""),
+        [0xf5e4] = new KiHunterNativeListAddressesInstruction(new KiHunterCue.Signal(KiHunterCueKind.StartHop), ""),
+        [0xf67f] = new KiHunterNativeListAddressesInstruction(new KiHunterCue.Signal(KiHunterCueKind.StartWinglessThinking), ""),
+        [0xf6d2] = new KiHunterNativeListAddressesInstruction(new KiHunterCue.Spit(HorizontalDirection.Left), ""),
+        [0xf6d8] = new KiHunterNativeListAddressesInstruction(new KiHunterCue.Spit(HorizontalDirection.Right), ""),
     };
 }

@@ -1,0 +1,37 @@
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.Core.Bosses.Kraid;
+
+/// <summary>Kraid's arm (#2146): its swipe, its push of Samus, and its own shot reaction.</summary>
+/// <param name="species">The Kraid species owner.</param>
+/// <param name="place">The place the arm occupies.</param>
+/// <param name="common">The shared participation.</param>
+internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : KraidLimbEntity(species, place, common, species.Parts.ArmReference), IEnemyPrivateShotReaction
+{
+    /// <inheritdoc/>
+    protected override void SetUp() => Species.Limbs.InitializeKraidArm(Place);
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidArmMainAi(Place, frame);
+
+    /// <summary>The arm's touch reaction, which its definition leaves to it.</summary>
+    public override EnemyReaction? SpeciesTouch => KraidReactions.ArmTouch;
+
+    /// <summary>Whether the arm's push, where its definition leaves Samus's touch to it, or a shared touch applies.</summary>
+    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+
+    /// <summary>Runs the arm's push where its definition leaves Samus's touch to it, or the shared touch.</summary>
+    /// <param name="context">The touch.</param>
+    public override void ReactToTouch(EnemyTouchContext context)
+    {
+        if (LeavesTouchToSpecies)
+            Species.Combat.ReactToArmTouch(context);
+        else
+            base.ReactToTouch(context);
+    }
+
+    /// <summary>The arm's shot reaction, which a normal bomb triggers as it does the common one.</summary>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == KraidReactions.ArmShot;
+}

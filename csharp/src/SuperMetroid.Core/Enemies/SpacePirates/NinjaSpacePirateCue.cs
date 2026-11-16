@@ -23,6 +23,14 @@ internal abstract record NinjaSpacePirateCue
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
     internal sealed record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue;
 
+    /// <summary>
+    /// Begins the move the Pirate's main AI then runs, from the next update, as the animation runs on (#2151): a stand
+    /// while the animation poses it, the wait at its post, the stance that chooses an attack, a spin jump, a divekick's
+    /// steps or the walk back to its post.
+    /// </summary>
+    /// <param name="Action">The action main AI then runs.</param>
+    internal sealed record Begin(NinjaSpacePirateAction Action) : NinjaSpacePirateCue;
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(NinjaSpacePirateCueKind Kind) : NinjaSpacePirateCue;

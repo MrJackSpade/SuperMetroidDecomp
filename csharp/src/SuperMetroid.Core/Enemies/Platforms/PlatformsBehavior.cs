@@ -27,20 +27,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
-    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue)
-    {
-        switch (cue.Kind)
-        {
-            case PlatformCueKind.MoveLeft:
-                SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Left);
-                break;
-            case PlatformCueKind.MoveRight:
-                SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Right);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PlatformCueKind)} {cue.Kind}.");
-        }
-    }
+    private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformCue cue) =>
+        SetPlatformHorizontalMovementFromCue(place, cue.Movement);
 
     /// <summary>Runs the two entry points and common initializer.</summary>
     internal static void InitializePlatform(RoomEnemyPlace place)

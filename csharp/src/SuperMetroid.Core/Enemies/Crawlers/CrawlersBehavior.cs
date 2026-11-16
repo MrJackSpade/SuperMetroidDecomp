@@ -14,10 +14,31 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [.. CrawlersPartDefinitions.Parts.Keys];
+    [
+        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
+        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer, EnemyDefinitionId.OrangeZoomer,
+    ];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new CrawlerEntity(this, place, common);
+    /// <summary>
+    /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
+    /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.Sciser)
+            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser);
+        if (definition == EnemyDefinitionId.Zero)
+            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero);
+        if (definition == EnemyDefinitionId.Viola)
+            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola);
+        if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
+            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared);
+        if (definition == EnemyDefinitionId.OrangeZoomer)
+            return new OrangeZoomerEntity(this, place, common);
+        throw new InvalidOperationException($"The crawler species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
     private readonly EnemyTerrain _terrain;
@@ -497,21 +518,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Runs Sciser's initializer wrapper.</summary>
-    internal static void InitializeSciserAi(RoomEnemyPlace place) =>
-        InitializeCrawler(place, CrawlerAnimationFamily.Sciser);
-
-    /// <summary>Runs Zero's initializer wrapper.</summary>
-    internal static void InitializeZeroAi(RoomEnemyPlace place) =>
-        InitializeCrawler(place, CrawlerAnimationFamily.Zero);
-
-    /// <summary>Runs Viola's initializer wrapper.</summary>
-    internal static void InitializeViolaAi(RoomEnemyPlace place) =>
-        InitializeCrawler(place, CrawlerAnimationFamily.Viola);
-
-    /// <summary>Runs the shared initializer wrapper Zeela, Sova, Zoomer and armoured Zoomer use.</summary>
-    internal static void InitializeSharedCrawlerAi(RoomEnemyPlace place) =>
-        InitializeCrawler(place, CrawlerAnimationFamily.Shared);
-
     /// <summary>Runs the shared crawler main AI.</summary>
     internal void RunCrawlerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) => RunCrawlerMain(place, frame.Level);
 

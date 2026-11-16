@@ -34,14 +34,14 @@ internal static class MamaTurtleNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, MamaTurtleNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9381] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.Crawl, ""),
-        [0x9412] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.LoopOrTurnAround, ""),
-        [0x9447] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.EnterShell, ""),
-        [0x9451] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.RiseToHoverLeftwards, ""),
-        [0x946b] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.RiseToHoverRightwards, ""),
-        [0x9485] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.LeaveShell, ""),
-        [0x94a1] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.LeftShell, ""),
-        [0x94c7] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.SetSpinningStoppable, ""),
-        [0x94d1] = new MamaTurtleNativeListAddressesInstruction(MamaTurtleCueKind.PlaySpinningSound, ""),
+        [0x9381] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.Crawl), ""),
+        [0x9412] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.LoopOrTurnAround), ""),
+        [0x9447] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.EnterShell), ""),
+        [0x9451] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.RiseToHover(HorizontalDirection.Left), ""),
+        [0x946b] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.RiseToHover(HorizontalDirection.Right), ""),
+        [0x9485] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.LeaveShell), ""),
+        [0x94a1] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.LeftShell), ""),
+        [0x94c7] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.SetSpinningStoppable), ""),
+        [0x94d1] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.PlaySpinningSound), ""),
     };
 }

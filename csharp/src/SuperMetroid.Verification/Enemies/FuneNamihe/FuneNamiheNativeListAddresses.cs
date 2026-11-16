@@ -29,12 +29,12 @@ internal static class FuneNamiheNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, FuneNamiheNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9625] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.SpitSound, ""),
-        [0x9631] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.NamiheFireLeft, ""),
-        [0x964a] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.NamiheFireRight, ""),
-        [0x9663] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FuneFireLeft, ""),
-        [0x967c] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FuneFireRight, ""),
-        [0x9695] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FinishActivity, ""),
-        [0x96b4] = new FuneNamiheNativeListAddressesInstruction(FuneNamiheCueKind.FinishActivity, ""),
+        [0x9625] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Signal(FuneNamiheCueKind.SpitSound), ""),
+        [0x9631] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Fire(HorizontalDirection.Left), ""),
+        [0x964a] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Fire(HorizontalDirection.Right), ""),
+        [0x9663] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Fire(HorizontalDirection.Left), ""),
+        [0x967c] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Fire(HorizontalDirection.Right), ""),
+        [0x9695] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Signal(FuneNamiheCueKind.FinishActivity), ""),
+        [0x96b4] = new FuneNamiheNativeListAddressesInstruction(new FuneNamiheCue.Signal(FuneNamiheCueKind.FinishActivity), ""),
     };
 }

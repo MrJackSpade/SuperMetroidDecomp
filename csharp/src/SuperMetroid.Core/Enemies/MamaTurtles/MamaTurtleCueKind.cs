@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>What a cue of the turtles' animations does: crawl, turn and spin the baby, carry a riding Samus, enter or leave the shell, start the Mama Turtle's rise, or play the spinning sound.</summary>
+/// <summary>What a signalling cue of the turtles' animations does: crawl, turn and spin the baby, carry a riding Samus, enter or leave the shell, or play the spinning sound.</summary>
 internal enum MamaTurtleCueKind
 {
     /// <summary>Moves the baby along its crawl and carries a riding Samus.</summary>
@@ -15,10 +15,6 @@ internal enum MamaTurtleCueKind
     LoopOrTurnAround,
     /// <summary>Plays the spinning sound.</summary>
     PlaySpinningSound,
-    /// <summary>Starts the Mama Turtle's leftward rise, as she leaves her shell facing left, and continues at its spin.</summary>
-    RiseToHoverLeftwards,
-    /// <summary>Starts the Mama Turtle's rightward rise, as she leaves her shell facing right, and continues at its spin.</summary>
-    RiseToHoverRightwards,
     /// <summary>Lets the baby's spin be stopped.</summary>
     SetSpinningStoppable,
 }

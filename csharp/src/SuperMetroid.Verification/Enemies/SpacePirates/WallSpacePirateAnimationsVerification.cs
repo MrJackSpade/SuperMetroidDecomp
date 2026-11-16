@@ -23,12 +23,12 @@ internal static class WallSpacePirateAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => unchecked((ushort)(cue switch { WallSpacePirateCue.ClimbLeftWall climbLeftWall => climbLeftWall.ClimbPixels, WallSpacePirateCue.ClimbRightWall climbRightWall => climbRightWall.ClimbPixels, _ => throw new InvalidOperationException($"{at}: {cue} carries no ClimbPixels.") })),
-                    'E' => NamingWord(SpacePiratesNativeWords.WallSpacePirateActions.WordsByIdentity[WallSpacePirateBehavior.ActionBegunBy(AssertIs<WallSpacePirateCue.Signal>(cue, $"{at}: cue").Kind)], operands[index]),
+                    'V' => unchecked((ushort)AssertIs<WallSpacePirateCue.Climb>(cue, $"{at}: cue").ClimbPixels),
+                    'E' => NamingWord(SpacePiratesNativeWords.WallSpacePirateActions.WordsByIdentity[AssertIs<WallSpacePirateCue.Begin>(cue, $"{at}: cue").Action], operands[index]),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },
-            cue => cue is WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection } or WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }));
+            cue => cue is WallSpacePirateCue.ChooseClimb));
         Console.WriteLine($"  Wall Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WallSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
 

@@ -19,7 +19,7 @@ internal static class PlatformAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }),
             onlyRunOnInto: new HashSet<PlatformSegment> { PlatformSegment.SuspensorPlatformLoop, PlatformSegment.TripperMovingLeftLoop, PlatformSegment.TripperMovingRightLoop, PlatformSegment.TripperStillMovingLeftLoop, PlatformSegment.TripperStillMovingRightLoop });

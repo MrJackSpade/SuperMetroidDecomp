@@ -29,6 +29,9 @@ public abstract class FuneNamiheEnemyState
     /// <summary>The pixels the spitter's mouth, from which its fireballs leave, sits below its position in the shared art.</summary>
     internal abstract int MouthDrop { get; }
 
+    /// <summary>The fireball the species spits.</summary>
+    internal abstract RoomEnemyProjectileKind Fireball { get; }
+
     /// <summary>The animation the species, activity and facing select.</summary>
     internal abstract FuneNamiheSegment Animation { get; }
 

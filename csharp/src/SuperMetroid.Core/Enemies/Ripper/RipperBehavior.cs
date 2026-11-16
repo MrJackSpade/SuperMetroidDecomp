@@ -10,10 +10,21 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. RipperPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GrappleRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.JetRipper];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new RipperEntity(this, place, common);
+    /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Ripper definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.GrappleRipper)
+            return new GrappleRipperEntity(this, place, common);
+        if (definition == EnemyDefinitionId.JetRipper)
+            return new JetRipperEntity(this, place, common);
+        if (definition == EnemyDefinitionId.Ripper)
+            return new OrdinaryRipperEntity(this, place, common);
+        throw new InvalidOperationException($"The Ripper species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;

@@ -58,6 +58,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // retail population lays them out.
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+            body.SetSpawnSettings(PlacedBody);
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
             var bodyState = new EvirBodyState(spit: place) { Facing = EvirFacing.Left };
             body.SetSpeciesState(bodyState);
@@ -130,9 +131,18 @@ internal static class EvirInstructionProgramDefinitionsVerification
         return state;
     }
 
-    /// <summary>Binds <paramref name="place"/> to <paramref name="definition"/> with its bank-$A8 definition, its animation stepping on the next update.</summary>
+    /// <summary>The settings an Evir body is placed with, which make the Evir definition its body rather than its arms (#2146).</summary>
+    private static readonly EvirSpawnSettings PlacedBody =
+        new(Part: EvirBodyPart.Body, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), DirectionChangePeriod: 0);
+
+    /// <summary>
+    /// Binds <paramref name="place"/> to <paramref name="definition"/> with its bank-$A8 definition, its animation stepping
+    /// on the next update; an Evir is placed as a body.
+    /// </summary>
     private static void Bind(RoomEnemyPlace place, EnemyDefinitionId definition)
     {
+        if (definition == EnemyDefinitionId.Evir)
+            place.SetSpawnSettings(PlacedBody);
         place.Bind(definition, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();

@@ -107,7 +107,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         }
         else
         {
-            var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            _ = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             Game = InstalledFixtures.CreateGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps),
                 renderGameplayFrames: video is not null, hostServices: hostServices);
             video?.Attach(Game);

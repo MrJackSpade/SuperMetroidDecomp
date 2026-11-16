@@ -49,7 +49,7 @@ internal static class TreadmillPhysicsVerification
             bool gated = conveyor.Behavior == WreckedShipTreadmillBlockDefinitions.RightwardsBehavior ||
                 conveyor.Behavior == WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior;
             bool admitted = !gated || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));
-            int expected = admitted ? SixteenSixteen.FromWhole(conveyor.Direction == WreckedShipTreadmillDirection.Rightwards ? 2 : -2) : 0x71234;
+            int expected = admitted ? SixteenSixteenConstants2.FromWhole(conveyor.Direction == WreckedShipTreadmillDirection.Rightwards ? 2 : -2) : 0x71234;
             SamusInsideBlockReactions.PrepareFrame(level, samus, area, powered, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(expected, body.ExtraDisplacement.X.RawValue, $"conveyor behaviour {conveyor.Behavior}, area {area}, power {powered}, Y {verticalSpeed}");
             AssertEqual(SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,

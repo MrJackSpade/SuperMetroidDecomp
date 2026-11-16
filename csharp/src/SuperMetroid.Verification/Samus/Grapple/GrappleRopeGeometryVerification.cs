@@ -40,7 +40,7 @@ internal static class GrappleRopeGeometryVerification
             int angle = direction > 0 ? 32 : 224;
             int dx = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b443 + angle * 2) * 2048;
             int dy = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) * 2048;
-            int x = unchecked(SixteenSixteen.FromWhole(origin - 4)), y = 124 << 16;
+            int x = unchecked(SixteenSixteenConstants2.FromWhole(origin - 4)), y = 124 << 16;
             // The rope is a chain of one picture per eight pixels of its length, at least one, each published wherever it
             // lies for the display to clip (#1587); a rope past sixteen segments keeps going (#1588). The OAM a segment
             // stands for keeps its position's low byte on each axis.

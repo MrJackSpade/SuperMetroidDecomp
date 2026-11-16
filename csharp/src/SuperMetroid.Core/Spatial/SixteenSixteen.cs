@@ -13,9 +13,6 @@ public static class SixteenSixteen
     /// <summary>Extracts the fraction without changing the signed whole half.</summary>
     private const int FractionMask = 0xffff;
 
-    /// <summary>The raw 16.16 value with whole part <paramref name="whole"/> and no fraction.</summary>
-    public static int FromWhole(int whole) => whole << FractionBits;
-
     /// <summary>A raw 8.8 value widened to 16.16: whole units move to the whole part, 1/256ths to the fraction's upper half.</summary>
     public static int FromEightEight(int raw) => raw << (FractionBits - 8);
 

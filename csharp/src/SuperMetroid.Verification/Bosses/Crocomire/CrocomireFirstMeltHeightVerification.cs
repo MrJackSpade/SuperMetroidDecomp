@@ -1,15 +1,12 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 

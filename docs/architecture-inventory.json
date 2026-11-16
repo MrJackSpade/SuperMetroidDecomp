@@ -41888,6 +41888,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraw",
       "kind": "enum",
       "scope": "product",
@@ -42026,19 +42039,6 @@
         "wide-dependencies"
       ],
       "justified": true
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyAnimationGroups",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyAnimationGroups.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyAnimations",
@@ -42440,6 +42440,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireFightDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireFightDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireFightDependencies",
       "kind": "record",
       "scope": "product",
@@ -42759,6 +42772,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireSkeletonAcceleration",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireSkeletonAcceleration.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireSkeletonDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireSkeletonDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireSoundDefinitions",
@@ -59450,6 +59489,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.WorkRobotLaserSoundRange",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WorkRobotLaserSoundRange.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.WrappingCountdown",
       "kind": "record struct",
       "scope": "product",
@@ -59758,6 +59810,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.YardShotLaunchFractions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/YardShotLaunchFractions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.ZebetiteShotShare",
@@ -80194,6 +80259,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Skree.MetalParticleBurstDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Skree/MetalParticleBurstDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Skree.SkreeAction",
       "kind": "enum",
       "scope": "product",
@@ -81731,6 +81809,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateJump",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateJump.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateOptions",
       "kind": "enum",
       "scope": "product",
@@ -81924,6 +82015,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Sparks.SparkTimingDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkTimingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Sparks.SparksNativeWords",
@@ -126758,6 +126862,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.SixteenSixteenConstants2",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/SixteenSixteenConstants2.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.SixteenSixteenWords",
       "kind": "static class",
       "scope": "test",
@@ -145772,6 +145892,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireFirstMeltHeightVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireFirstMeltHeightVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Crocomire.CrocomireKeptComponents",
       "kind": "static class",
       "scope": "test",
@@ -159136,6 +159269,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserSoundRangeVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotLaserSoundRangeVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotNativeListAddresses",
       "kind": "static class",
       "scope": "test",
@@ -159654,6 +159800,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Yard.YardShotLaunchFractionsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Yard/YardShotLaunchFractionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Yard.YardSurfaceLossVerification",

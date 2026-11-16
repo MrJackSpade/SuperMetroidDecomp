@@ -95,7 +95,7 @@ internal static class CrocomireAnimationsVerification
             "the roar's closed-mouth loop runs on into the Power Bomb reaction");
         int loopBeats = lists[CrocomireBodySegment.RoarCloseMouthLoop].BeatAddresses.Length;
         var playedLoop = new AnimationPhase<CrocomireBodySegment>(CrocomireBodySegment.RoarCloseMouthLoop, 0, 2, 1);
-        AssertTrue(CrocomireBodyAnimations.Segments.Beats(CrocomireBodySegment.RoarCloseMouthLoop)[1] is AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.Event
+        AssertTrue(CrocomireBodyAnimations.Segments.Beats(CrocomireBodySegment.RoarCloseMouthLoop)[1] is AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Event
             { Raised: CrocomireBodyCue.Signal { Kind: CrocomireBodyCueKind.FightAi } }, "the closed-mouth loop's second beat is its first fight cue");
         Animation<CrocomireBodySegment> roar = CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Roar);
         Animation<CrocomireBodySegment> reaction = CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.PowerBombReactionMouthFullyOpen);

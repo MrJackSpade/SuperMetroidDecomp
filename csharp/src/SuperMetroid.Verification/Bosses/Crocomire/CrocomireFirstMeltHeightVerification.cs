@@ -73,7 +73,7 @@ internal static class CrocomireFirstMeltHeightVerification
             state.VerticalSpeed = SignedEightEight.FromPixels(1);
             body.Position = body.Position.WithWholeY(y);
             fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
-            AssertEqual(animation, state.BodyResidentAnimation, $"{at}: animation");
+            AssertEqual(animation, state.BodyPlayback.PlayingSegment, $"{at}: animation");
             AssertEqual(AnimationPlace.StartOfAnimation, state.BodyPlayback.Place, $"{at}: the animation starts afresh");
             AssertEqual(WrappingCountdown.Start(1), body.AnimationClock.Hold, $"{at}: its first picture is due this update");
 

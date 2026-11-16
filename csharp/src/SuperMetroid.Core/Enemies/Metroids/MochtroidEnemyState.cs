@@ -19,17 +19,17 @@ public sealed class MochtroidEnemyState
     internal AnimationPlayback<MochtroidSegment> Playback { get; set; }
 
     /// <summary>
-    /// Attached updates counted since the last contact damage, 0 through 65535: contact damage occurs once the count,
-    /// compared as a signed difference, reaches the damage period. Updates with Samus's own contact damage count
-    /// without the check, so the count can grow past 32767 and wrap (<see cref="CountAttachedUpdate"/>).
+    /// Attached updates counted since the last contact damage: contact damage occurs once the count reaches the damage
+    /// period. An update in which Samus attacks with her body counts without the check, but that touch kills the
+    /// Mochtroid outright, every body attack dealing at least its whole health, so the count never runs far past the
+    /// period.
     /// </summary>
     public int AttachmentDamageTimer { get; internal set; }
 
-    /// <summary>Counts one attached update, wrapping after 65535 as the game's counter does.</summary>
-    internal void CountAttachedUpdate() =>
-        AttachmentDamageTimer = WrappingCounter.IncrementCount(AttachmentDamageTimer);
+    /// <summary>Counts one attached update.</summary>
+    internal void CountAttachedUpdate() => AttachmentDamageTimer++;
 
-    /// <summary>Whether the count has reached <paramref name="period"/>, compared as the game's signed difference.</summary>
+    /// <summary>Whether the count has reached <paramref name="period"/>.</summary>
     /// <param name="period">The damage period in attached updates.</param>
-    internal bool HasReachedDamagePeriod(int period) => !WrappingCounter.IsBehind(AttachmentDamageTimer, period);
+    internal bool HasReachedDamagePeriod(int period) => AttachmentDamageTimer >= period;
 }

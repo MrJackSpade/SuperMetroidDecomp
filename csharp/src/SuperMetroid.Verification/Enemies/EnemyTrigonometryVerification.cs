@@ -679,7 +679,7 @@ internal static class EnemyTrigonometryVerification
         var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleCosine(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleNegativeSine(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, phase));
-        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, phase));
+        var sbugForward = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateForwardSbugComponent(new TrigonometryAngle(angle), speed, phase));
         var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)EnemyMath.UnsignedSineSpeed(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset), magnitude).RawValue));
 
         int ExpectedPixel(int angle, int radius)
@@ -710,10 +710,10 @@ internal static class EnemyTrigonometryVerification
                     ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SixteenSixteen.FromEightEight(shiftedProduct) : -SixteenSixteen.FromEightEight(shiftedProduct)));
                     var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
                     var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
-                    var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
-                    uint magnitude = words[shiftedAngle & 127] * (uint)radius;
+                    var forwardActual = sbugForward((byte)angle, (byte)radius, phase);
+                    int magnitude = words[shiftedAngle & 127] * radius;
                     if (fixedActual != SignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SignedSixteenSixteen.FromParts(whole, fraction) ||
-                        unsignedActual.RawValue != magnitude)
+                        forwardActual.RawValue != (shiftedAngle < 128 ? magnitude : -magnitude))
                         throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
                 }
             }

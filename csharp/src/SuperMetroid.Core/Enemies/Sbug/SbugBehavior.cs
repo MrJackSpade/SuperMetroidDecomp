@@ -33,16 +33,16 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new SbugEnemyState(place.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus);
         place.SetSpeciesState(state);
 
-        // The forward velocity uses the unsigned quarter-circle magnitudes and lets the shared helper apply signs later
-        // from the initial angle. The side velocities instead use the signed short circle product.
+        // The forward velocity scales the fine half-wave of the spawn heading; the side velocities instead use the
+        // signed short circle product.
         int speed = state.Speed;
         RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn);
-        state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
+        state.ForwardXVelocity = CalculateForwardSbugComponent(
             state.InitialAngle.ToTrigonometryAngle(),
             speed,
             phase: EnemyTrigonometryAngleDefinitions.QuarterTurn);
-        state.ForwardYVelocity = CalculateUnsignedSbugMagnitude(
+        state.ForwardYVelocity = CalculateForwardSbugComponent(
             state.InitialAngle.ToTrigonometryAngle(),
             speed,
             phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
@@ -106,7 +106,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case SbugAction.MoveForward:
-                MoveSbugForward(place, state);
+                AddSbugVelocity(place, state.ForwardXVelocity, state.ForwardYVelocity);
                 return;
             case SbugAction.ZigZag:
                 RunSbugZigZag(place, state);
@@ -193,7 +193,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        MoveSbugForward(place, state);
+        AddSbugVelocity(place, state.ForwardXVelocity, state.ForwardYVelocity);
     }
 
     /// <summary>Stops a random leg on its first axis collision or chooses a new leg after timeout.</summary>
@@ -289,19 +289,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(place, state, state.CustomFacing);
     }
 
-    /// <summary>Applies unsigned quarter-wave magnitudes with signs from the initial angle.</summary>
-    private static void MoveSbugForward(RoomEnemyPlace place, SbugEnemyState state)
-    {
-        // Moving the enemy by its angle and speeds applies signs to the unsigned magnitudes by
-        // testing the initial angle independently for X and Y.
-        TrigonometryAngle initialAngle = state.InitialAngle.ToTrigonometryAngle();
-        bool subtractX = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn).IsInSecondHalf;
-        bool subtractY = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn).IsInSecondHalf;
-        place.Position = place.Position.WithX(place.Position.X.MovedBy(ForwardDisplacement(state.ForwardXVelocity, subtractX)));
-        place.Position = place.Position.WithY(place.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
-    }
-
-    /// <summary>Adds both signed 1/65536-pixel custom velocities to the actor position.</summary>
+    /// <summary>Adds both signed 1/65536-pixel velocities to the actor position.</summary>
     private static void AddSbugVelocity(
         RoomEnemyPlace place,
         SignedSixteenSixteen xVelocity,
@@ -312,24 +300,19 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// A forward speed as the displacement it moves the Sbug by, along its axis or, when <paramref name="against"/>,
-    /// against it; a speed of 32768 pixels or more reads as the other way, as the game's 1/65536-pixel addition does.
+    /// The forward velocity along one axis: the Sbug's whole-pixel speed, at most 255, scaled by the unsigned half-wave
+    /// sample, in 65536ths, of the angle turned by <paramref name="phase"/>, pointing backward along the axis when that
+    /// turned angle lies in the turn's second half. The speed stays below 256 pixels, so the product is exact.
     /// </summary>
-    private static SignedSixteenSixteen ForwardDisplacement(UnsignedSixteenSixteen speed, bool against)
-    {
-        SignedSixteenSixteen along = speed.AsDisplacement();
-        return against ? SignedSixteenSixteen.Zero - along : along;
-    }
-
-    /// <summary>
-    /// The forward speed along one axis: the Sbug's whole-pixel speed, at most 255, scaled by the unsigned half-wave
-    /// sample, in 65536ths, of the angle turned by <paramref name="phase"/>.
-    /// </summary>
-    internal static UnsignedSixteenSixteen CalculateUnsignedSbugMagnitude(
+    internal static SignedSixteenSixteen CalculateForwardSbugComponent(
         TrigonometryAngle angle,
         int speed,
-        int phase) =>
-        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.TurnedBySteps(phase).StepsIntoHalfTurn));
+        int phase)
+    {
+        TrigonometryAngle turned = angle.TurnedBySteps(phase);
+        SignedSixteenSixteen magnitude = EnemyMath.UnsignedSineSpeed(turned, speed).AsDisplacement();
+        return turned.IsInSecondHalf ? -magnitude : magnitude;
+    }
 
     /// <summary>The side speeds along X and Y: the short circle products of the angle turned a quarter and a half turn on.</summary>
     private static void CalculateSignedSbugVelocities(

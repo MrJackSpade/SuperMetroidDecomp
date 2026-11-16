@@ -18,9 +18,6 @@ public static class IntroNarrationPictures
     /// <summary>The name of the final line's picture.</summary>
     public const string FinalLine = "final-line";
 
-    /// <summary>The cells along each side of the narration plane.</summary>
-    internal const int PlaneCells = IntroCinematicDefinitions.Planes.Width;
-
     /// <summary>The row, counted in glyphs from the narration's top, the final line's picture starts at.</summary>
     internal const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
 
@@ -58,7 +55,7 @@ public static class IntroNarrationPictures
         placed.Add(new(sheet.Frame(FinalLine), At(0, FinalLineRow), Ensure.NotNull(finalLine)));
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
-            for (int column = 0; column < IntroNarrationText.RowCells; column++)
+            for (int column = 0; column < IntroNarrationText.GlyphColumns; column++)
             {
                 IntroTextCell cell = text.ShownAt(column, row);
                 if (cell.Letter is { } letter)

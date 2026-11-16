@@ -98,7 +98,7 @@ internal static class IntroNarrationPresentationVerification
     {
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
-            for (int column = 0; column < IntroNarrationText.RowCells; column++)
+            for (int column = 0; column < IntroNarrationText.GlyphColumns; column++)
             {
                 if (text.ShownAt(column, row).Letter is not null)
                     return true;

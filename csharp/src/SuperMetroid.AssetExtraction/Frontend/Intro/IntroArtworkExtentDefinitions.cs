@@ -9,8 +9,14 @@ internal static class IntroArtworkExtentDefinitions
     /// <summary>The scenes' 1024 four-bit background characters, in bytes.</summary>
     internal const int BackgroundCharacterBytes = 1024 * 32;
 
-    /// <summary>The cells of one 32-by-32 narration tilemap.</summary>
-    internal const int NarrationTilemapCells = 32 * 32;
+    /// <summary>
+    /// The cells along each side of one of the opening's tilemap pages: its scene pages, its portrait and its narration
+    /// pages, which the import pictures whole (#2204).
+    /// </summary>
+    internal const int PlaneCells = 32;
+
+    /// <summary>The cells of one narration tilemap.</summary>
+    internal const int NarrationTilemapCells = PlaneCells * PlaneCells;
 
     /// <summary>The 96 two-bit characters the Japanese narration blanks with its blank glyph, in bytes.</summary>
     internal const int JapaneseBlankCharactersByteCount = 96 * 16;

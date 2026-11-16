@@ -5,13 +5,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>The opening cinematic's shared definitions: its text layout, crossfade timing, music, actors' sounds, and the narration caret.</summary>
 public static class IntroCinematicDefinitions
 {
-    /// <summary>The planes the opening's scene and text are drawn on.</summary>
-    public static class Planes
-    {
-        /// <summary>Width of an opening plane in cells.</summary>
-        public const int Width = 32;
-    }
-
     /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
     public static class Crossfade
     {

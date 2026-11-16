@@ -40,9 +40,6 @@ internal static class IntroCinematicRomDataVerification
             AssertTrue(address is >= 0x808000 and <= 0xffffff,
                 $"intro resource ${address:X6} is mapped ROM");
 
-        AssertEqual(IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount,
-            IntroCinematicDefinitions.Planes.Width * IntroCinematicDefinitions.Planes.Width,
-            "intro text tilemap is 32x32 words");
         AssertTrue(
             (IntroVramLayout.CinematicObjectCharacters.Offset * 2) +
                 IntroCinematicArtworkConstants.ObjectCharacterBytes <= SnesVram.ByteCount,

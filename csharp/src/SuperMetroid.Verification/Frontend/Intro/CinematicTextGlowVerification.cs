@@ -28,7 +28,7 @@ internal static class CinematicTextGlowVerification
                 restored.Step(restoredText);
             for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
             {
-                for (int column = 0; column < IntroNarrationText.RowCells; column++)
+                for (int column = 0; column < IntroNarrationText.GlyphColumns; column++)
                 {
                     bool rectangle = row is 4 or 5 && column is 1 or 2;
                     var expected = new IntroTextCell('A', rectangle ? Math.Min(age / 5, 3) : 0);
@@ -47,10 +47,10 @@ internal static class CinematicTextGlowVerification
         // and a letter glows again after its earlier glow has ended.
         glow = new CinematicTextGlowSystem();
         text = LetteredText();
-        for (int i = 0; i < IntroNarrationText.RowCells; i++) glow.Spawn(i, 4);
+        for (int i = 0; i < IntroNarrationText.GlyphColumns; i++) glow.Spawn(i, 4);
         for (int frame = 0; frame < 16; frame++) glow.Step(text);
-        for (int i = 0; i < IntroNarrationText.RowCells; i++)
-            AssertEqual(3, text.ShownAt(i, 4).ColourVariant, $"simultaneous glow {i} of {IntroNarrationText.RowCells} matures");
+        for (int i = 0; i < IntroNarrationText.GlyphColumns; i++)
+            AssertEqual(3, text.ShownAt(i, 4).ColourVariant, $"simultaneous glow {i} of {IntroNarrationText.GlyphColumns} matures");
         text.Recolour(8, 4, 0);
         glow.Spawn(8, 4);
         for (int frame = 0; frame < 16; frame++) glow.Step(text);
@@ -64,7 +64,7 @@ internal static class CinematicTextGlowVerification
         var text = new IntroNarrationText();
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
-            for (int column = 0; column < IntroNarrationText.RowCells; column++)
+            for (int column = 0; column < IntroNarrationText.GlyphColumns; column++)
                 text.Type(new IntroNarrationCharacter(column, row, 'A'));
         }
         return text;

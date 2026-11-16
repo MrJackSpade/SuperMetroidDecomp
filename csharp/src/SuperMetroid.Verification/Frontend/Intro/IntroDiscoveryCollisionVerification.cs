@@ -26,7 +26,7 @@ internal static class IntroDiscoveryCollisionVerification
             expected[index] = RoomLevelWordCodec.Decode(word).Collision;
             AssertEqual(expected[index], actual[index], "decoded original discovery collision and empty tail");
         }
-        actual[0] = IntroBabyDiscoveryCollisionDefinitions.FinalRowBlock;
+        actual[0] = IntroBabyDiscoveryCollisionDefinitions.FloorBlock;
         actual[10 * 32] = IntroBabyDiscoveryCollisionDefinitions.EmptyBlock;
         RoomCollisionType[] fresh = IntroBabyDiscoveryCollision.CreateCollision();
         AssertTrue(!ReferenceEquals(actual, fresh), "collision rooms are built independently");

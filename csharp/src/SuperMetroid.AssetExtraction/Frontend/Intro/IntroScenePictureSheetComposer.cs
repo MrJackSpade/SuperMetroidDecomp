@@ -35,7 +35,7 @@ internal static class IntroScenePictureSheetComposer
         Ensure.NotNull(paletteFx);
         byte[] characters = intro.BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
         RgbColor[] colours = [.. intro.Palette.BackgroundColours];
-        int cells = IntroScenePictures.PlaneCells;
+        int cells = IntroArtworkExtentDefinitions.PlaneCells;
         int planeCells = cells * cells;
         IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();
         IntroEyeFrame[] eyes = Enum.GetValues<IntroEyeFrame>();

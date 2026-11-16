@@ -4,36 +4,33 @@ using static SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCollisionDefinitio
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Builds the intro Mother Brain room's collision (<see cref="IntroMotherBrainCollisionDefinitions"/>): the authored left
-/// contour with the ceiling, floor, central formation and platforms.
+/// Builds the intro Mother Brain room's collision (<see cref="IntroMotherBrainCollisionDefinitions"/>): the ceiling and
+/// floor, the left wall's contour, the hanging formation, the pillar and the ledge.
 /// </summary>
 internal static class IntroMotherBrainCollision
 {
-    /// <summary>Combines the authored left collision contour with geometric ceiling, floor, center, and right-platform blocks.</summary>
+    /// <summary>How the block at <paramref name="column"/> of <paramref name="row"/> collides.</summary>
     private static RoomCollisionType Block(int row, int column)
     {
         if (row is CeilingRow or FloorRow) return Solid;
-        if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - UpperTipRow])
+        if (row > CeilingRow && row < FloorRow && column < LeftContourWidths[row - FormationTipRow])
             return Solid;
-        int upperRadius = row - UpperTipRow;
-        if (upperRadius is 0 or 1 && Math.Abs(column - CentralColumn) <= upperRadius)
+        int formationHalfWidth = row - FormationTipRow;
+        if (formationHalfWidth is 0 or 1 && Math.Abs(column - CentralColumn) <= formationHalfWidth)
             return Solid;
-        bool centralPlatform = column == CentralColumn && row >= PlatformRow && row < FloorRow;
-        bool rightPlatform = column >= RightPlatformColumn && row >= PlatformRow && row <= PlatformRow + 1;
-        if (centralPlatform || rightPlatform) return row == PlatformRow ? PlatformTop : Solid;
+        bool pillar = column == CentralColumn && row >= PlatformRow && row < FloorRow;
+        bool ledge = column >= RightPlatformColumn && row >= PlatformRow && row <= PlatformRow + 1;
+        if (pillar || ledge) return row == PlatformRow ? PlatformTop : Solid;
+        // A solid block stands on the floor against the pillar's right side.
         if (row == FloorRow - 1 && column == CentralColumn + 1) return Solid;
         return Empty;
     }
 
-    /// <summary>
-    /// How each block of the flashback room collides, row-major and freshly for each flashback: the authored source rows,
-    /// then empty rows to the room's full height.
-    /// </summary>
+    /// <summary>How each block of the flashback room collides, row-major and freshly for each flashback.</summary>
     internal static RoomCollisionType[] CreateCollision()
     {
         var foreground = new RoomCollisionType[Columns * RoomRows];
-        foreground.AsSpan().Fill(Empty);
-        for (int row = 0; row < SourceRows; row++)
+        for (int row = 0; row < RoomRows; row++)
             for (int column = 0; column < Columns; column++)
                 foreground[row * Columns + column] = Block(row, column);
         return foreground;

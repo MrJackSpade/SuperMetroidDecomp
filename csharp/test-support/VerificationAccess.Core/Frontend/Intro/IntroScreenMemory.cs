@@ -64,7 +64,7 @@ internal static class IntroScreenMemory
     /// </summary>
     internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, bool firstCardShown, ImportIntroCinematicArtwork artwork)
     {
-        var tiles = new BackgroundTile[IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount];
+        var tiles = new BackgroundTile[IntroArtworkExtentDefinitions.NarrationTilemapCells];
         if (firstCardShown)
         {
             artwork.InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells].CopyTo(tiles);
@@ -81,11 +81,11 @@ internal static class IntroScreenMemory
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
-            for (int column = 0; column < IntroNarrationText.RowCells; column++)
+            for (int column = 0; column < IntroNarrationText.GlyphColumns; column++)
             {
                 IntroTextCell cell = text.ShownAt(column, row);
                 BackgroundTile shown = cell.Letter is { } letter ? IntroNarrationGlyphTiles.CompileGlyph(letter) : IntroNarrationTilemapConstants.Blank;
-                tiles[row * IntroNarrationText.RowCells + column] = shown with { ColourVariant = cell.ColourVariant };
+                tiles[row * IntroNarrationText.GlyphColumns + column] = shown with { ColourVariant = cell.ColourVariant };
             }
         }
         return tiles;
@@ -106,7 +106,7 @@ internal static class IntroScreenMemory
             IntroEyeAnimationDefinitions.PortraitEyeCorner.Y / CharacterCellConversions.CellPixels);
         Extent16<CharacterCells> size = IntroArtworkExtentDefinitions.EyeFrameSize;
         for (int cell = 0; cell < rectangle.Length; cell++)
-            portrait[(corner.Y + cell / size.X) * IntroCinematicDefinitions.Planes.Width + corner.X + cell % size.X] = rectangle[cell];
+            portrait[(corner.Y + cell / size.X) * IntroArtworkExtentDefinitions.PlaneCells + corner.X + cell % size.X] = rectangle[cell];
         return portrait;
     }
 

@@ -1395,7 +1395,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         {
             throw new InvalidDataException(
                 $"Samus load colour effect {loadAppearance} " +
-                "outlived the 360-frame load appearance.");
+                $"outlived the {SavedGameAppearanceDefinitions.FrameCount}-frame load appearance.");
         }
 
         // The item fanfare publishes its same-pose history shift only on the

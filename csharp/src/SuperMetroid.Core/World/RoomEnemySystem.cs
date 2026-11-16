@@ -1027,10 +1027,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             if (!frame.TimeIsFrozen && place.FlashTimer != 0)
             {
                 place.FlashTimer--;
-                // The enemy pass clears the hurt AI once the decremented timer is below
-                // eight. This applies even when another AI bit remains set; omitting it
-                // would strand Metroid in custom hurt forever.
-                if (place.FlashTimer < 8)
+                // The enemy pass clears the hurt AI once too few flash updates remain. This applies even when another
+                // AI bit remains set; omitting it would strand Metroid in custom hurt forever.
+                if (place.FlashTimer < EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates)
                     place.AiStates = place.AiStates & ~EnemyAiStates.Hurt;
             }
         }

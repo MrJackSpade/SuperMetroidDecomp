@@ -1018,13 +1018,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Invokes the pause-menu held-input filter with the controller sample latched by the
-    /// most recent frame boundary. The game passes reset value three.
+    /// Invokes the pause-menu held-input filter with the controller sample latched by the most recent frame boundary.
     /// </summary>
-    public void UpdatePauseHeldInput(int timerReset = 3)
-    {
-        System.UpdateHeldInput(timerReset, PlayerButtons.Current, PlayerButtons.NewlyPressed);
-    }
+    /// <param name="repeatDelay">The updates, less one, a held button must stay unchanged before it repeats.</param>
+    public void UpdatePauseHeldInput(int repeatDelay) =>
+        System.UpdateHeldInput(repeatDelay, PlayerButtons.Current, PlayerButtons.NewlyPressed);
 
     /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
     internal void ApplyEndOfUpdateAssists(

@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
 /// A room effect actor, named for what it shows: each starts its own animation of
-/// <see cref="RoomEffectActorAnimations"/>, whatever spawns it. Its values are arbitrary; verification's catalog names each
-/// one's object number.
+/// <see cref="RoomEffectActorAnimations"/>, whatever spawns it. Its values are arbitrary.
 /// </summary>
 public enum RoomEffectActorKind
 {

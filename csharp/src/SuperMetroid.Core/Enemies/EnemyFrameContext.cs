@@ -45,7 +45,7 @@ internal sealed class EnemyFrameContext
     /// shots read; the enemy projectile pass that follows the enemy pass reads the same one. Null before the first pass.
     /// </summary>
     internal SamusPowerBombExplosionState? PowerBombExplosion { get; private set; }
-    /// <summary>Forces every enemy slot through the current pass when processing requires a full sweep.</summary>
+    /// <summary>Forces every enemy place through the current pass when processing requires a full sweep.</summary>
     internal bool ProcessAllEnemies { get; private set; }
 
     /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
@@ -63,7 +63,7 @@ internal sealed class EnemyFrameContext
     }
 
 
-    /// <summary>Forces every enemy slot through the passes that follow, as Draygon and Spore Spawn request.</summary>
+    /// <summary>Forces every enemy place through the passes that follow, as Draygon and Spore Spawn request.</summary>
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
     /// <summary>

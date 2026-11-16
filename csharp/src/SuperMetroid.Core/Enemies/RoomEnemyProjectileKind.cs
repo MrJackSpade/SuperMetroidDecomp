@@ -171,7 +171,7 @@ public enum RoomEnemyProjectileKind
     MiscDustExplosion,
     /// <summary>An enemy drop with its pickup animation and collection behavior.</summary>
     EnemyDeathPickup,
-    /// <summary>An enemy-death explosion that can publish drops or rebuild an enemy slot.</summary>
+    /// <summary>An enemy-death explosion that can publish drops or rebuild the enemy in its place.</summary>
     EnemyDeathExplosion,
     /// <summary>A destructible bug released by Kago.</summary>
     KagoBug,

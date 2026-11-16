@@ -8,8 +8,6 @@ internal enum GunshipSegment
 {
     /// <summary>The entrance pad opening animation.</summary>
     EntrancePadOpening,
-    /// <summary>The entrance pad open animation.</summary>
-    EntrancePadOpen,
     /// <summary>The entrance pad closing animation.</summary>
     EntrancePadClosing,
     /// <summary>The bottom entrance pad animation.</summary>

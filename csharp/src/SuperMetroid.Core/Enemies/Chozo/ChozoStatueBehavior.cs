@@ -48,15 +48,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The room objects the statue has asked for and the room has still to spawn, in the order it asked.</summary>
-    internal readonly List<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests = new();
+    private readonly List<RoomObjectSpawnRequest<ChozoStatueRoomObject>> _objectRequests = [];
 
     /// <summary>Spawns each room object the statue asked for, once, in the order it asked.</summary>
     internal void ApplyPendingChozoStatueObjects(RoomLevelData level, ChozoStatueObjects chozoStatueObjects)
     {
-        while (ChozoStatueObjectRequests.Count != 0)
+        while (_objectRequests.Count != 0)
         {
-            chozoStatueObjects.TrySpawnChozoStatueObject(level, ChozoStatueObjectRequests[0]);
-            ChozoStatueObjectRequests.RemoveAt(0);
+            chozoStatueObjects.TrySpawnChozoStatueObject(level, _objectRequests[0]);
+            _objectRequests.RemoveAt(0);
         }
     }
 
@@ -313,7 +313,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Asks the room to spawn <paramref name="roomObject"/> at <paramref name="block"/>.</summary>
     private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>
-        ChozoStatueObjectRequests.Add(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject));
+        _objectRequests.Add(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
     internal void RunChozoStatueMainAi(RoomEnemyPlace place, IEnemyAiFrame _)

@@ -363,7 +363,7 @@ internal static class SamusPosturePoseTransitions
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         // Unmorph uses the same posture change as morph. Its zero
-        // alignment-table entry does not bypass the subsequent bounce cancellation.
+        // alignment does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
         // radius remains unchanged until the input phase sets the radius next frame. This
         // matters to the later enemy-projectile pickup overlap tests.

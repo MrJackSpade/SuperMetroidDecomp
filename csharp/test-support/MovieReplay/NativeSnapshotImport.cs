@@ -392,11 +392,13 @@ internal static class NativeSnapshotImport
                     == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
-                // update, so Core keeps the installed animation alone (#1810) and a record whose two differ fails.
+                // update, so a record whose two differ fails (#1810). Core keeps only the playing animation (#2145): the
+                // recorded pointer resumes in the installed animation, which the bug's next request for it finds playing.
                 ushort installed = W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
                 if (words.E != installed)
                     throw new InvalidDataException($"Recorded Pipe Bug {index} requests animation {words.E} while {installed} is installed.");
-                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations(strong).Decode(installed, "recorded Pipe Bug installed animation");
+                pipe.Playback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset),
+                    PipeBugsNativeWords.BrinstarAnimations(strong).Decode(installed, "recorded Pipe Bug installed animation"));
             }
         }
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)

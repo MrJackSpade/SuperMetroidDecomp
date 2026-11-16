@@ -168,21 +168,13 @@ internal static class EnemyAnimationPlayback
     }
 
     /// <summary>
-    /// Starts the animation that begins with <paramref name="segment"/> unless it is the one already started:
-    /// <paramref name="start"/> records it on the species state, and its first step plays on the next update.
+    /// Starts <paramref name="animation"/> on <paramref name="place"/> unless <paramref name="playing"/> already plays it
+    /// (#2145): asking for the animation playing leaves it running where it stands, and only a different animation starts
+    /// from its beginning and restarts the clock, its first step playing on the next update. The species state stores the
+    /// returned playback.
     /// </summary>
-    /// <param name="place">The enemy.</param>
-    /// <param name="started">The segment the species state last started, or null before the first.</param>
-    /// <param name="segment">The segment the animation to start begins with.</param>
-    /// <param name="start">Records the animation and its starting place on the species state.</param>
-    internal static void StartOnce<TSegment>(RoomEnemyPlace place, TSegment? started, TSegment segment, Action<TSegment> start)
-        where TSegment : struct, Enum
-    {
-        Ensure.NotNull(place);
-        Ensure.NotNull(start);
-        if (started is { } current && EqualityComparer<TSegment>.Default.Equals(current, segment))
-            return;
-        start(segment);
-        place.AnimationClock.Restart();
-    }
+    internal static AnimationPlayback<TSegment> StartUnlessPlaying<TSegment>(
+        RoomEnemyPlace place, AnimationPlayback<TSegment> playing, Animation<TSegment> animation)
+        where TSegment : struct =>
+        ReferenceEquals(playing.Animation, Ensure.NotNull(animation)) ? playing : Start(place, animation);
 }

@@ -16,7 +16,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// <summary>What the struck rescue wall shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared place table and the installed pictures.</summary>
+    /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared room-object places and the installed pictures.</summary>
     internal EscapeAnimalObjects(IGlobalEventFlags events, RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _events = events;

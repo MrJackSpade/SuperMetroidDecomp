@@ -85,12 +85,9 @@ public sealed class SbugEnemyState
     /// <summary>Facing for the custom heading; a reversal folds it into the four facings from right to up-left, as the game does.</summary>
     public CompassDirection CustomFacing { get; internal set; }
 
-    /// <summary>The loop most recently requested by direction-selection code.</summary>
-    internal SbugSegment? RequestedAnimation { get; set; }
-
-    /// <summary>The loop already started, or none before the first direction is selected.</summary>
-    internal SbugSegment? InstalledAnimation { get; set; }
-
-    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    /// <summary>
+    /// The animation the enemy plays and where it stands in it (#1600): none before it selects its first direction, then
+    /// the loop of the facing it last selected, which selecting that facing again leaves playing (#2145).
+    /// </summary>
     internal AnimationPlayback<SbugSegment> Playback { get; set; }
 }

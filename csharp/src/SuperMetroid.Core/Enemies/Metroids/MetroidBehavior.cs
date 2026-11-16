@@ -64,15 +64,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
-    private const int MetroidFrozenDuration = 400;
-    /// <summary>Frames for the attached Metroid's Power Bomb escape.</summary>
-    private const int MetroidEscapeDuration = 4;
-    /// <summary>Whole-pixel limit applied to each axis of Metroid homing velocity.</summary>
-    private const int MetroidMaximumVelocity = 3;
-    /// <summary>Number of independently randomized drops after a frozen Metroid dies.</summary>
-    private const int MetroidSpecialDropCount = 5;
-
     /// <summary>Initializes the Metroid.</summary>
     internal void InitializeMetroid(RoomEnemyPlace place)
     {
@@ -176,8 +167,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // The closing speed is a multiple of the distance the Metroid reckons (MetroidClosingDistance), clamped.
         return Math.Clamp(
             MetroidBehaviorDefinitions.ClosingSpeedPerDistance * MetroidClosingDistance.Between(target, current),
-            -MetroidMaximumVelocity,
-            MetroidMaximumVelocity);
+            -MetroidBehaviorDefinitions.FastestChase,
+            MetroidBehaviorDefinitions.FastestChase);
     }
 
     /// <summary>Holds an attached Metroid on Samus; attachment is a hard positional lock.</summary>
@@ -334,7 +325,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
-                place.FrozenTimer = MetroidFrozenDuration;
+                place.FrozenTimer = MetroidBehaviorDefinitions.FrozenDuration;
                 place.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
@@ -350,7 +341,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState samus)
     {
-        state.EscapeTimer = MetroidEscapeDuration;
+        state.EscapeTimer = MetroidBehaviorDefinitions.EscapeDuration;
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
@@ -372,7 +363,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void RequestMetroidDrops(Position16<RoomPixels> origin)
     {
-        for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
+        for (int dropIndex = 0; dropIndex < MetroidBehaviorDefinitions.FrozenDeathDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
             // Each axis adds a random 0 to 31 minus sixteen: -16..+15 pixels.
@@ -384,7 +375,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps the signed whole pixels of homing speed to three while retaining in-range fractions.</summary>
-    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidMaximumVelocity);
+    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidBehaviorDefinitions.FastestChase);
 
     /// <summary>Stores the recoil or homing X speed.</summary>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, SignedSixteenSixteen velocity) =>

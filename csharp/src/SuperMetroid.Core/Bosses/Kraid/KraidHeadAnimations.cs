@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Kraid's head animations (#641, #1600), and what collision and growth read at each step of each animation. The head shows
 /// a pose for its duration, cries between poses and holds at each animation's end; the body's head timer gates every
 /// advance. Collision takes its mouth shapes from the step the head has just passed (<see cref="KraidMouthTrailsHead"/>),
-/// growth chooses where the roar resumes by the step the head shows next. Checked against the game's head animations by
-/// the head-animation verification.
+/// growth chooses where the roar resumes by the step the head shows next.
 /// </summary>
 internal static class KraidHeadAnimations
 {

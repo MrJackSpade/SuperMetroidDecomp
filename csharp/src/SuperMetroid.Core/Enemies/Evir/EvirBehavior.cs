@@ -9,10 +9,26 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EvirPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new EvirEntity(this, place, common);
+    /// <summary>
+    /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
+    /// body's definition; only their placement tells them apart.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.Evir)
+        {
+            return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+                ? new EvirArmsEntity(this, place, common)
+                : new EvirBodyEntity(this, place, common);
+        }
+        if (definition == EnemyDefinitionId.EvirProjectile)
+            return new EvirSpitEntity(this, place, common);
+        throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -72,22 +88,31 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
     private const int RegenerationStartDistance = 8;
 
-    /// <summary>Initializes an Evir body or its arms.</summary>
-    internal void InitializeEvir(RoomEnemyPlace place, SamusState samus)
+    /// <summary>Initializes an Evir's arms.</summary>
+    internal void InitializeEvirArms(RoomEnemyPlace place)
     {
+        PlaceFollowUpRecipients(place);
+        // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
+        // body and which always read facing and position from it.
+        RoomEnemyPlace body = _places.ListedBefore(place, 1);
+        RequirePlacedBody(body, place, "arms");
+        var arms = new EvirArmsState(body);
+        place.SetSpeciesState(arms);
+        PositionEvirArms(place, arms);
+        arms.ShowsSpawnAnimation = true;
+    }
+
+    /// <summary>
+    /// Finds the two enemies a body's or its arms' follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>),
+    /// the ones the room lists after it.
+    /// </summary>
+    private void PlaceFollowUpRecipients(RoomEnemyPlace place) =>
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 2));
-        if (place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
-        {
-            // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
-            // body and which always read facing and position from it.
-            RoomEnemyPlace body = _places.ListedBefore(place, 1);
-            RequirePlacedBody(body, place, "arms");
-            var arms = new EvirArmsState(body);
-            place.SetSpeciesState(arms);
-            PositionEvirArms(place, arms);
-            arms.InstalledAnimation = null;
-            return;
-        }
+
+    /// <summary>Initializes an Evir's body, facing Samus.</summary>
+    internal void InitializeEvirBody(RoomEnemyPlace place, SamusState samus)
+    {
+        PlaceFollowUpRecipients(place);
 
         // The room lists each Evir's spit two places after its body, behind the arms.
         var state = new EvirBodyState(spit: _places.ListedAfter(place, 2));
@@ -100,7 +125,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DirectionChangePeriod = settings.DirectionChangePeriod;
         state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance);
         state.MovingDown = false;
-        state.InstalledAnimation = null;
+        state.ShowsSpawnAnimation = true;
     }
 
     /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
@@ -127,21 +152,18 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RequirePlacedBody(body, place, "spit");
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
-            RequestedAnimation = EvirSegment.ProjectileNormal,
-            InstalledAnimation = null,
             Regenerating = false,
             InFlight = false,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         place.SetSpeciesState(state);
-        StartEvirAnimation(place, state);
+        RequestEvirAnimation(place, state, EvirSegment.ProjectileNormal);
 
         // The spit has no graphics-set entry of its own: its sheet pictures it in the Evir's art and colours.
         ResetEvirProjectilePosition(place, state);
 
-        // Clears the installed animation after having started the normal animation. That oddity
-        // forces the first main-AI request to refresh the frame timer exactly once.
-        state.InstalledAnimation = null;
+        // The spit's first request, at its first launch, starts its normal animation afresh, refreshing the frame timer once.
+        state.ShowsSpawnAnimation = true;
     }
 
     /// <summary>
@@ -362,11 +384,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(state) ? 1 : -1, 0);
 
     /// <summary>
-    /// Both regeneration cues test the animation installed on the spit's body, not any facing of its own: the living
-    /// body's, the one a deleted body last installed, or none on a killed body's cleared place.
+    /// Both regeneration cues test the facing of the spit's body, not any facing of its own: the living body's, the one a
+    /// deleted body last showed, or left on a killed body's cleared place and on a body that has not yet updated since it
+    /// spawned (#2145).
     /// </summary>
     private static bool EvirBodyFacesRight(EvirSpitState spit) =>
-        spit.Body.FoundState<EvirBodyState>()?.InstalledAnimation == EvirSegment.BodyFacingRight;
+        spit.Body.FoundState<EvirBodyState>() is { ShowsSpawnAnimation: false, Facing: EvirFacing.Right };
 
     /// <summary>
     /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
@@ -384,24 +407,20 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = EvirSpitAction.Idle;
     }
 
-    /// <summary>Records the desired animation and starts it only when it differs from the active one.</summary>
+    /// <summary>
+    /// Starts <paramref name="segment"/>'s animation only when it differs from the one playing, or afresh while the part
+    /// still shows its spawn animation, resetting the frame timer once per change and preserving held animations.
+    /// </summary>
     private static void RequestEvirAnimation(
         RoomEnemyPlace place,
         EvirPartState state,
         EvirSegment segment)
     {
-        state.RequestedAnimation = segment;
-        StartEvirAnimation(place, state);
-    }
-
-    /// <summary>Resets the frame timer once per animation change, preserving held animations.</summary>
-    private static void StartEvirAnimation(RoomEnemyPlace place, EvirPartState state)
-    {
-        if (state.RequestedAnimation == state.InstalledAnimation)
-            return;
-        state.Playback = new(EvirAnimations.StartingWith(state.RequestedAnimation), AnimationPlace.StartOfAnimation);
-        state.InstalledAnimation = state.RequestedAnimation;
-        place.AnimationClock.Restart();
+        Animation<EvirSegment> animation = EvirAnimations.StartingWith(segment);
+        state.Playback = state.ShowsSpawnAnimation
+            ? EnemyAnimationPlayback.Start(place, animation)
+            : EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, animation);
+        state.ShowsSpawnAnimation = false;
     }
 
     /// <summary>
@@ -440,22 +459,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Runs Evir's initialization AI.</summary>
-    internal void RunEvirInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
-    {
-        InitializeEvir(place, surroundings.IntroducedSamus);
-    }
-
-    /// <summary>Runs an Evir body's or arms' main AI: the body bobs and turns, and the arms follow it.</summary>
-    internal static void RunEvirMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        if (place.SpeciesState<EvirArmsState>() is { } arms)
-        {
-            PositionEvirArms(place, arms);
-            return;
-        }
+    /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
+    internal static void RunEvirBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
         RunEvirMain(place, place.RequireSpeciesState<EvirBodyState>(), frame.Samus);
-    }
+
+    /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>
+    internal static void RunEvirArmsMainAi(RoomEnemyPlace place) =>
+        PositionEvirArms(place, place.RequireSpeciesState<EvirArmsState>());
 
     /// <summary>Runs EvirProjectile's main AI.</summary>
     internal static void RunEvirProjectileMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
@@ -467,12 +477,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Advances an Evir body's or arms' cue-free typed animation.</summary>
-    internal static void AdvanceEvirBodyOrArmsTypedAnimation(RoomEnemyPlace place)
+    /// <summary>Advances an Evir body's or arms' cue-free typed animation, the part keeping its playback in its <typeparamref name="TState"/>.</summary>
+    internal static void AdvanceEvirPartTypedAnimation<TState>(RoomEnemyPlace place) where TState : EvirPartState
     {
         if (!place.AnimationClock.Expire())
             return;
-        EvirPartState state = place.SpeciesState<EvirArmsState>() ?? (EvirPartState)place.RequireSpeciesState<EvirBodyState>();
+        EvirPartState state = place.RequireSpeciesState<TState>();
         AnimationPlayback<EvirSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"An Evir body's or arms' cue-free animation raised {cue}."));

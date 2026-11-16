@@ -186,7 +186,7 @@ internal static class CoreAccess
     {
         /// <summary>The room objects the Chozo statue has asked for and the room has still to spawn, in the order it asked.</summary>
         internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
-            enemies.ChozoStatueBehavior.ChozoStatueObjectRequests;
+            PrivateState.Field<ChozoStatueBehavior, List<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>(enemies.ChozoStatueBehavior, "_objectRequests");
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
             [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];

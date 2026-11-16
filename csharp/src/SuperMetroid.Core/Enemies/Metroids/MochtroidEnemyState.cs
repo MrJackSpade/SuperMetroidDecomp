@@ -12,10 +12,10 @@ public sealed class MochtroidEnemyState
     /// <summary>How the Mochtroid moves this update, cleared before each run of its main AI.</summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
 
-    /// <summary>The animation last started, against which the Mochtroid tells whether its movement asks for a new one; none once cleared.</summary>
-    internal MochtroidSegment? InstalledAnimation { get; set; }
-
-    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    /// <summary>
+    /// The animation the enemy plays and where it stands in it (#1600), against which the Mochtroid tells whether its
+    /// movement asks for a new one (#2145).
+    /// </summary>
     internal AnimationPlayback<MochtroidSegment> Playback { get; set; }
 
     /// <summary>

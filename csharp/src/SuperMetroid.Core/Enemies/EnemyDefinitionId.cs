@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public enum EnemyDefinitionId
 {
-    /// <summary>A cleared or inactive slot.</summary>
+    /// <summary>No enemy: a cleared or inactive place.</summary>
     None,
     /// <summary>A Boyon, the jelly that bounces in place.</summary>
     Boyon,

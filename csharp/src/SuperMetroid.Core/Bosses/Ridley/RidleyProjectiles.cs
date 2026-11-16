@@ -23,7 +23,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// <summary>Supplies Ridley's current facing and calculated muzzle velocity.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
-    /// <summary>Binds the shared Ceres and Lower Norfair fireball chain to encounter state and projectile slots.</summary>
+    /// <summary>Binds the shared Ceres and Lower Norfair fireball chain to encounter state and the room's projectiles.</summary>
     internal RidleyProjectiles(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
         : base(StartingMotions)
     {

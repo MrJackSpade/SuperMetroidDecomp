@@ -1,0 +1,90 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Harness;
+
+namespace SuperMetroid.Verification.Enemies;
+
+/// <summary>Checks the one test of Samus standing on an enemy that every carrying enemy makes (#2155).</summary>
+internal static class EnemyStandingVerification
+{
+    /// <summary>
+    /// The shared standing test against the routine the families each kept a copy of, written as the cartridge writes
+    /// it with every sixteen-bit wrap. Across enemy centres at the room's origin, its middle and its far wrapped end,
+    /// Samus is placed on every pixel from 40 left to 40 right and from 60 above to 10 below, with ordinary radii and the
+    /// Mama Turtle shell's large wrapped radius, so the horizontal and vertical tangencies, the three-pixel bias and the
+    /// wrap across the room's edges are all crossed. Named cases then pin each boundary.
+    /// </summary>
+    internal static void VerifySamusStandingOnEnemy()
+    {
+        RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        Extent16<RoomPixels>[] samusRadii = [new(5, 19), new(8, 10)];
+        Extent16<RoomPixels>[] enemyRadii = [new(8, 8), new(16, 4), Extent16<RoomPixels>.Zero, new(65530, 65530)];
+        int[] centres = [4, 300, 65530];
+        int cases = 0;
+        int standing = 0;
+        foreach (Extent16<RoomPixels> samusRadius in samusRadii)
+        foreach (Extent16<RoomPixels> enemyRadius in enemyRadii)
+        foreach (int enemyX in centres)
+        foreach (int enemyY in centres)
+        for (int dx = -40; dx <= 40; dx++)
+        for (int dy = -60; dy <= 10; dy++)
+        {
+            int samusX = unchecked((ushort)(enemyX + dx));
+            int samusY = unchecked((ushort)(enemyY + dy));
+            bool expected = CartridgeStandingTest(samusX, samusY, samusRadius, enemyX, enemyY, enemyRadius);
+            AssertEqual(expected, Standing(enemy, samus, new(enemyX, enemyY), enemyRadius, new(samusX, samusY), samusRadius),
+                $"Samus at ({samusX}, {samusY}) radius {samusRadius} on an enemy at ({enemyX}, {enemyY}) radius {enemyRadius}");
+            cases++;
+            if (expected)
+                standing++;
+        }
+        AssertEqual(2 * 4 * 3 * 3 * 81 * 71, cases, "every placement was compared");
+        AssertTrue(standing > 0 && standing < cases, "the placements cover both standing and not standing");
+
+        Extent16<RoomPixels> body = new(5, 19);
+        Extent16<RoomPixels> block = new(8, 8);
+        Position16<RoomPixels> centre = new(100, 100);
+        AssertTrue(Standing(enemy, samus, centre, block, new(112, 80), body), "Samus overlapping the enemy's top stands on it");
+        AssertTrue(!Standing(enemy, samus, centre, block, new(113, 80), body), "bodies that only meet side by side do not count");
+        AssertTrue(Standing(enemy, samus, centre, block, new(88, 80), body), "the strict overlap holds on the left as on the right");
+        AssertTrue(!Standing(enemy, samus, centre, block, new(87, 80), body), "the left tangency does not count either");
+        AssertTrue(Standing(enemy, samus, centre, block, new(100, 70), body), "feet meeting the enemy's top, after the bias, count");
+        AssertTrue(!Standing(enemy, samus, centre, block, new(100, 69), body), "a pixel higher she is off the enemy");
+        AssertTrue(Standing(enemy, samus, centre, block, new(100, 96), body), "a centre four pixels above the enemy's stands");
+        AssertTrue(!Standing(enemy, samus, centre, block, new(100, 97), body), "a centre three pixels above the enemy's, the bias, does not");
+        AssertTrue(Standing(enemy, samus, new(2, 10), block, new(65534, 65516), body), "the test reaches across the room's top-left wrap");
+        Console.WriteLine($"  Samus standing on an enemy: {cases} placements match the cartridge's routine; tangencies, bias and wrap hold.");
+    }
+
+    /// <summary>The shared standing test for the given centres and radii.</summary>
+    private static bool Standing(RoomEnemyPlace enemy, SamusState samus, Position16<RoomPixels> enemyCentre, Extent16<RoomPixels> enemyRadius,
+        Position16<RoomPixels> samusCentre, Extent16<RoomPixels> samusRadius)
+    {
+        enemy.Position = enemy.Position.WithWhole(enemyCentre);
+        enemy.Radius = enemyRadius;
+        samus.Position = samus.Position.WithWhole(samusCentre);
+        samus.Kinematics.Radius = samusRadius;
+        return EnemyCollision.IsSamusStandingOn(enemy, samus);
+    }
+
+    /// <summary>
+    /// The cartridge's routine, as each family's copy wrote it before #2155: the wrapped horizontal distance less Samus's
+    /// radius compared strictly with the enemy's, then Samus's centre three pixels lower, the wrapped difference read as
+    /// signed, its magnitude less Samus's radius compared inclusively with the enemy's.
+    /// </summary>
+    private static bool CartridgeStandingTest(int samusX, int samusY, Extent16<RoomPixels> samusRadius, int enemyX, int enemyY, Extent16<RoomPixels> enemyRadius)
+    {
+        int xDistance = Math.Abs((int)unchecked((short)(samusX - enemyX)));
+        if (xDistance >= samusRadius.X && unchecked((ushort)(xDistance - samusRadius.X)) >= enemyRadius.X)
+            return false;
+        int biased = unchecked((ushort)(samusY + 3 - enemyY));
+        if (unchecked((short)biased) >= 0)
+            return false;
+        int yDistance = unchecked((ushort)-biased);
+        return yDistance < samusRadius.Y || unchecked((ushort)(yDistance - samusRadius.Y)) <= enemyRadius.Y;
+    }
+}

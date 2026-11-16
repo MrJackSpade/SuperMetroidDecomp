@@ -182,7 +182,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                     ? unchecked((short)(angle - 128)) < 0
                     : unchecked((short)(angle - 256)) >= 0;
 
-                enemies.KiHunterBehavior.RunKiHunterMainAi(body, frame);
+                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, frame);
                 string side = swoopLeft ? "left" : "right";
                 AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularVelocity.FractionsOfStep),
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");

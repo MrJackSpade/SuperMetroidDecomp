@@ -26,10 +26,7 @@ internal static class GunshipAnimations
             Show(EnemyFrameId.GunshipEntrancePadOpening44Wide, 6),
             Show(EnemyFrameId.GunshipEntrancePadOpening48Wide, 5),
             Show(EnemyFrameId.GunshipEntrancePadOpening52Wide, 4),
-        ],
-        [P.EntrancePadOpen] =
-        [
-            Show(EnemyFrameId.GunshipEntrancePadOpen, 4),
+            Hold(EnemyFrameId.GunshipEntrancePadOpen),
         ],
         [P.EntrancePadClosing] =
         [
@@ -59,8 +56,7 @@ internal static class GunshipAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<GunshipSegment, Animation<GunshipSegment>> StartingAt { get; } = new Dictionary<GunshipSegment, Animation<GunshipSegment>>
     {
-        [P.EntrancePadOpening] = new([new(P.EntrancePadOpening, 0, 10, 1), new(P.EntrancePadOpen, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.EntrancePadOpen] = new([new(P.EntrancePadOpen, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EntrancePadOpening] = new([new(P.EntrancePadOpening, 0, 11, 1)], AnimationEnd.Holds),
         [P.EntrancePadClosing] = new([new(P.EntrancePadClosing, 0, 8, 1), new(P.BottomEntrancePad, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.BottomEntrancePad] = new([new(P.BottomEntrancePad, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TopHull] = new([new(P.TopHull, 0, 1, 1)], AnimationEnd.Holds),
@@ -72,4 +68,7 @@ internal static class GunshipAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good: the opened pad rests on it until its owner closes it (#2144).</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

@@ -30,7 +30,7 @@ internal interface IElevatorJourney
     void ClearElevatorFlagsOnGameplayResume();
 
     /// <summary>Prepares the destination elevator before the room load.</summary>
-    void PrepareElevatorArrival(ElevatorJourneyFlag doorFlags = ElevatorJourneyFlag.DoorLoad);
+    void PrepareElevatorArrival();
 
     /// <summary>Returns the journey to rest: status inactive and flags clear, as gameplay does at fixed points.</summary>
     void ResetStatus();

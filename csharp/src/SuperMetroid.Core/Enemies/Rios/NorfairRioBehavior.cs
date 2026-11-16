@@ -27,7 +27,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Captures the room RNG, terrain, and place table needed by Rio AI.</summary>
+    /// <summary>Captures the room RNG, terrain, and enemy places needed by Rio AI.</summary>
     internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -35,11 +35,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
         _places = places;
     }
-
-    /// <summary>Strict wrapped X-distance threshold for a random dive opportunity.</summary>
-    private const int NorfairRioHorizontalTriggerDistance = 192;
-    /// <summary>Signed 1/256-pixel vertical speed decrement applied during dive and return.</summary>
-    private static readonly SignedEightEight NorfairRioGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemyPlace place)
@@ -50,7 +45,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             ValidateNorfairRioParent(place);
             place.SetSpeciesState(new NorfairRioFollowerState
             {
-                InstalledAnimation = NorfairRioSegment.FlamesAscending,
                 Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
             });
             return;
@@ -60,7 +54,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AnimationSignal = false,
             FollowerYOffset = 0,
-            InstalledAnimation = NorfairRioSegment.Idle,
             Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
         });
     }
@@ -87,7 +80,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         place.Position.X.Whole,
-                        NorfairRioHorizontalTriggerDistance))
+                        RioLaunchDefinitions.NorfairTriggerDistance))
                 {
                     if (state.AnimationSignal)
                     {
@@ -136,7 +129,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - NorfairRioGravity);
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
                 if (state.Velocity.Y.IsNegative)
                     BeginNorfairRioReturn(place, state);
                 return;
@@ -152,7 +145,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - NorfairRioGravity);
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
@@ -208,14 +201,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairRioEnemyState parentState = parent.FoundState<NorfairRioEnemyState>() ?? throw new InvalidOperationException(
             $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
         follower.FrozenTimer = parent.FrozenTimer;
-        if (parent.FrozenTimer != 0 ||
-            parentState.InstalledAnimation == NorfairRioSegment.Idle)
+        if (parent.FrozenTimer != 0 || parentState.Idles)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;
         }
 
-        // The follower's spawn reads the parent's own state: its installed animation and its signed
+        // The follower's spawn reads the parent's own state: its playing animation and its signed
         // follower Y offset. Its drawing position follows the parent's live position.
         NorfairRioSegment followerList = parentState.FollowerYOffset < 0
             ? NorfairRioSegment.FlamesDescending
@@ -253,27 +245,19 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Restarts a parent's animation only when it changes.</summary>
+    /// <summary>Restarts a parent's animation only when it changes (#2145).</summary>
     private static void StartNorfairRioAnimation(
         RoomEnemyPlace place,
         NorfairRioEnemyState state,
         NorfairRioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairRioAnimations.StartingWith(segment));
 
-    /// <summary>Restarts a flame follower's animation only when it changes.</summary>
+    /// <summary>Restarts a flame follower's animation only when it changes (#2145).</summary>
     private static void StartNorfairRioAnimation(
         RoomEnemyPlace place,
         NorfairRioFollowerState state,
         NorfairRioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairRioAnimations.StartingWith(segment));
 
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemyPlace GetPrecedingNorfairRioPlace(RoomEnemyPlace follower) => _parents.Of(follower);

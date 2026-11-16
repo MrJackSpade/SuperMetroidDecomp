@@ -12,15 +12,19 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EscapeAnimalsPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => EscapeAnimalsPartDefinitions.Parts[place.DefinitionId] switch
+    /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        EscapeAnimalsPart.EtecoonEscape => new EscapeEtecoonEntity(this, place, common),
-        EscapeAnimalsPart.DachoraEscape => new EscapeDachoraEntity(this, place, common),
-        _ => throw new InvalidOperationException($"Escape animals do not own {place.DefinitionId}."),
-    };
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.EtecoonEscape)
+            return new EscapeEtecoonEntity(this, place, common);
+        if (definition == EnemyDefinitionId.DachoraEscape)
+            return new EscapeDachoraEntity(this, place, common);
+        throw new InvalidOperationException($"The escape animals species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,8 +38,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Whole-pixel horizontal step used by each Dachora movement-animation cue.</summary>
-    private const int EscapeDachoraPixelsPerCue = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
     private const int EscapeAnimalLavaBranchY = 206;
     /// <summary>The one whole pixel an exiting Etecoon probes downward each update, which settles it on the room's floor.</summary>
@@ -68,7 +70,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.WithWhole(initialization.Position);
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
-        state.Velocity = initialization.Velocity;
+        state.StartWalking(initialization.Velocity);
     }
 
     /// <summary>Initializes the escape Dachora.</summary>
@@ -81,9 +83,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Dachora's population already supplies both properties, but the initializer sets the animating property again.
-        // Expressing the idempotent write documents the initializer and keeps a
-        // synthetic/debug population faithful to retail initialization.
+        // Dachora's population already supplies both properties, and the initializer sets the animating property again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
@@ -129,14 +129,13 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
-        // The stored speed is signed and in 1/256 pixels; the slope-ignoring horizontal mover receives signed
-        // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
-        // branch in the retail game and must not turn an animal around in open space.
+        // The animal moves horizontally by its speed, ignoring slopes that are not square. The event test is made only
+        // when that move collides, so it never turns an animal around in open space.
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {
             place.AnimationClock.StepOnNextUpdate();
-            state.Velocity = state.Velocity.Negated();
+            state.TurnAround();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonSegment.RunningForEscape
                 : state.Velocity.IsNegative
@@ -179,10 +178,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.Escapes }:
-                state.Action = EscapeEtecoonAction.Escaping;
+                state.Escape();
                 return null;
             case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ExpressesGratitude }:
-                state.Action = EscapeEtecoonAction.ExpressingGratitude;
+                state.ExpressGratitude();
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;
@@ -197,20 +196,20 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Dachora's animation, returning where a taken branch continues the play, or null to run on.</summary>
     private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
     {
-        switch (cue.Kind)
+        if (cue is EscapeDachoraCue.Move move)
+        {
+            place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
+            return null;
+        }
+        var branch = (EscapeDachoraCue.Branch)cue;
+        switch (branch.Kind)
         {
             case EscapeDachoraCueKind.GoToIfAcidHigh:
-                return IsAcidLow(samus) ? null : cue.Then;
+                return IsAcidLow(samus) ? null : branch.Then;
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
-                return HasCrittersEscaped() ? cue.Then : null;
-            case EscapeDachoraCueKind.MoveLeft:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - EscapeDachoraPixelsPerCue);
-                return null;
-            case EscapeDachoraCueKind.MoveRight:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + EscapeDachoraPixelsPerCue);
-                return null;
+                return HasCrittersEscaped() ? branch.Then : null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {branch.Kind}.");
         }
     }
 

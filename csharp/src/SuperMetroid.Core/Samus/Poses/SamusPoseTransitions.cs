@@ -94,7 +94,7 @@ internal static class SamusPoseTransitions
     /// Playable room code must call <see cref="SamusPoseTransitions.TryApplyAerialLanding"/> instead. The game
     /// sends every prospective landing pose through the changed-pose collision; omitting
     /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
-    /// point remains for cinematic movement and focused collision-free fixtures only.
+    /// point is for cinematic movement only.
     /// </remarks>
     public static void ApplyAerialLanding(
         SamusState samus,

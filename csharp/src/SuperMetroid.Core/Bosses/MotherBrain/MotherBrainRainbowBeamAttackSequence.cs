@@ -95,9 +95,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Imports the physical room actor's state before one live scheduler call. The standalone
-    /// verifier may continue to own <see cref="MotherBrainLateFightState.Body"/> directly; gameplay instead lets the
-    /// ordinary enemy animation move the real body and feeds the resulting state back here.
+    /// Takes the room's Mother Brain enemies' state before one update of the fight. The room's enemy animation moves
+    /// the body, and its resulting state is fed back here.
     /// This deliberately does not copy animation positions or timers: there must be only
     /// one visible animation runner in a live room.
     /// </summary>
@@ -125,9 +124,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// The animation most recently requested by the state machine's body helper. Gameplay copies
-    /// this animation into its physical body slot only when the step result reports a walk or
-    /// posture request; it never advances this private mirror's animation timer.
+    /// The animation most recently requested by the fight's body step. The room's body enemy starts
+    /// this animation only when the step result reports a walk or posture request; the fight never
+    /// advances this request's animation itself.
     /// </summary>
     internal MotherBrainBodySegment? RequestedBodyAnimation => State.Body.Animation;
 
@@ -158,9 +157,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         State.Phase = MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack;
 
     /// <summary>
-    /// Applies the head's attack-counter step. Live gameplay advances the ordinary
-    /// room animation, while the reusable head verifier advances its private animation;
-    /// both must mutate this one saturating counter.
+    /// Applies the head's attack-counter step; the counter stops at twelve.
     /// </summary>
     internal void IncrementLiveBabyMetroidAttackCounter() =>
         Revival.BabyMetroidAttackCounter = Math.Min(Revival.BabyMetroidAttackCounter + 1, 12);
@@ -170,15 +167,15 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>
     /// Runs the Baby's final cross-enemy write. The body does
-    /// not execute the recovery inside the Baby's slot; increasing-slot enemy order makes
-    /// this installed phase visible on Mother Brain's following frame.
+    /// not run the recovery on the Baby's turn; the room's enemies run in their listed order, so
+    /// Mother Brain runs this installed phase on her following frame.
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
         State.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance;
 
-        // Clears only the shared enemy-slot index. This flag is the equivalent
-        // liveness witness used by head attack selection after the actor has deleted itself.
+        // Clears only the Baby's spawned flag, which head attack selection reads after the
+        // Baby has deleted itself.
         State.BabyMetroidSpawned = false;
     }
 

@@ -51,7 +51,7 @@ internal sealed class EnemyAnimationPlayer
         Position16<RoomPixels> camera,
         GameplayAction controllerInput)
     {
-        if (place.Entity is not IEnemyTypedAnimation { HasTypedAnimation: true } animation)
+        if (place.Entity is not IEnemyTypedAnimation animation)
         {
             throw new InvalidDataException(
                 $"Enemy {place.DefinitionId} animates but has no typed animation.");

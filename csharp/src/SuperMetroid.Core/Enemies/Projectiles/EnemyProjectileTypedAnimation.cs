@@ -22,7 +22,7 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation) =>
         Playback = new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
 
-    /// <summary>The animation playing and where it stands; an imported projectile resumes where its recording stood.</summary>
+    /// <summary>The animation playing and where it stands.</summary>
     internal AnimationPlayback<TSegment> Playback { get; set; }
 
     /// <summary>

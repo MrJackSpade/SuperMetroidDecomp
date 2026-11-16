@@ -35,7 +35,7 @@ public sealed class FileSelectMapWindow
     public FileSelectMapWindow(AreaId area, WorldMapLabelPositions? labels = null)
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
-    /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the authored motions.</summary>
+    /// <summary>Starts the area-to-room reveal of <paramref name="area"/> with <paramref name="motion"/>; the game uses the authored motions.</summary>
     internal FileSelectMapWindow(AreaId area, FileSelectMapWindowMotion motion, WorldMapLabelPositions? labels = null)
     {
         if (!AreaIds.IsZebes(area))

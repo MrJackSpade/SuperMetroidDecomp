@@ -26,24 +26,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Random-wandering activation resets the shared enemy RNG to 11.</summary>
-    private const int SbugRandomSeed = 11;
-    /// <summary>Random and forward-then-wait legs last 32 enemy frames before selection changes.</summary>
-    private const int SbugMovementSegmentFrames = 32;
-    /// <summary>Long wandering mode tracks 512 frames before dropping its distance-based reversal gate.</summary>
-    private const int SbugLongRandomLifetime = 512;
-    /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
-    private const int SbugReverseDistance = 96;
-
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyPlace place)
     {
-        var state = new SbugEnemyState(place.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus)
-        {
-            // A new Sbug has no animation: none is requested or installed until it selects its first direction.
-            RequestedAnimation = null,
-            InstalledAnimation = null,
-        };
+        // A new Sbug plays no animation until it selects its first direction.
+        var state = new SbugEnemyState(place.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus);
         place.SetSpeciesState(state);
 
         // The forward velocity uses the unsigned quarter-circle magnitudes and lets the shared helper apply signs later
@@ -103,12 +90,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
                 return;
             case SbugAction.ActivateRandomAndReverseWhenFar:
-                state.StraightMovementTimer = WrappingCountdown.Start(SbugLongRandomLifetime);
+                state.StraightMovementTimer = WrappingCountdown.Start(SbugMovementDefinitions.LongWanderDuration);
                 SetSbugRandomSeed();
                 state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
             case SbugAction.ActivateMoveForwardThenWait:
-                state.MovementTimer = SbugMovementSegmentFrames;
+                state.MovementTimer = SbugMovementDefinitions.LegDuration;
                 state.Action = SbugAction.MoveForwardThenWait;
                 return;
             case SbugAction.ActivateMoveTowardSamus:
@@ -255,7 +242,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             // least six blocks. This is a rectangular test, not Euclidean distance.
             int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
             int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
-            if (xDistance >= SbugReverseDistance && yDistance >= SbugReverseDistance)
+            if (xDistance >= SbugMovementDefinitions.ReverseDistance && yDistance >= SbugMovementDefinitions.ReverseDistance)
                 ReverseSbugCustomDirection(place, state);
         }
 
@@ -272,7 +259,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
         state.TurnCustomHeading(RotationAngle.FromSteps(randomTurn) - RotationAngle.QuarterTurn);
         RecalculateSbugCustomDirection(place, state);
-        state.MovementTimer = SbugMovementSegmentFrames;
+        state.MovementTimer = SbugMovementDefinitions.LegDuration;
         state.Action = movement;
     }
 
@@ -362,24 +349,17 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase) =>
         EnemyMath.CircleSine(angle.TurnedBySteps(phase), speed);
 
-    /// <summary>Restarts the selected animation only when its facing animation differs from the installed one.</summary>
+    /// <summary>Restarts the selected animation only when its facing animation differs from the one playing (#2145).</summary>
     private static void SetSbugFacing(
         RoomEnemyPlace place,
         SbugEnemyState state,
-        CompassDirection facing)
-    {
-        state.RequestedAnimation = SbugMovement.FacingAnimation(facing);
-        if (state.RequestedAnimation == state.InstalledAnimation)
-            return;
-
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(place, SbugAnimations.StartingWith(state.RequestedAnimation.Value));
-    }
+        CompassDirection facing) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
 
     /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>
     private void SetSbugRandomSeed()
     {
-        _room.Random.Seed(SbugRandomSeed);
+        _room.Random.Seed(SbugMovementDefinitions.RandomSeed);
     }
 
     /// <summary>Advances Sbug's typed animation.</summary>

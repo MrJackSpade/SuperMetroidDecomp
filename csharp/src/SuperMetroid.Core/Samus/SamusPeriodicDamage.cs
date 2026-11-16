@@ -28,7 +28,7 @@ public sealed class SamusPeriodicDamage
 
     /// <summary>
     /// Applies the accumulated damage to Samus: the suit's periodic division (<see cref="SamusSuitDamage.ReducePeriodic"/>),
-    /// the subtraction with the game's borrow chain and a fatal result clamped below zero, then clears it. Frozen time
+    /// the fraction taken first, then the whole energy, a fatal result clamped below zero, then clears it. Frozen time
     /// clears it without applying it.
     /// </summary>
     public void Apply(SamusState samus, bool timeIsFrozen)

@@ -13,7 +13,7 @@ using SuperMetroid.Core.World;
 internal static class DragonBehaviorVerification
 {
     /// <summary>
-    /// Each selector installed through <see cref="DragonBehavior.StartDragonAnimation"/> runs its program: the idle
+    /// Each animation started on a Dragon part runs its program: the idle
     /// pose shows once and holds, the wings loop on time, and the attack shows its five poses for 32, 3, 7, 3 and 1
     /// updates before its cue marks the attack complete for main AI.
     /// </summary>
@@ -71,7 +71,7 @@ internal static class DragonBehaviorVerification
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
             body.Action = DragonAction.Attacking;
-            body.RequestedAnimation = DragonSegment.AttackingFacingLeft;
+            body.FacingLeft = true;
             body.AttackCounter = 3;
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot], body);
@@ -92,11 +92,9 @@ internal static class DragonBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight ? (ushort)1 : (ushort)0);
         enemies.DragonBehavior.InitializeDragon(place);
         DragonPartState state = enemies.DragonPartStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
-        state.ReinstallRequested = true;
-        state.RequestedAnimation = selector;
         if (state is DragonEnemyState body)
             body.AnimationFinished = false;
-        DragonBehavior.StartDragonAnimation(place, state);
+        state.Playback = EnemyAnimationPlayback.Start(place, DragonAnimations.StartingWith(selector));
         return new InstallResult(enemies, place, state);
     }
 

@@ -242,7 +242,7 @@ internal sealed class KraidHead
         }
     }
 
-    /// <summary>Emits a mouth rock when a projectile slot is available.</summary>
+    /// <summary>Emits a mouth rock when a projectile place is free.</summary>
     internal void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
         EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();

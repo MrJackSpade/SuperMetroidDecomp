@@ -11,7 +11,7 @@ internal interface IMotherBrainRoomActors
     /// <summary>Has the special Rinkas removed instead of launched or respawned, as fake death begins.</summary>
     void TerminateRinkas();
 
-    /// <summary>Fires the shared Pirate/Mother Brain laser from <paramref name="muzzle"/>; null when no projectile slot is free.</summary>
+    /// <summary>Fires the shared Pirate/Mother Brain laser from <paramref name="muzzle"/>; null when no projectile place is free.</summary>
     EnemyProjectile? SpawnPirateLaser(RoomEnemyPlace source, Position16<RoomPixels> muzzle, HorizontalDirection direction);
 
     /// <summary>Creates the stationary impact center that later emits an afterburn pair flying along <paramref name="pairAxis"/>.</summary>

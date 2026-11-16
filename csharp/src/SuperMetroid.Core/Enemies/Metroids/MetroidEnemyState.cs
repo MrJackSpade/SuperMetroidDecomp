@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 public sealed class MetroidEnemyState
 {
-    /// <summary>Connects the Metroid's common slot to its two live outer-body effect actors.</summary>
+    /// <summary>Connects the Metroid to its two live outer-body effect actors.</summary>
     internal MetroidEnemyState(RoomEffectActor electricity,
         RoomEffectActor shell)
     {

@@ -7,8 +7,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>
 /// The ROM oracle of an enemy family's typed animations (#1600): each segment's beats matched to its native list, and
-/// each animation matched to the lists' control flow (sleeps, stops, gotos, counter loads, counted repeats and runs on
-/// into the next authored list), under the family's rules for its own instructions.
+/// each animation matched to the lists' control flow (sleeps, stops, gotos, gotos back into a list's own beats, counter
+/// loads, counted repeats and runs on into the next authored list), under the family's rules for its own instructions.
 /// </summary>
 internal static class NativeEnemyAnimationOracle
 {
@@ -288,20 +288,32 @@ internal static class NativeEnemyAnimationOracle
     /// there, else the first in authored order that does, the animations started at counted entries after those starting
     /// at segments.
     /// </summary>
+    /// <param name="lists">Each segment's native list.</param>
+    /// <param name="entries">Each segment's native entry.</param>
+    /// <param name="startingAt">The typed animations, by the segment each starts at.</param>
+    /// <param name="nativePointer">The recorded native instruction pointer.</param>
+    /// <param name="countedStarts">The animations owners start at counted entries.</param>
+    /// <param name="playing">
+    /// The animation the recording's owner installed, where it keeps one beside the pointer (#2145): the pointer is placed in
+    /// that animation alone, since a later request for it must find it playing.
+    /// </param>
     /// <exception cref="InvalidDataException">No animation, or more than one native place, matches the pointer.</exception>
     internal static AnimationPlayback<TSegment> PlaybackAt<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
         NativeProgramEntry<TSegment>[] entries,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         ushort nativePointer,
-        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null)
+        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null,
+        Animation<TSegment>? playing = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
         Ensure.NotNull(entries);
         Ensure.NotNull(startingAt);
-        IReadOnlyList<NativeCountedStart<TSegment>> counted = countedStarts ?? [];
-        if (entries.Where(entry => entry.Entry == nativePointer && startingAt.ContainsKey(entry.Program)).Select(entry => (TSegment?)entry.Program).SingleOrDefault() is { } started)
+        IReadOnlyList<NativeCountedStart<TSegment>> counted = playing is null ? countedStarts ?? [] : [];
+        if (entries.Where(entry => entry.Entry == nativePointer && startingAt.TryGetValue(entry.Program, out Animation<TSegment>? at)
+                    && (playing is null || ReferenceEquals(at, playing)))
+                .Select(entry => (TSegment?)entry.Program).SingleOrDefault() is { } started)
             return new AnimationPlayback<TSegment>(startingAt[started], AnimationPlace.StartOfAnimation);
         if (counted.SingleOrDefault(start => start.Entry.Address == nativePointer) is { } countedStart)
             return new AnimationPlayback<TSegment>(countedStart.Entry.Animation, AnimationPlace.StartOfAnimation);
@@ -319,7 +331,7 @@ internal static class NativeEnemyAnimationOracle
             // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
             foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
             {
-                if (after.First().Address == nativePointer && after.First().Kind != NativeEnemyControlKind.RunOnIntoNext)
+                if (after.First().Address == nativePointer && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart))
                     ends.Add(new(segment, after.Key));
             }
         }
@@ -330,7 +342,10 @@ internal static class NativeEnemyAnimationOracle
         IEnumerable<TSegment> candidates = startingAt.ContainsKey(found.Segment)
             ? [found.Segment, .. Enum.GetValues<TSegment>().Where(startingAt.ContainsKey)]
             : Enum.GetValues<TSegment>().Where(startingAt.ContainsKey);
-        foreach (Animation<TSegment> animation in candidates.Select(candidate => startingAt[candidate]).Concat(counted.Select(start => start.Entry.Animation)))
+        IEnumerable<Animation<TSegment>> animations = playing is null
+            ? candidates.Select(candidate => startingAt[candidate]).Concat(counted.Select(start => start.Entry.Animation))
+            : [playing];
+        foreach (Animation<TSegment> animation in animations)
         {
             for (int index = 0; index < animation.Phases.Count; index++)
             {
@@ -394,7 +409,8 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct, Enum
     {
         var phases = new List<AnimationPhase<TSegment>>();
-        var entered = new Dictionary<TSegment, int> { [start] = 0 };
+        // Where the play entered each list, at its entry (beat zero) or at a beat a goto in that list loops back to (#2144).
+        var entered = new Dictionary<(TSegment Segment, int Beat), int> { [(start, 0)] = 0 };
         TSegment segment = start;
         int runStart = 0, plays = firstPlays;
         int? pending = null;
@@ -424,12 +440,18 @@ internal static class NativeEnemyAnimationOracle
                         return (phases, AnimationEnd.Stops);
                     case NativeEnemyControlKind.Sleep:
                         return (phases, AnimationEnd.Holds);
+                    case NativeEnemyControlKind.LoopStart:
+                        // The run before the beat a later goto returns to is its own phase; the loop plays on from here.
+                        entered[(segment, control.AfterBeat)] = phases.Count;
+                        continue;
                     case NativeEnemyControlKind.Goto:
                     case NativeEnemyControlKind.RunOnIntoNext:
                         TSegment target = control.Target!.Value;
-                        if (entered.TryGetValue(target, out int loop))
+                        if (entered.TryGetValue((target, control.TargetBeat), out int loop))
                             return (phases, AnimationEnd.LoopsFrom(loop));
-                        entered[target] = phases.Count;
+                        if (control.TargetBeat != 0)
+                            throw new InvalidDataException($"{segment}'s goto to beat {control.TargetBeat} of {target} enters no list the play has entered.");
+                        entered[(target, 0)] = phases.Count;
                         segment = target;
                         runStart = 0;
                         plays = pending ?? 1;
@@ -613,6 +635,17 @@ internal static class NativeEnemyAnimationOracle
                     controls.Add(new(NativeEnemyControlKind.Stop, beat, null, null, cursor));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.GoTo:
+                    if (operand != entry && addresses.IndexOf(operand) is var loopBeat and > 0)
+                    {
+                        // A goto back to a beat its own list already showed (#2144) loops the segment from that beat: the
+                        // cues or frames before it play once, as an entry cue before its run. The pointer stands at that
+                        // beat's own address when the play reaches it.
+                        TSegment own = SegmentAt(entry, at);
+                        controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
+                            new(NativeEnemyControlKind.LoopStart, loopBeat, own, null, operand));
+                        controls.Add(new(NativeEnemyControlKind.Goto, beat, own, null, cursor, loopBeat));
+                        return Finish();
+                    }
                     if (!entries.Any(item => item.Entry == operand))
                     {
                         // A list no segment starts continues this one: read on there, once.
@@ -709,6 +742,12 @@ internal enum NativeEnemyControlKind
 
     /// <summary>Stops: the enemy is deleted.</summary>
     Stop,
+
+    /// <summary>
+    /// Marks the beat of its own list a later goto in that list returns to (#2144): no instruction, only the place the loop
+    /// plays on from, which splits the list's run there.
+    /// </summary>
+    LoopStart,
 }
 
 /// <summary>One native control instruction of an enemy's list (#1600).</summary>
@@ -721,7 +760,10 @@ internal enum NativeEnemyControlKind
 /// The native address the instruction pointer rests at when it stands here: the instruction's own, or the next list's
 /// entry for a run on into it.
 /// </param>
-internal sealed record NativeEnemyControl<TSegment>(NativeEnemyControlKind Kind, int AfterBeat, TSegment? Target, int? Count, ushort Address)
+/// <param name="TargetBeat">
+/// The beat of the target's list it continues at: zero, the list's entry, except for a goto back into its own list (#2144).
+/// </param>
+internal sealed record NativeEnemyControl<TSegment>(NativeEnemyControlKind Kind, int AfterBeat, TSegment? Target, int? Count, ushort Address, int TargetBeat = 0)
     where TSegment : struct, Enum;
 
 /// <summary>A place in one segment's native list (#1600): at a beat, or at the end of a run that stops before one.</summary>

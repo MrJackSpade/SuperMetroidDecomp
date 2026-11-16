@@ -128,8 +128,7 @@ internal sealed class CeresRidleyFlight
             return;
         }
 
-        // The other original termination route is Samus energy below 30. A synthetic room
-        // fixture may omit Samus, in which case only the shot-counter route is meaningful.
+        // The fight's other end is Samus's energy falling below 30.
         // The low-energy check jumps into the real retreat, so its first acceleration runs this call.
         if (samus.Health < 30)
         {

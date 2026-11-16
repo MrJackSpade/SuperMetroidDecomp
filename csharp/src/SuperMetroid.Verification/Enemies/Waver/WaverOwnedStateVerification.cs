@@ -21,7 +21,7 @@ internal static class WaverOwnedStateVerification
         WaverBehavior.InitializeWaver(place);
         WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("The initialized Waver has no state.");
         AssertEqual(SignedSixteenSixteen.FromParts(1, 0x8000), state.XVelocity, "a right-facing Waver moves one and a half pixels per update");
-        AssertEqual(WaverSegment.SteadyFacingRight, state.RequestedAnimation, "parameter one's low bit faces right");
+        AssertEqual(HorizontalDirection.Right, state.Facing, "parameter one's low bit faces right");
 
         state.Angle = RotationAngle.FromSteps(0xff);
         state.AdvanceWave();

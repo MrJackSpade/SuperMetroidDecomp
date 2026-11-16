@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed record CrocomireFightDependencies
 {
-    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
+    /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Moves Crocomire against the arena's collision blocks.</summary>

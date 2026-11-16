@@ -32,37 +32,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         _collision = collision;
     }
 
-    /// <summary>Strict horizontal range in which Oum can push or carry Samus.</summary>
-    private const int MaridiaLargeSnailPushingXDistance = 24;
-    /// <summary>Strict vertical range required for Samus to be in Oum's pushing band.</summary>
-    private const int MaridiaLargeSnailPushingYDistance = 32;
-    /// <summary>Strict horizontal range used when a completed cooldown permits attack.</summary>
-    private const int MaridiaLargeSnailAttackXDistance = 32;
-    /// <summary>Frames initially held before Oum may rotate into an attack.</summary>
-    private const int MaridiaLargeSnailInitialAttackCooldown = 128;
-    /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
-    private const int MaridiaLargeSnailInitialBounceCount = 3;
-    /// <summary>Per-frame change of the vertical place along the quadratic speed curve, in 256ths of a mark.</summary>
-    private static readonly QuadraticSpeedCurvePlace MaridiaLargeSnailBounceAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
-    /// <summary>Maximum falling speed-curve place before the next impact.</summary>
-    private static readonly QuadraticSpeedCurvePlace MaridiaLargeSnailMaximumFallCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
-    /// <summary>Speed-curve place removed at each floor impact.</summary>
-    private static readonly QuadraticSpeedCurvePlace MaridiaLargeSnailImpactCurveLoss = QuadraticSpeedCurvePlace.FromMarks(16);
-
-    /// <summary>Enemy-library sound queued by Oum's attack splash.</summary>
-    private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
-        EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound;
-    /// <summary>Enemy-library sound queued after a shot hits Oum.</summary>
-    private static readonly SoundEffectId MaridiaLargeSnailShotSound =
-        EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
-
     /// <summary>Initializes the Oum.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemyPlace place)
     {
         var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
         {
-            RequestedAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
-            InstalledAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
+            FacesLeft = false,
+            RollsBackwards = false,
+            ShowsSpawnIdle = true,
             AttackAnimationFinished = false,
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
@@ -70,14 +47,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
-            AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
+            AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown,
             MovingLeft = false,
-            RemainingBounces = MaridiaLargeSnailInitialBounceCount,
+            RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces,
         };
         place.SetSpeciesState(state);
 
-        // The initial left-facing animation intentionally disagrees with the installed right-facing idle. Because asking for
-        // the installed animation again starts nothing, this oddity is observable until the snail first asks for another.
+        // The spawn's left-facing idle disagrees with the right-facing Oum it counts as (ShowsSpawnIdle), which is
+        // observable until the snail first starts an animation.
         state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailSegment.FacingLeftIdle), AnimationPlace.StartOfAnimation);
     }
 
@@ -131,19 +108,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
         if (samusIsLeft)
             state.MovingLeft = true;
-        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Idle(samusIsLeft);
-        StartMaridiaLargeSnailAnimation(place, state);
+        state.FacesLeft = samusIsLeft;
+        StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Idle(state.FacesLeft));
 
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
                 place.Position.X.Whole,
-                MaridiaLargeSnailPushingXDistance))
+                MaridiaLargeSnailMotionDefinitions.PushingReachX))
         {
             return;
         }
 
-        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingFrom(state.RequestedAnimation);
-        StartMaridiaLargeSnailAnimation(place, state);
+        state.RollsBackwards = false;
+        StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailRoll(state));
         state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
@@ -164,7 +141,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // complete three-impact settling sequence without skipping horizontal work.
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
-            state.RemainingBounces = MaridiaLargeSnailInitialBounceCount;
+            state.RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces;
         }
 
         // StopMovementNextFrame was produced at the end of the preceding main-AI call. The
@@ -180,15 +157,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             bool mayAttack = EnemyMath.IsWithinStrictModularDistance(
                     samus.Position.X.Whole,
                     place.Position.X.Whole,
-                    MaridiaLargeSnailAttackXDistance) &&
+                    MaridiaLargeSnailMotionDefinitions.AttackReach) &&
                 state.AttackAllowsRotation &&
                 state.RemainingBounces == 0;
             if (mayAttack)
             {
                 state.MovingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
-                state.AttackCooldown = MaridiaLargeSnailInitialAttackCooldown;
-                state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Attacking(state.MovingLeft);
-                StartMaridiaLargeSnailAnimation(place, state);
+                state.AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown;
+                state.FacesLeft = state.MovingLeft;
+                StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Attacking(state.FacesLeft));
                 state.Action = MaridiaLargeSnailAction.Attacking;
                 return;
             }
@@ -206,8 +183,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.AttackAnimationFinished = false;
-        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingAfter(state.RequestedAnimation);
-        StartMaridiaLargeSnailAnimation(place, state);
+        state.RollsBackwards = false;
+        StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailRoll(state));
         state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
@@ -223,8 +200,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // The place stays within 3712 256ths of a mark below the start through mark 64, so the game's
                 // signed comparisons are ordinary comparisons.
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
-                    state.YSpeedCurvePlace + MaridiaLargeSnailBounceAcceleration,
-                    MaridiaLargeSnailMaximumFallCurvePlace);
+                    state.YSpeedCurvePlace + MaridiaLargeSnailMotionDefinitions.BounceAcceleration,
+                    MaridiaLargeSnailMotionDefinitions.FastestFallPlace);
 
                 if (!_terrain.MoveEnemyVertically(
                         level,
@@ -236,14 +213,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
                 state.RemainingBounces--;
                 // An impact that leaves the place below the start ends the bounces; the negative place is kept.
-                state.YSpeedCurvePlace -= MaridiaLargeSnailImpactCurveLoss;
+                state.YSpeedCurvePlace -= MaridiaLargeSnailMotionDefinitions.ImpactCurveLoss;
                 if (state.YSpeedCurvePlace.IsNegative)
                     state.RemainingBounces = 0;
                 state.BouncePhase = MaridiaLargeSnailBouncePhase.Rising;
                 return;
 
             case MaridiaLargeSnailBouncePhase.Rising:
-                state.YSpeedCurvePlace -= MaridiaLargeSnailBounceAcceleration;
+                state.YSpeedCurvePlace -= MaridiaLargeSnailMotionDefinitions.BounceAcceleration;
                 if (state.YSpeedCurvePlace.IsNegative)
                 {
                     state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -266,16 +243,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
     }
 
-    /// <summary>The speed Oum rolls at, one pixel per frame.</summary>
-    private static readonly SignedSixteenSixteen OnePixelPerFrame = SignedSixteenSixteen.FromWholePixels(1);
-
     /// <summary>Temporarily extends the collision probe toward Samus, then retracts it after wall resolution.</summary>
     private void MoveMaridiaLargeSnailHorizontally(
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen speed = state.MovingLeft ? -OnePixelPerFrame : OnePixelPerFrame;
+        SignedSixteenSixteen speed = state.MovingLeft ? -MaridiaLargeSnailMotionDefinitions.RollSpeed : MaridiaLargeSnailMotionDefinitions.RollSpeed;
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)
@@ -306,8 +280,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.MovingLeft = !state.MovingLeft;
-        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Reversed(state.RequestedAnimation);
-        StartMaridiaLargeSnailAnimation(place, state);
+        state.RollsBackwards = !state.RollsBackwards;
+        StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailRoll(state));
     }
 
     /// <summary>Captures whether Samus is within both push ranges and on which side.</summary>
@@ -321,11 +295,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.Y.Whole,
                 place.Position.Y.Whole,
-                MaridiaLargeSnailPushingYDistance) ||
+                MaridiaLargeSnailMotionDefinitions.PushingReachY) ||
             !EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
                 place.Position.X.Whole,
-                MaridiaLargeSnailPushingXDistance))
+                MaridiaLargeSnailMotionDefinitions.PushingReachX))
         {
             return;
         }
@@ -341,7 +315,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         SamusState samus)
     {
         state.StopMovementNextFrame = false;
-        if (MaridiaLargeSnailTouchesSamusFromBelow(place, samus))
+        if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement. This preserves the last touching Oum's ownership.
@@ -395,39 +369,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         place.Position = place.Position.WithWholeX(state.PreviousPosition.X);
     }
 
-    /// <summary>
-    /// Exact asymmetric "touching from below" predicate used for Oum carrying and
-    /// its post-contact shove. It is intentionally not interchangeable with radius overlap.
-    /// </summary>
-    private static bool MaridiaLargeSnailTouchesSamusFromBelow(
-        RoomEnemyPlace place,
-        SamusState samus)
-    {
-        int xDistance = CoordinateAxis.Distance(
-            samus.Position.X.Whole, place.Position.X.Whole);
-        bool centerWithinSamusRadius = xDistance < samus.Kinematics.Radius.X;
-        int remainingX = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
-        if (!centerWithinSamusRadius && remainingX >= place.Radius.X)
-            return false;
-
-        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + MaridiaLargeSnailMotionDefinitions.SamusTouchBias);
-        if (CoordinateAxis.Difference(biasedSamusY, place.Position.Y.Whole) >= 0)
-            return false;
-
-        int verticalDistance = CoordinateAxis.Wrap(place.Position.Y.Whole - biasedSamusY);
-        int remainingY = CoordinateAxis.Wrap(verticalDistance - samus.Kinematics.Radius.Y);
-        return verticalDistance < samus.Kinematics.Radius.Y ||
-            remainingY == place.Radius.Y ||
-            remainingY < place.Radius.Y;
-    }
-
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
     private void ApplyMaridiaLargeSnailCue(MaridiaLargeSnailEnemyState state, MaridiaLargeSnailCue cue)
     {
         switch (cue.Kind)
         {
             case MaridiaLargeSnailCueKind.PlaySplash:
-                _audio.QueueEnemySound(MaridiaLargeSnailSplashSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound, priority: SoundRequestPriority.Normal);
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
@@ -443,15 +391,31 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
     }
 
-    /// <summary>Starts the requested animation only when it differs from the one the snail last started.</summary>
+    /// <summary>The roll Oum shows: facing as it faced when the roll began, forwards or, after a wall, backwards.</summary>
+    private static MaridiaLargeSnailSegment MaridiaLargeSnailRoll(MaridiaLargeSnailEnemyState state) => state.RollsBackwards
+        ? MaridiaLargeSnailAnimationChoices.RollingBackwards(state.FacesLeft)
+        : MaridiaLargeSnailAnimationChoices.RollingForwards(state.FacesLeft);
+
+    /// <summary>
+    /// Starts <paramref name="segment"/>'s animation only when it differs from the one the snail plays. While the snail
+    /// still shows its spawn idle it counts as playing the right-facing idle, and its first start of another animation, the
+    /// left-facing idle included, starts it afresh (<see cref="MaridiaLargeSnailEnemyState.ShowsSpawnIdle"/>).
+    /// </summary>
     internal static void StartMaridiaLargeSnailAnimation(
         RoomEnemyPlace place,
-        MaridiaLargeSnailEnemyState state)
+        MaridiaLargeSnailEnemyState state,
+        MaridiaLargeSnailSegment segment)
     {
-        if (state.RequestedAnimation == state.InstalledAnimation)
+        Animation<MaridiaLargeSnailSegment> animation = MaridiaLargeSnailAnimations.StartingWith(segment);
+        if (!state.ShowsSpawnIdle)
+        {
+            state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, animation);
             return;
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(place, MaridiaLargeSnailAnimations.StartingWith(state.RequestedAnimation));
+        }
+        if (segment == MaridiaLargeSnailSegment.FacingRightIdle)
+            return;
+        state.ShowsSpawnIdle = false;
+        state.Playback = EnemyAnimationPlayback.Start(place, animation);
     }
 
     /// <summary>
@@ -462,7 +426,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomEnemyPlace place,
         SamusState samus)
     {
-        if (MaridiaLargeSnailTouchesSamusFromBelow(place, samus))
+        if (EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
         int shove = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
@@ -476,7 +440,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
-        _audio.QueueEnemySound(MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
     internal EnemyBombReaction MaridiaLargeSnailBombReaction => field ??= new()

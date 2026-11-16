@@ -27,8 +27,8 @@ internal static class RidleyExplosionDefinitions
         RidleyBreakupFrame.TailTipPointingRight, RidleyBreakupFrame.TailTipPointingRightDownRight, RidleyBreakupFrame.TailTipPointingDownRight, RidleyBreakupFrame.TailTipPointingDownDownRight);
 
     /// <summary>
-    /// The breakup's allocation order: the tail from tip to base, then wings, legs, torso, head and claw. Enemy-slot
-    /// and draw order make this sequence observable.
+    /// The breakup's spawn order: the tail from tip to base, then wings, legs, torso, head and claw. The places the
+    /// pieces take and the draw order make this sequence observable.
     /// </summary>
     internal static readonly RidleyExplosionPart[] BreakupOrder =
     [

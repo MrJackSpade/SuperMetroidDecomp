@@ -57,17 +57,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Minimum separation used before moving Samus to the extended mouth.</summary>
-    private const int YappingMawGrabSafetyDistance = 32;
-    /// <summary>Maximum extension curl admitted by the four-link solver, in whole angle units.</summary>
-    private const int YappingMawMaximumCurl = 128;
-    /// <summary>The curl, in whole angle units, per angle step each link of the chain bends by: the bend step is a quarter of the curl.</summary>
-    private const int CurlPerBendStep = 4;
-    /// <summary>Cooldown after Samus is released before the Maw can grab again.</summary>
-    private const int YappingMawGrabCooldownFrames = 48;
-    /// <summary>Delay after full retraction before Samus input is released.</summary>
-    private const int YappingMawRetractedDelayFrames = 64;
-
     /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemyPlace place)
     {
@@ -76,7 +65,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
             ActivationDistance = place.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
-            RetractedDelayTimer = YappingMawRetractedDelayFrames,
+            RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold,
         };
         place.SetSpeciesState(state);
 
@@ -109,7 +98,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
         state.RootEffectActor = _effectActors.SpawnRoomEffectActor(
-            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
+            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+                ? -YappingMawAttackDefinitions.RootDistance
+                : YappingMawAttackDefinitions.RootDistance))),
             place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? RoomEffectActorKind.YappingMawBaseFacingDown
                 : RoomEffectActorKind.YappingMawBaseFacingUp,
@@ -125,7 +116,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.GrabCooldown = state.GrabCooldown.Decrement().Remaining;
         state.IsOffScreen = IsYappingMawPointOffScreen(place, camera);
-
 
         switch (state.Action)
         {
@@ -164,11 +154,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Position.Whole);
         state.DistanceToSamus = distance;
 
-        if (distance < YappingMawGrabSafetyDistance)
+        if (distance < YappingMawAttackDefinitions.GrabSafetyDistance)
         {
             // A target already inside 32 pixels cannot safely trigger an extension and has
             // its grab gate refreshed to 48 every frame. This is why the cooldown must wrap.
-            state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
+            state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
             return;
         }
 
@@ -208,10 +198,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The angle steps each link of the chain bends by for a curl of <paramref name="curl"/> whole angle units. The
-    /// extension only runs while the curl is 0 through <see cref="YappingMawMaximumCurl"/>: setup starts it at zero, the
+    /// extension only runs while the curl is 0 through <see cref="YappingMawAttackDefinitions.LargestCurl"/>: setup starts it at zero, the
     /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
     /// </summary>
-    internal static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawMaximumCurl, curl) / CurlPerBendStep;
+    internal static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
@@ -254,9 +244,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A nonnegative whole part minus 128 cannot wrap, so the game's signed difference test is this
             // ordinary comparison.
-            if (state.Extension.WholePixels >= YappingMawMaximumCurl)
+            if (state.Extension.WholePixels >= YappingMawAttackDefinitions.LargestCurl)
             {
-                state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
+                state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawAttackDefinitions.LargestCurl), 0);
                 // The turn-around steps half a mark further than the update's own advance: from a positive speed to
                 // the same mark's negative speed, or from a negative speed on to the next mark's positive one.
                 if (state.QuadraticSpeedSign == EnemySpeedSign.Negative)
@@ -276,7 +266,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Action = YappingMawAction.RetractedDelay;
-        state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
+        state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
 
         // The six retracted animations are not one per aim. The right and left sectors have
         // dedicated art, while every other sector shares its attack direction's animation.
@@ -332,8 +322,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         samus.Control.Unlock();
         state.HasGrabbedSamus = false;
-        state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
-        state.RetractedDelayTimer = YappingMawRetractedDelayFrames;
+        state.GrabCooldown = WrappingCountdown.Start(YappingMawAttackDefinitions.GrabCooldown);
+        state.RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold;
         state.Action = YappingMawAction.WaitingForSamus;
     }
 
@@ -505,13 +495,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int deltaX = CoordinateAxis.Difference(samus.X, origin.X);
         int absoluteX = Math.Abs(deltaX);
-        // The farthest difference's magnitude, 32768, is compared as the game's signed comparison reads it.
-        if (CoordinateAxis.Difference(absoluteX, ShortProductReach) >= 0)
+        if (absoluteX >= ShortProductReach)
             return new YappingMawTarget(absoluteX, default);
 
         int deltaY = CoordinateAxis.Difference(samus.Y, origin.Y);
         int absoluteY = Math.Abs(deltaY);
-        if (CoordinateAxis.Difference(absoluteY, ShortProductReach) >= 0)
+        if (absoluteY >= ShortProductReach)
             return new YappingMawTarget(absoluteY, default);
 
         // Both magnitudes are below the reach here, so each short product is below 255 pixels and their sum below 510:

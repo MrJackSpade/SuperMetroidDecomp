@@ -38,7 +38,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Initializes one lint part.</summary>
-    private void InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected)
+    internal void InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected)
     {
         KraidEnemyState state = _access.RequireKraidState(lint);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
@@ -139,36 +139,6 @@ internal sealed class KraidProjectiles
                     throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
             }
         }
-    }
-
-    /// <summary>Runs KraidLintTop's initialization AI.</summary>
-    internal void RunKraidLintTopInitializationAi(RoomEnemyPlace place)
-    {
-        InitializeKraidLint(place, KraidLintPart.Top);
-    }
-
-    /// <summary>Runs KraidLintMiddle's initialization AI.</summary>
-    internal void RunKraidLintMiddleInitializationAi(RoomEnemyPlace place)
-    {
-        InitializeKraidLint(place, KraidLintPart.Middle);
-    }
-
-    /// <summary>Runs KraidLintBottom's initialization AI.</summary>
-    internal void RunKraidLintBottomInitializationAi(RoomEnemyPlace place)
-    {
-        InitializeKraidLint(place, KraidLintPart.Bottom);
-    }
-
-    /// <summary>Runs the first fingernail's initialization AI.</summary>
-    internal void RunKraidNailInitializationAi(RoomEnemyPlace place)
-    {
-        InitializeKraidNail(place);
-    }
-
-    /// <summary>Runs the second fingernail's initialization AI.</summary>
-    internal void RunKraidSecondNailInitializationAi(RoomEnemyPlace place)
-    {
-        InitializeKraidNail(place);
     }
 
     /// <summary>Checks lint contact against Samus without altering the body phase.</summary>
@@ -478,7 +448,7 @@ internal sealed class KraidProjectiles
         // Checks support after moving and even on the frame that hides the lint.
         // Publish carry for Samus's later movement step, rather than teleporting
         // her here. The clamp changes only the whole pixels; the subpixels keep what the subtraction left.
-        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
+        if (EnemyCollision.IsSamusStandingOn(lint, samus))
         {
             SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X + KraidPlatformMovement.FiringDisplacement;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(

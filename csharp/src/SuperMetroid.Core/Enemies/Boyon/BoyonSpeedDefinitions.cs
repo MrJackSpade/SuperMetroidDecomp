@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>The Boyon bounce curve's stored length.</summary>
+/// <summary>How far down the Boyon bounce curve rises before it saturates, and the bounces its arcs allow.</summary>
 public static class BoyonSpeedDefinitions
 {
-    /// <summary>The bounce clamps indices at or above 23 to 255 before multiplication.</summary>
+    /// <summary>How many places from the curve's top rise: from the twenty-fourth place down, the curve saturates.</summary>
     public const int StoredSampleCount = 23;
 
-    /// <summary>The sample every index at or past <see cref="StoredSampleCount"/> reads: the curve's saturated height.</summary>
+    /// <summary>The sample at every place from <see cref="StoredSampleCount"/> down: the curve's saturated height.</summary>
     public const int SaturatedSample = 255;
 
     /// <summary>The largest scaled sample, <see cref="SaturatedSample"/> times <see cref="LargestArcMultiplier"/>.</summary>

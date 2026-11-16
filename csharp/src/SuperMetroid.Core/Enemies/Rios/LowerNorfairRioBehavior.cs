@@ -36,11 +36,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         _places = places;
     }
 
-    /// <summary>Samus must be strictly within 112 horizontal pixels to permit a swoop.</summary>
-    private const int LowerNorfairRioHorizontalTriggerDistance = 112;
-    /// <summary>Each flight update subtracts 32 units from the signed 1/256-pixel vertical velocity.</summary>
-    private static readonly SignedEightEight LowerNorfairRioGravity = SignedEightEight.FromParts(0, 32);
-
     /// <summary>Initializes the Lower Norfair Rio.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemyPlace place)
     {
@@ -59,7 +54,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             AnimationSignal = false,
             FollowerVisible = false,
-            InstalledAnimation = LowerNorfairRioSegment.Idle,
             Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
         });
     }
@@ -83,7 +77,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         place.Position.X.Whole,
-                        LowerNorfairRioHorizontalTriggerDistance))
+                        RioLaunchDefinitions.LowerNorfairTriggerDistance))
                 {
                     // Unlike upper Norfair Rio, this variant clears the handshake and calls
                     // its animation starter on every rejected frame. The helper itself prevents
@@ -257,18 +251,14 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Applies the negative 1/256-pixel vertical acceleration after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y - LowerNorfairRioGravity);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.LowerNorfairGravity);
 
-    /// <summary>Restarts a different Rio animation while leaving an unchanged animation's timer intact.</summary>
+    /// <summary>Restarts a different Rio animation while leaving the playing animation's timer intact (#2145).</summary>
     private static void StartLowerNorfairRioAnimation(
         RoomEnemyPlace place,
         LowerNorfairRioEnemyState state,
-        LowerNorfairRioSegment animationScript) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, animationScript, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(LowerNorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        LowerNorfairRioSegment segment) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, LowerNorfairRioAnimations.StartingWith(segment));
 
     /// <summary>The parent the flame follower found when it was placed, the enemy its room lists directly before it.</summary>
     private RoomEnemyPlace GetPrecedingLowerNorfairRioPlace(RoomEnemyPlace follower) => _parents.Of(follower);

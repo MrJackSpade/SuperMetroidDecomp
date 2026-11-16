@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyTail
 {
-    /// <summary>Exposes the five ordinary Samus projectile slots checked by Ceres whip aiming.</summary>
+    /// <summary>Exposes Samus's five ordinary projectiles, which Ceres whip aiming checks.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Replaces shots blocked by tail joints with dust or dud effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -466,7 +466,7 @@ internal sealed class RidleyTail
             projectiles);
     }
 
-    /// <summary>Consumes the first colliding ordinary beam or missile slot at one armored joint and spawns its impact effect.</summary>
+    /// <summary>Consumes the first colliding ordinary beam or missile at one armored joint and spawns its impact effect.</summary>
     private bool TryBlockProjectileAtRidleyTailJoint(
         RidleyTailSegment joint,
         int radius,

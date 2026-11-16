@@ -18,7 +18,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>What the enemy passes run for the body; fade completion stops its animation.</summary>
     public required SuperMetroid.Core.Enemies.EnemyProcessing BodyProcessing { get; init; }
 
-    /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
+    /// <summary>Whether the body is drawn and still holds its place; fade completion hides it.</summary>
     public required SuperMetroid.Core.Enemies.EnemyPresence BodyPresence { get; init; }
 
     /// <summary>Whether the body collides by its frames' hitboxes; cleared when the faded body becomes non-interactive.</summary>
@@ -27,10 +27,10 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
     public required bool BodyShowsNewFrame { get; init; }
 
-    /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
+    /// <summary>Mother Brain's brain's room position used by the final beam's aim vector.</summary>
     public required Position16<RoomPixels> Brain { get; init; }
 
-    /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
+    /// <summary>The brain's health, rewritten to 36,000 when corpse state one is published.</summary>
     public required int BrainHealth { get; init; }
 
     /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
@@ -39,7 +39,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation.</summary>
     public required SuperMetroid.Core.Enemies.EnemyProcessing BrainProcessing { get; init; }
 
-    /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
+    /// <summary>Whether the brain is drawn and still holds its place; the end of rotting hides it.</summary>
     public required SuperMetroid.Core.Enemies.EnemyPresence BrainPresence { get; init; }
 
     /// <summary>Whether the brain collides by its frames' hitboxes; cleared when the rot animation completes.</summary>

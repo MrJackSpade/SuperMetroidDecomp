@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed record DraygonPartsDependencies
 {
-    /// <summary>Accesses the active room, enemy slots, and shared random numbers.</summary>
+    /// <summary>Accesses the active room, enemy places, and shared random numbers.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Spawns the parts' projectiles.</summary>

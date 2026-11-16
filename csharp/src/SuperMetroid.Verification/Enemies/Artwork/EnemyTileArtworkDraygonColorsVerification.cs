@@ -75,12 +75,17 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         enemies.DraygonBehavior.Parts.InitializeDraygonBody(body);
         // His hurt update shades every part he draws (#1512), so his eye, tail and arms attach after the body as in his room.
-        EnemyDefinitionId[] parts = [EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms];
+        (EnemyDefinitionId Definition, Action<RoomEnemyPlace> Initialize)[] parts =
+        [
+            (EnemyDefinitionId.DraygonEye, enemies.DraygonBehavior.Parts.InitializeDraygonEye),
+            (EnemyDefinitionId.DraygonTail, enemies.DraygonBehavior.Parts.InitializeDraygonTail),
+            (EnemyDefinitionId.DraygonArms, enemies.DraygonBehavior.Parts.InitializeDraygonArms),
+        ];
         for (int index = 0; index < parts.Length; index++)
         {
             RoomEnemyPlace part = enemies.Places.InUpdateOrder[index + 1];
-            part.Bind(parts[index], part.Definition);
-            enemies.DraygonBehavior.Parts.InitializeDraygonPart(part);
+            part.Bind(parts[index].Definition, part.Definition);
+            parts[index].Initialize(part);
         }
         DraygonEnemyState state = enemies.DraygonBehavior.Parts.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");

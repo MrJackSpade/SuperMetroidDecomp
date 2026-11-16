@@ -18,9 +18,6 @@ internal static class BoyonAnimations
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-        ],
-        [P.IdleLoop] =
-        [
             Show(EnemyFrameId.BoyonRestingRound, 10),
             Show(EnemyFrameId.BoyonRestingGlinting, 10),
             Show(EnemyFrameId.BoyonRestingSquat, 10),
@@ -30,9 +27,6 @@ internal static class BoyonAnimations
         [
             Cue(new(K.ProcessOffScreen)),
             Cue(new(K.StartBounce)),
-        ],
-        [P.BouncingLoop] =
-        [
             Show(EnemyFrameId.BoyonBouncingBulging, 5),
             Show(EnemyFrameId.BoyonBouncingStarShaped, 5),
             Show(EnemyFrameId.BoyonBouncingStarSpread, 5),
@@ -45,10 +39,8 @@ internal static class BoyonAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BoyonSegment, Animation<BoyonSegment>> StartingAt { get; } = new Dictionary<BoyonSegment, Animation<BoyonSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Bouncing] = new([new(P.Bouncing, 0, 2, 1), new(P.BouncingLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.BouncingLoop] = new([new(P.BouncingLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.Idle, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Bouncing] = new([new(P.Bouncing, 0, 2, 1), new(P.Bouncing, 2, 6, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

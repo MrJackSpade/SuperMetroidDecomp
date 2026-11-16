@@ -74,8 +74,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
             place.SetSpeciesState(new DragonWingState
             {
-                RequestedAnimation = DragonSegment.WingsFacingLeft,
-                InstalledAnimation = DragonSegment.WingsFacingLeft,
                 Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),
             });
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -86,8 +84,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.ListedAfter(place, 1))
         {
             AnimationFinished = false,
-            RequestedAnimation = DragonSegment.IdleFacingLeft,
-            InstalledAnimation = DragonSegment.IdleFacingLeft,
             Playback = new(DragonAnimations.StartingWith(DragonSegment.IdleFacingLeft), AnimationPlace.StartOfAnimation),
         });
     }
@@ -137,17 +133,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Rising;
 
-        // The body turns to face Samus, and the body and its wing each keep their animation while turning to that side.
+        // The body turns to face Samus, and the idle body and its flapping wing each turn to that side.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
-        bodyState.RequestedAnimation = DragonPhases.WithFacing(
-            bodyState.RequestedAnimation,
-            facingLeft);
-        wingState.RequestedAnimation = DragonPhases.WithFacing(
-            wingState.RequestedAnimation,
-            facingLeft);
-        StartDragonAnimation(body, bodyState);
-        StartDragonAnimation(wing, wingState);
+        StartDragonAnimation(body, bodyState, DragonPhases.Idle(facingLeft));
+        StartDragonAnimation(wing, wingState, DragonPhases.Wings(facingLeft));
     }
 
     /// <summary>Rises out of the lava.</summary>
@@ -155,9 +145,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--bodyState.ActionTimer < 0)
         {
-            bodyState.RequestedAnimation =
-                DragonPhases.AttackingWithSameFacing(
-                    bodyState.RequestedAnimation);
             bodyState.AttackCounter = DragonShotCount;
             bodyState.Action = DragonAction.Attacking;
         }
@@ -172,29 +159,27 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Attacks, spitting fireballs.</summary>
     internal void RunDragonAttacking(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        StartDragonAnimation(body, bodyState);
+        // The attack faces the way the body turned before rising. The update after each fireball, the attack its spit
+        // played out starts over: that restart is what spaces the three fireballs by a whole attack animation (#2145).
+        Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.FacingLeft));
+        bodyState.Playback = ReferenceEquals(bodyState.Playback.Animation, attack) && bodyState.Playback.HasShownPhaseEnd && !bodyState.AnimationFinished
+            ? EnemyAnimationPlayback.Start(body, attack)
+            : EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack);
         if (!bodyState.AnimationFinished)
             return;
 
         bodyState.AnimationFinished = false;
-
-        // The attack restarts after each animation reaches its rest; that restart is what spaces the three fireballs
-        // by a whole attack animation.
-        bodyState.ReinstallRequested = true;
         SpawnDragonFireball(body, bodyState);
         // Each fireball queues one sound; two Dragons attacking in one frame queue two.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
         if (--bodyState.AttackCounter != 0)
             return;
 
-        bodyState.RequestedAnimation =
-            DragonPhases.IdleWithSameFacing(
-                bodyState.RequestedAnimation);
         bodyState.ActionTimer = DragonWaitBeforeSinkFrames;
         bodyState.Action = DragonAction.WaitToSink;
     }
 
-    /// <summary>Waits before sinking.</summary>
+    /// <summary>Waits before sinking, the attack resting on its last pose; the sink starts the idle pose.</summary>
     private static void RunDragonWaitToSink(
         RoomEnemyPlace body,
         DragonEnemyState bodyState)
@@ -204,7 +189,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Sinking;
-        StartDragonAnimation(body, bodyState);
+        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.FacingLeft));
     }
 
     /// <summary>Sinks back into the lava.</summary>
@@ -244,17 +229,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         following.AiStates = actor.AiStates;
     }
 
-    /// <summary>Starts a newly requested animation once and resets its frame timer.</summary>
-    internal static void StartDragonAnimation(
-        RoomEnemyPlace place,
-        DragonPartState state)
-    {
-        if (!state.ReinstallRequested && state.RequestedAnimation == state.InstalledAnimation)
-            return;
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.ReinstallRequested = false;
-        state.Playback = EnemyAnimationPlayback.Start(place, DragonAnimations.StartingWith(state.RequestedAnimation));
-    }
+    /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>
+    internal static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, DragonAnimations.StartingWith(segment));
 
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot reaction.</summary>
     internal EnemyBombReaction DragonBombReaction => field ??= new()

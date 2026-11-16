@@ -103,7 +103,7 @@ internal sealed class RoomObjectVisuals
     /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     public InstalledRoomObjectBotwoonWallVisuals? RoomObjectBotwoonWallVisuals { get => Catalog<InstalledRoomObjectBotwoonWallVisuals>(); set => Bind(value); }
 
-    /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's private body maps and from elevatube owners of the shared draw; block collision and mutation timing remain compiled.</summary>
+    /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's own body frames and from elevatube owners of the shared draw; block collision and mutation timing remain compiled.</summary>
     public InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get => Catalog<InstalledRoomObjectKraidVisuals>(); set => Bind(value); }
 
     /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; compiled draw runs still own block placement and collision.</summary>

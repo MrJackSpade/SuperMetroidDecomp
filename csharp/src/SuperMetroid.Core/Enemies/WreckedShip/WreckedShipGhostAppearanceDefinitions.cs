@@ -58,4 +58,25 @@ public static class WreckedShipGhostAppearanceDefinitions
         new(5, WreckedShipGhostFlickerVisibility.Unchanged), new(3, WreckedShipGhostFlickerVisibility.Shown),
         new(5, WreckedShipGhostFlickerVisibility.Unchanged),
     ];
+
+    /// <summary>How long a new ghost waits before it watches Samus, in updates: its 120-update appearance delay and a further 160.</summary>
+    internal const int InitialDelay = 280;
+
+    /// <summary>How long the ghost stays visible once its appearance starts bobbing, in updates.</summary>
+    internal const int VisibleDuration = 120;
+
+    /// <summary>How long Samus stays nearly still, within <see cref="StillMargin"/>, before the ghost appears, in updates.</summary>
+    internal const int StillPositionDuration = 64;
+
+    /// <summary>How many watching updates Samus keeps her facing before the ghost appears.</summary>
+    internal const int SteadyFacingDuration = 16;
+
+    /// <summary>The vertical speed the visible ghost's bob starts at, one pixel an update.</summary>
+    internal static SignedSixteenSixteen BobStartSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
+    /// <summary>The bobbing ghost's vertical acceleration, three thirty-seconds of a pixel an update.</summary>
+    internal static SignedSixteenSixteen BobAcceleration { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(24);
+
+    /// <summary>How far Samus may move on each axis, in pixels, and still count as nearly still.</summary>
+    internal static Offset16<RoomPixels> StillMargin { get; } = new(1, 1);
 }

@@ -4,12 +4,16 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// <summary>
 /// The state of one Choot. Every value is the Choot's own: setup writes the spawn and falling positions and the
 /// ascent's starting place, activation writes the jump delay and the apex writes the falling origin, each before it is
-/// read, so nothing a previous Choot in the slot left reaches a new one.
+/// read, so nothing a previous Choot in the place left reaches a new one.
 /// </summary>
 public sealed class ChootEnemyState
 {
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal ChootEnemyState(ChootAction action) => Action = action;
+    /// <summary>Starts the state in <paramref name="action"/>, falling along <paramref name="fallingPath"/> after each apex.</summary>
+    internal ChootEnemyState(ChootAction action, ChootFallingPath fallingPath)
+    {
+        Action = action;
+        FallingPath = fallingPath;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChootSegment> Playback { get; set; }
@@ -31,7 +35,7 @@ public sealed class ChootEnemyState
     public int FallingPatternLoopCounter { get; internal set; }
 
     /// <summary>The authored falling path the Choot follows after its apex.</summary>
-    internal ChootFallingPath? FallingPath { get; set; }
+    internal ChootFallingPath FallingPath { get; private set; }
 
     /// <summary>Whole-pixel Y origin advance applied between falling-pattern loops, the pattern's authored 28 to 32 pixels.</summary>
     public int FallingPatternYDistance { get; internal set; }

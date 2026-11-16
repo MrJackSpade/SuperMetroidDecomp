@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The state of one of Mother Brain's falling tubes. Its setup starts its animation every time, so nothing it holds is
-/// inherited from an earlier occupant of its slot (#1476).
+/// inherited from an earlier occupant of its place (#1476).
 /// </summary>
 internal sealed class MotherBrainFallingTubeState
 {

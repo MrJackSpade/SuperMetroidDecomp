@@ -71,4 +71,19 @@ public static class PowampMotionDefinitions
         [PowampBalloonPose.Halfway] = PowampSegment.BalloonInflatingFromHalfway,
         [PowampBalloonPose.Deflated] = PowampSegment.BalloonInflatingFromDeflated,
     };
+
+    /// <summary>How far an ungrappled Powamp's body rises from its balloon's spawn height, in pixels.</summary>
+    internal const int UngrappledRise = 64;
+
+    /// <summary>How long the body rests underground before its balloon inflates again, in updates.</summary>
+    internal const int RestDuration = 60;
+
+    /// <summary>How long the balloon takes to inflate or deflate, in updates.</summary>
+    internal const int InflationDuration = 10;
+
+    /// <summary>How long after its fatal hit the balloon bursts into spikes and is deleted, in updates.</summary>
+    internal const int DeathDelay = 32;
+
+    /// <summary>How long the body and balloon hold each sideways wiggle offset, in updates.</summary>
+    internal const int WiggleStepDuration = 5;
 }

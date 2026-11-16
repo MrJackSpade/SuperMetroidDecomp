@@ -37,8 +37,6 @@ internal sealed class SaveStationElectricity
             EnemyProjectileBehavior.Still,
             graphics: default);
         projectile.StartAnimation(new SaveStationElectricityAnimation());
-        int blockX = roomObjectBlock.X;
-        int blockY = roomObjectBlock.Y;
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(16 * (blockX + 1)), CoordinateAxis.Wrap(16 * (blockY - 2))));
+        projectile.Position = projectile.Position.WithWhole((roomObjectBlock + SaveStationElectricityDefinitions.BlocksFromTrigger).ToRoomPixels());
     }
 }

@@ -36,20 +36,6 @@ public sealed class KraidEnemyState
     /// <summary>His second fingernail's own state.</summary>
     internal KraidNailState SecondNailState { get; } = new();
 
-    /// <summary>The state of Kraid's part <paramref name="part"/>.</summary>
-    internal KraidPartState Part(KraidPart part) => part switch
-    {
-        KraidPart.Kraid => BodyState,
-        KraidPart.Arm => ArmState,
-        KraidPart.LintTop => TopLintState,
-        KraidPart.LintMiddle => MiddleLintState,
-        KraidPart.LintBottom => BottomLintState,
-        KraidPart.Foot => FootState,
-        KraidPart.FirstNail => FirstNailState,
-        KraidPart.SecondNail => SecondNailState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidPart)} {part}."),
-    };
-
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }
     /// <summary>

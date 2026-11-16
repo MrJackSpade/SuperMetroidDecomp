@@ -83,7 +83,7 @@ internal static class IntroSamusDemoMovement
 
         // The pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic
-        // alignment. No-input running fallbacks use the same prospective slot.
+        // alignment. No-input running fallbacks are probed the same way.
         SamusPoseId? candidate = prospective is { } proposed
             ? proposed.ProspectivePose
             : fallback;
@@ -116,8 +116,8 @@ internal static class IntroSamusDemoMovement
             ApplyPoseTransition(samus, poseAtFrameStart, fallbackPose);
         }
 
-        // The transition epilogue shifts history for an accepted slot even
-        // when deceleration retains the same pose. Idle frames have no slot and
+        // The transition epilogue shifts history for an accepted pose even
+        // when deceleration retains the same pose. Idle frames accept no pose and
         // must preserve the older history used by subsequent movement decisions.
         if (fallback.HasValue)
             samus.CommitPoseHistory();

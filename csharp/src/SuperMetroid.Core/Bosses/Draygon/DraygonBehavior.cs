@@ -12,10 +12,24 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DraygonPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
+        [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new DraygonEntity(this, place, common, _bossArtwork);
+    /// <summary>Draygon's body, eye, tail or arms (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Draygon definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.DraygonBody)
+            return new DraygonBodyEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.DraygonEye)
+            return new DraygonEyeEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.DraygonTail)
+            return new DraygonTailEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.DraygonArms)
+            return new DraygonArmsEntity(this, place, common, _bossArtwork);
+        throw new InvalidOperationException($"The Draygon species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -253,17 +267,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunDraygonBodyMain(place, frame.Samus, _frameContext.FrameCounter);
     }
 
-    /// <summary>Runs DraygonEye's main AI.</summary>
-    internal void RunDraygonEyeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Parts.RunDraygonPartMain(place, frame.Samus);
-    }
-
-    /// <summary>Runs DraygonTail's main AI.</summary>
-    internal void RunDraygonTailMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Parts.RunDraygonPartMain(place, frame.Samus);
-    }
     /// <summary>Arena X coordinate to which Draygon drifts before burial.</summary>
     internal const int DraygonDeathTargetX = 256;
     /// <summary>Arena Y coordinate at which the death drift hands off to burial.</summary>

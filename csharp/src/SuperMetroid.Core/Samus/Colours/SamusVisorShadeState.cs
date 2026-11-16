@@ -82,7 +82,7 @@ public sealed class SamusVisorShadeState
 
     /// <summary>
     /// One call's countdown step. The countdown is one or more on every call (see the remarks), so the step never
-    /// reaches the game's borrow into the shade; a zero countdown is a broken invariant and fails.
+    /// takes a shade off a zero countdown; a zero countdown is a broken invariant and fails.
     /// </summary>
     private static int DecrementTimer(int timer)
     {

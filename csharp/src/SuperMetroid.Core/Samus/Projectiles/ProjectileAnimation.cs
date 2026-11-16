@@ -126,8 +126,7 @@ internal sealed class ProjectileAnimation
 
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
-        // A component the Hyper Beam's count has run past its first picture draws nothing (#1275, Mother Brain glitch
-        // movie; #2114).
+        // A component the Hyper Beam's count has run past its first picture draws nothing (#1275, #2114).
         if (_charge.Flare(component).Picture is not { } shownPlace)
             return;
         ProjectileSpriteId picture = ChargeFlarePictures.Of(component, pose.FacingLeft, shownPlace);

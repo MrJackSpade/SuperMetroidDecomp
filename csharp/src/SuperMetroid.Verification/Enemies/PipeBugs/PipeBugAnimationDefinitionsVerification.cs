@@ -43,15 +43,14 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
                 place.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
+                PipeBugSegment playing = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
+                    ? PipeBugAnimationChoices.Shooting(strong, HorizontalDirection.Left)
+                    : PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left);
                 var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen)
                 {
-                    InstalledAnimation = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
-                        ? PipeBugAnimationChoices.ShootingWithSameFacing(selector)
-                        : PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left),
+                    Playback = new(PipeBugAnimations.StartingWith(playing), AnimationPlace.StartOfAnimation),
                 };
                 PipeBugsBehavior.SelectBrinstarPipeBugAnimation(place, state, selector);
-                AssertEqual(selector, state.InstalledAnimation,
-                    $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation), state.Playback,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
                 AssertEqual(1, place.AnimationClock.Hold.RawValue,
@@ -69,12 +68,10 @@ internal static class PipeBugAnimationDefinitionsVerification
                 PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Right), "Pipe Bug rising facing right");
             AssertEqual(animations.Decode(0, "Pipe Bug animation index"),
                 PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left), "Pipe Bug rising facing left");
-            for (int index = 0; index < 4; index++)
-            {
-                PipeBugSegment selector = animations.Decode(index, "Pipe Bug animation index");
-                AssertEqual(animations.Decode(index | 1, "Pipe Bug animation index"),
-                    PipeBugAnimationChoices.ShootingWithSameFacing(selector), $"Pipe Bug {selector} shooting");
-            }
+            AssertEqual(animations.Decode(2 | 1, "Pipe Bug animation index"),
+                PipeBugAnimationChoices.Shooting(strong, HorizontalDirection.Right), "Pipe Bug shooting facing right");
+            AssertEqual(animations.Decode(0 | 1, "Pipe Bug animation index"),
+                PipeBugAnimationChoices.Shooting(strong, HorizontalDirection.Left), "Pipe Bug shooting facing left");
         }
         Console.WriteLine(
             "Pipe Bug animation definitions: eight native selectors, all eight production handoffs and the named animation requests pass.");

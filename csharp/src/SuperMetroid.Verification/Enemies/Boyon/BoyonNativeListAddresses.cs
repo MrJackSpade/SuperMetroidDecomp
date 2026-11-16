@@ -17,9 +17,7 @@ internal static class BoyonNativeListAddresses
     internal static readonly NativeProgramEntry<BoyonSegment>[] Entries =
     [
         new NativeProgramEntry<BoyonSegment>(BoyonSegment.Idle, 0x86a7),
-        new NativeProgramEntry<BoyonSegment>(BoyonSegment.IdleLoop, 0x86ab),
         new NativeProgramEntry<BoyonSegment>(BoyonSegment.Bouncing, 0x86bf),
-        new NativeProgramEntry<BoyonSegment>(BoyonSegment.BouncingLoop, 0x86c3),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretCue>;
 using D = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretDirection;
-using S = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretSegment;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -15,8 +14,8 @@ internal static class MotherBrainTurretAnimations
     /// <summary>Every turret segment: each turret and bullet pose by direction, and the impact smoke.</summary>
     private static readonly MotherBrainTurretPose[] Poses =
     [
-        .. new[] { S.TurretPose, S.BulletPose }
-            .SelectMany(segment => MotherBrainTurretDefinitions.Ring.Members.Select(direction => new MotherBrainTurretPose(segment, direction))),
+        .. MotherBrainTurretDefinitions.Ring.Members.Select(MotherBrainTurretPose.Turret),
+        .. MotherBrainTurretDefinitions.Ring.Members.Select(MotherBrainTurretPose.Bullet),
         MotherBrainTurretPose.BulletImpact,
     ];
 
@@ -28,22 +27,22 @@ internal static class MotherBrainTurretAnimations
     internal static AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments { get; } = new(
         new Dictionary<MotherBrainTurretPose, Beat[]>
     {
-        [new(S.TurretPose, D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingLeft)],
-        [new(S.TurretPose, D.DownLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDownLeft)],
-        [new(S.TurretPose, D.Down)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDown)],
-        [new(S.TurretPose, D.DownRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDownRight)],
-        [new(S.TurretPose, D.Right)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingRight)],
-        [new(S.TurretPose, D.UpRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUpRight)],
-        [new(S.TurretPose, D.Up)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUp)],
-        [new(S.TurretPose, D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUpLeft)],
-        [new(S.BulletPose, D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingLeft)],
-        [new(S.BulletPose, D.DownLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownLeft)],
-        [new(S.BulletPose, D.Down)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDown)],
-        [new(S.BulletPose, D.DownRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownRight)],
-        [new(S.BulletPose, D.Right)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingRight)],
-        [new(S.BulletPose, D.UpRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpRight)],
-        [new(S.BulletPose, D.Up)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUp)],
-        [new(S.BulletPose, D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpLeft)],
+        [MotherBrainTurretPose.Turret(D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingLeft)],
+        [MotherBrainTurretPose.Turret(D.DownLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDownLeft)],
+        [MotherBrainTurretPose.Turret(D.Down)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDown)],
+        [MotherBrainTurretPose.Turret(D.DownRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDownRight)],
+        [MotherBrainTurretPose.Turret(D.Right)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingRight)],
+        [MotherBrainTurretPose.Turret(D.UpRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUpRight)],
+        [MotherBrainTurretPose.Turret(D.Up)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUp)],
+        [MotherBrainTurretPose.Turret(D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUpLeft)],
+        [MotherBrainTurretPose.Bullet(D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingLeft)],
+        [MotherBrainTurretPose.Bullet(D.DownLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownLeft)],
+        [MotherBrainTurretPose.Bullet(D.Down)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDown)],
+        [MotherBrainTurretPose.Bullet(D.DownRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownRight)],
+        [MotherBrainTurretPose.Bullet(D.Right)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingRight)],
+        [MotherBrainTurretPose.Bullet(D.UpRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpRight)],
+        [MotherBrainTurretPose.Bullet(D.Up)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUp)],
+        [MotherBrainTurretPose.Bullet(D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpLeft)],
         [MotherBrainTurretPose.BulletImpact] =
         [
             new Beat.Event(MotherBrainTurretCue.StopMoving),

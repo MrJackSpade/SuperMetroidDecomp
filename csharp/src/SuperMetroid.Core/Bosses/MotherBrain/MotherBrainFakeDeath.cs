@@ -79,7 +79,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Stops her room's flash and shows its steady grey.</summary>
     internal static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
-        state.RoomFlashFrame = null;
+        state.RoomFlashImage = null;
         state.RoomFlashTimer = 0;
         state.Colours.ShowRoomGrey();
     }

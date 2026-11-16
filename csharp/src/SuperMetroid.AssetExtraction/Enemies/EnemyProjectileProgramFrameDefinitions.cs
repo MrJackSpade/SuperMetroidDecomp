@@ -90,33 +90,19 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.PhantoonFlameBrightEye] = 0x9762,
         [EnemyProjectileFrameId.PhantoonFlameFlickering] = 0x9766,
         [EnemyProjectileFrameId.PhantoonFlameSplashed] = 0x976e,
-        [EnemyProjectileFrameId.PhantoonFlameRingedEyeTwin] = 0x9774,
-        [EnemyProjectileFrameId.PhantoonFlameBrightEyeTwin] = 0x9778,
-        [EnemyProjectileFrameId.PhantoonFlameFlickeringTwin] = 0x977c,
         [EnemyProjectileFrameId.PhantoonFlameSwelling] = 0x9784,
         [EnemyProjectileFrameId.PhantoonFlameLeaning] = 0x9788,
         [EnemyProjectileFrameId.PhantoonFlameResting] = 0x978c,
         [EnemyProjectileFrameId.PhantoonFlameRestingSwaying] = 0x9790,
         [EnemyProjectileFrameId.PhantoonFlameRestingLow] = 0x9794,
-        [EnemyProjectileFrameId.PhantoonFlameRestingTwin] = 0x9798,
         [EnemyProjectileFrameId.PhantoonFlameDying] = 0x979c,
         [EnemyProjectileFrameId.PhantoonFlameGuttering] = 0x97a0,
         [EnemyProjectileFrameId.PhantoonFlameWisps] = 0x97a4,
         [EnemyProjectileFrameId.PhantoonFlameLastWisp] = 0x97a8,
-        [EnemyProjectileFrameId.PhantoonFlameSplashedTwin] = 0x97ae,
         [EnemyProjectileFrameId.PhantoonFlameKindling] = 0x97ba,
         [EnemyProjectileFrameId.PhantoonFlameBlank] = 0x97be,
         [EnemyProjectileFrameId.PhantoonFlameTeardrop] = 0x97ca,
-        [EnemyProjectileFrameId.PhantoonFlameBlankTwin] = 0x97ce,
         [EnemyProjectileFrameId.PhantoonFlameSputtering] = 0x97da,
-        [EnemyProjectileFrameId.PhantoonFlameBlankTwinB] = 0x97de,
-        [EnemyProjectileFrameId.PhantoonFlameKindlingTwin] = 0x97ea,
-        [EnemyProjectileFrameId.PhantoonFlameTeardropTwin] = 0x97ee,
-        [EnemyProjectileFrameId.PhantoonFlameSputteringTwin] = 0x97f2,
-        [EnemyProjectileFrameId.PhantoonFlameDyingTwin] = 0x97fc,
-        [EnemyProjectileFrameId.PhantoonFlameGutteringTwin] = 0x9800,
-        [EnemyProjectileFrameId.PhantoonFlameWispsTwin] = 0x9804,
-        [EnemyProjectileFrameId.PhantoonFlameLastWispTwin] = 0x9808,
         [EnemyProjectileFrameId.KraidRockLarge] = 0x9c7f,
         [EnemyProjectileFrameId.KagoBugCurledUp] = 0x9c7f,
         [EnemyProjectileFrameId.KraidRockSmall] = 0x9c85,
@@ -991,9 +977,10 @@ internal static class EnemyProjectileProgramFrameDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>
-    /// The operands that show an installed program frame's picture again (#2210), with the frame each shows: the hand beam's
-    /// second and third stages draw its first stage's seven pictures from operands of their own. The import composes each
-    /// frame once from <see cref="Operands"/>; tools reading native lists find its frame here.
+    /// The operands that show an installed program frame's picture again (#2210, #2249), with the frame each shows: the hand
+    /// beam's second and third stages draw its first stage's seven pictures from operands of their own, and Phantoon's flame
+    /// lists repeat the poses another of his lists shows, his resting flame's last pose a copy of its resting pose. The import
+    /// composes each frame once from <see cref="Operands"/>; tools reading native lists find its frame here.
     /// </summary>
     internal static readonly FrozenDictionary<ushort, EnemyProjectileFrameId> AlsoStoredAt = new Dictionary<ushort, EnemyProjectileFrameId>
     {
@@ -1011,5 +998,19 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xc7ef] = EnemyProjectileFrameId.MotherBrainHandBeamOrbWhiteCore,
         [0xc7f3] = EnemyProjectileFrameId.MotherBrainHandBeamOrbYellow,
         [0xc7f7] = EnemyProjectileFrameId.MotherBrainHandBeamOrbWhite,
+        [0x9774] = EnemyProjectileFrameId.PhantoonFlameRingedEye,
+        [0x9778] = EnemyProjectileFrameId.PhantoonFlameBrightEye,
+        [0x977c] = EnemyProjectileFrameId.PhantoonFlameFlickering,
+        [0x9798] = EnemyProjectileFrameId.PhantoonFlameResting,
+        [0x97ae] = EnemyProjectileFrameId.PhantoonFlameSplashed,
+        [0x97ce] = EnemyProjectileFrameId.PhantoonFlameBlank,
+        [0x97de] = EnemyProjectileFrameId.PhantoonFlameBlank,
+        [0x97ea] = EnemyProjectileFrameId.PhantoonFlameKindling,
+        [0x97ee] = EnemyProjectileFrameId.PhantoonFlameTeardrop,
+        [0x97f2] = EnemyProjectileFrameId.PhantoonFlameSputtering,
+        [0x97fc] = EnemyProjectileFrameId.PhantoonFlameDying,
+        [0x9800] = EnemyProjectileFrameId.PhantoonFlameGuttering,
+        [0x9804] = EnemyProjectileFrameId.PhantoonFlameWisps,
+        [0x9808] = EnemyProjectileFrameId.PhantoonFlameLastWisp,
     }.ToFrozenDictionary();
 }

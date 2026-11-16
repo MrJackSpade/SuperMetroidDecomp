@@ -10,8 +10,12 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class PhantoonBg2FrameDefinitions
 {
-    /// <summary>Schema version of the extracted BG2 frame artwork file; 3 names each frame for the animation that first shows it (#1623).</summary>
-    internal const int Version = 3;
+    /// <summary>
+    /// Schema version of the extracted BG2 frame artwork file; 3 names each frame for the animation that first shows it
+    /// (#1623), 4 holds each picture once (#2249): the closed eye and the open eye looking ahead, which the cartridge stores
+    /// twice each, are one frame each.
+    /// </summary>
+    internal const int Version = 4;
     /// <summary>Installed filename for Phantoon's BG2 frame artwork.</summary>
     internal const string FileName = "phantoon-bg2-frames.json";
     /// <summary>Phantoon's tentacle frames have at most two BG2 components.</summary>
@@ -24,9 +28,7 @@ internal static class PhantoonBg2FrameDefinitions
         new(EnemyFrameId.PhantoonFullHitboxBody, "body_full_hitbox"),
         new(EnemyFrameId.PhantoonEyeHitboxBody, "body_eye_hitbox_only"),
         new(EnemyFrameId.PhantoonEyeClosed, "eye_closed"),
-        new(EnemyFrameId.PhantoonEyeClosedTwin, "eye_open_0"),
         new(EnemyFrameId.PhantoonEyeHalfOpen, "eye_open_1"),
-        new(EnemyFrameId.PhantoonEyeballCenteredTwin, "eye_open_2"),
         new(EnemyFrameId.PhantoonEyeballCentered, "eyeball_center"),
         new(EnemyFrameId.PhantoonEyeLookingUp, "eyeball_up"),
         new(EnemyFrameId.PhantoonEyeLookingDown, "eyeball_down"),

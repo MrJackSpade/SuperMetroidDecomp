@@ -345,10 +345,10 @@ internal static class NativeEnemyProjectileProgramOracle
                 beats[firstBeat + addresses.Count] is AnimationBeat<TFrame, TEvent>.HeldFrame held)
             {
                 // A typed held frame stands for a frame followed at once by its list's sleep, or by a goto back to the frame,
-                // which shows the same frame again and again for good, whatever duration it names (#1607, #2068, #2096): after
-                // it nothing the list plays shows anything else, so its duration only times a sleep that changes nothing
-                // (#2235). Where that frame is its list's only one the goto is read as the list's loop; where it follows the
-                // beats before it in one segment, the segment rests on it at the goto.
+                // which shows the same frame again and again for good, whatever duration it names (#1607, #2068, #2096):
+                // after it nothing the list plays shows anything else, so its duration only times a sleep that changes
+                // nothing (#2235, #2250). Where that frame is its list's only one the goto is read as the list's loop; where
+                // it follows the beats before it in one segment, the segment rests on it at the goto.
                 bool firstOfList = addresses.Count == 0 && cursor == entry;
                 _ = Next("held frame");
                 VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");

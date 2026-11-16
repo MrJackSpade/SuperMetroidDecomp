@@ -65,7 +65,7 @@ internal sealed class MotherBrainProjectiles
     /// animation's cues. It needs nothing of the encounter.
     /// </summary>
     private sealed class TurretBulletBehavior()
-        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new MotherBrainTurretAnimation(), touch: () => new MotherBrainTurretAnimation()),
+        : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact), touch: () => new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact)),
         IEnemyProjectileCues<MotherBrainTurretCue>
     {
         /// <summary>Flies the bullet, flickering its vulnerability, until it meets a solid block.</summary>
@@ -612,7 +612,7 @@ internal sealed class MotherBrainProjectiles
             {
                 ResetMotherBrainTurretRotationTimer(turret);
                 SelectNextMotherBrainTurretDirection(turret);
-                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, turretState.Direction));
+                turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(turretState.Direction)));
             }
 
             if (--turretState.FiringWait == 0)
@@ -654,7 +654,7 @@ internal sealed class MotherBrainProjectiles
             bullet.Velocity = definition.BulletVelocity;
             bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
             // The bullet animation's first cue jumps to the pose for this direction.
-            bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction));
+            bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction)));
         }
 
         /// <summary>Pins the charging effect to the head while the beam winds up.</summary>

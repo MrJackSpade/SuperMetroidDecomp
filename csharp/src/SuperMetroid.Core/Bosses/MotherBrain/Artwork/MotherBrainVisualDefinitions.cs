@@ -3,8 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Ordinary sprite layouts selected by Mother Brain's brain draw and
-/// falling-tube animations. These identities name artwork, not encounter timing.
+/// Ordinary sprite layouts selected by Mother Brain's brain draw. These identities name artwork, not encounter timing.
 /// </summary>
 internal static class MotherBrainVisualDefinitions
 {
@@ -22,14 +21,4 @@ internal static class MotherBrainVisualDefinitions
 
     /// <summary>The neck joint each neck segment shows.</summary>
     internal const EnemyFrameId NeckJointFrame = EnemyFrameId.MotherBrainNeckJoint;
-
-    /// <summary>The installed frame each <see cref="MotherBrainTubeFrame"/> shows.</summary>
-    internal static EnemyFrameTable<MotherBrainTubeFrame> TubeFrames { get; } = new()
-    {
-        { MotherBrainTubeFrame.BottomLeft, EnemyFrameId.MotherBrainTubeBendRight },
-        { MotherBrainTubeFrame.BottomRight, EnemyFrameId.MotherBrainTubeBendLeft },
-        { MotherBrainTubeFrame.BottomMiddleLeft, EnemyFrameId.MotherBrainTubeStraightLeft },
-        { MotherBrainTubeFrame.BottomMiddleRight, EnemyFrameId.MotherBrainTubeStraightRight },
-        { MotherBrainTubeFrame.Main, EnemyFrameId.MotherBrainTubeColumn },
-    };
 }

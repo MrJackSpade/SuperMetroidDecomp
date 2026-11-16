@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -64,17 +65,17 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ZebetiteShotSound = RoomSound.MissileDoorHit;
 
     /// <summary>
-    /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the
-    /// room. It selects only the pulse the Zebetites show.
+    /// The Zebetites' shared pulse (#2259), advanced by every primary Zebetite in the room; it starts at its first frame with
+    /// the room. It selects only the pulse the Zebetites show.
     /// </summary>
-    public int SharedColourCycle { get; internal set; }
+    public ZebetitePulse SharedPulse { get; internal set; } = ZebetitePulse.First;
 
     /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
-    internal int? PulseShown { get; private set; }
+    internal ZebetitePulse? PulseShown { get; private set; }
 
     /// <summary>The shading every Zebetite draws in: the pulse frame last shown, or the sheet's own colours before it.</summary>
-    internal PictureShading PulseShading => PulseShown is int frame
-        ? PictureShading.Shaded(ZebetiteShades.Pulse(frame))
+    internal PictureShading PulseShading => PulseShown is { } pulse
+        ? PictureShading.Shaded(ZebetiteShades.Pulse(pulse))
         : PictureShading.Standard;
 
     /// <summary>Sets a Zebetite up when the room spawns it.</summary>
@@ -100,8 +101,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.Form = definition.Form;
         place.Radius = place.Radius.WithY(definition.HalfHeight);
-        // A new barrier shows its form's unhurt tier.
-        state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(definition.Form, ZebetiteMaximumHealth));
+        // A new barrier shows its form's unhurt picture.
+        state.Picture = HealthPicture(definition.Form, ZebetiteMaximumHealth);
         place.Position = place.Position.WithWholeX(definition.X);
         place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
@@ -160,7 +161,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         CycleZebetiteColours(place);
         // Every Zebetite shows the shared pulse; each primary half steps it as it runs (#1512).
         place.Shading = PulseShading;
-        SelectZebetiteHealthAnimation(place, state);
+        ChooseZebetiteHealthPicture(place, state);
 
         if (place.Health != 0)
         {
@@ -191,19 +192,32 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_fadeStepCount.IsPastStart || place.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
             return;
 
-        int colourCycle = (SharedColourCycle + 1) % ZebetiteDefinitions.ColourCycleLength;
-        SharedColourCycle = colourCycle;
-        PulseShown = colourCycle;
+        ZebetitePulse pulse = SharedPulse.Next;
+        SharedPulse = pulse;
+        PulseShown = pulse;
     }
 
-    /// <summary>Restarts the animation chosen from the half's pairing and current health.</summary>
-    internal static void SelectZebetiteHealthAnimation(
+    /// <summary>
+    /// Chooses the picture the half's form and current health show (#2250), which the animation pass shows on this update.
+    /// </summary>
+    internal static void ChooseZebetiteHealthPicture(
         RoomEnemyPlace place,
         ZebetiteEnemyState state)
     {
-        state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(
-            state.Form, place.Health));
-        place.AnimationClock.Restart();
+        state.Picture = HealthPicture(state.Form, place.Health);
+        place.AnimationClock.StepOnNextUpdate();
+    }
+
+    /// <summary>The picture of <paramref name="form"/> at <paramref name="health"/>: the first its catalog shows at that health.</summary>
+    /// <exception cref="InvalidOperationException">The health is below every picture's, which no Zebetite's is.</exception>
+    private static EnemyFrameId HealthPicture(ZebetiteBarrierForm form, int health)
+    {
+        foreach (ZebetiteHealthPicture picture in ZebetiteHealthPictureDefinitions.ByForm[form])
+        {
+            if (health >= picture.MinimumHealth)
+                return picture.Picture;
+        }
+        throw new InvalidOperationException($"A {form} Zebetite has no picture at health {health}.");
     }
 
     /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>
@@ -248,19 +262,17 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs a half's health animation where the shared enemy animation runs: its pose shows on the update the
-    /// timer expires, raising the new-frame flag, and the animation then keeps it.
+    /// Shows a half's chosen picture where the shared enemy animation runs (#2250): a still picture, which shows for good on
+    /// the update its clock runs out, raising the new-frame flag, until the half chooses again.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The half shows a picture before its setup chose one.</exception>
     internal static void AdvanceZebetiteAnimation(RoomEnemyPlace place)
     {
         ZebetiteEnemyState state = place.RequireSpeciesState<ZebetiteEnemyState>();
         if (!place.AnimationClock.Expire())
             return;
-        // A held pose rests: the timer wraps from zero and the pose stays.
-        AnimationPlayback<ZebetiteSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, ZebetiteAnimations.Segments, ref playback, ZebetiteVisualDefinitions.ShownFrames.Of,
-            cue => throw new InvalidOperationException($"Zebetite animations raise no event {cue}."));
-        state.Playback = playback;
+        place.Frame = state.Picture ?? throw new InvalidOperationException("A Zebetite shows its picture before its setup chose one.");
+        place.AnimationClock.ShowForGood();
     }
 
     /// <summary>Lets bombs share the Zebetite shot tail without generic death handling.</summary>

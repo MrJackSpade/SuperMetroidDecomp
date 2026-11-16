@@ -196,7 +196,7 @@ internal static class LookupStream5Verification
             body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathCursor = 42; state.PhaseTimer = 17;
             state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
-            state.Colours.Show(PhantoonBodyLook.Health(0));
+            state.Colours.Show(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowEighth));
             fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual(17, state.PhaseTimer, "Incomplete fade preserves prior countdown");

@@ -1722,10 +1722,8 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.PhantoonFullHitboxBody] = new(0xa7, 0xdee7),
         [EnemyFrameId.PhantoonEyeHitboxBody] = new(0xa7, 0xdef1),
         [EnemyFrameId.PhantoonEyeClosed] = new(0xa7, 0xdefb),
-        [EnemyFrameId.PhantoonEyeClosedTwin] = new(0xa7, 0xdf05),
         [EnemyFrameId.PhantoonEyeHalfOpen] = new(0xa7, 0xdf0f),
-        [EnemyFrameId.PhantoonEyeballCenteredTwin] = new(0xa7, 0xdf19),
-        [EnemyFrameId.PhantoonEyeballCentered] = new(0xa7, 0xdf23),
+        [EnemyFrameId.PhantoonEyeballCentered] = new(0xa7, 0xdf19),
         [EnemyFrameId.PhantoonEyeLookingUp] = new(0xa7, 0xdf2d),
         [EnemyFrameId.PhantoonEyeLookingDown] = new(0xa7, 0xdf37),
         [EnemyFrameId.PhantoonEyeLookingLeft] = new(0xa7, 0xdf41),
@@ -1810,13 +1808,17 @@ internal static class EnemyFrameCartridgeLocationDefinitions
     };
 
     /// <summary>
-    /// The records that store an installed frame's picture again (#2210), with the frame each shows: the arm's swing while
-    /// Kraid rises or sinks, whose records draw the normal swing's pictures behind the room's front tiles, and Kraid's foot
-    /// at rest before his rise ends and at each step of his walk, whose records draw one of its five pictures at a placement.
+    /// The records that store an installed frame's picture again (#2210, #2249), with the frame each shows: the arm's swing
+    /// while Kraid rises or sinks, whose records draw the normal swing's pictures behind the room's front tiles; Kraid's foot
+    /// at rest before his rise ends and at each step of his walk, whose records draw one of its five pictures at a placement;
+    /// and Phantoon's eye, whose lists show his closed eye from two identical records and his open eye looking ahead from a
+    /// whole record and from one that writes only the eyeball's cells over it.
     /// The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
     /// </summary>
     internal static IReadOnlyDictionary<SnesAddress, EnemyFrameId> AlsoStoredAt { get; } = new Dictionary<SnesAddress, EnemyFrameId>
     {
+        [new(0xa7, 0xdf05)] = EnemyFrameId.PhantoonEyeClosed,
+        [new(0xa7, 0xdf23)] = EnemyFrameId.PhantoonEyeballCentered,
         [new(0xa7, 0x90fd)] = EnemyFrameId.KraidArmRaisedClawClosed,
         [new(0xa7, 0x9127)] = EnemyFrameId.KraidArmRaisedClawOpen,
         [new(0xa7, 0x9151)] = EnemyFrameId.KraidArmLoweringClawHooked,

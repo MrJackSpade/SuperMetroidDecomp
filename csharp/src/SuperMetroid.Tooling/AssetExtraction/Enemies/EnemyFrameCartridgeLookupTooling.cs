@@ -20,7 +20,10 @@ internal static class EnemyFrameCartridgeLookupTooling
     /// </summary>
     internal const ushort EmptyFrameHitboxWord = 0x804f;
 
-    /// <summary>Each installed frame by where the cartridge stores it; the first composition in schema order wins a shared record.</summary>
+    /// <summary>
+    /// Each installed frame by where the cartridge stores it; the first composition in schema order wins a shared record, and
+    /// a record that repeats another's picture names the frame showing it (#2249).
+    /// </summary>
     private static readonly Lazy<Dictionary<SnesAddress, EnemyFrameId>> FramesByLocation = new(Bind);
 
     /// <summary>

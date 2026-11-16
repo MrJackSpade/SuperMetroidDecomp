@@ -49,7 +49,7 @@ internal static class BossBodySourceDefinitions
     /// <summary>
     /// The frames the cartridge writes only in part, over the frame the same part of the boss showed before it in each of
     /// its programs: each is pictured whole as that frame with its own cells written over it. Mother Brain's hand beam
-    /// charges over her standing pose a frame at a time; Phantoon's eyeball looks out of his opened eye; Draygon's mouth
+    /// charges over her standing pose a frame at a time; Phantoon's eyeball looks each way out of his open eye; Draygon's mouth
     /// opens on his body, and his dying arms' second frames redraw only the cells that change.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyFrameId> FramesDrawnOver { get; } = new Dictionary<EnemyFrameId, EnemyFrameId>
@@ -57,15 +57,14 @@ internal static class BossBodySourceDefinitions
         [EnemyFrameId.MotherBrainBodyArmDrawnBack] = EnemyFrameId.MotherBrainBodyHandCurling,
         [EnemyFrameId.MotherBrainBodyArmFlungOut] = EnemyFrameId.MotherBrainBodyArmDrawnBack,
         [EnemyFrameId.MotherBrainBodyArmReturning] = EnemyFrameId.MotherBrainBodyArmFlungOut,
-        [EnemyFrameId.PhantoonEyeballCentered] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingUp] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingUpRight] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingRight] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingDownRight] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingDown] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingDownLeft] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingLeft] = EnemyFrameId.PhantoonEyeballCenteredTwin,
-        [EnemyFrameId.PhantoonEyeLookingUpLeft] = EnemyFrameId.PhantoonEyeballCenteredTwin,
+        [EnemyFrameId.PhantoonEyeLookingUp] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingUpRight] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingRight] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingDownRight] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingDown] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingDownLeft] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingLeft] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.PhantoonEyeLookingUpLeft] = EnemyFrameId.PhantoonEyeballCentered,
         [EnemyFrameId.DraygonLimpArmFacingLeftClawDropping] = EnemyFrameId.DraygonLimpArmFacingLeftClawRaised,
         [EnemyFrameId.DraygonBodyFacingLeftJawShut] = EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
         [EnemyFrameId.DraygonBodyFacingLeftJawParting] = EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,

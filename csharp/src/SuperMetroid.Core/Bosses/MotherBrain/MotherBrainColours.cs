@@ -29,7 +29,7 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     private int? revival;
 
     /// <summary>The health band her whole body shows, or null before her revival enables it.</summary>
-    private int? healthBand;
+    private MotherBrainHealthBand? healthBand;
 
     /// <summary>The step her death's fade of her body has reached, or null before it starts.</summary>
     private int? deathFade;
@@ -108,8 +108,8 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Shows her phase-two attack and rear-leg colours, which her ascent loads.</summary>
     internal void ShowPhaseTwo() => phaseTwo = true;
 
-    /// <summary>Shows rainbow phase <paramref name="frame"/> over her whole body.</summary>
-    internal void ShowRainbow(int frame) => beam = MotherBrainShades.Rainbow(frame);
+    /// <summary>Shows rainbow image <paramref name="image"/> over her whole body.</summary>
+    internal void ShowRainbow(MotherBrainRainbowImage image) => beam = MotherBrainShades.Rainbow(image);
 
     /// <summary>Shows the colours her beam restores over her whole body as it ends.</summary>
     internal void ShowRestored() => beam = MotherBrainShades.Restored;
@@ -120,8 +120,8 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Shows step <paramref name="step"/> of her whole body's revival from grey.</summary>
     internal void ShowRevival(int step) => revival = step;
 
-    /// <summary>Shows health band <paramref name="band"/> over her whole body.</summary>
-    internal void ShowHealth(int band) => healthBand = band;
+    /// <summary>Shows <paramref name="band"/>'s colours over her whole body.</summary>
+    internal void ShowHealth(MotherBrainHealthBand band) => healthBand = Ensure.NotNull(band);
 
     /// <summary>Shows step <paramref name="step"/> of her death's fade over her whole body.</summary>
     internal void ShowDeathFade(int step) => deathFade = step;
@@ -138,8 +138,8 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
         corpseFade = step;
     }
 
-    /// <summary>Shows step <paramref name="frame"/> of her room's flash.</summary>
-    internal void ShowRoomFlash(int frame) => roomGrey = MotherBrainShades.Flash(frame);
+    /// <summary>Shows image <paramref name="image"/> of her room's flash.</summary>
+    internal void ShowRoomFlash(MotherBrainRoomFlashImage image) => roomGrey = MotherBrainShades.Flash(image);
 
     /// <summary>Shows her room's steady grey after the flash stops.</summary>
     internal void ShowRoomGrey() => roomGrey = MotherBrainShades.FinalRoom;
@@ -147,8 +147,8 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Shows her room's lights gone out as the Baby dies.</summary>
     internal void ShowLightsOut() => roomLights = MotherBrainShades.LightsOut;
 
-    /// <summary>Shows step <paramref name="frame"/> of her room's lights recovering.</summary>
-    internal void ShowLightsRecovering(int frame) => roomLights = MotherBrainShades.RecoveryLights(frame);
+    /// <summary>Shows image <paramref name="lights"/> of her room's lights recovering.</summary>
+    internal void ShowLightsRecovering(MotherBrainRecoveryLights lights) => roomLights = MotherBrainShades.RecoveryLights(lights);
 
     /// <summary>Shows the Baby in the colours it arrives in.</summary>
     internal void ShowBabyArrived() => babyArrived = true;

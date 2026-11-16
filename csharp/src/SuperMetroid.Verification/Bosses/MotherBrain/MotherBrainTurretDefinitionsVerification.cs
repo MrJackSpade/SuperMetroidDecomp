@@ -144,7 +144,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, bullet.Kind,
                 $"production Mother Brain turret bullet kind {direction}");
             AssertTrue(bullet.Animation is MotherBrainTurretAnimation bulletAnimation &&
-                    bulletAnimation.PlayingSegment == new MotherBrainTurretPose(MotherBrainTurretSegment.BulletPose, typedDirection),
+                    bulletAnimation.PlayingSegment == MotherBrainTurretPose.Bullet(typedDirection),
                 $"production Mother Brain turret bullet direction {direction}");
             AssertEqual(new Position16<RoomPixels>(0x0400, 0x0200) + definition.BulletOffset, bullet.Position.Whole,
                 $"production Mother Brain turret bullet position {direction}");

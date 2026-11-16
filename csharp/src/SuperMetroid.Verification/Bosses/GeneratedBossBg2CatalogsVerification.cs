@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Rooms;
 using SuperMetroid.Core.Assets;
@@ -21,10 +22,8 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xdee7, "body_full_hitbox"),
         new(0xdef1, "body_eye_hitbox_only"),
         new(0xdefb, "eye_closed"),
-        new(0xdf05, "eye_open_0"),
         new(0xdf0f, "eye_open_1"),
-        new(0xdf19, "eye_open_2"),
-        new(0xdf23, "eyeball_center"),
+        new(0xdf19, "eyeball_center"),
         new(0xdf2d, "eyeball_up"),
         new(0xdf37, "eyeball_down"),
         new(0xdf41, "eyeball_left"),
@@ -109,7 +108,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         {
             AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, nameBefore1465(frames[index])), $"{family} published identity and its name before #1465");
             int root = ((int)new SnesAddress(bank, expected[index].Pointer));
-            int components = family == "Phantoon" && index is >= 16 and < 19 ? 2 : 1;
+            int components = family == "Phantoon" && index is >= 14 and < 17 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");
             for (int component = 0; component < components; component++)
             {
@@ -117,7 +116,10 @@ internal static class GeneratedBossBg2CatalogsVerification
                 AssertEqual((ushort)0xfffe, Word(((int)new SnesAddress(bank, target))), $"{family} native BG2 stream marker");
             }
         }
-        var originalPointers = expected.Select(frame => frame.Pointer).ToHashSet();
+        // A record repeating another's picture selects that record's frame (#2249), so it is in the domain too.
+        var originalPointers = expected.Select(frame => frame.Pointer)
+            .Concat(EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt.Where(pair => pair.Key.Bank == bank && access.IsFrame(pair.Value)).Select(pair => pair.Key.Offset))
+            .ToHashSet();
         for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(originalPointers.Contains((ushort)pointer),
                 RoomEnemyPlaceFrameAccess.TryFrameAt(bank, (ushort)pointer) is { } frame && access.IsFrame(frame), $"{family} exact selector domain");

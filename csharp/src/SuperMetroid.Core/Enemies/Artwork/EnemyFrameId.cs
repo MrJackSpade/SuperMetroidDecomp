@@ -3417,12 +3417,8 @@ public enum EnemyFrameId
     PhantoonEyeHitboxBody,
     /// <summary>Phantoon: eye closed.</summary>
     PhantoonEyeClosed,
-    /// <summary>Phantoon: its eye closed: the picture of PhantoonEyeClosed, as a frame of its own.</summary>
-    PhantoonEyeClosedTwin,
     /// <summary>Phantoon: its eye half open.</summary>
     PhantoonEyeHalfOpen,
-    /// <summary>Phantoon: its eye open, looking straight ahead: the picture of PhantoonEyeballCentered, as a frame of its own.</summary>
-    PhantoonEyeballCenteredTwin,
     /// <summary>Phantoon: eyeball centered.</summary>
     PhantoonEyeballCentered,
     /// <summary>Phantoon: eye looking up.</summary>

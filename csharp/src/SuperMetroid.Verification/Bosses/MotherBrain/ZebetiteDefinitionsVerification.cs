@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -31,7 +32,8 @@ internal static class ZebetiteDefinitionsVerification
             [
                 MotherBrainNativeWords.BarrierFormWord(definition.Form),
                 checked((ushort)definition.HalfHeight),
-                ZebetiteEntry(ZebetiteAnimations.HealthAnimation(definition.Form, 1000)),
+                // The unhurt health list: the one showing the form's picture at full health.
+                ZebetiteList(definition.Form, 1000),
                 checked((ushort)definition.X),
                 checked((ushort)Zebetites.YPosition(definition, linkedHalf: false)),
                 checked((ushort)Zebetites.YPosition(definition, linkedHalf: true)),
@@ -59,7 +61,7 @@ internal static class ZebetiteDefinitionsVerification
             bool linkedPair = form == ZebetiteBarrierForm.SplitPair;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
-                ZebetiteEntry(ZebetiteAnimations.HealthAnimation(form, health)),
+                ZebetiteList(form, health),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
 
@@ -106,8 +108,8 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} form");
             AssertEqual(expected.HalfHeight, place.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual(ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(expected.Form, 1000)), state.Playback,
-                $"production Zebetite generation {generation} program");
+            AssertEqual<EnemyFrameId?>(NativePicture(rom, ZebetiteList(expected.Form, 1000)), state.Picture,
+                $"production Zebetite generation {generation} picture");
             AssertEqual(expected.X, place.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
             AssertEqual(Zebetites.YPosition(expected, linkedHalf), place.Position.Y.Whole,
@@ -116,9 +118,12 @@ internal static class ZebetiteDefinitionsVerification
             foreach (ushort health in healthSamples)
             {
                 place.Health = health;
-                ZebetiteBehavior.SelectZebetiteHealthAnimation(place, state);
-                AssertEqual(ZebetiteAnimations.HealthAnimation(expected.Form, health),
-                    state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
+                ZebetiteBehavior.ChooseZebetiteHealthPicture(place, state);
+                // The picture the native health table's list for this health shows (#2250).
+                int tier = health < 200 ? 4 : health < 400 ? 3 : health < 600 ? 2 : health < 800 ? 1 : 0;
+                ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                    (expected.Form == ZebetiteBarrierForm.SplitPair ? linkedHealthTable : bigHealthTable) + tier * 2);
+                AssertEqual<EnemyFrameId?>(NativePicture(rom, list), state.Picture,
                     $"production Zebetite generation {generation} health {health}");
             }
         }
@@ -163,7 +168,20 @@ internal static class ZebetiteDefinitionsVerification
         return 0;
     }
 
-    /// <summary>The native bank-$A6 list of <paramref name="program"/>, which the generation and health tables select.</summary>
-    private static ushort ZebetiteEntry(ZebetiteSegment program) =>
-        MotherBrainNativeListAddresses.ZebetiteEntries.Single(entry => entry.Program == program).Entry;
+    /// <summary>
+    /// The native bank-$A6 list showing the picture <paramref name="form"/> shows at <paramref name="health"/>, which the
+    /// generation and health tables select (#2250).
+    /// </summary>
+    private static ushort ZebetiteList(ZebetiteBarrierForm form, int health)
+    {
+        IReadOnlyList<ZebetiteHealthPicture> pictures = ZebetiteHealthPictureDefinitions.ByForm[form];
+        int index = 0;
+        while (health < pictures[index].MinimumHealth)
+            index++;
+        return MotherBrainNativeListAddresses.ZebetiteHealthLists[form][index];
+    }
+
+    /// <summary>The installed frame the native bank-$A6 Zebetite list at <paramref name="list"/> shows.</summary>
+    private static EnemyFrameId? NativePicture(CartridgeImportAddressSpace rom, ushort list) =>
+        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, CartridgeImportSource.Require(rom).ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
 }

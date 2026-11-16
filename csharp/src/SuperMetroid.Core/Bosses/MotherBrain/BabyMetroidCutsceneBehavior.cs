@@ -219,12 +219,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shows room-light recovery frame <paramref name="frame"/> (0..6) from the installed room colours.</summary>
     /// <exception cref="InvalidDataException">The frame is not one of the seven authored images.</exception>
-    internal static void LoadMotherBrainRecoveryLights(MotherBrainColours colours, int frame)
-    {
-        if ((uint)frame >= MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
-            throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
-        Ensure.NotNull(colours).ShowLightsRecovering(frame);
-    }
+    internal static void LoadMotherBrainRecoveryLights(MotherBrainColours colours, int frame) =>
+        Ensure.NotNull(colours).ShowLightsRecovering(MotherBrainRecoveryLights.At(frame));
 
     /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>

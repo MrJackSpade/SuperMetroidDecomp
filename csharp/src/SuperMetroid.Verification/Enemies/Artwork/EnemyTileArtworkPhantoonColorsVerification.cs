@@ -70,12 +70,14 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         IReadOnlyList<SheetShade> bodyShades = PhantoonSheetShades.Body(stock.Bosses);
         PictureShading Body(PhantoonBodyLook look) => PictureShading.Shaded(PhantoonShades.Body(look));
         const int steps = PhantoonColorDefinitions.BodyFadeSteps;
-        for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
+        for (int row = 0; row < PhantoonColorDefinitions.HealthBandCount; row++)
         {
-            body.Health = unchecked((ushort)(band * 312 + 1));
+            // The cartridge's band at health 312 times its row plus one is the row's band (#2259).
+            PhantoonHealthBand band = PhantoonHealthBandDefinitions.LowestFirst[row];
+            body.Health = unchecked((ushort)(row * 312 + 1));
             PhantoonBehavior.ShowPhantoonHealthColours(state);
             AssertEqual(PictureShading.Shaded(PhantoonShades.Body(PhantoonBodyLook.Health(band))), Shown(state), $"Phantoon live health restore band {band}");
-            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
+            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(row, color),
                 $"Phantoon health band {band}");
             state.BodyFade.Steps = 1;
             state.BodyFade.Complete = false;
@@ -89,14 +91,14 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         body.FlashTimer = 8;
         state.Round.HurtFlashShown = true;
         PhantoonBehavior.ApplyPhantoonHurt(body, state);
-        AssertEqual(Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");
+        AssertEqual(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Shown(state), "Phantoon live hurt restore");
         AssertTrue(!state.Round.HurtFlashShown, "Phantoon hurt restore clears the flash latch");
 
         // The step past a fade's length reaches its goal, and the step after completes the fade, which then shows its goal.
         state.BodyFade.Steps = steps + 1;
         state.BodyFade.Complete = false;
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(2)), Body(PhantoonBodyLook.FadedOut), 1, 1)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 1, 1)),
             Shown(state), "Phantoon's fade-out restarted at its last step reaches its goal");
         AssertEqual(steps + 2, state.BodyFade.Steps, "Phantoon's fade-out takes its last step");
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
@@ -105,10 +107,10 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.FadedOut), colors.ResolveFadeOut, "Phantoon's faded-out colours");
 
         // A hurt colouring written mid-fade restarts the fade from it over the steps it has left (#1512, #2251).
-        state.Colours.Show(PhantoonBodyLook.Health(2));
+        state.Colours.Show(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths));
         for (int step = 1; step <= 4; step++)
             state.Colours.Fade(PhantoonBodyLook.FadedOut, step, steps);
-        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(2)), Body(PhantoonBodyLook.FadedOut), 4, steps);
+        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 4, steps);
         AssertEqual(PictureShading.Standard.With(fromHealth), Shown(state), "Phantoon's fade has come four of its twelve steps from his health colours");
         state.Colours.Show(PhantoonBodyLook.White);
         state.Colours.Fade(PhantoonBodyLook.FadedOut, 5, steps);
@@ -116,8 +118,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Shown(state), "Phantoon's fade restarts from the hurt flash's white over the eight steps it has left");
         AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.White), _ => RgbColor.White, "Phantoon's white hurt flash");
         PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8);
-        state.Colours.Fade(PhantoonBodyLook.Health(2), 6, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(2)), 1, 7)),
+        state.Colours.Fade(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths), 6, steps);
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), 1, 7)),
             Shown(state), "a fade toward another goal starts from the running fade as it shows");
 
         // The Wrecked Ship's power coming on is its own typed fade with its own progress.

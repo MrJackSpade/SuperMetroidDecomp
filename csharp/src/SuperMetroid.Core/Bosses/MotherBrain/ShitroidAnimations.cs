@@ -34,27 +34,37 @@ internal static class ShitroidAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<ShitroidSegment> Whole(ShitroidSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
+    /// <summary>How long each pose of the remorse's two calm pulses shows.</summary>
+    private const int RemorseCalmPose = 10;
+
     /// <summary>
-    /// Two pulses at ten updates a pose, the random cry, then one pulse that quickens from six updates a pose to two
-    /// and slows again to nine.
+    /// Two pulses at ten updates a pose, the random cry, then three pulses that quicken from six updates a pose to two and
+    /// slow again to nine (#2250).
     /// </summary>
-    private static AnimationBeat<BabyMetroidFrame, ShitroidCue>[] Remorse()
-    {
-        var beats = new List<AnimationBeat<BabyMetroidFrame, ShitroidCue>>();
-        for (int pose = 0; pose < 8; pose++)
-            beats.Add(Show(PulsePose(pose), 10));
-        beats.Add(new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Event(ShitroidCue.MaybeRemorseCry));
-        for (int pose = 0; pose < 12; pose++)
-            beats.Add(Show(PulsePose(pose), 2 + Math.Abs(pose - 4)));
-        return [.. beats];
-    }
-
-    /// <summary>The pulse's pose order: closed, half open, wide open, half open.</summary>
-    private static BabyMetroidFrame[] Pulse =>
-        [BabyMetroidFrame.Closed, BabyMetroidFrame.HalfOpen, BabyMetroidFrame.WideOpen, BabyMetroidFrame.HalfOpen];
-
-    /// <summary>The pulse's pose at <paramref name="step"/>, repeating every four steps.</summary>
-    private static BabyMetroidFrame PulsePose(int step) => Pulse[step % Pulse.Length];
+    private static AnimationBeat<BabyMetroidFrame, ShitroidCue>[] Remorse() =>
+    [
+        Show(BabyMetroidFrame.Closed, RemorseCalmPose),
+        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
+        Show(BabyMetroidFrame.WideOpen, RemorseCalmPose),
+        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
+        Show(BabyMetroidFrame.Closed, RemorseCalmPose),
+        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
+        Show(BabyMetroidFrame.WideOpen, RemorseCalmPose),
+        Show(BabyMetroidFrame.HalfOpen, RemorseCalmPose),
+        new AnimationBeat<BabyMetroidFrame, ShitroidCue>.Event(ShitroidCue.MaybeRemorseCry),
+        Show(BabyMetroidFrame.Closed, 6),
+        Show(BabyMetroidFrame.HalfOpen, 5),
+        Show(BabyMetroidFrame.WideOpen, 4),
+        Show(BabyMetroidFrame.HalfOpen, 3),
+        Show(BabyMetroidFrame.Closed, 2),
+        Show(BabyMetroidFrame.HalfOpen, 3),
+        Show(BabyMetroidFrame.WideOpen, 4),
+        Show(BabyMetroidFrame.HalfOpen, 5),
+        Show(BabyMetroidFrame.Closed, 6),
+        Show(BabyMetroidFrame.HalfOpen, 7),
+        Show(BabyMetroidFrame.WideOpen, 8),
+        Show(BabyMetroidFrame.HalfOpen, 9),
+    ];
 
     /// <summary>Shows pose <paramref name="pose"/>.</summary>
     private static AnimationBeat<BabyMetroidFrame, ShitroidCue> Show(BabyMetroidFrame pose, int duration) =>

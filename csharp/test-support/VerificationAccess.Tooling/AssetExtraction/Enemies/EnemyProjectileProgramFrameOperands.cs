@@ -14,7 +14,7 @@ internal static class EnemyProjectileProgramFrameOperands
 {
     /// <summary>
     /// The installed program frames, by the bank-$86 operand each is stored at, and by each operand that shows its picture
-    /// again (#2210).
+    /// again (#2210, #2249).
     /// </summary>
     private static readonly ILookup<ushort, EnemyProjectileFrameId> Frames =
         EnemyProjectileProgramFrameDefinitions.Operands.Select(pair => (Operand: pair.Value, Frame: pair.Key))

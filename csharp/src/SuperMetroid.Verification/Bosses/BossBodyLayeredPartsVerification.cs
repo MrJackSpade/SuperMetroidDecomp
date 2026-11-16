@@ -128,8 +128,8 @@ internal static class BossBodyLayeredPartsVerification
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Phantoon);
         EnemyFrameId[] eyes =
         [
-            EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeballCentered, EnemyFrameId.PhantoonEyeClosedTwin, EnemyFrameId.PhantoonEyeHalfOpen,
-            EnemyFrameId.PhantoonEyeballCenteredTwin, EnemyFrameId.PhantoonEyeLookingUp, EnemyFrameId.PhantoonEyeLookingUpRight, EnemyFrameId.PhantoonEyeLookingRight,
+            EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeballCentered, EnemyFrameId.PhantoonEyeHalfOpen,
+            EnemyFrameId.PhantoonEyeLookingUp, EnemyFrameId.PhantoonEyeLookingUpRight, EnemyFrameId.PhantoonEyeLookingRight,
             EnemyFrameId.PhantoonEyeLookingDownRight, EnemyFrameId.PhantoonEyeLookingDown, EnemyFrameId.PhantoonEyeLookingDownLeft, EnemyFrameId.PhantoonEyeLookingLeft, EnemyFrameId.PhantoonEyeLookingUpLeft,
         ];
         int compared = 0;

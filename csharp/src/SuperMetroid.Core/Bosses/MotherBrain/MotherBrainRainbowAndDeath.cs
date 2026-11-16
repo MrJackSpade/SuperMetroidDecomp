@@ -204,12 +204,12 @@ internal sealed class MotherBrainRainbowAndDeath
         Ensure.NotNull(sequence);
         Ensure.NotNull(sharedProjectiles);
         if (current.FinalBeamFired)
-            state.NextRainbowFrame = 0;
+            state.NextRainbowImage = MotherBrainRainbowImage.First;
         ApplyMotherBrainBeamColours(state, current);
         // The brain's step runs after the body's. Its health check is enabled during revival, but the health colours wait
         // until the corpse has revived.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            state.Colours.ShowHealth(MotherBrainHealthShades.Band(state.Head.Health));
+            state.Colours.ShowHealth(MotherBrainHealthBand.Of(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -289,15 +289,15 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.DrainedBeamRanOut)
         {
-            state.Colours.ShowRainbow(MotherBrainRainbowColourDefinitions.DrainedRainbowFrame);
+            state.Colours.ShowRainbow(MotherBrainRainbowImage.Drained);
             return;
         }
         // The rainbow colours' handler steps them only on its phase of the body's update count.
         if (!step.RainbowColours || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 
-        int frame = state.NextRainbowFrame;
-        state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowColourFormat.RainbowFrameCount;
-        state.Colours.ShowRainbow(frame);
+        MotherBrainRainbowImage image = state.NextRainbowImage;
+        state.NextRainbowImage = image.Next;
+        state.Colours.ShowRainbow(image);
     }
 }

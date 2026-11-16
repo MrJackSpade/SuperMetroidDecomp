@@ -22,8 +22,8 @@ public sealed class ShitroidEnemyState
     /// <summary>Signed 1/256-pixel velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The phase of the membrane's pulse, 0 through 7: each advance moves to the next of the eight phases.</summary>
-    public int MembranePulsePhase { get; internal set; }
+    /// <summary>The phase of the membrane's pulse (#2259): each advance moves to the next of the eight phases.</summary>
+    public ShitroidMembranePulse MembranePulse { get; internal set; } = ShitroidMembranePulse.First;
 
     /// <summary>
     /// Updates left before the membrane colours advance to its next phase; each update decrements it until zero, and
@@ -63,11 +63,11 @@ public sealed class ShitroidEnemyState
     public int CryCounter { get; internal set; }
 
     /// <summary>The membrane pulse phase last shown, or null before its first step (#1512).</summary>
-    internal int? MembraneShown { get; set; }
+    internal ShitroidMembranePulse? MembraneShown { get; set; }
 
     /// <summary>The shading the Shitroid draws in: its entry's colours, with the membrane's pulse phase over them once shown.</summary>
-    internal PictureShading Shading => MembraneShown is int phase
-        ? ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(phase))
+    internal PictureShading Shading => MembraneShown is { } pulse
+        ? ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(pulse))
         : ShitroidShades.InTargetColours;
 
     /// <summary>

@@ -67,7 +67,6 @@ internal sealed class PhantoonPresentation
         return state.PhaseTimer == 0;
     }
 
-    /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
-    internal static int HealthBand(RoomEnemyPlace body) =>
-        Math.Min(PhantoonColorDefinitions.HealthBandCount - 1, Math.Max(0, (body.Health - 1) / PhantoonColorDefinitions.HealthPerBand));
+    /// <summary>The health band <paramref name="body"/>'s health shows (#2259).</summary>
+    internal static PhantoonHealthBand HealthBand(RoomEnemyPlace body) => PhantoonHealthBand.Of(body.Health);
 }

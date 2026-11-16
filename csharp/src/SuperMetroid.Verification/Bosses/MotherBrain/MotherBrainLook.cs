@@ -21,7 +21,7 @@ internal static class MotherBrainLook
         Of(MotherBrainSheetShades.RainbowBackground(rainbow), MotherBrainSheetShades.RainbowSprites(rainbow), shade, seed);
 
     /// <summary>The colours <paramref name="health"/>'s band <paramref name="band"/> shows over <paramref name="seed"/>.</summary>
-    internal static SnesCgram OfHealth(MotherBrainHealthPalettePresentation health, int band, SnesCgram? seed = null) =>
+    internal static SnesCgram OfHealth(MotherBrainHealthPalettePresentation health, MotherBrainHealthBand band, SnesCgram? seed = null) =>
         Of(MotherBrainSheetShades.HealthBackground(health), MotherBrainSheetShades.HealthSprites(health), MotherBrainShades.Health(band), seed);
 
     /// <summary>

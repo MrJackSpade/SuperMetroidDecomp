@@ -25,22 +25,22 @@ internal static class PhantoonAnimations
         [P.EyeHitboxBody] = Still(F.PhantoonEyeHitboxBody),
         [P.EyeOpen] =
         [
-            Show(F.PhantoonEyeClosedTwin, EyelidFrameDuration),
+            Show(F.PhantoonEyeClosed, EyelidFrameDuration),
             Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
-            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Cue(C.PlayMaterializationSound),
             Cue(C.BeginEyeTracking),
         ],
         [P.EyeClosed] = Still(F.PhantoonEyeClosed),
         [P.EyeCloseAndPickNewPattern] =
         [
-            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
             Cue(C.PickNewPattern),
         ],
         [P.EyeClose] =
         [
-            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
         ],
         [P.EyeballCentered] =
@@ -113,8 +113,9 @@ internal static class PhantoonAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<PhantoonPartSegment> Whole(PhantoonPartSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>Shows one frame for an update; its animation then holds it.</summary>
-    private static AnimationBeat<EnemyFrameId, PhantoonPartCue>[] Still(EnemyFrameId frame) => [Show(frame, 1)];
+    /// <summary>A still picture (#2250): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, PhantoonPartCue>[] Still(EnemyFrameId frame) =>
+        [new AnimationBeat<EnemyFrameId, PhantoonPartCue>.HeldFrame(frame)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, PhantoonPartCue> Show(EnemyFrameId frame, int duration) =>

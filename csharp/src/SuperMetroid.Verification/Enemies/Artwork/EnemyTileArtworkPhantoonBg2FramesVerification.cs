@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Checks 22 BG2 selectors and native tile writes, the new-frame gate and engine hitboxes.</summary>
+    /// <summary>Checks the 20 BG2 frames and their native tile writes, the new-frame gate and engine hitboxes.</summary>
     internal static void VerifyInstalledPhantoonBg2Frames(
         CartridgeImportAddressSpace rom, string extractedDirectory,
         ImportEnemyArtwork stock)
@@ -117,7 +117,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");
-        Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; collision ROM guard and invalid-data checks passed.");
+        Console.WriteLine("  Phantoon BG2 frames: all 20 frames preserve native writes and engine-owned hitboxes; collision ROM guard and invalid-data checks passed.");
     }
 
     /// <summary>Compares compiled frame components and three hitbox lists with retail data and the callbacks the installed artwork selects.</summary>

@@ -467,14 +467,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <see cref="GunshipTakeoffDefinitions.EngineReadyingDuration"/> updates the gunship shows its takeoff look from this
     /// update's frame on, and the engines fire up.
     /// </summary>
-    /// <exception cref="InvalidDataException">The readying ran past its duration.</exception>
     internal void ReadyGunshipTakeoffEngines(RoomEnemyPlace top)
     {
-        int elapsed = State(top).EngineReadyingElapsed;
-        if (elapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
-            throw new InvalidDataException("The gunship's takeoff readied its engines past its duration.");
-
-        State(top).EngineReadyingElapsed = elapsed + 1;
+        State(top).EngineReadyingElapsed++;
         if (State(top).EngineReadyingElapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
         {
             _room.Session.Looks.Show(GunshipTakeoffDefinitions.TakeoffLook);

@@ -68,7 +68,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.WithWhole(initialization.Position);
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
-        state.Velocity = initialization.Velocity;
+        state.StartWalking(initialization.Velocity);
     }
 
     /// <summary>Initializes the escape Dachora.</summary>
@@ -136,7 +136,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {
             place.AnimationClock.StepOnNextUpdate();
-            state.Velocity = state.Velocity.Negated();
+            state.TurnAround();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonSegment.RunningForEscape
                 : state.Velocity.IsNegative
@@ -179,10 +179,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.Escapes }:
-                state.Action = EscapeEtecoonAction.Escaping;
+                state.Escape();
                 return null;
             case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ExpressesGratitude }:
-                state.Action = EscapeEtecoonAction.ExpressingGratitude;
+                state.ExpressGratitude();
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;

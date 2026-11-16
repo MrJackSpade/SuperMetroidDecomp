@@ -24,14 +24,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemyPlace place)
     {
-        var state = new ChootEnemyState(ChootAction.WaitingForSamus);
+        ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
+        var state = new ChootEnemyState(ChootAction.WaitingForSamus, fallingPath);
         place.SetSpeciesState(state);
 
         SetChootAnimation(place, state, ChootSegment.Idle);
         state.SpawnPosition = place.Position.Whole;
 
-        ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
-        state.FallingPath = fallingPath;
         state.FallingPatternYDistance = ChootFalls.LoopYDistance(fallingPath);
 
         // The jump rises as far as its loops of the falling path fall: one to seven loops of under 256 pixels in every
@@ -118,9 +117,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
     internal static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
-        Offset16<RoomPixels>? offset = ChootFalls.At(
-            state.FallingPath ?? throw new InvalidDataException("A falling Choot has no falling pattern."),
-            state.FallingPatternFrame);
+        Offset16<RoomPixels>? offset = ChootFalls.At(state.FallingPath, state.FallingPatternFrame);
         if (offset is not { } pathOffset)
         {
             state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(

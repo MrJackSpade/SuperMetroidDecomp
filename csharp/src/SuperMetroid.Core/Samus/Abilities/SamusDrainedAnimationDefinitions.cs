@@ -30,6 +30,12 @@ internal static class SamusDrainedAnimationDefinitions
     internal static SamusAnimationPlace LandingFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedLanding, Held, 0);
     /// <summary>How many ticks the landing frame is held.</summary>
     internal const int LandingTimer = 8;
+
+    /// <summary>
+    /// The timer every other frame the drained sequence sets starts with: Samus's animation steps on at her next animation
+    /// update (#2280).
+    /// </summary>
+    internal const int SetFrameTimer = 1;
     /// <summary>The value the held crouch's repeat carries, which the release moves a drained crouch to.</summary>
     internal static SamusAnimationPlace ReleaseCrouchingFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedReleaseCrouching, Held, 6);
     /// <summary>The drained breathing's restart, which the release moves a drained standing pose to.</summary>

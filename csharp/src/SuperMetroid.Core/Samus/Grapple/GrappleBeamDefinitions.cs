@@ -67,11 +67,30 @@ public static class GrappleBeamDefinitions
         public const int SubmergedSwingParts = 8;
         /// <summary>The updates after a bounce off terrain in which Jump adds its impulse.</summary>
         public const int CollisionBounceFrames = 16;
+        /// <summary>
+        /// The share of gravity, of a held direction's push and of Jump's impulse a submerged swing takes: a half (#2280).
+        /// </summary>
+        public const int SubmergedShare = 2;
+        /// <summary>The share of gravity and of the velocity correction the swing takes above the anchor's level: a quarter.</summary>
+        public const int UpperQuadrantShare = 4;
+        /// <summary>
+        /// The angle steps a motionless release's horizontal speed angle leads the rope by: a quarter turn.
+        /// </summary>
+        public const int ReleaseLeadSteps = RotationAngle.StepsPerTurn / 4;
+        /// <summary>The angle steps the release's lead loses per whole angle step of swing speed.</summary>
+        public const int ReleaseLeadStepsPerSwingStep = 3;
     }
 
     /// <summary>The swinging rope's length and the points along Samus's body its sweeps test.</summary>
     public static class Swing
     {
+        /// <summary>
+        /// How far into its block a block anchor sits on an axis whose rope component is not negative: the rope leaves the
+        /// block's middle (#2280).
+        /// </summary>
+        public const int AnchorBiasTowardPositive = 8;
+        /// <summary>How far into its block a block anchor sits on an axis whose rope component is negative: one pixel short of its middle.</summary>
+        public const int AnchorBiasTowardNegative = AnchorBiasTowardPositive - 1;
         /// <summary>How far an Up or Down press shortens or lengthens the rope each update.</summary>
         public const int RopeLengthStep = 2;
         /// <summary>The shortest a swing rope is drawn in to; at this length a strike near the hand stops the swing.</summary>

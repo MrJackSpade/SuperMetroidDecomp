@@ -41,7 +41,7 @@ public sealed class SamusArmCannonState
     public int StableSelectionUpdates
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, 2, value);
+        internal set => field = Ensure.BetweenInclusive(0, SamusArmCannonDefinitions.StableSelectionUpdates, value);
     }
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
@@ -62,7 +62,7 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            StableSelectionUpdates = Math.Min(StableSelectionUpdates + 1, 2);
+            StableSelectionUpdates = Math.Min(StableSelectionUpdates + 1, SamusArmCannonDefinitions.StableSelectionUpdates);
         }
 
         if (IsTransitioning)
@@ -114,7 +114,7 @@ public sealed class SamusArmCannonState
     /// </summary>
     private void TryStartTransition(HudItem selectedHudItem)
     {
-        if (StableSelectionUpdates < 2)
+        if (StableSelectionUpdates < SamusArmCannonDefinitions.StableSelectionUpdates)
             return;
 
         bool opens = SamusArmCannonOpening.Opens(selectedHudItem);

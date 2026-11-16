@@ -25,7 +25,12 @@ internal static class ProjectileOriginsVerification
             int offset = direction.ToAimIndex() * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
-            byte correction = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 4);
+            byte stored = rom.ReadCartridgeByte(0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 4);
+            // #1928: the drained poses' origin is their signed correction, four below the centre; nothing they fire reads it.
+            int correction = pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+                or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
+                ? unchecked((sbyte)stored)
+                : stored;
             initialize(samus, slot);
             AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");

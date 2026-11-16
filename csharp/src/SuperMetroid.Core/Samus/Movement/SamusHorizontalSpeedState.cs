@@ -780,12 +780,9 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
     {
-        TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SpeedDivisor, LargestSpeedHalvings));
+        TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SpeedDivisor, SamusHorizontalSpeedDefinitions.LargestSpeedHalvings));
         return TotalSpeed;
     }
-
-    /// <summary>The most times a speed divisor halves the total speed, however large the divisor.</summary>
-    private const int LargestSpeedHalvings = 4;
 
     /// <summary>
     /// Calculates the non-collision portion of a rightward displacement,
@@ -807,8 +804,5 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static SignedSixteenSixteen ClampDisplacement(SignedSixteenSixteen displacement) =>
-        displacement.WithWholePixelsClamped(-LargestWholeDisplacement, LargestWholeDisplacement);
-
-    /// <summary>The most whole pixels Samus's speed moves her in one update, either way.</summary>
-    private const int LargestWholeDisplacement = 15;
+        displacement.WithWholePixelsClamped(-SamusHorizontalSpeedDefinitions.LargestWholeDisplacement, SamusHorizontalSpeedDefinitions.LargestWholeDisplacement);
 }

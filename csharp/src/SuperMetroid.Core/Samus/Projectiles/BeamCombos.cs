@@ -332,7 +332,7 @@ internal sealed class BeamCombos
                     }
                     break;
                 case SpazerComboPhase.FlyingUpTowardsPoint:
-                    if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, 16) < 0)
+                    if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, BeamComboDefinitions.SpazerFallScreenLine) < 0)
                         BeginSpazerFall(shot);
                     else
                     {
@@ -351,7 +351,7 @@ internal sealed class BeamCombos
                     }
                     break;
                 case SpazerComboPhase.FlyingUpAwayFromPoint:
-                    if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, 16) < 0)
+                    if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, BeamComboDefinitions.SpazerFallScreenLine) < 0)
                         BeginSpazerFall(shot);
                     else
                     {

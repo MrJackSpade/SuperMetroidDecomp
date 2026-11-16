@@ -32,6 +32,11 @@ public static class BeamComboDefinitions
     public const int SpazerFlyingRadiusStep = 5;
     /// <summary>The radius in pixels at which a Spazer special beam attack's particle flying away from the point starts to fall.</summary>
     public const int SpazerFallingRadius = 96;
+    /// <summary>
+    /// The screen line a flying Spazer special beam attack particle starts to fall above, in pixels from the screen's top
+    /// (#2280).
+    /// </summary>
+    public const int SpazerFallScreenLine = 16;
     /// <summary>The pixels a falling Spazer special beam attack particle drops each update.</summary>
     public const int SpazerFallSpeed = 8;
     /// <summary>The pixels below the camera's top edge at which a falling Spazer special beam attack particle ends.</summary>

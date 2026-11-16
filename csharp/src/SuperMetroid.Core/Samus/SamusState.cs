@@ -254,13 +254,13 @@ public sealed class SamusState
     }
 
     /// <summary>Current energy, also used by the animation's low-energy cue.</summary>
-    public int Health { get; set; } = 99;
+    public int Health { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>
     /// The previous energy for the hurt check: initialized from Energy when Samus is initialized,
     /// then compared and refreshed after Samus/projectile drawing by the post-draw input filter.
     /// </summary>
-    public int PreviousHealthForHurtCheck { get; set; } = 99;
+    public int PreviousHealthForHurtCheck { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>
     /// The fraction of one energy Samus holds beyond <see cref="Health"/>. The HUD shows only <see cref="Health"/>, but
@@ -295,7 +295,7 @@ public sealed class SamusState
     }
 
     /// <summary>Maximum normal energy; defaults to the initial 99.</summary>
-    public int MaxHealth { get; set; } = 99;
+    public int MaxHealth { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>Current reserve energy.</summary>
     public int ReserveEnergy { get; set; }

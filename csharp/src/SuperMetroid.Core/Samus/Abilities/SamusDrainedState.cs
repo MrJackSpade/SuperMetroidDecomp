@@ -115,7 +115,7 @@ public sealed class SamusDrainedState
             samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
             samus.AnimationHasReached(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
         {
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
             // The able branch ends its get-up after the first accepted Up
             // edge. Further presses cannot restart the stand-up.
@@ -129,7 +129,7 @@ public sealed class SamusDrainedState
         {
             // Unlike the able branch, the failed-stand branch keeps its get-up. A later
             // visit to the held crouch's frames that accept Up can therefore react to another fresh Up edge.
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
             return true;
         }
 
@@ -141,7 +141,7 @@ public sealed class SamusDrainedState
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         Ensure.NotNull(samus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
         samus.CancelPendingPoseTransition();
     }
 
@@ -180,7 +180,7 @@ public sealed class SamusDrainedState
         RainbowGlowStepCountdown = 0;
         HyperBeamGlowStep = 0;
         _suitShadeRestoreRequested = true;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
     }
 
     /// <summary>
@@ -352,9 +352,9 @@ public sealed class SamusDrainedState
         // installed outcome (#2048). The crouch's release place is the one its held crouch's repeat carries rather than a
         // frame of its own, and it is drawn until the next animation step advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: 1);
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
         // broad behavior instead of rejecting a pose that the game accepts.

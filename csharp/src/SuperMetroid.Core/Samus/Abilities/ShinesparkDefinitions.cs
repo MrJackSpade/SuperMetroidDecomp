@@ -17,6 +17,9 @@ public static class ShinesparkDefinitions
     /// <summary>How long the windup holds Samus before she launches, in updates.</summary>
     public const int WindupFrames = 30;
 
+    /// <summary>The acceleration a shinespark windup starts its upward motion with: seven pixels an update.</summary>
+    internal static readonly SignedSixteenSixteen WindupInitialVerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
+
     /// <summary>How long the shinesparking shade lasts from the windup's start if nothing renews it.</summary>
     public const int WindupShadeFrames = 60;
 

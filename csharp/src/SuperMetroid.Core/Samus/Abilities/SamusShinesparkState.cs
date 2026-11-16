@@ -75,9 +75,6 @@ public sealed class SamusShinesparkState
     /// </summary>
     public int CrashHoldCountdown { get; private set; }
 
-    /// <summary>The acceleration a shinespark windup starts its upward motion with.</summary>
-    private static readonly SignedSixteenSixteen InitialVerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
-
     /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
     public ShinesparkPhase Phase { get; private set; }
 
@@ -245,7 +242,7 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
-        _acceleration.StartSpark(InitialVerticalAcceleration);
+        _acceleration.StartSpark(ShinesparkDefinitions.WindupInitialVerticalAcceleration);
         WindupCountdown = ShinesparkDefinitions.WindupFrames;
         ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);

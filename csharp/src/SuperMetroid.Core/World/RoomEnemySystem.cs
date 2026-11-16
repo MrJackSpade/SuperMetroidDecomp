@@ -989,9 +989,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     place.FrameCounter = WrappingCounter.IncrementCount(place.FrameCounter);
                     // The enemy pass skips the animation whenever the enemy is
                     // frozen, even if the hurt state, tried first, selected an
-                    // enemy-specific hurt behaviour above. Testing only `ranActorAi` here
-                    // incorrectly advanced a Metroid's body animation while its frozen
-                    // behaviour still owned the two composited outer effect actors.
+                    // enemy-specific hurt behaviour above: a frozen Metroid's body holds its frame while its frozen
+                    // behaviour runs its two outer effect actors.
                     if ((place.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
                         place.Processing.HasAny(EnemyProcessing.Animates))
                         EnemyAnimationPlayer.AdvanceAnimation(
@@ -1014,14 +1013,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             if (!place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
                 Drawing.Enqueue(place, reached);
 
-            // The enemy pass performs this after the enemy has been admitted to its draw queue.
-            // Keeping it here also makes the boss's latched draw colours describe the
-            // frame just processed rather than the already-decremented following frame.
+            // The enemy pass counts the flash down after the enemy joins its draw queue, so a boss's draw colours show
+            // the flash of the update just processed.
             if (!frame.TimeIsFrozen && place.FlashTimer != 0)
             {
                 place.FlashTimer--;
-                // The enemy pass clears the hurt AI once too few flash updates remain. This applies even when another
-                // AI bit remains set; omitting it would strand Metroid in custom hurt forever.
+                // The enemy pass clears the hurt AI once too few flash updates remain, even while another AI state stays
+                // set, so a Metroid's own hurt behaviour ends.
                 if (place.FlashTimer < EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates)
                     place.AiStates = place.AiStates & ~EnemyAiStates.Hurt;
             }

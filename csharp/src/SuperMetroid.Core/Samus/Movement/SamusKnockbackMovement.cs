@@ -228,9 +228,8 @@ public static class SamusKnockbackMovement
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
-        // Knockback uses the ordinary left/right wrapper, whose collision branch
-        // cancels X momentum before the vertical pass. Retaining the clipped move's
-        // base speed incorrectly accelerates the next frame away from the obstacle.
+        // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
+        // before the vertical pass, so the next frame does not carry her on from the wall.
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 

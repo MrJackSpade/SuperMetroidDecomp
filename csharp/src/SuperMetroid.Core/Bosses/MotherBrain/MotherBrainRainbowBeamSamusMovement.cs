@@ -148,8 +148,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
         cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
 
-        // The bounds read the subtraction result as signed, not as unsigned C# comparisons do.
-        // This distinction is observable if a malformed/debug position wraps around zero.
+        // The bounds compare Samus's height with the ceiling and the floor around the room's wrap, so a height past
+        // zero lies above the ceiling.
         bool aboveCeiling = CoordinateAxis.Difference(moved.Whole, MotherBrainRainbowBeamPushDefinitions.Ceiling) < 0;
         if (aboveCeiling || CoordinateAxis.Difference(moved.Whole, MotherBrainRainbowBeamPushDefinitions.Floor) >= 0)
         {

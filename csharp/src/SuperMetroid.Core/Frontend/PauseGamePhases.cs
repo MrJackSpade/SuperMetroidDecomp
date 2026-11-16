@@ -18,10 +18,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // colours and inventory labels are installed before the pause fades in.
         // The frame still begins, so the controller's previous sample remains truthful.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        // The pause hook returns directly into the pause setup, which sends the three
-        // sound-library stop sequences before any pause graphics are initialized.
-        // Letting gameplay SFX continue under frozen gameplay causes stale echo,
-        // charge, beam, or environmental sounds to pulse throughout the menu.
+        // Pausing stops every gameplay sound before the pause screen is set up, so no echo, charge, beam or
+        // environmental sound plays on under the menu.
         session.audio.QueueCancelSoundEffects();
         SelectedRoom pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(

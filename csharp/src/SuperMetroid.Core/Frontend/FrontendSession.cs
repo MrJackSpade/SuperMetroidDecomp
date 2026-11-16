@@ -404,12 +404,11 @@ internal sealed class FrontendSession
                 slot.GameTimeMinutes, slot.GameTimeHours);
             runtime.FrameBoundary.PublishWhileLoading();
 
-            // Preserve the already-modelled Ceres elevator entrance for its checkpoint.
-            // Every other station uses the general room loader below.
+            // A Ceres elevator save starts with the Ceres elevator's arrival, as a new game does; every other station
+            // loads through the room loader below.
             if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
             {
-                // Room selection and actors must see the restored save's progress, not a
-                // fresh runtime followed by an after-the-fact progression overwrite.
+                // The save's progress is restored before the room loads, so the room's state and its enemies see it.
                 runtime.RoomLoader.RestoreSavedPlayerState(slot);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
@@ -423,18 +422,15 @@ internal sealed class FrontendSession
             }
 
             runtime.RoomLoader.InitializeSavedGame(slot);
-            // File selection loaded the saved options before the options menu ran.
-            // InitializeSavedGame also serves direct diagnostic loads, so it restores
-            // those fields itself. At this frontend boundary, the player's live edits
-            // take precedence over that original snapshot, just as the game keeps them live.
+            // Loading the save restores the controls and options it holds; the choices the player has made in the
+            // options menu since replace them, as the game keeps them live.
             ApplySelectedGameOptions();
             RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
-            // Samus's appearance starts her fanfare after 14 frames and, on its fifth
-            // call, schedules the room track 360 frames later. Mark this room state as
-            // already handled so the generic room-change collector cannot overwrite the
-            // fanfare with an immediate track request.
+            // Samus's appearance starts her fanfare and then the room's track behind it
+            // (SavedGameAppearanceMusicDefinitions). This room state is marked as already handled, so the room's
+            // change of music does not replace the fanfare with the room's track at once.
             // Loading from file select still has the title's music data set loaded.
             // Preserve the appearance track sequence, but switch to the room's data set first
             // just as ordinary room loading does; a set's own songs belong to that data set.
@@ -447,10 +443,8 @@ internal sealed class FrontendSession
             return false;
         }
 
-        // New-game loading first publishes the standard HUD/sprite artwork, then
-        // loads the Ceres elevator room and finally runs Samus's new-game setup. This is the
-        // same sequence used by the room diagnostic; there is no invented
-        // terrain image, hand-placed Samus, or alternate playable-only initialization.
+        // A new game first shows the standard HUD, then loads the Ceres elevator room and finally sets Samus up for the
+        // new game.
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.PublishWhileLoading();
         runtime.RoomLoader.InitializeStartingCeresRoom();

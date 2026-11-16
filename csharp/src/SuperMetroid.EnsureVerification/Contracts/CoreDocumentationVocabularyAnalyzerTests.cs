@@ -315,7 +315,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The ramp, the object and the background fade up; time is 12:30.</summary>\nint Ram => 0; }");
         Expect("/// <summary>The addressee opens the pointed door; 1200 frames pass.</summary>\nclass P { }");
         Expect("class P { bool Debugger => false; int DirectPage => 0; }");
-        Expect("/// <summary>The cursor moves directly to the next page; the debug grapple selection stays.</summary>\nclass P { }");
+        // Debug itself is debug narration (#2192), read below.
+        Expect("/// <summary>The cursor moves directly to the next page; the grapple selection stays.</summary>\nclass P { }");
         // Outside Core the rule reads nothing.
         VerifySnippet("/// <summary>A debugger-visible direct page word at WRAM $07E1.</summary>\nclass P { }", analyzer: analyzer);
         // An allowance marker is enforcement syntax; its own words are not read.
@@ -376,7 +377,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Dispatches the sound request; the dispatch sends the event; the callback runs.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The ENERGY label and the Exit label lit; the map's area labels; zero labels for reserves.</summary>\nint F => 0; }");
         Expect("class P { // the select map labels the area; the label shows; each label in its colours\n }");
-        Expect("class P { // the C# port keeps it; slot C and button C; the upstream river\n }");
+        // The port's C# construction is another rule's (#2192).
+        Expect("class P { // written in C#, it keeps it; slot C and button C; the upstream river\n }");
         // The original's data and number encodings outside hardware owners (#1754): decompression, colour indexes, two's
         // complement, unsigned compares and the 8.8 and 16.16 format names.
         Expect("class P { /// <summary>Active room's decompressed foreground.</summary>\nint F => 0; }", "('decompressed')");
@@ -896,5 +898,107 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // in markup and a hardware owner are English.
         Expect("class P { /// <summary>Runs the controller input check; reads the player's controller; the helper text; calls the elevator; runs <see cref=\"Helper\"/>.</summary>\nint F => 0; int Helper => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: runs the placement helper.</summary>\n[CompatibilityService(\"helper\")] class Helper { }");
+        // The Japanese and North American release named with no difference from the European release stated in its
+        // paragraph, outside hardware owners (#2192), in line comments across their lines, documentation and literals.
+        Expect("class P { void Run() { // The Japanese and North American release measures angles in 256ths of a turn.\n } }",
+            "('Japanese and North American')");
+        Expect("class P { void Run() {\n // The Japanese and North American release reloads the burrow duration every airborne frame.\n // It becomes the whole burrow duration only on the landing frame.\n } }",
+            "('Japanese and North American')");
+        Expect("class P { /// <summary>The Japanese and North American release rises by half a pixel.</summary>\nint F => 0; }",
+            "('Japanese and North American')");
+        Expect("class P { string Name => \"The Japanese and North American release moves it.\"; }", "('Japanese and North American')");
+        // A paragraph ends at a blank line.
+        Expect("class P { void Run() {\n // The Japanese and North American release moves it.\n\n // The European release uses the fraction.\n } }",
+            "('Japanese and North American')");
+        // A paragraph that sets the two releases side by side, across a comment's lines too, the European release alone and
+        // a hardware owner are English.
+        Expect("class P { void Run() { // The Japanese and North American release takes 80; the European release takes 99.\n } }");
+        Expect("class P { void Run() {\n // The speed is authored with a fraction, but the Japanese and North American release moves it by whole pixels;\n // only the European release uses the fraction.\n } }");
+        Expect("class P { /// <summary>The first flame waits 120 frames; the European release waits 96.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the Japanese and North American release measures angles.</summary>\n[CompatibilityService(\"angle\")] class Angle { }");
+        // A speed row, spaced or hyphenated, outside hardware owners (#2192).
+        Expect("class P { /// <summary>Displacement to the right, from the positive half of the population's linear speed row.</summary>\nint F => 0; }",
+            "('speed row')");
+        Expect("class P { void Run() { // the reversal reuses the speed-table row\n } }", "('speed-table row')");
+        Expect("class P { string Name => \"The speed rows ran out.\"; }", "('speed rows')");
+        // A speed, a row of blocks, a speed table alone and a hardware owner are English.
+        Expect("class P { /// <summary>The speed; the first row of blocks; Samus's speed table.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the speed row holds both signs.</summary>\n[CompatibilityService(\"row\")] class Row { }");
+        // A variable label cited in backticks, outside hardware owners (#2192).
+        Expect("class P { void Run() { // Testing only `ranActorAi` here leaves the animation running.\n } }", "('`ranActorAi`')");
+        Expect("class P { void Run() { // Whether the sprites of `layer` are placed.\n } }", "('`layer`')");
+        // An expression in backticks, a member's name in backticks and a hardware owner are English.
+        Expect("class P { void StepMovement() { } void Run() { // rejects `abs(delta) >= sum`; the frame `StepMovement` returns\n } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the copy reads `probe`.</summary>\n[CompatibilityService(\"probe\")] class Probe { }");
+        // A sort order, outside hardware owners (#2192).
+        Expect("class P { /// <summary>A normal bomb's family sorts after the Power Bomb family.</summary>\nint F => 0; }", "('sorts after')");
+        Expect("class P { void Run() { // the shot sorted before the bomb\n } }", "('sorted before')");
+        // A sort alone, a list sorted by a key and a hardware owner are English.
+        Expect("class P { /// <summary>The sort of the list; the list is sorted by distance.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the bomb's family sorts after the Power Bomb's.</summary>\n[CompatibilityService(\"sort\")] class Sort { }");
+        // A scroll table, spaced or hyphenated, outside hardware owners (#2192).
+        Expect("class P { /// <summary>Begins the melt: resets the background scroll table and the distortion.</summary>\nint F => 0; }",
+            "('scroll table')");
+        Expect("class P { void Run() { // until a room-specific scroll-table is loaded\n } }", "('scroll-table')");
+        // A scroll, a per-line scroll, a scroll's cells and a hardware owner are English.
+        Expect("class P { /// <summary>The scroll; the melt's per-line scroll; the scroll's cells.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: an explicit scroll table's load keeps the cells.</summary>\n[CompatibilityService(\"scroll\")] class Scroll { }");
+        // Colours loaded into a row, outside hardware owners and markup (#2192).
+        Expect("class P { /// <summary>His projectiles' colours, which his fight loads into the projectiles' row.</summary>\nint F => 0; }",
+            "('loads into the projectiles' row')");
+        Expect("class P { void Run() { // the glow is loaded in its own row\n } }", "('loaded in its own row')");
+        // Loading a room or a file, a row of blocks and a hardware owner are English.
+        Expect("class P { /// <summary>The room loads; the first row of blocks falls; loads the file.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the fight loads them into the projectiles' row.</summary>\n[CompatibilityService(\"load\")] class Load { }");
+        // A state extension, extended state and extra values, outside hardware owners (#2192).
+        Expect("class P { /// <summary>Typed extended state used by the bridge.</summary>\nint F => 0; }", "('extended state')");
+        Expect("class P { string Name => \"Crocomire death extension is not initialized for the current room.\"; }", "('death extension')");
+        Expect("class P { /// <summary>Requires the body and its shared state extension.</summary>\nint F => 0; }", "('state extension')");
+        Expect("class P { /// <summary>The typed encounter extension while the population is loaded.</summary>\nint F => 0; }",
+            "('encounter extension')");
+        Expect("class P { /// <summary>The state of the ghost, with its extra values.</summary>\nint F => 0; }", "('extra values')");
+        // A block's, neck's, tail's or rope's extension, a value alone and a hardware owner are English.
+        Expect("class P { /// <summary>The block's vertical extension; the neck extension; the tail's extension speed; a value.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the boss extension holds the speed.</summary>\n[CompatibilityService(\"extension\")] class Extension { }");
+        // A literal write, store or assignment, outside hardware owners (#2192).
+        Expect("class P { void Run() { // the radii and coordinates are literal writes\n } }", "('literal writes')");
+        Expect("class P { /// <summary>Preserves the literal store.</summary>\nint F => 0; }", "('literal store')");
+        // A literal alone and a hardware owner are English.
+        Expect("class P { /// <summary>The literal text the message shows.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: these are literal writes.</summary>\n[CompatibilityService(\"literal\")] class Literal { }");
+        // Fix history told by an adverb of error, a fall-through, an earlier order or a stranding, in every type, hardware
+        // owners included (#2192).
+        Expect("class P { void Run() { // Testing it here incorrectly advanced a Metroid's body animation.\n } }", "('incorrectly')");
+        Expect("class P { /// <summary>Requiring a vertical collision here wrongly skipped the run check.</summary>\nint F => 0; }", "('wrongly')");
+        Expect("class P { void Run() { // This update ends here. Falling through ran Samus movement and counted three frames.\n } }",
+            "('Falling through ran')");
+        Expect("class P { void Run() { // publishing first made the on-screen minimum read two\n } }", "('publishing first made')");
+        Expect("class P { /// <summary>Clears the hurt state; omitting it would strand Metroid in custom hurt forever.</summary>\nint F => 0; }",
+            "('would strand')");
+        Expect(CompatibilityService + "/// <summary>Evidence: rounding first made the step short.</summary>\n[CompatibilityService(\"round\")] class Round { }",
+            "('rounding first made')");
+        // A thing the game shows wrong, Samus falling through a platform, an order alone, a stranded beam and a generated
+        // file are English.
+        Expect("class P { /// <summary>The wrong answer shows; Samus falling through the platform; the HUD publishes first; the stranded X-ray beam.</summary>\nint F => 0; }");
+        Expect("// <auto-generated/>\nclass P { // a step wrongly skipped\n }");
+        // A gameplay path told as a diagnostic's, debug and non-debug, and the port's C# construction, in every type,
+        // hardware owners included (#2192).
+        Expect("class P { void Run() { // repeat it here to preserve the old diagnostic seam\n } }", "('diagnostic seam')");
+        Expect("class P { void Run() { // the loader also serves direct diagnostic loads\n } }", "('diagnostic loads')");
+        Expect("class P { void Run() { // do not restore its diagnostic pre-impact magnitude for effects\n } }",
+            "('diagnostic pre-impact magnitude')");
+        Expect("class P { void Run() { // the same sequence the room diagnostic uses\n } }", "('room diagnostic')");
+        Expect("class P { void Run() { // it stays in the pose movement for direct/diagnostic step use\n } }", "('/diagnostic')");
+        Expect("class P { void Run() { // Fresh debug sessions begin without an area map.\n } }", "('debug')");
+        Expect("class P { void Run() { // Debug scripts that grant Hyper Beam get the same order.\n } }", "('Debug')");
+        Expect("class P { /// <summary>Normal (non-debug) input for the map.</summary>\nint F => 0; }", "('non-debug')");
+        Expect("class P { void Run() { // The C# room constructor groups those owners differently.\n } }", "('C# room constructor')");
+        Expect("class P { /// <summary>Grouped by subsystem rather than by the C# class that holds them.</summary>\nint F => 0; }",
+            "('C# class')");
+        Expect(CompatibilityService + "/// <summary>Evidence: a debug session shows it.</summary>\n[CompatibilityService(\"session\")] class Session { }",
+            "('debug')");
+        // A name, text or identity for diagnostics, C# alone and a generated file are English.
+        Expect("class P { /// <summary>The reaction's name, for diagnostics; a stable diagnostic identity; the diagnostic text; written in C#.</summary>\nint F => 0; }");
+        Expect("// <auto-generated/>\nclass P { // a debug session\n }");
     }
 }

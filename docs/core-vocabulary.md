@@ -382,6 +382,25 @@ placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 
 things the game pairs, an addition alone, the player's controller with its input, buttons or port, and a helper or
 controller nothing runs or calls stay English.
 
+#2192 widens the review trail, read in every type, to fix history told by an adverb of error (`Testing it here
+incorrectly advanced the animation`, `wrongly skipped the run check`), a fall-through (`Falling through ran Samus
+movement`), an earlier order (`publishing first made the minimum read two`) and what an alternative would strand
+(`omitting it would strand Metroid`), and to debug narration: a gameplay path told as a diagnostic's (`the old diagnostic
+seam`, `direct diagnostic loads`, `its diagnostic pre-impact magnitude`, `the room diagnostic`, `direct/diagnostic step
+use`), debug and non-debug as words (`fresh debug sessions`, `debug scripts`, `the non-debug branch`) and the port's C#
+construction (`the C# room constructor`). Core states what the game does and gives every path it holds a gameplay
+reason. A thing the game shows wrong, Samus falling through a platform, an order alone, a stranded X-ray beam, a name,
+text or identity for diagnostics and C# alone stay English. Outside hardware owners SME6454 also reads the Japanese and
+North American release named for what the game does when the comment's paragraph, its line comments up to a blank line,
+names no European release (`The Japanese and North American release measures angles in 256ths of a turn`); a speed row
+(`the population's linear speed row`); a variable label cited in backticks (`` `ranActorAi` ``); a sort order (`a normal
+bomb's family sorts after the Power Bomb family`); a scroll table (`resets the background scroll table`); colours loaded
+into a row (`which his fight loads into the projectiles' row`); a state, boss, encounter or death extension, extended
+state and extra values (`the shared state extension`, `with its extra values`); and a literal write, store or assignment
+(`these radii are literal writes`). Core names the speed, the value, the reaction, the distortion, the colours shown and
+the state for what it holds. Two releases set side by side, an expression or member in backticks, a sorted list, a
+per-line scroll, loading a room, a block's, neck's or tail's extension and a literal alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

@@ -233,8 +233,8 @@ public sealed class SamusShinesparkState
         // X-ray's suit colouring with the shinespark's.
         samus.Xray.RelinquishSuitColouring();
 
-        // These are literal writes. Stage four remains published during windup even
-        // though base speed is zero and the extra component becomes exactly eight pixels per frame.
+        // The windup sets these whatever they held. The speed boost stays at its full stage through the windup
+        // even though her base speed is zero and her extra speed becomes exactly eight pixels per frame.
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = default;
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;

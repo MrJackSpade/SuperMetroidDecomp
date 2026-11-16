@@ -592,9 +592,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--_state.PhaseTimer >= 0)
             return false;
 
-        // Ending the drained get-up, the escape timer's start, Mother Brain's defeat, and the escape event
-        // belong to four different subsystems. Publish every edge instead of
-        // silently writing the wrong debug room's area flags inside this actor.
+        // Ending the drained get-up, starting the escape timer, recording Mother Brain's defeat and the escape event
+        // happen together here; each is requested of what owns it.
         requests.GetUpReleaseRequested = true;
         requests.MotherBrainEscapeTimerStartRequested = true;
         requests.MotherBrainDefeatRecordRequested = true;

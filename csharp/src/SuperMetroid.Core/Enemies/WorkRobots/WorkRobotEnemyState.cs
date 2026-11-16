@@ -17,8 +17,8 @@ public sealed class WorkRobotEnemyState
     public WrappingCountdown LaserCooldown { get; internal set; }
 
     /// <summary>
-    /// The robot's signed 1/65536-pixel falling speed in pixels per update: it starts at rest, and gravity accumulates it
-    /// with the fraction's overflow into the whole part and wraparound on every update nothing holds the robot up.
+    /// The robot's falling speed in 1/65536 pixels per update: it starts at rest, and gravity raises it every update nothing
+    /// holds the robot up.
     /// </summary>
     public SignedSixteenSixteen FallVelocity { get; internal set; }
 }

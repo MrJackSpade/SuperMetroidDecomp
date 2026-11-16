@@ -27,8 +27,7 @@ public sealed class VerticalShutterEnemyState
     public SignedSixteenSixteen DownVelocity { get; internal set; }
 
     /// <summary>
-    /// Upward signed 1/65536-pixel velocity in pixels per update; its fraction is added together with the negative whole part,
-    /// not negated independently.
+    /// Upward velocity in 1/65536 pixels per update: <see cref="DownVelocity"/> reversed, fraction included.
     /// </summary>
     public SignedSixteenSixteen UpVelocity { get; internal set; }
 

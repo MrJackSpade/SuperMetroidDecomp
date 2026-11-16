@@ -182,7 +182,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousY = place.Position.Y.Whole;
 
-        // The Japanese and North American release rises by exactly half a pixel per update.
+        // The Kzan rises by exactly half a pixel per update.
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(KzanRisingStep));
         if (CoordinateAxis.Precedes(place.Position.Y.Whole, state.RisingTargetY))
         {

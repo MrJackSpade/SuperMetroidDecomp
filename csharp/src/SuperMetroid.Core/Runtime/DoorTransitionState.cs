@@ -229,8 +229,7 @@ internal sealed class DoorTransitionState
 
             case DoorTransitionPhase.WaitForDoorOpeningScroll:
                 // Every update finishes an empty sprite frame even while the transition
-                // only waits on the door's scroll. Publishing that empty frame prevents the
-                // faded source enemies from becoming black ghosts over the moving
+                // only waits on the door's scroll, so no faded enemy of the room left behind shows over the moving
                 // destination doorway.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 if (runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress))
@@ -288,8 +287,7 @@ internal sealed class DoorTransitionState
                 // which is restored here rather than during the visible scroll.
                 runtime.RoomLoader.FinishDoorOpeningScroll();
                 runtime.RoomLoader.EndDoorTransitionDisplay();
-                // This update ends before the first destination fade. Falling through ran
-                // Samus movement and counted three frames in one update.
+                // This update ends here; the first destination fade starts on the next.
                 Phase = DoorTransitionPhase.DrawFirstDestinationFrame;
                 break;
 

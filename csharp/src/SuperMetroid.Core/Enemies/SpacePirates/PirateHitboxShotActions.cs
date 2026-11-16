@@ -79,9 +79,8 @@ internal static class PirateHitboxShotActions
     }
 
     /// <summary>
-    /// Fails for a reaction no Pirate hitbox gives a normal bomb. A normal bomb reaches the gold Ninja's three component
-    /// reactions as the ordinary projectile path does, and all three return because a normal bomb's family sorts after
-    /// the Power Bomb family: bombs neither damage nor reflect from any authored region of the gold Ninja.
+    /// Fails for a reaction no Pirate hitbox gives a normal bomb: a Gold Ninja's body answers only a Power Bomb, so a normal
+    /// bomb neither hurts it nor reflects from it.
     /// </summary>
     internal static void RequireGoldNinjaNormalBombReaction(EnemyReaction? hitboxShot)
     {

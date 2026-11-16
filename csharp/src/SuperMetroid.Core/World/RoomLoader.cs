@@ -197,11 +197,8 @@ internal sealed class RoomLoader
     /// enters the normal playable state at the station-authored Samus coordinates.
     /// </summary>
     /// <remarks>
-    /// Startup displays a short front-facing Samus appearance before settling into
-    /// ordinary standing control. That presentation coroutine is not a room-loading
-    /// responsibility, so this method establishes its deterministic endpoint rather than
-    /// replaying guessed timing. Room selection, coordinates, inventory, progression bits,
-    /// enemies, room objects, graphics, beam graphics, and camera all remain driven.
+    /// The room loads with the save's progress, inventory and position, and Samus starts her front-facing appearance
+    /// with her suit's glow and her control locked; the appearance gives her control back when it ends.
     /// </remarks>
     public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
     {
@@ -297,10 +294,11 @@ internal sealed class RoomLoader
         StoredExploredMapLoads.LoadFile(_system.StoredExploredMaps, slot.Progression);
         _assists.ResetSavedEncounters();
         _assists.GrantLoadoutToNewSamus();
-        // Loading clears both persisted HUD selection values after the save restore.
-        // Otherwise the arm-cannon cover can leak into the front-facing load pose.
+        // Loading a save selects the beam again, whatever the save held, so the front-facing load pose shows no
+        // weapon's arm cannon.
         _player.Samus.SelectedHudItem = HudItem.Beam;
         _player.Samus.AutoCancelledItem = HudItem.Beam;
+        // The save holds the player's controls and options; loading it restores them.
         _options.ControllerBindings = slot.ControllerBindings;
         _options.MoonwalkEnabled = slot.MoonwalkEnabled;
         _options.IconCancelEnabled = slot.IconCancelEnabled;
@@ -358,11 +356,8 @@ internal sealed class RoomLoader
         // Crateria's stored one before the room loads.
         _system.StoredExploredMaps.LoadLiveMap(AreaId.Crateria);
 
-        // The special loader still executes the normal room-object teardown before it
-        // constructs Landing Site. CeresElevatorArrival models two projectiles
-        // of the abandoned station room, so Landing Site's scope ends them; retaining them
-        // would let their delayed completion at Y=72 overwrite the Samus position currently
-        // carried by the gunship.
+        // Arriving on Zebes ends the Ceres room's objects and projectiles before Landing Site loads, the two of the Ceres
+        // elevator's arrival among them, so the gunship alone carries Samus.
         InitialViewportResult viewport = LoadRoom(
             door,
             room,
@@ -708,11 +703,8 @@ internal sealed class RoomLoader
         // therefore begins in indirect G-Mode and cannot create a visible gate actor.
         _player.Samus.Xray.TransitionDirectGModeToIndirect();
 
-        // Play may resume at the next update after a failure. Code cannot throw, but room construction can still
-        // reject an
-        // unsupported definition. Build the read-only asset graph before consuming the
-        // source room's pending door so such a failure remains retryable instead of leaving
-        // the door transition with no destination on the following frame.
+        // The destination's assets load before the source room's pending door is consumed, so a destination that
+        // fails to load leaves the door still pending.
         LoadedRoomAssets assets = LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
         DoorDefinition consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
@@ -963,11 +955,9 @@ internal sealed class RoomLoader
 
         if (entry.RunDoorClosingObject)
         {
-            // The door transition performs this handoff after destination room objects, door/room setup,
-            // and FX construction but before enemy initialization. The C# room constructor
-            // groups those owners differently, yet this point preserves the observable
-            // room-object update order: every room-authored actor exists before the closer takes
-            // the next free place, and no enemy-authored room object has run yet.
+            // The door's closing object spawns after the destination's room objects, the door's and the room's setup
+            // and the room's effects, and before the enemies initialize: every room object the room lists exists before
+            // the closer takes the next free place, and no enemy's room object has run yet.
             roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door, _system);
         }
 
@@ -1128,10 +1118,8 @@ internal sealed class RoomLoader
     /// Applies the Ceres-start Samus pose/state after room loading.
     /// </summary>
     /// <remarks>
-    /// The behaviour intentionally replaces the load-station Y coordinate with zero;
-    /// elevator platform/projectile motion later carries front-facing Samus into the room.
-    /// That elevator actor is a separate pending subsystem, so this method does not invent a
-    /// floor placement or prematurely unlock controls.
+    /// Samus starts at the top of the room, at the load station's X: the Ceres elevator's arrival carries her down into
+    /// the room, front-facing, and unlocks her movement when it ends.
     /// </remarks>
     public void InitializeCeresStartSamus()
     {
@@ -1160,9 +1148,7 @@ internal sealed class RoomLoader
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation.Get(roomGeometry.Area) });
 
-        // Samus's Ceres-start control setup locks her movement. Reuse the
-        // existing runtime switch to ensure ordinary movement cannot begin before the
-        // elevator arrival sequence has been modelled.
+        // Samus's Ceres-start control setup locks her movement until the elevator's arrival ends.
         _player.GroundedSamusMovementEnabled = false;
     }
 

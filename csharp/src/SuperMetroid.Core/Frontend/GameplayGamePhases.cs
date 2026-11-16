@@ -51,9 +51,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     session.GameplayRuntime.Clock.Counter);
                 if (reserveStep.RefillSoundRequested)
                     session.audio.QueueSound(RoomSound.IncrementalEnergy, SoundRequestPriority.Low);
-                // The reserve-refill state clears the freeze and restores main gameplay
-                // BEFORE calling gameplay. Unfreezing after StepFrame lets
-                // Samus resume while projectiles/enemies remain a frame behind.
+                // The reserve refill's end unfreezes the game and returns to main gameplay before the next gameplay
+                // update, so Samus, her projectiles and the enemies resume on the same update.
                 if (reserveStep.Completed)
                 {
                     session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;

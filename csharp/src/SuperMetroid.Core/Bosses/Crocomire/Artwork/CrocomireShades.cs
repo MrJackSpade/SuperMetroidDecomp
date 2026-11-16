@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
 /// The shades the import pre-colours Crocomire's sheets in (#1512): his body's fight colours and hurt flash on the background,
-/// the wall and projectile colours his fight loads, and his skeleton's arm and the wall spikes as he dies.
+/// the wall's and his projectiles' colours through his fight, and his skeleton's arm and the wall spikes as he dies.
 /// </summary>
 public static class CrocomireShades
 {
@@ -17,7 +17,7 @@ public static class CrocomireShades
     /// <summary>The wall's colours, which the collapsing bridge's fragments also draw in.</summary>
     public static PictureShade Wall { get; } = new("crocomire-wall", 0);
 
-    /// <summary>His projectiles' colours, which his fight loads into the projectiles' row.</summary>
+    /// <summary>His projectiles' colours, which they show through his fight.</summary>
     public static PictureShade Projectiles { get; } = new("crocomire-projectiles", 0);
 
     /// <summary>His skeleton's arm, as the wall breaks.</summary>

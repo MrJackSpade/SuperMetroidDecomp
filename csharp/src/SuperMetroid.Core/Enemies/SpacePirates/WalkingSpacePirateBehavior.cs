@@ -150,9 +150,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (!_terrain.MoveEnemyVertically(level, place, SpacePirateMotionDefinitions.WalkingGroundProbeStep))
             return;
 
-        // Left and right are not mirrors in the game. Left probes a point 17 pixels
-        // away, then walks by -14337 subpixels; right probes +16 and walks by +14336.
-        // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
+        // Left and right are not mirrors: walking left probes for floor 17 pixels ahead and moves 14337/65536 of a pixel;
+        // walking right probes 16 pixels ahead and moves 14336/65536.
         int originalX = place.Position.X.Whole;
         place.Position = place.Position.WithWrappedWholeX(
             place.Position.X.Whole - SpacePirateMotionDefinitions.WalkingLeftLedgeProbe);
@@ -405,8 +404,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
     }
-
-    /// <summary>The direction a laser mover flies.</summary>
 
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(

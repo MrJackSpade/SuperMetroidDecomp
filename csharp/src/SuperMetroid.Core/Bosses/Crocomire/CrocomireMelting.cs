@@ -47,8 +47,8 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Shows the second melting image of Crocomire's death hop. It
-    /// first refills the melt's per-line background vertical scroll and leaves the tongue alone.
+    /// Shows the second melting image of Crocomire's death hop. It first levels the melt's distortion and leaves the
+    /// tongue alone.
     /// </summary>
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
@@ -79,7 +79,7 @@ internal sealed class CrocomireMelting
         _bodyLayer.ShowCrocomireBodyFrame(RequireCrocomireMeltingImage(illustration));
 
     /// <summary>
-    /// Begins <paramref name="pass"/>'s melt: resets the background scroll table and the distortion, and starts
+    /// Begins <paramref name="pass"/>'s melt: levels the melt's stretch, resets its distortion, and starts
     /// the pass with no column erased and its first band to show. Each band keeps the previous pass's picture until this
     /// pass shows its own.
     /// </summary>

@@ -94,9 +94,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        // One block deep crumbles the first bridge block. The flag
-        // resets and the collapse step sit behind comparisons these ranges already passed
-        // and never execute.
+        // One block deep crumbles the first bridge block.
         if (CoordinateAxis.Difference(x, ApproachStage(2)) < 0)
         {
             if (!death.FirstBridgeBlockCrumbling)
@@ -360,8 +358,7 @@ internal sealed class CrocomireBridgeCollapse
         if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The fragment counts as launched even when no projectile place is free. The graphics argument the
-        // passes alongside it is immaterial: the definition initializer immediately replaces it.
+        // The fragment counts as launched even when no projectile place is free. Its colours are the wall's, set below.
         death.BridgeFragmentsSpawned = fragment + 1;
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -376,7 +373,7 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
-        // The fragment initializer reads RandomNumberSeed; it does not advance it.
+        // The fragment's fall speed reads the room's random number without drawing a new one.
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()) + CrocomireBridgeFragmentDefinitions.SlowestFallTwoFiftySixths));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);

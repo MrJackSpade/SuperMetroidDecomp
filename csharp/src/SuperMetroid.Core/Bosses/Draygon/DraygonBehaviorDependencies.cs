@@ -19,34 +19,34 @@ internal sealed record DraygonBehaviorDependencies
     /// <summary>The room's enemy places, among which his parts find his body.</summary>
     public required EnemyPlaces Places { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The room Draygon fights in: its services, its random numbers and whether he is already defeated.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The enemy projectiles of his fight, his turrets' shots among them.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which his fight starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Audio.</summary>
+    /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Effect actors.</summary>
+    /// <summary>The room's effect actors, which his intro, his movement, his grab and his death show.</summary>
     public required RoomEffectActors EffectActors { get; init; }
 
-    /// <summary>Presentation.</summary>
+    /// <summary>The room's enemy presentation, which his body is shown through.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Frame context.</summary>
+    /// <summary>The enemy update's clocks and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemy touch, which his body deals Samus.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' drops, which his fight scatters.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Scroll cap.</summary>
+    /// <summary>The cap on the camera's scrolling speed, which his grab sets while he holds Samus.</summary>
     public required SamusScrollCap ScrollCap { get; init; }
 
     /// <summary>The session's installed boss artwork.</summary>

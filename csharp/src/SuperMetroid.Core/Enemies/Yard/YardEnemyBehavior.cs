@@ -131,8 +131,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the sign-pair arithmetic: each axis takes the live crawl speed or its negation wrapped past 65535, rather
-    /// than a table of signed speeds.
+    /// Sets the Yard's crawl velocity for <paramref name="direction"/>: each axis takes its current crawl speed, or that
+    /// speed reversed.
     /// </summary>
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
@@ -294,7 +294,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!surfaceCollision)
         {
-            // The count stays within one through four, so the game's signed comparison is an ordinary one.
             state.ConsecutiveTurnCounter++;
             if (state.ConsecutiveTurnCounter >= YardEnemyState.MissedProbesBeforeFalling)
             {

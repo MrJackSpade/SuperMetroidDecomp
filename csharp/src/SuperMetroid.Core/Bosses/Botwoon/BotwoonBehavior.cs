@@ -759,7 +759,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    /// <param name="context">The projectile and what its pass hands every motion.</param>
     private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
     {
         switch (motion)

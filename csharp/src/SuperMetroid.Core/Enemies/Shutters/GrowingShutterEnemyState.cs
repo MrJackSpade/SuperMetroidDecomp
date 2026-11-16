@@ -50,8 +50,8 @@ public sealed class GrowingShutterEnemyState
 
     /// <summary>
     /// The origin row of the section grown at <paramref name="level"/>, derived from the spawn row (#2183): level 0 is the
-    /// spawn row and each later level is eight pixels further along the growth direction, wrapping at the room coordinate's
-    /// sixteen bits as the game's origins do. A growing shutter only ever moves vertically, so a section's origin is a row
+    /// spawn row and each later level is eight pixels further along the growth direction, wrapping around
+    /// the room. A growing shutter only ever moves vertically, so a section's origin is a row
     /// in the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>

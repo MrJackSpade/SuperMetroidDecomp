@@ -31,11 +31,9 @@ public static class SamusBlockCollision
         Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
 
-        // Reusing the horizontal step also preserves square-slope and
-        // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,
-        // but collision side effects are not observational: touching a scroll
-        // trigger still wakes its owner. Pass that shared owner through rather
-        // than treating an extension-resolved trigger as an orphan during wall-jump checks.
+        // The probe moves as her horizontal step does, with the same square-slope and unsupported-block reactions. A
+        // slope's alignment after the scan moves only the probe, but what the probe touches still reacts: a scroll
+        // trigger it reaches, through an extension block too, wakes its owner during the wall-jump check.
         BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion values even through wall observation.
         state.YSpeed = probe.YSpeed;

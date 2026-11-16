@@ -331,7 +331,7 @@ internal static class SamusGroundedPoseTransitions
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTableTarget)
         {
             // Input requests the un-aimed turn; the pose initializer then substitutes
-            // the old muzzle's aimed turn. An already-resolved diagnostic request is valid too.
+            // the old muzzle's aimed turn, which is as valid a request.
             throw new InvalidOperationException(
                 $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not a retail route.");
         }

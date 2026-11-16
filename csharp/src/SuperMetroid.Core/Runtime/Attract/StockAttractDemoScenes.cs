@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>Executable staging for the title demonstrations, joined across room, equipment and setup definitions.</summary>
-/// <remarks>The exact playlist, initial staging and editorial cutoffs select this recorded demonstration performance. Physical alignment, capacity units, shared abilities and control calculate independently.</remarks>
+/// <remarks>The demonstrations' order, where each starts, what Samus holds and where each recording ends are the title's choices; where she stands, her ammunition and energy, her abilities and her control follow from the game's own definitions.</remarks>
 public static class StockAttractDemoScenes
 {
     /// <summary>Mutually exclusive demonstration identities.</summary>
@@ -471,7 +471,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
-    /// <summary>Seventeen staged actors stand on identified flat floor cells. Their selected room-screen floor rows convert to pixels, then subtract the actual immutable pose radius. This does not use editable room artwork or infer the six other placements.</summary>
+    /// <summary>The Y at which Samus stands on a flat floor <paramref name="floorRow"/> blocks down the screen: the floor's top in pixels, less her staging pose's vertical radius.</summary>
     private static int GroundedY(int floorRow, Demonstration demonstration)
     {
         SamusPoseId pose = SamusSetupFor(demonstration) switch

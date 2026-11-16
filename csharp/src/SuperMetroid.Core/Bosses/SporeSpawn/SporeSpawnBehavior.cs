@@ -83,9 +83,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemyPlace place)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
-            "Spore Spawn main AI ran without an initialized boss extension.");
+            "Spore Spawn main AI ran without Spore Spawn's state initialized.");
         if (!ReferenceEquals(state.Body, place))
-            throw new InvalidOperationException("Spore Spawn extension belongs to another enemy place.");
+            throw new InvalidOperationException("Spore Spawn's state belongs to another enemy place.");
         return state;
     }
 

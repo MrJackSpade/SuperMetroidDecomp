@@ -42,8 +42,8 @@ internal sealed class DraygonGoop
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
-        // Retail's leftward setup briefly requests the right-facing apex arm animation before
-        // the body's reset cue replaces all four animations. Preserve the literal write.
+        // Going left, the setup first starts the arms' right-facing apex animation; the body's reset cue then replaces
+        // all four parts' animations.
         DraygonParts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
         state.Phase = DraygonPhase.GoopApproach;
         DraygonParts.StartDraygonAnimation(

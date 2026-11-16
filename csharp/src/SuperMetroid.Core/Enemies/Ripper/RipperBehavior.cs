@@ -123,7 +123,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(RipperAnimations.StartingWith(
             movingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
-        // The state retains the speed row because the reversal reuses it.
+        // The state keeps the spawn speed because every reversal reverses it.
         state.Speeds = new EnemyLinearSpeed(place.SpawnSettings<RipperSpawnSettings>().Speed);
         LoadRipperVelocity(state, movingRight);
     }
@@ -145,9 +145,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperAnimation(place, nowMovingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft);
     }
 
-    /// <summary>Loads a Ripper-family enemy's velocity from its linear-speed row.</summary>
-    /// <param name="state">The enemy's state, whose speed row is read.</param>
-    /// <param name="movingRight">Whether the row's positive speed is loaded rather than its negative speed.</param>
+    /// <summary>Sets a Ripper-family enemy's velocity from its spawn speed.</summary>
+    /// <param name="state">The enemy's state, whose spawn speed is read.</param>
+    /// <param name="movingRight">Whether the enemy flies right at its spawn speed rather than left.</param>
     internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight) =>
         state.XVelocity = movingRight ? state.Speeds.Positive : state.Speeds.Negative;
 

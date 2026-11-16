@@ -91,7 +91,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The Japanese and North American release reloads the burrow duration every airborne frame. It becomes the
+        // The burrow timer restarts at the full burrow duration every airborne frame. It becomes the
         // complete burrow lifetime only on the frame whose downward probe of one dive step collides.
         state.BurrowTimer = SkreeMotionDefinitions.BurrowDuration;
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, place, SignedSixteenSixteen.FromWholePixels(SkreeMotionDefinitions.DiveStep)))

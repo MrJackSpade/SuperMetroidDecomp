@@ -143,7 +143,6 @@ internal sealed class SamusFramePhases
     /// <summary>Shows the grapple's firing beam shade and its flare's shade as Samus's colours (#1512).</summary>
     internal void ShowGrappleShades()
     {
-        // Both ordinary HUD firing and debug entry select the same shades.
         _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection));
         _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Colours.SamusShades.GrappleFiringFlare);
     }
@@ -561,9 +560,8 @@ internal sealed class SamusFramePhases
                     _player.ProspectiveSamusFallbackPose = null;
                 }
 
-                // The shared input-phase environment pass above already selected these values;
-                // repeat the bomb jump's own environment selection here to preserve the
-                // old diagnostic seam while allowing water/lava instead of forcing air.
+                // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
+                // knockback and the shinespark do, from her pose and place as the input phase leaves them.
                 SamusAerialMovement.ConfigureEnvironmentGravity(samus);
                 _player.LastBombJumpMovement = samus.BombJumpStarting
                     ? SamusBombJumpMovement.Start(samus)
@@ -652,8 +650,7 @@ internal sealed class SamusFramePhases
             return SamusMovementOwner.None;
         if (frame.GrappleOwnsMovement)
             return SamusMovementOwner.Grapple;
-        // Draygon's grab keeps Samus still, rather than the otherwise reachable Draygon-held
-        // movement type's normal step. The latter stays in the pose movement for direct/diagnostic step use.
+        // Draygon's grab keeps Samus still, rather than running her Draygon-held movement type's normal step.
         if (samus.DraygonGrabbed.OwnsMovement)
             return SamusMovementOwner.DraygonHold;
         // X-ray's activation pose moves her by X-ray's own movement instead of the
@@ -714,8 +711,8 @@ internal sealed class SamusFramePhases
         {
             // The elevator setup installs the moving movement mode for departure.
             // Finishing the door's opening scroll reinstalls it only on downward arrival. Upward arrival
-            // retains the lock until the actor reaches rest; terrain probes there
-            // would incorrectly wake the scroll triggers the platform passes.
+            // retains the lock until the actor reaches rest, so Samus probes no terrain there and wakes none of the
+            // scroll triggers the platform passes.
             return SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorRunsSamusMovement
                 ? SamusMovementOwner.Elevator
                 : SamusMovementOwner.None;
@@ -1275,8 +1272,8 @@ internal sealed class SamusFramePhases
 
         // Every ordinary downward collision calls the landing-effects update inside movement, before
         // the checks after her movement, liquid animation, prospective-pose selection, and velocity
-        // cleanup. Knockback clears its live vertical speed on landing before this
-        // consumer; do not restore its diagnostic pre-impact magnitude for effects.
+        // cleanup. Knockback clears its vertical speed on landing before the landing effects read it, so they see no
+        // speed.
         // Drained movement retains its separately modeled impact publication.
         bool ordinaryOrBallLanded =
             _player.LastAerialSamusMovement is { Landed: true } ||

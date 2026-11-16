@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>Signs a Yard's crawling speed for its direction.</summary>
 public static class YardCrawlVelocity
 {
-    /// <summary>The crawl velocity <paramref name="speed"/> gives on each axis in <paramref name="direction"/>; negation wraps at sixteen bits.</summary>
+    /// <summary>The crawl velocity <paramref name="speed"/> gives on each axis in <paramref name="direction"/>: the speed, or the speed reversed.</summary>
     public static EightEightVector<RoomPixels> Apply(SignedEightEight speed, YardDirection direction)
     {
         SignedEightEight negative = speed.Negated();

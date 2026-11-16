@@ -74,8 +74,8 @@ internal sealed class CrocomireFight
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
-            // The dead-room state keeps only Crocomire's skeleton display actor. Property
-            // mask and these radii/coordinates are literal writes.
+            // In a room whose Crocomire is already dead only his skeleton is shown: it ignores Samus, and stands at a
+            // fixed place with a fixed size.
             place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
             state.DeathPhase = CrocomireDeathPhase.InertCorpse;
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
@@ -448,10 +448,11 @@ internal sealed class CrocomireFight
         return CrocomireBodySegment.StepBack;
     }
 
-    /// <summary>Moves Crocomire's body through ordinary ignore-slopes collision with 1/65536-pixel displacement.</summary>
+    /// <summary>
+    /// Moves Crocomire's body <paramref name="pixels"/> whole pixels sideways as an enemy that ignores non-square slopes moves,
+    /// stopping flush against a wall.
+    /// </summary>
     private bool MoveCrocomire(RoomEnemyPlace body, RoomLevelData level, int pixels) =>
-        // The cues pass a whole ±4 pixels as a 1/65536-pixel displacement into the ordinary ignore-slopes
-        // enemy mover; retaining that precision here preserves collision-edge alignment. Only his body's steps move it.
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, SignedSixteenSixteen.FromWholePixels(pixels));
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>

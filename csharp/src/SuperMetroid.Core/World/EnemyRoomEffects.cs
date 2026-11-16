@@ -100,9 +100,8 @@ internal sealed class EnemyRoomEffects
                 "Botwoon published a wall room object without an active room level and scroll grid.");
         }
 
-        // A fixed room-object spawn silently does nothing when every place is held. Preserve
-        // that behaviour; normal load begins with every place free, while an
-        // artificial full-room audit must not gain an invented exception or terrain edit.
+        // The wall's room object does not spawn while every room-object place is held; a room loads with every place
+        // free.
         roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(_room.LevelData, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)

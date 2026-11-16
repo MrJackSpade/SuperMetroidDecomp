@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Non-debug map landmarks and elevator destinations from the game's icon lists.</summary>
+/// <summary>The file select map's landmarks and elevator destinations from the game's icon lists.</summary>
 public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>
@@ -69,7 +69,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
             Add(entries, id, position, scroll, colouring);
     }
 
-    /// <summary>Normal file select adds the gunship and downloaded elevator labels, not debug save icons.</summary>
+    /// <summary>Draws what follows the marker: the gunship in Crateria, the arrows, and the elevator labels once the area's map is downloaded.</summary>
     public void DrawAfterMarker(ScreenSprites entries, Offset16<MapPixels> scroll, Action? drawArrows = null)
     {
         if (area == AreaId.Crateria)

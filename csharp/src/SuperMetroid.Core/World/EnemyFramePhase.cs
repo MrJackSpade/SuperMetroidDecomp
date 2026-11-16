@@ -72,8 +72,8 @@ internal sealed class EnemyFramePhase
 
     /// <summary>Runs the enemy pass after Samus's input phase and projectiles, then applies enemy-authored colour, scroll, escape, room effect, and player handoffs before movement.</summary>
     /// <param name="processingList">
-    /// True in main gameplay, whose frame start already built the processing list. Door-transition
-    /// enemy passes build the list immediately before the enemy pass instead.
+    /// <see cref="EnemyProcessingList.Prepared"/> in main gameplay, whose frame start already built the processing list;
+    /// <see cref="EnemyProcessingList.Unprepared"/> in a door transition's enemy pass, which builds it first.
     /// </param>
     /// <param name="samusPreviousPositionCheckpoint">
     /// The camera's frame-start Samus checkpoint, under the live previous position that
@@ -97,14 +97,12 @@ internal sealed class EnemyFramePhase
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // Making Samus face forward clears all pending pose requests after the input phase
-                // has sampled this frame's controls. Do not apply that stale Down
-                // crouch request to the new forward-facing, elevator-owned body.
+                // has sampled this frame's controls, so a held Down does not crouch her forward-facing body on the
+                // elevator.
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
-                // Making Samus face forward ends by reloading the suit colours. The actor
-                // clears flare/projectile state, but cannot restore runtime-owned colours.
-                // Without this write, cancelling charge leaves its last flashing colors
-                // behind after the charge colouring ends.
+                // Making Samus face forward ends by showing her suit's colours again, so a cancelled charge leaves no
+                // flashing colours behind.
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
             }
             if (result.DraygonDiscardedSamusPoseRequests)

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 internal enum RoomViewportLoadMode
 {
     /// <summary>
-    /// Load stations, startup, and explicit debug loads show the destination's whole view at once.
+    /// Load stations, startup and the title's demonstrations show the destination's whole view at once.
     /// </summary>
     DisplayInitialViewport,
 

@@ -61,7 +61,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
         set => _session.CeresStatus = value;
     }
 
-    /// <summary>Requires Ridley's body as a Ridley definition and its shared state extension.</summary>
+    /// <summary>Requires Ridley's body as a Ridley definition and Ridley's state.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemyPlace place)
     {
         if (!RidleyInteractions.IsRidleyDefinition(place.DefinitionId) ||
@@ -70,12 +70,12 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
         {
             throw new InvalidOperationException(
                 $"Enemy place {place.Ordinal} executed shared Ridley code without being Ridley's body " +
-                "with an extended Ridley state.");
+                "with Ridley's state.");
         }
         return Ridley;
     }
 
-    /// <summary>Admits only Lower Norfair Ridley before returning the shared state extension.</summary>
+    /// <summary>Admits only Lower Norfair Ridley before returning Ridley's state.</summary>
     internal RidleyEnemyState RequireNorfairRidley(RoomEnemyPlace place)
     {
         if (place.DefinitionId != EnemyDefinitionId.Ridley)
@@ -87,7 +87,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
         return RequireRidley(place);
     }
 
-    /// <summary>Admits only Ceres Ridley's body and initialized state extension.</summary>
+    /// <summary>Admits only Ceres Ridley's body with Ridley's state initialized.</summary>
     internal RidleyEnemyState RequireCeresRidley(RoomEnemyPlace place)
     {
         if (place.DefinitionId != EnemyDefinitionId.RidleyCeres ||

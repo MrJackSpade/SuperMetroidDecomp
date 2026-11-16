@@ -277,9 +277,9 @@ internal sealed class CrocomireCombat
     {
         body.InvincibilityTimer = 0;
 
-        // The off-screen branch bypasses projectile-family selection and still publishes
-        // the pending-hit state. This wrapped signed comparison is the game's exact
-        // `body left edge - (camera + 256)` test.
+        // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
+        // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
+        // the camera, compared around the room's wrap.
         bool bodyLeftEdgeIsOnScreen = CoordinateAxis.Difference(
             body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach, camera.X) < 0;
         int stepCount = 0;

@@ -10,8 +10,11 @@ internal sealed class RidleyExplosionFragmentState
     public int Lifetime { get; internal set; }
 
     /// <summary>
-    /// The piece of Ridley the fragment shows, chosen when it spawns (#2235): a still picture, shown for good on the
-    /// fragment's first animation update.
+    /// The piece of Ridley the fragment shows, chosen when it spawns (#2235): a still picture, shown on the fragment's first
+    /// animation update and kept from then on.
     /// </summary>
     internal required RidleyBreakupFrame Picture { get; init; }
+
+    /// <summary>Whether the fragment shows its picture yet: its first animation update shows it.</summary>
+    internal bool ShowsPicture { get; set; }
 }

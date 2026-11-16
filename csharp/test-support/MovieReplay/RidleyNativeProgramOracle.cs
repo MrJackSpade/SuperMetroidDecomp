@@ -195,6 +195,7 @@ internal static class RidleyNativeProgramOracle
             int address = (BodyBankNumber << 16) | BreakupList(frame);
             string at = $"Ridley breakup {frame}";
             VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Frame, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address)), $"{at}: frame");
+            VerificationAssertions.AssertEqual(RidleyBreakupFrameDefinitions.PictureShowingUpdates, (int)cartridge.ReadCartridgeWord(address), $"{at}: frame duration");
             VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(frame), $"{at}: spritemap");
             VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
         }

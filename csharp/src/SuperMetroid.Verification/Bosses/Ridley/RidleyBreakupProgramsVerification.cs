@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -68,7 +69,10 @@ internal static class RidleyBreakupProgramsVerification
             fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
+            AssertEqual((ushort)RidleyBreakupFrameDefinitions.PictureShowingUpdates, fragment.AnimationClock.Hold.RawValue,
+                "breakup holds its picture's native frame duration before it sleeps");
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
+            AssertEqual((ushort)0, fragment.AnimationClock.Hold.RawValue, "breakup sleeps on its picture, its clock left to wrap");
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup holds its picture");
             AssertEqual((ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 4), RidleyNativeProgramOracle.BreakupPointer(fragment), "breakup sleeps after its one frame");
             var actual = new OamBuffer();

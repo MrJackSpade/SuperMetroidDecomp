@@ -117,6 +117,41 @@ internal static class PipeBugBehaviorVerification
             new FrameCounters(0));
     }
 
+    /// <summary>
+    /// #2071: a Norfair formation member's one stagger action moves it by its role's offset. For each member above or below
+    /// the leader, the production main AI runs its stagger from where its rise ended until it waits: it stops exactly its
+    /// role's offset from there, counting the formation once each update it moved.
+    /// </summary>
+    internal static void VerifyNorfairPipeBugStaggerOffsets()
+    {
+        ClockedEnemyAiFrame frame = new(
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 128)) } },
+            new FrameCounters(0));
+        foreach (NorfairPipeBugRole role in new[] { PipeBugDefinitions.UpperNearRole, PipeBugDefinitions.UpperFarRole, PipeBugDefinitions.LowerNearRole, PipeBugDefinitions.LowerFarRole })
+        {
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
+            NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
+            AssertEqual(PipeBugAction.NorfairStagger, role.PostRiseAction, $"the member {role.StaggerOffset} pixels from the leader staggers by its offset");
+            state.Action = PipeBugAction.NorfairStagger;
+            state.StaggerOffset = role.StaggerOffset;
+            state.RiseEndY = 128;
+            state.FormationCounter = 0;
+            int updates = 0;
+            while (state.Action == PipeBugAction.NorfairStagger && updates <= Math.Abs(role.StaggerOffset) + 1)
+            {
+                enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, frame);
+                updates++;
+            }
+            AssertEqual(PipeBugAction.NorfairWaitForStagger, state.Action, $"the member staggering {role.StaggerOffset} pixels then waits");
+            AssertEqual(128 + role.StaggerOffset, slot.Position.Y.Whole, $"the member staggering {role.StaggerOffset} pixels stops there");
+            AssertEqual(updates, state.FormationCounter, $"the member staggering {role.StaggerOffset} pixels counts each update");
+        }
+        Console.WriteLine("  Norfair Pipe Bug staggers: each member moves by its role's offset and then waits.");
+    }
+
     /// <summary>A freshly initialized Pipe Bug's animation.</summary>
     private static SuperMetroid.Core.Animation.AnimationPlayback<PipeBugSegment> Initialized(EnemyDefinitionId definition, ushort parameter)
     {
@@ -304,6 +339,7 @@ internal static class PipeBugBehaviorVerification
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPipeBugBehavior), () => VerifyPipeBugBehavior());
         Suite(nameof(VerifyPipeBugStateQuantities), () => VerifyPipeBugStateQuantities());
+        Suite(nameof(VerifyNorfairPipeBugStaggerOffsets), () => VerifyNorfairPipeBugStaggerOffsets());
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
         return 0;
     }

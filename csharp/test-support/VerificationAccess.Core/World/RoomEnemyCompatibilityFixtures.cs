@@ -44,5 +44,6 @@ internal static class RoomEnemyCompatibilityFixtures
         UnauthoredBoostCadence = unauthoredBoostCadence,
         KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>(),
         YardKickDistance = yardKickDistance,
+        FallingSparkFloorProbe = new FallingSparkFloorProbe(),
     };
 }

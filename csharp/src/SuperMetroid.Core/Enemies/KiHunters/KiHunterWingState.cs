@@ -21,17 +21,6 @@ public sealed class KiHunterWingState
     public QuadraticSpeedCurvePlace DetachedSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The detached wings' quadratic speed sum, accumulated at detachment until it reaches the detached-speed threshold.
-    /// Detachment never resets it: it continues from zero or the earlier sum. Its sum wraps as the game's counter does,
-    /// through <see cref="AccumulateDetachedSpeed"/>.
-    /// </summary>
-    public int DetachedSpeedAccumulator
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
-    }
-
-    /// <summary>
     /// The detached wings' arc angle, which wraps over the whole turn: seeded below zero for each arc and turned each
     /// update by the coarse speed of its place on the speed curve. The arc changes when the angle crosses a quarter turn.
     /// </summary>
@@ -44,8 +33,8 @@ public sealed class KiHunterWingState
     public KiHunterWingMovement WingMovement { get; internal set; } = KiHunterWingMovement.Orbit;
 
     /// <summary>
-    /// The reset place along the speed curve, computed at detachment by stepping a mark and a half at a time until the
-    /// quadratic speed sum reaches its threshold, and reapplied at each arc change; on the curve.
+    /// The reset place along the speed curve, set at detachment to where the wings' climb starts
+    /// (<see cref="KiHunterMotionDefinitions.DetachedWingClimb"/>) and reapplied at each arc change; on the curve.
     /// </summary>
     public QuadraticSpeedCurvePlace DetachedSpeedReset { get; internal set; }
 
@@ -61,6 +50,4 @@ public sealed class KiHunterWingState
     /// <summary>The wings' room position saved at detachment, where the first orbit is centred and where the collision-bearing arc deletes them.</summary>
     public Position16<RoomPixels> SavedWingPosition { get; internal set; }
 
-    /// <summary>Adds one speed of the quadratic speed curve to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's counter does.</summary>
-    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddCount(DetachedSpeedAccumulator, step);
 }

@@ -84,7 +84,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KiHunterGroundAttackDistance = 96;
 
 
-    /// <summary>The detached wing's step along the speed curve: a mark and a half per update while it slows, and per step while its reset is found.</summary>
+    /// <summary>The detached wing's step along the speed curve while it slows: a mark and a half per update.</summary>
     private static readonly QuadraticSpeedCurvePlace DetachedSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
     /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
     private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
@@ -604,7 +604,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.SavedWingPosition = wings.Position.Whole;
-        CalculateKiHunterDetachedSpeedReset(state);
+        state.DetachedSpeedReset = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
 
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
@@ -620,22 +620,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             KiHunterSegment.DetachedWings);
         wings.Frame = EnemyFrameId.Empty;
         wings.Processing = wings.Processing.With(EnemyProcessing.OffScreen);
-    }
-
-    /// <summary>
-    /// Walks the quadratic speed curve until the detached wing's speed sum reaches its threshold. The reset cannot run
-    /// past the curve: reading its speed rejects a place past the curve's last mark.
-    /// </summary>
-    private static void CalculateKiHunterDetachedSpeedReset(KiHunterWingState state)
-    {
-        state.DetachedSpeedReset = QuadraticSpeedCurvePlace.Start;
-        state.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        do
-        {
-            state.DetachedSpeedReset += DetachedSpeedStep;
-            state.AccumulateDetachedSpeed(state.DetachedSpeedReset.Speed.CoarseToward(EnemySpeedSign.Positive));
-        }
-        while (WrappingCounter.IsBehind(state.DetachedSpeedAccumulator, KiHunterMotionDefinitions.DetachedSpeedThreshold));
     }
 
     /// <summary>Centers the detached wing's orbit at its current position with a negative quarter-turn seed.</summary>

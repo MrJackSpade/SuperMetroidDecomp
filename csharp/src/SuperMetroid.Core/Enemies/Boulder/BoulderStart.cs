@@ -12,10 +12,10 @@ internal abstract record BoulderStart
     internal sealed record FallsFrom : BoulderStart
     {
         /// <summary>Starts a Boulder that hangs <paramref name="drop"/> pixels above its resting place.</summary>
-        /// <param name="drop">The pixels it hangs above its resting place, 1 through 255.</param>
-        internal FallsFrom(int drop) => Drop = Ensure.BetweenInclusive(1, byte.MaxValue, drop);
+        /// <param name="drop">The pixels it hangs above its resting place, one or more.</param>
+        internal FallsFrom(int drop) => Drop = Ensure.BetweenInclusive(1, int.MaxValue, drop);
 
-        /// <summary>The pixels it hangs above its resting place, 1 through 255.</summary>
+        /// <summary>The pixels it hangs above its resting place, one or more.</summary>
         internal int Drop { get; }
     }
 

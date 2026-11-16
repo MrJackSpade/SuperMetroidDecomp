@@ -46,23 +46,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue.Kind)
         {
-            case YappingMawCueKind.HoldSamusUpRight:
-                SetYappingMawHeldOffset(state, YappingMawAim.UpRight);
-                break;
-            case YappingMawCueKind.HoldSamusUpLeft:
-                SetYappingMawHeldOffset(state, YappingMawAim.UpLeft);
-                break;
-            case YappingMawCueKind.HoldSamusDownRight:
-                SetYappingMawHeldOffset(state, YappingMawAim.DownRight);
-                break;
-            case YappingMawCueKind.HoldSamusDownLeft:
-                SetYappingMawHeldOffset(state, YappingMawAim.DownLeft);
-                break;
-            case YappingMawCueKind.HoldSamusUp:
-                SetYappingMawHeldOffset(state, YappingMawAim.Up);
-                break;
-            case YappingMawCueKind.HoldSamusDown:
-                SetYappingMawHeldOffset(state, YappingMawAim.Down);
+            case YappingMawCueKind.HoldSamus:
+                SetYappingMawHeldOffset(state, cue.Aim ?? throw new InvalidDataException("A Yapping Maw hold cue carries no aim."));
                 break;
             case YappingMawCueKind.PlayBiteSound:
                 PlayYappingMawAttackSound(state);

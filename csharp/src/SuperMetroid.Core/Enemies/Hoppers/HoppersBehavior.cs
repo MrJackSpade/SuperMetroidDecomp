@@ -140,7 +140,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void PrepareHopperHop(HopperEnemyState state, HopperHopSize size)
     {
         QuadraticCurveClimb hop = size == HopperHopSize.Big ? HopperHopDefinitions.BigHop : HopperHopDefinitions.SmallHop;
-        state.YSpeedCurvePlaceDelta = hop.MarksPerPass;
+        state.YSpeedCurvePlaceStep = hop.StepPerPass;
         state.XVelocity = HopperHopDefinitions.HorizontalSpeed;
         state.YSpeedCurvePlace = size == HopperHopSize.Big
             ? state.BigHopInitialYSpeedCurvePlace
@@ -231,7 +231,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The game stores the moved-back place and checks whether it is negative: a place before the curve's start is the apex,
             // replaced by the curve's start as the hop turns back toward the surface.
-            QuadraticSpeedCurvePlace next = state.YSpeedCurvePlace - QuadraticSpeedCurvePlace.FromMarks(state.YSpeedCurvePlaceDelta);
+            QuadraticSpeedCurvePlace next = state.YSpeedCurvePlace - state.YSpeedCurvePlaceStep;
             if (next.IsNegative)
             {
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -247,7 +247,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game caps the returning mark by whether its wrapped difference from the cap is negative; both stay
         // far inside the signed range, so that is the ordinary minimum.
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
-            state.YSpeedCurvePlace + QuadraticSpeedCurvePlace.FromMarks(state.YSpeedCurvePlaceDelta),
+            state.YSpeedCurvePlace + state.YSpeedCurvePlaceStep,
             MaximumHopperYSpeedCurvePlace);
     }
 

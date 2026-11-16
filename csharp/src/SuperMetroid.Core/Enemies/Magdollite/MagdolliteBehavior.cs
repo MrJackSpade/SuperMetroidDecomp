@@ -494,14 +494,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Stretches the head's collision height down to the tracking overlay (#1823): the head's vertical radius becomes
-    /// the distance from the overlay up to the head plus two pixels, and never less than eight, so the head's hitbox
+    /// the distance from the overlay up to the head plus its reach past the overlay, and never less than its smallest
+    /// radius, so the head's hitbox
     /// reaches the overlay as the arm grows beneath it.
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemyPlace overlay)
     {
-        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(overlay);
-        int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + 2);
-        head.Radius = head.Radius.WithY(CoordinateAxis.Precedes(radius, 8) ? 8 : radius);
+        (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
+        int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + MagdolliteMotionDefinitions.HeadReachPastOverlay);
+        int smallest = MagdolliteMotionDefinitions.SmallestHeadRadius;
+        head.Radius = head.Radius.WithY(CoordinateAxis.Precedes(radius, smallest) ? smallest : radius);
     }
 
     /// <summary>
@@ -586,7 +588,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of a Magdollite part's animations: the sixteen private cues the ten
+    /// Carries out one cue of a Magdollite part's animations: each private cue the ten
     /// authored animations reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private MagdolliteSegment? ApplyMagdolliteCue(
@@ -595,41 +597,31 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         MagdollitePartState state = place.RequireSpeciesState<MagdollitePartState>();
-        switch (cue.Kind)
+        switch (cue)
         {
-            case MagdolliteCueKind.PlaySoundIfOnScreen:
+            case MagdolliteCue.PlaySoundIfOnScreen playSound:
             {
                 if (EnemyView.Contains(place.Position.Whole, camera))
-                    _audio.QueueEnemySound(cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
+                    _audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
                 break;
             }
-            case MagdolliteCueKind.MoveDown2:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 2);
+            case MagdolliteCue.Move move:
+                slot.Position += move.Offset;
                 break;
-            case MagdolliteCueKind.MoveUp2:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 2);
-                break;
-            case MagdolliteCueKind.SetAnimationBusy:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SetAnimationBusy }:
                 state.AnimationBusy = true;
                 break;
-            case MagdolliteCueKind.ClearAnimationBusy:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.ClearAnimationBusy }:
                 state.AnimationBusy = false;
                 break;
-            case MagdolliteCueKind.MoveWithPillarUp1:
+            case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
-                RoomEnemyPlace next = NextMagdollitePlace(place);
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 1);
-                next.Position = next.Position.WithWrappedWholeY(next.Position.Y.Whole - 1);
+                RoomEnemySlot next = NextMagdolliteSlot(slot);
+                slot.Position += moveWithPillar.Offset;
+                next.Position += moveWithPillar.Offset;
                 break;
             }
-            case MagdolliteCueKind.MoveWithPillarDown1:
-            {
-                RoomEnemyPlace next = NextMagdollitePlace(place);
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
-                next.Position = next.Position.WithWrappedWholeY(next.Position.Y.Whole + 1);
-                break;
-            }
-            case MagdolliteCueKind.SinkAndShowParts:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SinkAndShowParts }:
             {
                 (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
                 int sunkY = CoordinateAxis.Wrap(state.OriginY + MagdolliteMotionDefinitions.SunkDepth);
@@ -639,14 +631,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 overlay.Presence = overlay.Presence.Without(EnemyPresence.Hidden);
                 break;
             }
-            case MagdolliteCueKind.RestoreOrigins:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.RestoreOrigins }:
             {
                 (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
                 place.Position = place.Position.WithWholeY(state.OriginY);
                 body.Position = body.Position.WithWholeY(state.OriginY);
                 break;
             }
-            case MagdolliteCueKind.SurfaceAndHideParts:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SurfaceAndHideParts }:
             {
                 (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
                 int surfacedY = CoordinateAxis.Wrap(state.OriginY + MagdolliteMotionDefinitions.SurfacedDepth);
@@ -656,23 +648,17 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 overlay.Presence = overlay.Presence.With(EnemyPresence.Hidden);
                 break;
             }
-            case MagdolliteCueKind.SpawnLava:
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
                 SpawnMagdolliteLava(place, PartState<MagdolliteOverlayState>(place).ThrowsRight);
                 break;
-            case MagdolliteCueKind.ShiftRightUp4:
-                place.Position = place.Position.WithWhole(PartState<MagdolliteOverlayState>(place).ThrowOrigin + new Offset16<RoomPixels>(8, -4));
+            case MagdolliteCue.ShiftFromThrowOrigin shift:
+                place.Position = place.Position.WithWhole(PartState<MagdolliteOverlayState>(place).ThrowOrigin + shift.Offset);
                 break;
-            case MagdolliteCueKind.ShiftLeftUp4:
-                place.Position = place.Position.WithWhole(PartState<MagdolliteOverlayState>(place).ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
-                break;
-            case MagdolliteCueKind.ShiftRightUp8:
-                place.Position = place.Position.WithWhole(PartState<MagdolliteOverlayState>(place).ThrowOrigin + new Offset16<RoomPixels>(8, -8));
-                break;
-            case MagdolliteCueKind.StartCooldown:
-                PartState<MagdolliteOverlayState>(place).AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
+            case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
+                PartState<MagdolliteOverlayState>(slot).AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(MagdolliteCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
         }
         return null;
     }
@@ -806,9 +792,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             Lava,
             SpriteGraphics.SpawnedBy(source));
 
-        // The initializer copies both subpixels from the throwing overlay, starts two pixels below it, and throws the
+        // The initializer copies both subpixels from the throwing overlay, starts the lava's drop below it, and throws the
         // lava sideways in the overlay's facing.
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 2), source.Position.Y.Fraction));
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop), source.Position.Y.Fraction));
         projectile.Velocity = new(
             throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed,
             SignedEightEight.Zero);

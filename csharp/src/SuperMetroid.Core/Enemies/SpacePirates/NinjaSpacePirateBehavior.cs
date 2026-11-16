@@ -99,29 +99,24 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // deliberately replaces them with a symmetric pair derived from its acceleration
         // sum. That adjustment is why the final span can differ slightly from the post distance.
         int requestedLeft = startsAtLeft
-            ? place.Position.X.Whole
-            : CoordinateAxis.Wrap(place.Position.X.Whole - settings.PostDistance);
-        int requestedRight = startsAtLeft
-            ? CoordinateAxis.Wrap(place.Position.X.Whole + settings.PostDistance)
-            : place.Position.X.Whole;
-        int requestedHalfSpan = CoordinateAxis.Wrap(requestedRight - requestedLeft);
-        requestedHalfSpan >>= 1;
+            ? slot.Position.X.Whole
+            : CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PostDistance);
+        int requestedHalfSpan = Ensure.BetweenInclusive(0, LongestPostHalfSpan, settings.PostDistance / 2);
         state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
 
         // The spin's speed grows until the distance it covers reaches the half-span; it runs at least once, so posts no
         // distance apart still spin.
-        int distanceInSubpixels = EightEight.FromWhole(Ensure.BetweenInclusive(0, LongestPostHalfSpan, requestedHalfSpan));
-        int speed = 0;
-        int accumulatedDistance = 0;
+        SignedSixteenSixteen requestedDistance = SignedSixteenSixteen.FromWholePixels(requestedHalfSpan);
+        SignedEightEight speed = SignedEightEight.Zero;
+        SignedSixteenSixteen covered = SignedSixteenSixteen.Zero;
         do
         {
-            speed += 32;
-            accumulatedDistance += speed;
+            speed += NinjaPirateSpinSpeedChange;
+            covered += speed.ToSixteenSixteenDelta();
         }
-        while (accumulatedDistance < distanceInSubpixels);
+        while (covered < requestedDistance);
 
-        int adjustedHalfSpan = UnsignedEightEight.Whole(accumulatedDistance);
-        var halfSpan = new Offset16<RoomPixels>(adjustedHalfSpan, 0);
+        var halfSpan = new Offset16<RoomPixels>(covered.WholePixels, 0);
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         place.Position = place.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));

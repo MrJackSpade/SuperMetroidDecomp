@@ -204,7 +204,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         }
     }
 
-    /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames twelve pixels below it.</summary>
+    /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames their drop below it.</summary>
     private void FollowLowerNorfairRioParent(RoomEnemyPlace follower)
     {
         RoomEnemyPlace parent = GetPrecedingLowerNorfairRioPlace(follower);
@@ -225,9 +225,9 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
         // The follower again reads the preceding parent's visibility switch, a Boolean here
         // rather than a signed offset. The follower takes the parent's live position and
-        // this variant adds 12 pixels.
+        // this variant adds the flames' drop.
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
-        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, CoordinateAxis.Wrap(parent.Position.Y.Whole + 12)));
+        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, CoordinateAxis.Wrap(parent.Position.Y.Whole + RioLaunchDefinitions.LowerNorfairFlameDrop)));
     }
 
     /// <summary>Sets upward return velocity, animation, action, and its enemy-library sound event.</summary>

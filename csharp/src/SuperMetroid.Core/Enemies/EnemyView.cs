@@ -11,6 +11,9 @@ internal static class EnemyView
     /// <summary>The view's width and height in pixels: the screen's.</summary>
     internal const int Extent = 256;
 
+    /// <summary>The height of the picture the screen shows, in pixels: the view's rows below it are off the picture.</summary>
+    internal const int PictureHeight = 224;
+
     /// <summary>Whether <paramref name="point"/> lies in the view, its right and bottom edges included.</summary>
     internal static bool Contains(Position16<RoomPixels> point, Position16<RoomPixels> camera) =>
         ContainsWithMargin(point, camera, 0);

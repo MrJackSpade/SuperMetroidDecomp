@@ -1002,6 +1002,7 @@ internal sealed class RoomLoader
             UnauthoredBoostCadence = _unauthoredBoostCadence,
             KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>(),
             YardKickDistance = _yardKickDistance,
+            FallingSparkFloorProbe = new FallingSparkFloorProbe(),
         };
         var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
         {

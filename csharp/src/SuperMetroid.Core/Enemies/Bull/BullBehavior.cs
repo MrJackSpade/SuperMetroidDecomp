@@ -165,18 +165,18 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Moves one axis of the Bull by its speed along the sine: the sine's magnitude in whole 256ths (its finer part
-    /// dropped) times the speed in 256ths of a pixel, read unsigned as the game's multiply reads it, a step up or left
-    /// reversed as <see cref="BullBackwardStep"/> reverses it.
+    /// dropped) times the speed in 256ths of a pixel, never below zero (<see cref="BullEnemyState.Speed"/>), a step up or
+    /// left reversed as <see cref="BullBackwardStep"/> reverses it.
     /// </summary>
     private static FixedCoordinate AddBullComponent(
         FixedCoordinate position,
         int sine,
         SignedEightEight speed)
     {
-        // The sine's magnitude is below 128 256ths and the speed below 65536 256ths, so the step fits a 1/65536-pixel displacement.
+        // The sine's magnitude is below 128 256ths and the speed at most 2880 256ths, so the step fits a 1/65536-pixel displacement.
         int sineTwoFiftySixths = UnsignedEightEight.Whole(Math.Abs(sine));
         SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
-            sineTwoFiftySixths, speed.UnsignedTwoHundredFiftySixthsOfPixel).AsDisplacement();
+            sineTwoFiftySixths, speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
         SignedSixteenSixteen displacement = sine < 0 ? BullBackwardStep.Of(forward) : forward;
 
         // The displacement moves the position as one 1/65536-pixel value: a fraction that passes a whole pixel moves the whole

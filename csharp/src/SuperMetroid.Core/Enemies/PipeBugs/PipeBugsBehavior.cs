@@ -139,10 +139,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.NorfairWaitForSamus:
             case PipeBugAction.NorfairRise:
             case PipeBugAction.NorfairLeaderStagger:
-            case PipeBugAction.NorfairUpperNearStagger:
-            case PipeBugAction.NorfairUpperFarStagger:
-            case PipeBugAction.NorfairLowerNearStagger:
-            case PipeBugAction.NorfairLowerFarStagger:
+            case PipeBugAction.NorfairStagger:
             case PipeBugAction.NorfairFlyLeft:
             case PipeBugAction.NorfairFlyRight:
             case PipeBugAction.NorfairWaitForStagger:
@@ -184,21 +181,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = PipeBugAction.NorfairWaitForStagger;
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
-            case PipeBugAction.NorfairUpperNearStagger:
-                RunNorfairPipeBugVerticalStagger(place, state, -16);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case PipeBugAction.NorfairUpperFarStagger:
-                RunNorfairPipeBugVerticalStagger(place, state, -32);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case PipeBugAction.NorfairLowerNearStagger:
-                RunNorfairPipeBugVerticalStagger(place, state, 16);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
-                return;
-            case PipeBugAction.NorfairLowerFarStagger:
-                RunNorfairPipeBugVerticalStagger(place, state, 32);
-                ResetNorfairPipeBugIfOffScreen(place, state, camera);
+            case PipeBugAction.NorfairStagger:
+                RunNorfairPipeBugVerticalStagger(slot, state, state.StaggerOffset);
+                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugAction.NorfairWaitForStagger:
                 RunNorfairPipeBugStaggerWait(place, state, samus);
@@ -267,10 +252,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PipeBugAction.NorfairWaitForSamus:
             case PipeBugAction.NorfairRise:
             case PipeBugAction.NorfairLeaderStagger:
-            case PipeBugAction.NorfairUpperNearStagger:
-            case PipeBugAction.NorfairUpperFarStagger:
-            case PipeBugAction.NorfairLowerNearStagger:
-            case PipeBugAction.NorfairLowerFarStagger:
+            case PipeBugAction.NorfairStagger:
             case PipeBugAction.NorfairFlyLeft:
             case PipeBugAction.NorfairFlyRight:
             case PipeBugAction.NorfairWaitForStagger:
@@ -320,14 +302,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = PipeBugAction.BrinstarFlyHorizontally;
     }
 
-    /// <summary>Moves two pixels per frame, then restores the stored spawn position and starts an invisible respawn wait offscreen.</summary>
+    /// <summary>Moves its flight step each frame, then restores the stored spawn position and starts an invisible respawn wait offscreen.</summary>
     private static void RunBrinstarPipeBugFlight(
         RoomEnemyPlace place,
         BrinstarPipeBugState state,
         int cameraX)
     {
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
-            (state.FliesLeft ? -2 : 2));
+            (state.FliesLeft ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))
             return;
@@ -400,6 +382,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             memberState.Action = PipeBugAction.NorfairRise;
             memberState.StaggerTarget = member.Role.StaggerTarget;
             memberState.PostRiseAction = member.Role.PostRiseAction;
+            memberState.StaggerOffset = member.Role.StaggerOffset;
         }
     }
 
@@ -431,7 +414,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.CountFormationTick();
         // Negative offsets move upward and positive offsets downward, one pixel per frame. The
-        // game clamps exactly at the emergence Y +/- 16/32.
+        // game clamps exactly at the emergence Y plus the offset.
         AddPipeBugLinearVelocity(
             place,
             axis: Axis.Vertical,

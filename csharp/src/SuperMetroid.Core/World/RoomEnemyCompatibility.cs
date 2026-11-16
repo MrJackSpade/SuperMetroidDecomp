@@ -61,4 +61,7 @@ internal sealed class RoomEnemyCompatibility
     /// off with; the runtime's scrolling records it and it outlives every room.
     /// </summary>
     public required YardKickTrackingDistance YardKickDistance { get; init; }
+
+    /// <summary>How far a falling spark's floor probe creeps it down before it falls; it keeps no state.</summary>
+    public required FallingSparkFloorProbe FallingSparkFloorProbe { get; init; }
 }

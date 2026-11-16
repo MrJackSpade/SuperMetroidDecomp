@@ -26,14 +26,8 @@ public enum PipeBugAction
     NorfairRise,
     /// <summary>Advances the formation leader's stagger counter.</summary>
     NorfairLeaderStagger,
-    /// <summary>Moves the near upper formation member to its stagger height.</summary>
-    NorfairUpperNearStagger,
-    /// <summary>Moves the far upper formation member to its stagger height.</summary>
-    NorfairUpperFarStagger,
-    /// <summary>Moves the near lower formation member to its stagger height.</summary>
-    NorfairLowerNearStagger,
-    /// <summary>Moves the far lower formation member to its stagger height.</summary>
-    NorfairLowerFarStagger,
+    /// <summary>Moves a formation member by its role's stagger offset from where its rise ended.</summary>
+    NorfairStagger,
     /// <summary>Flies a released Norfair formation member left.</summary>
     NorfairFlyLeft,
     /// <summary>Flies a released Norfair formation member right.</summary>

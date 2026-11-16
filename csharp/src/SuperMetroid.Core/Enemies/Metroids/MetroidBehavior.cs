@@ -271,8 +271,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Movement = MetroidMovement.ClosingOnSamus;
-        if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) >= 8 ||
-            CoordinateAxis.Distance(place.Position.Y.Whole, targetY) >= 8)
+        if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) >= MetroidBehaviorDefinitions.LatchDistance ||
+            CoordinateAxis.Distance(place.Position.Y.Whole, targetY) >= MetroidBehaviorDefinitions.LatchDistance)
         {
             return;
         }

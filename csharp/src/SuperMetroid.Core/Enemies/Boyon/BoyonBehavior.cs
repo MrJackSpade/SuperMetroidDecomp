@@ -126,11 +126,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Derives the arc's baseline: from the place it stands, the Boyon moves down its curve one entry at a time, adding
     /// each entry's scaled sample to the arc's distance, until the distance reaches the jump height; the place it then
     /// stands at is where every fall ends. Each entry past the top adds at least one 256th of a pixel, so the derivation
-    /// ends; a multiplier outside 1 through <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/> is refused.
+    /// ends; the state holds no multiplier outside 1 through <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/>.
     /// </summary>
     internal static void DeriveBoyonArcBaseline(BoyonEnemyState state)
     {
-        _ = Ensure.BetweenInclusive(1, BoyonSpeedDefinitions.LargestArcMultiplier, state.SpeedMultiplier);
         do
         {
             state.Speed = MultiplyBoyonCurveEntry(state);

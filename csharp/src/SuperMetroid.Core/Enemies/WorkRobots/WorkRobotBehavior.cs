@@ -263,7 +263,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
         CoordinateAxis.AsSigned(camera.X + EnemyView.Extent - robot.Position.X.Whole) >= 0 &&
         CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
-        CoordinateAxis.AsSigned(camera.Y + 224 - robot.Position.Y.Whole) >= 0;
+        CoordinateAxis.AsSigned(camera.Y + EnemyView.PictureHeight - robot.Position.Y.Whole) >= 0;
 
     /// <summary>Uses the existing random number to reset cooldown and starts the firing animation when ready.</summary>
     private WorkRobotSegment? TryFireWorkRobotLaser(
@@ -279,7 +279,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
         }
 
-        state.LaserCooldown = WrappingCountdown.Start(WorkRobotLaserDefinitions.CooldownJitter.Of(_room.Random.Read()) + 16);
+        state.LaserCooldown = WrappingCountdown.Start(WorkRobotLaserDefinitions.CooldownJitter.Of(_room.Random.Read()) + WorkRobotLaserDefinitions.CooldownBase);
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingSegment;
     }
@@ -427,20 +427,21 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Undefined Work Robot laser definition {definition}."),
         });
 
-        // All five initializers place the muzzle four pixels in the signed facing direction
-        // and sixteen pixels above the robot.
+        // All five initializers place the muzzle ahead of the robot in the way it faces and above it.
+        int ahead = WorkRobotLaserDefinitions.MuzzleAhead;
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
-            (state.Facing == HorizontalDirection.Left ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
+            (state.Facing == HorizontalDirection.Left ? -ahead : ahead)), 0),
+            new(CoordinateAxis.Wrap(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove), 0));
 
         // Preserve the laser viewport bug. Its final Y comparison omits
         // the camera's Y, so lasers only request sound while their owner's absolute
-        // top edge is less than 224 pixels from the room's top, even when a lower room row is on screen.
+        // top edge is less than the picture's height from the room's top, even when a lower room row is on screen.
         bool horizontallyVisible =
             CoordinateAxis.AsSigned(robot.Position.X.Whole + robot.Radius.X - camera.X) >= 0 &&
-            CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - 257, camera.X) < 0;
+            CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - (EnemyView.Extent + 1), camera.X) < 0;
         bool verticallyVisible =
             CoordinateAxis.AsSigned(robot.Position.Y.Whole + robot.Radius.Y - camera.Y) >= 0 &&
-            CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, 224) < 0;
+            CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, EnemyView.PictureHeight) < 0;
         if (horizontallyVisible && verticallyVisible)
             _audio.QueueEnemySound(WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }

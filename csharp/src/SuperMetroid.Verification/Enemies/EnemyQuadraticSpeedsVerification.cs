@@ -47,7 +47,8 @@ internal static class EnemyQuadraticSpeedsVerification
         // The Beetom's and the hoppers' climbs (#2026): for every height up to the largest climb, at one, two and four
         // marks a pass, the climb starts at the mark the original's sixteen-bit sum, compared with the height by the sign
         // of their difference, settles on; a height above the largest climb or below nothing is refused.
-        QuadraticSpeedCurvePlace Climb(int height, int marks) => new QuadraticCurveClimb(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height), marks).StartPlace;
+        QuadraticSpeedCurvePlace Climb(int height, int marks) =>
+            new QuadraticCurveClimb(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height), QuadraticSpeedCurvePlace.FromMarks(marks)).StartPlace;
         int largestClimb = QuadraticSpeedCurveDefinitions.LargestClimbHeight * 256;
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
@@ -81,6 +82,19 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertEqual(Climb(48 * 256, 3), BeetomLeapDefinitions.Lunge.StartPlace, "the Beetom's lunge climbs 48 pixels at three marks a pass");
         AssertEqual(Climb(16 * 256, 3), HopperHopDefinitions.SmallHop.StartPlace, "a hopper's small hop climbs 16 pixels at three marks a pass");
         AssertEqual(Climb(48 * 256, 4), HopperHopDefinitions.BigHop.StartPlace, "a hopper's big hop climbs 48 pixels at four marks a pass");
+        // #2065: the Ki-Hunter's detached wings reset to the place the original's sixteen-bit sum of coarse speeds, stepping
+        // a mark and a half a pass from the curve's start and compared with 32 pixels by the sign of their difference,
+        // settles on.
+        int wingPlace = 0;
+        ushort wingSum = 0;
+        do
+        {
+            wingPlace += 384;
+            wingSum = unchecked((ushort)(wingSum + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, wingPlace / 256, EnemySpeedSign.Positive)));
+        }
+        while (unchecked((short)(wingSum - 32 * 256)) < 0);
+        AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(wingPlace), KiHunterMotionDefinitions.DetachedWingClimb.StartPlace,
+            "the Ki-Hunter's detached wings climb 32 pixels at a mark and a half a pass");
 
         var wings = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)

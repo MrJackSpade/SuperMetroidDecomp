@@ -311,9 +311,21 @@ internal static class NativeEnemyFamilyStateImport
             brinstarPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.F, "recorded PipeBugAction");
             brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
         }
-        if (enemy.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
-            norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
-        if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
+        if (slot.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
+        {
+            // A member's stagger routine names its role's offset (#2071); every other routine names an action.
+            if (PipeBugsNativeWords.FormationStaggers.TryDecode(words.A, out NorfairPipeBugRole? staggerRole) &&
+                staggerRole.PostRiseAction == PipeBugAction.NorfairStagger)
+            {
+                norfairPipeBug.Action = PipeBugAction.NorfairStagger;
+                norfairPipeBug.StaggerOffset = staggerRole.StaggerOffset;
+            }
+            else
+            {
+                norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+            }
+        }
+        if (slot.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
             yellowPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
         if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
@@ -351,7 +363,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             kiHunterWingRecord.Action = KiHuntersNativeWords.KiHunterWingActions.Decode(words.A, "recorded KiHunterWingAction");
             kiHunterWingRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            kiHunterWingRecord.DetachedSpeedAccumulator = words.D;
             kiHunterWingRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
         }
         if (enemy.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
@@ -560,7 +571,7 @@ internal static class NativeEnemyFamilyStateImport
             hopperRecord.Action = HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
             hopperRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(words.B);
             hopperRecord.XVelocity = unchecked((short)words.C);
-            hopperRecord.YSpeedCurvePlaceDelta = words.D;
+            hopperRecord.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(words.D);
         }
         if (enemies.PlatformStates[index] is { } platform)
         {

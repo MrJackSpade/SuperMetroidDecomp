@@ -10,13 +10,13 @@ internal static class EndingLogoDefinitions
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.Logo;
 
     /// <summary>The upper S half, which moves down and left into place.</summary>
-    internal static EndingLogoActorDefinition UpperS { get; } = new(CinematicSpriteSegment.LogoUpperS, new(530, 231));
+    internal static EndingLogoActorDefinition UpperS { get; } = new(EndingLogoAnimation.UpperS, new(530, 231));
     /// <summary>The lower S half, which moves up and right into place.</summary>
-    internal static EndingLogoActorDefinition LowerS { get; } = new(CinematicSpriteSegment.LogoLowerS, new(246, 519));
+    internal static EndingLogoActorDefinition LowerS { get; } = new(EndingLogoAnimation.LowerS, new(246, 519));
     /// <summary>The upper circle, which holds still while it draws in.</summary>
-    internal static EndingLogoActorDefinition UpperCircle { get; } = new(CinematicSpriteSegment.LogoUpperCircle, new(385, 366));
+    internal static EndingLogoActorDefinition UpperCircle { get; } = new(EndingLogoAnimation.UpperCircle, new(385, 366));
     /// <summary>The lower circle, which holds still while it draws in.</summary>
-    internal static EndingLogoActorDefinition LowerCircle { get; } = new(CinematicSpriteSegment.LogoLowerCircle, new(391, 384));
+    internal static EndingLogoActorDefinition LowerCircle { get; } = new(EndingLogoAnimation.LowerCircle, new(391, 384));
 
     /// <summary>The logo's actors in the order they spawn, step and draw.</summary>
     internal static IReadOnlyList<EndingLogoActorDefinition> Actors { get; } = [UpperS, LowerS, UpperCircle, LowerCircle];

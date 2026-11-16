@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// A picture a cinematic sprite animation shows (#1747, #1964), each named for what it shows; each cinematic sprite
-/// family's artwork is keyed by the poses it draws, and its sheets name their frames by them. A typed text's poses are
-/// the text typed as far as each letter, and an explosion's the stages it burns through. Its values are arbitrary.
+/// family's artwork is keyed by the poses it draws, and its sheets name their frames by them. An explosion's poses are the
+/// stages it burns through. Its values are arbitrary.
 /// </summary>
 public enum CinematicSpritePose
 {
@@ -205,96 +205,6 @@ public enum CinematicSpritePose
     PlanetSilhouette,
     /// <summary>The glowing cloud Zebes leaves after it explodes.</summary>
     PlanetAfterglow,
-    /// <summary>THE OPERATION WAS typed as far as "T".</summary>
-    OperationTypedT,
-    /// <summary>THE OPERATION WAS typed as far as "TH".</summary>
-    OperationTypedTh,
-    /// <summary>THE OPERATION WAS typed as far as "THE".</summary>
-    OperationTypedThe,
-    /// <summary>THE OPERATION WAS typed as far as "THE O".</summary>
-    OperationTypedTheO,
-    /// <summary>THE OPERATION WAS typed as far as "THE OP".</summary>
-    OperationTypedTheOp,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPE".</summary>
-    OperationTypedTheOpe,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPER".</summary>
-    OperationTypedTheOper,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERA".</summary>
-    OperationTypedTheOpera,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERAT".</summary>
-    OperationTypedTheOperat,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERATI".</summary>
-    OperationTypedTheOperati,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERATIO".</summary>
-    OperationTypedTheOperatio,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION".</summary>
-    OperationTypedTheOperation,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION W".</summary>
-    OperationTypedTheOperationW,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION WA".</summary>
-    OperationTypedTheOperationWa,
-    /// <summary>THE OPERATION WAS typed as far as "THE OPERATION WAS".</summary>
-    OperationTypedTheOperationWas,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "C".</summary>
-    CompletedTypedC,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "CO".</summary>
-    CompletedTypedCo,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COM".</summary>
-    CompletedTypedCom,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMP".</summary>
-    CompletedTypedComp,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPL".</summary>
-    CompletedTypedCompl,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLE".</summary>
-    CompletedTypedComple,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLET".</summary>
-    CompletedTypedComplet,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETE".</summary>
-    CompletedTypedComplete,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED".</summary>
-    CompletedTypedCompleted,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED S".</summary>
-    CompletedTypedCompletedS,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SU".</summary>
-    CompletedTypedCompletedSu,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUC".</summary>
-    CompletedTypedCompletedSuc,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCC".</summary>
-    CompletedTypedCompletedSucc,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCE".</summary>
-    CompletedTypedCompletedSucce,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCES".</summary>
-    CompletedTypedCompletedSucces,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESS".</summary>
-    CompletedTypedCompletedSuccess,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSF".</summary>
-    CompletedTypedCompletedSuccessf,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFU".</summary>
-    CompletedTypedCompletedSuccessfu,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFUL".</summary>
-    CompletedTypedCompletedSuccessful,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFULL".</summary>
-    CompletedTypedCompletedSuccessfull,
-    /// <summary>COMPLETED SUCCESSFULLY typed as far as "COMPLETED SUCCESSFULLY".</summary>
-    CompletedTypedCompletedSuccessfully,
-    /// <summary>CLEAR TIME typed as far as "C".</summary>
-    ClearTimeTypedC,
-    /// <summary>CLEAR TIME typed as far as "CL".</summary>
-    ClearTimeTypedCl,
-    /// <summary>CLEAR TIME typed as far as "CLE".</summary>
-    ClearTimeTypedCle,
-    /// <summary>CLEAR TIME typed as far as "CLEA".</summary>
-    ClearTimeTypedClea,
-    /// <summary>CLEAR TIME typed as far as "CLEAR".</summary>
-    ClearTimeTypedClear,
-    /// <summary>CLEAR TIME typed as far as "CLEAR T".</summary>
-    ClearTimeTypedClearT,
-    /// <summary>CLEAR TIME typed as far as "CLEAR TI".</summary>
-    ClearTimeTypedClearTi,
-    /// <summary>CLEAR TIME typed as far as "CLEAR TIM".</summary>
-    ClearTimeTypedClearTim,
-    /// <summary>CLEAR TIME typed as far as "CLEAR TIME".</summary>
-    ClearTimeTypedClearTime,
     /// <summary>The clear time's digit zero.</summary>
     ClearTimeDigit0,
     /// <summary>The clear time's digit one.</summary>

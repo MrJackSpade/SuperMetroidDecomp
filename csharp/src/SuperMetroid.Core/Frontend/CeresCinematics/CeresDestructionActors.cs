@@ -20,7 +20,7 @@ internal static class CeresDestructionActors
     {
         CeresDestructionActorRole.LargeAsteroids => RearViewVariant(CeresRearViewActorRole.LargeAsteroids) with
         {
-            Animation = CinematicSpriteSegment.CeresDestructionLargeAsteroid,
+            Animation = CeresAnimation.DestructionLargeAsteroid,
         },
         CeresDestructionActorRole.SmallAsteroids => RearViewVariant(CeresRearViewActorRole.SmallAsteroids),
         // The destruction's vortex holds still.

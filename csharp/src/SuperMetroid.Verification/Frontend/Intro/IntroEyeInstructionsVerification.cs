@@ -47,7 +47,10 @@ internal static class IntroEyeInstructionsVerification
             objects.Step(0);
             native.Step();
             string at = $"intro eye {phase} update {update}";
-            AssertEqual(native.Timer, objects.EyeFrameHold, $"{at}: countdown");
+            // Once the eye rests on the final page's stare it counts nothing down (#2196): the cartridge's countdown only
+            // re-reads the same stare, and the frame it shows is compared below.
+            if (objects.EyeFrameHold is { } hold)
+                AssertEqual(native.Timer, hold, $"{at}: countdown");
             AssertEqual<IntroEyeFrame?>(frames[native.Frame], objects.EyeFrame, $"{at}: portrait eye frame");
         }
     }

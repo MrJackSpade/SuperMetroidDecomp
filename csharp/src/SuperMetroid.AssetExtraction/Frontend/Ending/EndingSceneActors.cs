@@ -41,11 +41,10 @@ internal static class EndingSceneActors
         EndingActorDefinitions.ExplosionStarsLeft, EndingActorDefinitions.ExplosionAfterglow,
     ];
 
-    /// <summary>The result text's actors: the completion message's two lines, the clear-time label and its colon (#1513).</summary>
-    private static readonly EndingSpriteDefinition[] ResultTextActors =
+    /// <summary>The result text's typed texts: the completion message's two lines and the clear-time label (#1513, #2195).</summary>
+    private static readonly EndingTextDefinition[] ResultTexts =
     [
-        EndingActorDefinitions.OperationWasText, EndingActorDefinitions.CompletedSuccessfullyText,
-        EndingActorDefinitions.ClearTimeText, EndingActorDefinitions.ClearTimeColon,
+        EndingActorDefinitions.OperationWasText, EndingActorDefinitions.CompletedSuccessfullyText, EndingActorDefinitions.ClearTimeText,
     ];
 
     /// <summary>What the scene of ending sheet <paramref name="sheet"/> draws from it.</summary>
@@ -63,19 +62,22 @@ internal static class EndingSceneActors
     private static void Clouds(EndingSheetDraws draws)
     {
         foreach (EndingSpriteDefinition cloud in EscapeClouds)
-            draws.AddProgram(CinematicSpriteFamily.EndingCloud, cloud.Animation, cloud.Colouring);
+            draws.AddProgram(CinematicSpriteFamily.EndingCloud, EndingSceneAnimations.Pictures, cloud.Animation, cloud.Colouring);
     }
 
     /// <summary>The planet explosion's actors, the result text, the clear time's digits and the animals' escape pod.</summary>
     private static void Explosion(EndingSheetDraws draws)
     {
         foreach (EndingSpriteDefinition actor in ExplosionActors)
-            draws.AddProgram(CinematicSpriteFamily.EndingExplosion, actor.Animation, actor.Colouring);
-        foreach (EndingSpriteDefinition text in ResultTextActors)
-            draws.AddProgram(CinematicSpriteFamily.EndingCompletionText, text.Animation, text.Colouring);
-        foreach (CinematicSpriteSegment digit in EndingCreditsState.ClearTimeDigitAnimations)
-            draws.AddProgram(CinematicSpriteFamily.EndingCompletionText, digit, EndingActorDefinitions.ClearTimeDigitColouring);
-        draws.AddProgram(CinematicSpriteFamily.EndingAnimalEscape, EndingAnimalEscapeDefinitions.Animation, EndingAnimalEscapeDefinitions.Colouring);
+            draws.AddProgram(CinematicSpriteFamily.EndingExplosion, EndingSceneAnimations.Pictures, actor.Animation, actor.Colouring);
+        foreach (EndingTextDefinition text in ResultTexts)
+            draws.AddText(text.Text, text.Colouring);
+        draws.AddProgram(CinematicSpriteFamily.EndingCompletionText, EndingSceneAnimations.Pictures, EndingActorDefinitions.ClearTimeColon.Animation,
+            EndingActorDefinitions.ClearTimeColon.Colouring);
+        foreach (EndingSceneAnimation digit in EndingCreditsState.ClearTimeDigitAnimations)
+            draws.AddProgram(CinematicSpriteFamily.EndingCompletionText, EndingSceneAnimations.Pictures, digit, EndingActorDefinitions.ClearTimeDigitColouring);
+        draws.AddProgram(CinematicSpriteFamily.EndingAnimalEscape, EndingSceneAnimations.Pictures, EndingAnimalEscapeDefinitions.Animation,
+            EndingAnimalEscapeDefinitions.Colouring);
     }
 
     /// <summary>
@@ -89,12 +91,12 @@ internal static class EndingSceneActors
             if (EndingSpriteSheets.Reward(reward) != sheet)
                 continue;
             foreach (EndingSpriteDefinition idle in EndingRewardCast.Idle(reward))
-                draws.AddProgram(CinematicSpriteFamily.EndingReward, idle.Animation, idle.Colouring);
+                draws.AddProgram(CinematicSpriteFamily.EndingReward, EndingSceneAnimations.Pictures, idle.Animation, idle.Colouring);
             foreach (EndingRewardActor actor in EndingRewardCast.Gesture(reward))
-                AddRewardActor(draws, actor);
+                AddRewardActor(draws, EndingRewardAnimations.Gesture, actor);
             if (EndingRewardCast.JumpHead(reward) is { } head)
-                AddRewardActor(draws, head);
-            AddRewardActor(draws, EndingRewardCast.JumpBody(reward));
+                AddRewardActor(draws, EndingRewardAnimations.Jump, head);
+            AddRewardActor(draws, EndingRewardAnimations.Jump, EndingRewardCast.JumpBody(reward));
         }
         draws.AddStars();
     }
@@ -105,26 +107,27 @@ internal static class EndingSceneActors
     /// </summary>
     private static void Shooting(EndingSheetDraws draws)
     {
-        draws.AddProgram(CinematicSpriteFamily.EndingReward, EndingRewardJump.FallingAnimation, EndingRewardJump.FallingColouring);
+        draws.AddProgram(CinematicSpriteFamily.EndingReward, EndingRewardAnimations.Jump, EndingRewardJump.FallingAnimation, EndingRewardJump.FallingColouring);
         EndingSpriteColouring landing = EndingRewardJump.FallingColouring;
-        if (CinematicSpriteAnimations.StartingWith(EndingRewardJump.LandingAnimation).Phases.Any(phase => phase.Segment != EndingRewardJump.LandingAnimation))
+        if (EndingRewardAnimations.Jump.StartingWith(EndingRewardJump.LandingAnimation).Phases.Any(phase => phase.Segment != EndingRewardJump.LandingAnimation))
             throw new InvalidDataException("The landing animation runs on into another segment, whose colourings the shooting sheet does not follow.");
-        foreach (AnimationBeat<CinematicSpritePose, CinematicSpriteCue> beat in CinematicSpriteAnimations.Segments.Beats(EndingRewardJump.LandingAnimation))
+        foreach (AnimationBeat<CinematicSpritePose, EndingRewardJumpCue> beat in EndingRewardAnimations.Jump.Segments.Beats(EndingRewardJump.LandingAnimation))
         {
-            if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event raised
-                && raised.Raised.Kind == EndingRewardJump.ShootCue)
+            if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Event { Raised: EndingRewardJump.ShootCue })
                 landing = EndingRewardJump.ShootingColouring;
-            else if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame shown)
-                draws.AddPose(CinematicSpriteFamily.EndingReward, shown.Shown, landing);
+            else if (beat.ShownFrame is { } shown)
+                draws.AddPose(CinematicSpriteFamily.EndingReward, shown, landing);
         }
         foreach (EndingLogoActorDefinition actor in EndingLogoDefinitions.Actors)
-            draws.AddProgram(CinematicSpriteFamily.EndingLogo, actor.Animation, EndingLogoDefinitions.Colouring);
+            draws.AddProgram(CinematicSpriteFamily.EndingLogo, EndingLogoAnimations.Logo, actor.Animation, EndingLogoDefinitions.Colouring);
     }
 
     /// <summary>Records <paramref name="actor"/>'s poses in the colouring its initialization gives it.</summary>
-    private static void AddRewardActor(EndingSheetDraws draws, EndingRewardActor actor)
+    private static void AddRewardActor<TCue>(EndingSheetDraws draws, CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, TCue> animations,
+        EndingRewardActor actor)
+        where TCue : notnull
     {
         EndingRewardActorDefinition record = EndingRewardActors.Get(actor);
-        draws.AddProgram(CinematicSpriteFamily.EndingReward, record.Animation, EndingRewardActors.GetInitialization(record.Initialization).Colouring);
+        draws.AddProgram(CinematicSpriteFamily.EndingReward, animations, record.Animation, EndingRewardActors.GetInitialization(record.Initialization).Colouring);
     }
 }

@@ -432,12 +432,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>The animations showing the clear-time digits, indexed by digit.</summary>
-    internal static readonly CinematicSpriteSegment[] ClearTimeDigitAnimations =
+    internal static readonly EndingSceneAnimation[] ClearTimeDigitAnimations =
     [
-        CinematicSpriteSegment.ClearTimeDigit0, CinematicSpriteSegment.ClearTimeDigit1, CinematicSpriteSegment.ClearTimeDigit2,
-        CinematicSpriteSegment.ClearTimeDigit3, CinematicSpriteSegment.ClearTimeDigit4, CinematicSpriteSegment.ClearTimeDigit5,
-        CinematicSpriteSegment.ClearTimeDigit6, CinematicSpriteSegment.ClearTimeDigit7, CinematicSpriteSegment.ClearTimeDigit8,
-        CinematicSpriteSegment.ClearTimeDigit9,
+        EndingSceneAnimation.ClearTimeDigit0, EndingSceneAnimation.ClearTimeDigit1, EndingSceneAnimation.ClearTimeDigit2,
+        EndingSceneAnimation.ClearTimeDigit3, EndingSceneAnimation.ClearTimeDigit4, EndingSceneAnimation.ClearTimeDigit5,
+        EndingSceneAnimation.ClearTimeDigit6, EndingSceneAnimation.ClearTimeDigit7, EndingSceneAnimation.ClearTimeDigit8,
+        EndingSceneAnimation.ClearTimeDigit9,
     ];
 
     /// <summary>Whether the explosion currently uses its dedicated glow composition.</summary>

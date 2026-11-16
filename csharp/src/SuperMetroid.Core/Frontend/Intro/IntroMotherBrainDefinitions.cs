@@ -4,16 +4,16 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroMotherBrainDefinitions
 {
     /// <summary>The intro Mother Brain's first animation.</summary>
-    public static IntroMotherBrainActorDefinition MotherBrain =>
-        new(CinematicSpriteSegment.IntroMotherBrain);
+    public static CinematicActorDefinition<IntroMotherBrainAnimation> MotherBrain =>
+        new(IntroMotherBrainAnimation.Pulsing);
 
     /// <summary>A large explosion's first animation.</summary>
-    public static IntroMotherBrainActorDefinition BigExplosionActor =>
-        new(CinematicSpriteSegment.IntroMotherBrainExplosionBig);
+    public static CinematicActorDefinition<IntroMotherBrainExplosionAnimation> BigExplosionActor =>
+        new(IntroMotherBrainExplosionAnimation.Big);
 
     /// <summary>A small explosion's first animation.</summary>
-    public static IntroMotherBrainActorDefinition SmallExplosionActor =>
-        new(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
+    public static CinematicActorDefinition<IntroMotherBrainExplosionAnimation> SmallExplosionActor =>
+        new(IntroMotherBrainExplosionAnimation.Small);
 
     /// <summary>The Missile hits that make Mother Brain explode.</summary>
     public const int MissileHitsToExplode = 4;

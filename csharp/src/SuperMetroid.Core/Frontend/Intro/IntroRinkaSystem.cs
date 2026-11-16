@@ -20,7 +20,7 @@ internal sealed class IntroRinkaSystem
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
     internal readonly List<IntroRinka> rinkas = [];
     /// <summary>Invisible actor whose animation schedules the two spawn pairs.</summary>
-    private readonly CinematicActor spawner;
+    private readonly CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaSpawnerCue> spawner;
     /// <summary>Whether Mother Brain's explosions have started, after which the spawner's animation has no spawn left.</summary>
     private bool spawnsForbidden;
 
@@ -28,7 +28,8 @@ internal sealed class IntroRinkaSystem
     public IntroRinkaSystem()
     {
         // Reusing the focused animation playback preserves the spawner's exact 74 then 128 frame waits.
-        spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Animation);
+        spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaAnimations.Spawner,
+            IntroRinkaDefinitions.SpawnerActor.Animation);
     }
 
     /// <summary>One update of the spawner, then of every Rinka.</summary>
@@ -70,70 +71,36 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>Handles the two spawner cues, launching the striking pair or the missing pair.</summary>
-    private void HandleSpawnerCue(CinematicSpriteCueKind cue)
+    private void HandleSpawnerCue(IntroRinkaSpawnerCue cue)
     {
         switch (cue)
         {
-            case CinematicSpriteCueKind.SpawnStrikingRinkaPair:
+            case IntroRinkaSpawnerCue.SpawnStrikingPair:
                 Spawn(IntroRinkaDefinitions.StrikingPair);
                 return;
 
-            case CinematicSpriteCueKind.SpawnMissingRinkaPair:
+            case IntroRinkaSpawnerCue.SpawnMissingPair:
                 Spawn(IntroRinkaDefinitions.MissingPair);
                 return;
 
-            case CinematicSpriteCueKind.StartMotherBrainCrossFade:
-            case CinematicSpriteCueKind.DeleteEggAfterCrossFade:
-            case CinematicSpriteCueKind.StartRepeatingExplosions:
-            case CinematicSpriteCueKind.WaitForFlyaway:
-            case CinematicSpriteCueKind.StartBodyFlight:
-            case CinematicSpriteCueKind.StartHeadFlight:
-            case CinematicSpriteCueKind.EndZebesExplosion:
-            case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionColours:
-            case CinematicSpriteCueKind.FadeInZebesText:
-            case CinematicSpriteCueKind.FadeOutZebesText:
-            case CinematicSpriteCueKind.GreyOut:
-            case CinematicSpriteCueKind.Launch:
-            case CinematicSpriteCueKind.LaunchHead:
-            case CinematicSpriteCueKind.PrepareHead:
-            case CinematicSpriteCueKind.Shoot:
-            case CinematicSpriteCueKind.SpawnClearTime:
-            case CinematicSpriteCueKind.SpawnColon:
-            case CinematicSpriteCueKind.SpawnCompletedText:
-            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
-            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
-            case CinematicSpriteCueKind.SpawnHoursTens:
-            case CinematicSpriteCueKind.SpawnHoursUnits:
-            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
-            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
-            case CinematicSpriteCueKind.SpawnMinutesTens:
-            case CinematicSpriteCueKind.SpawnMinutesUnits:
-            case CinematicSpriteCueKind.SpawnParticles:
-            case CinematicSpriteCueKind.SpawnSuitedJump:
-            case CinematicSpriteCueKind.SpawnSuitlessJump:
-            case CinematicSpriteCueKind.StartFlyingToZebes:
-            case CinematicSpriteCueKind.StartIntroPage2:
-            case CinematicSpriteCueKind.StartIntroPage3:
-            case CinematicSpriteCueKind.StartIntroPage4:
-            case CinematicSpriteCueKind.StartIntroPage5:
-            case CinematicSpriteCueKind.StartRinkaMoving:
-            case CinematicSpriteCueKind.StartZebesExplosion:
-            case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The Rinka spawner's animation publishes no {cue} cue.");
+                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaSpawnerCue)} {cue}.");
         }
     }
 
     /// <summary>Starts a Rinka's movement, selecting the hit route for the Rinka that strikes Samus and the miss route for the others.</summary>
     private static void HandleRinkaCue(
         IntroRinka rinka,
-        CinematicSpriteCueKind cue)
+        IntroRinkaCue cue)
     {
-        if (cue != CinematicSpriteCueKind.StartRinkaMoving)
-            throw new InvalidOperationException($"The Rinka's animation publishes no {cue} cue.");
-
-        rinka.StartMoving();
+        switch (cue)
+        {
+            case IntroRinkaCue.StartMoving:
+                rinka.StartMoving();
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaCue)} {cue}.");
+        }
     }
 
     /// <summary>Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live.</summary>
@@ -155,13 +122,13 @@ internal sealed class IntroRinkaSystem
         SamusState samus,
         bool motherBrainExploding)
     {
-        CinematicActor sprite = rinka.Sprite;
+        CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> sprite = rinka.Sprite;
         if (!rinka.IsMoving)
             return;
         switch (rinka.Flight)
         {
             case IntroRinkaFlight.StrikesSamus:
-                Drift(sprite, rinka.Drift);
+                sprite.Position = Drifted(sprite.Position, rinka.Drift);
 
                 // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding step.
@@ -179,7 +146,7 @@ internal sealed class IntroRinkaSystem
                 return;
 
             case IntroRinkaFlight.MissesSamus:
-                Drift(sprite, rinka.Drift);
+                sprite.Position = Drifted(sprite.Position, rinka.Drift);
                 int y = sprite.ScreenPlace.Y;
                 if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
                     sprite.Delete();
@@ -191,12 +158,9 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>
-    /// Moves the Rinka sideways by <paramref name="sideways"/> and down by half a pixel: every second update the half
-    /// pixels add up to one more whole pixel.
+    /// Where a Rinka at <paramref name="position"/> drifts to: sideways by <paramref name="sideways"/> and down by half a
+    /// pixel, so every second update the half pixels add up to one more whole pixel.
     /// </summary>
-    private static void Drift(CinematicActor rinka, SignedSixteenSixteen sideways)
-    {
-        rinka.Position = rinka.Position.WithX(rinka.Position.X + sideways);
-        rinka.Position = rinka.Position.WithY(rinka.Position.Y + IntroRinkaDefinitions.DownwardDrift);
-    }
+    private static FixedVector<ScreenPixels> Drifted(FixedVector<ScreenPixels> position, SignedSixteenSixteen sideways) =>
+        new(position.X + sideways, position.Y + IntroRinkaDefinitions.DownwardDrift);
 }

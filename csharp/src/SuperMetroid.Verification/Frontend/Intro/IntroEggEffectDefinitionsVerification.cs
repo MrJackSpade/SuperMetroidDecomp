@@ -33,7 +33,7 @@ internal static class IntroEggEffectDefinitionsVerification
         {
             particles[index].Step();
             var sprite = particles[index].sprite;
-            AssertEqual((ushort)(0x8f7e + index * 7), CinematicSpritePoseSpritemaps.Of(sprite.Pose),
+            AssertEqual((ushort)(0x8f7e + index * 7), CinematicSpritePoseSpritemaps.Of(sprite.Shown),
                 $"intro egg shell {fragments[index]} selects its own first visual frame");
         }
         for (int frame = 0; frame < 128 && particles.Any(static actor => actor.IsActive); frame++)
@@ -56,7 +56,7 @@ internal static class IntroEggEffectDefinitionsVerification
         for (int frame = 0; frame < 40; frame++)
         {
             impact.Step();
-            AssertEqual((ushort)(0x8faf + frame / 10 * 7), CinematicSpritePoseSpritemaps.Of(impactSprite.Pose),
+            AssertEqual((ushort)(0x8faf + frame / 10 * 7), CinematicSpritePoseSpritemaps.Of(impactSprite.Shown),
                 $"intro slime impact frame {frame} selects native puddle art");
         }
         impact.Step();
@@ -72,12 +72,12 @@ internal static class IntroEggEffectDefinitionsVerification
     private static void VerifyIntroEggEffectActor(
         CartridgeImportAddressSpace retail,
         ushort definitionPointer,
-        CinematicActorDefinition actual,
+        CinematicActorDefinition<IntroEggEffectAnimation> actual,
         string name)
     {
         // The six-byte header's first word (initialization callback) has no compiled owner.
         int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
-        ushort routine = actual.Animation == CinematicSpriteSegment.MetroidEggSlimeDrop ? CinematicActorNativeMotions.EggSlimeDrop : CinematicActorNativeMotions.EggShellFragment;
+        ushort routine = actual.Animation == IntroEggEffectAnimation.SlimeDrop ? CinematicActorNativeMotions.EggSlimeDrop : CinematicActorNativeMotions.EggShellFragment;
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), routine,
             $"{name} routine: a slime drop's or a shell fragment's flight");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),

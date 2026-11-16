@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -8,6 +9,10 @@ internal static class CinematicSpritemapSources
 {
     /// <summary>Each pose's place in the cartridge's order of the pose spritemaps.</summary>
     private static readonly Dictionary<CinematicSpritePose, int> Places = PlacesOf(CinematicSpritemapSourceDefinitions.Spritemaps);
+
+    /// <summary>Each ending typed text step's spritemap.</summary>
+    private static readonly Dictionary<EndingTextTyping, SnesAddress> TypedSpritemaps =
+        CinematicSpritemapSourceDefinitions.TypedTextSpritemaps.ToDictionary(source => source.Typed, source => source.Spritemap);
 
     /// <summary>Each pose of <paramref name="sources"/> by its place among them.</summary>
     private static Dictionary<CinematicSpritePose, int> PlacesOf(CinematicSpritemapSource[] sources)
@@ -24,6 +29,13 @@ internal static class CinematicSpritemapSources
         Places.TryGetValue(pose, out int place) && CinematicSpritemapSourceDefinitions.Spritemaps[place].Spritemap is SnesAddress spritemap
             ? spritemap.Offset
             : throw new ArgumentOutOfRangeException(nameof(pose), pose, "The pose shows no cinematic spritemap.");
+
+    /// <summary>The bank-$8C pointer to the spritemap showing <paramref name="typed"/>, one step of an ending typed text (#2195).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="typed"/> is no step of a typed text.</exception>
+    internal static ushort Of(EndingTextTyping typed) =>
+        TypedSpritemaps.TryGetValue(typed, out SnesAddress spritemap)
+            ? spritemap.Offset
+            : throw new ArgumentOutOfRangeException(nameof(typed), typed, "The step shows no cinematic spritemap.");
 
     /// <summary>
     /// The place of <paramref name="pose"/> in the cartridge's order of the pose spritemaps, which the import lays out and

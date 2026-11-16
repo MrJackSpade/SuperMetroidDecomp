@@ -14,13 +14,20 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> Frames)
     : ICinematicSpriteFrames
 {
-    /// <summary>The poses <paramref name="programs"/> show, through every program they go, fall or repeat into; the blank pose draws nothing.</summary>
-    internal static HashSet<CinematicSpritePose> PosesOf(IEnumerable<CinematicSpriteSegment> programs)
+    /// <summary>
+    /// The poses <paramref name="programs"/> of <paramref name="animations"/> show, through every segment they play; the
+    /// blank pose draws nothing.
+    /// </summary>
+    internal static HashSet<CinematicSpritePose> PosesOf<TAnimation, TCue>(CinematicAnimations<TAnimation, CinematicSpritePose, TCue> animations,
+        IEnumerable<TAnimation> programs)
+        where TAnimation : struct, Enum
+        where TCue : notnull
     {
+        Ensure.NotNull(animations);
         var shown = new HashSet<CinematicSpritePose>();
-        foreach (CinematicSpriteSegment program in programs)
+        foreach (TAnimation program in Ensure.NotNull(programs))
         {
-            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
+            foreach (CinematicSpritePose pose in animations.Segments.FramesOf(animations.StartingWith(program)))
             {
                 if (pose != CinematicSpritePose.Blank)
                     shown.Add(pose);

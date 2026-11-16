@@ -203,20 +203,12 @@ internal static class EndingCreditsPresentation
         }
         else
         {
+            var art = new EndingSpriteArt(Family, Sheet(EndingSpriteSheets.Of(EndingTextAnimations.Family, ending.Stage.EndingReward)),
+                ending.screen.Colours.Drawn);
             foreach (EndingSprite wrapper in ending.sprites)
             {
-                if (!Shows(LayerOf(wrapper.Role)))
-                    continue;
-                CinematicSpriteFamily family = wrapper.Role.Family() switch
-                {
-                    EndingSpriteFamily.Cloud => CinematicSpriteFamily.EndingCloud,
-                    EndingSpriteFamily.Explosion => CinematicSpriteFamily.EndingExplosion,
-                    EndingSpriteFamily.CompletionText => CinematicSpriteFamily.EndingCompletionText,
-                    EndingSpriteFamily.Reward => CinematicSpriteFamily.EndingReward,
-                    EndingSpriteFamily.AnimalEscape => CinematicSpriteFamily.EndingAnimalEscape,
-                    var undefined => throw new InvalidOperationException($"Undefined ending sprite family {undefined}."),
-                };
-                wrapper.Sprite.Draw(sprites, installedArt: Family(family));
+                if (Shows(LayerOf(wrapper.Role)))
+                    wrapper.Draw(sprites, art);
             }
         }
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase) && Shows(EndingSpriteLayer.Stars))
@@ -228,15 +220,9 @@ internal static class EndingCreditsPresentation
         // Whether the sprites of the layer are placed.
         bool Shows(EndingSpriteLayer layer) => only is null || only == layer;
 
-        // A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names;
-        // the result text's typed texts are drawn as the glyphs typed so far (#1513).
-        IIntroCinematicSpritePresentation Family(CinematicSpriteFamily family)
-        {
-            SpriteSheet sheet = Sheet(EndingSpriteSheets.Of(family, ending.Stage.EndingReward));
-            return family == EndingTypedTexts.Family
-                ? new TypedTextSpriteSheet(sheet, family, ending.screen.Colours.Drawn, EndingTypedTexts.Texts)
-                : new CinematicSpriteSheet(sheet, family, ending.screen.Colours.Drawn);
-        }
+        // A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names.
+        IIntroCinematicSpritePresentation Family(CinematicSpriteFamily family) =>
+            new CinematicSpriteSheet(Sheet(EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), family, ending.screen.Colours.Drawn);
 
         SpriteSheet Sheet(SpriteSheetId sheet) => ending.InstalledArtwork.SpriteSheet(sheet);
     }

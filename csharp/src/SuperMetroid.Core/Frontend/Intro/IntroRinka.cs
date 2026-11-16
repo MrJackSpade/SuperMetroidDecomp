@@ -11,14 +11,12 @@ internal sealed class IntroRinka
     {
         Flight = launch.Flight;
         Drift = launch.Drift;
-        Sprite = new CinematicActor(
-            launch.Position,
-            colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            segment: IntroRinkaDefinitions.RinkaActor.Animation);
+        Sprite = new(launch.Position, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaAnimations.Rinka,
+            IntroRinkaDefinitions.RinkaActor.Animation);
     }
 
     /// <summary>The sprite showing the Rinka: its position and animation.</summary>
-    internal CinematicActor Sprite { get; }
+    internal CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> Sprite { get; }
 
     /// <summary>How the Rinka flies once it starts moving: only the first one launched strikes Samus, the others miss.</summary>
     internal IntroRinkaFlight Flight { get; }

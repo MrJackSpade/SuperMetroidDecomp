@@ -16,8 +16,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
-    private readonly CinematicActor actor =
-        new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
+    private readonly CinematicActor<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> actor =
+        new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring, IntroMotherBrainAnimations.MotherBrain,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
     /// <summary>Remaining colour alternations after a missile hit.</summary>
     private int hurtFlashTimer;
@@ -48,7 +48,7 @@ internal sealed class IntroMotherBrainSpriteState
         FlashesWhite ? Ensure.NotNull(drawn).With(new ColourFlash(RgbColor.White)) : Ensure.NotNull(drawn);
 
     /// <summary>The pose Mother Brain's animation shows; null before its first frame and after deletion.</summary>
-    public CinematicSpritePose? Pose => actor.Pose;
+    public CinematicSpritePose? Pose => actor.Shown;
 
     /// <summary>Number of missiles consumed by Mother Brain's hit test; the fourth starts the explosion.</summary>
     public int HitCount { get; private set; }
@@ -95,7 +95,7 @@ internal sealed class IntroMotherBrainSpriteState
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
             // starts the cross-fade during this same cinematic-actor call.
-            actor.Start(CinematicSpriteSegment.IntroMotherBrainStartPage2);
+            actor.Start(IntroMotherBrainAnimation.StartingPageTwo);
             pageTwoAnimationStarted = true;
         }
     }
@@ -145,12 +145,17 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Runs one cinematic sprite update for Mother Brain's definition.</summary>
     public void Step() => actor.Step(cue =>
     {
-        if (cue == CinematicSpriteCueKind.StartIntroPage2)
-            PageTwoRequested = true;
-        else if (cue == CinematicSpriteCueKind.StartMotherBrainCrossFade)
-            crossfadingToPageTwo = true;
-        else
-            throw new InvalidOperationException($"The intro Mother Brain's animations publish no {cue} cue.");
+        switch (cue)
+        {
+            case IntroMotherBrainCue.StartPageTwo:
+                PageTwoRequested = true;
+                return;
+            case IntroMotherBrainCue.StartCrossFade:
+                crossfadingToPageTwo = true;
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroMotherBrainCue)} {cue}.");
+        }
     });
 
     /// <summary>Alternates the room picture's scroll by four pixels from the inherited flashback offset.</summary>

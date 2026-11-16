@@ -1,0 +1,37 @@
+using SuperMetroid.Core.Animation;
+using A = SuperMetroid.Core.Frontend.Intro.IntroNarrationAnimation;
+using B = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, SuperMetroid.Core.Animation.NoAnimationCue>;
+using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
+
+namespace SuperMetroid.Core.Frontend.Intro;
+
+/// <summary>The animations of the intro narration's caret and Japanese-text next-page arrow (#641, #1600, #2196, #2197).</summary>
+internal static class IntroNarrationAnimations
+{
+    /// <summary>The caret's and the next-page arrow's animations.</summary>
+    internal static CinematicAnimations<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> Narration { get; } = new(
+        new Dictionary<IntroNarrationAnimation, AnimationBeat<CinematicSpritePose, NoAnimationCue>[]>
+        {
+            [A.Caret] = [B.Hold(S.CaretVisible)],
+            [A.CaretBlinking] =
+            [
+                B.Show(S.CaretVisible, 5),
+                B.Show(S.Blank, 5),
+            ],
+            [A.NextPageArrow] =
+            [
+                B.Show(S.NextPageArrowBright, 10),
+                B.Show(S.NextPageArrowFading, 10),
+                B.Show(S.NextPageArrowFaint, 10),
+                B.Show(S.NextPageArrowFading, 10),
+            ],
+            [A.NextPageArrowDelayed] = [B.Show(S.Blank, 60)],
+        },
+        new Dictionary<IntroNarrationAnimation, Animation<IntroNarrationAnimation>>
+        {
+            [A.Caret] = CinematicPlays.Still(A.Caret),
+            [A.CaretBlinking] = CinematicPlays.Through(A.CaretBlinking, 2, AnimationEnd.LoopsFrom(0)),
+            [A.NextPageArrow] = CinematicPlays.Through(A.NextPageArrow, 4, AnimationEnd.LoopsFrom(0)),
+            [A.NextPageArrowDelayed] = new([new(A.NextPageArrowDelayed, 0, 1, 1), new(A.NextPageArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        });
+}

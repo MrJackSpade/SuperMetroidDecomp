@@ -30,7 +30,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Optional edited rear-view actor positions.</summary>
     private CeresFlightActorPlacements? actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
-    private readonly CinematicActor stars =
+    private readonly CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars, CeresFlightActorDefinitions.FrontStarsStart);
 
     /// <summary>The front stars' speed on each axis, which the background rush shares.</summary>
@@ -297,11 +297,12 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>
-    private static CinematicActor CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
+    private static CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
     {
-        var actor = new CinematicActor(
+        var actor = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue>(
             start,
             CeresShades.Drawn(definition.Colouring),
+            CeresAnimations.Scenes,
             definition.Animation)
         {
             HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
@@ -385,21 +386,15 @@ internal sealed class IntroCeresFlightState
     /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite animation.</summary>
     private void StepRearViewActors()
     {
-        foreach ((CeresRearViewActorRole role, CinematicActor actor) in RearViewActors)
+        foreach ((CeresRearViewActorRole role, CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
             if (definition.WrapX)
                 actor.TravelLoop(definition.HorizontalDelta);
             else
-                AddSignedX(actor, definition.HorizontalDelta);
+                actor.Position = actor.Position.WithX(actor.Position.X + definition.HorizontalDelta);
             actor.Step();
         }
-    }
-
-    /// <summary>Applies signed horizontal motion to an actor that travels no loop.</summary>
-    private static void AddSignedX(CinematicActor actor, SignedSixteenSixteen delta)
-    {
-        actor.Position = actor.Position.WithX(actor.Position.X + delta);
     }
 
     /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>

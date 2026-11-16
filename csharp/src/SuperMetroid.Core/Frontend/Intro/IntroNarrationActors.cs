@@ -18,8 +18,11 @@ internal sealed class IntroNarrationActors
     /// <summary>The persistent portrait eye's animation and where it stands in it, played on when its frame expires (#1600).</summary>
     internal AnimationPlayback<IntroEyeSegment> EyePlayback { get; private set; } =
         new(IntroEyeAnimations.StartingWith(IntroEyeSegment.Blinking), AnimationPlace.StartOfAnimation);
-    /// <summary>Countdown before the eye shows its animation's next frame.</summary>
-    internal int EyeFrameHold { get; private set; } = 1;
+    /// <summary>
+    /// Countdown before the eye shows its animation's next frame; none once the eye rests on its final page's stare for
+    /// good, when its animation plays on no further (#2196).
+    /// </summary>
+    internal int? EyeFrameHold { get; private set; } = 1;
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private int textFrameHold;
     /// <summary>The installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
@@ -40,7 +43,8 @@ internal sealed class IntroNarrationActors
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
     /// <summary>The persistent text-caret actor, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
-    private readonly CinematicActor caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroTextCaret);
+    private readonly CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> caretSprite =
+        new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), IntroNarrationAnimations.Narration, IntroNarrationAnimation.Caret);
     /// <summary>
     /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
     /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
@@ -88,7 +92,7 @@ internal sealed class IntroNarrationActors
     /// The pose the text caret shows: its animation's pose, or null while the caret is hidden or before its animation's first
     /// frame, when nothing is drawn.
     /// </summary>
-    internal CinematicSpritePose? CaretPose => caretHidden ? null : caretSprite.Pose;
+    internal CinematicSpritePose? CaretPose => caretHidden ? null : caretSprite.Shown;
 
     /// <summary>
     /// Whether the caret is hidden while an illustration owns the screen; its animation keeps running, and the next page
@@ -97,7 +101,7 @@ internal sealed class IntroNarrationActors
     private bool caretHidden;
 
     /// <summary>The Japanese text's next-page arrow while it shows (#1655); null with English text and between input waits.</summary>
-    internal CinematicActor? NextPageArrow { get; private set; }
+    internal CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue>? NextPageArrow { get; private set; }
 
     /// <summary>
     /// Records that a page's input wait accepted the press that turns the page (#1655). The page-turn setup starts the
@@ -332,7 +336,10 @@ internal sealed class IntroNarrationActors
     /// </summary>
     private void StepEye()
     {
-        if (--EyeFrameHold != 0)
+        if (EyeFrameHold is not { } hold)
+            return;
+        EyeFrameHold = --hold;
+        if (hold != 0)
             return;
 
         AnimationPlace place = EyePlayback.Place;
@@ -340,10 +347,20 @@ internal sealed class IntroNarrationActors
             EyePlayback.Animation, ref place,
             static cue => throw new InvalidOperationException($"The intro eye animations raise no event; got {cue}."));
         EyePlayback = EyePlayback with { Place = place };
-        if (shown is not AnimationShown<IntroEyeSegment, IntroEyeFrame>.Frame frame)
-            throw new InvalidOperationException($"The intro eye animation ended an update with {shown}.");
-        EyeFrameHold = frame.Duration;
-        ShowEyeFrame(frame.Shown);
+        switch (shown)
+        {
+            case AnimationShown<IntroEyeSegment, IntroEyeFrame>.Frame frame:
+                EyeFrameHold = frame.Duration;
+                ShowEyeFrame(frame.Shown);
+                return;
+            case AnimationShown<IntroEyeSegment, IntroEyeFrame>.HeldFrame rested:
+                // The final page's stare shows for the rest of the narration.
+                EyeFrameHold = null;
+                ShowEyeFrame(rested.Shown);
+                return;
+            default:
+                throw new InvalidOperationException($"The intro eye animation ended an update with {shown}.");
+        }
     }
 
     /// <summary>Shows <paramref name="frame"/> on the portrait.</summary>
@@ -354,7 +371,7 @@ internal sealed class IntroNarrationActors
     {
         caretHidden = false;
         Caret = new(IntroCinematicDefinitions.NarrationLayout.CaretLeftX, IntroCinematicDefinitions.NarrationLayout.CaretFirstTextY);
-        caretSprite.Start(CinematicSpriteSegment.IntroTextCaret);
+        caretSprite.Start(IntroNarrationAnimation.Caret);
     }
 
     /// <summary>
@@ -366,9 +383,9 @@ internal sealed class IntroNarrationActors
     {
         if (NextPageArrow is not null)
             throw new InvalidOperationException("The narration spawned a next-page arrow while one was still showing.");
-        NextPageArrow = new CinematicActor(
+        NextPageArrow = new(
             new(IntroCinematicDefinitions.NarrationLayout.NextPageArrowX, IntroCinematicDefinitions.NarrationLayout.NextPageArrowY),
-            IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroNextPageArrow);
+            IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), IntroNarrationAnimations.Narration, IntroNarrationAnimation.NextPageArrow);
     }
 
     /// <summary>
@@ -383,7 +400,7 @@ internal sealed class IntroNarrationActors
         if (NextPageArrow is not { } arrow)
             return;
         if (subtitles.HoldFirstCounted)
-            arrow.Start(CinematicSpriteSegment.IntroNextPageArrowDelayed);
+            arrow.Start(IntroNarrationAnimation.NextPageArrowDelayed);
         if (turned)
         {
             arrow.Delete();
@@ -398,7 +415,7 @@ internal sealed class IntroNarrationActors
     {
         // The caret-blink cue starts the existing caret sprite's blinking animation and primes timer
         // one, allowing the cinematic sprite's update to select the first frame now.
-        caretSprite.Start(CinematicSpriteSegment.IntroTextCaretBlink);
+        caretSprite.Start(IntroNarrationAnimation.CaretBlinking);
     }
 
 }

@@ -1,0 +1,69 @@
+using SuperMetroid.Core.Animation;
+using A = SuperMetroid.Core.Frontend.Intro.IntroMotherBrainAnimation;
+using B = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Intro.CinematicSpritePose, SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCue>;
+using K = SuperMetroid.Core.Frontend.Intro.IntroMotherBrainCue;
+using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
+
+namespace SuperMetroid.Core.Frontend.Intro;
+
+/// <summary>The intro flashback Mother Brain's animations and their explosions' (#641, #1600, #2197).</summary>
+internal static class IntroMotherBrainAnimations
+{
+    /// <summary>Mother Brain's animations: her pulse, and the start of page two, after which she pulses on.</summary>
+    internal static CinematicAnimations<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> MotherBrain { get; } = new(
+        new Dictionary<IntroMotherBrainAnimation, AnimationBeat<CinematicSpritePose, IntroMotherBrainCue>[]>
+        {
+            [A.Pulsing] =
+            [
+                B.Show(S.MotherBrainPulseLow, 16),
+                B.Show(S.MotherBrainPulseMiddle, 16),
+                B.Show(S.MotherBrainPulseHigh, 16),
+                B.Show(S.MotherBrainPulseMiddle, 16),
+            ],
+            [A.StartingPageTwo] =
+            [
+                B.Raise(K.StartPageTwo),
+                B.Raise(K.StartCrossFade),
+            ],
+        },
+        new Dictionary<IntroMotherBrainAnimation, Animation<IntroMotherBrainAnimation>>
+        {
+            [A.Pulsing] = new([new(A.Pulsing, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+            [A.StartingPageTwo] = new([new(A.StartingPageTwo, 0, 2, 1), new(A.Pulsing, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        });
+
+    /// <summary>Mother Brain's explosions: each burns through its pictures and a blank pause, over and over.</summary>
+    internal static CinematicAnimations<IntroMotherBrainExplosionAnimation, CinematicSpritePose, NoAnimationCue> Explosions { get; } = new(
+        new Dictionary<IntroMotherBrainExplosionAnimation, AnimationBeat<CinematicSpritePose, NoAnimationCue>[]>
+        {
+            [IntroMotherBrainExplosionAnimation.Big] =
+            [
+                Show(S.BigExplosionSpark, 6),
+                Show(S.BigExplosionFlare, 6),
+                Show(S.BigExplosionFireball, 6),
+                Show(S.BigExplosionBursting, 6),
+                Show(S.BigExplosionSpikedRing, 6),
+                Show(S.BigExplosionScatteredSmoke, 6),
+                Show(S.Blank, 16),
+            ],
+            [IntroMotherBrainExplosionAnimation.Small] =
+            [
+                Show(S.SmallExplosionSpark, 3),
+                Show(S.SmallExplosionFlare, 3),
+                Show(S.SmallExplosionFireball, 3),
+                Show(S.SmallExplosionHollowing, 3),
+                Show(S.SmallExplosionRing, 3),
+                Show(S.SmallExplosionFadingRing, 3),
+                Show(S.Blank, 16),
+            ],
+        },
+        new Dictionary<IntroMotherBrainExplosionAnimation, Animation<IntroMotherBrainExplosionAnimation>>
+        {
+            [IntroMotherBrainExplosionAnimation.Big] = new([new(IntroMotherBrainExplosionAnimation.Big, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+            [IntroMotherBrainExplosionAnimation.Small] = new([new(IntroMotherBrainExplosionAnimation.Small, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+        });
+
+    /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates in an animation that publishes no cue.</summary>
+    private static AnimationBeat<CinematicSpritePose, NoAnimationCue> Show(CinematicSpritePose pose, int duration) =>
+        CinematicBeats<CinematicSpritePose, NoAnimationCue>.Show(pose, duration);
+}

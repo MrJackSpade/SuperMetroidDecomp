@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
-    internal readonly CinematicActor sprite;
+    internal readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
 
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;
@@ -28,14 +29,12 @@ internal sealed class IntroEggParticle
     public IntroEggParticle(IntroEggShellFragment fragment, ShellFragmentFallPastCurve fallPastCurve)
     {
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
-        CinematicActorDefinition definition = IntroEggParticleActors.Particle(fragment);
+        CinematicActorDefinition<IntroEggEffectAnimation> definition = IntroEggParticleActors.Particle(fragment);
         this.fragment = fragment;
         // The compiled start of each fragment matches all twelve authored values,
         // so this spawn does not read game data.
-        sprite = new CinematicActor(
-            IntroEggMotion.FragmentInitialPosition(fragment),
-            colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            segment: definition.Animation);
+        sprite = new(IntroEggMotion.FragmentInitialPosition(fragment), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
+            IntroEggEffectAnimations.Effects, definition.Animation);
     }
 
     /// <summary>Applies 1/65536-pixel fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
@@ -45,8 +44,8 @@ internal sealed class IntroEggParticle
             return;
 
         // The piece flies sideways at its own speed and vertically at its fall's speed for the updates it has flown.
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentFallSpeed(framesFallen, fallPastCurve));
+        sprite.Position = WithVelocity(sprite.Position, Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
+        sprite.Position = WithVelocity(sprite.Position, Axis.Vertical, IntroEggMotion.FragmentFallSpeed(framesFallen, fallPastCurve));
         if (sprite.ScreenPlace.Y >= IntroEggMotionDefinitions.FragmentFloorY)
         {
             // The landed piece is gone from this update on.
@@ -65,14 +64,7 @@ internal sealed class IntroEggParticle
         IIntroCinematicSpritePresentation? installedArt = null) =>
         sprite.Draw(screenSprites, installedArt: installedArt);
 
-    /// <summary>Adds a compiled signed whole/fraction velocity to one axis without changing the other coordinate.</summary>
-    private static void AddSixteenSixteenVelocity(
-        CinematicActor sprite,
-        Axis axis,
-        SignedSixteenSixteen velocity)
-    {
-        sprite.Position = axis == Axis.Horizontal
-            ? sprite.Position.WithX(sprite.Position.X + velocity)
-            : sprite.Position.WithY(sprite.Position.Y + velocity);
-    }
+    /// <summary><paramref name="position"/> with a compiled signed whole/fraction velocity added to one axis, the other unchanged.</summary>
+    private static FixedVector<ScreenPixels> WithVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedSixteenSixteen velocity) =>
+        axis == Axis.Horizontal ? position.WithX(position.X + velocity) : position.WithY(position.Y + velocity);
 }

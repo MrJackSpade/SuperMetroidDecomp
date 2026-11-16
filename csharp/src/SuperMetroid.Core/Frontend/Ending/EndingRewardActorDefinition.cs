@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>One ending reward actor's definition.</summary>
 internal readonly record struct EndingRewardActorDefinition(
     EndingRewardInitialization Initialization,
-    CinematicSpriteSegment Animation);
+    EndingRewardAnimation Animation);

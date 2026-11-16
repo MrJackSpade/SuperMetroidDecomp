@@ -199,7 +199,7 @@ internal static class IntroCinematicFamilyPosesVerification
     /// </summary>
     private static Dictionary<ushort, int> InstructionByteCounts()
     {
-        var counts = CinematicSpriteNativeListAddresses.OwnerInstructions.Keys.ToDictionary(word => word, _ => BareInstructionBytes);
+        var counts = CinematicSpriteNativeListAddresses.OwnerInstructions.ToDictionary(word => word, _ => BareInstructionBytes);
         counts.Add((ushort)CinematicSpriteInstruction.Delete, BareInstructionBytes);
         counts.Add((ushort)CinematicSpriteInstruction.Sleep, BareInstructionBytes);
         counts.Add((ushort)CinematicSpriteInstruction.SetFrameBehavior, OperandInstructionBytes);

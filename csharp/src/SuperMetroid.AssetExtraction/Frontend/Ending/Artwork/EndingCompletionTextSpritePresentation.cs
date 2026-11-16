@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -11,12 +12,22 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
 public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
 {
-    /// <summary>Compiled phrase prefixes, digits, and colon keyed by the poses that show them.</summary>
+    /// <summary>Compiled digits and colon keyed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
+    /// <summary>Compiled typed-text steps keyed by the text and the letters each shows typed (#2195).</summary>
+    private readonly Dictionary<EndingTextTyping, SpriteComposition> typings;
+
     /// <summary>Retains the complete validated composition set independently of authoring arrays.</summary>
-    private EndingCompletionTextSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
+    private EndingCompletionTextSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames,
+        Dictionary<EndingTextTyping, SpriteComposition> typings)
+    {
         this.frames = frames;
+        this.typings = typings;
+    }
+
+    /// <summary>Each typed text's steps, each the whole of the text typed as far as one more letter (#2195).</summary>
+    internal IReadOnlyDictionary<EndingTextTyping, SpriteComposition> Typings => typings;
 
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingCompletionText;
@@ -34,10 +45,11 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
         document = JsonAssetDocument.Read<EndingCompletionTextSpriteDocument>(json, ArtworkJson.Options, "ending completion text sprite");
         IReadOnlyList<CinematicSpriteFrameDefinition> definitions =
             EndingCompletionTextSpriteDefinitions.Frames;
+        IReadOnlyList<EndingTypedStepDefinition> steps = EndingCompletionTextSpriteDefinitions.Typings;
         if (document.Version != EndingCompletionTextSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Count)
+            document.Frames is null || document.Frames.Count != definitions.Count + steps.Count)
             throw new InvalidDataException(
-                $"Ending completion text requires exactly {definitions.Count} named visual frames.");
+                $"Ending completion text requires exactly {definitions.Count + steps.Count} named visual frames.");
         var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
         foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
@@ -47,7 +59,16 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
                     $"Ending completion text frame {definition.Name} is missing.");
             frames.Add(definition.Pose, IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
         }
-        return new EndingCompletionTextSpritePresentation(frames);
+        var typings = new Dictionary<EndingTextTyping, SpriteComposition>();
+        foreach (EndingTypedStepDefinition step in steps)
+        {
+            if (!document.Frames.TryGetValue(step.Name, out SpriteVisualPart[]? visual) ||
+                visual is null)
+                throw new InvalidDataException(
+                    $"Ending completion text frame {step.Name} is missing.");
+            typings.Add(step.Typed, IntroCinematicSpriteCompiler.Compile(visual, step.Name));
+        }
+        return new EndingCompletionTextSpritePresentation(frames, typings);
     }
 
     /// <summary>Serializes completion-text compositions as UTF-8 JSON.</summary>

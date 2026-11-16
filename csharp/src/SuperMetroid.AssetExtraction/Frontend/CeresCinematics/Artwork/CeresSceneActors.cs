@@ -69,10 +69,10 @@ internal static class CeresSceneActors
     /// <exception cref="InvalidDataException">
     /// The scene already draws one of the poses in a colouring of another sprite set: one picture cannot show both.
     /// </exception>
-    private static void Add(Dictionary<CinematicSpritePose, CeresSpriteColouring> poses, string scene, CinematicSpriteSegment program,
+    private static void Add(Dictionary<CinematicSpritePose, CeresSpriteColouring> poses, string scene, CeresAnimation program,
         CeresSpriteColouring colouring)
     {
-        foreach (CinematicSpritePose pose in CinematicShownFrames.PosesOf([program]))
+        foreach (CinematicSpritePose pose in CinematicShownFrames.PosesOf(CeresAnimations.Scenes, [program]))
         {
             if (poses.TryGetValue(pose, out CeresSpriteColouring drawn))
             {

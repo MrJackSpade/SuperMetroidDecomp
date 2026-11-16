@@ -1,191 +1,222 @@
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
-/// <summary>The native bank-$8B list each typed cinematic sprite program replaces, for the #641 ROM oracle.</summary>
+/// <summary>
+/// The native bank-$8B lists each typed cinematic animation replaces, for the #641 ROM oracle (#2197): where each animation an
+/// actor starts begins, and the owner instructions each family's lists hold, by the family's own cue.
+/// </summary>
 internal static class CinematicSpriteNativeListAddresses
 {
-    /// <summary>Each program's native list, in authored order.</summary>
-    internal static readonly CinematicSpriteNativeListAddressesEntry[] Entries =
-    [
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroMotherBrain, 0xcb05),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroMotherBrainStartPage2, 0xcb19),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroMotherBrainPageTwo, 0xcb1f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEgg, 0xcb33),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggHatching, 0xcb3b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShaking, 0xcb43),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggRemnantsSettling, 0xcb79),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggHatched, 0xcb97),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingDelivered, 0xcba3),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidDelivered, 0xcbb9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingExamined, 0xcbd1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidExamined, 0xcbe7),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroTextCaret, 0xcbfb),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroTextCaretBlink, 0xcc03),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroNextPageArrow, 0xcc0f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroNextPageArrowDelayed, 0xcc23),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ConfusedBabyMetroid, 0xcc2b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresDestructionLargeAsteroid, 0xcc3f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresUnderAttack, 0xcc47),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresSmallAsteroid, 0xcc4f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresVortex, 0xcc57),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesPlanet, 0xccab),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesTitle, 0xccbb),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesJapaneseTitle, 0xccd5),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresSmallExplosion, 0xccdb),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresRepeatingSmallExplosion, 0xccf9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeExplosion, 0xcd1f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellUpperLeft, 0xcd39),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellUpperRight, 0xcd41),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellLeft, 0xcd49),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellCentre, 0xcd51),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellRight, 0xcd59),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggShellLower, 0xcd61),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggSlimeDrop, 0xcd69),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.MetroidEggSlimeImpact, 0xcd71),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesStarsUpperLeft, 0xcd83),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesStarsUpperRight, 0xcd8b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesStarsLowerLeft, 0xcd93),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesStarsLowerRight, 0xcd9b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresStars, 0xcda3),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroMotherBrainExplosionBig, 0xcdab),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroMotherBrainExplosionSmall, 0xcdcb),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroRinka, 0xcdeb),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroRinkaMoving, 0xcdf9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.IntroRinkaSpawner, 0xce0d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresStationBlast, 0xce1b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresExplosionSpawner, 0xce35),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeAsteroid, 0xce4b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionPlanet, 0xeb13),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionGlow, 0xeb3d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionStars, 0xeb51),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionLava, 0xeb59),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionLavaLoop, 0xeb5d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionSilhouette, 0xeb69),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionRightStars, 0xeb71),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionLeftStars, 0xeb81),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionAfterglow, 0xeb89),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.OperationWasText, 0xeb91),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.OperationWasTextHold, 0xebcf),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CompletedSuccessfullyText, 0xebd7),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CompletedSuccessfullyTextHold, 0xec2d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeText, 0xec35),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeTextHold, 0xec79),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit0, 0xec81),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit1, 0xec89),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit2, 0xec91),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit3, 0xec99),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit4, 0xeca1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit5, 0xeca9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit6, 0xecb1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit7, 0xecb9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit8, 0xecc1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeDigit9, 0xecc9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ClearTimeColon, 0xecd1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingAnimalEscape, 0xecd9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingTopCloudPattern, 0xeced),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingTopCloudEdge, 0xecf5),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingBottomCloudEdge, 0xecfd),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingBottomCloudPattern, 0xed05),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingRightSideCloud, 0xed0d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.EndingLeftSideCloud, 0xed15),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitlessIdle, 0xed1d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitlessLegsIdle, 0xed25),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HairRelease, 0xed2d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HairReleaseLegs, 0xed59),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitlessJump, 0xed7f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitlessJumpFlight, 0xed8d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.Falling, 0xed95),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.Landing, 0xed9d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitedIdle, 0xedb1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HelmetIdle, 0xedb9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HeadIdle, 0xedc1),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.GestureBody, 0xedc9),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.GestureArm, 0xedd3),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.GestureHelmet, 0xee0f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.GestureHead, 0xee15),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitedJump, 0xee27),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.SuitedJumpFlight, 0xee35),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HelmetJump, 0xee3d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HelmetFlight, 0xee45),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HeadJump, 0xee4d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.HeadFlight, 0xee55),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoUpperS, 0xee5d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoLowerS, 0xee65),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoUpperCircle, 0xee6d),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoUpperCircleLoop, 0xee7f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoLowerCircle, 0xee87),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.LogoLowerCircleLoop, 0xee93),
-    ];
-
-    /// <summary>
-    /// The native counter loads that start the counted animations (#1978): each loads the count its segment's first phase
-    /// plays and runs on into that segment's list, which the typed animation counts itself.
-    /// </summary>
-    internal static readonly CinematicSpriteNativeListAddressesEntry[] CounterPreambles =
-    [
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingDelivered, 0xcb9f),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.BabyMetroidBeingExamined, 0xcbcd),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresRepeatingSmallExplosion, 0xccf5),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.CeresLargeExplosion, 0xcd1b),
-        new CinematicSpriteNativeListAddressesEntry(CinematicSpriteSegment.ZebesExplosionPlanet, 0xeb0f),
-    ];
-
     /// <summary>The cinematic sprite lists' bank.</summary>
     internal const byte Bank = 0x8b;
 
     /// <summary>
+    /// Where each animation an actor starts begins natively, the address an actor's definition names: its counter load where
+    /// one precedes its list, else its list.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<Enum, ushort> Starts = new Dictionary<Enum, ushort>
+    {
+        [IntroMotherBrainAnimation.Pulsing] = 0xcb05,
+        [IntroMotherBrainAnimation.StartingPageTwo] = 0xcb19,
+        [IntroBabyAnimation.Egg] = 0xcb33,
+        [IntroBabyAnimation.EggHatching] = 0xcb3b,
+        [IntroBabyAnimation.DeliveredBaby] = 0xcb9f,
+        [IntroBabyAnimation.ExaminedBaby] = 0xcbcd,
+        [IntroNarrationAnimation.Caret] = 0xcbfb,
+        [IntroNarrationAnimation.CaretBlinking] = 0xcc03,
+        [IntroNarrationAnimation.NextPageArrow] = 0xcc0f,
+        [IntroNarrationAnimation.NextPageArrowDelayed] = 0xcc23,
+        [IntroBabyAnimation.ConfusedBaby] = 0xcc2b,
+        [CeresAnimation.DestructionLargeAsteroid] = 0xcc3f,
+        [CeresAnimation.StationUnderAttack] = 0xcc47,
+        [CeresAnimation.SmallAsteroid] = 0xcc4f,
+        [CeresAnimation.Vortex] = 0xcc57,
+        [CeresAnimation.ZebesPlanet] = 0xccab,
+        [CeresAnimation.ZebesTitle] = 0xccbb,
+        [CeresAnimation.ZebesJapaneseTitle] = 0xccd5,
+        [CeresAnimation.SmallExplosion] = 0xccdb,
+        [CeresAnimation.RepeatingSmallExplosion] = 0xccf5,
+        [CeresAnimation.LargeExplosion] = 0xcd1b,
+        [IntroEggEffectAnimation.ShellUpperLeft] = 0xcd39,
+        [IntroEggEffectAnimation.ShellUpperRight] = 0xcd41,
+        [IntroEggEffectAnimation.ShellLeft] = 0xcd49,
+        [IntroEggEffectAnimation.ShellCentre] = 0xcd51,
+        [IntroEggEffectAnimation.ShellRight] = 0xcd59,
+        [IntroEggEffectAnimation.ShellLower] = 0xcd61,
+        [IntroEggEffectAnimation.SlimeDrop] = 0xcd69,
+        [IntroEggEffectAnimation.SlimeImpact] = 0xcd71,
+        [CeresAnimation.ZebesStarsUpperLeft] = 0xcd83,
+        [CeresAnimation.ZebesStarsUpperRight] = 0xcd8b,
+        [CeresAnimation.ZebesStarsLowerLeft] = 0xcd93,
+        [CeresAnimation.ZebesStarsLowerRight] = 0xcd9b,
+        [CeresAnimation.Stars] = 0xcda3,
+        [IntroMotherBrainExplosionAnimation.Big] = 0xcdab,
+        [IntroMotherBrainExplosionAnimation.Small] = 0xcdcb,
+        [IntroRinkaAnimation.Rinka] = 0xcdeb,
+        [IntroRinkaAnimation.Spawner] = 0xce0d,
+        [CeresAnimation.StationBlast] = 0xce1b,
+        [CeresAnimation.ExplosionSpawner] = 0xce35,
+        [CeresAnimation.LargeAsteroid] = 0xce4b,
+        [EndingSceneAnimation.ExplodingPlanet] = 0xeb0f,
+        [EndingSceneAnimation.ExplosionGlow] = 0xeb3d,
+        [EndingSceneAnimation.ExplosionStars] = 0xeb51,
+        [EndingSceneAnimation.ExplosionLava] = 0xeb59,
+        [EndingSceneAnimation.ExplosionSilhouette] = 0xeb69,
+        [EndingSceneAnimation.ExplosionRightStars] = 0xeb71,
+        [EndingSceneAnimation.ExplosionLeftStars] = 0xeb81,
+        [EndingSceneAnimation.ExplosionAfterglow] = 0xeb89,
+        [EndingTypedText.OperationWas] = 0xeb91,
+        [EndingTypedText.CompletedSuccessfully] = 0xebd7,
+        [EndingTypedText.ClearTime] = 0xec35,
+        [EndingSceneAnimation.ClearTimeDigit0] = 0xec81,
+        [EndingSceneAnimation.ClearTimeDigit1] = 0xec89,
+        [EndingSceneAnimation.ClearTimeDigit2] = 0xec91,
+        [EndingSceneAnimation.ClearTimeDigit3] = 0xec99,
+        [EndingSceneAnimation.ClearTimeDigit4] = 0xeca1,
+        [EndingSceneAnimation.ClearTimeDigit5] = 0xeca9,
+        [EndingSceneAnimation.ClearTimeDigit6] = 0xecb1,
+        [EndingSceneAnimation.ClearTimeDigit7] = 0xecb9,
+        [EndingSceneAnimation.ClearTimeDigit8] = 0xecc1,
+        [EndingSceneAnimation.ClearTimeDigit9] = 0xecc9,
+        [EndingSceneAnimation.ClearTimeColon] = 0xecd1,
+        [EndingSceneAnimation.AnimalEscape] = 0xecd9,
+        [EndingSceneAnimation.TopCloudPattern] = 0xeced,
+        [EndingSceneAnimation.TopCloudEdge] = 0xecf5,
+        [EndingSceneAnimation.BottomCloudEdge] = 0xecfd,
+        [EndingSceneAnimation.BottomCloudPattern] = 0xed05,
+        [EndingSceneAnimation.RightSideCloud] = 0xed0d,
+        [EndingSceneAnimation.LeftSideCloud] = 0xed15,
+        [EndingSceneAnimation.SuitlessIdle] = 0xed1d,
+        [EndingSceneAnimation.SuitlessLegsIdle] = 0xed25,
+        [EndingRewardAnimation.HairRelease] = 0xed2d,
+        [EndingRewardAnimation.HairReleaseLegs] = 0xed59,
+        [EndingRewardAnimation.SuitlessJump] = 0xed7f,
+        [EndingRewardAnimation.Falling] = 0xed95,
+        [EndingRewardAnimation.Landing] = 0xed9d,
+        [EndingSceneAnimation.SuitedIdle] = 0xedb1,
+        [EndingSceneAnimation.HelmetIdle] = 0xedb9,
+        [EndingSceneAnimation.HeadIdle] = 0xedc1,
+        [EndingRewardAnimation.GestureBody] = 0xedc9,
+        [EndingRewardAnimation.GestureArm] = 0xedd3,
+        [EndingRewardAnimation.GestureHelmet] = 0xee0f,
+        [EndingRewardAnimation.GestureHead] = 0xee15,
+        [EndingRewardAnimation.SuitedJump] = 0xee27,
+        [EndingRewardAnimation.HelmetJump] = 0xee3d,
+        [EndingRewardAnimation.HeadJump] = 0xee4d,
+        [EndingLogoAnimation.UpperS] = 0xee5d,
+        [EndingLogoAnimation.LowerS] = 0xee65,
+        [EndingLogoAnimation.UpperCircle] = 0xee6d,
+        [EndingLogoAnimation.LowerCircle] = 0xee87,
+    };
+
+    /// <summary>What the intro Mother Brain's lists have her owner do.</summary>
+    internal static NativeCinematicCues<IntroMotherBrainCue> MotherBrainCues { get; } = new(
+        new Dictionary<ushort, IntroMotherBrainCue> { [0xb336] = IntroMotherBrainCue.StartPageTwo },
+        new Dictionary<ushort, IntroMotherBrainCue> { [CinematicActorNativeMotions.MotherBrainCrossFade] = IntroMotherBrainCue.StartCrossFade });
+
+    /// <summary>What the discovery scene egg's lists have their owner do.</summary>
+    internal static NativeCinematicCues<IntroDiscoveryCue> DiscoveryCues { get; } = new(
+        new Dictionary<ushort, IntroDiscoveryCue> { [0xa918] = IntroDiscoveryCue.SpawnShellPieces, [0xb33e] = IntroDiscoveryCue.StartPageThree },
+        new Dictionary<ushort, IntroDiscoveryCue>
+        {
+            [CinematicActorNativeMotions.MetroidEgg[MetroidEggBehavior.WaitsForCrossFadeEnd]] = IntroDiscoveryCue.DeleteEggAfterCrossFade,
+        });
+
+    /// <summary>What the laboratory Baby's lists have their owner do.</summary>
+    internal static NativeCinematicCues<IntroLaboratoryCue> LaboratoryCues { get; } = new(
+        new Dictionary<ushort, IntroLaboratoryCue> { [0xb346] = IntroLaboratoryCue.StartPageFour, [0xb34e] = IntroLaboratoryCue.StartPageFive },
+        new Dictionary<ushort, IntroLaboratoryCue>());
+
+    /// <summary>What the intro Rinka's list has its owner do.</summary>
+    internal static NativeCinematicCues<IntroRinkaCue> RinkaCues { get; } = new(
+        new Dictionary<ushort, IntroRinkaCue> { [0xb8c5] = IntroRinkaCue.StartMoving }, new Dictionary<ushort, IntroRinkaCue>());
+
+    /// <summary>What the intro Rinka spawner's list has its owner do.</summary>
+    internal static NativeCinematicCues<IntroRinkaSpawnerCue> RinkaSpawnerCues { get; } = new(
+        new Dictionary<ushort, IntroRinkaSpawnerCue> { [0xba21] = IntroRinkaSpawnerCue.SpawnStrikingPair, [0xba36] = IntroRinkaSpawnerCue.SpawnMissingPair },
+        new Dictionary<ushort, IntroRinkaSpawnerCue>());
+
+    /// <summary>What the Ceres scenes' lists have their owner do: the PLANET ZEBES title's cues.</summary>
+    internal static NativeCinematicCues<CeresCue> CeresCues { get; } = new(
+        new Dictionary<ushort, CeresCue>
+        {
+            [0xc9a5] = CeresCue.FadeInZebesTitle,
+            [0xc9af] = CeresCue.SpawnJapaneseTitleIfNeeded,
+            [0xc9bd] = CeresCue.FadeOutZebesTitle,
+            [0xc9c7] = CeresCue.StartFlyingToZebes,
+        },
+        new Dictionary<ushort, CeresCue>());
+
+    /// <summary>What the Ceres explosion spawner's list has its owner do.</summary>
+    internal static NativeCinematicCues<CeresExplosionSpawnerCue> ExplosionSpawnerCues { get; } = new(
+        new Dictionary<ushort, CeresExplosionSpawnerCue> { [0xc404] = CeresExplosionSpawnerCue.SpawnInitialWave, [0xc50c] = CeresExplosionSpawnerCue.SpawnFinalWave },
+        new Dictionary<ushort, CeresExplosionSpawnerCue> { [CinematicActorNativeMotions.CeresRepeatingExplosions] = CeresExplosionSpawnerCue.StartRepeatingExplosions });
+
+    /// <summary>What the ending scenes' lists have the escape scenes do: the explosion's and the result text's cues.</summary>
+    internal static NativeCinematicCues<EndingSceneCue> EndingSceneCues { get; } = new(
+        new Dictionary<ushort, EndingSceneCue>
+        {
+            [0xf32b] = EndingSceneCue.EndZebesExplosion,
+            [0xf2fa] = EndingSceneCue.ExplosionFinale,
+            [0xf284] = EndingSceneCue.FadeExplosionColours,
+            [0xf295] = EndingSceneCue.SpawnExplosionSilhouette,
+            [0xf2b7] = EndingSceneCue.StartZebesExplosion,
+            [0xf3b0] = EndingSceneCue.SpawnCompletedText,
+            [0xf3ce] = EndingSceneCue.SpawnClearTime,
+            [0xf41b] = EndingSceneCue.SpawnHoursTens,
+            [0xf424] = EndingSceneCue.SpawnHoursUnits,
+            [0xf42d] = EndingSceneCue.SpawnColon,
+            [0xf436] = EndingSceneCue.SpawnMinutesTens,
+            [0xf43f] = EndingSceneCue.SpawnMinutesUnits,
+            [0xf448] = EndingSceneCue.TransitionToCredits,
+        },
+        new Dictionary<ushort, EndingSceneCue> { [CinematicActorNativeMotions.FlyawayStars[EndingStarsMotion.WaitingForFlyaway]] = EndingSceneCue.WaitForFlyaway });
+
+    /// <summary>What the reward gesture's lists have their owner do: the suitless and the suited hand-off to the jump.</summary>
+    internal static NativeCinematicCues<EndingRewardGestureCue> RewardGestureCues { get; } = new(
+        new Dictionary<ushort, EndingRewardGestureCue> { [0xf51d] = EndingRewardGestureCue.StartJump, [0xf554] = EndingRewardGestureCue.StartJump },
+        new Dictionary<ushort, EndingRewardGestureCue>());
+
+    /// <summary>What the reward jump's lists have their owner do.</summary>
+    internal static NativeCinematicCues<EndingRewardJumpCue> RewardJumpCues { get; } = new(
+        new Dictionary<ushort, EndingRewardJumpCue>
+        {
+            [0xf651] = EndingRewardJumpCue.Launch,
+            [0xf5ba] = EndingRewardJumpCue.LaunchHead,
+            [0xf597] = EndingRewardJumpCue.PrepareHead,
+            [0xf604] = EndingRewardJumpCue.Shoot,
+        },
+        new Dictionary<ushort, EndingRewardJumpCue>
+        {
+            [CinematicActorNativeMotions.RewardBody[EndingRewardBodyMotion.Rising]] = EndingRewardJumpCue.StartBodyFlight,
+            [CinematicActorNativeMotions.RewardHeadFlight] = EndingRewardJumpCue.StartHeadFlight,
+        });
+
+    /// <summary>What the logo's list has its owner do.</summary>
+    internal static NativeCinematicCues<EndingLogoCue> LogoCues { get; } = new(
+        new Dictionary<ushort, EndingLogoCue> { [0xf25e] = EndingLogoCue.GreyOut }, new Dictionary<ushort, EndingLogoCue>());
+
+    /// <summary>Every owner instruction any family's lists hold.</summary>
+    internal static IEnumerable<ushort> OwnerInstructions =>
+        new IEnumerable<ushort>[]
+        {
+            MotherBrainCues.Instructions.Keys, DiscoveryCues.Instructions.Keys, LaboratoryCues.Instructions.Keys, RinkaCues.Instructions.Keys,
+            RinkaSpawnerCues.Instructions.Keys, CeresCues.Instructions.Keys, ExplosionSpawnerCues.Instructions.Keys,
+            EndingSceneCues.Instructions.Keys, RewardGestureCues.Instructions.Keys, RewardJumpCues.Instructions.Keys, LogoCues.Instructions.Keys,
+        }.SelectMany(words => words).Distinct();
+
+    /// <summary>
     /// Whether <paramref name="address"/> lies in the bank-$8B cinematic sprite list regions, $8B:CB05..CE55 and
-    /// $8B:EB0F..EE9B, which production never reads now that the lists are typed programs.
+    /// $8B:EB0F..EE9B, which production never reads now that the lists are typed animations.
     /// </summary>
     internal static bool InListRegion(int address) => address is >= 0x8bcb05 and < 0x8bce55 or >= 0x8beb0f and < 0x8bee9b;
 
-    /// <summary>The native list <paramref name="program"/> replaces.</summary>
-    internal static ushort Entry(CinematicSpriteSegment program) => Entries.Single(item => item.Program == program).Entry;
-
-    /// <summary>
-    /// Where the native animation that starts at <paramref name="program"/> begins, the address an actor's definition
-    /// names: its counter load where one precedes its list, else its list.
-    /// </summary>
-    internal static ushort Start(CinematicSpriteSegment program) =>
-        CounterPreambles.SingleOrDefault(item => item.Program == program) is { Entry: not 0 } preamble ? preamble.Entry : Entry(program);
-
-    /// <summary>Each owner instruction the lists use and the cue it becomes.</summary>
-    internal static readonly Dictionary<ushort, CinematicSpriteCueKind> OwnerInstructions = new()
-    {
-        [0xf32b] = CinematicSpriteCueKind.EndZebesExplosion,
-        [0xf2fa] = CinematicSpriteCueKind.ExplosionFinale,
-        [0xf284] = CinematicSpriteCueKind.FadeExplosionColours,
-        [0xc9a5] = CinematicSpriteCueKind.FadeInZebesText,
-        [0xc9bd] = CinematicSpriteCueKind.FadeOutZebesText,
-        [0xf25e] = CinematicSpriteCueKind.GreyOut,
-        [0xf651] = CinematicSpriteCueKind.Launch,
-        [0xf5ba] = CinematicSpriteCueKind.LaunchHead,
-        [0xf597] = CinematicSpriteCueKind.PrepareHead,
-        [0xf604] = CinematicSpriteCueKind.Shoot,
-        [0xf3ce] = CinematicSpriteCueKind.SpawnClearTime,
-        [0xf42d] = CinematicSpriteCueKind.SpawnColon,
-        [0xf3b0] = CinematicSpriteCueKind.SpawnCompletedText,
-        [0xf295] = CinematicSpriteCueKind.SpawnExplosionSilhouette,
-        [0xc50c] = CinematicSpriteCueKind.SpawnFinalExplosionWave,
-        [0xf41b] = CinematicSpriteCueKind.SpawnHoursTens,
-        [0xf424] = CinematicSpriteCueKind.SpawnHoursUnits,
-        [0xc404] = CinematicSpriteCueKind.SpawnInitialExplosionWave,
-        [0xc9af] = CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded,
-        [0xf436] = CinematicSpriteCueKind.SpawnMinutesTens,
-        [0xf43f] = CinematicSpriteCueKind.SpawnMinutesUnits,
-        [0xa918] = CinematicSpriteCueKind.SpawnParticles,
-        [0xba21] = CinematicSpriteCueKind.SpawnStrikingRinkaPair,
-        [0xba36] = CinematicSpriteCueKind.SpawnMissingRinkaPair,
-        [0xf554] = CinematicSpriteCueKind.SpawnSuitedJump,
-        [0xf51d] = CinematicSpriteCueKind.SpawnSuitlessJump,
-        [0xc9c7] = CinematicSpriteCueKind.StartFlyingToZebes,
-        [0xb336] = CinematicSpriteCueKind.StartIntroPage2,
-        [0xb33e] = CinematicSpriteCueKind.StartIntroPage3,
-        [0xb346] = CinematicSpriteCueKind.StartIntroPage4,
-        [0xb34e] = CinematicSpriteCueKind.StartIntroPage5,
-        [0xb8c5] = CinematicSpriteCueKind.StartRinkaMoving,
-        [0xf2b7] = CinematicSpriteCueKind.StartZebesExplosion,
-        [0xf448] = CinematicSpriteCueKind.TransitionToCredits,
-    };
+    /// <summary>Where <paramref name="animation"/> begins natively, the address an actor's definition names.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No actor starts <paramref name="animation"/>.</exception>
+    internal static ushort Start(Enum animation) => Starts.TryGetValue(animation, out ushort start)
+        ? start
+        : throw new ArgumentOutOfRangeException(nameof(animation), animation, "No native cinematic list starts this animation.");
 }

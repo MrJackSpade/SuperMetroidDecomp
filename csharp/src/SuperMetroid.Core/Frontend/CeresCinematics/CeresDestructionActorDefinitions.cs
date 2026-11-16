@@ -25,13 +25,13 @@ internal static class CeresDestructionActorDefinitions
     /// <summary>The Zebes planet actor: its colouring,
     /// animation; where it starts is installed. It waits in place, then slides away accelerating by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
-        new(CinematicSpriteSegment.ZebesPlanet,
+        new(CeresAnimation.ZebesPlanet,
             CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64), false);
 
     /// <summary>The PLANET ZEBES text actor: no motion and its animation, in the cinematic's first sprite colours.
     /// Its animation deletes before scene sliding, so it has no slide.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
-        new(CinematicSpriteSegment.ZebesTitle,
+        new(CeresAnimation.ZebesTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false);
 
     /// <summary>
@@ -40,17 +40,17 @@ internal static class CeresDestructionActorDefinitions
     /// title's sprite colours, so the caption's fades show on it too. It is deleted before the scene slides away.
     /// </summary>
     internal static CeresDestructionActorDefinition ZebesSubtitle =>
-        new(CinematicSpriteSegment.ZebesJapaneseTitle,
+        new(CeresAnimation.ZebesJapaneseTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, null, false);
 
     /// <summary>The animation each quarter of the reveal's star field shows.</summary>
-    internal static IReadOnlyDictionary<ZebesRevealActorRole, CinematicSpriteSegment> StarSheets { get; } =
-        new Dictionary<ZebesRevealActorRole, CinematicSpriteSegment>
+    internal static IReadOnlyDictionary<ZebesRevealActorRole, CeresAnimation> StarSheets { get; } =
+        new Dictionary<ZebesRevealActorRole, CeresAnimation>
         {
-            [ZebesRevealActorRole.StarsUpperLeft] = CinematicSpriteSegment.ZebesStarsUpperLeft,
-            [ZebesRevealActorRole.StarsUpperRight] = CinematicSpriteSegment.ZebesStarsUpperRight,
-            [ZebesRevealActorRole.StarsLowerLeft] = CinematicSpriteSegment.ZebesStarsLowerLeft,
-            [ZebesRevealActorRole.StarsLowerRight] = CinematicSpriteSegment.ZebesStarsLowerRight,
+            [ZebesRevealActorRole.StarsUpperLeft] = CeresAnimation.ZebesStarsUpperLeft,
+            [ZebesRevealActorRole.StarsUpperRight] = CeresAnimation.ZebesStarsUpperRight,
+            [ZebesRevealActorRole.StarsLowerLeft] = CeresAnimation.ZebesStarsLowerLeft,
+            [ZebesRevealActorRole.StarsLowerRight] = CeresAnimation.ZebesStarsLowerRight,
         };
 
     /// <summary>The quarter of the star field whose leaving the screen ends the reveal and starts the game.</summary>

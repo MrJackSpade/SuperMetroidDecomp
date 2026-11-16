@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro;
@@ -130,10 +131,10 @@ internal static class IntroNextPageArrowVerification
     /// <summary>Requires the Japanese page's arrow spawned as its text ended, at its place, not yet updated.</summary>
     private static void RequireSpawned(IntroNarrationActors japanese, string page)
     {
-        CinematicActor arrow = japanese.NextPageArrow
+        CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"Japanese {page} spawned no next-page arrow as its text ended.");
         AssertEqual(ArrowPosition, arrow.ScreenPlace, $"Japanese {page}'s next-page arrow shows at the screen's middle below the text");
-        AssertTrue(arrow.Pose is null, $"Japanese {page}'s next-page arrow first updates on the update after its spawn");
+        AssertTrue(arrow.Shown is null, $"Japanese {page}'s next-page arrow first updates on the update after its spawn");
     }
 
     /// <summary>Compares <see cref="ComparedLoops"/> whole loops of the Japanese arrow from its first update.</summary>
@@ -170,9 +171,9 @@ internal static class IntroNextPageArrowVerification
     /// <summary>Requires the Japanese arrow present and showing <paramref name="expected"/>.</summary>
     private static void AssertArrowShows(IntroNarrationActors japanese, CinematicSpritePose expected, string at)
     {
-        CinematicActor arrow = japanese.NextPageArrow
+        CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"The Japanese next-page arrow is gone at {at}.");
-        AssertEqual<CinematicSpritePose?>(expected, arrow.Pose, $"the Japanese next-page arrow's pose at {at}");
+        AssertEqual<CinematicSpritePose?>(expected, arrow.Shown, $"the Japanese next-page arrow's pose at {at}");
     }
 
     /// <summary>Runs the Japanese text's next-page arrow over pages one and two (#1655).</summary>

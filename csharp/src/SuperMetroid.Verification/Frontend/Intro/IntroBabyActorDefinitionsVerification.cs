@@ -106,9 +106,9 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 page-three request at frame {frame} matches ROM-backed actor");
             AssertEqual(reference.ActiveEggParticleCount, discovery.ActiveEggParticleCount,
                 $"SR388 egg particle count at frame {frame} matches ROM-backed actor");
-            AssertEqual(nativeEgg.Pose, egg.Pose,
+            AssertEqual(nativeEgg.Shown, egg.Shown,
                 $"SR388 egg visual frame {frame} matches ROM-backed instruction playback");
-            AssertEqual(nativeBaby.Pose, baby.Pose,
+            AssertEqual(nativeBaby.Shown, baby.Shown,
                 $"SR388 baby visual frame {frame} matches ROM-backed instruction playback");
             AssertEqual(nativeBaby.ScreenPlace.Y, baby.ScreenPlace.Y,
                 $"SR388 baby Y motion at frame {frame} matches ROM-backed instruction playback");

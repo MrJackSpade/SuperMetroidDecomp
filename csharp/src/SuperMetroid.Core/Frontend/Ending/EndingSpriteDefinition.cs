@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal readonly record struct EndingSpriteDefinition(
     Offset16<ScreenPixels> Position,
     EndingSpriteColouring Colouring,
-    CinematicSpriteSegment Animation);
+    EndingSceneAnimation Animation);

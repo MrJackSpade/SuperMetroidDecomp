@@ -7,14 +7,14 @@ internal static class IntroRinkaSystemAccess
     extension(IntroRinkaSystem self)
     {
         /// <summary>The sprites of the live Rinkas, in spawn order.</summary>
-        internal IReadOnlyList<CinematicActor> LiveRinkas =>
+        internal IReadOnlyList<CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue>> LiveRinkas =>
             self.rinkas.Select(static rinka => rinka.Sprite).ToArray();
 
         /// <summary>Number of currently active Rinkas excluding the spawner actor.</summary>
         internal int ActiveCount => self.LiveRinkas.Count(static rinka => rinka.IsActive);
 
         /// <summary>The sprite of the live Rinka that strikes Samus, the first one launched.</summary>
-        internal CinematicActor HittingRinka =>
+        internal CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> HittingRinka =>
             self.rinkas.Single(static rinka => rinka.Flight == IntroRinkaFlight.StrikesSamus).Sprite;
     }
 }

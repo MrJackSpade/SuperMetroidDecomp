@@ -36,16 +36,16 @@ internal static void VerifyCeresDestructionCinematic()
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from its loop countdown, which belongs
     // to the program's counted loops and must remain untouched.
-    var delayedExplosion = new CinematicActor(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteSegment.CeresSmallExplosion);
+    var delayedExplosion = new CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue>(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CeresAnimations.Scenes, CeresAnimation.SmallExplosion);
     delayedExplosion.DelayFirstStep(3);
     delayedExplosion.Step();
     delayedExplosion.Step();
-    AssertEqual<CinematicSpritePose?>(null, delayedExplosion.Pose,
+    AssertEqual<CinematicSpritePose?>(null, delayedExplosion.Shown,
         "Ceres staggered explosion remains invisible before instruction delay");
     delayedExplosion.Step();
-    AssertEqual<CinematicSpritePose?>(AssertIs<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>(CinematicSpriteAnimations.Segments.Beats(CinematicSpriteSegment.CeresSmallExplosion)[0], "first explosion beat").Shown,
-        delayedExplosion.Pose, "third handler call shows the delayed explosion's first frame");
-    AssertEqual(new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(CinematicSpriteSegment.CeresSmallExplosion), new AnimationPlace(0, 1)), delayedExplosion.Playback,
+    AssertEqual<CinematicSpritePose?>(AssertIs<AnimationBeat<CinematicSpritePose, CeresCue>.Frame>(CeresAnimations.Scenes.Segments.Beats(CeresAnimation.SmallExplosion)[0], "first explosion beat").Shown,
+        delayedExplosion.Shown, "third handler call shows the delayed explosion's first frame");
+    AssertEqual(new AnimationPlayback<CeresAnimation>(CeresAnimations.Scenes.StartingWith(CeresAnimation.SmallExplosion), new AnimationPlace(0, 1)), delayedExplosion.Playback,
         "third handler call consumes the first delayed explosion frame");
 
     var fixtureBus = new CartridgeImportAddressSpace(rom);

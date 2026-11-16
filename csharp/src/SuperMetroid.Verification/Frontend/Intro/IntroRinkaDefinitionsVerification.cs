@@ -23,7 +23,7 @@ internal static class IntroRinkaDefinitionsVerification
         ];
         for (int index = 0; index < actors.Length; index++)
         {
-            CinematicActorDefinition actual = actors[index].Actor;
+            CinematicActorDefinition<IntroRinkaAnimation> actual = actors[index].Actor;
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.NoMotion,
                 $"intro Rinka actor {index} routine: it holds still until its animation starts it moving");
@@ -71,7 +71,7 @@ internal static class IntroRinkaDefinitionsVerification
                         1 => (ushort)0x8c8d,
                         _ => (ushort)0x8cb9,
                     };
-                AssertEqual(expectedSprite, CinematicSpritePoseSpritemaps.Of(system.HittingRinka.Pose),
+                AssertEqual(expectedSprite, CinematicSpritePoseSpritemaps.Of(system.HittingRinka.Shown),
                     $"intro first Rinka selects its native frame at call {frame}");
             }
         }

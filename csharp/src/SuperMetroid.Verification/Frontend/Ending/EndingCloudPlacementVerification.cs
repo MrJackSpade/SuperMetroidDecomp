@@ -36,8 +36,8 @@ internal static class EndingCloudPlacementVerification
         EndingSpriteDefinition[] definitions = [EndingActorDefinitions.TopCloudPattern,
             EndingActorDefinitions.TopCloudEdge, EndingActorDefinitions.BottomCloudEdge,
             EndingActorDefinitions.BottomCloudPattern];
-        var actors = definitions.Select((definition, index) => new EndingSprite(
-            new CinematicActor(Offset16<ScreenPixels>.Wrapped(128, nativeY[index]), EndingShades.Drawn(definition.Colouring),
+        var actors = definitions.Select((definition, index) => new EndingPictureSprite(
+            new(Offset16<ScreenPixels>.Wrapped(128, nativeY[index]), EndingShades.Drawn(definition.Colouring), EndingSceneAnimations.Pictures,
                 definition.Animation), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.CloudSprites);
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The
@@ -85,7 +85,7 @@ internal static class EndingCloudPlacementVerification
                 continue;
             var oam = ScreenSpritesFixtures.Blank();
             oam.BeginFrame();
-            foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
+            foreach (var actor in actors) actor.Picture.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             RgbColor[] actualColours = EndingShownColours.Of(ending);

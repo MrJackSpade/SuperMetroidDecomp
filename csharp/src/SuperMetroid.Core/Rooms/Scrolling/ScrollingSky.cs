@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
-/// The two scrolling skies, each showing its own run of sky pages down its span (<see cref="ScrollingSkyChunks"/>). Its
-/// values are arbitrary.
+/// The two scrolling skies, each an installed image repeating down its span. Its values are arbitrary.
 /// </summary>
 public enum ScrollingSky
 {

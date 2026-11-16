@@ -41,12 +41,12 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
         Cooldown[] cooldowns =
         [
-            new Cooldown(YappingMawSegment.CooldownUpRight, YappingMawSegment.CooldownUpLoop, 6, 8, -8, "up-right"),
-            new Cooldown(YappingMawSegment.CooldownUp, YappingMawSegment.CooldownUpLoop, 5, 0, -16, "up"),
-            new Cooldown(YappingMawSegment.CooldownUpLeft, YappingMawSegment.CooldownUpLeftLoop, 6, -8, -8, "up-left"),
-            new Cooldown(YappingMawSegment.CooldownDownRight, YappingMawSegment.CooldownDownLoop, 6, 8, 8, "down-right"),
-            new Cooldown(YappingMawSegment.CooldownDown, YappingMawSegment.CooldownDownLoop, 5, 0, 16, "down"),
-            new Cooldown(YappingMawSegment.CooldownDownLeft, YappingMawSegment.CooldownDownLeftLoop, 6, -8, 8, "down-left"),
+            new Cooldown(YappingMawSegment.CooldownUpRight, YappingMawSegment.ChewingUp, 6, 8, -8, "up-right"),
+            new Cooldown(YappingMawSegment.CooldownUp, YappingMawSegment.ChewingUp, 5, 0, -16, "up"),
+            new Cooldown(YappingMawSegment.CooldownUpLeft, YappingMawSegment.ChewingUp, 6, -8, -8, "up-left"),
+            new Cooldown(YappingMawSegment.CooldownDownRight, YappingMawSegment.ChewingDown, 6, 8, 8, "down-right"),
+            new Cooldown(YappingMawSegment.CooldownDown, YappingMawSegment.ChewingDown, 5, 0, 16, "down"),
+            new Cooldown(YappingMawSegment.CooldownDownLeft, YappingMawSegment.ChewingDown, 6, -8, 8, "down-left"),
         ];
         foreach ((YappingMawSegment entry, YappingMawSegment loop, int calls, short x, short y, string name) in cooldowns)
         {

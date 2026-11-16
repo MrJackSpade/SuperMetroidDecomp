@@ -12,12 +12,16 @@ internal enum WalkingSpacePirateSegment
     FlinchFacingRight,
     /// <summary>The walking left animation.</summary>
     WalkingLeft,
+    /// <summary>The stride walking left, looped.</summary>
+    WalkingLeftStride,
     /// <summary>The fire lasers left animation.</summary>
     FireLasersLeft,
     /// <summary>The looking facing left animation.</summary>
     LookingFacingLeft,
     /// <summary>The walking right animation.</summary>
     WalkingRight,
+    /// <summary>The stride walking right, looped.</summary>
+    WalkingRightStride,
     /// <summary>The fire lasers right animation.</summary>
     FireLasersRight,
     /// <summary>The looking facing right animation.</summary>

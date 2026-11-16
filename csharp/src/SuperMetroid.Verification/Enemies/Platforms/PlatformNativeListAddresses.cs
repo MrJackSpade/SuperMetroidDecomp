@@ -20,21 +20,21 @@ internal static class PlatformNativeListAddresses
     internal static readonly NativeProgramEntry<PlatformSegment>[] Entries =
     [
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingLeft, 0x9bbb),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9bbd),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLights, 0x9bbd),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingRight, 0x9bd1),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9bd3),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLights, 0x9bd3),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingLeft, 0x9be7),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9be9),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLights, 0x9be9),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformHeadingRight, 0x9bfd),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLoop, 0x9bff),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.SuspensorPlatformLights, 0x9bff),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingLeft, 0x9c13),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingLeftLoop, 0x9c15),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperHoveringLeft, 0x9c15),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingRight, 0x9c29),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperMovingRightLoop, 0x9c2b),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperHoveringRight, 0x9c2b),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperStillMovingLeft, 0x9c3f),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperStillMovingLeftLoop, 0x9c41),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperThrustingLeft, 0x9c41),
         new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperStillMovingRight, 0x9c55),
-        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperStillMovingRightLoop, 0x9c57),
+        new NativeProgramEntry<PlatformSegment>(PlatformSegment.TripperThrustingRight, 0x9c57),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

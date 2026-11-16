@@ -26,20 +26,16 @@ internal enum YappingMawSegment
     CooldownUpRight,
     /// <summary>The cooldown up animation.</summary>
     CooldownUp,
-    /// <summary>The loop.</summary>
-    CooldownUpLoop,
+    /// <summary>The jaws chewing up on the held Samus, which every cooldown aimed up loops (#2276).</summary>
+    ChewingUp,
     /// <summary>The cooldown up left animation.</summary>
     CooldownUpLeft,
-    /// <summary>The loop.</summary>
-    CooldownUpLeftLoop,
     /// <summary>The cooldown down right animation.</summary>
     CooldownDownRight,
     /// <summary>The cooldown down animation.</summary>
     CooldownDown,
-    /// <summary>The loop.</summary>
-    CooldownDownLoop,
+    /// <summary>The jaws chewing down on the held Samus, which every cooldown aimed down loops (#2276).</summary>
+    ChewingDown,
     /// <summary>The cooldown down left animation.</summary>
     CooldownDownLeft,
-    /// <summary>The loop.</summary>
-    CooldownDownLeftLoop,
 }

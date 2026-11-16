@@ -604,18 +604,39 @@ internal static class NativeEnemyAnimationOracle
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 {
                     var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beat, at), $"{at}: frame");
-                    VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
                     VerificationAssertions.AssertEqual(pictured, spritemap(frame.Shown), $"{at}: spritemap");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
+                    // A pose the list shows for one update and then again straight after, in its own list, is one typed
+                    // frame of both durations (#2276): the picture shows on for as long, and the pointer stands at the
+                    // first record while it lasts. A typed frame as long as the first record is that record alone.
+                    int shown = word;
+                    while (shown < frame.Duration && !entries.Any(item => item.Entry == cursor)
+                        && cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor)) is var again
+                        && NativeEnemyListDefinitions.Classify(again) == NativeEnemyListDefinitions.WordKind.Frame
+                        && cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor) + 2) == operand)
+                    {
+                        shown += again;
+                        cursor = unchecked((ushort)(cursor + 4));
+                    }
+                    VerificationAssertions.AssertEqual(shown, frame.Duration, $"{at}: duration");
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Wait:
                 {
                     var pause = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Pause>(Beat(beat, at), $"{at}: wait");
-                    VerificationAssertions.AssertEqual(operand, pause.Duration, $"{at}: wait length");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
+                    // A wait straight after another, in the same list, is one wait of both lengths (#2276): the typed
+                    // segment pauses once for as long, and the pointer stands at the first wait while it lasts.
+                    int waited = operand;
+                    while (!entries.Any(item => item.Entry == cursor)
+                        && NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor))) == NativeEnemyListDefinitions.WordKind.Wait)
+                    {
+                        waited += cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor) + 2);
+                        cursor = unchecked((ushort)(cursor + 4));
+                    }
+                    VerificationAssertions.AssertEqual(waited, pause.Duration, $"{at}: wait length");
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Callback:

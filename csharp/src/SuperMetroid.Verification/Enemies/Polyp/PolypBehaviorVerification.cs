@@ -24,9 +24,9 @@ internal static class PolypBehaviorVerification
         AssertEqual(new AnimationPlayback<PolypSegment>(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
             (enemies.Places.InUpdateOrder[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Playback,
             "real Polyp initializer starts the stationary program");
-        // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
+        // A still picture is held (#2276): it is new on the update it shows and stays without showing anew.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypSegment.Stationary).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),
             EnemyInstructionRunner.ShownFrames(place, 4), "Polyp shows its stationary frame once and holds it");
         Console.WriteLine("  Polyp behavior: the stationary pose shows and holds.");
     }

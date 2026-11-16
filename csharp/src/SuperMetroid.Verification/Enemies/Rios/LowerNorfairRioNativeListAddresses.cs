@@ -17,10 +17,12 @@ internal static class LowerNorfairRioNativeListAddresses
     internal static readonly NativeProgramEntry<LowerNorfairRioSegment>[] Entries =
     [
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Idle, 0xc61a),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.IdleWingbeat, 0xc61c),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.PrepareToSwoop, 0xc630),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Descending, 0xc65a),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscentOpening, 0xc662),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Ascending, 0xc674),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingWingbeat, 0xc676),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Cooldown, 0xc686),
         new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Flames, 0xc6b0),
     ];

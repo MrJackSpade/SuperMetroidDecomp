@@ -21,7 +21,8 @@ internal static class OwtchAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                }),
+            onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Owtch animations: {Entries.Length} segments ({beats} beats) and {OwtchAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

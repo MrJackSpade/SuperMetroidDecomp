@@ -18,25 +18,54 @@ internal static class NinjaSpacePirateNativeListAddresses
     [
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.ClawAttackLeft, 0xf15c),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.SpinJumpLeft, 0xf1c4),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.SpinJumpLeftSpinning, 0xf206),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.ActiveFacingLeft, 0xf22e),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.ActiveFacingLeftStance, 0xf232),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.FlinchFacingLeft, 0xf270),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.DivekickLeftJump, 0xf27c),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.DivekickLeftJumpFlash, 0xf28a),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.DivekickLeftDive, 0xf2a0),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.WalkToLeftPost, 0xf2b2),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.RunningToLeftPost, 0xf2b6),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.InitialFacingLeft, 0xf2da),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.InitialFacingLeftLookingAround, 0xf2de),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.LandFacingLeft, 0xf2f8),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.LandFacingLeftReady, 0xf314),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.KickFacingLeft, 0xf32e),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.ClawAttackRight, 0xf34a),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.SpinJumpRight, 0xf3b2),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.SpinJumpRightSpinning, 0xf3f4),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.ActiveFacingRight, 0xf420),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.ActiveFacingRightStance, 0xf424),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.FlinchFacingRight, 0xf462),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.DivekickRightJump, 0xf46e),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.DivekickRightJumpFlash, 0xf47c),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.DivekickRightDive, 0xf492),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.WalkToRightPost, 0xf4a4),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.RunningToRightPost, 0xf4a8),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.InitialFacingRight, 0xf4cc),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.InitialFacingRightLookingAround, 0xf4d0),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.LandFacingRight, 0xf4ea),
+        new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.LandFacingRightReady, 0xf506),
         new NativeProgramEntry<NinjaSpacePirateSegment>(NinjaSpacePirateSegment.KickFacingRight, 0xf51a),
     ];
+
+    /// <summary>The loops the animations only run on into, after their entries (#2276).</summary>
+    internal static readonly IReadOnlySet<NinjaSpacePirateSegment> OnlyRunOnInto = new HashSet<NinjaSpacePirateSegment>
+    {
+        NinjaSpacePirateSegment.SpinJumpLeftSpinning,
+        NinjaSpacePirateSegment.ActiveFacingLeftStance,
+        NinjaSpacePirateSegment.DivekickLeftJumpFlash,
+        NinjaSpacePirateSegment.RunningToLeftPost,
+        NinjaSpacePirateSegment.InitialFacingLeftLookingAround,
+        NinjaSpacePirateSegment.LandFacingLeftReady,
+        NinjaSpacePirateSegment.SpinJumpRightSpinning,
+        NinjaSpacePirateSegment.ActiveFacingRightStance,
+        NinjaSpacePirateSegment.DivekickRightJumpFlash,
+        NinjaSpacePirateSegment.RunningToRightPost,
+        NinjaSpacePirateSegment.InitialFacingRightLookingAround,
+        NinjaSpacePirateSegment.LandFacingRightReady,
+    };
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<NinjaSpacePirateCue>> Instructions = new()

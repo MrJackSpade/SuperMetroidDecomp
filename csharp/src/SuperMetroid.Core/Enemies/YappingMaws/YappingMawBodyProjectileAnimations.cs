@@ -16,11 +16,11 @@ internal static class YappingMawBodyProjectileAnimations
     {
         [P.FacingDown] =
         [
-            Show(EnemyProjectileFrameId.YappingMawFacingDown, 1),
+            Hold(EnemyProjectileFrameId.YappingMawFacingDown),
         ],
         [P.FacingUp] =
         [
-            Show(EnemyProjectileFrameId.YappingMawFacingUp, 1),
+            Hold(EnemyProjectileFrameId.YappingMawFacingUp),
         ],
     });
 
@@ -34,6 +34,6 @@ internal static class YappingMawBodyProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<YappingMawBodyProjectileSegment> StartingWith(YappingMawBodyProjectileSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);
 }

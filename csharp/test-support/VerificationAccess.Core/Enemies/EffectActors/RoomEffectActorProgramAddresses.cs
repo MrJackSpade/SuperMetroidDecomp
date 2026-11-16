@@ -32,4 +32,36 @@ internal static class RoomEffectActorProgramAddresses
         [RoomEffectActorKind.EvirFacingRight] = 0xc61c,
         [RoomEffectActorKind.HitBurst] = 0xc5c6,
     };
+
+    /// <summary>
+    /// Each segment's first record (#2276): a kind's own at its list's address, and the cycle a Metroid's electricity and shell
+    /// loop at the record their opening runs on into.
+    /// </summary>
+    internal static IReadOnlyDictionary<RoomEffectActorSegment, ushort> SegmentEntries { get; } = new Dictionary<RoomEffectActorSegment, ushort>
+    {
+        [RoomEffectActorSegment.DraygonFoam] = Entries[RoomEffectActorKind.DraygonFoam],
+        [RoomEffectActorSegment.SmallExplosion] = Entries[RoomEffectActorKind.SmallExplosion],
+        [RoomEffectActorSegment.DudShot] = Entries[RoomEffectActorKind.DudShot],
+        [RoomEffectActorSegment.SmokePuff] = Entries[RoomEffectActorKind.SmokePuff],
+        [RoomEffectActorSegment.RisingDustPuff] = Entries[RoomEffectActorKind.RisingDustPuff],
+        [RoomEffectActorSegment.Smoke] = Entries[RoomEffectActorKind.Smoke],
+        [RoomEffectActorSegment.BigExplosion] = Entries[RoomEffectActorKind.BigExplosion],
+        [RoomEffectActorSegment.ShortBigDustCloud] = Entries[RoomEffectActorKind.ShortBigDustCloud],
+        [RoomEffectActorSegment.BigDustCloud] = Entries[RoomEffectActorKind.BigDustCloud],
+        [RoomEffectActorSegment.DraygonBreathBubbles] = Entries[RoomEffectActorKind.DraygonBreathBubbles],
+        [RoomEffectActorSegment.NuclearWaffleBody] = Entries[RoomEffectActorKind.NuclearWaffleBody],
+        [RoomEffectActorSegment.NuclearWaffleRightExplosion] = Entries[RoomEffectActorKind.NuclearWaffleRightExplosion],
+        [RoomEffectActorSegment.NuclearWaffleLeftExplosion] = Entries[RoomEffectActorKind.NuclearWaffleLeftExplosion],
+        [RoomEffectActorSegment.NuclearWaffleSplash] = Entries[RoomEffectActorKind.NuclearWaffleSplash],
+        [RoomEffectActorSegment.FallingSparkTrail] = Entries[RoomEffectActorKind.FallingSparkTrail],
+        [RoomEffectActorSegment.MetroidElectricity] = Entries[RoomEffectActorKind.MetroidElectricity],
+        [RoomEffectActorSegment.MetroidElectricityCycle] = 0xc436,
+        [RoomEffectActorSegment.MetroidShell] = Entries[RoomEffectActorKind.MetroidShell],
+        [RoomEffectActorSegment.MetroidShellCycle] = 0xc536,
+        [RoomEffectActorSegment.YappingMawBaseFacingDown] = Entries[RoomEffectActorKind.YappingMawBaseFacingDown],
+        [RoomEffectActorSegment.YappingMawBaseFacingUp] = Entries[RoomEffectActorKind.YappingMawBaseFacingUp],
+        [RoomEffectActorSegment.EvirFacingLeft] = Entries[RoomEffectActorKind.EvirFacingLeft],
+        [RoomEffectActorSegment.EvirFacingRight] = Entries[RoomEffectActorKind.EvirFacingRight],
+        [RoomEffectActorSegment.HitBurst] = Entries[RoomEffectActorKind.HitBurst],
+    };
 }

@@ -17,6 +17,22 @@ internal static class YardVisualDefinitions
     private static string GroupName(YardSegment program) => program switch
     {
         YardSegment.AirborneFacingLeft => "airborne_left_initial",
+        YardSegment.ShellClosedUpsideUpMovingLeft => "hiding_top_left",
+        YardSegment.ShellClosedUpsideDownMovingLeft => "hiding_bottom_left",
+        YardSegment.HiddenUpsideDownMovingLeft => "hiding_bottom_left",
+        YardSegment.ShellClosedUpsideDownMovingRight => "hiding_bottom_right",
+        YardSegment.HiddenUpsideDownMovingRight => "hiding_bottom_right",
+        YardSegment.ShellClosedUpsideUpMovingRight => "hiding_top_right",
+        YardSegment.ShellClosedUpsideRightMovingUp => "hiding_right_up",
+        YardSegment.HiddenUpsideRightMovingUp => "hiding_right_up",
+        YardSegment.ShellClosedUpsideLeftMovingUp => "hiding_left_up",
+        YardSegment.HiddenUpsideLeftMovingUp => "hiding_left_up",
+        YardSegment.ShellClosedUpsideLeftMovingDown => "hiding_left_down",
+        YardSegment.HiddenUpsideLeftMovingDown => "hiding_left_down",
+        YardSegment.ShellClosedUpsideRightMovingDown => "hiding_right_down",
+        YardSegment.HiddenUpsideRightMovingDown => "hiding_right_down",
+        YardSegment.AirborneFacingLeftTumbling => "airborne_left_initial",
+        YardSegment.AirborneFacingRightTumbling => "airborne_right_initial",
         YardSegment.AirborneFacingRight => "airborne_right_initial",
         YardSegment.CrawlingUpsideDownMovingLeft => "crawl_bottom_left",
         YardSegment.CrawlingUpsideDownMovingRight => "crawl_bottom_right",
@@ -60,15 +76,18 @@ internal static class YardVisualDefinitions
     {
         var frames = new List<NativeEnemySpritemapDefinition>(FrameCount);
         var seenPointers = new HashSet<ushort>();
+        var groupPoses = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (YardSegment program in Enum.GetValues<YardSegment>())
         {
-            int frameIndex = 0;
+            string group = GroupName(program);
+            int frameIndex = groupPoses.GetValueOrDefault(group);
             foreach (ushort pointer in YardAnimationsConstants.Spritemaps(program))
             {
                 if (seenPointers.Add(pointer))
-                    frames.Add(new(Bank, pointer, $"yard_{GroupName(program)}_{frameIndex:00}"));
+                    frames.Add(new(Bank, pointer, $"yard_{group}_{frameIndex:00}"));
                 frameIndex++;
             }
+            groupPoses[group] = frameIndex;
         }
         if (frames.Count != FrameCount)
             throw new InvalidDataException(

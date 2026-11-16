@@ -11,8 +11,8 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
     : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue>(AllAnimations[segment])
 {
     /// <summary>
-    /// Both segments' beats: the setup that stops the movement, then the burst that scatters, sounds, plays its six poses
-    /// small explosions and, after its last play, deletes the explosion.
+    /// The segments' beats: the setup that stops the movement, the burst that scatters, sounds and plays its six poses
+    /// small explosions, and the deletion after its last play (#2276).
     /// </summary>
     internal static AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
         new Dictionary<OldTourianWallExplosionSegment, Beat[]>
@@ -26,13 +26,16 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
                 new Beat.Event(OldTourianWallExplosionCue.Scatter),
                 new Beat.Event(OldTourianWallExplosionCue.ExplosionSound),
                 .. D.Beats.Select(beat => new Beat.Frame(beat.Frame, beat.Duration)),
+            ],
+            [OldTourianWallExplosionSegment.Deletion] =
+            [
                 new Beat.Event(OldTourianWallExplosionCue.Delete),
             ],
         });
 
     /// <summary>
     /// The explosion's animation: the setup, the burst played <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount"/>
-    /// times, then the delete, holding after it.
+    /// times, then the deletion, holding after it; each phase plays its segment whole.
     /// </summary>
     internal static IReadOnlyDictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>> AllAnimations { get; } =
         new Dictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>>
@@ -41,7 +44,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
             [
                 new(OldTourianWallExplosionSegment.Start, 0, 1, 1),
                 new(OldTourianWallExplosionSegment.Burst, 0, 2 + D.Beats.Count, D.BurstCount),
-                new(OldTourianWallExplosionSegment.Burst, 2 + D.Beats.Count, 1, 1),
+                new(OldTourianWallExplosionSegment.Deletion, 0, 1, 1),
             ], AnimationEnd.Holds),
         };
 

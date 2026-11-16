@@ -32,7 +32,8 @@ internal static class WalkingSpacePirateAnimationsVerification
                         }], operands[index]),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
-                }));
+                }),
+            onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Walking Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WalkingSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
 

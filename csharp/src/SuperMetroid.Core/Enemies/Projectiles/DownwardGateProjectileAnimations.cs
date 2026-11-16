@@ -19,19 +19,19 @@ internal static class DownwardGateProjectileAnimations
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromParts(1, 0))),
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
-            Show(EnemyProjectileFrameId.DownwardGateOneBlockTall, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateOneBlockTall),
         ],
         [P.MovedOneBlock] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateTwoBlocksTall, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateTwoBlocksTall),
         ],
         [P.MovedTwoBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateThreeBlocksTall, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateThreeBlocksTall),
         ],
         [P.MovedThreeBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFourBlocksTall, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTall),
         ],
         [P.Stopping] =
         [
@@ -40,24 +40,24 @@ internal static class DownwardGateProjectileAnimations
         [P.Closed] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
-            Show(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwin, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwin),
         ],
         [P.Rising] =
         [
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
-            Show(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwinB, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwinB),
         ],
         [P.RisenOneBlock] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateThreeBlocksTallTwin, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateThreeBlocksTallTwin),
         ],
         [P.RisenTwoBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateTwoBlocksTallTwin, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateTwoBlocksTallTwin),
         ],
         [P.RisenThreeBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateOneBlockTallTwin, 1),
+            Hold(EnemyProjectileFrameId.DownwardGateOneBlockTallTwin),
         ],
         [P.Vanishing] =
         [
@@ -104,8 +104,8 @@ internal static class DownwardGateProjectileAnimations
     /// </summary>
     internal const int ClosedStage = 4;
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Frame(frame, duration);
+    /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Cue(DownwardGateProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Event(cue);

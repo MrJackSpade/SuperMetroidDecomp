@@ -16,6 +16,8 @@ internal enum WorkRobotSegment
     Initial,
     /// <summary>The facing left walking forwards animation.</summary>
     FacingLeftWalkingForwards,
+    /// <summary>The stride walking forwards facing left, looped (#2276).</summary>
+    FacingLeftWalkingStride,
     /// <summary>The facing left hit wall moving forwards animation.</summary>
     FacingLeftHitWallMovingForwards,
     /// <summary>The facing left shot Samus ahead animation.</summary>
@@ -34,6 +36,8 @@ internal enum WorkRobotSegment
     ApproachingFallRight,
     /// <summary>The facing right walking forwards animation.</summary>
     FacingRightWalkingForwards,
+    /// <summary>The stride walking forwards facing right, looped (#2276).</summary>
+    FacingRightWalkingStride,
     /// <summary>The facing right hit wall moving forwards animation.</summary>
     FacingRightHitWallMovingForwards,
     /// <summary>The facing right shot Samus ahead animation.</summary>

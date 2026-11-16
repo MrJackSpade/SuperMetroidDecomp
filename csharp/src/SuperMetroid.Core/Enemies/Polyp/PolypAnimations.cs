@@ -16,7 +16,7 @@ internal static class PolypAnimations
     {
         [P.Stationary] =
         [
-            Show(EnemyFrameId.PolypRock, 1),
+            Hold(EnemyFrameId.PolypRock),
         ],
     });
 
@@ -29,6 +29,6 @@ internal static class PolypAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PolypSegment> StartingWith(PolypSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
+    /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

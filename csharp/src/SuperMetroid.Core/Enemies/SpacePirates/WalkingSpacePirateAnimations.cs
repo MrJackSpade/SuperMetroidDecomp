@@ -28,6 +28,9 @@ internal static class WalkingSpacePirateAnimations
         [P.WalkingLeft] =
         [
             Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Left)),
+        ],
+        [P.WalkingLeftStride] =
+        [
             Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegBack, 10),
             Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegLifting, 10),
             Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegPassing, 10),
@@ -68,6 +71,9 @@ internal static class WalkingSpacePirateAnimations
         [P.WalkingRight] =
         [
             Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Right)),
+        ],
+        [P.WalkingRightStride] =
+        [
             Show(EnemyFrameId.WalkingPirateWalkingRightFarLegBack, 10),
             Show(EnemyFrameId.WalkingPirateWalkingRightFarLegLifting, 10),
             Show(EnemyFrameId.WalkingPirateWalkingRightFarLegPassing, 10),
@@ -110,18 +116,24 @@ internal static class WalkingSpacePirateAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } = new Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>>
     {
-        [P.FlinchFacingLeft] = new([new(P.FlinchFacingLeft, 0, 2, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FlinchFacingRight] = new([new(P.FlinchFacingRight, 0, 2, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FireLasersLeft] = new([new(P.FireLasersLeft, 0, 15, 1), new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.LookingFacingLeft] = new([new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FireLasersRight] = new([new(P.FireLasersRight, 0, 15, 1), new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.LookingFacingRight] = new([new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.FlinchFacingLeft] = new([Whole(P.FlinchFacingLeft), .. Walk(P.WalkingLeft, P.WalkingLeftStride)], AnimationEnd.LoopsFrom(2)),
+        [P.FlinchFacingRight] = new([Whole(P.FlinchFacingRight), .. Walk(P.WalkingRight, P.WalkingRightStride)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkingLeft] = new(Walk(P.WalkingLeft, P.WalkingLeftStride), AnimationEnd.LoopsFrom(1)),
+        [P.FireLasersLeft] = new([Whole(P.FireLasersLeft), Whole(P.LookingFacingLeft), .. Walk(P.WalkingRight, P.WalkingRightStride)], AnimationEnd.LoopsFrom(3)),
+        [P.LookingFacingLeft] = new([Whole(P.LookingFacingLeft), .. Walk(P.WalkingRight, P.WalkingRightStride)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkingRight] = new(Walk(P.WalkingRight, P.WalkingRightStride), AnimationEnd.LoopsFrom(1)),
+        [P.FireLasersRight] = new([Whole(P.FireLasersRight), Whole(P.LookingFacingRight), .. Walk(P.WalkingLeft, P.WalkingLeftStride)], AnimationEnd.LoopsFrom(3)),
+        [P.LookingFacingRight] = new([Whole(P.LookingFacingRight), .. Walk(P.WalkingLeft, P.WalkingLeftStride)], AnimationEnd.LoopsFrom(2)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WalkingSpacePirateSegment> StartingWith(WalkingSpacePirateSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<WalkingSpacePirateSegment> Whole(WalkingSpacePirateSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A walk: its heading cue <paramref name="heading"/>, then its stride <paramref name="stride"/>, which loops (#2276).</summary>
+    private static AnimationPhase<WalkingSpacePirateSegment>[] Walk(WalkingSpacePirateSegment heading, WalkingSpacePirateSegment stride) => [Whole(heading), Whole(stride)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WalkingSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>.Frame(frame, duration);

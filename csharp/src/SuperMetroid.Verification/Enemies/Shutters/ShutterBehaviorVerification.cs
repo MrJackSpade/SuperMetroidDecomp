@@ -19,7 +19,7 @@ internal static class ShutterBehaviorVerification
     /// <summary>
     /// Each initializer starts its animation: the growing shutter its ten-pixel pose, the shootable and destroyable vertical
     /// shutters the shared forty-pixel pose, and Kamer its four-frame platform loop. A
-    /// pose shows once and holds; the update that reaches the native sleep still reports it as new.
+    /// pose shows once and is held (#2276): it is new only on the update it shows.
     /// </summary>
     internal static void VerifyShutterBehavior()
     {
@@ -67,7 +67,7 @@ internal static class ShutterBehaviorVerification
             initialize(enemies, place);
             AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), playback(enemies), $"shutter {definition} initial animation");
             ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose], [1]),
                 EnemyInstructionRunner.ShownFrames(place, 3), $"shutter {definition} shows and holds its pose");
         }
 

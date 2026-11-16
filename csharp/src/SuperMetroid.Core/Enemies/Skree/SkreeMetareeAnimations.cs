@@ -31,6 +31,9 @@ internal static class SkreeMetareeAnimations
         [P.MetareeDiving] =
         [
             Cue(new(K.ProcessOffScreen)),
+        ],
+        [P.MetareeDivingSpin] =
+        [
             Show(EnemyFrameId.MetareeTurningOblique, 2),
             Show(EnemyFrameId.MetareeEdgeOn, 2),
             Show(EnemyFrameId.MetareeReturningOblique, 2),
@@ -52,6 +55,9 @@ internal static class SkreeMetareeAnimations
         [P.SkreeDiving] =
         [
             Cue(new(K.ProcessOffScreen)),
+        ],
+        [P.SkreeDivingSpin] =
+        [
             Show(EnemyFrameId.SkreeTurningOblique, 2),
             Show(EnemyFrameId.SkreeEdgeOn, 2),
             Show(EnemyFrameId.SkreeReturningOblique, 2),
@@ -59,19 +65,25 @@ internal static class SkreeMetareeAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at, each segment played whole; a dive's
+    /// spin loops on from its entry cue (#2276).
+    /// </summary>
     internal static IReadOnlyDictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>>
     {
-        [P.MetareeIdling] = new([new(P.MetareeIdling, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MetareePreparingAttack] = new([new(P.MetareePreparingAttack, 0, 3, 1)], AnimationEnd.Holds),
-        [P.MetareeDiving] = new([new(P.MetareeDiving, 0, 1, 1), new(P.MetareeDiving, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SkreeIdling] = new([new(P.SkreeIdling, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SkreePreparingAttack] = new([new(P.SkreePreparingAttack, 0, 3, 1)], AnimationEnd.Holds),
-        [P.SkreeDiving] = new([new(P.SkreeDiving, 0, 1, 1), new(P.SkreeDiving, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MetareeIdling] = new([Whole(P.MetareeIdling)], AnimationEnd.LoopsFrom(0)),
+        [P.MetareePreparingAttack] = new([Whole(P.MetareePreparingAttack)], AnimationEnd.Holds),
+        [P.MetareeDiving] = new([Whole(P.MetareeDiving), Whole(P.MetareeDivingSpin)], AnimationEnd.LoopsFrom(1)),
+        [P.SkreeIdling] = new([Whole(P.SkreeIdling)], AnimationEnd.LoopsFrom(0)),
+        [P.SkreePreparingAttack] = new([Whole(P.SkreePreparingAttack)], AnimationEnd.Holds),
+        [P.SkreeDiving] = new([Whole(P.SkreeDiving), Whole(P.SkreeDivingSpin)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SkreeMetareeSegment> StartingWith(SkreeMetareeSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<SkreeMetareeSegment> Whole(SkreeMetareeSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SkreeMetareeCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkreeMetareeCue>.Frame(frame, duration);

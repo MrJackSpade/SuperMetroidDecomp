@@ -18,6 +18,9 @@ internal static class LowerNorfairRioAnimations
         [P.Idle] =
         [
             Cue(new(K.HideFlames)),
+        ],
+        [P.IdleWingbeat] =
+        [
             Show(EnemyFrameId.LowerNorfairRioWingsRaised, 11),
             Show(EnemyFrameId.LowerNorfairRioWingsLevel, 11),
             Show(EnemyFrameId.LowerNorfairRioWingsLevelDropped, 11),
@@ -53,6 +56,9 @@ internal static class LowerNorfairRioAnimations
         [P.Ascending] =
         [
             Cue(new(K.ShowFlames)),
+        ],
+        [P.AscendingWingbeat] =
+        [
             Show(EnemyFrameId.LowerNorfairRioWingsSweptTwin, 2),
             Show(EnemyFrameId.LowerNorfairRioWingsSweptTwinB, 2),
             Show(EnemyFrameId.LowerNorfairRioWingsSweptTwinC, 2),
@@ -80,22 +86,25 @@ internal static class LowerNorfairRioAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at; the loops only run on from the
-    /// animations that start them (#2061).
+    /// The animation that starts at each segment an owner can start or restart at, each segment played whole; the
+    /// wingbeats loop on from the entry cues before them (#2061, #2276).
     /// </summary>
     internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.Idle, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PrepareToSwoop] = new([new(P.PrepareToSwoop, 0, 11, 1)], AnimationEnd.Holds),
-        [P.Descending] = new([new(P.Descending, 0, 2, 1)], AnimationEnd.Holds),
-        [P.AscentOpening] = new([new(P.AscentOpening, 0, 5, 1)], AnimationEnd.Holds),
-        [P.Ascending] = new([new(P.Ascending, 0, 1, 1), new(P.Ascending, 1, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Cooldown] = new([new(P.Cooldown, 0, 11, 1)], AnimationEnd.Holds),
-        [P.Flames] = new([new(P.Flames, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Idle] = new([Whole(P.Idle), Whole(P.IdleWingbeat)], AnimationEnd.LoopsFrom(1)),
+        [P.PrepareToSwoop] = new([Whole(P.PrepareToSwoop)], AnimationEnd.Holds),
+        [P.Descending] = new([Whole(P.Descending)], AnimationEnd.Holds),
+        [P.AscentOpening] = new([Whole(P.AscentOpening)], AnimationEnd.Holds),
+        [P.Ascending] = new([Whole(P.Ascending), Whole(P.AscendingWingbeat)], AnimationEnd.LoopsFrom(1)),
+        [P.Cooldown] = new([Whole(P.Cooldown)], AnimationEnd.Holds),
+        [P.Flames] = new([Whole(P.Flames)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<LowerNorfairRioSegment> StartingWith(LowerNorfairRioSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<LowerNorfairRioSegment> Whole(LowerNorfairRioSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Frame(frame, duration);

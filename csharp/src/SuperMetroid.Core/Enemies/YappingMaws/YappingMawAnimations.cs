@@ -88,7 +88,7 @@ internal static class YappingMawAnimations
         [
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.Up)),
         ],
-        [P.CooldownUpLoop] =
+        [P.ChewingUp] =
         [
             Show(EnemyFrameId.YappingMawFacingUpJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
@@ -102,14 +102,6 @@ internal static class YappingMawAnimations
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsShut, 4),
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.Up)),
         ],
-        [P.CooldownUpLeftLoop] =
-        [
-            Show(EnemyFrameId.YappingMawFacingUpJawsShut, 80),
-            Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
-            Show(EnemyFrameId.YappingMawFacingUpJawsWide, 5),
-            Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
-            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
-        ],
         [P.CooldownDownRight] =
         [
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.DownRight)),
@@ -119,7 +111,7 @@ internal static class YappingMawAnimations
         [
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.Down)),
         ],
-        [P.CooldownDownLoop] =
+        [P.ChewingDown] =
         [
             Show(EnemyFrameId.YappingMawFacingDownJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
@@ -133,41 +125,35 @@ internal static class YappingMawAnimations
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsShut, 4),
             Cue(new YappingMawCue.HoldSamus(YappingMawAim.Down)),
         ],
-        [P.CooldownDownLeftLoop] =
-        [
-            Show(EnemyFrameId.YappingMawFacingDownJawsShut, 80),
-            Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
-            Show(EnemyFrameId.YappingMawFacingDownJawsWide, 5),
-            Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
-            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
-        ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner starts, each segment played whole: an attack's snap, or a
+    /// cooldown's hold of Samus and then its aim's chewing, looped; no owner starts the chewing itself (#2276).
+    /// </summary>
     internal static IReadOnlyDictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
     {
-        [P.AttackingUp] = new([new(P.AttackingUp, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingUpRight] = new([new(P.AttackingUpRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingRight] = new([new(P.AttackingRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingDownRight] = new([new(P.AttackingDownRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingDown] = new([new(P.AttackingDown, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingDownLeft] = new([new(P.AttackingDownLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingLeft] = new([new(P.AttackingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingUpLeft] = new([new(P.AttackingUpLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.CooldownUpRight] = new([new(P.CooldownUpRight, 0, 2, 1), new(P.CooldownUp, 0, 1, 1), new(P.CooldownUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.CooldownUp] = new([new(P.CooldownUp, 0, 1, 1), new(P.CooldownUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownUpLoop] = new([new(P.CooldownUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.CooldownUpLeft] = new([new(P.CooldownUpLeft, 0, 3, 1), new(P.CooldownUpLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownUpLeftLoop] = new([new(P.CooldownUpLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.CooldownDownRight] = new([new(P.CooldownDownRight, 0, 2, 1), new(P.CooldownDown, 0, 1, 1), new(P.CooldownDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.CooldownDown] = new([new(P.CooldownDown, 0, 1, 1), new(P.CooldownDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownDownLoop] = new([new(P.CooldownDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.CooldownDownLeft] = new([new(P.CooldownDownLeft, 0, 3, 1), new(P.CooldownDownLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CooldownDownLeftLoop] = new([new(P.CooldownDownLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUp] = new([Whole(P.AttackingUp)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUpRight] = new([Whole(P.AttackingUpRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingRight] = new([Whole(P.AttackingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDownRight] = new([Whole(P.AttackingDownRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDown] = new([Whole(P.AttackingDown)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingDownLeft] = new([Whole(P.AttackingDownLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingLeft] = new([Whole(P.AttackingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingUpLeft] = new([Whole(P.AttackingUpLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.CooldownUpRight] = new([Whole(P.CooldownUpRight), Whole(P.CooldownUp), Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(2)),
+        [P.CooldownUp] = new([Whole(P.CooldownUp), Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownUpLeft] = new([Whole(P.CooldownUpLeft), Whole(P.ChewingUp)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownDownRight] = new([Whole(P.CooldownDownRight), Whole(P.CooldownDown), Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(2)),
+        [P.CooldownDown] = new([Whole(P.CooldownDown), Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(1)),
+        [P.CooldownDownLeft] = new([Whole(P.CooldownDownLeft), Whole(P.ChewingDown)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<YappingMawSegment> StartingWith(YappingMawSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<YappingMawSegment> Whole(YappingMawSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, YappingMawCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, YappingMawCue>.Frame(frame, duration);

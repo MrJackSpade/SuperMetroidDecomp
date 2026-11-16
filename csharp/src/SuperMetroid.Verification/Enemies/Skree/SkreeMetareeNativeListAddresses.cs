@@ -19,9 +19,11 @@ internal static class SkreeMetareeNativeListAddresses
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeIdling, 0x8910),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareePreparingAttack, 0x8924),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeDiving, 0x8930),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeDivingSpin, 0x8932),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeIdling, 0xc65e),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreePreparingAttack, 0xc672),
         new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeDiving, 0xc67e),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeDivingSpin, 0xc680),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

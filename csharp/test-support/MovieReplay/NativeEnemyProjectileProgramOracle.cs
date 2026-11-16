@@ -37,6 +37,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// </param>
     /// <param name="startsWithClearedCounter">The counted lists the family's owners start directly, with a cleared counter.</param>
     /// <param name="countedEntries">The animations the family's owners start at native entries that only load the counter (#2044).</param>
+    /// <param name="onlyRunOnInto">The segments no owner starts, which animations only run on into (#2276).</param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
@@ -46,13 +47,14 @@ internal static class NativeEnemyProjectileProgramOracle
         NativeEnemyProjectileCueRules<TEvent> rules,
         Func<TFrame, ushort?>? reflectedPresentationKey = null,
         IReadOnlySet<TSegment>? startsWithClearedCounter = null,
-        IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null)
+        IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null,
+        IReadOnlySet<TSegment>? onlyRunOnInto = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
         Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey);
-        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, startsWithClearedCounter,
+        NativeEnemyAnimationOracle.CompareAnimations(lists, startingAt, startsWithClearedCounter, onlyRunOnInto,
             countedStarts: CountedStarts(cartridge, entries, countedEntries ?? [], rules));
         return lists.Values.Sum(list => list.BeatAddresses.Length);
     }
@@ -92,7 +94,7 @@ internal static class NativeEnemyProjectileProgramOracle
 
     /// <summary>
     /// Reads every typed segment's native bank-$86 list, comparing its beats with the segment's as
-    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?, IReadOnlyList{NativeCountedEntry{TSegment}}?)"/>
+    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?, IReadOnlyList{NativeCountedEntry{TSegment}}?, IReadOnlySet{TSegment}?)"/>
     /// does: each beat's native address, and each control instruction with its address and the beat it follows.
     /// </summary>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
@@ -112,8 +114,23 @@ internal static class NativeEnemyProjectileProgramOracle
         Ensure.NotNull(rules);
         NativeEnemyAnimationOracle.RequireAuthoredOrder(entries);
         VerificationAssertions.AssertTrue(entries.Zip(entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), $"native {typeof(TSegment).Name} entries ascend");
-        return entries.ToDictionary(item => item.Program,
-            item => Read(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey, item.Program, item.Entry));
+        // A segment the cartridge repeats under more than one entry (#1842, #2276: the n00b tube's deletion) is its first
+        // list; every repeat is read against the same beats and must continue as that list does.
+        var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
+        foreach (NativeProgramEntry<TSegment> item in entries)
+        {
+            NativeEnemyList<TSegment> list = Read(cartridge, entries, segments, presentationKey, rules, reflectedPresentationKey, item.Program, item.Entry);
+            if (!lists.TryGetValue(item.Program, out NativeEnemyList<TSegment>? first))
+            {
+                lists.Add(item.Program, list);
+                continue;
+            }
+            VerificationAssertions.AssertTrue(list.Controls.Select(Shape).SequenceEqual(first.Controls.Select(Shape)),
+                $"{item.Program}'s repeated native list at ${item.Entry:X4} continues as its first list does");
+        }
+        return lists;
+
+        static NativeEnemyControl<TSegment> Shape(NativeEnemyControl<TSegment> control) => control with { Address = 0 };
     }
 
     /// <summary>

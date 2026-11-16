@@ -8,4 +8,7 @@ internal enum OldTourianWallExplosionSegment
 
     /// <summary>Scatters, sounds and plays the six-pose burst, repeating while the count lasts.</summary>
     Burst,
+
+    /// <summary>Deletes the explosion after its last burst (#2276).</summary>
+    Deletion,
 }

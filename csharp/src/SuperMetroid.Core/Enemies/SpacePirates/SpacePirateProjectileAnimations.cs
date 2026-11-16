@@ -25,6 +25,9 @@ internal static class SpacePirateProjectileAnimations
             Show(EnemyProjectileFrameId.SpacePirateLaserDim24, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserBright32, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserDim32, 1),
+        ],
+        [P.LaserLeftFlicker] =
+        [
             Show(EnemyProjectileFrameId.SpacePirateLaserBright32Twin, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserDim32Twin, 1),
         ],
@@ -42,12 +45,18 @@ internal static class SpacePirateProjectileAnimations
             Show(EnemyProjectileFrameId.SpacePirateLaserDim24Twin, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserBright32TwinB, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserDim32TwinB, 1),
+        ],
+        [P.LaserRightFlicker] =
+        [
             Show(EnemyProjectileFrameId.SpacePirateLaserBright32TwinC, 1),
             Show(EnemyProjectileFrameId.SpacePirateLaserDim32TwinC, 1),
         ],
         [P.ClawLeft] =
         [
             Cue(SpacePirateProjectileCueKind.ThrowClaw, HorizontalDirection.Left),
+        ],
+        [P.ClawLeftSpin] =
+        [
             Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned0, 1),
             Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned45, 1),
             Show(EnemyProjectileFrameId.SpacePirateClawLeftTurned90, 1),
@@ -60,6 +69,9 @@ internal static class SpacePirateProjectileAnimations
         [P.ClawRight] =
         [
             Cue(SpacePirateProjectileCueKind.ThrowClaw, HorizontalDirection.Right),
+        ],
+        [P.ClawRightSpin] =
+        [
             Show(EnemyProjectileFrameId.SpacePirateClawRightTurned0, 1),
             Show(EnemyProjectileFrameId.SpacePirateClawRightTurned45, 1),
             Show(EnemyProjectileFrameId.SpacePirateClawRightTurned90, 1),
@@ -71,13 +83,16 @@ internal static class SpacePirateProjectileAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at, each segment played whole: a laser's
+    /// muzzle and flight, then its flicker looping; a claw's throw, then its spin looping (#2276).
+    /// </summary>
     internal static IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt { get; } = new Dictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>
     {
-        [P.LaserLeft] = new([new(P.LaserLeft, 0, 12, 1), new(P.LaserLeft, 12, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.LaserRight] = new([new(P.LaserRight, 0, 12, 1), new(P.LaserRight, 12, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ClawLeft] = new([new(P.ClawLeft, 0, 1, 1), new(P.ClawLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ClawRight] = new([new(P.ClawRight, 0, 1, 1), new(P.ClawRight, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LaserLeft] = new([new(P.LaserLeft, 0, 12, 1), new(P.LaserLeftFlicker, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.LaserRight] = new([new(P.LaserRight, 0, 12, 1), new(P.LaserRightFlicker, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ClawLeft] = new([new(P.ClawLeft, 0, 1, 1), new(P.ClawLeftSpin, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.ClawRight] = new([new(P.ClawRight, 0, 1, 1), new(P.ClawRightSpin, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

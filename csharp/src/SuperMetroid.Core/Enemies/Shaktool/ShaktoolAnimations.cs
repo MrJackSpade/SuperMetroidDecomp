@@ -60,8 +60,7 @@ internal static class ShaktoolAnimations
             Cue(new(K.Lower)),
             Wait(4),
             Cue(new(K.Raise)),
-            Wait(8),
-            Wait(1),
+            Wait(9),
         ],
         [P.HeadAimingLeft] =
         [
@@ -103,25 +102,28 @@ internal static class ShaktoolAnimations
     /// </summary>
     internal static IReadOnlyDictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
     {
-        [P.SawHandHeadBobPrimaryPiece] = new([new(P.SawHandHeadBobPrimaryPiece, 0, 1, 1), new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SawHandHeadBobFinalPiece] = new([new(P.SawHandHeadBobFinalPiece, 0, 2, 1), new(P.SawHandFinalPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SawHandPrimaryPiece] = new([new(P.SawHandPrimaryPiece, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmPieceHeadBobBack] = new([new(P.ArmPieceHeadBobBack, 0, 3, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ArmPieceHeadBobFront] = new([new(P.ArmPieceHeadBobFront, 0, 5, 1), new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ArmPieceNormal] = new([new(P.ArmPieceNormal, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadHeadBob] = new([new(P.HeadHeadBob, 0, 6, 1), new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HeadAimingLeft] = new([new(P.HeadAimingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingUpLeft] = new([new(P.HeadAimingUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingUp] = new([new(P.HeadAimingUp, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingUpRight] = new([new(P.HeadAimingUpRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingRight] = new([new(P.HeadAimingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingDownRight] = new([new(P.HeadAimingDownRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingDown] = new([new(P.HeadAimingDown, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingDownLeft] = new([new(P.HeadAimingDownLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SawHandHeadBobPrimaryPiece] = new([Whole(P.SawHandHeadBobPrimaryPiece), Whole(P.SawHandPrimaryPiece)], AnimationEnd.LoopsFrom(1)),
+        [P.SawHandHeadBobFinalPiece] = new([Whole(P.SawHandHeadBobFinalPiece), Whole(P.SawHandFinalPiece)], AnimationEnd.LoopsFrom(1)),
+        [P.SawHandPrimaryPiece] = new([Whole(P.SawHandPrimaryPiece)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmPieceHeadBobBack] = new([Whole(P.ArmPieceHeadBobBack), Whole(P.ArmPieceNormal)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmPieceHeadBobFront] = new([Whole(P.ArmPieceHeadBobFront), Whole(P.ArmPieceNormal)], AnimationEnd.LoopsFrom(1)),
+        [P.ArmPieceNormal] = new([Whole(P.ArmPieceNormal)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadHeadBob] = new([Whole(P.HeadHeadBob), Whole(P.HeadAimingLeft)], AnimationEnd.LoopsFrom(1)),
+        [P.HeadAimingLeft] = new([Whole(P.HeadAimingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingUpLeft] = new([Whole(P.HeadAimingUpLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingUp] = new([Whole(P.HeadAimingUp)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingUpRight] = new([Whole(P.HeadAimingUpRight)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingRight] = new([Whole(P.HeadAimingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingDownRight] = new([Whole(P.HeadAimingDownRight)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingDown] = new([Whole(P.HeadAimingDown)], AnimationEnd.LoopsFrom(0)),
+        [P.HeadAimingDownLeft] = new([Whole(P.HeadAimingDownLeft)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ShaktoolSegment> StartingWith(ShaktoolSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ShaktoolSegment> Whole(ShaktoolSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, ShaktoolCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.Frame(frame, duration);

@@ -17,11 +17,11 @@ internal static class WaverAnimations
     {
         [P.SteadyFacingLeft] =
         [
-            Show(EnemyFrameId.WaverLevelFacingLeft, 1),
+            Hold(EnemyFrameId.WaverLevelFacingLeft),
         ],
         [P.SteadyFacingRight] =
         [
-            Show(EnemyFrameId.WaverLevelFacingRight, 1),
+            Hold(EnemyFrameId.WaverLevelFacingRight),
         ],
         [P.SpinningFacingLeft] =
         [
@@ -55,6 +55,9 @@ internal static class WaverAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WaverCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WaverCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, WaverCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, WaverCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, WaverCue> Cue(WaverCue cue) => new AnimationBeat<EnemyFrameId, WaverCue>.Event(cue);

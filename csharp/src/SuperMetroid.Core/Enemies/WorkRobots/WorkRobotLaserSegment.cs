@@ -1,11 +1,13 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The Work Robot's laser animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
+/// The Work Robot's laser animations (#641): the flare a spawn enters and the ring it then loops (#2276), in authored order.
 /// Their steps are <see cref="WorkRobotLaserAnimations"/>.
 /// </summary>
 internal enum WorkRobotLaserSegment
 {
-    /// <summary>The initial animation.</summary>
+    /// <summary>The laser's opening flare: a glint swelling into a ball.</summary>
     Initial,
+    /// <summary>The ring the flare opens into, looped.</summary>
+    Ring,
 }

@@ -20,7 +20,8 @@ internal static class YappingMawAnimationsVerification
                 {
                     AssertEqual(Instructions[word].Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                }),
+            onlyRunOnInto: new HashSet<YappingMawSegment> { YappingMawSegment.ChewingUp, YappingMawSegment.ChewingDown });
         Console.WriteLine($"  Yapping Maw animations: {Entries.Length} segments ({beats} beats) and {YappingMawAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

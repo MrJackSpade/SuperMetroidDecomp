@@ -48,13 +48,17 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 AssertTrue(particle.CanDamageSamus && particle.Damage == 4,
                     $"the {particle.Kind} particle keeps its definition's contact damage");
                 var native = new NativeEnemyProjectileListReader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
+                ushort? heldOperand = null;
                 for (int update = 0; update < 40; update++)
                 {
                     enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");
-                    AssertEqual(native.Timer, particle.FrameHold.RawValue, $"{at}: timer");
+                    // The debris is a still picture (#2276): the native list replays its one frame, which the typed
+                    // particle holds for good, counting no timer; the native list shows that one composition throughout.
+                    heldOperand ??= native.Operand;
+                    AssertEqual(heldOperand.Value, native.Operand, $"{at}: the native list shows its one frame again");
                     AssertEqual(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | native.Operand), particle.SpritemapPointer,
                         $"{at}: the drawn composition is the one the native operand names");
                 }

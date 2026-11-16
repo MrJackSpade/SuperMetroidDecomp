@@ -22,7 +22,7 @@ internal static class PlatformAnimationsVerification
                     AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }),
-            onlyRunOnInto: new HashSet<PlatformSegment> { PlatformSegment.SuspensorPlatformLoop, PlatformSegment.TripperMovingLeftLoop, PlatformSegment.TripperMovingRightLoop, PlatformSegment.TripperStillMovingLeftLoop, PlatformSegment.TripperStillMovingRightLoop });
+            onlyRunOnInto: new HashSet<PlatformSegment> { PlatformSegment.SuspensorPlatformLights, PlatformSegment.TripperHoveringLeft, PlatformSegment.TripperHoveringRight, PlatformSegment.TripperThrustingLeft, PlatformSegment.TripperThrustingRight });
         Console.WriteLine($"  Tripper or Kamer animations: {Entries.Length} segments ({beats} beats) and {PlatformAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

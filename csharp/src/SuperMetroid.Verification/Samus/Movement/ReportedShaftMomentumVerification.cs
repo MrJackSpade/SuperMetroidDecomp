@@ -30,9 +30,9 @@ internal static class ReportedShaftMomentumVerification
         {
             // Whole and fractional X as one 16.16 position, so the accepted displacement
             // is the exact difference across the movement step.
-            int xBefore = SixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
+            int xBefore = SixteenSixteenConstants2.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             SamusAerialMovement.StepSpinJump(level, samus, 0, frame, controllerNewInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
-            int xAfter = SixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
+            int xAfter = SixteenSixteenConstants2.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");
             AssertEqual(1, samus.HorizontalSpeed.BaseSpeed.Whole, "retained spin whole speed");

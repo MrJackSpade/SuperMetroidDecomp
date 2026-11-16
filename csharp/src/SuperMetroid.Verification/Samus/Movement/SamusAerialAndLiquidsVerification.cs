@@ -136,7 +136,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
     };
     spinLeft.HorizontalSpeed.BaseSpeed = spinLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(spinLeft, SamusPoseId.SpinJumpLeftPose);
-    int spinStartX = (SixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction;
+    int spinStartX = (SixteenSixteenConstants2.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction;
     SamusAerialMovement.StepSpinJump(
 
         level,
@@ -144,7 +144,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
         (GameplayAction.Left | GameplayAction.Jump),
         frameCounter: 0, controllerNewInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(-0x00016000,
-        ((SixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
+        ((SixteenSixteenConstants2.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
         "left spin jump reaches native cap");
     AssertEqual(SamusAccelerationMode.Decelerating, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.Position.X.Whole, "left spin jump whole X");

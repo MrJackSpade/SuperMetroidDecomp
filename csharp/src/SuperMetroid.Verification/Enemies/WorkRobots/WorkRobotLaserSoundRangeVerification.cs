@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.World;

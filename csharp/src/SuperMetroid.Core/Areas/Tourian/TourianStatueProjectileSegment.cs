@@ -12,12 +12,7 @@ internal enum TourianStatueProjectileSegment
     /// <summary>A boss statue's glowing eyes, which release the particles.</summary>
     EyeGlow,
 
-    /// <summary>An unlocking particle.</summary>
-    /// <remarks>
-    /// Its run plays once and then the longest count more times, as the game's never-set loop count wraps from zero; the
-    /// particle leaves the screen long before those plays run out, which in the game would run the animation on into
-    /// unrelated data.
-    /// </remarks>
+    /// <summary>An unlocking particle, playing its run again and again as it falls.</summary>
     Particle,
 
     /// <summary>A particle's fading tail.</summary>
@@ -26,11 +21,8 @@ internal enum TourianStatueProjectileSegment
     /// <summary>A rising statue soul.</summary>
     Soul,
 
-    /// <summary>The entrance statue base decoration, until it may process.</summary>
+    /// <summary>The entrance statue base decoration: shown until it may follow the reveal, then resting on its pose for good.</summary>
     BaseDecoration,
-
-    /// <summary>The base decoration's resting pose.</summary>
-    BaseDecorationLoop,
 
     /// <summary>Ridley's statue.</summary>
     Ridley,

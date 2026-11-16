@@ -316,20 +316,27 @@ internal static class NativeEnemyProjectileProgramOracle
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0 && firstBeat + addresses.Count < beats.Count &&
                 beats[firstBeat + addresses.Count] is AnimationBeat<TFrame, TEvent>.HeldFrame held)
             {
-                // A typed held frame stands for the list's longest frame followed at once by its sleep, or by a goto to its
-                // own list's entry when it is the list's only frame, which shows the same frame again and again for good,
-                // whatever duration it names (#1607, #2068).
+                // A typed held frame stands for the list's longest frame followed at once by its sleep, or by a goto back to
+                // the frame, which shows the same frame again and again for good, whatever duration it names (#1607, #2068,
+                // #2096). Where that frame is its list's only one the goto is read as the list's loop; where it follows the
+                // beats before it in one segment, the segment rests on it at the goto.
                 bool firstOfList = addresses.Count == 0 && cursor == entry;
                 _ = Next("held frame");
                 VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");
                 var afterHeld = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
                 ushort afterHeldOperand = cartridge.ReadCartridgeWord(address + 6);
-                bool loopsAlone = afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == entry && firstOfList;
-                VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep || loopsAlone,
+                bool loopsOnItself = afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == cursor;
+                bool loopsAlone = loopsOnItself && firstOfList;
+                VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep || loopsOnItself,
                     $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
-                if (!loopsAlone)
+                if (!loopsOnItself)
                     VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                 cursor = unchecked((ushort)(cursor + 4));
+                if (loopsOnItself && !loopsAlone)
+                {
+                    controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
+                    break;
+                }
                 continue;
             }
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)

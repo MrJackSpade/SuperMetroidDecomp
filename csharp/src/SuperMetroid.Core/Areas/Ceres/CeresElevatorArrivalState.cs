@@ -114,11 +114,19 @@ public sealed class CeresElevatorArrivalState
             CeresElevatorArrivalDefinitions.StartingGraphics);
     }
 
-    /// <summary>Plays a projectile's typed animation (#641, #1600) when its frame expires: a new pose, or the delete.</summary>
+    /// <summary>
+    /// Plays a projectile's typed animation (#641, #1600) when its frame expires: a new pose, a pose shown for good, or the
+    /// delete. A pose shown for good holds until the projectile starts another animation.
+    /// </summary>
     private static void AdvanceAnimation(CeresElevatorProjectile projectile)
     {
-        if (--projectile.FrameHold != 0)
+        if (projectile.FrameHold is not { } hold)
             return;
+        if (hold > 1)
+        {
+            projectile.FrameHold = hold - 1;
+            return;
+        }
 
         Animation<CeresElevatorArrivalSegment> animation = projectile.Playback.Animation;
         AnimationPlace place = projectile.Playback.Place;
@@ -131,6 +139,10 @@ public sealed class CeresElevatorArrivalState
             case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.Frame frame:
                 projectile.FrameHold = frame.Duration;
                 projectile.Pose = frame.Shown;
+                return;
+            case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.HeldFrame held:
+                projectile.FrameHold = null;
+                projectile.Pose = held.Shown;
                 return;
             case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.Ended:
                 projectile.Active = false;
@@ -186,8 +198,8 @@ public sealed class CeresElevatorArrivalState
             FrameHold = 1;
             Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         }
-        /// <summary>Frames until this projectile's next animation pass.</summary>
-        public int FrameHold { get; set; } = 1;
+        /// <summary>Updates until this projectile's next animation pass; none while it shows its pose for good.</summary>
+        public int? FrameHold { get; set; } = 1;
         /// <summary>The pose the projectile shows, none before its first frame.</summary>
         internal CeresElevatorArrivalPose? Pose { get; set; }
     }

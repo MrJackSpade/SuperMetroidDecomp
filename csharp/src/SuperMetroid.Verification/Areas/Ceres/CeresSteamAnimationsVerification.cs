@@ -25,7 +25,7 @@ internal static class CeresSteamAnimationsVerification
                     'A' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<CeresSteamCue.CountDownToActivation>(cue, $"{at}: cue").Puffing),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
-            }));
+            }), onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Ceres steam animations: {Entries.Length} segments ({beats} beats) match bank $A6.");
     }
 }

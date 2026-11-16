@@ -30,20 +30,15 @@ internal enum CeresDoorSegment
     ClosedFacingLeft,
     /// <summary>The closed facing left wait animation.</summary>
     ClosedFacingLeftWait,
-    /// <summary>The elevator room's blocked door at its start.</summary>
+    /// <summary>The elevator room's blocked door: intangible, standing for good.</summary>
     ElevatorDoor,
-    /// <summary>The elevator room's blocked door standing.</summary>
-    ElevatorDoorLoop,
-    /// <summary>The elevator room's wall at its start.</summary>
+    /// <summary>
+    /// The elevator room's wall: an ordinary left-facing door before Ridley escapes, afterwards a tangible wall standing
+    /// unseen for good.
+    /// </summary>
     ElevatorRoomWall,
-    /// <summary>The elevator room's wall standing unseen.</summary>
-    ElevatorRoomWallLoop,
-    /// <summary>The getaway chamber's left wall at its start.</summary>
+    /// <summary>The getaway chamber's left wall: intangible, standing for good.</summary>
     GetawayChamberLeftWall,
-    /// <summary>The getaway chamber's left wall standing.</summary>
-    GetawayChamberLeftWallLoop,
-    /// <summary>The getaway chamber's right wall at its start.</summary>
+    /// <summary>The getaway chamber's right wall: intangible, standing for good.</summary>
     GetawayChamberRightWall,
-    /// <summary>The getaway chamber's right wall standing.</summary>
-    GetawayChamberRightWallLoop,
 }

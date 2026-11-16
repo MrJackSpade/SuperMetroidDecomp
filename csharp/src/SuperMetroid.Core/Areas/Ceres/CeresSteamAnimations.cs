@@ -106,22 +106,19 @@ internal static class CeresSteamAnimations
     });
 
     /// <summary>
-    /// The animation each segment starts: a dormant vent waits, then rests and puffs in turn; a resting or puffing vent
-    /// goes on resting and puffing in turn for good.
+    /// The animation each segment a vent starts or its count-down branches to starts: a dormant vent waits, then rests and
+    /// puffs in turn; a puffing vent goes on puffing and resting in turn for good. A vent only rests on the way from its
+    /// dormant wait or a puff, so no animation starts at a rest.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
         [P.UpDormant] = new([new(P.UpDormant, 0, 3, 1), new(P.UpResting, 0, 3, 1), new(P.UpPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpResting] = new([new(P.UpResting, 0, 3, 1), new(P.UpPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.UpPuffing] = new([new(P.UpPuffing, 0, 7, 1), new(P.UpResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.LeftDormant] = new([new(P.LeftDormant, 0, 3, 1), new(P.LeftResting, 0, 3, 1), new(P.LeftPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.LeftResting] = new([new(P.LeftResting, 0, 3, 1), new(P.LeftPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.LeftPuffing] = new([new(P.LeftPuffing, 0, 7, 1), new(P.LeftResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.DownDormant] = new([new(P.DownDormant, 0, 3, 1), new(P.DownResting, 0, 3, 1), new(P.DownPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.DownResting] = new([new(P.DownResting, 0, 3, 1), new(P.DownPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.DownPuffing] = new([new(P.DownPuffing, 0, 7, 1), new(P.DownResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RightDormant] = new([new(P.RightDormant, 0, 3, 1), new(P.RightResting, 0, 3, 1), new(P.RightPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RightResting] = new([new(P.RightResting, 0, 3, 1), new(P.RightPuffing, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RightPuffing] = new([new(P.RightPuffing, 0, 7, 1), new(P.RightResting, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
     };
 

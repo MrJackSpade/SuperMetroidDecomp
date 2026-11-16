@@ -171,7 +171,8 @@ internal static class NativeEnemyAnimationOracle
     /// Checks that every typed animation plays the phases the native lists' control flow plays from its first segment,
     /// and that no animation starts in a counted body other than those of <paramref name="startsWithClearedCounter"/>:
     /// counted lists an owner starts directly, with the counter its spawn cleared. The first play of such a list counts
-    /// that zero down, wrapping it, so the list plays once and then the longest count more times. Each animation an owner
+    /// that zero down, wrapping it, so the list plays once and then the longest count more times, which no projectile
+    /// started there lives through: its typed animation loops the list's run (#2096). Each animation an owner
     /// starts at a counted entry (<paramref name="countedStarts"/>, #2044) plays the phases the lists play from the segment
     /// the entry runs on into, its first run counted as many times as the entry loads.
     /// </summary>
@@ -209,13 +210,14 @@ internal static class NativeEnemyAnimationOracle
             }
             if (startsWithClearedCounter?.Contains(start) == true)
             {
+                // The first play counts the cleared counter down, wrapping it, so the list replays its run the longest count
+                // more times, longer than any projectile started there lives: the typed animation loops the run (#2096).
                 VerificationAssertions.AssertTrue(bodies.Contains(start), $"{start}, started with a cleared counter, is a counted body");
-                (List<AnimationPhase<TSegment>> counted, AnimationEnd countedEnd) = Linearize(lists, start, WrappingCountdown.LongestStart);
-                List<AnimationPhase<TSegment>> wrapped = [counted[0] with { Plays = 1 }, .. counted];
-                AnimationEnd wrappedEnd = countedEnd is AnimationEnd.Loop loop ? AnimationEnd.LoopsFrom(loop.Phase + 1) : countedEnd;
+                (List<AnimationPhase<TSegment>> counted, _) = Linearize(lists, start, WrappingCountdown.LongestStart);
                 VerificationAssertions.AssertTrue(startingAt.TryGetValue(start, out Animation<TSegment>? started), $"an animation starts at {start}");
-                VerificationAssertions.AssertTrue(started!.Phases.SequenceEqual(wrapped), $"{start}'s phases follow its native lists from a cleared counter");
-                VerificationAssertions.AssertEqual(wrappedEnd, started.End, $"{start}'s end follows its native lists");
+                VerificationAssertions.AssertTrue(started!.Phases.SequenceEqual([counted[0] with { Plays = 1 }]),
+                    $"{start}'s phase is its native list's counted run, played once a pass");
+                VerificationAssertions.AssertEqual(AnimationEnd.LoopsFrom(0), started.End, $"{start} loops its run, which a cleared counter replays past any projectile's life");
                 continue;
             }
             if (bodies.Contains(start))
@@ -544,20 +546,27 @@ internal static class NativeEnemyAnimationOracle
                 case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
                 {
                     // A typed held frame stands for the list's longest frame followed at once by its sleep (#1607): the
-                    // frame shows for good, which the sleep after it reads as the same rest. It stands too for a list's
-                    // only frame followed by a goto back to the list (#2068): the list shows that frame again and again,
-                    // for good, whatever duration it names.
+                    // frame shows for good, which the sleep after it reads as the same rest. It stands too for a frame
+                    // followed by a goto back to that frame (#2068, #2096): the list shows it again and again, for good,
+                    // whatever duration it names. Where that frame is a list of its own the goto is read as the list's
+                    // loop; where it follows the beats before it in one segment, the segment rests on it at the goto.
                     VerificationAssertions.AssertEqual(operand, spritemap(held.Shown), $"{at}: held frame's spritemap");
-                    int afterHeld = (int)new SnesAddress(bank, unchecked((ushort)(cursor + 4)));
+                    ushort afterHeldCursor = unchecked((ushort)(cursor + 4));
+                    int afterHeld = (int)new SnesAddress(bank, afterHeldCursor);
                     NativeEnemyListDefinitions.WordKind followedBy = NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(afterHeld));
-                    bool loopsAlone = beat == 0 && cursor == entry && followedBy == NativeEnemyListDefinitions.WordKind.GoTo
-                        && cartridge.ReadCartridgeWord(afterHeld + 2) == entry;
-                    VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsAlone,
-                        $"{at}: a held frame's native frame is followed by its sleep, or by a goto back to the list it alone makes");
-                    if (!loopsAlone)
+                    bool loopsOnItself = followedBy == NativeEnemyListDefinitions.WordKind.GoTo && cartridge.ReadCartridgeWord(afterHeld + 2) == cursor;
+                    bool loopsAlone = loopsOnItself && beat == 0 && cursor == entry;
+                    VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsOnItself,
+                        $"{at}: a held frame's native frame is followed by its sleep, or by a goto back to the frame");
+                    if (!loopsOnItself)
                         VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                     addresses.Add(cursor);
-                    cursor = unchecked((ushort)(cursor + 4));
+                    cursor = afterHeldCursor;
+                    if (loopsOnItself && !loopsAlone)
+                    {
+                        controls.Add(new(NativeEnemyControlKind.Sleep, beat + 1, null, null, cursor));
+                        return Finish();
+                    }
                     continue;
                 }
                 case NativeEnemyListDefinitions.WordKind.Frame:

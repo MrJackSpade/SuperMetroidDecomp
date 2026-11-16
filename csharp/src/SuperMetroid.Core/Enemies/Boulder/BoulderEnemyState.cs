@@ -71,8 +71,7 @@ public sealed class BoulderEnemyState
     /// The window, relative to the boulder, that Samus's displacement must enter to start it. X is the signed pixel
     /// threshold from its authored trigger reach, positive for rightward activation and negative for leftward
     /// activation.
-    /// Y is the exclusive upper threshold (0 through 255) for Samus's nonnegative Y displacement, its authored trigger
-    /// height.
+    /// Y is the exclusive upper threshold for Samus's nonnegative Y displacement, its authored trigger height.
     /// </summary>
     public Offset16<RoomPixels> TriggerReach { get; internal set; }
     /// <summary>Extra downward collision reach during rolling, in pixels, subtracted from the Y position afterward. Initially two pixels, then zero once the full Y position stops changing.</summary>

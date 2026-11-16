@@ -51,14 +51,14 @@ internal static class BoyonSpeedDefinitionsVerification
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;
             AssertEqual(sample, BoyonBounceCurve.Sample(BoyonCurvePlace.AtEntry(index)), "Boyon native curve/saturation");
             curve.CurvePlace = BoyonCurvePlace.AtEntry(index);
-            for (int multiplier = 0; multiplier < 256; multiplier++)
+            for (int multiplier = 1; multiplier <= BoyonSpeedDefinitions.LargestArcMultiplier; multiplier++)
             {
-                // Exercise every multiplier the multiply takes.
+                // Exercise every multiplier a Boyon takes (#2066).
                 curve.SpeedMultiplier = multiplier;
-                AssertEqual(UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel((ushort)(sample * multiplier)), multiply(curve), "Boyon real byte-width multiply without bus");
+                AssertEqual(UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel((ushort)(sample * multiplier)), multiply(curve), "Boyon real multiply without bus");
             }
         }
         AssertThrows<InvalidOperationException>(() => BoyonBounceCurve.Sample(BoyonCurvePlace.PastTheTop), "no sample is read past the top of the arc");
-        Console.WriteLine("Boyon compiled definitions: 48 real initializers, 3 refused heights, 23 native curve bytes, 65536 entry saturation cases and 16777216 real multiplication inputs match without a bus.");
+        Console.WriteLine("Boyon compiled definitions: 48 real initializers, 3 refused heights, 23 native curve bytes, 65536 entry saturation cases and 8388608 real multiplication inputs match without a bus.");
     }
 }

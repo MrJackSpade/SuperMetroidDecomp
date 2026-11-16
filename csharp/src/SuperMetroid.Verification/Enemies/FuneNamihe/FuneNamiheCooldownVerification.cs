@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Fune's waiting count against its cooldown time (#2045: a plain count up to a one-byte cooldown).</summary>
+/// <summary>Checks Fune's waiting count against its cooldown time (#2045: a plain count up to the cooldown).</summary>
 internal static class FuneNamiheCooldownVerification
 {
     /// <summary>The cooldown time the cases wait for.</summary>
@@ -16,8 +16,7 @@ internal static class FuneNamiheCooldownVerification
     /// <summary>
     /// Each waiting update counts up, then ends the wait once the count reaches the cooldown time: a count short of the
     /// time keeps waiting, and the count that reaches it ends the wait, installs the active program and resets the count
-    /// to zero. The count and the cooldown are plain counts below 256, so a count beyond that is refused rather than
-    /// wrapped.
+    /// to zero. The count and the cooldown are plain counts (#2066), so a count below zero is refused.
     /// </summary>
     internal static void VerifyFuneNamiheCooldown()
     {
@@ -32,8 +31,8 @@ internal static class FuneNamiheCooldownVerification
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
 
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { CooldownTimer = byte.MaxValue + 1 },
-            "a waiting count past the largest cooldown is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { CooldownTimer = -1 },
+            "a waiting count below zero is refused");
         Console.WriteLine("  Fune cooldown: short and reached counts pass.");
     }
 

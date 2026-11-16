@@ -1,0 +1,1 @@
+MANUAL Property SuperMetroid.Core.Curves.CurveMarks.LastMark (kept: shipped documentation cites it at csharp/src/SuperMetroid.Core/Curves/CurveMarks.cs:12, where the cref would become text naming nothing)

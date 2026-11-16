@@ -78,7 +78,8 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 5. **Commit** as `Cleanup: <rule, what, count; ...>` (stale reviews as `stale architecture reviews removed <count>`),
    with the files, the prune's own summary and every removed review in the body, under
    the owner's identity from the main checkout and with no assistant attribution (the clone runs the repository's
-   own `commit-msg` and `pre-push` guards), and **push** with a plain fast-forward push.
+   own `commit-msg` and `pre-push` guards), and **push** with a plain fast-forward push. A push a developer push beat
+   is answered by a merge, built before it is pushed ("Conflicts with the developer", below).
 
 ### One load
 
@@ -156,6 +157,21 @@ projects' Debug references, which `run.ps1` builds first. A fixer resolves every
 The owner's ruling (2026-11-15): the cleanup never fails over a fix, and would rather commit broken code. A finding
 a fixer offers no fix for, refuses, throws on, or fixes in a way the runner cannot apply is recorded with the reason
 (the summary's `Unfixed` list, the log and the commit body) and the run goes on. A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
+
+A dead-code fix (CS0414, IDE0052, IDE0051, CA1823, CS0169, CS0219) takes out with the code it removes every parameter
+only that code read (`UnreadParameters`), since IDE0060, an unused parameter, is a build error: the cleanup of e4ce9514eb
+(2026-11-15) removed the write-only field `_room` of eight constructors and left each one's `room` parameter unread. The
+parameter goes with its `param` documentation and the argument every call passes it, a target-typed `new` among them;
+an argument that read a parameter of its caller is removed code too, so that parameter goes when nothing else reads
+it. Reading an automatic property is free of effects, like reading a field, so such an argument goes as well. What
+cannot go without a choice fails the fix and keeps the code as it was: an argument that could have an effect, a `ref`,
+`out`, `in` or `params` parameter, a method something else decides the signature of (virtual, abstract, an override, an
+interface's), a method used other than by calls (a method group, a cref with parameters), a removal that would clash
+with an overload, a record's positional parameter, a parameter `paramref` still names, and an instance member that would
+read its instance only in the removed code, which CA1822 (a build error) would then ask to be static.
+`IDE0052.unread-parameter` holds the constructor of the e4ce9514eb failure, a caller passing an automatic property
+through a target-typed `new`, a factory whose own parameter only fed the removed argument and a caller of it with a named
+argument, and a field the fix keeps because its removal would leave a caller reading no instance data.
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any
@@ -337,7 +353,27 @@ compiling the destination already knows that name. It then merges into that clas
 for an adapter of moved interfaces) that exactly the destination's projects compile, so the moved code sees what it would
 see in the destination and reaches no other project, and otherwise passes the name over for the next free one. A merge
 into a class that already declares a moved member fails the run; an extension block is compared member by member, under
-its receiver.
+its receiver. A name that a top-level type of another namespace takes, in any project's source or among the run's new
+holders, is passed over too, since a file importing both namespaces could name neither (CS0104), and a new holder's file
+must not exist yet, since writing into it merges into whatever class it holds.
+
+The fixtures below hold the four shapes of the 2026-11-15 cleanup of e4ce9514eb, whose tree did not build; each failed on
+the tool before:
+
+- `moved-interface-implementers`: an interface only checks use moves into test-support, and the test-support types
+  implementing or extending it keep it in their base lists. Only a type some project that cannot see the destination
+  compiles loses it (its adapter implements it); the prune took `ISnesMutableMemory` off test-support's `ISnesMemoryBus`
+  and the verification doubles, and every check reading work memory through them failed (CS1503, CS1061).
+- `holder-name-elsewhere`: a moved constant's `<Owner>Constants` name is taken in another namespace
+  (`SnesBusLayoutConstants`, CS0104 in `LibraryBackgroundProgramImporter`), and a moved method's `<Owner>Access` file
+  exists with a class of another namespace (`EndingTextPresentationAccess`, where `Typewriter()` landed out of its
+  callers' reach): both take the next free name, `<name>2`.
+- `private-signature-promotion`: a member promoted for moved code takes with it the private nested types its signature
+  names (`DefinitionObjects.Declared` and its record `Declarations`, CS0053), with their private containers and base types.
+- `shipped-unlabelled-cref`: documentation staying in a shipped assembly that cites a declaration with an unlabelled cref
+  keeps that declaration in place, dead or used only by checks, with whatever it uses, and a `MANUAL` line asks for the
+  sentence to be reworded. The cref would otherwise become code text naming nothing, which SME6454 rejects in Core
+  (`<c>LastMark</c>` in `QuadraticSpeedCurvePlace`). A labelled cref becomes its label and holds nothing back.
 
 Every modifier the prune writes is one its declaration takes (`RelocationModifiers` in
 `csharp/src/SuperMetroid.ReachabilityAudit/Removal`): a moved declaration, and a staying one moved code uses, become
@@ -419,10 +455,22 @@ If the developer pushes while a run is in progress, the run's push is rejected. 
 2026-11-15): a run takes long enough that the developer usually pushes during it, and discarding meant no cleanup ever
 landed. `run.ps1` fetches the new tip and merges its commit onto it (`git merge --no-ff -X ours`, the new tip as first
 parent, so main's first-parent history stays the developer's and every conflicting line keeps the developer's side; a
-file one side deleted and the other changed keeps the developer's version, or stays deleted). It commits the merge
-without rebuilding, as "Cleanup: ... (merged onto <tip>)", and pushes it, repeating while the developer keeps pushing.
-The owner would rather the cleanup commit broken code, which the next pull shows and the developer fixes, than lose
-its work. A rejection with the branch unmoved fails the run.
+file one side deleted and the other changed keeps the developer's version, or stays deleted), restores and builds the
+merged tree, and when it builds commits the merge as "Cleanup: ... (merged onto <tip>)" and pushes it, repeating while
+the developer keeps pushing.
+
+The cleanup of an older tip can break a newer one even where git sees no conflict: the merge of e4171830fc, the cleanup
+of e4ce9514eb, onto 4813017a1d (2026-11-15) kept the developer's new calls of members the prune had moved into
+test-support (`RotationAngle.FromRaw`, `BoyonCurvePlace.AtEntry`) and new reads of fields the code fixes had removed as
+unread (`EnemyCollision._room`), and did not build. So when the merged tree does not build, the run aborts that merge,
+starts an `-s ours` merge of its commit onto the new tip (the tree stays the developer's, the earlier commit stays in the
+history as the second parent), builds the new tip's own tools and runs the whole fix and prune loop, the inventories and
+the build again on it, as a run of that tip would, and commits the result as the merge, "Cleanup: ... (merged onto <tip>,
+cleaned again)", with the body naming the merge that did not build. When the new tip needs nothing, the run ends with
+nothing to push. When even that result does not build, it is committed and pushed anyway as `Cleanup (does not build)`,
+as the first pass's would be: the owner would rather the cleanup commit broken code, which the next pull shows and the
+developer fixes, than lose its work. Each merge's build logs, outcome and message are kept in `logs\<run>\merge-<n>\`. A
+rejection with the branch unmoved fails the run.
 
 ## The Discord tracker
 

@@ -36,6 +36,7 @@ internal static class SymbolRemover
             .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource).Select(t => new CompiledTree(Tree:t, p.Compilation)))
             .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()).ToArray();
+        KeepCitedByShippedDocumentation(trees, identity, targets);
         // Positional record properties are constructor parameters: removing one edits the record
         // and every construction of it, so collect those edits across the whole solution first.
         var parameterEdits = PositionalParameterEdits(trees, identity, targets, retired);
@@ -102,6 +103,71 @@ internal static class SymbolRemover
         File.WriteAllLines(retiredFieldsPath, retired, new UTF8Encoding(false));
         Console.WriteLine($"Removed {removedNodes} declarations of {targets.Count} findings; deleted {deletedFiles} emptied files; " +
             $"{retired.Count} retired instance fields written to {retiredFieldsPath}.");
+    }
+
+    /// <summary>
+    /// Keeps every targeted declaration that documentation staying in a shipped assembly cites with a cref of no label, and
+    /// then every targeted declaration a kept one uses or cites, until none is left. Such a cref would become code text
+    /// naming nothing: the 2026-11-15 cleanup of e4ce9514eb removed QuadraticSpeedCurvePlace.LastMark and wrote
+    /// <c>&lt;c&gt;LastMark&lt;/c&gt;</c> into the documentation of the member after it, which SME6454 rejects in Core, and
+    /// elsewhere the sentence would describe code the assembly no longer has. Rewording the sentence is a choice the
+    /// MANUAL line leaves to a person.
+    /// </summary>
+    private static void KeepCitedByShippedDocumentation(CompiledTree[] trees, SymbolIdentity identity, HashSet<string> targets)
+    {
+        var declared = new Dictionary<string, List<(SyntaxNode Node, SemanticModel Model)>>(StringComparer.Ordinal);
+        foreach (var (tree, compilation) in trees)
+        {
+            var model = SemanticModels.Of(compilation, tree);
+            foreach (var node in tree.GetRoot().DescendantNodes())
+            {
+                if (node is ParameterSyntax || SymbolIdentity.Normalize(DeclarationCollector.DeclaredSymbol(model, node)) is not { } symbol ||
+                    identity.Key(symbol) is not { } key || !targets.Contains(key))
+                    continue;
+                if (!declared.TryGetValue(key, out var nodes))
+                    declared[key] = nodes = [];
+                nodes.Add((node, model));
+            }
+        }
+        var pending = new Queue<string>();
+        void Keep(ISymbol cited, string why)
+        {
+            for (ISymbol? current = cited; current is not null and not INamespaceSymbol; current = current.ContainingSymbol)
+            {
+                if (identity.Key(SymbolIdentity.Normalize(current)) is not { } key || !targets.Remove(key))
+                    continue;
+                pending.Enqueue(key);
+                Console.WriteLine($"MANUAL {current.Kind} {current.ToDisplayString()} (kept: {why})");
+            }
+        }
+        foreach (var (tree, compilation) in trees)
+        {
+            if (!ReachabilityFindings.ProductionAssemblies.Contains(compilation.AssemblyName ?? ""))
+                continue;
+            var removedSpans = declared.Values.SelectMany(nodes => nodes).Where(entry => entry.Node.SyntaxTree == tree)
+                .Select(entry => entry.Node.FullSpan).ToList();
+            var model = SemanticModels.Of(compilation, tree);
+            foreach (var element in tree.GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<XmlEmptyElementSyntax>())
+            {
+                if (element.Attributes.OfType<XmlCrefAttributeSyntax>().FirstOrDefault() is not { } cref ||
+                    removedSpans.Any(span => span.Contains(element.Span)) ||
+                    SymbolIdentity.Normalize(model.GetSymbolInfo(cref.Cref).Symbol) is not { } cited || !Removed(cited, identity, targets))
+                    continue;
+                Keep(cited, $"shipped documentation cites it at {RelocationSymbols.Location(identity, element)}, where the cref would " +
+                    "become text naming nothing");
+            }
+        }
+        while (pending.TryDequeue(out string? key))
+        {
+            foreach (var (node, model) in declared.GetValueOrDefault(key) ?? [])
+            {
+                foreach (var use in node.DescendantNodes(descendIntoTrivia: true))
+                {
+                    if (SymbolIdentity.Normalize(model.GetSymbolInfo(use).Symbol) is { } used && Removed(used, identity, targets))
+                        Keep(used, $"a declaration kept for documentation uses it at {RelocationSymbols.Location(identity, use)}");
+                }
+            }
+        }
     }
 
     /// <summary>Whether a symbol is removed itself or inside a removed type.</summary>

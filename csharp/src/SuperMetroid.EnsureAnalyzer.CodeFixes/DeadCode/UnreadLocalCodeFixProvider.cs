@@ -36,6 +36,7 @@ public sealed class UnreadLocalCodeFixProvider : DocumentFixProvider
         var edits = new SolutionEdits(solution);
         var declarators = new List<VariableDeclaratorSyntax>();
         var sites = new Dictionary<SyntaxNode, Diagnostic>();
+        var unread = new UnreadParameters(solution, edits, diagnostics[0]);
         foreach (Diagnostic diagnostic in diagnostics)
         {
             if (root.FindToken(diagnostic.Location.SourceSpan.Start).Parent is not VariableDeclaratorSyntax declarator ||
@@ -44,11 +45,14 @@ public sealed class UnreadLocalCodeFixProvider : DocumentFixProvider
             if (declarator.Initializer is { } initializer && !SideEffects.IsFree(model.GetOperation(initializer.Value, cancellationToken)))
                 throw new CleanupFailure(diagnostic, $"the initializer of '{local.Name}' could have an effect");
             var references = await SymbolFinder.FindReferencesAsync(local, solution, ImmutableHashSet.Create(document), cancellationToken).ConfigureAwait(false);
-            await Writes.RemoveAsync(edits, local, [.. references.SelectMany(found => found.Locations)], diagnostic, cancellationToken).ConfigureAwait(false);
+            await Writes.RemoveAsync(edits, local, [.. references.SelectMany(found => found.Locations)], diagnostic, unread, cancellationToken).ConfigureAwait(false);
+            if (declarator.Initializer is { } removed)
+                unread.Removing(removed, model);
             declarators.Add(declarator);
             sites[declarator] = diagnostic;
         }
         VariableDeclarations.Remove(await edits.ForAsync(root.SyntaxTree, cancellationToken).ConfigureAwait(false), declarators, node => sites[node]);
+        await unread.RemoveAsync(cancellationToken).ConfigureAwait(false);
         return edits.Apply();
     }
 }

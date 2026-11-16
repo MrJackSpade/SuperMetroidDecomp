@@ -660,10 +660,16 @@ internal static class LookupStream5Verification
     {
         int componentCount = 0;
         var lists = new HashSet<ushort>();
-        foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)
+        // Every native record is checked: each frame's own, and each record that stores a frame's picture again (#2249),
+        // which collides as the frame it shows.
+        var records = PhantoonBg2FrameDefinitions.Frames.Select(frame => (Root: (int)frame.Pointer, Collision: frame.Pointer))
+            .Concat(EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+                .Where(pair => pair.Key.Bank == 0xa7 && PhantoonBg2FrameDefinitions.Frames.Any(frame => frame.Frame == pair.Value))
+                .Select(pair => (Root: (int)pair.Key.Offset, Collision: PhantoonBg2FrameDefinitions.Frames.First(frame => frame.Frame == pair.Value).Pointer)));
+        foreach ((int recordPointer, var collision) in records)
         {
-            int root = 0xa70000 | frame.Pointer;
-            var components = PhantoonCollision.ComponentsAt(frame.Pointer);
+            int root = 0xa70000 | recordPointer;
+            var components = PhantoonCollision.ComponentsAt(collision);
             int nativeComponents = ReadVerificationWord(rom, root);
             if (components.IsEmpty)
             {

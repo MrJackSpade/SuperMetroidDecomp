@@ -49,7 +49,7 @@ public sealed record GameplayShading
 
     /// <summary>
     /// <paramref name="shading"/>, a sprite draw's own, with the display's fade after it unless the fade spares the
-    /// draw's owner, and on Samus's draws the colours written over the faded display after the fade.
+    /// draw's owner, and on Samus's draws the shades the fade keeps lit after the fade.
     /// </summary>
     /// <param name="shading">The draw's own shading.</param>
     /// <param name="isSamus">Whether the draw is one of Samus's.</param>
@@ -61,8 +61,8 @@ public sealed record GameplayShading
         PictureShading faded = shading.With(fade.Effect);
         if (!isSamus)
             return faded;
-        foreach (PictureShade written in fade.OverSamus)
-            faded = faded.OverEffect(written);
+        foreach (PictureShade lit in fade.LitOnSamus)
+            faded = faded.OverEffect(lit);
         return faded;
     }
 

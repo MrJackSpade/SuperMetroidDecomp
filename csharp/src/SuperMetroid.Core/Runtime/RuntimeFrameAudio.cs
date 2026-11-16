@@ -2,45 +2,23 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// How one runtime frame's speed-booster echo and low-health check reach the game's audio queue
-/// (#633). Each scenario is named; there is no partially configured audio host.
+/// Whether one runtime frame runs Samus's low-health check after her periodic damage (#633, #2092): gameplay frames do,
+/// attract playback and an ordinary host frame do not. The Speed Booster's echo always joins Samus's own audio requests
+/// as her animation reaches its cue, so no frame configures it.
 /// </summary>
 public sealed class RuntimeFrameAudio : ISamusFrameAudio
 {
-    /// <summary>Captures only the audio callbacks admitted by a named frame scenario.</summary>
-    private RuntimeFrameAudio(Func<SoundQueueAdmission>? queueEchoSound, Action? checkLowHealth)
+    /// <summary>Only the two named frames exist.</summary>
+    private RuntimeFrameAudio()
     {
-        QueueEchoSound = queueEchoSound;
-        CheckLowHealth = checkLowHealth;
     }
 
-    /// <summary>
-    /// Standalone runtimes without an attached audio queue: the echo is published after the frame
-    /// and no low-health check runs.
-    /// </summary>
-    public static RuntimeFrameAudio Deferred { get; } = new(null, null);
+    /// <summary>Gameplay: the low-health check runs after Samus's periodic damage.</summary>
+    public static RuntimeFrameAudio WithLowHealthCheck { get; } = new() { ChecksLowHealth = true };
 
-    /// <summary>
-    /// Gameplay with an attached queue: the echo is queued synchronously, what the queue did with it selecting
-    /// the reset tables, and the admitted low-health check runs after Samus's periodic damage.
-    /// </summary>
-    public static RuntimeFrameAudio Gameplay(Func<SoundQueueAdmission> queueEchoSound, Action checkLowHealth) =>
-        new(Ensure.NotNull(queueEchoSound),
-            Ensure.NotNull(checkLowHealth));
+    /// <summary>Attract playback and an ordinary host frame: no low-health check runs.</summary>
+    public static RuntimeFrameAudio WithoutLowHealthCheck { get; } = new();
 
-    /// <summary>Attract playback: the echo is queued synchronously and no low-health check runs.</summary>
-    public static RuntimeFrameAudio EchoOnly(Func<SoundQueueAdmission> queueEchoSound) =>
-        new(Ensure.NotNull(queueEchoSound), null);
-
-    /// <summary>The synchronous echo call, returning what the queue did with it; none publishes the echo after the frame.</summary>
-    internal Func<SoundQueueAdmission>? QueueEchoSound { get; }
-
-    /// <summary>The admitted low-health check; none when this scenario makes no check.</summary>
-    internal Action? CheckLowHealth { get; }
-
-    /// <inheritdoc/>
-    Func<SoundQueueAdmission>? ISamusFrameAudio.QueueEchoSound => QueueEchoSound;
-
-    /// <inheritdoc/>
-    Action? ISamusFrameAudio.CheckLowHealth => CheckLowHealth;
+    /// <summary>Whether the frame runs Samus's low-health check.</summary>
+    public bool ChecksLowHealth { get; private init; }
 }

@@ -474,7 +474,7 @@ internal static void VerifyTypedNativeWords()
         reflectedSlopeOrAreaReaction.Spike is null &&
         reflectedSlopeOrAreaReaction.Grapple == GrappleReaction.Rejected,
         "BTS area reactions: an inert bomb block and a rejecting grapple block, and no shootable or spike reaction past the tables");
-    AssertEqual(0x7f, reflectedSlopeOrAreaReaction.DoorLink,
+    AssertEqual(0x7f, RoomBlockBehaviorCodec.DoorLinkOf(0xff),
         "BTS door-link index");
     AssertTrue(RoomBlockBehaviorCodec.Decode(3).Grapple == GrappleReaction.UnrevealedAnchor &&
         ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(3).Shootable) == ShotBlockReaction.RespawningBreak,

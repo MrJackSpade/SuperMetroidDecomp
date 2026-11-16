@@ -56,10 +56,11 @@ internal sealed class GateObjects
             place.Block));
     }
 
-    /// <summary>Installs a side trigger's selected gate and its authored neighboring shot block.</summary>
-    internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place)
+    /// <summary>Installs the side trigger its placement (<paramref name="placed"/>) selects and its authored neighboring shot block.</summary>
+    /// <exception cref="InvalidDataException">The placement selected no trigger.</exception>
+    internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument? placed)
     {
-        DownwardGateShotBlockDefinition definition = (place.Argument as GateTriggerArgument
+        DownwardGateShotBlockDefinition definition = (placed
             ?? throw new InvalidDataException($"Downward gate shot block at block {place.Block} was placed without its trigger.")).ShotBlock;
         place.Become(new TerrainChangeObject(definition.Change));
 

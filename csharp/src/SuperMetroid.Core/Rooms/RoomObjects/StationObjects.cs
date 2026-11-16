@@ -126,9 +126,10 @@ internal sealed class StationObjects
     private StationObject FindSaveStation(StationActivationEvent activation)
     {
         StationObject[] matches = _places.FromLastPlace
-            .Where(place => place.Active && place.Argument is SaveStationArgument saved && saved.Station == activation.Station)
+            .Where(place => place.Active)
             .Select(place => place.Behaviour as StationObject)
             .OfType<StationObject>()
+            .Where(station => station.SavedAt is { } saved && saved == activation.Station)
             .Where(station => station.Kind == StationKind.Save && station.Area == activation.Area)
             .ToArray();
         return matches.Length switch
@@ -143,7 +144,8 @@ internal sealed class StationObjects
 
     /// <summary>
     /// Sets up the station or elevator platform the room's population placed as <paramref name="placed"/>: installs a
-    /// station's collision blocks and animation state, or deactivates an elevator platform's block.
+    /// station's collision blocks and animation state, a save station saving at the load station its placement names
+    /// (<paramref name="savedAt"/>), or deactivates an elevator platform's block.
     /// </summary>
     /// <returns>False when <paramref name="placed"/> is neither a station nor an elevator platform.</returns>
     internal static bool TrySetupStationOrElevator(
@@ -151,7 +153,8 @@ internal sealed class StationObjects
         SharedGameState system,
         AreaId area,
         RoomObjectPlace place,
-        RoomObjectKind placed)
+        RoomObjectKind placed,
+        SaveStationArgument? savedAt)
     {
         Ensure.NotNull(place);
         if (placed == RoomObjectKind.ElevatorPlatform)
@@ -164,7 +167,7 @@ internal sealed class StationObjects
         }
         if (!StationKindDefinitions.Kinds.TryGetValue(placed, out StationKind kind))
             return false;
-        SetupStation(level, system, area, place, kind);
+        SetupStation(level, system, area, place, kind, savedAt?.Station);
         return true;
     }
 
@@ -174,13 +177,14 @@ internal sealed class StationObjects
         SharedGameState system,
         AreaId area,
         RoomObjectPlace place,
-        StationKind kind)
+        StationKind kind,
+        LoadStation? savedAt)
     {
         RoomTerrainBlock original = level.GetCollisionBlock(place.Block).Terrain;
         switch (kind)
         {
             case StationKind.Save:
-                SetupSaveStation(level, area, place, original);
+                SetupSaveStation(level, area, place, original, savedAt);
                 return;
             case StationKind.Map:
                 SetupAccessStation(level, system, area, place, original, StationAccessRuleDefinitions.Map);
@@ -196,8 +200,9 @@ internal sealed class StationObjects
         }
     }
 
-    /// <summary>A save station: its trigger floor and its one save animation.</summary>
-    private static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectPlace place, RoomTerrainBlock original)
+    /// <summary>A save station saving at <paramref name="savedAt"/>: its trigger floor and its one save animation.</summary>
+    private static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectPlace place, RoomTerrainBlock original,
+        LoadStation? savedAt)
     {
         WriteStationBlock(
             level,
@@ -209,7 +214,8 @@ internal sealed class StationObjects
             StationKind.Save,
             area,
             StationAnimation.SaveIdle,
-            completedAnimation: StationAnimation.SaveIdle));
+            completedAnimation: StationAnimation.SaveIdle,
+            savedAt));
     }
 
     /// <summary>
@@ -237,7 +243,8 @@ internal sealed class StationObjects
             rule.Kind,
             area,
             initialAnimation,
-            completedAnimation));
+            completedAnimation,
+            savedAt: null));
     }
 
     /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>

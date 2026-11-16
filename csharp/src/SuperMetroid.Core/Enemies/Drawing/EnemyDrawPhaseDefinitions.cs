@@ -17,6 +17,12 @@ internal static class EnemyDrawPhaseDefinitions
     internal static readonly UpdateCounterField HurtFlashShown = new(1, 1);
 
     /// <summary>
+    /// The frozen updates still to run from which a frozen enemy shows its frozen colours steadily; with fewer left, the
+    /// thaw's final stretch blinks (<see cref="FrozenColoursShown"/>).
+    /// </summary>
+    internal const int FrozenColoursSteadyUpdates = 90;
+
+    /// <summary>
     /// The phase of a thawing enemy's frozen timer on which it still shows its frozen colours: set for two updates of
     /// every four of the thaw's final stretch, while its own colours show for the other two.
     /// </summary>

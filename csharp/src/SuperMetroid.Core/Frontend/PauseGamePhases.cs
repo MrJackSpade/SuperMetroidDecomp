@@ -51,7 +51,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
-        session.GameplayRuntime.UpdatePauseHeldInput();
+        session.GameplayRuntime.UpdatePauseHeldInput(Pause.PauseCadenceDefinitions.HeldInputRepeatDelay);
         bool unpauseRequested = session.ActivePauseMenu.Step(
             session.GameplayRuntime.System.TimedHeldInput,
             session.GameplayRuntime.PlayerButtons.NewlyPressed,

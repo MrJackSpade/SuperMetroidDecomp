@@ -110,15 +110,14 @@ internal sealed class GameplayActorDrawing
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
                 // white for three calls and restore the suit on call four; Hyper shots
                 // step ten complete shades on alternating calls before restore.
-                LastBeamChargeGlowStep = room.Projectiles.UpdateBeamChargeGlow(
+                SamusBeamChargeGlowStep chargeGlow = room.Projectiles.UpdateBeamChargeGlow(
                     _player.Colours,
                     _player.Samus,
                     room.FxOverlay.VisorAnimation);
                 // A restored suit from the beam-charge colour step bypasses the entire special
                 // colour step on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
-                chargeGlowRestoredSuitShade =
-                    LastBeamChargeGlowStep.Action == SamusBeamChargeGlowAction.RestoredNormalSuit;
+                chargeGlowRestoredSuitShade = chargeGlow.Action == SamusBeamChargeGlowAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredSuitShade)
                     _player.Samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationOnSpinStart = _player.Samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = _player.Samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !_player.Samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterGlow = _player.Samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
@@ -382,16 +381,4 @@ internal sealed class GameplayActorDrawing
                 _room.Camera.PixelPosition);
         }
     }
-
-    /// <summary>
-    /// The most recent beam-charge or post-shot colouring step of Samus's body. It is distinct from the Hyper Beam's
-    /// colouring of her shots: it colours her body rather than her shots.
-    /// </summary>
-    public SamusBeamChargeGlowStep LastBeamChargeGlowStep { get; internal set; }
-
-
-
-
-
-
 }

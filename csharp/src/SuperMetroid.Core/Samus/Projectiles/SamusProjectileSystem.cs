@@ -138,13 +138,6 @@ public sealed class SamusProjectileSystem
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Shots => Pool.Shots;
 
-    /// <summary>The most recent charged-shot colour step result.</summary>
-    public SamusBeamChargeGlowStep LastBeamChargeGlowStep
-    {
-        get => Charge.LastBeamChargeGlowStep;
-        private set => Charge.LastBeamChargeGlowStep = value;
-    }
-
     /// <summary>The last input-phase result, whose queued sounds the frontend routes after the frame.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
@@ -227,11 +220,10 @@ public sealed class SamusProjectileSystem
                 Charge.ChargeGlowStep = Charge.ChargeGlowStep >= SamusChargeShadeDefinitions.ChargeSteps - 1
                     ? 0
                     : Charge.ChargeGlowStep + 1;
-                LastBeamChargeGlowStep = new(
+                return new(
                     pseudoScrew
                         ? SamusBeamChargeGlowAction.PseudoScrewCycle
                         : SamusBeamChargeGlowAction.ChargeCycle);
-                return LastBeamChargeGlowStep;
             }
 
             // The charge glow resets the sequence whenever charge is below threshold or grapple
@@ -242,9 +234,8 @@ public sealed class SamusProjectileSystem
                 colours,
                 samus.SpecialColouring.Holder,
                 roomVisorAnimation);
-            LastBeamChargeGlowStep = new(
+            return new(
                 SamusBeamChargeGlowAction.Inactive);
-            return LastBeamChargeGlowStep;
         }
 
         if (glow.Kind == ChargedShotGlowKind.ChargedShotFlash)
@@ -257,18 +248,16 @@ public sealed class SamusProjectileSystem
             {
                 Charge.ChargedShotGlow = ChargedShotGlow.None;
                 ProjectileAnimation.ShowSuitShade(colours, samus);
-                LastBeamChargeGlowStep = new(
+                return new(
                     SamusBeamChargeGlowAction.RestoredNormalSuit);
-                return LastBeamChargeGlowStep;
             }
 
             // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
             Charge.ChargedShotGlow = glow;
             colours.ShowSuit(SamusShades.ChargedShotGlow);
 
-            LastBeamChargeGlowStep = new(
+            return new(
                 SamusBeamChargeGlowAction.OrdinaryWhite);
-            return LastBeamChargeGlowStep;
         }
 
         // The Hyper Beam's glow: odd steps are pure hold calls; even steps 20..2 show the Hyper Beam glow's
@@ -276,9 +265,8 @@ public sealed class SamusProjectileSystem
         if (glow.RemainingSteps % 2 == 1)
         {
             Charge.ChargedShotGlow = glow.Stepped();
-            LastBeamChargeGlowStep = new(
+            return new(
                 SamusBeamChargeGlowAction.HyperHold);
-            return LastBeamChargeGlowStep;
         }
 
         int glowStep = glow.RemainingSteps / 2;
@@ -288,18 +276,16 @@ public sealed class SamusProjectileSystem
             // suit copy.
             Charge.ChargedShotGlow = ChargedShotGlow.None;
             ProjectileAnimation.ShowSuitShade(colours, samus);
-            LastBeamChargeGlowStep = new(
+            return new(
                 SamusBeamChargeGlowAction.RestoredNormalSuit);
-            return LastBeamChargeGlowStep;
         }
 
         if (!SamusChargeShades.IsCompiledHyperShot(glowStep))
             throw new InvalidDataException($"Hyper-shot glow step {glowStep} is not compiled.");
         colours.ShowSuit(SamusShades.HyperShot(SamusChargeShades.HyperShotFrame(glowStep)));
         Charge.ChargedShotGlow = glow.Stepped();
-        LastBeamChargeGlowStep = new(
+        return new(
             SamusBeamChargeGlowAction.HyperShade);
-        return LastBeamChargeGlowStep;
     }
 
     /// <summary>
@@ -419,7 +405,6 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         Ensure.NotNull(sharedProjectiles);
-
 
         // Bombs were handled by the companion class first; the shots run in update order here because a delete cue
         // changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
@@ -594,7 +579,6 @@ public sealed class SamusProjectileSystem
         Charge.PreviousCharge = BeamChargeLevel.None;
         Charge.ChargedShotGlow = ChargedShotGlow.None;
         Charge.ClearFlare();
-        LastBeamChargeGlowStep = default;
         Charge.ChargeGlowStep = 0;
     }
 

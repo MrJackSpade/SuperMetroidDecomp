@@ -15,9 +15,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
 {
-    /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed.</summary>
-    internal ColoredDoorObject(ColoredDoorVariant variant)
-        : base(variant.Orientation, DoorCaps.PaintOf(variant.Color))
+    /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
+    internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor? door)
+        : base(variant.Orientation, DoorCaps.PaintOf(variant.Color), door)
     {
         Color = variant.Color;
         _sequences = ColoredDoorDefinitions.Sequences[variant];
@@ -116,9 +116,9 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
-        if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
+        if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
         {
-            BlueDoorCapObject.TakeOver(place, context, Orientation);
+            BlueDoorCapObject.TakeOver(place, context, Orientation, Door);
             return;
         }
         TakesShots = true;
@@ -140,7 +140,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
             Play(_sequences.Flash, place, context);
             return;
         }
-        context.RoomObjects.DoorObjects.RecordDoorOpened(place);
+        context.RoomObjects.DoorObjects.RecordDoorOpened(Door);
         TakesShots = false;
         Phase = ColoredDoorPhase.Opening;
         Play(_sequences.Opening, place, context);

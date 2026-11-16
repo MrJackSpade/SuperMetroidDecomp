@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -16,9 +18,10 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// <param name="orientation">The cap's facing.</param>
     /// <param name="phase">Whether it opens or closes.</param>
     internal BlueDoorCapObject(ColoredDoorOrientation orientation, BlueDoorCapPhase phase)
-        : base(orientation, DoorCapPaint.Blue)
+        : base(orientation, DoorCapPaint.Blue, door: null)
     {
         Phase = phase;
+        OpenedByShot = phase == BlueDoorCapPhase.Opening;
         PlayFromNextUpdate(phase switch
         {
             BlueDoorCapPhase.Opening => DoorCapSequenceDefinitions.BlueOpening,
@@ -29,22 +32,36 @@ internal sealed class BlueDoorCapObject : DoorCapObject
         });
     }
 
-    /// <summary>A cap another door turns into, which its takeover closes at once.</summary>
+    /// <summary>A cap another door turns into, which its takeover closes at once, standing in that door's door.</summary>
     /// <param name="orientation">The cap's facing.</param>
-    private BlueDoorCapObject(ColoredDoorOrientation orientation)
-        : base(orientation, DoorCapPaint.Blue) => Phase = BlueDoorCapPhase.Closed;
+    /// <param name="door">The door the door it takes over from was placed in; null for none.</param>
+    private BlueDoorCapObject(ColoredDoorOrientation orientation, PlacedDoor? door)
+        : base(orientation, DoorCapPaint.Blue, door) => Phase = BlueDoorCapPhase.Closed;
 
     /// <summary>What the cap is doing.</summary>
     internal BlueDoorCapPhase Phase { get; private set; }
 
     /// <summary>
-    /// Turns the door at <paramref name="place"/> into its closed blue cap facing <paramref name="orientation"/>, which
-    /// makes its block shootable and draws its closed image on this same update.
+    /// Whether a shot opened the cap: it names no door of its own, and whether it closes behind Samus is the room's
+    /// <see cref="ShotOpenedCapClosing{TDoor}"/> rule's (#1906).
     /// </summary>
-    internal static void TakeOver(RoomObjectPlace place, RoomObjectStepContext context, ColoredDoorOrientation orientation)
+    internal bool OpenedByShot { get; }
+
+    /// <inheritdoc/>
+    public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        OpenedByShot
+            ? Ensure.NotNull(shotCapClosing).StaysOpen(openedForGood)
+            : base.StaysOpenBehindSamus(openedForGood, shotCapClosing);
+
+    /// <summary>
+    /// Turns the door at <paramref name="place"/>, placed in <paramref name="door"/>, into its closed blue cap facing
+    /// <paramref name="orientation"/>, which makes its block shootable and draws its closed image on this same update.
+    /// </summary>
+    internal static void TakeOver(RoomObjectPlace place, RoomObjectStepContext context, ColoredDoorOrientation orientation,
+        PlacedDoor? door)
     {
         Ensure.NotNull(place);
-        var cap = new BlueDoorCapObject(orientation);
+        var cap = new BlueDoorCapObject(orientation, door);
         place.Replace(cap);
         cap.Close(place, context);
     }

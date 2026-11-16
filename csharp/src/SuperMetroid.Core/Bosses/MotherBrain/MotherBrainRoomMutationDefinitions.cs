@@ -45,12 +45,11 @@ internal static class MotherBrainRoomMutationDefinitions
     ]);
 
     /// <summary>
-    /// How each block of <see cref="EscapeDoorSetup"/> behaves, by how it collides: the door block leads through the
-    /// escape door, and each extension links to the block above it.
+    /// How each block of <see cref="EscapeDoorSetup"/> other than its door block behaves, by how it collides: each extension
+    /// links to the block above it. The door block leads through <see cref="MotherBrainDeathDefinitions.EscapeDoor"/>.
     /// </summary>
     internal static readonly Dictionary<RoomCollisionType, RoomBlockBehavior> EscapeDoorSetupBehaviors = new()
     {
-        [RoomCollisionType.DoorBlock] = MotherBrainDeathDefinitions.EscapeDoorBehavior,
         [RoomCollisionType.VerticalExtension] = MotherBrainDeathDefinitions.EscapeDoorExtensionBehavior,
     };
 

@@ -93,7 +93,7 @@ internal sealed class RoomObjectPopulationLoader
                     error);
             }
 
-            RoomObjectPlace? place = AllocateRoomPopulationPlace(placed, block);
+            RoomObjectPlace? place = AllocateRoomPopulationPlace(block);
             if (place is null)
                 continue; // No room object spawns while all forty places are held.
 
@@ -116,20 +116,20 @@ internal sealed class RoomObjectPopulationLoader
         return spawnedCount;
     }
 
-    /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's identity before setup runs.</summary>
-    private RoomObjectPlace? AllocateRoomPopulationPlace(
-        PlacedRoomObject placed,
-        Position16<RoomBlocks> block)
+    /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's block before setup runs.</summary>
+    private RoomObjectPlace? AllocateRoomPopulationPlace(Position16<RoomBlocks> block)
     {
         if (_places.Spawn() is not { } place)
             return null;
 
         place.Block = block;
-        place.Argument = placed.Argument;
         return place;
     }
 
-    /// <summary>Hands room-population definitions to their family setup; returns false for an unsupported definition so loading can fail with record context.</summary>
+    /// <summary>
+    /// Hands room-population definitions to their family setup, with what the placement gave the object (#2091); returns
+    /// false for an unsupported definition so loading can fail with record context.
+    /// </summary>
     private bool TryRunRoomPopulationSetup(
         RoomObjectRoom room,
         IAreaBossFlagReader bosses,
@@ -146,14 +146,15 @@ internal sealed class RoomObjectPopulationLoader
                 out ColoredDoorColor color,
                 out ColoredDoorOrientation coloredOrientation))
         {
-            DoorObjects.SetupColoredDoor(level, place, color, coloredOrientation);
+            DoorObjects.SetupColoredDoor(level, place, color, coloredOrientation, placed.Argument as DoorBitArgument);
             return true;
         }
 
         if (GreyDoorObjects.TryIdentifyGreyDoor(objectKind, out ColoredDoorOrientation greyOrientation))
         {
             GreyDoorObjects.SetupGreyDoor(level, place,
-                new GreyDoorVariant(greyOrientation, BombTorizo: objectKind == RoomObjectKind.BombTorizoGreyDoor));
+                new GreyDoorVariant(greyOrientation, BombTorizo: objectKind == RoomObjectKind.BombTorizoGreyDoor),
+                placed.Argument as GreyDoorArgument);
             return true;
         }
 
@@ -172,7 +173,7 @@ internal sealed class RoomObjectPopulationLoader
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
-            _collectibleObjects.SetupCollectible(room, place, kind, presentation);
+            _collectibleObjects.SetupCollectible(room, place, kind, presentation, placed.Argument as CollectedItemArgument);
             return true;
         }
 
@@ -190,7 +191,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.MetroidRoomClearance)
         {
-            TourianObjects.SetupMetroidsCleared(place);
+            TourianObjects.SetupMetroidsCleared(place, placed.Argument as MetroidRoomArgument);
             return true;
         }
 
@@ -229,13 +230,13 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.DownwardGateShotBlock)
         {
-            GateObjects.SetupDownwardGateShotBlock(level, place);
+            GateObjects.SetupDownwardGateShotBlock(level, place, placed.Argument as GateTriggerArgument);
             return true;
         }
 
         if (EyeDoorObjects.IsEyeDoorKind(objectKind))
         {
-            _eyeDoors.SetupEyeDoor(level, place, objectKind);
+            _eyeDoors.SetupEyeDoor(level, place, objectKind, placed.Argument as DoorBitArgument);
             return true;
         }
 
@@ -246,7 +247,7 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (StationObjects.TrySetupStationOrElevator(level, system, area, place, objectKind))
+        if (StationObjects.TrySetupStationOrElevator(level, system, area, place, objectKind, placed.Argument as SaveStationArgument))
             return true;
 
         return false;

@@ -198,17 +198,18 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
     AssertEqual(0xffff, squareFloorBody.Position.Y.Fraction, "downward square slope writes floor fraction");
 
-    // `$94:938B` masks the BTS index, resolves the room's compiled door list, then inspects
-    // the destination. Crateria room $00/$08 contains both cases: entry zero is a normal
-    // room door, while entry two is the shared `$83:88FC` elevator pseudo-door whose zero
-    // destination retains ordinary solid clipping.
+    // `$94:938B` resolves the door block's door, then inspects the destination. Crateria room
+    // $00/$08 leads its door blocks both ways: through entry zero of its list, a normal room
+    // door, and entry two, the shared `$83:88FC` elevator pseudo-door whose zero destination
+    // retains ordinary solid clipping. The import resolves each block's door (#2090).
     const ushort doorListPointer = 0x94f3;
     const ushort normalDoorPointer = 0x8a4e;
 
     var doorForeground = new RoomTerrainBlock[width * height];
     var doorBehavior = new RoomBlockBehavior[doorForeground.Length];
     doorForeground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
-    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    RoomLevelData doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(),
+        [new RoomDoorBlock(new(2, 1), DoorDefinitions.Resolve(doorListPointer, 0))]);
     var doorBody = new SamusKinematicsState
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
@@ -227,8 +228,8 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(doorLevel.PendingDoorTransition is null,
         "consumed door transition does not leak into later movement");
 
-    doorBehavior[1 * width + 2] = RoomBlockBehaviorCodec.Decode(2);
-    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
+    RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(),
+        [new RoomDoorBlock(new(2, 1), DoorDefinitions.Resolve(doorListPointer, 2))]);
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, doorBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");

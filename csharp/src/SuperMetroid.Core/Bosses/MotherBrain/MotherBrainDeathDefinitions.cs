@@ -60,9 +60,8 @@ public static class MotherBrainDeathDefinitions
         new(24, 116),
     ];
 
-    /// <summary>The escape door's behaviour: it leads from Mother Brain's room into the escape's first room.</summary>
-    public static readonly RoomBlockBehavior EscapeDoorBehavior =
-        RoomBlockBehavior.LinkingDoor(RoomDefinitions.MotherBrain, TourianDoorDefinitions.MotherBrainToTourianEscape1);
+    /// <summary>The door the escape door's block leads through: from Mother Brain's room into the escape's first room.</summary>
+    public static readonly DoorDefinition EscapeDoor = TourianDoorDefinitions.MotherBrainToTourianEscape1;
 
     /// <summary>Each escape-door extension's behaviour: a link to the block one row upward.</summary>
     public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = RoomBlockBehavior.Extending(-1);

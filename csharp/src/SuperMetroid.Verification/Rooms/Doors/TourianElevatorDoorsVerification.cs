@@ -40,7 +40,7 @@ internal static class TourianElevatorDoorsVerification
             for (byte index = 0; index < 4; index++)
             {
                 ushort pointer = ReadVerificationWord(bus, 0x8f0000 | (listPointer + index * 2));
-                DoorListEntry resolved = DoorDefinitions.Resolve(listPointer, index);
+                DoorBlockExit resolved = DoorDefinitions.Resolve(listPointer, index);
                 AssertEqual(DoorDefinitionsAccess.DoorPointerOf(pointer), resolved.Pointer, "native door-list pointer");
                 // $94:938B: a zero destination word is the elevator pseudo-door.
                 if (ReadVerificationWord(bus, 0x830000 | pointer) == 0)
@@ -59,10 +59,11 @@ internal static class TourianElevatorDoorsVerification
         {
             var blocks = new RoomTerrainBlock[16];
             var behaviors = new RoomBlockBehavior[16];
+            var size = new Extent16<RoomBlocks>(4, 4);
             int target = horizontal ? 6 : 9;
             blocks[target] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.DoorBlock);
-            behaviors[target] = RoomBlockBehaviorCodec.Decode(bts);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(list));
+            var level = new RoomLevelData(size, new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid(),
+                [new RoomDoorBlock(size.CellAtRowMajorIndex(target), DoorDefinitions.Resolve(list, bts))]);
             var state = new SamusKinematicsState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7), CollisionPose = pose,

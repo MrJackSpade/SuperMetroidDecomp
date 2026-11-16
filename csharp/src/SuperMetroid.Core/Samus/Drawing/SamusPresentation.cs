@@ -185,7 +185,7 @@ internal sealed class SamusPresentation
             return;
 
         samus.AdvanceAnimationFrame();
-        HandleAnimationDelay(samus, step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput, step.QueueEchoSound);
+        HandleAnimationDelay(samus, step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput);
     }
 
     /// <summary>
@@ -240,8 +240,7 @@ internal sealed class SamusPresentation
 
     /// <summary>Runs the step the animation reaches when its frame timer expires: a frame's delay, or a cue.</summary>
     private static void HandleAnimationDelay(SamusState samus, GameplayAction controllerInput,
-        SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
-        Func<SoundQueueAdmission>? queueEchoSound = null)
+        SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false)
     {
         SamusPoseAnimationStep step = samus.AnimationStep;
         if (step is SamusAnimationDelay delay)
@@ -276,10 +275,8 @@ internal sealed class SamusPresentation
                     samus.AnimationFrameBuffer,
                     ref stagedFrame,
                     out int stagedTimer,
-                    // The frame's own echo call answers with its queue; otherwise the echo joins Samus's audio requests.
-                    queueEchoSound is { } queueFrameEcho
-                        ? () => queueFrameEcho()
-                        : () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
+                    // The echo joins Samus's audio requests, whose queue's answer selects the boost's cadence.
+                    () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
                 {
                     samus.AnimationFrame = SamusAnimationFrame.Start;
                     samus.AnimationFrameTimer = WrappingCountdown.Start(stagedTimer);

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -8,8 +10,17 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The cap's facing.</param>
 /// <param name="paint">The paint its closed images show.</param>
-internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint) : SequencedRoomObject<DoorCapStep>
+/// <param name="door">The door the cap's placement named, or the one the door it took over from named; null for none.</param>
+internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint, PlacedDoor? door)
+    : SequencedRoomObject<DoorCapStep>, IDoorKeptOpen
 {
+    /// <summary>The door the cap stands in, as its placement or the door it took over from named it; null for none.</summary>
+    internal PlacedDoor? Door { get; } = door;
+
+    /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
+    public virtual bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        Door?.IsOpenedForGood(openedForGood) == true;
+
     /// <summary>The cap's facing.</summary>
     internal ColoredDoorOrientation Orientation { get; } = orientation;
 

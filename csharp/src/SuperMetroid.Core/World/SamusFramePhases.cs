@@ -594,7 +594,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                 {
                     // Crystal Flash's ending clears its state, copies Samus's raised center into the
                     // shared explosion position, then spawns the Crystal Flash explosion. This movement
-                    // phase runs after the bombs' input phase, so the retained Crystal Flash slot
+                    // phase runs after the bombs' input phase, so the Crystal Flash's place among the bombs, still held,
                     // observes the released flag and deletes on the following frame.
                     room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
                 }
@@ -1348,7 +1348,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))
         {
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
             StepSamusLoadAppearance(room);
         }
 
@@ -1371,8 +1371,9 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             // Locked, elevator and appearance movement modes omit the low-energy check; the gunship setup
             // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
-            if (frame.Mode.Movement is SamusMovementMode.Normal or SamusMovementMode.Gunship && !samus.Xray.OwnsSamusControl)
-                audio.CheckLowHealth?.Invoke();
+            if (frame.Mode.Movement is SamusMovementMode.Normal or SamusMovementMode.Gunship && !samus.Xray.OwnsSamusControl &&
+                audio.ChecksLowHealth)
+                samus.HealthWarning.Update(samus.Health, samus.AudioRequests);
         }
     }
 
@@ -1394,7 +1395,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         {
             throw new InvalidDataException(
                 $"Samus load colour effect {loadAppearance} " +
-                "outlived the 360-frame load appearance.");
+                $"outlived the {SavedGameAppearanceDefinitions.FrameCount}-frame load appearance.");
         }
 
         // The item fanfare publishes its same-pose history shift only on the

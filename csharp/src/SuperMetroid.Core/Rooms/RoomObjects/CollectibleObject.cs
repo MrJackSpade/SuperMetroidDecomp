@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -17,12 +18,20 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="presentation">How the item lies: exposed, in a Chozo orb or in a shot block.</param>
 /// <param name="blockPair">The terrain block pair an item that shows its own picture draws into; null for a tank.</param>
 /// <param name="phase">The phase the item's setup leaves it in.</param>
+/// <param name="location">Where the item lies in the game's item record, as its placement named it; null for none.</param>
 internal sealed class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
     CollectibleBlockPairs.Pair? blockPair,
-    CollectiblePhase phase) : RoomObjectBehaviour
+    CollectiblePhase phase,
+    ItemLocation? location) : RoomObjectBehaviour
 {
+    /// <summary>
+    /// Where the item lies in the game's item record, which its collection marks collected; null for an item placed
+    /// without one, whose collection marks nothing.
+    /// </summary>
+    internal ItemLocation? Location { get; } = location;
+
     /// <summary>Inventory or capacity item granted when this item is collected.</summary>
     public InWorldCollectibleKind Kind { get; } = kind;
     /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>

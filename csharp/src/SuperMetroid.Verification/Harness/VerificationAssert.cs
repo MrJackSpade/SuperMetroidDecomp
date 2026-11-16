@@ -2655,7 +2655,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Door-list oracle revision");
         Suite(nameof(VerifyRetailDoorListMapping), () => VerifyRetailDoorListMapping(rom));
-        Suite(nameof(VerifyCompiledDoorListCollision), () => VerifyCompiledDoorListCollision());
+        Suite(nameof(VerifyDoorBlockCollision), () => VerifyDoorBlockCollision());
         return 0;
     }
 

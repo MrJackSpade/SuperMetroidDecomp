@@ -43,7 +43,12 @@ internal static class MotherBrainDeathHandoffVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(0, 6), MotherBrainRoomMutation.EscapeDoor)), "escape PLM allocates");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(0, 6)).Terrain, "door setup preserves the block's appearance");
-        AssertEqual(1, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(0, 6)).Behavior), "door setup selects second door header");
+        // #2090: the door block holds no behaviour and leads through the door Mother Brain's death names, the second of her
+        // room's list.
+        AssertEqual(RoomBlockBehavior.None, level.GetCollisionBlock(new(0, 6)).Behavior, "door setup writes a door block holding no behaviour");
+        AssertEqual(SuperMetroid.Core.Rooms.Doors.TourianDoorDefinitions.MotherBrainToTourianEscape1,
+            level.ResolveDoorCollision(level.GetCollisionBlock(new(0, 6)), SamusCollisionPose.StandingNormal, publishDoorSideEffects: false).Door,
+            "door setup leads into the escape's first room");
         for (int row = 7; row < 10; row++)
         {
             AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(0, checked((ushort)row))).Terrain, "extension preserves the block's appearance");

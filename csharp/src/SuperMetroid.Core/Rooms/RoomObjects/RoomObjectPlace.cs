@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// One place in the room's update order (<see cref="RoomObjectPlaces"/>) and the room object it holds: the object's
-/// block, what it was placed with, a shot on its block it has yet to take, and the typed object that holds its own state
-/// and advances it (<see cref="Behaviour"/>, #1554). A place that holds no object holds nothing: the object's record
+/// block, a shot on its block it has yet to take, and the typed object that holds its own state, what its placement gave
+/// it among it (#2091), and advances it (<see cref="Behaviour"/>, #1554). A place that holds no object holds nothing: the object's record
 /// leaves the room with it (#1622).
 /// </summary>
 internal sealed class RoomObjectPlace
@@ -46,8 +46,6 @@ internal sealed class RoomObjectPlace
     /// one (<see cref="RoomObjectStepContext.DrawRestoredBlock"/>).
     /// </summary>
     public RoomTerrainBlock? RestoreTerrain { get; set; }
-    /// <summary>What the place's room object was placed with, or the state its setup or opening left there; null for none.</summary>
-    public RoomObjectRoomArgument? Argument { get; set; }
     /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
     public ResidentObjectProjectileHit? ProjectileHit { get; set; }
 
@@ -102,7 +100,6 @@ internal sealed class RoomObjectPlace
     {
         Block = default;
         RestoreTerrain = null;
-        Argument = null;
         ProjectileHit = null;
         Behaviour = null;
     }

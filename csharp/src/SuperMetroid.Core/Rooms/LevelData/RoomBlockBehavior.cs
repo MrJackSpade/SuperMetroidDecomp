@@ -7,9 +7,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// What a room block does beyond how it collides (#1551, #1722). The block's collision kind decides which reading applies: a
-/// slope reads its <see cref="Slope"/>, an extension its <see cref="ExtensionOffset"/>, a door its <see cref="DoorLink"/>,
-/// and each reacting kind its family's reaction (<see cref="Shootable"/>, <see cref="Bombable"/>, <see cref="Special"/>,
-/// <see cref="SpecialAir"/>, <see cref="Spike"/>, <see cref="Grapple"/>).
+/// slope reads its <see cref="Slope"/>, an extension its <see cref="ExtensionOffset"/>, and each reacting kind its family's
+/// reaction (<see cref="Shootable"/>, <see cref="Bombable"/>, <see cref="Special"/>,
+/// <see cref="SpecialAir"/>, <see cref="Spike"/>, <see cref="Grapple"/>). Where a door block leads is its room's own
+/// (<see cref="RoomLevelData.ResolveDoorCollision"/>, #2090), not a reading of its behaviour.
 /// </summary>
 /// <remarks>
 /// A block whose collision kind changes keeps its behaviour, and the new kind reads it through its own reading, so every
@@ -36,9 +37,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
     public static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
-
-    /// <summary>The last entry of a room's door list a door block of any kept behaviour selects.</summary>
-    public static int LastDoorLink { get; } = Kept.Max(static readings => readings.DoorLink);
 
     /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
@@ -81,10 +79,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>Writes behaviours as extension offsets.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, int> ExtensionWrites =
         new(Kept, static readings => readings.ExtensionOffset);
-
-    /// <summary>Writes behaviours as door links.</summary>
-    private static readonly BlockParameterCarryOver<RoomBlockReadings, int> DoorWrites =
-        new(Kept, static readings => readings.DoorLink);
 
     /// <summary>
     /// Writes behaviours as one reacting kind's reactions: the kept behaviours that give the kind a reaction, read as it. A
@@ -210,33 +204,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <param name="slope">The slope's shape and mirroring.</param>
     public static RoomBlockBehavior Sloping(SlopeGeometry slope) => new(SlopeWrites.Carrying(slope));
 
-    /// <summary>A door block's behaviour.</summary>
-    /// <param name="doorLink">The entry of the room's door list the door selects, 0 through <see cref="LastDoorLink"/>.</param>
-    public static RoomBlockBehavior LinkingDoor(int doorLink) =>
-        new(DoorWrites.Carrying(Ensure.BetweenInclusive(0, LastDoorLink, doorLink)));
-
-    /// <summary>The behaviour of a door block of <paramref name="room"/> that leads through <paramref name="door"/>.</summary>
-    /// <param name="room">The room the door block stands in.</param>
-    /// <param name="door">One of the room's doors.</param>
-    /// <exception cref="ArgumentException">The room's door list does not hold the door exactly once.</exception>
-    public static RoomBlockBehavior LinkingDoor(RoomDefinition room, DoorDefinition door)
-    {
-        IReadOnlyList<DoorListEntry> list = RoomDoorListDefinitions.ByRoom[Ensure.NotNull(room)];
-        DoorListEntry entry = DoorListEntry.Physical(door);
-        int link = -1;
-        for (int place = 0; place < list.Count; place++)
-        {
-            if (list[place] != entry)
-                continue;
-            if (link >= 0)
-                throw new ArgumentException($"{room.Name}'s door list holds {door.Name} twice.", nameof(door));
-            link = place;
-        }
-        return link >= 0
-            ? LinkingDoor(link)
-            : throw new ArgumentException($"{room.Name}'s door list does not hold {door.Name}.", nameof(door));
-    }
-
     /// <summary>
     /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air
     /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and
@@ -287,12 +254,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>Whether an extension with this behaviour ends its chain instead of leading to another block.</summary>
     public bool EndsExtension => ExtensionOffset == 0;
-
-    /// <summary>
-    /// The entry of the room's door list a door block selects. Elevator and special-door blocks select through the same
-    /// list.
-    /// </summary>
-    public int DoorLink => Readings.DoorLink;
 
     /// <summary>Every reading of this behaviour.</summary>
     public RoomBlockReadings AllReadings => Readings;
@@ -361,6 +322,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
         RoomBlockReadings readings = Readings;
         return $"shootable {Named(readings.Shootable)}, bombable {Named(readings.Bombable)}, special {Named(readings.Special)}, " +
             $"special air {Named(readings.SpecialAir)}, spike {Named(readings.Spike)}, grapple {Named(readings.Grapple)}, " +
-            $"slope {readings.Slope.Shape} {readings.Slope.Mirroring}, extension {readings.ExtensionOffset}, door {readings.DoorLink}";
+            $"slope {readings.Slope.Shape} {readings.Slope.Mirroring}, extension {readings.ExtensionOffset}";
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -15,14 +16,18 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// flashes it ten times and turns it into the cap.
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
-/// <param name="door">The eye door's door, which its attacks keep to burst once it opens.</param>
-internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, LockedDoor door) : SequencedRoomObject<EyeDoorStep>
+/// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>
+internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorStep>, IDoorKeptOpen
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
 
-    /// <summary>The eye door's door, which its attacks keep to burst once it opens.</summary>
-    private readonly LockedDoor _door = door;
+    /// <summary>The door the eye stands in, as its placement named it.</summary>
+    internal PlacedDoor Door { get; } = Ensure.NotNull(door);
+
+    /// <summary>An eye whose door has been opened for good stays open behind Samus.</summary>
+    public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood, ShotOpenedCapClosing<LockedDoor> shotCapClosing) =>
+        Door.IsOpenedForGood(openedForGood);
 
     /// <summary>What the eye is doing.</summary>
     internal EyeDoorEyePhase Phase { get; private set; } = EyeDoorEyePhase.Closed;
@@ -82,7 +87,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, LockedDoo
             case EyeDoorAction.None:
                 break;
             case EyeDoorAction.Shoot:
-                eyes.Shoot(place, Orientation, _door);
+                eyes.Shoot(place, Orientation, Door.Placed.Door);
                 break;
             case EyeDoorAction.SpawnTwoSmoke:
                 eyes.SpawnTwoSmoke(place, Orientation);
@@ -132,7 +137,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, LockedDoo
                 if (_flashesLeft != 0)
                     Play(EyeDoorSequenceDefinitions.OpeningFlash, place, context);
                 else
-                    BlueDoorCapObject.TakeOver(place, context, CapFacing);
+                    BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorEyePhase)} {Phase}.");
@@ -146,10 +151,10 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, LockedDoo
     private void Look(RoomObjectPlace place, RoomObjectStepContext context)
     {
         _placed = false;
-        if (context.RoomObjects.DoorObjects.IsDoorOpened(place))
+        if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
         {
             EyeDoorObjects.ConvertEyeToBlueDoor(context.Level, place, Orientation);
-            BlueDoorCapObject.TakeOver(place, context, CapFacing);
+            BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
             return;
         }
         Play(EyeDoorSequenceDefinitions.Closed, place, context);
@@ -193,7 +198,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, LockedDoo
             Play(EyeDoorSequenceDefinitions.Flinching, place, context);
             return;
         }
-        context.RoomObjects.DoorObjects.RecordDoorOpened(place);
+        context.RoomObjects.DoorObjects.RecordDoorOpened(Door);
         TakesShots = false;
         eyes.SpawnSmoke(place, Orientation);
         eyes.SpawnSmoke(place, Orientation);

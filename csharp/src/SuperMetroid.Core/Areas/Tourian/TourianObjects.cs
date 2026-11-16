@@ -31,13 +31,14 @@ internal sealed class TourianObjects
         _places = places;
     }
     /// <summary>
-    /// Sets up a Metroid room's clearance watch: its placement names the event it marks, or none for a watch that
-    /// observes nothing, and it stays in the room for good.
+    /// Sets up a Metroid room's clearance watch: its placement (<paramref name="placed"/>) names the event it marks, or none
+    /// for a watch that observes nothing, and it stays in the room for good.
     /// </summary>
-    internal static void SetupMetroidsCleared(RoomObjectPlace place)
+    /// <exception cref="InvalidDataException">The placement named no event.</exception>
+    internal static void SetupMetroidsCleared(RoomObjectPlace place, MetroidRoomArgument? placed)
     {
         Ensure.NotNull(place);
-        place.Become(new MetroidRoomClearanceObject((place.Argument as MetroidRoomArgument
+        place.Become(new MetroidRoomClearanceObject((placed
             ?? throw new InvalidDataException($"Metroids-cleared room object at block {place.Block} was placed without its event.")).Cleared));
     }
 

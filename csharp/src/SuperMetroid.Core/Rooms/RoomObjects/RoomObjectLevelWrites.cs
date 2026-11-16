@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -8,6 +9,16 @@ internal static class RoomObjectLevelWrites
     /// <summary>Writes <paramref name="terrain"/> at a block, which shows the terrain's own picture.</summary>
     internal static void DrawTerrain(RoomLevelData level, Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
         level.SetObjectTerrain(block, terrain);
+
+    /// <summary>
+    /// Makes a block of the grid a door block leading through <paramref name="door"/>, keeping its appearance, as Mother
+    /// Brain's escape door is set up (#2090). A door block reads no behaviour, so it holds none.
+    /// </summary>
+    internal static void WriteDoorBlock(RoomLevelData level, Position16<RoomBlocks> block, DoorDefinition door)
+    {
+        WriteObjectCollisionAndBehavior(level, block, RoomCollisionType.DoorBlock, RoomBlockBehavior.None);
+        level.SetDoorExit(block, DoorBlockExit.Physical(door));
+    }
 
     /// <summary>
     /// Replaces a block's collision kind and behaviour, keeping its appearance, as a room object converts the block it sits on.

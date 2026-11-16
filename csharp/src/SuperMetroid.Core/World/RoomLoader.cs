@@ -75,8 +75,8 @@ internal sealed class RoomLoader
     private readonly SamusFrameState _player;
     /// <summary>The session's kept scroll cells; they outlive each room, so an implicit layout keeps the previous room's cells past its own.</summary>
     private readonly ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> _scrollCells;
-    /// <summary>Constructs room objects after persistent state has been restored.</summary>
-    private readonly RoomObjectVisuals _shotBlockVisuals;
+    /// <summary>The installed pictures of the room objects' blocks, which each room's room-object system draws with.</summary>
+    private readonly RoomObjectVisuals _roomObjectVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly BeamChargeState _beamCharge;
     /// <summary>The runtime's audio requests, which every room system and every Samus built here queue theirs into.</summary>
@@ -131,7 +131,7 @@ internal sealed class RoomLoader
         _doorFrameCounting = Ensure.NotNull(dependencies.DoorFrameCounting);
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _shotBlockVisuals = dependencies.ShotBlockVisuals;
+        _roomObjectVisuals = dependencies.RoomObjectVisuals;
         _beamCharge = dependencies.BeamCharge;
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
@@ -496,10 +496,8 @@ internal sealed class RoomLoader
         _room.Camera.PublishDoorSamusPosition(position.Whole);
         _player.Samus.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
         DoorDirection direction = door.Orientation.Direction;
-        int delta = direction is DoorDirection.Right or DoorDirection.Down ? 4 : -4;
         bool vertical = direction.IsVertical();
-        Offset16<RoomPixels> firstStep = vertical ? new(0, delta) : new(delta, 0);
-        PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + firstStep);
+        PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + DoorOpeningScrollState.LayerStep<RoomPixels>(direction));
         _room.Camera.PublishDoorSamusTravelAxis(vertical, _player.Samus.Position.Whole);
         _doorFrameCounting.BeginScroll();
         RestartShortCounterDuringDoorScroll();
@@ -538,18 +536,9 @@ internal sealed class RoomLoader
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source room's view.");
-        // The offsets derive from where the foreground stands before setup's first call:
-        // horizontal setups had not yet taken their four-pixel step, and an upward door's
-        // correction of the source room's top row places the foreground five (the background four) pixels lower.
-        Offset16<RoomPixels> openingOffset = direction switch
-        {
-            DoorDirection.Right => new(-4, 0),
-            DoorDirection.Left => new(4, 0),
-            DoorDirection.Down => Offset16<RoomPixels>.Zero,
-            DoorDirection.Up => new(0, 5),
-            _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
-        };
-        Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition + openingOffset;
+        // The offsets derive from where the foreground stands before setup's first call.
+        Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition +
+            Ensure.Listed(DoorOpeningScrollDefinitions.OpeningForegroundOffsets, direction);
         _backgroundScroll.BeginDoorOpeningViews(openingForeground);
         _pendingDoorOpeningSourceView = null;
         // The source screen stays where it was on the screen, lying where the destination's view begins, while the
@@ -869,7 +858,7 @@ internal sealed class RoomLoader
             // endpoint to destination+32. Keeping those adjacent positions distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
             Position16<RoomPixels> parallaxBasis = door.Orientation.Direction == DoorDirection.Up
-                ? camera - new Offset16<RoomPixels>(0, 1)
+                ? camera + DoorOpeningScrollDefinitions.UpwardParallaxBasis
                 : camera;
             _backgroundScroll.PrepareDoorOpeningDestination(camera, parallaxBasis);
         }
@@ -957,7 +946,7 @@ internal sealed class RoomLoader
         // Each room's room objects get their own collectible block pairs, the room's first collectible that shows its own
         // picture taking the first pair, and their own places, every one free; a cap a shot opened consults the Landing
         // Site's green door before it closes behind Samus.
-        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
+        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
             new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft),
             _audioRequests);
@@ -1132,7 +1121,7 @@ internal sealed class RoomLoader
         // camera to that adjusted destination; the other three directions retain theirs.
         Position16<RoomPixels> destination = DoorOpeningScrollState.GetDestination(door);
         Position16<RoomPixels> finalCamera = direction == DoorDirection.Up
-            ? destination + new Offset16<RoomPixels>(0, 32)
+            ? destination + DoorOpeningScrollDefinitions.UpwardCameraSnap
             : destination;
         return new DoorTransitionPlacement(finalCamera, samus);
     }

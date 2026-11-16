@@ -32,15 +32,14 @@ internal static class DoorMusicTimingVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         var level = runtime.Room.LoadedLevelData;
         int doorX = -1, doorY = -1;
-        RoomBlockBehavior behavior = RoomBlockBehavior.None;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+            var door = level.ResolveDoorCollision(block, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
             if (door.Door?.DestinationRoom != RoomDefinitions.LandingSite) continue;
-            doorX = x; doorY = y; behavior = block.Behavior; break;
+            doorX = x; doorY = y; break;
         }
         AssertTrue(doorX >= 0, "Parlor has the retail Landing Site door");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor,
@@ -51,7 +50,7 @@ internal static class DoorMusicTimingVerification
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;

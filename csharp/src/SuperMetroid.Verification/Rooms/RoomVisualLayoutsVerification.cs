@@ -3,6 +3,7 @@ using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -74,8 +75,8 @@ internal static class RoomVisualLayoutsVerification
                     ? BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(backgroundOffset + index * 2))
                     : (ushort)0);
                 AssertBlockEqual(RoomLevelWordCodec.Decode(foreground), terrain.Foreground[index], levelName, "installed terrain", index);
-                AssertBlockEqual(RoomBlockBehaviorCodec.Decode(native[2 + layerBytes + index]), terrain.Behaviors[index],
-                    levelName, "installed behaviour", index);
+                AssertInstalledBehavior(terrain.Foreground[index].Collision, native[2 + layerBytes + index], terrain.Behaviors[index],
+                    RoomVisualLayoutFiles.RetailLevelAreas[level], levelName, index);
                 AssertBlockEqual(background, terrain.Background[index], levelName, "installed background", index);
                 AssertBlockEqual(RoomLevelWordCodec.DecodeAppearance(foreground), layout.Foreground.Span[index],
                     levelName, "foreground appearance", index);
@@ -137,7 +138,10 @@ internal static class RoomVisualLayoutsVerification
                             native.AsSpan(bg2Offset + blockIndex * 2))
                         : FillWord;
                     AssertBlockEqual(RoomLevelWordCodec.Decode(nativeWord), block.Terrain, stateName, "terrain", blockIndex);
-                    AssertBlockEqual(RoomBlockBehaviorCodec.Decode(nativeBts), block.Behavior, stateName, "behaviour", blockIndex);
+                    if (block.CollisionType == RoomCollisionType.DoorBlock)
+                        AssertDoorBlock(loaded, block, header, nativeBts, stateName, blockIndex);
+                    else
+                        AssertLoadedBehavior(block, nativeBts, header.Area, stateName, blockIndex);
                     AssertBlockEqual(RoomLevelWordCodec.DecodeAppearance(nativeBg2Word), shownBackground[blockIndex],
                         stateName, "background", blockIndex);
                     if (block.CollisionType == RoomCollisionType.Slope) slopeBlocks++;
@@ -164,6 +168,61 @@ internal static class RoomVisualLayoutsVerification
     {
         if (!EqualityComparer<T>.Default.Equals(expected, actual))
             AssertEqual(expected, actual, $"{where} {property} {index}");
+    }
+
+    /// <summary>
+    /// Asserts a level block's installed behaviour against its native byte: a door block holds none, its door being its
+    /// room's own (#2090); a reacting block reacts as its byte does in every area of the rooms using the level, holding the
+    /// first behaviour of its reaction (#1805); any other block holds its byte's behaviour, unresolved.
+    /// </summary>
+    private static void AssertInstalledBehavior(RoomCollisionType kind, byte native, RoomBlockBehavior installed,
+        IReadOnlyList<AreaId> areas, string where, int index)
+    {
+        if (kind == RoomCollisionType.DoorBlock)
+        {
+            AssertBlockEqual(RoomBlockBehavior.None, installed, where, "installed door behaviour", index);
+            return;
+        }
+        if (BlockReactionFamilies.Of(kind) is not { } family)
+        {
+            AssertBlockEqual(RoomBlockBehaviorCodec.Decode(native), installed, where, "installed behaviour", index);
+            return;
+        }
+        foreach (AreaId area in areas)
+            AssertBlockEqual(RoomBlockBehaviorCodec.Decode(area, native).ReactionIn(family), installed.In(area).ReactionIn(family),
+                where, $"installed {area} reaction", index);
+    }
+
+    /// <summary>
+    /// Asserts a loaded block's behaviour, which its room's area resolves, against its native byte: a reacting block reacts
+    /// as its byte does in the area, and any other block holds its byte's behaviour in the area.
+    /// </summary>
+    private static void AssertLoadedBehavior(RoomCollisionBlock block, byte native, AreaId area, string where, int index)
+    {
+        if (BlockReactionFamilies.Of(block.CollisionType) is { } family)
+            AssertBlockEqual(RoomBlockBehaviorCodec.Decode(area, native).ReactionIn(family), block.Behavior.ReactionIn(family),
+                where, "reaction", index);
+        else
+            AssertBlockEqual(RoomBlockBehaviorCodec.Decode(area, native), block.Behavior, where, "behaviour", index);
+    }
+
+    /// <summary>
+    /// Asserts a door block holds no behaviour and leads where its native byte's position in its room's door list does
+    /// (#2090); a position past the list leads nowhere, as no door of the room is there.
+    /// </summary>
+    private static void AssertDoorBlock(RoomLevelData loaded, RoomCollisionBlock block, RoomDefinition room, byte nativeBts,
+        string where, int index)
+    {
+        AssertBlockEqual(RoomBlockBehavior.None, block.Behavior, where, "door behaviour", index);
+        IReadOnlyList<Core.Rooms.Doors.DoorBlockExit> list = RoomDoorListDefinitions.ByRoom[room];
+        int link = RoomBlockBehaviorCodec.DoorLinkOf(nativeBts);
+        if (link < list.Count)
+            AssertBlockEqual(list[link], loaded.ResolveDoorCollision(block, SamusCollisionPose.StandingNormal, publishDoorSideEffects: false),
+                where, "door exit", index);
+        else
+            AssertThrows<InvalidDataException>(
+                () => loaded.ResolveDoorCollision(block, SamusCollisionPose.StandingNormal, publishDoorSideEffects: false),
+                $"{where} door block {index} past its room's door list leads nowhere");
     }
 
     /// <summary>The cartridge's level-space fill word, which the import decodes as the game's edge-solid block.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;

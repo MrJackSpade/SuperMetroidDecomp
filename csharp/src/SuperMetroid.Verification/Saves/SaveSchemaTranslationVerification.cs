@@ -4,26 +4,18 @@ using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.RoomObjects.CollectiblesVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Saves;
-using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Fx;
-
 /// <summary>Checks named save-schema translation, legacy precedence, rejection paths, and backup-preserving upgrade.</summary>
 internal static class SaveSchemaTranslationVerification
 {

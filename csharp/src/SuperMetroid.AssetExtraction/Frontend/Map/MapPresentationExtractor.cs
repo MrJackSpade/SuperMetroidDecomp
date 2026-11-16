@@ -26,10 +26,6 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

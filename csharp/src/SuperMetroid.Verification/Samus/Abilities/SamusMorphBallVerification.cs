@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;

@@ -624,53 +624,6 @@ public sealed class ManagedSnesDsp
         }
     }
 
-    /// <summary>The installed PCM sample bank key-ons resolve sources from.</summary>
-    /// <exception cref="InvalidOperationException">No sample bank is installed.</exception>
-    internal ManagedPcmSampleBank SampleBank =>
-        sampleBank ?? throw new InvalidOperationException("The S-DSP has no installed PCM sample bank.");
-
-    /// <summary>Whether a voice is still playing a PCM source it looked up earlier, which recording cannot see.</summary>
-    internal bool HoldsSamples => voices.Any(voice => voice.Sample is not null);
-
-    /// <summary>
-    /// Writes every value that determines this DSP's future output (#1503): the register file, the global mixer, noise,
-    /// echo and FIR state, the buffered output, and each voice's pitch, decoder window, envelope and routing. The bound
-    /// RAM and sample bank are excluded, as is the PCM a voice holds; <see cref="HoldsSamples"/> reports that.
-    /// </summary>
-    internal void WriteState(List<byte> state)
-    {
-        Ensure.NotNull(state);
-        state.AddRange(registers);
-        SpcDriverSnapshot.AddValues(state,
-        [
-            mute ? 1 : 0, reset ? 1 : 0, masterVolumeLeft, masterVolumeRight, noiseSample, noiseRate, noiseCounter,
-            echoWrites ? 1 : 0, echoVolumeLeft, echoVolumeRight, feedbackVolume, echoBufferAddress, echoDelay, echoRemaining,
-            echoBufferIndex, firBufferIndex, BufferedStereoFrameCount, OutputVoices,
-        ]);
-        foreach (sbyte value in firValues)
-            SpcDriverSnapshot.AddValues(state, [value]);
-        foreach (short value in firBufferLeft)
-            SpcDriverSnapshot.AddValues(state, [value]);
-        foreach (short value in firBufferRight)
-            SpcDriverSnapshot.AddValues(state, [value]);
-        foreach (short value in sampleBuffer)
-            SpcDriverSnapshot.AddValues(state, [value]);
-        foreach (Voice voice in voices)
-        {
-            SpcDriverSnapshot.AddValues(state,
-            [
-                voice.Pitch, voice.PitchCounter, voice.PitchModulation ? 1 : 0, voice.SourceNumber, voice.SampleCursor,
-                voice.PreviousFlags, voice.ReleasedBrrCursor ?? -1, voice.UseNoise ? 1 : 0, voice.RateCounter,
-                (int)voice.AdsrState, voice.SustainLevel, voice.UseGain ? 1 : 0, voice.GainMode, voice.DirectGain ? 1 : 0,
-                voice.GainValue, voice.Gain, voice.SampleOutput, voice.VolumeLeft, voice.VolumeRight, voice.EchoEnable ? 1 : 0,
-            ]);
-            foreach (short value in voice.DecodeBuffer)
-                SpcDriverSnapshot.AddValues(state, [value]);
-            foreach (ushort value in voice.AdsrRates)
-                SpcDriverSnapshot.AddValues(state, [value]);
-        }
-    }
-
     /// <summary>Reads a wrapped little-endian DSP word from shared audio RAM.</summary>
     private ushort ReadWord(int address) => SpcRamWords.Read(apuRam, address);
 

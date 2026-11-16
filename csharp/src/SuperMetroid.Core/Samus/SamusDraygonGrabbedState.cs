@@ -44,19 +44,11 @@ public sealed class SamusDraygonGrabbedState
     internal void RelinquishMovement() => MovementTakenOver = true;
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
-    private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> _escapePresses;
+    internal readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
 
     /// <summary>Creates a Draygon-held owner whose escape presses count on Samus's shared escape and drain count.</summary>
     /// <param name="escapePresses">Samus's shared escape and drain count.</param>
-    internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses) => _escapePresses = Ensure.NotNull(escapePresses);
-
-    /// <summary>
-    /// Presses of the directions counted toward escaping, 0 through 65535, on the count Crystal Flash's ammunition drain and the suit
-    /// pickup's stage share (<see cref="SharedEscapeAndDrainCount{TStage}"/>), so it holds any value those leave, including a
-    /// wrapped countdown. A press continues from zero past 65535, and the release test is the shared count's own
-    /// (<see cref="SharedEscapeAndDrainCount{TStage}.EscapePressesReach"/>).
-    /// </summary>
-    public int EscapeButtonCounter => _escapePresses.EscapePresses;
+    internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses) => this.escapePresses = Ensure.NotNull(escapePresses);
 
     /// <summary>
     /// The directions input of Draygon's escape. The game stores the entire set of newly pressed directions
@@ -85,7 +77,7 @@ public sealed class SamusDraygonGrabbedState
 
         IsActive = true;
         MovementTakenOver = false;
-        _escapePresses.ClearEscapePresses();
+        escapePresses.ClearEscapePresses();
         // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
@@ -156,12 +148,12 @@ public sealed class SamusDraygonGrabbedState
         if (dpad != GameplayAction.None && dpad != PreviousDpadInput)
         {
             PreviousDpadInput = dpad;
-            _escapePresses.CountEscapePress();
+            escapePresses.CountEscapePress();
             counted = true;
         }
 
         // The game tests the count against the target only on a newly counted press of the directions.
-        bool released = counted && _escapePresses.EscapePressesReach(EscapeButtonCounterTarget);
+        bool released = counted && escapePresses.EscapePressesReach(EscapeButtonCounterTarget);
         if (released)
             Release(samus);
 

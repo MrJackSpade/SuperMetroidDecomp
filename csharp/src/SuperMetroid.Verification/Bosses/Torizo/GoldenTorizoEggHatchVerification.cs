@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;

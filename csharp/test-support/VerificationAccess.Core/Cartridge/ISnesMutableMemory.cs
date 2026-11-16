@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.AssetExtraction.Cartridge;
+﻿namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Read access to the console's mutable WRAM and battery-backed SRAM. Unlike

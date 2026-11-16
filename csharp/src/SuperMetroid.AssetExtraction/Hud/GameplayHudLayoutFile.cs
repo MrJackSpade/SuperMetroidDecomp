@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -96,15 +95,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     internal void RequestSpacePirateSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
-
-    /// <summary>Recognizes the six walking variants that share patrol AI and laser behavior.</summary>
-    internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.PirateGreyWalking or
-        EnemyDefinitionId.PirateGreenWalking or
-        EnemyDefinitionId.PirateRedWalking or
-        EnemyDefinitionId.PirateGoldWalking or
-        EnemyDefinitionId.PirateMagentaWalking or
-        EnemyDefinitionId.PirateSilverWalking;
 
     /// <summary>Initializes the walking Space Pirate.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemyPlace place)

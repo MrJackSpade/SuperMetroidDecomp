@@ -31,9 +31,9 @@ internal static class MoatFirstEntryVerification
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {
-            // Each history starts with fresh mutable WRAM as well as fresh owners.
-            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+                // Each history starts with fresh mutable WRAM as well as fresh owners.
+                _ = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

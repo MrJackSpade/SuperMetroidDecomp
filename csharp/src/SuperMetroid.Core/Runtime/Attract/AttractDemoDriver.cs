@@ -17,8 +17,6 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// </summary>
 internal sealed class AttractDemoDriver : IAttractSamusInput
 {
-    /// <summary>Installs the selected Samus colours before demo room graphics are loaded.</summary>
-    private readonly RuntimeArtwork _artwork;
     /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
@@ -39,7 +37,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
     {
-        _artwork = dependencies.Artwork;
+        _ = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
         _playerActions = dependencies.PlayerActions;
         _hudSetup = dependencies.HudSetup;

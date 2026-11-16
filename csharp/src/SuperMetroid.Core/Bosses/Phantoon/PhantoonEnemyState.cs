@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>

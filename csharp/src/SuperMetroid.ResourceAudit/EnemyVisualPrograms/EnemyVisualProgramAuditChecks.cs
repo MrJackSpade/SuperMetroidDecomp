@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

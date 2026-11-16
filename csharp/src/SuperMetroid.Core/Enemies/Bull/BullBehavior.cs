@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 

@@ -13,7 +13,7 @@ internal static class ReferenceMutableMemory
         source as ISnesMutableMemory ?? new GuardMemory(source);
 
     /// <summary>Confines fallback diagnostic reads to the caller-requested mutable region.</summary>
-    private sealed class GuardMemory(ISnesAddressSpace source) : ISnesMutableMemory
+    private sealed class GuardMemory(ISnesAddressSpace source)
     {
         /// <summary>Reads WRAM only after confirming the requested address maps to work memory.</summary>
         public byte ReadWorkRamByte(int address) => Read(address, SnesDmaSourceKind.WorkRam);

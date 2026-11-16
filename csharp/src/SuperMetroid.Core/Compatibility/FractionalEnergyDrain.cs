@@ -24,17 +24,14 @@ public readonly record struct FractionalEnergyDrain
     /// <summary>The parts one energy is drained in: a fraction and what is held over are counted in these parts.</summary>
     public const int PartsPerEnergy = WrappingCounter.LargestCount + 1;
 
-    /// <summary>Stores what is held over, 0 through one part short of an energy; callers use <see cref="HoldingOver"/>.</summary>
-    private FractionalEnergyDrain(int heldOver) => HeldOver = Ensure.BetweenInclusive(0, PartsPerEnergy - 1, heldOver);
+    /// <summary>Stores what is held over, 0 through one part short of an energy; callers use <c>HoldingOver</c>.</summary>
+    internal FractionalEnergyDrain(int heldOver) => HeldOver = Ensure.BetweenInclusive(0, PartsPerEnergy - 1, heldOver);
 
     /// <summary>What is held over from the last energy taken, 0 through one part short of an energy, in <see cref="PartsPerEnergy"/>ths.</summary>
     public int HeldOver { get; }
 
     /// <summary>A drain that has taken nothing yet: nothing is held over, so its first fraction takes an energy.</summary>
     public static FractionalEnergyDrain Start => default;
-
-    /// <summary>A drain holding <paramref name="heldOver"/> parts over, 0 through one part short of an energy, as a parity check states one.</summary>
-    public static FractionalEnergyDrain HoldingOver(int heldOver) => new(heldOver);
 
     /// <summary>Whether draining <paramref name="fraction"/> takes an energy: whether it is more than what is held over.</summary>
     /// <param name="fraction">One update's fraction, 0 through one part short of an energy.</param>

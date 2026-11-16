@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainHandBeamAnimations
 {
-    /// <summary>Stages the beam runs before deleting itself.</summary>
-    internal const int StageCount = 3;
 
     /// <summary>
     /// Three stages, each spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2,

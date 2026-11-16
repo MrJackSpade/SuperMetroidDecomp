@@ -17,10 +17,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

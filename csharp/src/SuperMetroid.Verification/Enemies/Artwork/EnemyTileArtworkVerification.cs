@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkVerification
 {
     /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>
     private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, EnemyDefinitionId definition, int byteCount) =>
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definition), byteCount);
+        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(bus, definition), byteCount);
 
     /// <summary>
     /// The melt image the cartridge assembles for <paramref name="pass"/> from its retail graphics: each band's $0402-byte
@@ -236,7 +236,7 @@ internal static class EnemyTileArtworkVerification
                         $"unplaced artwork {unplaced}'s extracted tiles hold the cartridge tiles its header names");
                     continue;
                 }
-                int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer).ByteCount;
+                int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileSet(bus, pointer).ByteCount;
                 byte[] native = ReadNativeEnemyTiles(bus, pointer, byteCount);
                 AssertTrue(stock.Enemies.TilesOf(pointer).Span.SequenceEqual(native),
                     $"enemy {pointer}'s extracted tiles hold the cartridge tiles its header names");
@@ -246,7 +246,7 @@ internal static class EnemyTileArtworkVerification
                     $"enemy {pointer} page preserves every native tile byte");
                 // The installed palette the import colours the enemy's sheets in (#1512) is the cartridge's, colour for colour.
                 ReadOnlySpan<RgbColor> installedColours = stock.Enemies.PaletteOf(pointer).Colours;
-                int paletteAddress = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, pointer);
+                int paletteAddress = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.PaletteAddress(bus, pointer);
                 for (int color = 0; color < EnemyPaletteSheetFile.ColorCount; color++)
                 {
                     int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), paletteAddress + color * sizeof(ushort));

@@ -145,7 +145,7 @@ internal static class TitleSkipWindowVerification
         {
             AssertEqual(TitleSkipStage.FadingOut, title.SkipStage, $"{place} skips");
             AssertEqual(expected.Phase, title.Phase, $"{place} keeps running its step alongside the skip's fade-out");
-            AssertEqual(expected.Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep, (int)title.Brightness,
+            AssertEqual(expected.Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep, title.Brightness,
                 $"{place} takes the skip's first fade step on its own update");
             bool fadedIn = false;
             for (int route = 0; title.Phase != TitleSequencePhase.TitleScreen; route++)

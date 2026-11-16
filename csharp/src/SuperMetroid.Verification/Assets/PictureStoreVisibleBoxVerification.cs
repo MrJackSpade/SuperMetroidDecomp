@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;

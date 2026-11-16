@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -27,7 +26,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
 using SuperMetroid.Verification.Harness;

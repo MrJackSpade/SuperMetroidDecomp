@@ -274,7 +274,7 @@ internal static class FxOverlayPlacementIdentityVerification
         if (fx.Surface is not >= 0 || fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
         int firstSurfaceLine = surfaceLine - (ScreenGeometry.BackgroundCellSizePixels - 1);
-        int scroll = ScrollShapeLines.Scroll(ScrollBands.Split(0, firstSurfaceLine, OldVerticalScroll(stepSurface, cameraY)), y);
+        int scroll = ScrollShapeLines.Scroll(ScrollBandsConstants.Split(0, firstSurfaceLine, OldVerticalScroll(stepSurface, cameraY)), y);
         int offset = ((y + scroll) & 0xffff) % PageLiquidRepeat - PageLiquidTop;
         return offset >= 0 && offset < pageHeight ? offset : null;
     }

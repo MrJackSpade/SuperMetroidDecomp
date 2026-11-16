@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
-
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Verification view of a resident colored-door PLM slot.</summary>

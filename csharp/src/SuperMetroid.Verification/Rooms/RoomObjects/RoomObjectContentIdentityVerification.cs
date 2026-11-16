@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -12,14 +12,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated editable OAM compositions keyed by the poses that show them.</summary>
-    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Retains compiled compositions after all published reward frames are checked.</summary>
     private EndingRewardSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingRewardSpritePresentation), frames);
 
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingReward;

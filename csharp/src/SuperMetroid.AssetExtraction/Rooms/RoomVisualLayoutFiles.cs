@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using System.Collections.ObjectModel;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Rooms;

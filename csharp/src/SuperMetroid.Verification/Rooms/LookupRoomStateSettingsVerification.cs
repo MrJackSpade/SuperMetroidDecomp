@@ -153,9 +153,9 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer"));
         ushort[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).XrayPointer)
             .Where(pointer => pointer != 0).Distinct().Order().ToArray();
-        AssertTrue(XrayRoomOverlaySources.Pointers.SequenceEqual(original),
+        AssertTrue(XrayRoomOverlaySourcesConstants.Pointers.SequenceEqual(original),
             "Required X-ray source view matches distinct original nonzero pointers in order");
-        AssertTrue(XrayRoomOverlaySources.Pointers.SequenceEqual(original),
+        AssertTrue(XrayRoomOverlaySourcesConstants.Pointers.SequenceEqual(original),
             "X-ray source view is repeatable after complete enumeration");
     }
     /// <summary>

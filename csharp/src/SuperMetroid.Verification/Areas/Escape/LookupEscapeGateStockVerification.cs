@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 

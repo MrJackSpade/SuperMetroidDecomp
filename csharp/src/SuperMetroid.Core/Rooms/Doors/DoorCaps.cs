@@ -46,8 +46,4 @@ internal static class DoorCaps
     /// <summary>The four looks of a cap closing and sliding aside, in the order it opens.</summary>
     internal static IReadOnlyList<DoorCapLook> OpeningLooks { get; } =
         [DoorCapLook.Closed, DoorCapLook.Ajar, DoorCapLook.HalfOpen, DoorCapLook.NearlyOpen];
-
-    /// <summary>Whether <paramref name="look"/> is the cap closed or sliding aside, the looks every painted cap draws.</summary>
-    internal static bool IsOpeningLook(DoorCapLook look) =>
-        look is DoorCapLook.Closed or DoorCapLook.Ajar or DoorCapLook.HalfOpen or DoorCapLook.NearlyOpen;
 }

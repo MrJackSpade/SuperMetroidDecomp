@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

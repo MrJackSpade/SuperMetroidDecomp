@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Samus;

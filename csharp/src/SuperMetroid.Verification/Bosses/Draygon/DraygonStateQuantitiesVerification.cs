@@ -2,7 +2,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -86,9 +85,9 @@ internal static class DraygonStateQuantitiesVerification
         const byte angle = 250;
         state.SpiralXRadius = SignedSixteenSixteen.FromParts((short)radiusWhole, radiusFraction);
         state.SpiralAngle = RotationAngle.FromSteps(angle);
-        state.SpiralAngleDelta = RotationAngle.FromRaw(angleDeltaRaw);
+        state.SpiralAngleDelta = RotationAngleConstants.FromRaw(angleDeltaRaw);
         // A centre on the spiral's upper limit ends the step at the lift check, before Samus is moved.
-        state.SpiralCenter = DraygonRegrabSpiralLift.At(FixedPosition<RoomPixels>.FromWhole(new(256, 64)));
+        state.SpiralCenter = DraygonRegrabSpiralLiftConstants.At(FixedPosition<RoomPixels>.FromWhole(new(256, 64)));
         Position16<RoomPixels> center = state.SpiralCenter.Center.Whole;
         state.Phase = DraygonPhase.FlailWithSamus;
 

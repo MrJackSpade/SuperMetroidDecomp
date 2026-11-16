@@ -61,22 +61,12 @@ public readonly record struct Bearing
     public CompassDirection NearestDirection() =>
         DirectionsClockwise[TurnedBySteps(RotationAngle.StepsPerTurn / 16).Sector(DirectionsClockwise.Length)];
 
-    /// <summary>The bearing pointing straight along <paramref name="direction"/>: a whole number of eighths of the turn clockwise from up.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not a compass direction.</exception>
-    public static Bearing Toward(CompassDirection direction)
-    {
-        int eighths = Array.IndexOf(DirectionsClockwise, direction);
-        return eighths >= 0
-            ? new(eighths * (RotationAngle.StepsPerTurn / DirectionsClockwise.Length))
-            : throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Undefined {nameof(CompassDirection)}.");
-    }
-
     /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
     private static readonly CompassDirection[] StraightDirectionsClockwise =
         [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
 
     /// <summary>The eight compass directions in clockwise order from up, each an eighth of the turn on from the last.</summary>
-    private static readonly CompassDirection[] DirectionsClockwise =
+    internal static readonly CompassDirection[] DirectionsClockwise =
     [
         CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
         CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft,

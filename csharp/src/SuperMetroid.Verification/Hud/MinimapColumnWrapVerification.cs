@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;

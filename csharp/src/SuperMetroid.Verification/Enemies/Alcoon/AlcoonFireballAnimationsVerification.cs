@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.TestSupport.MovieReplay.AlcoonFireballNativeListAddresses;
-using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;

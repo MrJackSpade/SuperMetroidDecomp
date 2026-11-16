@@ -38,7 +38,7 @@ internal static class TurnArcPicksVerification
         Animation<MorphBallEyeSegment> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            RotationAngle angle = RotationAngle.FromRaw(raw);
+            RotationAngle angle = RotationAngleConstants.FromRaw(raw);
             AssertEqual(AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking, MorphBallEyeSegment.Active, angle.Sector(16)),
                 MorphBallEyeAnimations.TrackingPlaces.At(angle), $"Morph Ball eye angle {raw} tracking place");
         }

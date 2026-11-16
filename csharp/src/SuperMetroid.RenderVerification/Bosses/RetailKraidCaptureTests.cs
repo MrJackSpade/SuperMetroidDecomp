@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Kraid;

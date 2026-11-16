@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;

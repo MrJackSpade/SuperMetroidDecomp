@@ -26,7 +26,7 @@ internal sealed class SamusProjectileListLayout
     /// <summary>Each timed record's instruction pointer.</summary>
     private readonly Dictionary<SamusProjectileFrame, int> _recordPositions;
     /// <summary>Each segment's list entry and the word just before it.</summary>
-    private readonly IReadOnlyDictionary<SamusProjectileSegment, ListPosition> _positions;
+    internal readonly IReadOnlyDictionary<SamusProjectileSegment, ListPosition> positions;
 
     /// <summary>Where one segment's list stands: its entry and the word just before it.</summary>
     /// <param name="Entry">The list's first instruction pointer.</param>
@@ -44,14 +44,11 @@ internal sealed class SamusProjectileListLayout
             if (!positions.ContainsKey(program))
                 throw new InvalidDataException($"The projectile list layout has no position for {program}.");
         }
-        _positions = positions;
+        this.positions = positions;
         beatPositions = Enum.GetValues<SamusProjectileSegment>().ToDictionary(program => program, Layout);
         _places = BuildPlaces();
         _recordPositions = BuildRecordPositions();
     }
-
-    /// <summary>The word just before <paramref name="program"/>'s list.</summary>
-    internal ushort Prefix(SamusProjectileSegment program) => checked((ushort)_positions[program].PrecedingWord);
 
     /// <summary>The instruction pointer <paramref name="place"/> stands for.</summary>
     internal ushort Position(SamusProjectileSegmentBeat place) => beatPositions[place.Segment][place.Beat];
@@ -64,7 +61,7 @@ internal sealed class SamusProjectileListLayout
         _places.TryGetValue(checked((ushort)pointer), out place);
 
     /// <summary>The segments in list order.</summary>
-    private IEnumerable<SamusProjectileSegment> ListOrder => _positions.OrderBy(position => position.Value.Entry).Select(position => position.Key);
+    private IEnumerable<SamusProjectileSegment> ListOrder => positions.OrderBy(position => position.Value.Entry).Select(position => position.Key);
 
     /// <summary>
     /// Each place's pointer: eight bytes per timed record from the entry, then the segment's end, which a run on into the
@@ -73,14 +70,14 @@ internal sealed class SamusProjectileListLayout
     private ushort[] Layout(SamusProjectileSegment program)
     {
         int beats = SamusProjectileAnimations.Segments.Beats(program).Count;
-        int entry = _positions[program].Entry;
+        int entry = positions[program].Entry;
         return [.. Enumerable.Range(0, beats + 1).Select(beat => checked((ushort)(entry + beat * TimedRecordByteCount)))];
     }
 
     /// <summary>Indexes every list position; an entry stands for its own segment's start.</summary>
     private Dictionary<ushort, SamusProjectileSegmentBeat> BuildPlaces()
     {
-        var places = ListOrder.ToDictionary(program => checked((ushort)_positions[program].Entry), program => new SamusProjectileSegmentBeat(program, 0));
+        var places = ListOrder.ToDictionary(program => checked((ushort)positions[program].Entry), program => new SamusProjectileSegmentBeat(program, 0));
         foreach (SamusProjectileSegment program in ListOrder)
         {
             ushort[] pointers = beatPositions[program];

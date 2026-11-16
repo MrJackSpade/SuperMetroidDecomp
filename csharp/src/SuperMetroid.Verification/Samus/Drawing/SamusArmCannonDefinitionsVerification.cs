@@ -17,7 +17,7 @@ internal static class SamusArmCannonDefinitionsVerification
     internal static void VerifySamusArmCannonDefinitions(CartridgeImportAddressSpace rom)
     {
         var artwork = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
-        foreach (HudItem selectedHudItem in HudItems.All)
+        foreach (HudItem selectedHudItem in HudItemsConstants.All)
         {
             // The cartridge's table is in the save's numbering of the HUD items.
             byte expected = rom.ReadCartridgeByte(
@@ -92,7 +92,7 @@ internal static class SamusArmCannonDefinitionsVerification
     /// <summary>Rejects live reads of the compiled arm-cannon HUD policy table.</summary>
     private static CartridgeReadGuard NewArmCannonPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address >= SamusArmCannonDefinitions.OpenFlagTable &&
-                address < SamusArmCannonDefinitions.OpenFlagTable + HudItems.All.Count,
+                address < SamusArmCannonDefinitions.OpenFlagTable + HudItemsConstants.All.Count,
             _ => "Runtime arm-cannon HUD policy read from cartridge ROM.");
 
     /// <summary>Runs the arm-cannon HUD policy and transition checks.</summary>

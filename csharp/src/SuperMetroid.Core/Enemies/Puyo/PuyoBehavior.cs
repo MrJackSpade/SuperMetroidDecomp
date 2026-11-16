@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;

@@ -60,7 +60,7 @@ internal static class SnesVramAccess
         /// </summary>
         internal void ExecuteDmaWrite(ISnesMutableMemory memory, SnesAddress sourceAddress, int sizeInBytes, ushort encodedDestination)
         {
-            if (sizeInBytes is <= 0 or > SnesBusLayout.BankBytes)
+            if (sizeInBytes is <= 0 or > SnesBusLayoutConstants.BankBytes)
                 throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
             VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
             int destinationWord = destination.Word;

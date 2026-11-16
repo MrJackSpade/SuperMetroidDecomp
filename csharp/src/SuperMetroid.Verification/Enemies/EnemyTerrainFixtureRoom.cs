@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Verification.Enemies;

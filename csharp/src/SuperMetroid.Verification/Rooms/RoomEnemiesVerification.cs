@@ -26,7 +26,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -249,9 +248,7 @@ internal static void VerifyRoomEnemyLoading()
 /// Forwards fixture definitions and mutable memory while rejecting native tile and
 /// palette reads, proving the installed artwork path supplies those uploads.
 /// </summary>
-internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
-    ISnesAddressSpace, IRoomEnemyDefinitionSource, IImportCartridgeSource,
-    ISnesMutableMemory
+internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) : ISnesAddressSpace, IRoomEnemyDefinitionSource, IImportCartridgeSource
 {
     /// <summary>Forwards a compiled enemy header from the fixture source.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>

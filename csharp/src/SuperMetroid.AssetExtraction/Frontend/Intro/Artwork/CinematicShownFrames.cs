@@ -44,18 +44,4 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
         }
         return new CinematicShownFrames(family.Family, frames);
     }
-
-    /// <summary>Requires every pose of <paramref name="shown"/> composed by one of <paramref name="families"/>.</summary>
-    /// <exception cref="InvalidDataException">A shown pose has no composition.</exception>
-    internal static void RequireComposed(string scene, IReadOnlySet<CinematicSpritePose> shown, IEnumerable<ICinematicSpriteFrames> families)
-    {
-        var composed = new HashSet<CinematicSpritePose>();
-        foreach (ICinematicSpriteFrames family in families)
-            composed.UnionWith(family.Frames.Keys);
-        foreach (CinematicSpritePose pose in shown)
-        {
-            if (!composed.Contains(pose))
-                throw new InvalidDataException($"{scene} shows pose {pose}, which none of its families composes.");
-        }
-    }
 }

@@ -24,7 +24,6 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Ceres;

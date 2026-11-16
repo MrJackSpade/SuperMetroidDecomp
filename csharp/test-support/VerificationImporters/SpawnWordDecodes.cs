@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;

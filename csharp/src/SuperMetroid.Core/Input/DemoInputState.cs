@@ -68,17 +68,17 @@ public sealed class DemoInputState
     }
 
     /// <summary>
-    /// Switches the playback to <paramref name="recording"/>, whose first input is due after <paramref name="frameHold"/>
-    /// steps, as an owner's watch does before a step.
+    /// Switches the playback to <paramref name="recording"/>, whose first input is due on the next step, as an owner's watch
+    /// does before a step.
     /// </summary>
     /// <remarks>
     /// The recording and its countdown change together, so a switch never publishes the new recording with the old
     /// countdown for one step, a state the game cannot expose.
     /// </remarks>
-    public void SwitchTo(DemoInputRecordingId recording, int frameHold = 1)
+    public void SwitchTo(DemoInputRecordingId recording)
     {
         Position = DemoPlaybackPosition.Start(recording);
-        FrameHold = WrappingCountdown.Start(frameHold);
+        FrameHold = WrappingCountdown.Start(1);
     }
 
     /// <summary>

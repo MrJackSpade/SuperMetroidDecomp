@@ -170,7 +170,10 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0, roomObjects: Sam
     // The compiled retail transition is 03,03,F9: six animation ticks
     // reach the frame-two branch while retaining its native F9 operands.
     for (int tick = 0; tick < 6; tick++)
+    {
+        samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    }
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires samus.PendingTransitionalPose.")),
         "F9 selects no-spring grounded endpoint");
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus), "grounded F9 endpoint applies");
@@ -497,7 +500,10 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSpeed = airborneEntry.Kinematics.YSpeed.WithFraction(1);
     for (int tick = 0; tick < 6; tick++)
+    {
+        airborneEntry.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(airborneEntry, new SamusAnimationStep { Random = new SharedRandom() });
+    }
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, (airborneEntry.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires airborneEntry.PendingTransitionalPose.")),
         "F9 nonzero Y subspeed selects airborne endpoint");
 
@@ -516,7 +522,10 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
 floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 6; tick++)
+    {
+        spring.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(spring, new SamusAnimationStep { Random = new SharedRandom() });
+    }
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires spring.PendingTransitionalPose.")),
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(spring), "Spring Ball F9 applies");
@@ -695,7 +704,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     while (!bombs.Bombs[0].IsExploding)
     {
         // Each pass is an update of its own; the bombs' record keeps only its requests.
-        bombs.AudioRequests.BeginUpdate();
+        bombs.AudioRequests.BeginRecordedUpdate();
         bombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bombProjectileSamus, 0, 0);
     }
     AssertTrue(bombs.Bombs[0].IsExploding, "timer zero selects bomb explosion list");
@@ -733,7 +742,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
         "held Down advances native bomb-spread timeout");
 
-    spreadBombs.AudioRequests.BeginUpdate();
+    spreadBombs.AudioRequests.BeginRecordedUpdate();
     bool spreadReleasedCharge = spreadBombs.StepFrameConsumingCharge(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, GameplayAction.Shoot, 0);
     AssertTrue(spreadBombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread),
         "releasing Down while holding charged Shoot starts bomb spread");
@@ -904,7 +913,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
 
     while (!powerBombs.PowerBombExplosion.IsActive)
     {
-        powerBombs.AudioRequests.BeginUpdate();
+        powerBombs.AudioRequests.BeginRecordedUpdate();
         powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
     }
     AssertEqual(0, powerBombs.Bombs[0].BombTimer.RawValue,

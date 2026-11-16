@@ -461,6 +461,7 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.Places.InUpdateOrder[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairPogoFall;
         state.TailSegments[6].Position = new Position16<RoomPixels>(4, 118);
+        runtime.AudioRequests.BeginRecordedUpdate();
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");

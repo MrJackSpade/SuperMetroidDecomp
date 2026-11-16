@@ -589,7 +589,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             // The room's groups show each record as it is shown over the room's pictures, as the import's shades of them (#1512).
             // Each step is an update of its own; the effects' record keeps only its sounds.
-            paletteFx.AudioRequests.BeginUpdate();
+            paletteFx.AudioRequests.BeginRecordedUpdate();
             StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded), cgram);
             if (paletteFx.SoundRequests.Count == 0)
                 continue;
@@ -845,7 +845,7 @@ internal static class PaletteFxInstructionCodesVerification
         int damageSoundCount = 0;
         for (ushort frame = 0; frame <= 17; frame++)
         {
-            paletteFx.AudioRequests.BeginUpdate();
+            paletteFx.AudioRequests.BeginRecordedUpdate();
             paletteFx.Step(new ColourEffectInputs { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, AreaMiniBossDefeated = false, Samus = samus.RoomView, FrameCounter = frame });
             // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
             PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
@@ -1513,7 +1513,7 @@ internal static class PaletteFxInstructionCodesVerification
         for (int frame = 0; frame < 256; frame++)
         {
             // Each step is an update of its own; the effects' record keeps only its sounds.
-            paletteFx.AudioRequests.BeginUpdate();
+            paletteFx.AudioRequests.BeginRecordedUpdate();
             paletteFx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
             PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
@@ -1536,7 +1536,7 @@ internal static class PaletteFxInstructionCodesVerification
 
         // The next call must parse the timed palette record immediately after the byte
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
-        paletteFx.AudioRequests.BeginUpdate();
+        paletteFx.AudioRequests.BeginRecordedUpdate();
         paletteFx.Step(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
         PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));

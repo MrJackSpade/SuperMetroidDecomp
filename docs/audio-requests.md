@@ -15,13 +15,14 @@ back, is the clock's business, written in its own types.
 
 ## Where gameplay's requests go
 
-Every gameplay system queues each sound or music request the moment it makes it, into the update's
-`GameplayAudioRequests`, which the runtime owns and every room system and Samus are pointed at. A session's record goes
+Every gameplay system makes each sound or music request the moment it makes it, through the
+`GameplayAudioRequests` the runtime owns and every room system and Samus are pointed at. A session's requests go
 straight on into the session's sound and music queues, so the queues receive the requests in the update's run order
 across every system, as the original's callers each call its queue routines while they run (#1620). Nothing holds a
 request for the end of a pass or the end of the update, and nothing joins requests by system afterwards: the frontend
 queues only the audio of its own boundaries (room music, the music a loading room's enemies start, a message box's
-one-shot sounds). The record is cleared when the next update begins and is what a check reads.
+one-shot sounds). Production keeps no record of the requests (#2137): a check records them between the requests and
+their queues (test-support `RecordingAudioQueues`) and begins each update it inspects.
 
 Whether a sound joins its queue is the queue's own test, made as the request reaches it (`SoundQueueAdmission`,
 `docs/compatibility-layer.md`): the queue's occupancy against the request's priority, then whether the door's switch

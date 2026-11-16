@@ -101,11 +101,11 @@ internal static class ResumeChargingSoundCancelVerification
         fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot });
         AssertTrue(fixture.Charge.HyperBeamFlare, "the first Hyper Beam shot starts its flare");
 
-        fixture.Requests.BeginUpdate();
+        fixture.Requests.BeginRecordedUpdate();
         SamusPostDrawAudio.Step(fixture.Samus, SamusMovementType.SpinJumping, GameplayAction.Shoot);
         AssertTrue(fixture.Samus.ResumeChargingBeamSoundPending, "leaving the spin with Shoot held and the flare showing requests the resume");
 
-        fixture.Requests.BeginUpdate();
+        fixture.Requests.BeginRecordedUpdate();
         fixture.Bombs.SetSharedCooldown(0);
         fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None });
         fixture.AssertShotCancelled("Hyper Beam shot after the spin");

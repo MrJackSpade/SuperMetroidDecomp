@@ -16,6 +16,20 @@ internal static class PrivateState
             ?? throw new MissingMemberException(typeof(TOwner).Name, property))
         .Invoke(Ensure.NotNull(owner), BindingFlags.DoNotWrapExceptions, binder: null, [value], culture: null);
 
+    /// <summary>Calls <paramref name="owner"/>'s instance method <paramref name="method"/> with <paramref name="arguments"/>.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no instance method of that name.</exception>
+    internal static void Call<TOwner>(TOwner owner, string method, params object?[] arguments) where TOwner : class =>
+        (typeof(TOwner).GetMethod(method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingMemberException(typeof(TOwner).Name, method))
+        .Invoke(Ensure.NotNull(owner), BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null);
+
+    /// <summary>Replaces the value of <paramref name="owner"/>'s instance field <paramref name="field"/>, read-only or not.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no instance field of that name.</exception>
+    internal static void SetField<TOwner>(TOwner owner, string field, object? value) where TOwner : class =>
+        (typeof(TOwner).GetField(field, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingMemberException(typeof(TOwner).Name, field))
+        .SetValue(Ensure.NotNull(owner), value);
+
     /// <summary>The value of <paramref name="owner"/>'s instance field <paramref name="field"/>.</summary>
     /// <exception cref="MissingMemberException">The owner's type has no instance field of that name.</exception>
     /// <exception cref="InvalidCastException">The field does not hold a <typeparamref name="TValue"/>.</exception>

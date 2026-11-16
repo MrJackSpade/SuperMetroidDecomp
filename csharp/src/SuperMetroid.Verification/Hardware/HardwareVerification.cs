@@ -280,7 +280,7 @@ internal static void VerifyEscapeTimerStateMachine()
 {
     var timer = new EscapeTimer();
     timer.RequestCeresStart();
-    AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
+    AssertTrue(!timer.Process(0, holdAtOneSecond: false), "Ceres initialization does not report expiration");
     AssertEqual(EscapeTimerPhase.InitialDelay, timer.Phase, "Ceres enters initial delay");
     AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "Ceres starts at one minute");
     FixedVector<ScreenPixels> centre = FixedVector<ScreenPixels>.FromWholePixels(Offset16<ScreenPixels>.Of(128, 128));
@@ -288,52 +288,52 @@ internal static void VerifyEscapeTimerStateMachine()
 
     // The initial delay lasts sixteen updates and never counts down.
     for (int frame = 1; frame < 16; frame++)
-        AssertTrue(!timer.Process(frame), $"initial-delay frame {frame}");
+        AssertTrue(!timer.Process(frame, holdAtOneSecond: false), $"initial-delay frame {frame}");
     AssertEqual(EscapeTimerPhase.InitialDelay, timer.Phase, "the initial delay holds through its fifteenth update");
-    AssertTrue(!timer.Process(16), "initial-delay frame 16");
+    AssertTrue(!timer.Process(16, holdAtOneSecond: false), "initial-delay frame 16");
     AssertEqual(EscapeTimerPhase.CountingAtCentre, timer.Phase, "the initial delay ends on its sixteenth update");
     AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "the initial delay did not count down");
     AssertEqual(centre, timer.Position, "the timer waits at the centre");
 
     // Counting at the centre continues until the ninety-sixth update since the start.
     for (int frame = 17; frame < 96; frame++)
-        timer.Process(frame);
+        timer.Process(frame, holdAtOneSecond: false);
     AssertEqual(EscapeTimerPhase.CountingAtCentre, timer.Phase, "the centre delay holds through the ninety-fifth update");
-    timer.Process(96);
+    timer.Process(96, holdAtOneSecond: false);
     AssertEqual(EscapeTimerPhase.MovingIntoPlace, timer.Phase, "the centre delay ends on the ninety-sixth update");
     AssertEqual(centre, timer.Position, "the timer leaves the centre from pixel 128 with no fraction");
 
     // X reaches its clamp in 106 frames; Y requires 107, so the phase advances on 107.
     // Each update moves it 224/256 of a pixel right and 193/256 up, the fractions kept between updates.
-    timer.Process(97);
+    timer.Process(97, holdAtOneSecond: false);
     AssertEqual(new FixedVector<ScreenPixels>(SignedSixteenSixteen.FromParts(128, 224 << 8), SignedSixteenSixteen.FromParts(127, 63 << 8)), timer.Position,
         "the first slide update keeps 224/256 of a pixel right and 63/256 above row 127");
     AssertEqual(new Offset16<ScreenPixels>(128, 127), timer.ScreenPlace, "the timer is drawn from the slide's whole pixels");
     for (int frame = 98; frame <= 203; frame++)
-        timer.Process(frame);
+        timer.Process(frame, holdAtOneSecond: false);
     AssertEqual(EscapeTimerPhase.InPlace, timer.Phase, "timer reaches its corner");
     AssertEqual(FixedVector<ScreenPixels>.FromWholePixels(Offset16<ScreenPixels>.Of(220, 48)), timer.Position,
         "timer clamps at column 220 and row 48 with no fraction");
 
     var borrowSecond = CreateRunningTimer(EscapeTimerClock.Time(0, 1, 0));
-    AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after a step");
+    AssertTrue(!borrowSecond.Process(1, holdAtOneSecond: false), "00:01.00 remains nonzero after a step");
     AssertEqual(new EscapeTimeReadout(0, 0, 98), borrowSecond.Readout, "a two-centisecond step from one second shows 00:00.98");
 
     var borrowMinute = CreateRunningTimer(EscapeTimerClock.Time(1, 0, 0));
-    AssertTrue(!borrowMinute.Process(0), "01:00.00 remains nonzero after a step");
+    AssertTrue(!borrowMinute.Process(0, holdAtOneSecond: false), "01:00.00 remains nonzero after a step");
     AssertEqual(new EscapeTimeReadout(0, 59, 99), borrowMinute.Readout, "a one-centisecond step from one minute shows 00:59.99");
 
     var expiration = CreateRunningTimer(EscapeTimerClock.Time(0, 0, 1));
-    AssertTrue(expiration.Process(0), "00:00.01 expires on a step of one");
+    AssertTrue(expiration.Process(0, holdAtOneSecond: false), "00:00.01 expires on a step of one");
     AssertEqual(0, expiration.RemainingCentiseconds, "expiry leaves no time");
 
     var underflow = CreateRunningTimer(0);
-    AssertTrue(underflow.Process(1), "zero timer remains expired after a further step");
+    AssertTrue(underflow.Process(1, holdAtOneSecond: false), "zero timer remains expired after a further step");
     AssertEqual(0, underflow.RemainingCentiseconds, "counting below zero stops at zero");
 
     var motherBrain = new EscapeTimer();
     motherBrain.RequestMotherBrainStart();
-    motherBrain.Process(0);
+    motherBrain.Process(0, holdAtOneSecond: false);
     AssertEqual(EscapeTimerClock.Time(3, 0, 0), motherBrain.RemainingCentiseconds, "Mother Brain starts at three minutes");
     AssertTrue(motherBrain.IsActive && motherBrain.Phase == EscapeTimerPhase.InitialDelay, "a started timer runs from its initial delay");
 
@@ -345,9 +345,9 @@ static EscapeTimer CreateRunningTimer(int remainingCentiseconds)
 {
     var timer = new EscapeTimer();
     timer.RequestCeresStart();
-    timer.Process(0);
+    timer.Process(0, holdAtOneSecond: false);
     for (int frame = 1; timer.Phase != EscapeTimerPhase.InPlace; frame++)
-        timer.Process(frame);
+        timer.Process(frame, holdAtOneSecond: false);
     timer.SetRemaining(remainingCentiseconds);
     return timer;
 }

@@ -6,6 +6,14 @@ internal static class AudioQueuesAccess
     /// <summary>Exposes music timing and each sound library's waiting requests and handshake.</summary>
     extension(AudioQueues self)
     {
+        /// <summary>
+        /// Runs an ordinary update's audio dispatch (#2137): the music queue's pass and one pass of the sound queues, as an
+        /// update without a message box runs them.
+        /// </summary>
+        /// <param name="acknowledgements">What each library's handler has acknowledged.</param>
+        internal IReadOnlyList<AudioRequest> AdvanceFrame(SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements) =>
+            self.AdvanceFrame(acknowledgements, advanceMusicQueue: true, soundQueuePasses: 1);
+
         /// <summary>The requests waiting in <paramref name="library"/>'s queue, oldest first; the next its handler asks for is the first.</summary>
         internal IReadOnlyList<SoundEffectId> WaitingSounds(SoundEffectLibrary library) => self.SoundQueues[library].Waiting;
 

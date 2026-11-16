@@ -79,7 +79,7 @@ public sealed class HudState
     internal void UpdateGameplayCounters(
         SamusState samus,
         GameplayAudioRequests audio,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(audio);

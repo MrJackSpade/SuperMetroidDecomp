@@ -363,7 +363,7 @@ internal static class LookupStream1Verification
             timer.SetRemaining(EscapeTimerClock.Time(0, 1, 50));
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             int expected = EscapeTimerClock.Time(0, 1, 50) - correction;
-            bool expired = timer.Process(frame);
+            bool expired = timer.Process(frame, holdAtOneSecond: false);
             if (timer.RemainingCentiseconds != expected)
                 failures.Add("NMI " + frame + ": native decrement " + correction + " expects " + expected + ", actual " + timer.RemainingCentiseconds);
             AssertTrue(!expired && timer.Readout.Seconds == 1 && timer.Readout.Minutes == 0, "Exact cadence fixture preserves non-expiring whole time");
@@ -380,7 +380,7 @@ internal static class LookupStream1Verification
             var timer = new EscapeTimer();
             timer.SelectRunningPhase(EscapeTimerPhase.InPlace);
             timer.SetRemaining(EscapeTimerClock.Time(0, 1, 50));
-            AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
+            AssertTrue(!timer.Process((ushort)index, holdAtOneSecond: false), "Calculated cadence stays non-expiring");
             AssertEqual(EscapeTimerClock.Time(0, 1, 50) - expected, timer.RemainingCentiseconds, "Actual Process consumes each native correction");
         }
         AssertEqual(213, total, "Native full-period centisecond budget");
@@ -389,7 +389,7 @@ internal static class LookupStream1Verification
             var timer = new EscapeTimer();
             timer.SelectRunningPhase(EscapeTimerPhase.InPlace);
             timer.SetRemaining(EscapeTimerClock.Time(0, 0, 2));
-            bool expired = timer.Process(frame);
+            bool expired = timer.Process(frame, holdAtOneSecond: false);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");
             AssertEqual(frame == 124 ? 0 : 1, timer.RemainingCentiseconds, "Exact corrected expiration centisecond");
         }

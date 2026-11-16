@@ -191,8 +191,7 @@ public static class GameplayEffectCapture
     /// <param name="tints">The installed tints of the haze.</param>
     /// <param name="ridleyIsDead">Whether Ceres Ridley is dead, which selects the red tint.</param>
     /// <param name="intensity">How far the haze has faded in.</param>
-    public static ColourAddWindowLayer CaptureCeresHaze(CeresHazeTints tints, bool ridleyIsDead,
-        int intensity = CeresHazeRenderDefinitions.MaximumComponent)
+    public static ColourAddWindowLayer CaptureCeresHaze(CeresHazeTints tints, bool ridleyIsDead, int intensity)
     {
         RgbColor tint = Ensure.NotNull(tints).For(ridleyIsDead);
         // The fade's strength is relative to the whole haze: below it the bands dim, and the fade-out's first frame
@@ -208,19 +207,15 @@ public static class GameplayEffectCapture
     /// </summary>
     /// <param name="explosion">The blast as the frame shows it.</param>
     /// <param name="cameraPosition">The camera, which places the blast on the screen.</param>
-    /// <param name="firstLine">The first screen line the blast covers: the playfield's first line below the HUD in gameplay, the top of the screen in cinematics.</param>
-    public static ColourAddWindowLayer? CapturePowerBombGlow(
-        PowerBombRenderSnapshot explosion, Position16<RoomPixels> cameraPosition,
-        int firstLine = HudHeight)
+    /// <remarks>The blast covers the playfield from its first line below the HUD.</remarks>
+    public static ColourAddWindowLayer? CapturePowerBombGlow(PowerBombRenderSnapshot explosion, Position16<RoomPixels> cameraPosition)
     {
-        if ((uint)firstLine > Height)
-            throw new ArgumentOutOfRangeException(nameof(firstLine));
         if (!explosion.IsActive) return null;
         PowerBombBlastOval oval = explosion.Oval;
         ScreenWindow window = oval.Radii.Y == 0 ? ScreenWindow.Closed
             : ScreenWindow.Of(WindowOval.Ellipse(oval.Centre.RelativeToCamera(cameraPosition),
                 new Extent16<ScreenPixels>(oval.Radii.X, oval.Radii.Y)),
-                firstLine);
+                HudHeight);
         return new(window, oval.Colour);
     }
 

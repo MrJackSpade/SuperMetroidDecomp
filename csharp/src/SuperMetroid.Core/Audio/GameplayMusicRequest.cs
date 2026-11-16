@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>One music request gameplay makes for the music queue, as <see cref="GameplayAudioRequests"/> records it.</summary>
+/// <summary>One music request gameplay makes for the music queue through <see cref="GameplayAudioRequests"/>.</summary>
 public abstract record GameplayMusicRequest
 {
     /// <summary>Closes the hierarchy to the requests declared here.</summary>

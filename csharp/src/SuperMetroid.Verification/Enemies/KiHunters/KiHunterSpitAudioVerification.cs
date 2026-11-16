@@ -59,6 +59,7 @@ internal static class KiHunterSpitAudioVerification
         int requests = 0, starts = 0;
         void Step()
         {
+            runtime.AudioRequests.BeginRecordedUpdate();
             var frame = game.Step(0);
             requests += runtime.Enemies.Audio.SoundRequests.Count(request => request.SoundEffect == spit);
             starts += frame.Audio.Events.Count(audioEvent => audioEvent is AudioEvent.StartSoundEffect started && started.SoundEffect == spit);

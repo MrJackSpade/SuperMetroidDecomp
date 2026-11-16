@@ -97,7 +97,7 @@ public sealed class SharedGameState
     /// Held-input countdown. A step past zero to 65,535
     /// causes the held input to become active.
     /// </summary>
-    public WrappingCountdown TimedHeldInputTimer { get; internal set; }
+    public WrappingCountdown TimedHeldInputTimer { get; private set; }
 
     /// <summary>
     /// Held-input countdown reload value, 0 through <see cref="WrappingCountdown.LongestStart"/>: any value the held-input
@@ -105,13 +105,13 @@ public sealed class SharedGameState
     /// The value is only ever reloaded into <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps
     /// the wrap.
     /// </summary>
-    public int TimedHeldInputTimerReset { get; internal set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
+    public int TimedHeldInputTimerReset { get; private set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
 
     /// <summary>
     /// Filtered input. Bits appear after their buttons have remained
     /// stable long enough for the timer to pass zero.
     /// </summary>
-    public ControllerButton TimedHeldInput { get; internal set; }
+    public ControllerButton TimedHeldInput { get; private set; }
 
     /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator

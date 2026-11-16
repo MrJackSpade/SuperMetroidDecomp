@@ -129,7 +129,7 @@ internal static void VerifyHudState()
 
     var damagedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 94, MaxHealth = 99 };
     var hudAudio = GameplayAudioRequests.Standalone();
-    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio, timeIsFrozen: false);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "live HUD damage tens digit");
     AssertEqual(0x2d04, hud.TileWords(hudArtwork)[0x8e / 2], "live HUD damage ones digit");
 
@@ -139,16 +139,16 @@ internal static void VerifyHudState()
     damagedSamus.MaxMissiles = 5;
     damagedSamus.Missiles = 5;
     damagedSamus.SelectedHudItem = HudItem.Missile;
-    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio, timeIsFrozen: false);
     AssertEqual(0x1000, hud.TileWords(hudArtwork)[0x14 / 2] & 0x1c00,
         "live HUD selects missile icon with palette four");
     AssertEqual(1, hudAudio.CountOf(SamusSound.HudWeaponSelect),
         "live HUD queues the cartridge selection sound on change");
-    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio, timeIsFrozen: false);
     AssertEqual(1, hudAudio.CountOf(SamusSound.HudWeaponSelect),
         "stable HUD selection does not repeat the selection sound");
     damagedSamus.SelectedHudItem = HudItem.Beam;
-    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio, timeIsFrozen: false);
     AssertEqual(0x1400, hud.TileWords(hudArtwork)[0x14 / 2] & 0x1c00,
         "live HUD restores deselected missile icon to palette five");
 

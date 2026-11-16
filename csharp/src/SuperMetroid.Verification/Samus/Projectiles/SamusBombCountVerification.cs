@@ -50,7 +50,7 @@ internal static class SamusBombCountVerification
         cleared.SetSharedBombCounter(0);
         for (int update = 0; update < LongestBombLife && cleared.Bombs[0].IsActive; update++)
         {
-            cleared.AudioRequests.BeginUpdate();
+            cleared.AudioRequests.BeginRecordedUpdate();
             cleared.StepFrame(terrain, samus, 0, 0);
         }
         AssertTrue(!cleared.Bombs[0].IsActive, "the bomb ends");

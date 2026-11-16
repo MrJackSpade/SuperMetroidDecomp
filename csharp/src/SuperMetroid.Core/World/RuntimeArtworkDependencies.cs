@@ -49,7 +49,4 @@ internal sealed record RuntimeArtworkDependencies
 
     /// <summary>The HUD, which takes its installed pictures.</summary>
     public required HudState Hud { get; init; }
-
-    /// <summary>Samus, who takes her installed colours, pictures and grapple beam.</summary>
-    public required SamusFrameState Player { get; init; }
 }

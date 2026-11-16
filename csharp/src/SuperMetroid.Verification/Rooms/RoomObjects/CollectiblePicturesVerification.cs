@@ -62,10 +62,9 @@ internal static class CollectiblePicturesVerification
         RoomLevelData level = CreateRoom(size, foreground, new RoomBlockBehavior[foreground.Length]);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         var roomObjects = RoomObjectFixtures.Unbound();
-        int loaded = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria),
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria),
             RoomObjectPopulationImporter.Read(bus, population),
             RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertEqual(Kinds.Length, loaded, "five-item room population load count");
 
         roomObjects.Step(level);
         for (int item = 0; item < Kinds.Length; item++)

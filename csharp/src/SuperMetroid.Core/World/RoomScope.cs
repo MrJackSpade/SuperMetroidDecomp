@@ -89,9 +89,6 @@ internal sealed record RoomScope
     /// <summary>The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</summary>
     public required RoomFloor? Floor { get; init; }
 
-    /// <summary>Door, room and library-background data of a Landing Site entry, or null.</summary>
-    public required LandingSiteEntryState? LandingSiteEntry { get; init; }
-
     /// <summary>Samus's beam and missile projectiles in this room; the held charge lives on the session.</summary>
     public required SamusProjectileSystem Projectiles { get; init; }
 

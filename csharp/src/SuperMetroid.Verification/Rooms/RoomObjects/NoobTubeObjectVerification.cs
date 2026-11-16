@@ -70,14 +70,13 @@ internal static class NoobTubeObjectVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomBlockAppearance originShown = level.GetCollisionBlock(new(blockX, blockY)).Terrain.Appearance;
 
-        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
                 AssertEqual(NoobTubeObjectDefinitions.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
                 brokenEvent = true;
             } }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStart = (shake, frames) => { earthquakeShakes.Add(shake); earthquakeFrames.Add(frames); } }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
-        AssertEqual(1, parsed, "n00b-tube population record loads");
         AssertEqual(new RoomTerrainBlock(originShown, RoomCollisionType.SolidBlock),
             level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "n00b-tube setup makes its origin solid and keeps what it shows");

@@ -30,8 +30,7 @@ internal static class DraygonCannonObjectsVerification
         var disabledWords = new List<DraygonWallCannon>();
         var roomObjects = RoomObjectFixtures.Unbound();
 
-        AssertEqual(4, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { DraygonCannonDisabled = disabledWords.Add } }),
-            "Draygon cannon population record count");
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { DraygonCannonDisabled = disabledWords.Add } });
 
         RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
         AssertEqual(4, places.Length, "Draygon cannon native slot count");

@@ -105,7 +105,7 @@ public sealed class TourianStatueSequence
     /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
     /// exposed as a negative background vertical offset.
     /// </summary>
-    internal SignedSixteenSixteen Descent { get; set; }
+    internal SignedSixteenSixteen Descent { get; private set; }
     /// <summary>Whether the last loaded room uses <see cref="RoomSetupBehavior.RunStatueUnlockingAnimations"/>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
     /// <summary>

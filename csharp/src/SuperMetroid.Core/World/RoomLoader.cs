@@ -517,7 +517,7 @@ internal sealed class RoomLoader
         DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
         IRoomLoadProgress loaderProgress,
-        int completedLoadingScrollUpdates = 0)
+        int completedLoadingScrollUpdates)
     {
         if (_room.Camera is null || _player.Samus is null)
             throw new InvalidOperationException("A loaded destination and Samus are required.");
@@ -1165,28 +1165,11 @@ internal sealed class RoomLoader
         _player.GroundedSamusMovementEnabled = false;
     }
 
-    /// <summary>Returns room geometry for either supported room path.</summary>
+    /// <summary>Returns the active room's geometry.</summary>
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
-        if (_room.ActiveRoom is not null)
-        {
-            return new ActiveRoomGeometry(
-                _room.ActiveRoom.Area,
-                _room.ActiveRoom.MapPosition,
-                _room.ActiveRoom.UpScroller,
-                _room.ActiveRoom.DownScroller);
-        }
-
-        if (_room.LandingSiteEntry is not null)
-        {
-            return new ActiveRoomGeometry(
-                _room.LandingSiteEntry.Area,
-                _room.LandingSiteEntry.RoomMapPosition,
-                _room.LandingSiteEntry.UpScroller,
-                _room.LandingSiteEntry.DownScroller);
-        }
-
-        throw new InvalidOperationException("No room is active.");
+        SelectedRoom room = _room.ActiveRoom ?? throw new InvalidOperationException("No room is active.");
+        return new ActiveRoomGeometry(room.Area, room.MapPosition, room.UpScroller, room.DownScroller);
     }
 
     /// <summary>

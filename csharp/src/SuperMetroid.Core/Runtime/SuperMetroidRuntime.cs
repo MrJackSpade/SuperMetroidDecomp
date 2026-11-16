@@ -219,7 +219,7 @@ internal sealed class SuperMetroidRuntime
             GrappleFlarePlacement = artwork.GrappleFlarePlacement, GrappleSwingFrames = artwork.GrappleSwingFrames,
             ProjectileFrameBindings = artwork.ProjectileFrameBindings, ChargeFlarePlacement = artwork.ChargeFlarePlacement,
             RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
-            BossArtwork = BossArtwork, Room = Room, Hud = Hud, Player = Player,
+            BossArtwork = BossArtwork, Room = Room, Hud = Hud,
         });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud });
         ScreenLayers = new GameplayScreenLayers(Room);
@@ -239,7 +239,7 @@ internal sealed class SuperMetroidRuntime
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System, DoorPassage = DoorTransition.Passage });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System, DoorPassage = DoorTransition.Passage });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();

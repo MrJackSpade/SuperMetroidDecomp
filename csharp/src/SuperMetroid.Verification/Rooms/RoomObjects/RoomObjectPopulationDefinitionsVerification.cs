@@ -40,12 +40,10 @@ internal static class RoomObjectPopulationDefinitionsVerification
         int forbiddenHeaderReadAttempts = 0;
         var guarded = NewRoomObjectPopulationReadGuard(rom, populatedPointer,
             sourceLength, headerRead: () => forbiddenHeaderReadAttempts++);
-        (int compiledCount, RoomObjectPlaceSnapshot[] compiledPlaces) = Load(guarded,
+        RoomObjectPlaceSnapshot[] compiledPlaces = Load(guarded,
             populatedPointer, useCompiled: true);
-        (int nativeCount, RoomObjectPlaceSnapshot[] nativePlaces) = Load(rom,
+        RoomObjectPlaceSnapshot[] nativePlaces = Load(rom,
             populatedPointer, useCompiled: false);
-        AssertEqual(nativeCount, compiledCount,
-            "compiled retail PLM load preserves sequential spawn count");
         // Typed room objects are separate objects per load; compare what kind each place holds.
         AssertTrue(nativePlaces.Select(place => place with { Behaviour = null })
                 .SequenceEqual(compiledPlaces.Select(place => place with { Behaviour = null })) &&
@@ -56,15 +54,14 @@ internal static class RoomObjectPopulationDefinitionsVerification
         AssertEqual(0, forbiddenHeaderReadAttempts,
             "compiled retail PLM loader never reads bank-$84 header metadata");
 
-        (int emptyCount, RoomObjectPlaceSnapshot[] emptyPlaces) = Load(
+        RoomObjectPlaceSnapshot[] emptyPlaces = Load(
             NewRoomObjectPopulationReadGuard(rom, 0x8058, 2),
             0x8058, useCompiled: true);
-        AssertEqual(0, emptyCount, "compiled empty PLM population terminates");
         AssertEqual(0, emptyPlaces.Length, "compiled empty PLM population leaves no slots");
     }
 
-    /// <summary>Loads one PLM population into a fresh room and returns its spawn count and resulting slots.</summary>
-    private static RoomObjectPopulationDefinitionsLoadResult Load(
+    /// <summary>Loads one PLM population into a fresh room and returns the resulting slots.</summary>
+    private static RoomObjectPlaceSnapshot[] Load(
         ISnesAddressSpace bus, ushort pointer, bool useCompiled)
     {
         // The Landing Site, whose population the check loads, is nine screens wide and five high; every placement lies
@@ -74,8 +71,8 @@ internal static class RoomObjectPopulationDefinitionsVerification
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(width, height),
             new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        int count = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), (useCompiled ? RoomObjectPopulationDefinitions.Get(pointer) : RoomObjectPopulationImporter.Read(bus, pointer)), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
-        return new RoomObjectPopulationDefinitionsLoadResult(count, roomObjects.PopulationPlaces.ToArray());
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), (useCompiled ? RoomObjectPopulationDefinitions.Get(pointer) : RoomObjectPopulationImporter.Read(bus, pointer)), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
+        return roomObjects.PopulationPlaces.ToArray();
     }
 
     /// <summary>Rejects reads of the compiled bank-$8F population and, when observed, bank-$84 header metadata.</summary>

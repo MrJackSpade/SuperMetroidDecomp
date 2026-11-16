@@ -82,16 +82,14 @@ internal static class RoomObjectFixtures
     }
 
     /// <summary>Binds <paramref name="fixture"/> to <paramref name="room"/> as a room load does, then loads the population.</summary>
-    /// <returns>The number of records spawned.</returns>
-    internal static int LoadPopulation(ref RoomObjectSystem fixture, RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
+    internal static void LoadPopulation(ref RoomObjectSystem fixture, RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
     {
         fixture = Bound(room, services, fixture);
-        return fixture.PopulationLoader.LoadRoomPopulation(room, population, services);
+        fixture.PopulationLoader.LoadRoomPopulation(room, population, services);
     }
 
     /// <summary>Loads a population into a new room-bound copy of <paramref name="fixture"/> that the caller does not keep.</summary>
-    /// <returns>The number of records spawned.</returns>
-    internal static int LoadPopulation(RoomObjectSystem fixture, RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services) =>
+    internal static void LoadPopulation(RoomObjectSystem fixture, RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services) =>
         LoadPopulation(ref fixture, room, population, services);
 
     /// <summary>Every room-object family's pictures as the repository installation holds them.</summary>

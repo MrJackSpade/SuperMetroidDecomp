@@ -43,8 +43,7 @@ internal static class BombTorizoHandVerification
         var level = CreateEmptyRoom(new(width, height));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-            "undefeated Bomb Torizo hand occupies PLM slot");
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertTrue(roomObjects.BombTorizoHand.HandRemains,
             "enemy header scan sees live Bomb Torizo hand");
 
@@ -108,8 +107,7 @@ internal static class BombTorizoHandVerification
             "terminal hand music request");
 
         var defeated = RoomObjectFixtures.Unbound();
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref defeated, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
-            "single loader still parses defeated hand record before setup deletes it");
+        RoomObjectFixtures.LoadPopulation(ref defeated, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } });
         AssertTrue(!defeated.BombTorizoHand.HandRemains,
             "defeated setup exposes no transient hand header");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

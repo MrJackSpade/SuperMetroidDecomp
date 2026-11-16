@@ -34,6 +34,16 @@ public sealed class TitleGradientPresentation
             throw new ArgumentOutOfRangeException(nameof(zoom), zoom,
                 "The title never zooms its floor out past the floor's own size.");
         }
-        return variants[zoom.TwoHundredFiftySixths / TitleGradientFormat.ZoomRangeWidth];
+        // The ranges follow one another from no zoom up, each one range width past the last, and together end at the
+        // floor's own size, so a zoom below it lies in exactly one.
+        FloorZoom rangeEnd = FloorZoom.FromTwoHundredFiftySixths(0);
+        foreach (ScreenGradient variant in variants)
+        {
+            rangeEnd = rangeEnd.Widened(TitleGradientFormat.ZoomRangeWidth);
+            if (zoom < rangeEnd)
+                return variant;
+        }
+        throw new InvalidOperationException(
+            $"The title's {variants.Length} gradient zoom ranges end at {rangeEnd}, below zoom {zoom}.");
     }
 }

@@ -18,7 +18,7 @@ internal static class TitleGradientExtractor
         for (int variant = 0; variant < variants.Length; variant++)
         {
             ScreenGradient decoded = TitleGradientDecoder.Decode(
-                CartridgeImportSource.Require(bus), checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth)));
+                CartridgeImportSource.Require(bus), checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth.TwoHundredFiftySixths)));
             variants[variant] = new TitleGradientVariant
             {
                 Stops = [.. decoded.Stops.Select(TitleGradientFile.Author)],

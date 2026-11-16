@@ -420,10 +420,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>
-    /// Rotates the turning floor every other cinematic call while widening its zoom by <paramref name="zoomStep"/> 256ths
-    /// of a floor pixel per screen pixel.
+    /// Rotates the turning floor every other cinematic call while widening its zoom by <paramref name="zoomStep"/>.
     /// </summary>
-    private void StepAtmosphericTransform(int zoomStep)
+    private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
         if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(Flyaway.CinematicFrame))

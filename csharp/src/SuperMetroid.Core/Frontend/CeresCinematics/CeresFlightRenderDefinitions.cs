@@ -19,8 +19,8 @@ internal static class CeresFlightRenderDefinitions
     internal static FloorZoom RearFastWideningLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(32);
 
     /// <summary>The front approach's narrowing and the rear view's slow widening each update, in 256ths of a floor pixel per screen pixel.</summary>
-    internal const int SlowZoomStep = 16;
+    internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
 
     /// <summary>The rear view's fast widening each update, in 256ths of a floor pixel per screen pixel.</summary>
-    internal const int FastZoomStep = 32;
+    internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
 }

@@ -19,7 +19,7 @@ internal static class TitleCounterPhasesVerification
         ScreenGradient[] variants = [.. Enumerable.Range(0, TitleGradientFormat.VariantCount).Select(variant => new ScreenGradient(
             [new GradientStop(0, new RgbColor(variant, 0, 0), GradientBlend.DarkensFloorAndBackdrop)], ScreenGeometry.ScreenHeightPixels))];
         var presentation = new TitleGradientPresentation(variants);
-        AssertEqual(FloorZoom.OwnSize.TwoHundredFiftySixths, TitleGradientFormat.VariantCount * TitleGradientFormat.ZoomRangeWidth,
+        AssertEqual(FloorZoom.OwnSize.TwoHundredFiftySixths, TitleGradientFormat.VariantCount * TitleGradientFormat.ZoomRangeWidth.TwoHundredFiftySixths,
             "the zoom ranges cover every zoom below the floor's own size");
         // The title shows its gradient from the final zoom's start up to the floor's own size, where the zoom stops; the
         // replaced expression read the zoom's bits 4 through 7, which at the floor's own size select the first gradient.
@@ -29,7 +29,7 @@ internal static class TitleCounterPhasesVerification
                 presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)), "gradient zoom range", zoom);
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => presentation.Resolve(FloorZoom.OwnSize.Widened(1)),
+            () => presentation.Resolve(FloorZoom.OwnSize.Widened(FloorZoomStep.FromTwoHundredFiftySixths(1))),
             "the title gradient refuses a zoom past the floor's own size, which the title never reaches");
 
         for (int input = 0; input <= ushort.MaxValue; input++)

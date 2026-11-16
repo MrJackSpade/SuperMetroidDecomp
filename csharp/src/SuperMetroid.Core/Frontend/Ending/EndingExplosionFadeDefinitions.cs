@@ -6,7 +6,7 @@ internal static class EndingExplosionFadeDefinitions
     /// <summary>The explosion's countdown starts at 63; its hold begins once the countdown passes zero.</summary>
     public const int InitialCountdown = 63;
     /// <summary>The explosion widens the turning floor's zoom by four 256ths of a floor pixel per screen pixel each call.</summary>
-    public const int ZoomStep = 4;
+    public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
     /// <summary>There are thirty-two colour steps over sixty-four calls.</summary>
     public const int Steps = 32;
     /// <summary>

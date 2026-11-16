@@ -365,7 +365,7 @@ internal static class TitleGradientVerification
         var cartridgeReads = new HashSet<int>();
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
-            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth)));
+            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth.TwoHundredFiftySixths)));
 
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitleGradientExtractor.Extract(bus);
         TitleGradientPresentation presentation = TitleGradientFile.Read(

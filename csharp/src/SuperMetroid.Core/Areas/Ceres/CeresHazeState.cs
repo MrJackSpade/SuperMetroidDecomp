@@ -4,13 +4,12 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Room-owned haze selection and its fade phases.
-/// Waiting falls through into the first fade-in write; a counter of sixteen
-/// selects holding without writing. Holding selects fade-out and returns,
-/// so its first write is on the next call. Fade-in writes strengths 0 through 15 before
-/// incrementing; fade-out writes 16 through 1 before decrementing and keeps 1 at zero.
-/// These mutually exclusive control phases use scalar state, not a sampled timing
-/// table. Immediate viewport loading starts at the completed fade-in state.
+/// The Ceres room's haze: the colour it takes and how it fades in and out with the room. A waiting haze starts fading in on
+/// the update the room fades in, showing its first strength on that same update; fading in, it shows strengths 0 through
+/// 15, one an update, and on the update after 15 it holds at full strength without changing what it shows. Holding, it
+/// starts fading out on the update the room fades out and shows its first fade-out strength on the next update; fading
+/// out, it shows strengths 16 down to 1, one an update, and then stays at 1. A haze shown as the room appears at once
+/// starts holding, at the strength a finished fade-in shows.
 /// </summary>
 [RoomLifetime]
 public sealed class CeresHazeState
@@ -20,22 +19,22 @@ public sealed class CeresHazeState
     {
         /// <summary>Waits for the room fade-in gate without changing the published haze strength.</summary>
         Waiting,
-        /// <summary>Writes strengths zero through fifteen before each counter increment.</summary>
+        /// <summary>Shows strengths zero through fifteen, one an update, rising after each.</summary>
         FadingIn,
         /// <summary>Retains full haze until the room fade-out gate selects the next phase.</summary>
         Holding,
-        /// <summary>Writes strengths sixteen through one before decrementing, retaining one at zero.</summary>
+        /// <summary>Shows strengths sixteen down to one, one an update, falling after each, then stays at one.</summary>
         FadingOut,
     }
     /// <summary>Current haze phase, independent of its selected color channel.</summary>
     private Phase _phase;
-    /// <summary>Fade position used before incrementing on entry and before decrementing on exit.</summary>
+    /// <summary>How far the haze has faded: the strength fading in shows next, or the strength fading out shows next.</summary>
     private int _counter;
     /// <summary>Whether the loaded room setup owns a haze effect; false makes updates inert and suppresses the renderer's layer, independently of the stored fade phase.</summary>
     public bool Enabled { get; private set; }
     /// <summary>Channel selection sampled once when the haze starts: true chooses the Ridley-dead red ramp, false the Ridley-alive blue ramp; later defeats do not retarget it.</summary>
     public bool IsRed { get; private set; }
-    /// <summary>Last published strength in steps of the haze's fade, not a frame count: fade-in writes 0..15, fade-out writes 16..1, and zero counter retains the final strength one.</summary>
+    /// <summary>The strength the haze shows, in steps of its fade: 0 through 15 as it fades in, 16 down to 1 as it fades out, and 1 once it has faded out.</summary>
     public int Intensity { get; private set; }
 
     /// <summary>Samples Ridley's defeat once, as the room's haze starts.</summary>
@@ -54,8 +53,8 @@ public sealed class CeresHazeState
 
     /// <summary>One per-frame haze step. Transition changes do not rewrite the selected channel.</summary>
     /// <param name="roomFade">
-    /// The door fade: on fade-in a waiting owner enters fade-in and writes its first strength on this same update; on
-    /// fade-out a holding owner changes phase now but publishes its first fade-out strength on the following update.
+    /// The door fade: on fade-in a waiting haze starts fading in and shows its first strength on this same update; on
+    /// fade-out a holding haze starts fading out now and shows its first fade-out strength on the following update.
     /// </param>
     public void Step(CeresHazeRoomFade roomFade = CeresHazeRoomFade.None)
     {

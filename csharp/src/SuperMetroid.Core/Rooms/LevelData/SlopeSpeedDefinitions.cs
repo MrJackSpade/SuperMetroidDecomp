@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static class SlopeSpeedDefinitions
 {
     /// <summary>The whole distance, 256/256, for the square, flat, peaked, open and overhanging shapes.</summary>
-    /// <remarks>Family membership follows the authored height profiles. The coefficients are authored tuning: cos(atan r),
-    /// 1/(1+r^2) and linear-in-rise all fail to reproduce them (see the review inventory's residual scalar inputs).</remarks>
+    /// <remarks>Family membership follows the authored height profiles. The shares are authored tuning, not a function of a
+    /// slope's rise: neither cos(atan r), 1/(1+r^2) nor a share linear in the rise gives them.</remarks>
     internal const int Unscaled = 256;
     /// <summary>Eleven sixteenths of the distance, 176/256, for the four-pixel and two-pixel stairs.</summary>
     internal const int DescendingStairs = 176;

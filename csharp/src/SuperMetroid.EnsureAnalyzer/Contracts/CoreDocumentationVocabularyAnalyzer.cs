@@ -55,7 +55,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// dispatch, the sound chip's voices and key-off, and words run on to a number. #2080 adds, outside hardware owners, the
 /// original's parameter tables, tail calls, short multiplies, extension arrays, rotting tables and arithmetic modulo 256,
 /// and #2089 its fixed colour, main-screen designation and per-line effects, a type by number and, in every type, a
-/// review cited under its ticket.
+/// review cited under its ticket. #2105 adds to the review trail, in every type, the review inventory and fix history,
+/// and, outside hardware owners, a check of the repository cited by its kind or its name.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -600,13 +601,22 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// the #1165 research, Issue #1039:), anything independently reviewed, checked, verified, audited or confirmed, a
     /// pair of ticket citations (#625 / #643), an investigation in any word form, a proof, data pinned for reference (the pinned retail data, the
     /// pinned cartridge's sine words, its pinned room states), a release pinned by its version (<c>v1.0</c>) and a
-    /// commit hash (<c>db3aa8b3bb</c>). Core states what the game does; how a value was reviewed, which ticket checked it
-    /// and which commit fixed it are the repository's history, not the game's. English stays legal: a ticket cited for
-    /// the change it names (<c>(#1989)</c>), a thing pinned in the game (Samus pinned by the beam, the ring pinned to the
-    /// mouth), a check the game itself makes, and a decimal number.
+    /// commit hash (<c>db3aa8b3bb</c>). #2105 adds the review inventory (see the review inventory's inputs) and fix
+    /// history: an earlier implementation choice told by what it broke (Hardcoding the branch stranded the actor, Omitting
+    /// this queue made the pad flash, Treating the room as sufficient discarded the view). Core states what the game
+    /// does; how a value was reviewed, which ticket checked it, what an earlier version of the port got wrong and which
+    /// commit fixed it are the repository's history, not the game's. English stays legal: a ticket cited for the change it
+    /// names (<c>(#1989)</c>), a thing pinned in the game (Samus pinned by the beam, the ring pinned to the mouth), a check
+    /// the game itself makes, treating a value as another with no breakage told, an inventory alone, a frozen enemy, and a
+    /// decimal number.
     /// </summary>
     private static readonly Regex ReviewTrailProse = new(
-        @"\b(?:reviewed|checked|verified|audited|confirmed|investigated)\s+(?:(?:for|in|by)\s+#|under\s+#?)[0-9]+" +
+        @"\breview\s+inventor(?:y|ies)\b" +
+        @"|\b(?:omitting|hard-?coding|treating|ignoring|skipping|dropping|special-?casing)\b[^.;]*?" +
+        @"\b(?:stranded|discarded|broke|broken|regressed|desync\w*|clipped)\b" +
+        @"|\b(?:omitting|hard-?coding|ignoring|skipping|dropping|special-?casing)\s+(?:this|that|these|those)\b[^.;]*?" +
+        @"\b(?:made|left|caused)\b" +
+        @"|\b(?:reviewed|checked|verified|audited|confirmed|investigated)\s+(?:(?:for|in|by)\s+#|under\s+#?)[0-9]+" +
         @"|\bindependently\s+(?:re-?)?(?:review|check|verif|audit|confirm)\w*" +
         @"|#[0-9]+\s+(?:research|independently|review\w*|audit\w*|investigation)\b|\bissue\s+#[0-9]+" +
         @"|#[0-9]+\s*/\s*#[0-9]+" +
@@ -614,6 +624,21 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\bpinned\s+(?:[\w'-]+\s+){0,2}?(?:sources?|data|references?|cartridge|retail|release|game|room\s+states?|values?)\b" +
         @"|(?<![\w.])v[0-9]+\.[0-9]+(?![\w.])" +
         @"|(?-i:(?<![\w.#-])(?=[0-9a-f]{0,39}[a-f])(?=[0-9a-f]{0,39}[0-9])[0-9a-f]{7,40}(?![\w-]))",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A check of the repository cited in prose (#2105), outside hardware owners: a check, test or suite named by its kind
+    /// (the Tourian animation lookup check, the eye-fade verification checks every shade, a parity check, the regression
+    /// test, the Ridley full-movie check) and a check's name set as code (<c>&lt;c&gt;BeamCallbackTablesVerification&lt;/c&gt;</c>,
+    /// <c>&lt;c&gt;VerifyRunningCadence&lt;/c&gt;</c>). Core states what the game does; which of the repository's checks
+    /// confirms it is the repository's, not the game's. A compatibility service's or an encoding owner's documentation may
+    /// name the check that confirms the behaviour it reproduces. English stays legal: a check the game itself makes (the
+    /// awakening facing check), the condition a replay tests, and a test or a check alone.
+    /// </summary>
+    private static readonly Regex CitedCheckProse = new(
+        @"\b(?:lookup|verification|regression|oracle|parity|full-movie|movie)[-\s]+(?:checks?|suites?)\b" +
+        @"|\b(?:lookup|verification|regression|oracle|parity)[-\s]+tests?\b" +
+        @"|<c>\s*(?:\w+Verification|Verify\w+)\s*</c>",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -868,6 +893,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : NumberedLabelProse.Match(text) is { Success: true } numberedLabel ? numberedLabel.Value
             : !generated && ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
             : IsInHardwareOwner(owner) ? null
+            : CitedCheckProse.Match(text) is { Success: true } citedCheck ? citedCheck.Value
             : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value
             : HardwareProse.Match(text) is { Success: true } prose ? prose.Value

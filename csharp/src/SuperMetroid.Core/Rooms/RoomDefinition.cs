@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="Area">The room's area.</param>
 /// <param name="MapPosition">The area-map cell of the room's top-left screen; each of its screens shows one cell further right or down.</param>
 /// <param name="Size">The room's size in scroll screens.</param>
-/// <param name="UpScroller">The camera's vertical target offset while Samus moves down, in pixels, 0 through 255.</param>
-/// <param name="DownScroller">The camera's vertical target offset while Samus moves up, in pixels, 0 through 255.</param>
+/// <param name="UpScroller">The camera's vertical target offset while Samus moves down, in pixels, zero or more.</param>
+/// <param name="DownScroller">The camera's vertical target offset while Samus moves up, in pixels, zero or more.</param>
 /// <param name="DoorTransition">How door transitions into or out of this room draw the screen.</param>
 public sealed record RoomDefinition(
     string Name,

@@ -20,8 +20,8 @@ namespace SuperMetroid.Core.World;
 /// update that draws a random number (gameplay, a message box's restoring update, the door transition's waits and
 /// fades, and the update before the pause screen opens), before the draw. Created with each gameplay runtime, whose
 /// lifetime its state shares (the liquid and the statues live in the loaded room scope it is handed). Evidence: the
-/// original main loop advances the liquid wave and the statues and then draws its random number on every pass; the
-/// Ridley full-movie check compares the random number on every update of a door transition.
+/// original main loop advances the liquid wave and the statues and then draws its random number on every pass, and the
+/// recorded Ridley movie's random number matches on every update of a door transition.
 /// </para>
 /// </remarks>
 internal sealed class LiquidWaveAndStatueDescent

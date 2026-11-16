@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Room-definition fields shared by camera tracking and minimap publication.</summary>
 /// <param name="Area">The room's area.</param>
 /// <param name="MapPosition">The room's top-left area-map tile.</param>
-/// <param name="UpScroller">The room's up-scroller distance in pixels, 0 through 255.</param>
-/// <param name="DownScroller">The room's down-scroller distance in pixels, 0 through 255.</param>
+/// <param name="UpScroller">The camera's vertical target offset while Samus moves down, in pixels, zero or more.</param>
+/// <param name="DownScroller">The camera's vertical target offset while Samus moves up, in pixels, zero or more.</param>
 internal readonly record struct ActiveRoomGeometry(
     AreaId Area,
     Position16<MapTiles> MapPosition,

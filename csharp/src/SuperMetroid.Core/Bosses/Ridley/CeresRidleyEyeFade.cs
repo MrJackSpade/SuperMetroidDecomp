@@ -13,8 +13,6 @@ internal static class CeresRidleyEyeFade
     /// Steps 0 through 15 show shade fifteen minus the step, steps 16 through 63 show shade zero, and step 64 completes
     /// the fade.
     /// No step follows the completing one, so a later step is refused.
-    /// The eye-fade verification checks every shade and the completing
-    /// step through the fade that consumes it.
     /// </remarks>
     public static CeresRidleyEyeFadeStep Get(int offset) => offset switch
     {

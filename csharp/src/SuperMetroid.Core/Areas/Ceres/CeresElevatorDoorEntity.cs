@@ -113,11 +113,9 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     {
         int frame = Place.FrameCounter;
 
-        // The elevator platform's animation does not belong to either arrival
-        // projectile. It survives their touchdown deletion because the elevator door
-        // keeps alternating the turning floor's platform frames forever. Omitting this
-        // queue made the moving sprite pad flash correctly, then left the landed floor platform
-        // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
+        // The elevator platform's animation does not belong to either arrival projectile: the elevator door alternates the
+        // turning floor's platform frames for as long as the room runs, so the landed platform keeps flashing after the
+        // projectiles' touchdown deletes them. The import pictures both strips (#1467).
         doors.Room.Services.ShowFloorFrame(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
         // A new step of six colours every eight updates.

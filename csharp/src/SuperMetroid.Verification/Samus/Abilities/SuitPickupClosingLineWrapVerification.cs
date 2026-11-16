@@ -23,8 +23,8 @@ internal static class SuitPickupClosingLineWrapVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SuitPickupClosingLineWrap.NarrowedRight(outside), $"a right edge at column {outside} is rejected");
         }
 
-        int left = SuitPickupBeamDefinitions.DissipationStart.Left.X;
-        int right = SuitPickupBeamDefinitions.DissipationStart.Right.X;
+        int left = SuitPickupBeamDefinitions.DissipationStart.Left;
+        int right = SuitPickupBeamDefinitions.DissipationStart.Right;
         AssertEqual(255, left, "the dissipation starts its left edge at the rightmost column");
         AssertEqual(248, right, "the dissipation starts its right edge at column 248");
         int updates = 0;

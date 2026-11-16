@@ -19,14 +19,12 @@ internal static class SamusPosturePoseTransitions
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
-    public static bool TryApplyDirectCrouchToStandingTransition(SamusState samus, 
-
+    public static bool TryApplyDirectCrouchToStandingTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool rightRoute = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
@@ -43,7 +41,6 @@ internal static class SamusPosturePoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
                 level,
                 targetPose,
                 frameCounter,
@@ -82,14 +79,12 @@ internal static class SamusPosturePoseTransitions
     /// False when expansion is impossible. Simultaneous initial hits select ordinary stable
     /// crouch; rejection by a compensating opposite-side probe retains the source pose.
     /// </returns>
-    public static bool TryApplyCrouchJumpTransition(SamusState samus, 
-
+    public static bool TryApplyCrouchJumpTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool rightRoute = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
@@ -106,7 +101,6 @@ internal static class SamusPosturePoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
                 level,
                 targetPose,
                 frameCounter,
@@ -146,14 +140,12 @@ internal static class SamusPosturePoseTransitions
     /// False only when simultaneous floor and ceiling collision leave no verified room to
     /// expand from radius 16 to radius 21; the game then retains the crouching pose.
     /// </returns>
-    public static bool TryApplyPostureTransition(SamusState samus, 
-
+    public static bool TryApplyPostureTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool startsCrouchingRight =
@@ -217,7 +209,7 @@ internal static class SamusPosturePoseTransitions
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
+                level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
@@ -233,7 +225,6 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         // reads the target radius from the pose definition rather than assuming the ordinary value 21.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
                 level,
                 targetPose,
                 frameCounter,
@@ -270,14 +261,12 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
     /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
     /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
     /// </remarks>
-    public static bool TryApplyMorphTransition(SamusState samus, 
-
+    public static bool TryApplyMorphTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         // Does not require the crouching movement type. Falling straight-down
@@ -329,7 +318,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
                     $"Morph entry {targetPose} expanded radius {previousRadius} -> {samus.Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
+                level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
@@ -356,7 +345,6 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
 
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -408,14 +396,12 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// changed-pose initializer, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
     /// </remarks>
-    public static bool TryApplyUnmorphToFallingTransition(SamusState samus, 
-
+    public static bool TryApplyUnmorphToFallingTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
@@ -433,7 +419,6 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,

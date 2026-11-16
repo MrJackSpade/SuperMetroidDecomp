@@ -100,7 +100,7 @@ internal static class NoobTubeObjectVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var grappleHit = SamusGrappleMovement.StepFiring(level, grappleSamus,
+        var grappleHit = SamusGrappleMovement.StepFiringAndCommit(level, grappleSamus,
             GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");

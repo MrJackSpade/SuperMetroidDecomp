@@ -61,7 +61,7 @@ public sealed class SamusDrainedState
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
     /// deliberately survives the later drained pose changes, just as it does in the game.
     /// </summary>
-    public DrainedGetUpCheck GetUpCheck { get; internal set; }
+    public DrainedGetUpCheck GetUpCheck { get; private set; }
 
     /// <summary>
     /// Ends the drain's hold on Samus's movement when another owner takes her movement and pose before the drain's
@@ -287,7 +287,6 @@ public sealed class SamusDrainedState
         SamusState samus,
         int frameCounter)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
@@ -320,7 +319,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
+        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus,
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: SamusAnimationFrame.Start,
             timer: 16);
@@ -333,7 +332,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
+        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus,
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: SamusDrainedAnimationDefinitions.PutCrouchingFrame,
             timer: SamusDrainedAnimationDefinitions.PutCrouchingTimer);

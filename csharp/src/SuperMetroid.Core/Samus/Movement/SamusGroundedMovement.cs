@@ -32,7 +32,6 @@ public static class SamusGroundedMovement
     /// </remarks>
     [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
     internal static BlockMoveResult? StepFacingForward(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -40,7 +39,6 @@ public static class SamusGroundedMovement
         ISamusRoomObjects roomObjects,
         bool publishDoorSideEffects = true)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
@@ -71,14 +69,12 @@ public static class SamusGroundedMovement
     /// the right-facing standing family or the left-facing one, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepStanding(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         GameplayAction controllerInput,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose);
@@ -103,7 +99,6 @@ public static class SamusGroundedMovement
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -128,14 +123,12 @@ public static class SamusGroundedMovement
     /// facing: the right-moving running family or the left-moving one, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepRunning(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         GameplayAction controllerInput,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose);
@@ -180,7 +173,6 @@ public static class SamusGroundedMovement
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -195,13 +187,11 @@ public static class SamusGroundedMovement
     /// direction, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
     internal static GroundedMovementResult StepTurningOnGround(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         bool turnsLeft = SamusPoseMetadata.IsRightToLeftGroundTurnPose(samus.Pose) ||
@@ -255,7 +245,6 @@ public static class SamusGroundedMovement
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -275,13 +264,11 @@ public static class SamusGroundedMovement
     /// including the complete shared extra-run-speed prepass.
     /// </summary>
     internal static GroundedMovementResult StepMoonwalking(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
@@ -317,7 +304,6 @@ public static class SamusGroundedMovement
         // Is the same no-speed-calculation grounding probe used by running.
         // It deliberately scales the downward probe by the total horizontal magnitude.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -329,13 +315,11 @@ public static class SamusGroundedMovement
     /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepRanIntoWall(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SamusPoseMetadata.IsRanIntoWallPose(samus.Pose) ||
@@ -359,7 +343,6 @@ public static class SamusGroundedMovement
         // cleared. This preserves the same ledge behavior as ordinary wall stops even though the
         // ordinary wall-stop state normally begins with zero speed.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -379,13 +362,11 @@ public static class SamusGroundedMovement
     /// cue's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
     /// </summary>
     internal static GroundedMovementResult StepLanding(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         // Do not duplicate the pose list here. The predicates are the single audited definition
@@ -407,7 +388,6 @@ public static class SamusGroundedMovement
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -427,13 +407,11 @@ public static class SamusGroundedMovement
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>
     internal static BlockMoveResult StepKnockbackOrCrystalFlashEnding(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Knockback)
@@ -443,7 +421,6 @@ public static class SamusGroundedMovement
         }
 
         return RunNoSpeedCalculationGroundingProbe(
-
             level,
             samus,
             frameCounter,
@@ -455,7 +432,6 @@ public static class SamusGroundedMovement
     /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
     internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,

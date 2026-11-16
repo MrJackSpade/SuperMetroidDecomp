@@ -1,3 +1,6 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -63,7 +66,7 @@ internal static class EscapeRunningFootstepsVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(8));
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
-            samus.LiquidPhysics.FxType = RoomFxType.Acid;
+            PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
             samus.LiquidPhysics.LavaAcidSurfaceY = 0;
             samus.Drained.RunGetUpCheck(samus, (GameplayAction.Up | GameplayAction.Jump));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the

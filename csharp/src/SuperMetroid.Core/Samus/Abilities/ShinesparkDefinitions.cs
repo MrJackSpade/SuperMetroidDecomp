@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Poses;
+
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Shared constants used by shinespark.</summary>
@@ -35,4 +37,15 @@ public static class ShinesparkDefinitions
     /// <see cref="CrashRadiusStep"/> pixels beyond it.
     /// </summary>
     public const int CrashOrbitStartRadius = 12;
+
+    /// <summary>The spark each directional shinespark pose launches: horizontal, vertical or diagonal, facing either way.</summary>
+    public static readonly IReadOnlyDictionary<SamusPoseId, ShinesparkPhase> LaunchPhases = new Dictionary<SamusPoseId, ShinesparkPhase>
+    {
+        [SamusPoseId.ShinesparkHorizontalRightPose] = ShinesparkPhase.Horizontal,
+        [SamusPoseId.ShinesparkHorizontalLeftPose] = ShinesparkPhase.Horizontal,
+        [SamusPoseId.ShinesparkVerticalRightPose] = ShinesparkPhase.Vertical,
+        [SamusPoseId.ShinesparkVerticalLeftPose] = ShinesparkPhase.Vertical,
+        [SamusPoseId.ShinesparkDiagonalRightPose] = ShinesparkPhase.Diagonal,
+        [SamusPoseId.ShinesparkDiagonalLeftPose] = ShinesparkPhase.Diagonal,
+    };
 }

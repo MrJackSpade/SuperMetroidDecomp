@@ -451,10 +451,10 @@ public static class SamusGrappleSwing
         // For a block anchor, the collision point biases the position within the block toward the side from
         // which the rope leaves the block, one pixel nearer the block's start for a negative component. This one-pixel
         // asymmetry is observable in both collision probes and Samus positioning, and the adjusted endpoint remains
-        // stored after the helper.
+        // stored after the helper. The biased point stays within the anchor's block.
         grapple.Anchor = new(
-            CoordinateAxis.Wrap(BiasedWithinBlock(grapple.Anchor.X, xSine)),
-            CoordinateAxis.Wrap(BiasedWithinBlock(grapple.Anchor.Y, yNegativeCosine)));
+            BiasedWithinBlock(grapple.Anchor.X, xSine),
+            BiasedWithinBlock(grapple.Anchor.Y, yNegativeCosine));
 
         Position16<RoomPixels> point = grapple.Anchor + new Offset16<RoomPixels>(
             ScaleCoordinate(xSine, distance),
@@ -587,7 +587,7 @@ public static class SamusGrappleSwing
         if (damage == 0)
             return;
 
-        samus.LiquidPhysics.AccumulatePeriodicDamage(
+        samus.PeriodicDamage.Accumulate(
             subDamage: 0,
             wholeDamage: damage);
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);

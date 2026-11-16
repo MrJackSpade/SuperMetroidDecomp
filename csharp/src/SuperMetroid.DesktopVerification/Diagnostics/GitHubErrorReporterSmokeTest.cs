@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
@@ -110,9 +111,9 @@ public static class GitHubErrorReporterSmokeTest
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
-        samus.Drained.GetUpCheck = DrainedGetUpCheck.UnableToStand;
+        PrivateState.Set(samus.Drained, nameof(SamusDrainedState.GetUpCheck), DrainedGetUpCheck.UnableToStand);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
-        samus.LiquidPhysics.FxType = RoomFxType.Acid;
+        PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
         samus.LiquidPhysics.LavaAcidSurfaceY = 100;
         game.AdoptRuntime(runtime);
         GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();

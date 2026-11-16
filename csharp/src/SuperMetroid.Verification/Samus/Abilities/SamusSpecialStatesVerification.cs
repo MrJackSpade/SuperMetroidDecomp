@@ -119,9 +119,7 @@ internal static void VerifySamusCrystalFlash()
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-    samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
-    samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-    samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    samus.PoseHistory.Restore(SamusPoseId.FacingRightNormalPose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | GameplayAction.Jump),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
@@ -188,7 +186,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.Position.Y.Whole, "complete raise is 20 pixels");
-    AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedPosition.Y,
+    AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedHeight,
         "raised Y capture follows tenth displacement");
     AssertEqual(6, samus.AnimationNumber, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleEffectRequested,
@@ -316,8 +314,7 @@ internal static void VerifySamusCrystalFlash()
         PowerBombs = 10,
     };
     SamusPoseMetadata.RefreshCollisionRadii(left);
-    left.PoseHistory.PreviousPose = left.Pose;
-    left.PoseHistory.PreviousMovement = SamusMovementType.Standing;
+    left.PoseHistory.Restore(left.Pose, SamusMovementType.Standing, left.PoseHistory.LastDifferentMovement);
     AssertTrue(left.CrystalFlash.TryBegin(left, chord),
         "left-facing Crystal Flash begins");
     AssertEqual(SamusPoseId.CrystalFlashLeftPose, left.Pose,
@@ -399,7 +396,7 @@ internal static void VerifySamusXray()
     SamusPresentation.InitializeAnimation(standing);
 
     AssertTrue(
-        standing.Xray.TryBegin(standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+        standing.Xray.TryBeginAndActivate(standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "standing X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingStandingRightPose, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
@@ -491,9 +488,7 @@ internal static void VerifySamusXray()
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
     // F6, pose `$25` supplies type `$0E`, and five native animation ticks reach the
     // exact frame-two/timer-one completion gate before `$D6` is installed.
-    standing.PoseHistory.PreviousPose = standing.Pose;
-    standing.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-    standing.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    standing.PoseHistory.Restore(standing.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
     SamusPoseId xrayPoseBeforeTurn = standing.Pose;
     standing.Xray.HandlePoseInput(
         standing,
@@ -549,7 +544,7 @@ internal static void VerifySamusXray()
     };
     SamusPoseMetadata.RefreshCollisionRadii(crouched);
     SamusPresentation.InitializeAnimation(crouched);
-    AssertTrue(crouched.Xray.TryBegin(crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+    AssertTrue(crouched.Xray.TryBeginAndActivate(crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched X-ray radius");
@@ -581,7 +576,7 @@ internal static void VerifySamusXray()
     };
     SamusPoseMetadata.RefreshCollisionRadii(interrupted);
     SamusPresentation.InitializeAnimation(interrupted);
-    AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }, XrayActivation.Deferred),
+    AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
     AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
         "deferred setup starts beam ownership before pose-command arbitration");
@@ -741,9 +736,7 @@ internal static void VerifySamusDeathSequence()
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
-    samus.PoseHistory.PreviousPose = samus.Pose;
-    samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-    samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    samus.PoseHistory.Restore(samus.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
     SamusMovementType deathSourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
     samus.DeathSequence.Begin(
         samus,
@@ -819,8 +812,7 @@ internal static void VerifySamusDeathSequence()
     };
     SamusPoseMetadata.RefreshCollisionRadii(morphedLeft);
     SamusPresentation.InitializeAnimation(morphedLeft);
-    morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
-    morphedLeft.PoseHistory.PreviousMovement = SamusMovementType.MorphBallGround;
+    morphedLeft.PoseHistory.Restore(morphedLeft.Pose, SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.LastDifferentMovement);
     morphedLeft.DeathSequence.Begin(
         morphedLeft, cameraPosition: new(0, 0));
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.Pose, "left Morph death selects D8");

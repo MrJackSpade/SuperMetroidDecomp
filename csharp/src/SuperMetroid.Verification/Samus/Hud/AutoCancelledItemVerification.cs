@@ -47,7 +47,7 @@ internal static class AutoCancelledItemVerification
 
             GrappleMovementResult ended = phase == GrapplePhase.CancelPending
                 ? SamusGrappleMovement.CompleteFiringCancellation(air, samus)
-                : SamusGrappleMovement.Step(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                : SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
             AssertEqual(GrapplePhase.Inactive, ended.Phase, $"the grapple's {ending} ends it");
             AssertEqual(autoCancelled ? HudItem.Beam : HudItem.Grapple, samus.SelectedHudItem,
@@ -81,7 +81,7 @@ internal static class AutoCancelledItemVerification
             };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
-            AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing,
+            AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing,
                 new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "the fixture starts X-ray");
             while (!samus.Xray.WarmUp.IsOver)
                 samus.Xray.StepBeam(samus, controllerInput: 0);

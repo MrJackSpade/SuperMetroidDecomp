@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Samus;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Input;
@@ -161,7 +162,7 @@ internal static class RunningCadenceVerification
         speed.HandleExtraRunSpeed(SamusMovementType.Running, GameplayAction.Dash, true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); speed.CycleShadeTimer = 8; speed.CycleShadeStep = 3;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 8); speed.CycleShadeStep = 3;
         speed.ReconcilePauseSpeedBoosterState(true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "Pause equipment reconciliation seeds native countdown");
         AssertEqual(0, speed.CycleShadeTimer, "Pause reconciliation palette timer differs from initial run");

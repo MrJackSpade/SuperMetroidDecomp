@@ -180,9 +180,7 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = 0;
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
-    samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
-    samus.PoseHistory.PreviousMovement = SamusMovementType.SpinJumping;
-    samus.PoseHistory.LastDifferentMovement = SamusMovementType.WallJumping;
+    samus.PoseHistory.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
     samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);
@@ -789,7 +787,7 @@ internal static void VerifySamusHurtFlashPalette()
     // Cinematic call two suppresses impact audio and uses the dedicated intro palette in
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
     var cinematic = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = SamusEquipmentFlags.GravitySuit }.WithHurtFlashCount(2);
-    cinematic.LiquidPhysics.CinematicActive = true;
+    cinematic.Presentation.PresentInCinematic();
     SamusHurtFlash.Update(
         samusColours, cinematic, controllerInput: 0);
     RgbColor[] cinematicSuit = samusColours.ShownSuit(hurtSources);

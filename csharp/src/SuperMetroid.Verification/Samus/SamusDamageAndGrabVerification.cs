@@ -708,9 +708,7 @@ internal static void VerifySamusGrabbedByDraygon()
     {
         var historySamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var history = historySamus.PoseHistory;
-        history.PreviousPose = SamusPoseId.SpinJumpRightPose;
-        history.PreviousMovement = SamusMovementType.SpinJumping;
-        history.LastDifferentMovement = SamusMovementType.WallJumping;
+        history.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
         SamusPoseId grabbedPose = facingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         SamusMovementType grabbedMetadata = SamusMovementType.DraygonHeld;
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);

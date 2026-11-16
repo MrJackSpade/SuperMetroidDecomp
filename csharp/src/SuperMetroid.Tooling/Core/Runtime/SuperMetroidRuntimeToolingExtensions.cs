@@ -97,7 +97,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
-            self.Player.Samus.LiquidPhysics.Room = room.Definition;
+            self.Player.Samus.Room = room.Definition;
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             self.Player.GroundedSamusMovementEnabled = true;
             return viewport;

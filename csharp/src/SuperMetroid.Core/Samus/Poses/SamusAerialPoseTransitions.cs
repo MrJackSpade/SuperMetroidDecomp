@@ -38,15 +38,13 @@ internal static class SamusAerialPoseTransitions
     /// The wall-jump tables use this very same route for their diagonal-aim
     /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
-    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus, 
-
+    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         GameplayAction controllerNewInput,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
@@ -66,7 +64,6 @@ internal static class SamusAerialPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -91,7 +88,7 @@ internal static class SamusAerialPoseTransitions
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
         // branch of the common normal-jump initializer before ordinary acceleration.
-        bool beganShinespark = TryBeginShinesparkWindup(samus, 
+        bool beganShinespark = TryBeginShinesparkWindup(samus,
             targetPose, SamusPoseMetadata.IsWallJumpPose(sourcePose)
                 ? SamusMovementType.WallJumping : SamusMovementType.SpinJumping);
         if (!beganShinespark)
@@ -127,14 +124,12 @@ internal static class SamusAerialPoseTransitions
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
-    public static bool TryApplyAerialTurn(SamusState samus, 
-
+    public static bool TryApplyAerialTurn(SamusState samus,
         RoomLevelData level,
         SamusPoseId genericTargetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
@@ -191,7 +186,6 @@ internal static class SamusAerialPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             selectedTurnPose,
             frameCounter,
@@ -272,7 +266,6 @@ internal static class SamusAerialPoseTransitions
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         // Only the spin-jumping mover reaches the wall-jump check. The cached movement type, not the
         // live pose, gates it: a drained pose stored without the pose initializer keeps
         // spinning and still wall-jumps.
@@ -315,7 +308,7 @@ internal static class SamusAerialPoseTransitions
 
         // A triggered wall jump queues the landing sound at normal priority
         // after clearing the base speed and before pose setup.
-        samus.LiquidPhysics.QueueMovementSound(RoomSound.Landing, priority: SoundRequestPriority.Normal);
+        samus.AudioRequests.QueueSound(RoomSound.Landing, priority: SoundRequestPriority.Normal);
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
@@ -357,7 +350,7 @@ internal static class SamusAerialPoseTransitions
         // Queues the grapple's end sound at essential priority.
         // It also clears the beam's charge and its flare, so neither the wall jump's charged contact nor the next
         // projectile pass inherits a charge built before the grapple (#1577).
-        samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
+        samus.AudioRequests.QueueSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
         samus.BeamCharge.ClearChargeAndFlare();
 
         SamusAerialMovement.InitializeWallJump(samus);
@@ -369,21 +362,18 @@ internal static class SamusAerialPoseTransitions
     /// <summary>
     /// Commits the pose selected when the grapple beam drops Samus.
     /// The drop names its exact target pose and this method runs the shared
-    /// block-only pose-expansion collision before clearing grapple fall momentum.
+    /// block-only pose-expansion collision; the drop itself already cleared Samus's fall momentum.
     /// </summary>
     /// <returns>
     /// True when the requested target fits; false when the game's pose-change collision retains
     /// the source or substitutes stable crouch.
     /// </returns>
-    public static bool ApplyGrappleDropTransition(SamusState samus, 
-
+    public static bool ApplyGrappleDropTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects roomObjects,
-        GrappleDropSpeed speed = GrappleDropSpeed.Cleared)
+        ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool supportedTarget = targetPose is
@@ -410,7 +400,6 @@ internal static class SamusAerialPoseTransitions
         // only its output domain is restricted, not the source to connected-grapple art.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
             level,
             targetPose,
             frameCounter,
@@ -429,14 +418,6 @@ internal static class SamusAerialPoseTransitions
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        // Clears the horizontal base speed and the vertical speed regardless of the
-        // pose-collision result. Extra run speed is not touched here; an ordinary
-        // connected grapple never creates it, so keeping it is the literal rule.
-        if (speed == GrappleDropSpeed.Cleared)
-        {
-            samus.HorizontalSpeed.BaseSpeed = default;
-            samus.Kinematics.YSpeed = default;
-        }
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
@@ -728,17 +709,17 @@ internal static class SamusAerialPoseTransitions
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
             if (start != SpinPoseStart.SkipFirstFrame)
-                samus.LiquidPhysics.QueueMovementSound(SamusSound.ScrewAttack, priority: SoundRequestPriority.Normal);
+                samus.AudioRequests.QueueSound(SamusSound.ScrewAttack, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose;
         }
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump))
         {
             // Unlike ordinary/Screw Attack spins, the game also queues this on reversal.
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.SpaceJump, priority: SoundRequestPriority.Normal);
+            samus.AudioRequests.QueueSound(SamusSound.SpaceJump, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
         }
-        if (start != SpinPoseStart.SkipFirstFrame && !samus.LiquidPhysics.CinematicActive)
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.SpinJump, priority: SoundRequestPriority.Normal);
+        if (start != SpinPoseStart.SkipFirstFrame && samus.Presentation.Mode != SamusPresentationMode.Cinematic)
+            samus.AudioRequests.QueueSound(SamusSound.SpinJump, priority: SoundRequestPriority.Normal);
         return genericPose;
     }
 
@@ -754,7 +735,7 @@ internal static class SamusAerialPoseTransitions
     /// aimed-up or diagonally-up normal jump.
     /// That delay is visible both to animation and to the 180-frame shade countdown.
     /// </remarks>
-    internal static bool TryBeginShinesparkWindup(SamusState samus, 
+    internal static bool TryBeginShinesparkWindup(SamusState samus,
         SamusPoseId targetPose,
         SamusMovementType previousMovementType)
     {
@@ -808,7 +789,7 @@ internal static class SamusAerialPoseTransitions
     /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
     /// interrupting any same-facing landing with a fresh Jump edge.
     /// </summary>
-    public static void ApplyOrdinaryJumpTransition(SamusState samus, 
+    public static void ApplyOrdinaryJumpTransition(SamusState samus,
         SamusPoseId targetPose,
         GameplayAction controllerNewInput = GameplayAction.None)
     {
@@ -905,7 +886,7 @@ internal static class SamusAerialPoseTransitions
     /// speed selects deceleration and a fresh Shoot press arms the transition shot.
     /// </summary>
     /// <returns>True when the initializer began a shinespark windup instead.</returns>
-    internal static bool InitializeInstalledNormalJumpPose(SamusState samus, 
+    internal static bool InitializeInstalledNormalJumpPose(SamusState samus,
         SamusMovementType previousMovementType,
         GameplayAction controllerNewInput)
     {
@@ -988,14 +969,12 @@ internal static class SamusAerialPoseTransitions
     /// directions are blocked, the crouch selector selects ordinary crouch; if a compensating shift's
     /// second probe is blocked, the collision exit retains the source. Neither case installs the target.
     /// </remarks>
-    public static bool TryApplyCompactAerialTransition(SamusState samus, 
-
+    public static bool TryApplyCompactAerialTransition(SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
 
         bool rightJump = SamusPoseMetadata.IsRightFacingNormalJumpPose(samus.Pose) &&
@@ -1017,7 +996,6 @@ internal static class SamusAerialPoseTransitions
 
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-
                 level,
                 targetPose,
                 frameCounter,

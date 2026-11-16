@@ -155,7 +155,7 @@ internal static class CollectiblesVerification
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
+        var orbHit = SamusGrappleMovement.StepFiringAndCommit(orb.Level, grappleSamus,
             GameplayAction.Shoot, orb.RoomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
@@ -786,8 +786,8 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>A suit-pickup beam whose window spans screen columns <paramref name="left"/> through <paramref name="right"/>.</summary>
-    private static SamusSuitPickupBeam SuitBeam(SamusSuitPickupBeamShape shape, ushort left, ushort right, int progress) =>
-        new(shape, new Position16<ScreenPixels>(left, 0), new Position16<ScreenPixels>(right, 0), progress);
+    private static SamusSuitPickupBeam SuitBeam(SamusSuitPickupBeamShape shape, int left, int right, int progress) =>
+        new(shape, left, right, progress);
 
     /// <summary>Checks the Varia light beam's published shape, progress and color across the whole transformation.</summary>
     private static void VerifySuitPickupBeamSequence(List<SamusSuitPickupBeam> beams, List<SamusSuitPickupFlash> flashes)
@@ -811,23 +811,23 @@ internal static class CollectiblesVerification
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.Column, 119, 121, 0), column[0],
             "stage one widens the narrow beam by one pixel per side");
         for (int i = 1; i < column.Length; i++)
-            AssertTrue(column[i].Left.X < column[i - 1].Left.X && column[i].Right.X > column[i - 1].Right.X,
+            AssertTrue(column[i].Left < column[i - 1].Left && column[i].Right > column[i - 1].Right,
                 "stage one widens every update");
-        AssertTrue(column[^1].Left.X < 97 && column[^2].Left.X >= 97, "stage one ends once the left edge passes X=97");
+        AssertTrue(column[^1].Left < 97 && column[^2].Left >= 97, "stage one ends once the left edge passes X=97");
 
         SamusSuitPickupBeam[] curved = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CurvedColumn)];
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CurvedColumn, 0, 255, 0), curved[^1],
             "stage two ends at the full-screen column");
         AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, new Extent16<ScreenPixels>(24, 128))), SuitWindow(curved[^1]),
             "the final curved column is the whole screen line rounded by the beam's curve");
-        AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(curved[0].Left.X, 128), curved[0].Right.X - curved[0].Left.X,
+        AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(curved[0].Left, 128), curved[0].Right - curved[0].Left,
                 new Extent16<ScreenPixels>(SuitPickupBeamDefinitions.CurveWidth, 128))), SuitWindow(curved[0]),
             "the curved column is its column widened by the curve, widest at the middle line");
 
         SamusSuitPickupBeam[] closing = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.ClosingCurvedColumn)];
         for (int i = 0; i < closing.Length; i++)
         {
-            AssertTrue(closing[i].Left.X == 0 && closing[i].Right.X == 255, "stage four closes the final curved column");
+            AssertTrue(closing[i].Left == 0 && closing[i].Right == 255, "stage four closes the final curved column");
             if (i > 0) AssertTrue(closing[i].Progress > closing[i - 1].Progress, "stage four wipes further every update");
         }
         AssertTrue(closing[^1].Progress >= 128, "stage four ends once the wipe reaches the center");
@@ -841,7 +841,7 @@ internal static class CollectiblesVerification
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CenterLine, 7, 240, 0), line[0],
             "stage five starts from the native dissipation endpoints");
         for (int i = 1; i < line.Length; i++)
-            AssertTrue(line[i].Left.X == line[i - 1].Left.X + 8 && line[i].Right.X == line[i - 1].Right.X - 8,
+            AssertTrue(line[i].Left == line[i - 1].Left + 8 && line[i].Right == line[i - 1].Right - 8,
                 "stage five narrows eight pixels per side every update");
         AssertEqual(ScreenWindow.Of(WindowRectangle.Spanning(7, 128, 240, 128)), SuitWindow(line[0]),
             "stage five lights only the center line");
@@ -872,9 +872,7 @@ internal static class CollectiblesVerification
                 ? (kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : SamusEquipmentFlags.None };
             var history = samus.PoseHistory;
-            history.PreviousPose = SamusPoseId.SpinJumpRightPose;
-            history.PreviousMovement = SamusMovementType.SpinJumping;
-            history.LastDifferentMovement = SamusMovementType.WallJumping;
+            history.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
             var pickup = new SamusSuitPickupState();
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;

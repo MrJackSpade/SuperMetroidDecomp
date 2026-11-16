@@ -38,7 +38,7 @@ public sealed class ScrollBoundaryCamera
     /// Gets the camera target calculated from Samus's position: horizontally from her facing
     /// context, vertically from the scroller offsets.
     /// </summary>
-    public Position16<RoomPixels> IdealPosition { get; internal set; }
+    public Position16<RoomPixels> IdealPosition { get; private set; }
 
     /// <summary>
     /// Gets the most recently calculated 1/65536-pixel camera speed on each axis:

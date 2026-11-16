@@ -15,13 +15,13 @@ internal sealed class SamusPresentation
     /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.
     /// While invincibility flicker hides the body the echoes keep repeating the picture last drawn (#1392).
     /// </summary>
-    public SamusBodyFrame? DrawnFrame { get; internal set; }
+    public SamusBodyFrame? DrawnFrame { get; private set; }
 
     /// <summary>
     /// The signed screen place Samus's body picture was last drawn at, from her world position and the foreground scroll:
     /// left of or above the screen is negative.
     /// </summary>
-    public Offset16<ScreenPixels> DrawOrigin { get; internal set; }
+    public Offset16<ScreenPixels> DrawOrigin { get; private set; }
 
     /// <summary>The installed artwork she draws from, bound by whoever built her; never part of save state.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -31,6 +31,12 @@ internal sealed class SamusPresentation
     {
         _artwork = Ensure.NotNull(artwork);
     }
+
+    /// <summary>Whether she is presented in play or as a cinematic's figure; the intro's flashback is the one cinematic.</summary>
+    public SamusPresentationMode Mode { get; private set; }
+
+    /// <summary>Presents her as a cinematic's figure from now on (<see cref="SamusPresentationMode.Cinematic"/>).</summary>
+    internal void PresentInCinematic() => Mode = SamusPresentationMode.Cinematic;
 
     /// <summary>The installed body placements and presentation catalogs.</summary>
     public InstalledSamusBodyArtwork Artwork => _artwork.Body;
@@ -105,7 +111,7 @@ internal sealed class SamusPresentation
     /// cache plus the controller's explicit writes; it intentionally does not recompute the
     /// liquid animation buffer or silently refresh collision radius.
     /// </remarks>
-    internal static void SetPoseAndAnimationFromScriptedController(SamusState samus, 
+    internal static void SetPoseAndAnimationFromScriptedController(SamusState samus,
         SamusPoseId pose,
         SamusAnimationPlace frame,
         int timer) =>
@@ -454,7 +460,7 @@ internal sealed class SamusPresentation
     /// Cancellation sends the echoes departing; drawing then advances each body's
     /// ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
     /// </remarks>
-    public void DrawSpeedBoosterEchoes(SamusState samus, 
+    public void DrawSpeedBoosterEchoes(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition)
     {
@@ -469,7 +475,7 @@ internal sealed class SamusPresentation
                     SpeedEcho.Second,
                     samus.Position.Whole))
             {
-                DrawActiveSpeedBoosterEcho(samus, 
+                DrawActiveSpeedBoosterEcho(samus,
                     sprites,
                     samus.HorizontalSpeed.SecondSpeedEchoPosition,
                     cameraPosition);
@@ -479,7 +485,7 @@ internal sealed class SamusPresentation
                     SpeedEcho.First,
                     samus.Position.Whole))
             {
-                DrawActiveSpeedBoosterEcho(samus, 
+                DrawActiveSpeedBoosterEcho(samus,
                     sprites,
                     samus.HorizontalSpeed.FirstSpeedEchoPosition,
                     cameraPosition);
@@ -494,11 +500,11 @@ internal sealed class SamusPresentation
 
         // The echo draw draws the second echo before the first. Drawing order is observable when their
         // opaque pixels overlap, so retain that otherwise-surprising reverse order.
-        DrawActiveSpeedBoosterEcho(samus, 
+        DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.HorizontalSpeed.SecondSpeedEchoPosition,
             cameraPosition);
-        DrawActiveSpeedBoosterEcho(samus, 
+        DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
             cameraPosition);
@@ -508,7 +514,7 @@ internal sealed class SamusPresentation
     /// On the crash echoes' updates, draws both crash-orbit copies after
     /// the real Samus body using the current pose/frame pictures.
     /// </summary>
-    public void DrawShinesparkCrashEchoes(SamusState samus, 
+    public void DrawShinesparkCrashEchoes(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
         int frameCounter)
@@ -521,11 +527,11 @@ internal sealed class SamusPresentation
         }
 
         // The second copy is drawn before the first, as for the boost's echoes.
-        DrawActiveSpeedBoosterEcho(samus, 
+        DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.Shinespark.SecondOrbitingCopy,
             cameraPosition);
-        DrawActiveSpeedBoosterEcho(samus, 
+        DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.Shinespark.FirstOrbitingCopy,
             cameraPosition);
@@ -535,7 +541,7 @@ internal sealed class SamusPresentation
     /// Draws the released shinespark crash echoes where their shots last placed them, while their shots carry them.
     /// These copies are ordinary projectile-phase visuals after the centered crash circle ends.
     /// </summary>
-    public void DrawReleasedShinesparkCrashEchoes(SamusState samus, 
+    public void DrawReleasedShinesparkCrashEchoes(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
         int frameCounter)

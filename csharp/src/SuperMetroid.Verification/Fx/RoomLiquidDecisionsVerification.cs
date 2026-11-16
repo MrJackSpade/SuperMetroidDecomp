@@ -58,7 +58,7 @@ internal static class RoomLiquidDecisionsVerification
         bool bitTwo = Bit(RoomFxNativeSources.WaterPhysicsDisabledOrHorizontalHeatWaveOption);
 
         RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, randomNumber: 0);
-        var samus = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SamusParticles(), GameplayAudioRequests.Standalone());
+        var samus = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SamusParticles(), GameplayAudioRequests.Standalone(), new SuperMetroid.Core.Samus.SamusPeriodicDamage());
         samus.ConfigureFor(fx);
         AssertEqual(water && bitTwo, samus.IgnoresWaterSurface, $"{context} Samus ignores the water's surface");
 

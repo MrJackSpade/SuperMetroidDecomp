@@ -150,7 +150,7 @@ internal static class CinematicCrystalFlashVerification
         AssertEqual(DrainedSamusPhase.Inactive, superSamus.Drained.Phase,
             "Super Metroid release reaches an ordinary posture");
         SamusMovementType releasedMovement = SamusPoseMetadata.ReadMovementType(superSamus);
-        bool xrayAdmitted = superSamus.Xray.TryBegin(superSamus, releasedMovement, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay });
+        bool xrayAdmitted = superSamus.Xray.TryBeginAndActivate(superSamus, releasedMovement, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay });
         AssertTrue(xrayAdmitted, "X-Ray admits from the released immobile suit posture");
         AssertTrue(!superSamus.InputSnapshot.CrystalFlashPoseInputLocked,
             "X-Ray replaces the retained Crystal Flash input handler");

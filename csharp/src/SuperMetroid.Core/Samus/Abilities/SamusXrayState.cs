@@ -49,7 +49,7 @@ public sealed class SamusXrayState
     /// time freeze, automatic Reserve completion and a room transition do not restore
     /// these subsystems; that mismatch is the game's direct/indirect G-Mode state.
     /// </summary>
-    public XraySuspendedSubsystems SuspendedSubsystems { get; internal set; }
+    public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
@@ -77,7 +77,7 @@ public sealed class SamusXrayState
     /// The beam's warm-up: the updates of frozen time it spends after X-ray starts before its own step begins changing
     /// the beam's phase; over whenever no beam is warming up.
     /// </summary>
-    public XrayWarmUp WarmUp { get; internal set; }
+    public XrayWarmUp WarmUp { get; private set; }
 
     /// <summary>The beam's phase once its warm-up is over.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }
@@ -128,9 +128,11 @@ public sealed class SamusXrayState
     /// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
     /// The X-ray scope is already the selected and equipped HUD item; item ownership is
-    /// checked by the HUD selector one layer above this.
+    /// checked by the HUD selector one layer above this. An admitted beam begins at once; its pose and Samus's control
+    /// wait for <see cref="CommitPendingActivation"/>, which the frame's pose update calls once higher-priority
+    /// transitions have had their turn.
     /// </summary>
-    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, XrayActivation activation = XrayActivation.Immediate)
+    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions)
     {
         Ensure.NotNull(samus);
 
@@ -175,14 +177,8 @@ public sealed class SamusXrayState
             Finish(samus);
             return true;
         }
-        if (activation == XrayActivation.Deferred)
-        {
-            BeginAdmittedBeam(facingLeft);
-            PendingActivationPose = targetPose;
-            return true;
-        }
         BeginAdmittedBeam(facingLeft);
-        InstallSamusControl(samus, targetPose);
+        PendingActivationPose = targetPose;
         return true;
     }
 
@@ -394,8 +390,7 @@ public sealed class SamusXrayState
     /// </summary>
     public XrayBeamStepResult StepBeam(
         SamusState samus,
-        GameplayAction controllerInput,
-        GameplayAction dashBinding = GameplayAction.Dash)
+        GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -410,7 +405,7 @@ public sealed class SamusXrayState
             return SnapshotBeamStep(phaseAtStart, completed: false);
         }
 
-        bool holdingDash = (controllerInput & dashBinding) != GameplayAction.None;
+        bool holdingDash = (controllerInput & GameplayAction.Dash) != GameplayAction.None;
         switch (BeamPhase)
         {
             case XrayBeamPhase.NoBeam:

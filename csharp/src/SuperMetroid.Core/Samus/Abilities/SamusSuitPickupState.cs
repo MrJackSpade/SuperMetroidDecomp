@@ -57,14 +57,14 @@ public sealed class SamusSuitPickupState
 
     /// <summary>
     /// The beam's inclusive left screen column while it is a column or centre line (the uniform, curved,
-    /// dissipating and finishing stages); only X is meaningful. It always lies across the screen's width
+    /// dissipating and finishing stages). It always lies across the screen's width
     /// (<see cref="ScreenColumn"/>): the widening stops its edges at the screen's sides, and the dissipation carries them
     /// round the row (<see cref="SuitPickupClosingLineWrap"/>).
     /// </summary>
-    private Position16<ScreenPixels> _lightBeamLeft;
+    private int _lightBeamLeft;
 
-    /// <summary>The beam's inclusive right screen column in the same stages as <see cref="_lightBeamLeft"/>; only X is meaningful.</summary>
-    private Position16<ScreenPixels> _lightBeamRight;
+    /// <summary>The beam's inclusive right screen column in the same stages as <see cref="_lightBeamLeft"/>.</summary>
+    private int _lightBeamRight;
 
     /// <summary>
     /// The speed, in screen pixels per update, at which the beam's edges move apart or its wipe advances. It starts at
@@ -99,8 +99,8 @@ public sealed class SamusSuitPickupState
             : new FadeLevelColour(SamusShadeDefinitions.SuitPickup.InitialRed, SamusShadeDefinitions.SuitPickup.GravityGreen, SamusShadeDefinitions.SuitPickup.GravityBlue).ToColour();
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamLines = 0;
-        _lightBeamLeft = Position16<ScreenPixels>.Zero;
-        _lightBeamRight = Position16<ScreenPixels>.Zero;
+        _lightBeamLeft = 0;
+        _lightBeamRight = 0;
         _updatesBeforeLightBeam = SuitPickupBeamDefinitions.UpdatesBeforeLightBeam;
         LeaveProgress(samus);
         _lightBeamSpeed = SuitPickupBeamDefinitions.InitialWideningSpeed;
@@ -133,8 +133,9 @@ public sealed class SamusSuitPickupState
         samus.Control.LockForSuitPickup();
 
         // The game writes whole positions but leaves the fractions untouched. These are
-        // fixed screen coordinates, not a room-specific item-location approximation.
-        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(cameraPosition.X + 120), CoordinateAxis.Wrap(cameraPosition.Y + 136)));
+        // fixed screen coordinates, not a room-specific item-location approximation. The camera lies within the room,
+        // so a place a fixed distance into its screen does too.
+        samus.Position = samus.Position.WithWhole(new(cameraPosition.X + 120, cameraPosition.Y + 136));
         // The pickup stores the same position as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);
@@ -205,7 +206,7 @@ public sealed class SamusSuitPickupState
             case SamusSuitPickupStage.CurvedWidening:
             case SamusSuitPickupStage.LightBeamDissipates:
             case SamusSuitPickupStage.Finish:
-                samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft.X, _lightBeamRight.X);
+                samus.SparkCarryover.LeaveEdges(Stage, _lightBeamLeft, _lightBeamRight);
                 break;
             default:
                 throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
@@ -237,8 +238,8 @@ public sealed class SamusSuitPickupState
         // The widening speed stays a few pixels per update, so the edges stay inside the screen row: the left one
         // stops long before it would pass zero.
         int amount = _lightBeamSpeed.WholePixels;
-        int left = _lightBeamLeft.X - amount;
-        int right = _lightBeamRight.X + amount;
+        int left = _lightBeamLeft - amount;
+        int right = _lightBeamRight + amount;
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
@@ -256,8 +257,8 @@ public sealed class SamusSuitPickupState
         AdvanceColorTowardWhite();
 
         int amount = _lightBeamSpeed.WholePixels;
-        int left = _lightBeamLeft.X - amount;
-        int right = _lightBeamRight.X;
+        int left = _lightBeamLeft - amount;
+        int right = _lightBeamRight;
         // The zero test shares the negative-result clamp. Exact zero must also
         // force the right endpoint to the screen's rightmost column or the reveal is delayed by a frame.
         if (left <= 0)
@@ -276,7 +277,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         _lightBeamSpeed += SuitPickupBeamDefinitions.WideningAcceleration;
-        if (SuitPickupBeamEdges.Columns(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
+        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The speed halves, truncating its lowest fraction bit.
@@ -333,8 +334,8 @@ public sealed class SamusSuitPickupState
     /// <summary>Closes the single remaining center row until the threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
-        int left = SuitPickupClosingLineWrap.NarrowedLeft(_lightBeamLeft.X);
-        int right = SuitPickupClosingLineWrap.NarrowedRight(_lightBeamRight.X);
+        int left = SuitPickupClosingLineWrap.NarrowedLeft(_lightBeamLeft);
+        int right = SuitPickupClosingLineWrap.NarrowedRight(_lightBeamRight);
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
@@ -350,8 +351,8 @@ public sealed class SamusSuitPickupState
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamLines = 0;
-        _lightBeamLeft = Position16<ScreenPixels>.Zero;
-        _lightBeamRight = Position16<ScreenPixels>.Zero;
+        _lightBeamLeft = 0;
+        _lightBeamRight = 0;
         BeamColor = RgbColor.Black;
         samus.Control.Unlock();
         IsActive = false;
@@ -364,12 +365,9 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = edges.Right;
     }
 
-    /// <summary>
-    /// The screen position of window column <paramref name="column"/>, which lies across the screen's width; only X is
-    /// meaningful.
-    /// </summary>
-    private static Position16<ScreenPixels> ScreenColumn(int column) =>
-        Position16<ScreenPixels>.Of(Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column), 0);
+    /// <summary>Window column <paramref name="column"/>, which lies across the screen's width.</summary>
+    private static int ScreenColumn(int column) =>
+        Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column);
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

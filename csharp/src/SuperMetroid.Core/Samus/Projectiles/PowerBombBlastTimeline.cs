@@ -29,7 +29,7 @@ public sealed class PowerBombBlastTimeline
     public PowerBombRadius PreExplosionRadius { get; private set; }
 
     /// <summary>The damaging explosion's radius.</summary>
-    public PowerBombRadius ExplosionRadius { get; internal set; }
+    public PowerBombRadius ExplosionRadius { get; private set; }
 
     /// <summary>
     /// The per-frame radius change, deliberately shared by the pre-explosion and explosion phases. Cleanup leaves
@@ -79,16 +79,16 @@ public sealed class PowerBombBlastTimeline
     /// An update can advance <see cref="Phase"/> after choosing its oval. Keeping the shown phase separate prevents the
     /// display from showing the next phase one frame early at the yellow/white transition boundaries.
     /// </remarks>
-    public PowerBombExplosionPhase RenderedPhase { get; internal set; }
+    public PowerBombExplosionPhase RenderedPhase { get; private set; }
 
     /// <summary>Pre-explosion radius consumed before the end-of-frame update.</summary>
-    public PowerBombRadius RenderedPreExplosionRadius { get; internal set; }
+    public PowerBombRadius RenderedPreExplosionRadius { get; private set; }
 
     /// <summary>Explosion radius consumed before the end-of-frame update.</summary>
-    public PowerBombRadius RenderedExplosionRadius { get; internal set; }
+    public PowerBombRadius RenderedExplosionRadius { get; private set; }
 
     /// <summary>The blast's glow: the colour it adds to the scene inside its oval.</summary>
-    public RgbColor GlowColor { get; internal set; }
+    public RgbColor GlowColor { get; private set; }
 
     /// <summary>True from the blast's start until its animation ends.</summary>
     public bool IsRunning { get; private set; }

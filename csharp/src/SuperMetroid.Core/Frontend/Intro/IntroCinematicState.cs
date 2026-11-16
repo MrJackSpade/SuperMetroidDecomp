@@ -613,7 +613,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         };
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sound/landing effects.
-        CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
+        CurrentFlashbackSamus.Presentation.PresentInCinematic();
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();

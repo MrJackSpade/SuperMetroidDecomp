@@ -89,7 +89,6 @@ internal static class GameplayAudioOrderVerification
     {
         (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.LiquidPhysics.CinematicActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         audio.AdvanceFrame(default);
         // The echo Samus's animation requests at its cue joins her audio requests (#2092).

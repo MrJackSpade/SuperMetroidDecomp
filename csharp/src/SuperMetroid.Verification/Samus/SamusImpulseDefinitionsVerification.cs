@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
@@ -62,7 +64,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
             hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
             hurt.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
-            hurt.LiquidPhysics.IgnoresWaterSurface = environment == 3;
+            PrivateState.Set(hurt.LiquidPhysics, nameof(SamusLiquidPhysicsState.IgnoresWaterSurface), environment == 3);
             hurt.BombJumpRequest = SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept();
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;

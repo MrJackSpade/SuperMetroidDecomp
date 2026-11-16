@@ -320,10 +320,9 @@ internal static class RidleyFullMovieVerification
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(512, 400));
             samus.EquippedItems = (SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
             SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-            samus.PoseHistory.PreviousPose = pose;
+            samus.PoseHistory.Restore(pose, samus.PoseHistory.PreviousMovement, samus.PoseHistory.LastDifferentMovement);
             SamusMovementType spinMovement = SamusMovementType.SpinJumping;
-            samus.PoseHistory.PreviousMovement = spinMovement;
-            samus.PoseHistory.LastDifferentMovement = SamusMovementType.Running;
+            samus.PoseHistory.Restore(samus.PoseHistory.PreviousPose, spinMovement, SamusMovementType.Running);
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
             AssertEqual(spinMovement, samus.PoseHistory.LastDifferentMovement, "fallback publishes older spin movement");
@@ -435,7 +434,7 @@ internal static class RidleyFullMovieVerification
         foreach (AreaId samusArea in new[] { AreaId.Ceres, AreaId.Norfair, AreaId.Tourian })
         {
             var samus = runtime.Player.IntroducedSamus;
-            samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(samusArea);
+            samus.Room = RoomDefinitions.FirstIn(samusArea);
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0], afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(norfairDamage, fireball.Damage, $"the Norfair room's fireball damage with Samus's record in {samusArea}");

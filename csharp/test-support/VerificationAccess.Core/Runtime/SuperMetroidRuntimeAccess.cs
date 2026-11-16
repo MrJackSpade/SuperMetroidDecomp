@@ -228,7 +228,7 @@ internal static class SuperMetroidRuntimeAccess
                 // Footstep and landing graphics choose by area and room. Keep the room beside the
                 // FX surface state instead of hard-coding Landing Site behavior into the generic
                 // atmospheric renderer.
-                self.Player.Samus.LiquidPhysics.Room = self.Room.LandingSiteEntry.Room;
+                self.Player.Samus.Room = self.Room.LandingSiteEntry.Room;
             }
             self.Player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(self.Player.Samus);
         }

@@ -29,13 +29,11 @@ public static class SamusKnockbackMovement
     /// a shared handoff prevents spike blocks and spike-air from inventing bespoke motion.
     /// </remarks>
     internal static bool TryStartPendingHitInterruption(
-
         SamusState samus,
         GameplayAction controllerInput,
         bool timeIsFrozen,
         KnockbackPoseCollision? poseCollision)
     {
-
         Ensure.NotNull(samus);
 
         // Requires a live producer timer, unfrozen time, and zero in the
@@ -69,7 +67,6 @@ public static class SamusKnockbackMovement
     /// </returns>
     internal static bool Start(SamusState samus, GameplayAction controllerInput, KnockbackLaunch launch, KnockbackPoseCollision? poseCollision)
     {
-
         Ensure.NotNull(samus);
         Ensure.NotNull(launch);
         if (!Enum.IsDefined(launch.KnockbackXDirection))
@@ -209,13 +206,11 @@ public static class SamusKnockbackMovement
 
     /// <summary>Runs one frame of the knockback's movement.</summary>
     internal static KnockbackMovementResult Step(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!samus.KnockbackActive)
@@ -405,7 +400,6 @@ public static class SamusKnockbackMovement
 
     /// <summary>Uses ordinary aerial vertical speed calculations during rising knockback, including the direction reversal.</summary>
     private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -422,7 +416,6 @@ public static class SamusKnockbackMovement
 
     /// <summary>Applies externally supplied downward displacement through the shared vertical collision path without accelerating it.</summary>
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,

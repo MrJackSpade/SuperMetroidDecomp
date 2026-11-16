@@ -172,6 +172,15 @@ public sealed class SamusState
     /// </summary>
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
+    /// <summary>The periodic damage liquids, spikes, heat, the grapple's spikes and turrets, and enemies add to through an update.</summary>
+    public SamusPeriodicDamage PeriodicDamage { get; } = new();
+
+    /// <summary>
+    /// The room Samus is in, which her footstep and landing effects read by area and room. Every room load sets it;
+    /// until the first does, it is Landing Site, the room the game's cleared area and room state name.
+    /// </summary>
+    public RoomDefinition Room { get; set; } = RoomDefinitions.LandingSite;
+
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
     /// Its fields are the values documented on
@@ -258,7 +267,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how it borrows is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public PeriodicDamageEnergyFraction EnergyFraction { get; set; }
+    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
@@ -584,7 +593,7 @@ public sealed class SamusState
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation(artwork);
-        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests);
+        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests, PeriodicDamage);
         Kinematics = new SamusKinematicsState();
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
@@ -616,7 +625,6 @@ public sealed class SamusState
     /// probe restores the source pose; simultaneous initial hits select stable crouch.
     /// </remarks>
     internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
-
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -656,13 +664,11 @@ public sealed class SamusState
         // The probes run against independent copies. The game stores both available-distance
         // results before choosing a branch, so neither probe may move the live body early.
         BlockMoveResult upward = ProbeChangedPoseVertical(
-
             level,
             displacement: SignedSixteenSixteen.FromWholePixels(-radiusDifference),
             scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
             targetPose, roomObjects);
         BlockMoveResult downward = ProbeChangedPoseVertical(
-
             level,
             displacement: SignedSixteenSixteen.FromWholePixels(radiusDifference),
             scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
@@ -691,7 +697,7 @@ public sealed class SamusState
             // A collision here takes the collision exit and restores PreviousPose; it does not use
             // the crouch selector because the initial flags were not both set.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-level,
+                level,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
                 targetPose, roomObjects: roomObjects);
@@ -709,7 +715,7 @@ level,
 
             // Is the downward mirror of the opposite-side check above.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-level,
+                level,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
                 targetPose, roomObjects: roomObjects);
@@ -764,7 +770,6 @@ level,
     /// before the larger-radius check, so the elevator pseudo-door's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
-
         RoomLevelData level,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight,
@@ -788,7 +793,7 @@ level,
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-level, probe, this, amount, scanLeftToRight, roomObjects);
+                level, probe, this, amount, scanLeftToRight, roomObjects);
             // Submerging sand clears speed/gravity even during an observation.
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;

@@ -340,7 +340,7 @@ internal static void VerifySamusBlockCollision()
         BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = spikeLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, spikeSamus.Kinematics, spikeSamus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
         AssertTrue(spikeFloor.Collided,
             $"spike-block BTS ${spikeBehavior:X2} retains solid collision");
-        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+        AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
             $"spike-block BTS ${spikeBehavior:X2} publishes cartridge damage");
         AssertEqual(expectedDamage == 0 ? 0 : SpikeHazardDefinitions.InvincibilityFrames,
             spikeSamus.InvincibilityTimer.RawValue,
@@ -377,7 +377,7 @@ internal static void VerifySamusBlockCollision()
             AreaId.WreckedShip,
             bossDefeated);
         _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = wreckedShipSpikes, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, spikeSamus.Kinematics, spikeSamus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
-        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+        AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
             $"Wrecked Ship BTS-zero spike boss gate {bossDefeated}");
     }
 
@@ -405,7 +405,7 @@ internal static void VerifySamusBlockCollision()
             AreaId.Norfair,
             areaBossDefeated: false);
         AssertEqual(SpikeHazardDefinitions.LightSpikeDamage,
-            spikeAirSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+            spikeAirSamus.PeriodicDamage.Pending.Whole,
             $"inside-block spike-air damages at sampled row {spikeRow}");
         AssertEqual(SpikeHazardDefinitions.InvincibilityFrames,
             spikeAirSamus.InvincibilityTimer.RawValue,
@@ -432,7 +432,7 @@ internal static void VerifySamusBlockCollision()
         contactSafeSamus,
         AreaId.Norfair,
         areaBossDefeated: false);
-    AssertEqual(0, contactSafeSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
+    AssertEqual(0, contactSafeSamus.PeriodicDamage.Pending.Whole,
         "active contact-damage body suppresses spike-air damage");
 
     Console.WriteLine("  Samus blocks: all sixteen dispatchers, spans, slopes, doors, and ordinary spike damage agree.");

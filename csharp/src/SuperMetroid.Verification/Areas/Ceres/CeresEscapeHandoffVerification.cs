@@ -45,9 +45,7 @@ internal static class CeresEscapeHandoffVerification
         SamusPresentation.InitializeAnimation(samus);
         RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
 
-        samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-        samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+        samus.PoseHistory.Restore(SamusPoseId.FacingRightNormalPose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
         samus.CeresRidleyEjection.Request(samus);
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
         AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
@@ -109,7 +107,7 @@ internal static class CeresEscapeHandoffVerification
         SamusState airborne = CreateSamus(SamusPoseId.FallingRightPose, position: new(100, 100));
         SamusPoseMetadata.RefreshCollisionRadii(airborne);
         SamusPresentation.InitializeAnimation(airborne);
-        airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
+        airborne.PoseHistory.Restore(SamusPoseId.FallingRightPose, airborne.PoseHistory.PreviousMovement, airborne.PoseHistory.LastDifferentMovement);
         airborne.CeresRidleyEjection.Request(airborne);
         airborne.CeresRidleyEjection.Step(emptyRoom, SamusRoomObjectFixtures.Uninstalled, airborne, cameraX: 0, frameCounter: 0);
         AssertEqual(98, airborne.Kinematics.Position.Y.Whole, "ejection alignment uses the interrupted pose's live radius");

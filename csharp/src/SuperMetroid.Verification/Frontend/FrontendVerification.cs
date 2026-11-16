@@ -362,7 +362,7 @@ internal static void VerifySavedGameLoadAppearance()
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
     SamusMovementType appearanceMetadata = appearanceHistory.PreviousMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
-    appearanceHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    appearanceHistory.Restore(appearanceHistory.PreviousPose, appearanceHistory.PreviousMovement, SamusMovementType.SpinJumping);
     for (int frame = 0; frame < 0x0167; frame++)
         runtime.StepFrame(0);
     AssertTrue(runtime.SamusLoadAppearanceActive,

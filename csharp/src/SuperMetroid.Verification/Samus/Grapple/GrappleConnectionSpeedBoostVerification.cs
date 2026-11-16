@@ -45,7 +45,7 @@ internal static class GrappleConnectionSpeedBoostVerification
             samus.LiquidPhysics.BeginFrameSoundRequests();
             GrappleMovementResult connected = SamusGrappleMovement.ConnectAcceptedFiring(samus, grapple, new(512, 512));
 
-            AssertTrue(connected.Phase is GrapplePhase.ConnectedLocked or GrapplePhase.ConnectedSwinging && connected.OwnsMovement,
+            AssertTrue(connected.Phase is GrapplePhase.ConnectedLocked or GrapplePhase.ConnectedSwinging && connected.PendingConnection is not null,
                 $"{running}: the beam connects and its pose is applied");
             AssertEqual(facing, SamusPoseMetadata.ReadFacingDirection(samus), $"{running}: the connected pose keeps her facing");
             AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, $"{running}: the connection ends her running momentum");
@@ -53,9 +53,9 @@ internal static class GrappleConnectionSpeedBoostVerification
                 $"{running}: the connection clears the boost counter");
             AssertTrue(!samus.HorizontalSpeed.IsActivelySpeedBoosting, $"{running}: Samus no longer boosts once connected");
             AssertEqual(SpeedEchoCursor.Departing, samus.HorizontalSpeed.SpeedEchoCursor, $"{running}: the speed echoes depart");
-            AssertEqual(new Offset16<RoomPixels>(echoVelocity, 0), samus.HorizontalSpeed.FirstSpeedEchoVelocity,
+            AssertEqual(echoVelocity, samus.HorizontalSpeed.FirstSpeedEchoHorizontalSpeed,
                 $"{running}: the first echo leaves the way the connected pose faces");
-            AssertEqual(new Offset16<RoomPixels>(echoVelocity, 0), samus.HorizontalSpeed.SecondSpeedEchoVelocity,
+            AssertEqual(echoVelocity, samus.HorizontalSpeed.SecondSpeedEchoHorizontalSpeed,
                 $"{running}: the second echo leaves the way the connected pose faces");
             AssertEqual(default(UnsignedSixteenSixteen), samus.HorizontalSpeed.BaseSpeed, $"{running}: the connection clears the base speed");
             AssertEqual(default(UnsignedSixteenSixteen), samus.HorizontalSpeed.ExtraRunSpeed,

@@ -89,13 +89,11 @@ internal sealed class SamusFramePhases
         else if (_player.Samus.Grapple.Phase == GrapplePhase.Firing)
         {
             _player.LastGrappleMovement = SamusGrappleMovement.StepFiring(
-
                 _room.LevelData,
                 _player.Samus,
                 _playerActions.Current,
                 roomObjects,
-                room.Enemies.GrappleTargets.ResolveGrappleEndpoint,
-                connectionPoseChange: GrapplePoseChange.Deferred);
+                room.Enemies.GrappleTargets.ResolveGrappleEndpoint);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (_player.Samus.Grapple.Phase == GrapplePhase.CancelPending)
@@ -110,7 +108,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = roomObjects }, _player.Samus, _playerActions.Current, _playerActions.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, poseChange: GrapplePoseChange.Deferred);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = roomObjects }, _player.Samus, _playerActions.Current, _playerActions.NewlyPressed, room.Enemies.GrappleTargets.ResolveGrappleEndpoint);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
@@ -174,7 +172,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter });
     }
 
     /// <summary>
@@ -192,12 +190,12 @@ internal sealed class SamusFramePhases
                 break;
             case SamusMovementType.SpinJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter,
+                    level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter,
                     _playerActions.NewlyPressed, roomObjects);
                 break;
             case SamusMovementType.NormalJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObjects);
+                    level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObjects);
                 break;
             case SamusMovementType.Standing:
             case SamusMovementType.Running:
@@ -458,7 +456,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             // it must also run after the grapple cancel has made the beam inactive.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastAerialSamusMovement = SamusAerialMovement.StepReleasedFromGrapple(
-
                 _room.LevelData,
                 samus,
                 _playerActions.Current,
@@ -550,7 +547,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             case SamusMovementOwner.Knockback:
                 SamusAerialMovement.ConfigureEnvironmentGravity(samus);
                 _player.LastKnockbackMovement = SamusKnockbackMovement.Step(
-
                     _room.LevelData,
                     samus,
                     _clock.Counter,
@@ -573,7 +569,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                 _player.LastBombJumpMovement = samus.BombJumpStarting
                     ? SamusBombJumpMovement.Start(samus)
                     : SamusBombJumpMovement.Step(
-
                         _room.LevelData,
                         samus,
                         _clock.Counter,
@@ -622,7 +617,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                 // Samus's environment-selected vertical acceleration pair is used
                 // as spark acceleration. The projectile step does not replace it.
                 SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-                _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
+                _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint });
                 if (_player.LastShinesparkMovement.Value.WindupTimedOut)
                 {
                     // The spark publishes an interrupted vertical pose. That
@@ -1077,7 +1072,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // this consumer now includes both the zero-status no-op and the nonzero
         // one-pixel downward block scan.
         SamusGroundedMovement.StepFacingForward(
-
             _room.LevelData,
             samus,
             _clock.Counter,
@@ -1107,7 +1101,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
              samus.Kinematics.YDirection == SamusVerticalDirection.None))
         {
             _player.LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
-
                 _room.LevelData,
                 samus,
                 _clock.Counter,
@@ -1118,7 +1111,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             SamusMovementType.TurningWhileFalling)
         {
             _player.LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
-
                 _room.LevelData,
                 samus,
                 _clock.Counter,
@@ -1145,7 +1137,6 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
         BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-
             _room.LevelData,
             samus,
             _clock.Counter,
@@ -1362,7 +1353,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             // X-ray freezes time and therefore clears
             // rather than applies accumulated damage; fatal zero-energy game-state
             // acquisition remains the outer seam.
-            samus.LiquidPhysics.ApplyPeriodicDamage(
+            samus.PeriodicDamage.Apply(
                 samus,
                 timeIsFrozen: _freeze.TimeIsFrozen);
             // Locked, elevator and appearance movement modes omit the low-energy check; the gunship setup

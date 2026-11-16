@@ -11,11 +11,8 @@ internal static class SamusPoseHistoryVerification
     {
         // Literal fixture for $91:E719. Preserve the packed direction/movement words
         // and distinct pose identities so every shifted field is observable.
-        var history = new SamusPoseHistoryState
-        {
-            PreviousPose = SamusPoseId.GlitchBallKnockbackLeftPose, PreviousMovement = SamusMovementType.SpinJumping,
-            LastDifferentMovement = SamusMovementType.NormalJumping,
-        };
+        var history = new SamusPoseHistoryState();
+        history.Restore(SamusPoseId.GlitchBallKnockbackLeftPose, SamusMovementType.SpinJumping, SamusMovementType.NormalJumping);
         AssertTrue(!history.AllowsWallJumpProbe, "wall probe rejects normal-jump history");
         history.CommitTransition(SamusPoseId.SpinJumpLeftPose, SamusMovementType.SpinJumping);
         AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "transition shifts packed direction/movement");
@@ -27,7 +24,7 @@ internal static class SamusPoseHistoryVerification
 
         foreach (SamusMovementType movement in Enum.GetValues<SamusMovementType>())
         {
-            history.LastDifferentMovement = movement;
+            history.Restore(history.PreviousPose, history.PreviousMovement, movement);
             AssertEqual(movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping, history.AllowsWallJumpProbe,
                 $"wall probe gate for {movement} history");
         }

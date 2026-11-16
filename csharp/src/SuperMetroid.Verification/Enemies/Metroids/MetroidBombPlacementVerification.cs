@@ -111,10 +111,7 @@ internal static class MetroidBombPlacementVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(0), 1);
-        samus.PoseHistory.PreviousPose = samus.Pose;
-        samus.PoseHistory.PreviousMovement =
-            SamusMovementType.MorphBallGround;
-        samus.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
+        samus.PoseHistory.Restore(samus.Pose, SamusMovementType.MorphBallGround, SamusMovementType.Standing);
         var target = runtime.Enemies.Places.InUpdateOrder[0];
         foreach (var other in runtime.Enemies.Places.InUpdateOrder.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));

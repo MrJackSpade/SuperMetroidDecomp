@@ -14,9 +14,7 @@ internal static class DrainedPoseHistoryVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var history = samus.PoseHistory;
-            history.PreviousPose = source;
-            history.PreviousMovement = SamusPoseMetadata.ReadMovementType(samus);
-            history.LastDifferentMovement = SamusMovementType.SpinJumping;
+            history.Restore(source, SamusPoseMetadata.ReadMovementType(samus), SamusMovementType.SpinJumping);
             DrainedPoseHistoryCommand[] commands =
             [
                 new DrainedPoseHistoryCommand("fall", () => samus.Drained.LetFall(samus)),

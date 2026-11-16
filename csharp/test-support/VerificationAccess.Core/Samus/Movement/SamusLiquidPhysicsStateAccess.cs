@@ -16,7 +16,7 @@ internal static class SamusLiquidPhysicsStateAccess
         {
             Ensure.NotNull(samus);
             int bottom = samus.Kinematics.BottomBoundary;
-            self.LiquidPhysicsType = self.FxType switch
+            PrivateState.Set(self, nameof(SamusLiquidPhysicsState.LiquidPhysicsType), self.FxType switch
             {
                 RoomFxType.Lava or RoomFxType.Acid
                     when SamusLiquidPhysicsState.IsBelowSurface(self.LavaAcidSurfaceY, (ushort)(bottom)) => SamusLiquidMedium.LavaOrAcid,
@@ -35,7 +35,7 @@ internal static class SamusLiquidPhysicsStateAccess
                     RoomFxType.CeresElevator or
                     RoomFxType.CeresHaze => SamusLiquidMedium.Air,
                 _ => SamusLiquidMedium.Air,
-            };
+            });
         }
     }
 }

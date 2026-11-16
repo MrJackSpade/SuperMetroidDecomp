@@ -22,7 +22,6 @@ public static class SamusMorphBallMovement
 {
     /// <summary>Executes <see cref="SamusMovementType.MorphBallGround"/> movement.</summary>
     internal static MorphBallMovementResult StepGrounded(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -80,7 +79,6 @@ public static class SamusMorphBallMovement
             // The simple vertical movement handles a rebound already in progress through the
             // same falling check and one-frame-lag gravity step as airborne morph.
             vertical = MoveVerticallyWithGravity(
-
                 level,
                 samus,
                 frameCounter,
@@ -91,7 +89,6 @@ public static class SamusMorphBallMovement
         else
         {
             vertical = RunNoSpeedCalculationGroundingProbe(
-
                 level,
                 samus,
                 frameCounter,
@@ -109,7 +106,6 @@ public static class SamusMorphBallMovement
 
     /// <summary>Executes <see cref="SamusMovementType.MorphBallFalling"/> movement.</summary>
     internal static MorphBallMovementResult StepFalling(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -148,7 +144,6 @@ public static class SamusMorphBallMovement
     /// and both Spring Ball air movements run here.
     /// </summary>
     private static MorphBallMovementResult StepMorphedFallingOrBouncing(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -202,7 +197,6 @@ public static class SamusMorphBallMovement
             // rejoin at the same falling-check/gravity step. Bounce state changes only
             // when the later solid vertical collision sees a downward collision.
             vertical = MoveVerticallyWithGravity(
-
                 level,
                 samus,
                 frameCounter,
@@ -215,7 +209,6 @@ public static class SamusMorphBallMovement
 
     /// <summary>Executes <see cref="SamusMovementType.SpringBallInAir"/> movement.</summary>
     internal static MorphBallMovementResult StepSpringBallInAir(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -235,7 +228,7 @@ public static class SamusMorphBallMovement
         if (samus.MorphBallBounceState != SamusBallBounceState.None)
         {
             return StepMorphedFallingOrBouncing(
-level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.SpringBallInAir);
+                level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.SpringBallInAir);
         }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -283,7 +276,6 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = MoveVerticallyWithGravity(
-
             level,
             samus,
             frameCounter,
@@ -298,7 +290,6 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
     /// the transition movement, including its airborne gravity branch.
     /// </summary>
     internal static MorphBallMovementResult StepTransition(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -326,7 +317,6 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
         {
             vertical = RunNoSpeedCalculationGroundingProbe(
-
                 level,
                 samus,
                 frameCounter,
@@ -336,7 +326,6 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         else
         {
             vertical = MoveVerticallyWithGravity(
-
                 level,
                 samus,
                 frameCounter,
@@ -361,7 +350,6 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
 
     /// <summary>Moves the ball by its previous vertical speed, then advances gravity and reports collisions for the later transition.</summary>
     private static BlockMoveResult MoveVerticallyWithGravity(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -411,7 +399,6 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
 
     /// <summary>Scans for ground or ceiling contact using external displacement while leaving vertical speed unchanged.</summary>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,

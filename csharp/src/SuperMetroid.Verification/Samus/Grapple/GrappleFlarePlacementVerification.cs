@@ -69,8 +69,8 @@ internal static class GrappleFlarePlacementVerification
             Compare();
             for (int tick = 0; tick < 10; tick++)
             {
-                SamusGrappleMovement.StepFiring(empty, native, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
-                SamusGrappleMovement.StepFiring(empty, selected, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                SamusGrappleMovement.StepFiringAndCommit(empty, native, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                SamusGrappleMovement.StepFiringAndCommit(empty, selected, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                 Compare();
             }
             var expectedConnection = connect(native, native.Grapple, new(512, 512), GrappleAnchorKind.Block);

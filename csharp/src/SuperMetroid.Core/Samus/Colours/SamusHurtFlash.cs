@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
@@ -49,11 +50,11 @@ public static class SamusHurtFlash
         // Mother-Brain drained knockback are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its movement.
         if (counterBefore == 2 &&
-            !samus.LiquidPhysics.CinematicActive &&
+            samus.Presentation.Mode != SamusPresentationMode.Cinematic &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseId.KnockbackLeftPose))
         {
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.SamusDamaged, priority: SoundRequestPriority.Normal);
+            samus.AudioRequests.QueueSound(SamusSound.SamusDamaged, priority: SoundRequestPriority.Normal);
         }
 
         // Only calls one through six write colors. Odd calls select the fixed hurt shade;
@@ -65,7 +66,7 @@ public static class SamusHurtFlash
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }
-            else if (samus.LiquidPhysics.CinematicActive)
+            else if (samus.Presentation.Mode == SamusPresentationMode.Cinematic)
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Intro));
             }
@@ -103,7 +104,7 @@ public static class SamusHurtFlash
         bool queued = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         if (queued)
         {
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
+            samus.AudioRequests.QueueSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
         }
 
         samus.ResumeChargingBeamSoundPending = false;
@@ -122,7 +123,7 @@ public static class SamusHurtFlash
         {
             if (SamusSpinSound.Select(samus) is { } sound)
             {
-                samus.LiquidPhysics.QueueMovementSound(sound, priority: SoundRequestPriority.High);
+                samus.AudioRequests.QueueSound(sound, priority: SoundRequestPriority.High);
                 return;
             }
 
@@ -145,7 +146,7 @@ public static class SamusHurtFlash
             GrapplePhase.WallGrab or
             GrapplePhase.WallGrabRelease;
         if (grappleSoundActive)
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.Grappling, priority: SoundRequestPriority.High);
+            samus.AudioRequests.QueueSound(SamusSound.Grappling, priority: SoundRequestPriority.High);
     }
 
 }

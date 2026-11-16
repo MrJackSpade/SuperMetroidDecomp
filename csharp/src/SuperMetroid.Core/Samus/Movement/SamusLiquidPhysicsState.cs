@@ -68,10 +68,13 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     /// <param name="effectWaits">The waits her breath bubbles and lava spray keep for the effects that shared their places.</param>
     /// <param name="particles">The splashes, bubbles, spray and dust her presentation shows.</param>
-    /// <param name="audioRequests">Samus's audio requests, which her movement, liquid, landing and footstep sounds join.</param>
-    internal SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles, GameplayAudioRequests audioRequests)
+    /// <param name="audioRequests">Samus's audio requests, which her liquid, landing and footstep sounds join.</param>
+    /// <param name="periodicDamage">Samus's periodic damage, which her liquids add to and a dry room's configuration drops.</param>
+    internal SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles, GameplayAudioRequests audioRequests,
+        SamusPeriodicDamage periodicDamage)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
+        _periodicDamage = Ensure.NotNull(periodicDamage);
         EffectWaits = Ensure.NotNull(effectWaits);
         _particles = Ensure.NotNull(particles);
     }
@@ -85,6 +88,9 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>The splashes, bubbles, spray and dust Samus's presentation shows.</summary>
     private readonly SamusParticles _particles;
 
+    /// <summary>Samus's periodic damage, which lava, acid and heat-free liquid damage join.</summary>
+    private readonly SamusPeriodicDamage _periodicDamage;
+
     /// <summary>
     /// The waits her breath bubbles and lava spray keep for the effects that shared their places, which decide whether a
     /// bubble draws its random number and requests its sound and whether a spray requests its sound.
@@ -92,7 +98,7 @@ public sealed class SamusLiquidPhysicsState
     public BreathBubbleAndLavaSprayWaits EffectWaits { get; }
 
     /// <summary>
-    /// The update's audio requests her movement, liquid, landing and footstep sounds join as they are made: Samus's (#2057).
+    /// The update's audio requests her liquid, landing and footstep sounds join as they are made: Samus's (#2057).
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; }
 
@@ -100,7 +106,7 @@ public sealed class SamusLiquidPhysicsState
     /// Exclusive liquid effect identity: lava, acid,
     /// water, or none.
     /// </summary>
-    public RoomFxType FxType { get; set; }
+    public RoomFxType FxType { get; private set; }
 
     /// <summary>
     /// The water surface's room Y, a line of the room, zero or more, or none when the room has no water surface; movement behaviours then
@@ -130,42 +136,14 @@ public sealed class SamusLiquidPhysicsState
     /// Samus's copy of <see cref="RoomWater.IgnoresSurfaceUntilEnabled"/>. While set, water does not affect her even when
     /// the geometric surface comparison says she is below it.
     /// </summary>
-    public bool IgnoresWaterSurface { get; set; }
+    public bool IgnoresWaterSurface { get; private set; }
 
     /// <summary>
     /// Remembered medium. This is intentionally stateful:
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
-    public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
+    public SamusLiquidMedium LiquidPhysicsType { get; private set; }
 
-    /// <summary>
-    /// Queues a sound selected by a movement behaviour now, beside those of liquid entry, footsteps and landing impact.
-    /// </summary>
-    /// <remarks>
-    /// This is intentionally not a general audio backend. movement owns a handful
-    /// of exact queue calls, most notably underwater Space Jump's sound.
-    /// </remarks>
-    public void QueueMovementSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
-        QueueSound(soundEffect, priority);
-
-    /// <summary>
-    /// The periodic damage this update has accumulated and not yet applied, in energy and its 65536ths: liquids, spikes,
-    /// heat and enemies add to it and <see cref="ApplyPeriodicDamage"/> applies and clears it on the same update, so it
-    /// holds no more than one update's contributions.
-    /// </summary>
-    public UnsignedSixteenSixteen PendingPeriodicDamage { get; internal set; }
-
-    /// <summary>
-    /// The room Samus is in, consumed by area- and room-specific footstep and landing graphics. Every room load sets it;
-    /// until the first does, it is Landing Site, the room the game's cleared area and room state name.
-    /// </summary>
-    public RoomDefinition Room { get; set; } = RoomDefinitions.LandingSite;
-
-    /// <summary>The area of <see cref="Room"/>, used by area-only consumers.</summary>
-    public AreaId Area => Room.Area;
-
-    /// <summary>An active cinematic suppresses ordinary footstep audio.</summary>
-    public bool CinematicActive { get; set; }
 
     /// <summary>
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
@@ -212,7 +190,7 @@ public sealed class SamusLiquidPhysicsState
         LavaAcidSurfaceY = null;
         IgnoresWaterSurface = false;
         LiquidPhysicsType = SamusLiquidMedium.Air;
-        PendingPeriodicDamage = default;
+        _periodicDamage.Clear();
         EffectWaits.Clear();
         _particles.Clear();
     }
@@ -389,7 +367,7 @@ public sealed class SamusLiquidPhysicsState
             SamusLiquidDamageRate damageRate = fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
-            AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
+            _periodicDamage.Accumulate(damageRate.SubDamage, damageRate.WholeDamage);
             if (SamusCadenceDefinitions.LiquidDamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health >= SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
@@ -440,7 +418,8 @@ public sealed class SamusLiquidPhysicsState
         // Ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
         // Cinematics suppress both the ordinary-spin and Screw Attack end-sound requests.
-        if (!CinematicActive && previousMovementType is
+        bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
+        if (!cinematic && previousMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             QueueSound(previousPose is SamusPoseId.ScrewAttackRightPose or
@@ -457,7 +436,7 @@ public sealed class SamusLiquidPhysicsState
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
 
-        if (!CinematicActive)
+        if (!cinematic)
         {
             QueueSound(hardLanding
                     ? RoomSound.HardLanding
@@ -473,7 +452,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // Each area has its own landing graphics. An undefined area has none;
         // fail loudly instead of manufacturing output.
-        switch (Area)
+        switch (samus.Room.Area)
         {
             case AreaId.Crateria:
                 HandleCrateriaLandingGraphics(samus);
@@ -481,7 +460,7 @@ public sealed class SamusLiquidPhysicsState
 
             case AreaId.Brinstar:
             case AreaId.Tourian:
-                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(Room))
+                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(samus.Room))
                     SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 else
                     EndLandingEffectWait();
@@ -501,7 +480,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {Area} is outside the seven retail areas.");
+                throw new InvalidDataException($"Landing graphics area {samus.Room.Area} is outside the seven retail areas.");
         }
     }
 
@@ -510,7 +489,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // Crateria's cinematic path shows no landing effect, ending the bubbles' landing wait, before consulting room
         // data. This is distinct from the landing's own sound suppression, already applied.
-        if (CinematicActive)
+        if (samus.Presentation.Mode == SamusPresentationMode.Cinematic)
         {
             EndLandingEffectWait();
             return;
@@ -518,14 +497,14 @@ public sealed class SamusLiquidPhysicsState
 
         // The Green Pirates Shaft bypasses the room policy and always chooses the
         // dry-dust step, still subject to live liquid submersion.
-        if (Room == RoomDefinitions.GreenPiratesShaft)
+        if (samus.Room == RoomDefinitions.GreenPiratesShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
             return;
         }
 
         // The game duplicates this room policy for running footsteps and landing effects.
-        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(Room);
+        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(samus.Room);
         if (roomEffect == CrateriaAtmosphericEffect.LandingSite)
         {
             // Landing Site creates splashes only while it rains; its normal scrolling-sky
@@ -598,46 +577,6 @@ public sealed class SamusLiquidPhysicsState
         _particles.Spawn(kind, position, start);
         return SamusParticleAnimations.UpdatesUntilFinished(kind, step: 0, start);
     }
-
-    /// <summary>
-    /// Applies periodic damage to Samus. The producer above adds
-    /// raw fixed-point damage; this consumer applies the suit's periodic division
-    /// (<see cref="SamusSuitDamage.ReducePeriodic"/>), subtracts with the game's borrow chain, clamps a fatal result below zero,
-    /// and clears the pair.
-    /// </summary>
-    public void ApplyPeriodicDamage(SamusState samus, bool timeIsFrozen)
-    {
-        Ensure.NotNull(samus);
-        if (timeIsFrozen)
-        {
-            PendingPeriodicDamage = default;
-            return;
-        }
-
-        UnsignedSixteenSixteen applied = SamusSuitDamage.ReducePeriodic(PendingPeriodicDamage, samus.EquippedItems);
-
-        // The game stops with a crash when the whole damage is so large it reads as below zero.
-        // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
-        // into plausible damage.
-        if (WrappingCounter.ReadsBelowZero(applied.Whole))
-            throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
-
-        samus.TakeFractionalEnergyDamage(applied.Fraction, applied.Whole);
-
-        PendingPeriodicDamage = default;
-    }
-
-    /// <summary>
-    /// Adds one fractional periodic-damage contribution to the periodic damage.
-    /// </summary>
-    /// <remarks>
-    /// Liquid, block and enemy damage all accumulate here as one amount in 1/65536ths of a unit, so no producer drops a fraction that
-    /// passes a whole point of energy: it moves the whole damage by one. The fractional damage is 0 through 65535
-    /// 65536ths of energy and the whole damage zero or more; one update's contributions stay far below the largest damage
-    /// <see cref="ApplyPeriodicDamage"/> applies.
-    /// </remarks>
-    public void AccumulatePeriodicDamage(int subDamage, int wholeDamage) =>
-        PendingPeriodicDamage += new UnsignedSixteenSixteen(wholeDamage, subDamage);
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
     internal void SpawnWaterSplash(
@@ -723,16 +662,17 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        bool useWetFootsteps = Area == AreaId.Maridia;
-        if (Area == AreaId.Crateria)
+        bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
+        bool useWetFootsteps = samus.Room.Area == AreaId.Maridia;
+        if (samus.Room.Area == AreaId.Crateria)
         {
-            if (CinematicActive)
+            if (cinematic)
             {
                 useWetFootsteps = false;
             }
             else
             {
-                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(Room) switch
+                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(samus.Room) switch
                 {
                     CrateriaAtmosphericEffect.LandingSite => FxType == RoomFxType.Rain,
                     CrateriaAtmosphericEffect.WreckedShipEntrance =>
@@ -753,7 +693,7 @@ public sealed class SamusLiquidPhysicsState
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress the footstep sound.
         // A held shine suppresses it; the boost's cycle shade timer, already nonzero during boost buildup, does not.
-        if (!CinematicActive &&
+        if (!cinematic &&
             !bossPresent &&
             !SamusInputSnapshot.HoldsShine(samus) &&
             !samus.HorizontalSpeed.SpeedBoostCounter.IsAtFullStage)

@@ -19,7 +19,6 @@ public static class SamusPostureMovement
     /// unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepCrouching(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -34,7 +33,6 @@ public static class SamusPostureMovement
         }
 
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
-
             level,
             samus,
             frameCounter,
@@ -53,7 +51,6 @@ public static class SamusPostureMovement
     /// standing transitions, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepCrouchStandTransition(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -74,7 +71,6 @@ public static class SamusPostureMovement
 
     /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,

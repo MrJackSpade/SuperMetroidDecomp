@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -82,9 +84,9 @@ internal static class SamusFullBodyCycleColorsVerification
                 var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
-                    CycleShadeTimer = 1,
                     CycleShadeStep = phase,
                 };
+                PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
                 var cgram = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items }),
                     "Speed Booster reaches installed color source");

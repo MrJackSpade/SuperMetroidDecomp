@@ -97,7 +97,6 @@ public static class SamusAerialMovement
     /// Executes one frame of normal-jumping movement.
     /// </summary>
     internal static AerialMovementResult StepNormalJump(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -150,7 +149,6 @@ public static class SamusAerialMovement
 
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         MoveNormalAerialX(
-
             level,
             samus,
             controllerInput,
@@ -164,7 +162,6 @@ public static class SamusAerialMovement
     /// including the wall-jump block contact and launch test.
     /// </summary>
     internal static AerialMovementResult StepSpinJump(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -193,7 +190,7 @@ public static class SamusAerialMovement
             samus.AnimationFrameTimer.IsAt(1) &&
             (samus.AnimationIsOn(SamusAnimationFrames.SpaceJumpSpinStart) || samus.AnimationIsOn(SamusAnimationFrames.SpaceJumpSpinMiddle)))
         {
-            samus.LiquidPhysics.QueueMovementSound(SamusSound.UnderwaterSpaceJump, priority: SoundRequestPriority.Normal);
+            samus.AudioRequests.QueueSound(SamusSound.UnderwaterSpaceJump, priority: SoundRequestPriority.Normal);
         }
 
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.
@@ -248,7 +245,6 @@ public static class SamusAerialMovement
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         bool wallJumpTriggered = CheckBlockWallJump(
-
             level,
             samus,
             controllerInput,
@@ -266,7 +262,6 @@ public static class SamusAerialMovement
         }
 
         return FinishVerticalMovement(
-
             level,
             samus,
             frameCounter,
@@ -278,7 +273,6 @@ public static class SamusAerialMovement
     /// selected contact damage before the ordinary jumping movement.
     /// </summary>
     internal static AerialMovementResult StepWallJump(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -306,7 +300,6 @@ public static class SamusAerialMovement
                 SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         MoveNormalAerialX(
-
             level,
             samus,
             controllerInput,
@@ -321,7 +314,6 @@ public static class SamusAerialMovement
     /// height jump cutoff, type-indexed X physics, block collision, gravity, and landing.
     /// </summary>
     internal static AerialMovementResult StepDamageBoost(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -344,7 +336,6 @@ public static class SamusAerialMovement
                 SamusLiquidMedium.Air);
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
         MoveNormalAerialX(
-
             level,
             samus,
             controllerInput,
@@ -359,7 +350,6 @@ public static class SamusAerialMovement
     /// release; the three-frame turn animation therefore preserves reversal momentum.
     /// </summary>
     internal static AerialMovementResult StepTurningInAir(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -428,7 +418,6 @@ public static class SamusAerialMovement
 
     /// <summary>Executes one frame of <see cref="SamusMovementType.Falling"/> movement.</summary>
     internal static AerialMovementResult StepFalling(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -447,7 +436,6 @@ public static class SamusAerialMovement
                 SamusLiquidMedium.Air);
 
         MoveNormalAerialX(
-
             level,
             samus,
             controllerInput,
@@ -488,7 +476,6 @@ public static class SamusAerialMovement
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
     internal static AerialMovementResult StepReleasedFromGrapple(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -539,7 +526,6 @@ public static class SamusAerialMovement
         }
 
         AerialMovementResult result = FinishVerticalMovement(
-
             level,
             samus,
             frameCounter,
@@ -555,7 +541,6 @@ public static class SamusAerialMovement
 
     /// <summary>Applies the selected medium's base speed and wall collision, preserving the no-input bypass and wall-jump exception.</summary>
     private static BlockMoveResult MoveNormalAerialX(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -593,7 +578,6 @@ public static class SamusAerialMovement
 
     /// <summary>Runs the shared Y mover and reduces its collision scan to the landing and ceiling signals her movement reads.</summary>
     private static AerialMovementResult FinishVerticalMovement(
-
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -703,7 +687,6 @@ public static class SamusAerialMovement
     /// Runs the wall-jump check's block and solid-enemy wall probes; returns whether the jump chord launched a wall jump.
     /// </summary>
     private static bool CheckBlockWallJump(
-
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -734,7 +717,6 @@ public static class SamusAerialMovement
         // the wall behind the newly facing spin pose.
         SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? WallJumpProbePixels : -WallJumpProbePixels, 0);
         BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
-
             level,
             samus.Kinematics, samus,
             requested,

@@ -186,10 +186,7 @@ internal static class SpikeShinesparkSuitVerification
         samus.Kinematics.YSpeed = default;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.PoseHistory.PreviousPose = samus.Pose;
-        samus.PoseHistory.PreviousMovement =
-            SamusMovementType.MorphBallGround;
-        samus.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
+        samus.PoseHistory.Restore(samus.Pose, SamusMovementType.MorphBallGround, SamusMovementType.Standing);
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage),
             "spike-suit fixture accepts stored Shinespark");
 

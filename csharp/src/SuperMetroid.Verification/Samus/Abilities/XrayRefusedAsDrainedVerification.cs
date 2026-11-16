@@ -50,7 +50,7 @@ internal static class XrayRefusedAsDrainedVerification
                 {
                     SamusState samus = StandingSamus();
                     samus.XSpeedDivisor = divisor;
-                    bool admitted = samus.Xray.TryBegin(samus, previousMovementType: SamusMovementType.Standing,
+                    bool admitted = samus.Xray.TryBeginAndActivate(samus, previousMovementType: SamusMovementType.Standing,
                         conditions: new XrayBeginConditions
                         {
                             GameState = SuperMetroidGameState.MainGameplay,

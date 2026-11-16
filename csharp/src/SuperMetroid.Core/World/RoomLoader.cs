@@ -249,7 +249,7 @@ internal sealed class RoomLoader
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance, timer: 3);
-        _player.IntroducedSamus.LiquidPhysics.Room = room.Definition;
+        _player.IntroducedSamus.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? SavedGameAppearanceDefinitions.GravitySuitGlow
@@ -372,7 +372,7 @@ internal sealed class RoomLoader
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.LiquidPhysics.Room = room.Definition;
+        samus.Room = room.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(samus);
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
@@ -772,7 +772,7 @@ internal sealed class RoomLoader
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
-        _player.Samus.LiquidPhysics.Room = room.Definition;
+        _player.Samus.Room = room.Definition;
         _player.GroundedSamusMovementEnabled = true;
         return viewport;
     }
@@ -1150,7 +1150,7 @@ internal sealed class RoomLoader
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
-        _player.Samus.LiquidPhysics.Room = _room.ActiveRoom.Definition;
+        _player.Samus.Room = _room.ActiveRoom.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
         // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in

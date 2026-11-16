@@ -101,9 +101,7 @@ internal static class CrystalFlashColorsVerification
                 PowerBombs = 10,
             };
             SamusPoseMetadata.RefreshCollisionRadii(started);
-            started.HorizontalSpeed.CycleShadeTimer = 0;
-            AssertTrue(started.CrystalFlash.TryBegin(started, controllerInput: 0,
-                inputCheck: CrystalFlashInputCheck.Skipped), "start real Crystal Flash palette owner");
+            AssertTrue(started.CrystalFlash.TryBegin(started, SamusCrystalFlashState.RequiredInput), "start real Crystal Flash palette owner");
             return started;
         }
     }

@@ -347,9 +347,9 @@ internal static void VerifySamusHorizontalSpeed()
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
         "right-facing cancellation enters high-bit echo departure");
-    AssertEqual(new Offset16<RoomPixels>(8, 0), booster.FirstSpeedEchoVelocity,
+    AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
         "right-facing first departure speed is positive eight");
-    AssertEqual(new Offset16<RoomPixels>(8, 0), booster.SecondSpeedEchoVelocity,
+    AssertEqual(8, booster.SecondSpeedEchoHorizontalSpeed,
         "right-facing second departure speed is positive eight");
 
     // `$90:87D3-$90:884B` advances the second echo, then the first echo as an actual draw side effect.
@@ -374,7 +374,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
     // must preserve an already-running departure even if the new pose faces the other way.
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(new Offset16<RoomPixels>(8, 0), booster.FirstSpeedEchoVelocity,
+    AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
         "repeated cancellation cannot reverse an active departure");
     AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
         "right departure the second echo clears on crossing");
@@ -397,9 +397,9 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(0, new(150, 90)), "left departure captures its first echo");
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(4, new(154, 94)), "left departure captures its second echo");
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(new Offset16<RoomPixels>(-8, 0), leftDeparture.FirstSpeedEchoVelocity,
+    AssertEqual(-8, leftDeparture.FirstSpeedEchoHorizontalSpeed,
         "left-facing first departure speed is negative eight");
-    AssertEqual(new Offset16<RoomPixels>(-8, 0), leftDeparture.SecondSpeedEchoVelocity,
+    AssertEqual(-8, leftDeparture.SecondSpeedEchoHorizontalSpeed,
         "left-facing second departure speed is negative eight");
     AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
         "left departure the second echo remains before crossing");

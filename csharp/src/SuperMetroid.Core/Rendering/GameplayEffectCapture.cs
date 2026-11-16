@@ -254,7 +254,7 @@ public static class GameplayEffectCapture
     /// <summary>The window of each light-beam outline: columns, a rounded column, its wiped remainder or the centre line.</summary>
     private static ScreenWindow SuitPickupBeamWindow(SamusSuitPickupBeam beam)
     {
-        int left = beam.Left.X, right = beam.Right.X;
+        int left = beam.Left, right = beam.Right;
         int lines = SuitPickupBeamDefinitions.BeamLines;
         int centre = lines / 2;
         if (left > right) return ScreenWindow.Closed;

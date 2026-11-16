@@ -88,7 +88,7 @@ internal static class ImportedBossLooks
         /// </summary>
         internal void ApplyHurt(IPaletteColors cgram, bool whiteFrame, int healthBand)
         {
-            self.ShowImported(cgram, whiteFrame ? DraygonShades.BackgroundWhite : DraygonShades.Background);
+            self.ShowImported(cgram, whiteFrame ? DraygonShades.BodyWhite : DraygonShades.Body);
             self.ShowImported(cgram, whiteFrame ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
             if (!whiteFrame && healthBand >= 0)
                 self.ShowImported(cgram, DraygonShades.Health(healthBand));

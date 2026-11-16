@@ -157,7 +157,7 @@ internal static class EnemySpeciesCapabilitiesVerification
         CrocomireReactions.ClawTouch, CrocomireReactions.AbsorbedShot, CrocomireReactions.DustShot,
         CrocomireReactions.MouthShot,
         DraygonReactions.Touch, DraygonReactions.Shot,
-        KraidReactions.BackgroundTouch, KraidReactions.ArmTouch, KraidReactions.ArmShot,
+        KraidReactions.BodyTouch, KraidReactions.ArmTouch, KraidReactions.ArmShot,
         MotherBrainReactions.BodyShot, MotherBrainReactions.HeadShot, MotherBrainReactions.HeadTouch,
         PhantoonReactions.Touch, PhantoonReactions.Shot,
         RidleyReactions.FrameHitboxTouch, RidleyReactions.Shot,

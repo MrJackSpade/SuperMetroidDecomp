@@ -66,6 +66,7 @@ internal static class DraygonAnimationsVerification
             AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(DraygonFrameToolingDefinitions.CartridgeOrder[index])), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();
+        VerifyGoopPassResetStartsTheArms();
         VerifyDying(cartridge);
         Console.WriteLine($"  Draygon animations: {Entries.Length} segments and {beatCount} beats match bank $A5, and every animation its lists' control flow; the reset and dying sequence match the runner.");
     }
@@ -240,6 +241,24 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>
+    /// #2221: a goop pass's setup leaves the arms' animation to the body's reset, which starts them facing the pass's way in
+    /// the same update, before the arms' own update: the setup's set-up leaves the arms as they were, and the reset's start
+    /// is the first animation they play.
+    /// </summary>
+    private static void VerifyGoopPassResetStartsTheArms()
+    {
+        foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
+        {
+            (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
+            enemies.DraygonBehavior.Goop.SetupDraygonGoopPass(state, direction, RoomEnemyFrameFixtures.StandaloneSamus(), frameCounter: 0);
+            AssertEqual(Started(DraygonSegment.Rest), state.Playback(state.Arms), $"a {direction} goop pass's setup leaves the arms' animation");
+            Pass(state.Body);
+            AssertEqual(Started(direction == HorizontalDirection.Right ? DraygonSegment.ArmsFacingRightIdle : DraygonSegment.ArmsFacingLeftIdle),
+                state.Playback(state.Arms), $"the {direction} goop pass's reset starts the arms before they play");
+        }
+    }
+
+    /// <summary>
     /// The arms' dying program runs on into the body's dying explosions: the cry, the intangible body, eight counted
     /// explosion rounds with their waits, the paralysis of the tail, then the explosion loop, update by update beside
     /// the native list, including the plays the counted rounds have left, which the arms' timer word counts (#2006).
@@ -290,7 +309,8 @@ internal static class DraygonAnimationsVerification
         AssertEqual(Enum.GetValues<DraygonProjectileSegment>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
         Dictionary<DraygonProjectileSegment, NativeEnemyList<DraygonProjectileSegment>> projectileLists =
             ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));
-        NativeEnemyAnimationOracle.CompareAnimations(projectileLists, DraygonProjectileAnimations.StartingAt);
+        NativeEnemyAnimationOracle.CompareAnimations(projectileLists, DraygonProjectileAnimations.StartingAt,
+            onlyRunOnInto: new HashSet<DraygonProjectileSegment> { DraygonProjectileSegment.WallTurretFlight });
 
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, movingRight: true);

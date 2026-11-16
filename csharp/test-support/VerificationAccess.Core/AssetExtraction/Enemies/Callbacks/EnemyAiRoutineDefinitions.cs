@@ -179,7 +179,7 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress PhantoonShot = new(Bank, 0xdd9b);
 
         /// <summary>Kraid background/foot touch callback at $A7:948B.</summary>
-        public static readonly SnesAddress KraidBackgroundTouch = new(Bank, 0x948b);
+        public static readonly SnesAddress KraidBodyTouch = new(Bank, 0x948b);
         /// <summary>Kraid arm touch callback at $A7:9490.</summary>
         public static readonly SnesAddress KraidArmTouch = new(Bank, 0x9490);
         /// <summary>Kraid arm shot callback at $A7:94B6.</summary>

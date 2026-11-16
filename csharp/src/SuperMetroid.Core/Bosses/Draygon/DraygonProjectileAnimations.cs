@@ -54,6 +54,9 @@ internal static class DraygonProjectileAnimations
                 Show(EnemyProjectileFrameId.DraygonWallTurretGlowBright, 10),
                 Show(EnemyProjectileFrameId.DraygonWallTurretOrbForming, 10),
                 Cue(DraygonProjectileCue.Fire),
+            ],
+            [P.WallTurretFlight] =
+            [
                 Show(EnemyProjectileFrameId.DraygonWallTurretOrbBright, 8),
                 Show(EnemyProjectileFrameId.DraygonWallTurretOrbFlickering, 8),
                 Show(EnemyProjectileFrameId.DraygonWallTurretOrbDimmed, 8),
@@ -70,15 +73,8 @@ internal static class DraygonProjectileAnimations
             [P.GoopTouch] = new([Whole(P.GoopTouch), Whole(P.Goop)], AnimationEnd.LoopsFrom(1)),
             [P.Goop] = new([Whole(P.Goop)], AnimationEnd.LoopsFrom(0)),
             [P.GoopShot] = new([Whole(P.GoopShot)], AnimationEnd.Holds),
-            [P.WallTurretBloom] = new([new(P.WallTurretBloom, 0, WallTurretBloomBeats, 1), new(P.WallTurretBloom, WallTurretBloomBeats, WallTurretFlightBeats, 1)],
-                AnimationEnd.LoopsFrom(1)),
+            [P.WallTurretBloom] = new([Whole(P.WallTurretBloom), Whole(P.WallTurretFlight)], AnimationEnd.LoopsFrom(1)),
         };
-
-    /// <summary>The wall turret shot's bloom: its sixteen frames and the cue that fires it.</summary>
-    private const int WallTurretBloomBeats = 17;
-
-    /// <summary>The wall turret shot's flight, the three frames it loops once fired.</summary>
-    private const int WallTurretFlightBeats = 3;
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DraygonProjectileSegment> StartingWith(DraygonProjectileSegment segment) => StartingAt[segment];

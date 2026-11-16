@@ -108,12 +108,12 @@ internal static class DraygonStateQuantitiesVerification
 
     /// <summary>
     /// Each eye hit adds 8/256 to the swoop acceleration while the result stays below 160 in a signed compare, so it
-    /// climbs from 24 to 152 and stops; only the vertical axis changes.
+    /// climbs from 24 to 152 and stops.
     /// </summary>
     private static void VerifyShotSwoopAcceleration()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.SwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 24);
+        state.SwoopAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
         ushort native = 24;
         for (int hit = 0; hit < 20; hit++)
         {
@@ -121,10 +121,9 @@ internal static class DraygonStateQuantitiesVerification
             ushort candidate = unchecked((ushort)(native + 8));
             if (unchecked((short)(candidate - 160)) < 0)
                 native = candidate;
-            AssertEqual(native, state.SwoopAcceleration.Y.RawValue, $"swoop acceleration after eye hit {hit}");
-            AssertEqual((ushort)0, state.SwoopAcceleration.X.RawValue, $"horizontal swoop acceleration after eye hit {hit}");
+            AssertEqual(native, state.SwoopAcceleration.RawValue, $"swoop acceleration after eye hit {hit}");
         }
-        AssertEqual((ushort)152, state.SwoopAcceleration.Y.RawValue, "the swoop acceleration stops below 160");
+        AssertEqual((ushort)152, state.SwoopAcceleration.RawValue, "the swoop acceleration stops below 160");
     }
 
     /// <summary>
@@ -156,7 +155,7 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState state) = NewDraygon();
         const ushort resetX = 65456;
         state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
-        state.SwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, acceleration);
+        state.SwoopAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
 
         DraygonSwoops.BuildDraygonSwoopYPositions(state, NewSwoopSamus());
 

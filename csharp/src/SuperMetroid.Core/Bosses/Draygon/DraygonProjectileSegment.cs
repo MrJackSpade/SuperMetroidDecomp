@@ -9,6 +9,8 @@ public enum DraygonProjectileSegment
     Goop,
     /// <summary>Two eight-update frames, a drop, then deletion.</summary>
     GoopShot,
-    /// <summary>The sixteen-frame bloom and the shot's firing, then its three eight-update flight frames, looping.</summary>
+    /// <summary>The wall turret shot's sixteen-frame bloom and its firing, which runs on into its flight.</summary>
     WallTurretBloom,
+    /// <summary>The fired wall turret shot's three eight-update flight frames, looping (#2221).</summary>
+    WallTurretFlight,
 }

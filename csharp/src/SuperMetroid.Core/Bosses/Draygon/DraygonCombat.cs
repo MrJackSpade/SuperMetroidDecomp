@@ -98,8 +98,8 @@ internal sealed class DraygonCombat
     /// </summary>
     internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {
-        EightEightVector<RoomPixels> candidate = state.SwoopAcceleration + DraygonBehavior.DraygonShotSwoopAccelerationStep;
-        if (candidate.Y < DraygonBehavior.DraygonSwoopAccelerationLimit)
+        SignedEightEight candidate = state.SwoopAcceleration + DraygonBehavior.DraygonShotSwoopAccelerationStep;
+        if (candidate < DraygonBehavior.DraygonSwoopAccelerationLimit)
             state.SwoopAcceleration = candidate;
     }
 

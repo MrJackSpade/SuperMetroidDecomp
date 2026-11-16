@@ -36,12 +36,9 @@ internal sealed class DraygonGoop
             _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
 
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
+        body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideResetX, 384));
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
-        // Going left, the setup first starts the arms' right-facing apex animation; the body's reset cue then replaces
-        // all four parts' animations.
-        DraygonParts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
         state.Phase = DraygonPhase.GoopApproach;
         DraygonParts.StartDraygonAnimation(
             body,

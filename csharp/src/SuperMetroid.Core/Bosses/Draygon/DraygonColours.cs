@@ -50,11 +50,11 @@ internal sealed class DraygonColours : IGameplayShadingSource
         Ensure.NotNull(frame);
         if (hurtShown && white)
         {
-            frame.Shade(GameplayPictures.BossBody, DraygonShades.BackgroundWhite);
+            frame.Shade(GameplayPictures.BossBody, DraygonShades.BodyWhite);
             return;
         }
         if (hurtShown)
-            frame.Shade(GameplayPictures.BossBody, DraygonShades.Background);
+            frame.Shade(GameplayPictures.BossBody, DraygonShades.Body);
         if (band is { } shownBand)
             frame.Shade(GameplayPictures.BossBody, DraygonShades.Health(shownBand));
     }

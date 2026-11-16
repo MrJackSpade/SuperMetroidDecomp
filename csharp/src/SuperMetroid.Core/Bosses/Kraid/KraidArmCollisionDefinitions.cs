@@ -142,7 +142,7 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>
     /// Each hitbox list's touch reaction and its rectangles in collision order. The articulated and connecting lists
-    /// touch as the arm; the body lists and both dying/lunge lists touch as the background.
+    /// touch as the arm; the body lists and both dying/lunge lists touch as his body.
     /// </summary>
     internal static readonly Dictionary<KraidArmHitboxList, KraidHitboxListDefinition> HitboxListShapes = new()
     {
@@ -157,10 +157,10 @@ internal static class KraidArmCollisionDefinitions
         [KraidArmHitboxList.ConnectorThird] = new(KraidReactions.ArmTouch, [new(-11, 2, -4, 10), new(-6, -3, 3, 5)]),
         [KraidArmHitboxList.ConnectorFinal] = new(KraidReactions.ArmTouch, [new(-4, -2, 3, 13)]),
         [KraidArmHitboxList.ConnectorInitial] = new(KraidReactions.ArmTouch, [new(-12, -12, -3, -3), new(-6, -6, 3, 2)]),
-        [KraidArmHitboxList.BodyFinal] = new(KraidReactions.BackgroundTouch, [new(-45, -9, 4, 8)]),
-        [KraidArmHitboxList.BodyMiddle] = new(KraidReactions.BackgroundTouch, [new(-28, -17, -12, 0), new(-42, -23, -28, -6)]),
-        [KraidArmHitboxList.BodyInitial] = new(KraidReactions.BackgroundTouch, [new(-22, -25, -8, -5), new(-35, -35, -19, -17)]),
-        [KraidArmHitboxList.FinalPoseFirst] = new(KraidReactions.BackgroundTouch, [new(-64, -48, -32, -16)]),
-        [KraidArmHitboxList.FinalPoseSecond] = new(KraidReactions.BackgroundTouch, [new(-64, -4, 0, 4)]),
+        [KraidArmHitboxList.BodyFinal] = new(KraidReactions.BodyTouch, [new(-45, -9, 4, 8)]),
+        [KraidArmHitboxList.BodyMiddle] = new(KraidReactions.BodyTouch, [new(-28, -17, -12, 0), new(-42, -23, -28, -6)]),
+        [KraidArmHitboxList.BodyInitial] = new(KraidReactions.BodyTouch, [new(-22, -25, -8, -5), new(-35, -35, -19, -17)]),
+        [KraidArmHitboxList.FinalPoseFirst] = new(KraidReactions.BodyTouch, [new(-64, -48, -32, -16)]),
+        [KraidArmHitboxList.FinalPoseSecond] = new(KraidReactions.BodyTouch, [new(-64, -4, 0, 4)]),
     };
 }

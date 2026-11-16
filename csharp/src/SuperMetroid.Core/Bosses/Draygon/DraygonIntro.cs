@@ -50,7 +50,7 @@ internal sealed class DraygonIntro
         state.Phase = DraygonPhase.IntroDance;
         state.IntroFrames = 0;
         state.LeftSideReset = state.Body.Position.Whole;
-        state.RightSideReset = state.LeftSideReset + DraygonBehavior.DraygonRightSideResetDistance;
+        state.RightSideResetX = CoordinateAxis.Wrap(state.LeftSideReset.X + DraygonBehavior.DraygonRightSideResetDistance);
         state.Body.Position = state.Body.Position.WithWhole(state.LeftSideReset);
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
     }

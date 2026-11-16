@@ -52,7 +52,7 @@ public sealed class SamusVisorShadeState
         }
 
         // Every other room resets the animation on every call. Besides disabling the animation,
-        // this primes an immediate color write on the first call after entering a backdrop-
+        // this changes the visor's colour at once on the first call after entering a backdrop-
         // blending room: countdown one expires before the shade is consulted.
         if (roomVisorAnimation != RoomVisorAnimation.Animated)
         {

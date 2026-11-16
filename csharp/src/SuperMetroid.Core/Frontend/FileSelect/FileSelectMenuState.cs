@@ -52,7 +52,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private int helmetAnimationTimer;
     /// <summary>Selected helmet turn frame retained through the options fade.</summary>
     internal int HelmetAnimationFrame { get; private set; }
-    /// <summary>How bright the file-select screen is; it starts blanked and fades in and out between pages.</summary>
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
     private readonly ScreenFade screenFade = new(0);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>

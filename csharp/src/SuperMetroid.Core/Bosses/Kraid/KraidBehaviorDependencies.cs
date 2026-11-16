@@ -14,31 +14,31 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The room Kraid's fight is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Terrain.</summary>
+    /// <summary>The room's terrain, which Kraid's movement steps against.</summary>
     public required EnemyTerrain Terrain { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The enemy projectiles Kraid's fight fires and spawns.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which Kraid's fight starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Audio.</summary>
+    /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Effect actors.</summary>
+    /// <summary>The room's effect actors, which Kraid's fight shows.</summary>
     public required RoomEffectActors EffectActors { get; init; }
 
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemies' touches, shots and bombs with Samus, which Kraid's fight reacts to.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' death explosions and drops, which Kraid's fight spawns.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>The room camera's distance mode, which the fight requests.</summary>

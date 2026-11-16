@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// <summary>Immutable game data shared by Samus shades.</summary>
 /// <remarks>
 /// Shade state machines retain their mutable timers and phase transitions. This catalog
-/// names the colour tables, colour-animation steps, colour ranges, and endpoint colours those
+/// names the colour tables, colour-animation steps, the colours each shade changes, and endpoint colours those
 /// machines consume, so no raw number masquerades as gameplay behavior.
 /// </remarks>
 public static class SamusShadeDefinitions

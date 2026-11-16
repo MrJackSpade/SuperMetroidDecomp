@@ -353,8 +353,7 @@ internal sealed class MotherBrainFakeDeath
 
         StopMotherBrainRoomFlash(state);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies), 32);
-        // The fake death ends the first four per-line display effects, removing the room's
-        // liquid scroll effects (and any X-ray cone) for the rest of the encounter.
+        // The fake death removes the room's liquid effects, and any X-ray cone, for the rest of the encounter.
         _frameResults.RemoveLiquidEffects = true;
         state.Head.Position = state.Head.Position.WithWholeY(196);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
@@ -528,7 +527,7 @@ internal sealed class MotherBrainFakeDeath
         int fadeStep = state.GrayTransitionCounter++;
         if (fadeStep < MotherBrainFakeDeathFadeDefinitions.FrameCount)
         {
-            // Fake-death restoration changes only brain sprite colors one through three.
+            // The restoration from grey recolours only three of the brain's colours.
             state.Colours.ShowFakeDeathFromGrey(fadeStep);
             return;
         }

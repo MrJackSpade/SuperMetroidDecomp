@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Checks the compiled retail room enemy populations.</summary>
+/// <summary>Checks the compiled enemy populations of the game's rooms.</summary>
 internal static class RoomEnemyPopulations
 {
     /// <summary>Returns <paramref name="populations"/> after rejecting an incomplete or unordered compiled table.</summary>

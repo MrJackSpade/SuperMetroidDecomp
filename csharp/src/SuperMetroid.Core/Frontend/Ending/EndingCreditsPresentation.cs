@@ -8,9 +8,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// The ending scene's presentation (#1514): its turning floor, pictures, sprite layers and glows as an ordered layered
 /// scene, drawn from the scene state it belongs to. The ending's stars lie behind the planet, the gunship and the
-/// backdrops they shine through; its other sprites lie in front of the scene's pictures. The per-square and
-/// per-sprite-part priority tiers that once interleaved them, and the single pixel that blended where a sprite overlapped
-/// a glow, are presentation quirks the model does not keep.
+/// backdrops they shine through; its other sprites lie in front of the scene's pictures. Each picture and sprite is drawn
+/// whole, in its layer's order.
 /// </summary>
 internal static class EndingCreditsPresentation
 {
@@ -91,7 +90,7 @@ internal static class EndingCreditsPresentation
             else layers.Add(Sprites(ending, blend: RewardSpritesGlow(ending) ? SpriteBlend.Glows : SpriteBlend.Drawn));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
-            layers.Add(WhiteWash.Layer(ending.CreditsRoll.WhiteFlashColor));
+            layers.Add(WhiteWash.Layer(ending.CreditsRoll.WhiteWashStepsLeft));
         return new(paint, layers.ToArray(), ending.Stage.Brightness);
     }
 

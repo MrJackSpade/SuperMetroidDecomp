@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The retail room-object populations, each named for its room state. Each holds its placements
+/// The game's room-object populations, each named for its room state. Each holds its placements
 /// in authored order: the object's identity, block X and Y, and the room argument decoded into what the object reads; regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>

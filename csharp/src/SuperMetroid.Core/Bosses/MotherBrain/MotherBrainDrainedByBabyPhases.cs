@@ -79,9 +79,6 @@ internal sealed class MotherBrainDrainedByBabyPhases
         requests.ColoursRequested = true;
         if (--_state.PhaseTimer < 0)
         {
-            // The regain-balance step contains an apparent missing store: it loads one and then
-            // immediately reloads the neck-enable flag. Preserve that no-op rather
-            // than silently "fixing" it.
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
@@ -107,9 +104,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         requests.ColoursRequested = true;
         requests.BodyWalkRequested = StepPainfulWalking();
 
-        // The outer phase updates delay and neck delta after *every* nested call.
-        // Stage six is therefore observed on the exact call which ends its prior
-        // pause, before the stage-six forward walk has even begun.
+        // The outer phase updates delay and neck delta after every step of the painful walk, so the sixth step is seen
+        // on the update that ends the pause before it, before its forward walk has begun.
         if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
         {
             PainfulWalkingAnimationDelay =
@@ -150,9 +146,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The walk step does not reload Y before the shared walk helper. The surrounding
-        // sequence's final painful-animation selector is ten, so the observable
-        // animation is the really-slow backward one.
+        // The walk back is the really-slow backward walk, the painful walk's last animation.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
         requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)

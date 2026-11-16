@@ -49,8 +49,8 @@ internal sealed class RoomObjectPopulationLoader
     /// Places one room-object population exactly once, in its placements' order. Each
     /// placement takes its place before its setup runs, as the game's room-object spawn
     /// does. A setup may immediately delete its place;
-    /// the next placement can consequently reuse that same highest place. Retail
-    /// loads require installed placements; no population or definition is decoded during play.
+    /// the next placement can consequently reuse that same highest place. Loading
+    /// requires installed placements; no population or definition is decoded during play.
     /// </summary>
     public void LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
     {

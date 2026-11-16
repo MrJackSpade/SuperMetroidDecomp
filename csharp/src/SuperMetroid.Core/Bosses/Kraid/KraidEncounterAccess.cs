@@ -54,7 +54,7 @@ internal sealed class KraidEncounterAccess
         part.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Consumes one value from the room RNG for Kraid's next decision.</summary>
+    /// <summary>The room's current random number, which Kraid's next decision reads without advancing it.</summary>
     internal int ReadKraidRandomNumber() =>
         _room.Random.Read();
 

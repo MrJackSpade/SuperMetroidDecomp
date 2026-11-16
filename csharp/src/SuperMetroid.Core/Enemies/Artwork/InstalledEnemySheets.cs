@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The installed pre-coloured enemy artwork (#1392, #1599): every variant of each enemy and of each owner's spawned
-/// objects, by the variant's name, and the variants each retail population's enemies draw in, by the population's name. A
+/// objects, by the variant's name, and the variants each room population's enemies draw in, by the population's name. A
 /// variant shows its enemy's frames in its own colours; the spawned-object variants hold each common picture once, on a
 /// common sheet every variant drawing it reads (#1513).
 /// </summary>
@@ -16,7 +16,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <summary>Every spawned-object variant, by name.</summary>
     internal readonly Dictionary<string, EnemyArtworkVariant<SpawnedObjectSheet>> spawnedVariants;
 
-    /// <summary>The artwork each retail population draws from, by the population's name.</summary>
+    /// <summary>The artwork each room population draws from, by the population's name.</summary>
     internal readonly Dictionary<string, PopulationArtwork> populations;
 
     /// <summary>
@@ -25,7 +25,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <param name="variants">Every enemy variant, by name.</param>
     /// <param name="spawnedVariants">Every spawned-object variant, by name.</param>
     /// <param name="standard">The artwork a room that places no enemies draws from.</param>
-    /// <param name="populations">The artwork each retail population draws from, by the population's name.</param>
+    /// <param name="populations">The artwork each room population draws from, by the population's name.</param>
     /// <exception cref="InvalidDataException">A variant is filed under another name, or an artwork draws a variant that is not installed.</exception>
     public InstalledEnemySheets(IReadOnlyDictionary<string, EnemyArtworkVariant<SpriteSheet>> variants,
         IReadOnlyDictionary<string, EnemyArtworkVariant<SpawnedObjectSheet>> spawnedVariants, PopulationArtwork standard,

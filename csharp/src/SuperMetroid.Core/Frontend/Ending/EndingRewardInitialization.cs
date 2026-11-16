@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// Where a reward actor starts and which colours it draws with (#1416: the values are arbitrary).
+/// Where a reward actor starts and which colours it draws with.
 /// </summary>
 internal enum EndingRewardInitialization
 {

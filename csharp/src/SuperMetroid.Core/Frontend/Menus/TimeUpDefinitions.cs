@@ -7,6 +7,6 @@ internal static class TimeUpDefinitions
     /// <summary>The colour every screen colour fades towards.</summary>
     public static RgbColor WhiteColor => RgbColor.White;
 
-    /// <summary>The denominator of the gradual colour change towards white.</summary>
+    /// <summary>The steps the screen takes to fade to white.</summary>
     public const int WhiteOutDenominator = 8;
 }

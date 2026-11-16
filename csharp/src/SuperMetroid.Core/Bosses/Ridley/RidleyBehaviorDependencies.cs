@@ -12,36 +12,36 @@ internal sealed record RidleyBehaviorDependencies
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The room Ridley's fight is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which Ridley's fight starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Audio.</summary>
+    /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' death explosions and drops, which Ridley's fight spawns.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Ridley encounter.</summary>
+    /// <summary>The Ridley encounter state the Ceres and Lower Norfair fights share.</summary>
     public required RidleyEncounter RidleyEncounter { get; init; }
 
-    /// <summary>Ridley tail.</summary>
+    /// <summary>Ridley's tail, its segments' flight and whip and the shots its joints block.</summary>
     public required RidleyTail RidleyTail { get; init; }
 
-    /// <summary>Ceres ridley behavior.</summary>
+    /// <summary>Ceres Ridley's behaviour, whose flight and fade-in Ridley's fight in Lower Norfair also runs.</summary>
     public required CeresRidleyBehavior CeresRidleyBehavior { get; init; }
 
-    /// <summary>Ridley projectiles.</summary>
+    /// <summary>Ridley's fireballs and the afterburn chain they spawn.</summary>
     public required RidleyProjectiles RidleyProjectiles { get; init; }
 
     /// <summary>Samus's passage through a door, which holds Ridley's opening wait.</summary>
     public required DoorPassage DoorPassage { get; init; }
 
-    /// <summary>Room fx.</summary>
+    /// <summary>The room's liquid, which Ridley's fight moves.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
 
 }

@@ -144,10 +144,9 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>
-    /// Runs the later forms of the head's shot AI plus the phase-two/three common no-death damage tail.
-    /// Form one (the fake-death interval) still runs the recoil bookkeeping but converts the
-    /// projectile into a dud. Forms two and later apply ordinary vulnerability damage while
-    /// deliberately leaving the boss's parts alive at zero health for body AI.
+    /// Runs the head's reaction to a shot after the glass phase, with the damage the second and third phases share. In
+    /// <see cref="MotherBrainForm.FakeDeath"/> the shot still costs walk credit but is a dud; in the later forms it deals
+    /// ordinary damage, leaving her parts alive at zero health for her body's phases to end.
     /// </summary>
     internal void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,

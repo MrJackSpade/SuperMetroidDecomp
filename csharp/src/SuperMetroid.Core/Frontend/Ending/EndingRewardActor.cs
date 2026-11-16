@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ten reward gesture and jump actors (#1416: the values are arbitrary).
+/// The ten actors of the reward's gestures and jumps.
 /// </summary>
 internal enum EndingRewardActor
 {

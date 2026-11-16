@@ -41,7 +41,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
     internal void InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
     {
-        // The retail population always places this cosmetic second half immediately after its moving parent, which it
+        // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
         place.SetSpeciesState(new NorfairLavaJumperFollowerState
         {

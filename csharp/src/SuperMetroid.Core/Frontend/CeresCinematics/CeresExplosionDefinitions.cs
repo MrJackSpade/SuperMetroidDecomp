@@ -17,13 +17,13 @@ internal static class CeresExplosionDefinitions
     /// <summary>Frames between repeating second-wave explosions.</summary>
     public const int RepeatingPeriodFrames = 12;
 
-    /// <summary>First host frame on which the initial wait has expired.</summary>
+    /// <summary>The scene's first frame after the initial wait has run out.</summary>
     public const int InitialSpawnFrame = InitialWaitFrames + 1;
 
-    /// <summary>First host frame on which the repeating wave runs.</summary>
+    /// <summary>The scene's first frame of the repeating wave.</summary>
     public const int RepeatingFirstFrame = InitialWaitFrames + RepeatingStartWaitFrames + 2;
 
-    /// <summary>Last host frame owned by the spawner and its final-wave cue.</summary>
+    /// <summary>The scene's last frame of the spawner and its final wave.</summary>
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 

@@ -112,8 +112,7 @@ internal sealed class DraygonParts
     {
         DraygonEnemyState state = JoiningPart(arms, placesAfterBody: 3);
         arms.SetSpeciesState(new DraygonPartState(state));
-        // Body init briefly writes a body phase before this part exists. Retail part init
-        // clears that lost write and installs the ordinary idle loop.
+        // The body's setup sets a phase before this part joins; joining clears it and starts the arms' idle loop.
         arms.Shading = state.Colours.Sprites;
         state.Arms = arms;
         state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftIdle);

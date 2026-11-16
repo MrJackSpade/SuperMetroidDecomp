@@ -31,7 +31,7 @@ public sealed class RoomObjectPopulation
         this.placements = placements.Select(CopyPlacement).ToArray();
     }
 
-    /// <summary>Builds a retail population from its compiled placements, binding scroll triggers to their compiled scroll-change identities.</summary>
+    /// <summary>Builds a room's population from its compiled placements, binding scroll triggers to their compiled scroll-change identities.</summary>
     /// <param name="name">The population's name.</param>
     /// <param name="placements">Each placement's room-object kind, block coordinates and room argument, in authored order.</param>
     internal static RoomObjectPopulation FromPlacements(string name, RoomObjectPlacementDefinition[] placements) =>

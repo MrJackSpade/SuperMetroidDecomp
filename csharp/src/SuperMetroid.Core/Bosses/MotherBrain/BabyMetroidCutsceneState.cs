@@ -421,8 +421,7 @@ public sealed class BabyMetroidCutsceneState
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
 
-                // Healing adds exactly one energy per enemy-processing call. The compare is a
-                // signed comparison in -32768..32767; normal game maxima stay in its positive range.
+                // Healing adds one energy each enemy update until Samus's health reaches her maximum.
                 int candidateHealth = samus.Health + 1;
                 if (candidateHealth < samus.MaxHealth)
                 {
@@ -824,15 +823,14 @@ public sealed class BabyMetroidCutsceneState
             CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
-    /// <summary>Multiplies speed by the angle's signed sine, dropping the product's 256ths and keeping the sixteen bits above them, as the game does.</summary>
-    /// <param name="speed">The speed, read unsigned.</param>
+    /// <summary>Multiplies speed by the angle's sine, rounding the product down to a 256th of a pixel, as the game does.</summary>
+    /// <param name="speed">The speed, taken without its sign.</param>
     /// <param name="angle">The angle in steps, 256ths of a turn.</param>
     internal static SignedEightEight CalculateVelocityComponent(
         SignedEightEight speed,
         TrigonometryAngle angle)
     {
-        // The sine multiply takes unsigned speed by the signed sine's size,
-        // returns the product divided by 256, then reapplies the sign.
+        // The speed is multiplied by the sine's size and the product's sign is the sine's.
         return Trigonometry.MultiplySignedSine(speed, angle);
     }
 
@@ -872,8 +870,7 @@ public sealed class BabyMetroidCutsceneState
         Position16<RoomPixels> center,
         Extent16<RoomPixels> rectangleRadius)
     {
-        // The rectangle check adds both radii and one, then rejects `abs(delta) >= sum+1`.
-        // In the normal room-coordinate domain that is equivalently `abs(delta) <= sum`.
+        // The rectangles touch when, on each axis, the distance between their centres is at most their radii added.
         int xDistance = CoordinateAxis.Distance(center.X, Position.X.Whole);
         if (xDistance > rectangleRadius.X + XHitboxRadius)
             return false;

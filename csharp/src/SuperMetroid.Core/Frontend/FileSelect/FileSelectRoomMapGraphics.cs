@@ -103,7 +103,7 @@ public sealed class FileSelectRoomMapGraphics
         var frame = new PicturedPlane([.. framePictures]);
         var frameScroll = new Offset16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
-        // whole, and the per-square priority tiers that once interleaved the two are a presentation quirk the model does not keep.
+        // whole, the map in front of the frame.
         layers.Add(new PicturedPlaneLayer(frame, frameScroll));
         if (content != RoomMapContent.FrameOnly)
             layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsPlaneOffset()) { Window = MapFrameOpening.Window(frameScroll) });

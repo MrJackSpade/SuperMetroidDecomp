@@ -27,7 +27,7 @@ internal sealed class IntroRinkaSystem
     /// <summary>Creates the invisible spawner before its timed animation runs.</summary>
     public IntroRinkaSystem()
     {
-        // Reusing the focused animation playback preserves the spawner's exact 74 then 128 frame waits.
+        // The spawner's animation waits 74 frames, then 128.
         spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Animation);
     }
 

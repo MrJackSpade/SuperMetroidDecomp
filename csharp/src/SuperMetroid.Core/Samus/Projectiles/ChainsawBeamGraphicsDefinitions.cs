@@ -11,7 +11,7 @@ internal static class ChainsawBeamGraphicsDefinitions
     /// <summary>
     /// The listed combination whose shade the Chainsaw beam shows: Plasma and Wave, the Chainsaw's beams without Spazer,
     /// which the pause screen otherwise never equips beside Plasma. No beam shade is authored for Spazer with
-    /// Plasma, and the colours the original showed for it are a presentation quirk the port does not keep (#1736).
+    /// Plasma (#1736).
     /// </summary>
     internal const SamusBeamCombination ShownBeamShade = SamusBeamCombination.PlasmaWave;
 }

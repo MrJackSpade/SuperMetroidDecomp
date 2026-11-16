@@ -638,7 +638,7 @@ internal sealed class SuperMetroidRuntime
         // Main gameplay runs the colour effects before Samus's update and
         // before enemies are processed. The Baby equips the Hyper Beam during that later enemy phase, so a newly
         // started Hyper Beam colour effect begins on the following frame.
-        // The room's colour effects take their turns first (ColourEffectSystem.effects): room FX starts first,
+        // The room's colour effects take their turns first, in the order they started: room FX starts first,
         // and Hyper Beam's effect, which starts later, takes its turn after them.
         // Door destination drawing borrows this frame path, but the door's destination
         // fade does not run the colour effects. Its colors must remain
@@ -1054,7 +1054,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The published frame's gameplay shading (#1512): each owner of a colour effect names the shades and effects its
-    /// state shows, in the order later colour writes won over earlier ones: the room's colour effects and the effect overlay colours,
+    /// state shows, each later one showing over the earlier: the room's colour effects and the effect overlay colours,
     /// then its bosses', then the door's fade over all of them.
     /// </summary>
     private GameplayShading PublishShading()

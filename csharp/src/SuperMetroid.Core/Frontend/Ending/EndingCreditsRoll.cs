@@ -96,7 +96,7 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>The steps left of the white wash of the brief transition into the final logo (<see cref="WhiteWash"/>), fading to none, where it stays.</summary>
-    internal int WhiteFlashColor { get; set; }
+    internal int WhiteWashStepsLeft { get; set; }
 
     /// <summary>The state of the ending logo, which exists while that phase runs.</summary>
     internal EndingLogo EndingLogo => _artwork.CurrentEndingLogo ??
@@ -109,7 +109,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
         _artwork.PostCreditsText.ClearCopyright();
-        WhiteFlashColor = EndingPostShotDefinitions.WhiteComponent;
+        WhiteWashStepsLeft = EndingPostShotDefinitions.WhiteWashStart;
         _stage.PhaseTimer = EndingPostShotDefinitions.FadeFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
     }

@@ -8,7 +8,7 @@ internal abstract record MotherBrainEffectCue
     {
     }
 
-    /// <summary>Sets the projectile's packed X and Y collision radii.</summary>
+    /// <summary>Sets how far the projectile collides across and down from its centre.</summary>
     /// <param name="Radius">The collision half-extents <see cref="SetRadius"/> installs.</param>
     internal sealed record SetRadius(Extent16<RoomPixels> Radius) : MotherBrainEffectCue;
 

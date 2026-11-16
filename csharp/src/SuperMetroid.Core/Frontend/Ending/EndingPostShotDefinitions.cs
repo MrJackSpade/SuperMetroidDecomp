@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The post-shot transition's timing, motion and sound.</summary>
 internal static class EndingPostShotDefinitions
 {
-    /// <summary>The white wash starts at all its steps, full white, and takes one step off each frame.</summary>
-    public const int WhiteComponent = WhiteWash.Steps;
+    /// <summary>The steps of the white wash it starts with, full white; it takes one step off each frame.</summary>
+    public const int WhiteWashStart = WhiteWash.Steps;
     /// <summary>The charged plasma-wave sound the shot queues.</summary>
     public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasmaWave;
     /// <summary>The priority the post-shot step queues the shot's sound at: essential, so it joins any sound queue that is not full.</summary>
@@ -27,7 +27,7 @@ internal static class EndingPostShotDefinitions
     public const int AngleStep = 8;
     /// <summary>The post-shot step delays the Samus fade by sixteen calls.</summary>
     public const int SamusFadeDelay = 16;
-    /// <summary>Shared cinematic colour fades run thirty-two component steps.</summary>
+    /// <summary>The post-credits fades run thirty-two steps.</summary>
     public const int FadeFrames = 32;
     /// <summary>The hold waits 180 calls before switching to the white-flash display.</summary>
     public const int HoldFrames = 180;

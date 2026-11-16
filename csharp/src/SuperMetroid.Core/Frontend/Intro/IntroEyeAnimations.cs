@@ -5,9 +5,8 @@ using P = SuperMetroid.Core.Frontend.Intro.IntroEyeSegment;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The portrait-eye animations of the narration pages as typed animations of the eye's background object:
-/// each step shows one <see cref="IntroEyeFrame"/> for its duration in
-/// cinematic updates. The intro eye check walks the authored animations as the oracle.
+/// The animations of Samus's eye on the narration pages' portrait: each step shows one <see cref="IntroEyeFrame"/> for
+/// its duration in cinematic updates.
 /// </summary>
 internal static class IntroEyeAnimations
 {

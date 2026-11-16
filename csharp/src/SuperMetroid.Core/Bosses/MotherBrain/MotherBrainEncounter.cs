@@ -18,7 +18,7 @@ internal sealed class MotherBrainEncounter
     /// <summary>Binds the encounter's requests to the enemy audio queue.</summary>
     internal MotherBrainEncounter(EnemyAudioQueue audio) => _audio = audio;
 
-    /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
+    /// <summary>Mother Brain's state while her parts are in her room.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
 
     /// <summary>

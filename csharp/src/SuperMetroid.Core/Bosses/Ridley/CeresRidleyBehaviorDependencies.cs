@@ -16,13 +16,13 @@ internal sealed record CeresRidleyBehaviorDependencies
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
-    /// <summary>Room.</summary>
+    /// <summary>The room Ceres Ridley's fight is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which Ceres Ridley's fight starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Audio.</summary>
+    /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
     /// <summary>The room's enemy places.</summary>
@@ -31,16 +31,16 @@ internal sealed record CeresRidleyBehaviorDependencies
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemies' touches, shots and bombs with Samus, which Ceres Ridley's fight reacts to.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Ridley encounter.</summary>
+    /// <summary>The Ridley encounter state the Ceres and Lower Norfair fights share.</summary>
     public required RidleyEncounter RidleyEncounter { get; init; }
 
-    /// <summary>Ridley tail.</summary>
+    /// <summary>Ridley's tail, its segments' flight and whip and the shots its joints block.</summary>
     public required RidleyTail RidleyTail { get; init; }
 
-    /// <summary>Room status.</summary>
+    /// <summary>The room-wide enemy state the game reads, which Ceres Ridley's fight sets.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
     /// <summary>Samus's passage through a door, which holds Ridley's opening wait.</summary>

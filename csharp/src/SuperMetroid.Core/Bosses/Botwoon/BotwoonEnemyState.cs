@@ -67,7 +67,7 @@ public sealed class BotwoonEnemyState
     public BotwoonSpeedStage SpeedStage { get; internal set; } = BotwoonSpeedStageDefinitions.Full;
     /// <summary>The hole that direct movement targets and the next walk starts from.</summary>
     public BotwoonHole TargetHole { get; internal set; }
-    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
+    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, along which he moves toward the hole.</summary>
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
     public RotationAngle SpitAngle { get; internal set; }
@@ -89,27 +89,27 @@ public sealed class BotwoonEnemyState
         : PictureShading.Standard;
     /// <summary>The health band his head and body show (#2266), or null while he still shows his own colours.</summary>
     public BotwoonHealthBand? HealthBand { get; internal set; }
-    /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
+    /// <summary>Half his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowHalf"/>.</summary>
     public int HalfHealth { get; internal set; }
-    /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
+    /// <summary>A quarter of his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowQuarter"/>.</summary>
     public int QuarterHealth { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous call; a difference marks that traversal complete.</summary>
     public bool PreviousInsideHole { get; internal set; }
-    /// <summary>Suppresses repeated rectangle-trigger toggles until the last body point reaches the saved ring offset or a new hidden traversal clears it.</summary>
+    /// <summary>Keeps the hole his head crossed from toggling his hole state again until his tail reaches the place the head crossed at, or a new walk starts inside the wall.</summary>
     public bool HoleLatch { get; internal set; }
-    /// <summary>Initial-action latch forcing the first completed hole traversal into authored movement rather than consuming the normal spit-choice RNG.</summary>
+    /// <summary>Set until his first crossing: it sends him on a walk without drawing his next action at random.</summary>
     public bool InitialAction { get; internal set; }
     /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action step.</summary>
     public bool PathComplete { get; internal set; }
-    /// <summary>Flag set by the head animation's private spit cue; the five-projectile spit consumes and clears it on emission.</summary>
+    /// <summary>Set as his spitting animation reaches its spit; the aimed volley spits on it and clears it.</summary>
     public bool SpitFrameReached { get; internal set; }
-    /// <summary>Fatal-hit request that preserves ongoing traversal until the final body point completes the next outward hole transition.</summary>
+    /// <summary>Set by the fatal hit: he keeps on his walk until his tail has next crossed out of the wall, and then dies.</summary>
     public bool PendingDeath { get; internal set; }
-    /// <summary>Tail synchronization signal set when the tail segment crosses the saved history offset while the head is outside, permitting pending death to begin.</summary>
+    /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
-    /// <summary>Shared death-start flag observed by all thirteen independent body-projectile turns to replace their normal animation with staggered falling.</summary>
+    /// <summary>Set as his death begins: each of his thirteen body segments then stops following his head and starts its own delay before it falls.</summary>
     public bool BodyDeathStarted { get; internal set; }
     /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
@@ -129,7 +129,7 @@ public sealed class BotwoonEnemyState
     /// </summary>
     internal IReadOnlyList<BotwoonSegmentState> Body { get; }
 
-    /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
+    /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), all at the room's origin as he spawns.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];
 
     /// <summary>The head's delayed positions, newest first, the oldest of which chooses the visible head orientation.</summary>

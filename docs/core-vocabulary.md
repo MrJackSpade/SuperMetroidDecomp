@@ -444,6 +444,16 @@ alone or a screen's helper text, an and between words, an unsigned value alone, 
 ledge, anything falling through into a room, a floor or the water, an engine alone, a row of blocks, a method's
 parameter, a literal alone and a call alone stay English.
 
+#2271 widens SME6454, outside hardware owners, to the machine's storage told for a value: a value shifted right or left
+by a number of places (`health shifted right one`, `each axis shifted left eight bits`, `a right-shift`); state cleared
+as the room loads (`clears on room load`, `cleared as the room's enemies load`, `the room's enemy setup clears`); a
+table's physical order; both halves of one random number; a value kept in another quantity (`the game kept it in the
+projectile's horizontal velocity`); and a vector or fixed-point helper (`the signed fixed-point vector helper`). Core
+says what the value means: half his starting health, 256 pixels a screen, a trail that starts at the room's origin, the
+frames in the order they are named, the places a random number chooses, the segment's phase. A shift by a counted noun
+(`the camera shifts left two pixels`), a room that clears when Samus leaves, physical contact, the halves of a picture
+and a value kept for an update stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

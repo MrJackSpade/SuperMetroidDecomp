@@ -87,10 +87,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             state.HeadHistory[history] = head.Position.Whole;
         }
-        // Botwoon's position history is never seeded by Botwoon's initializer. It
-        // lies inside the enemy state the room's enemy setup clears on room
-        // load, so body segments read (0,0) until the ring has been written that far; the
-        // freshly constructed state's arrays are that cleared state.
+        // His trail is not filled from his head: until his head has moved far enough to fill it, a body segment
+        // trailing past its written places stands at the room's origin, (0,0).
     }
 
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
@@ -631,10 +629,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.Phase = BotwoonPhase.WallExplosions;
         _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
 
-        // Botwoon's death drop emits sixteen independent pickup
-        // requests. Each position uses both halves of one RNG result: X is the sample modulo 128
-        // and Y the sample divided by 256, modulo 64. Each pickup is materialized immediately as
-        // a real pickup actor from the head definition's item chances.
+        // His death leaves sixteen drops. One random number places each, across the drop strip and down the drop band
+        // (DropX, DropY), and each becomes a pickup at once, chosen by his drop chances.
         for (int dropIndex = 0; dropIndex < BotwoonDeathDefinitions.WallDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();

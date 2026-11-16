@@ -28,8 +28,7 @@ internal sealed class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyP
     internal EnemyProjectile Projectile { get; } = Ensure.NotNull(projectile);
 
     /// <summary>
-    /// The segment's phase (#1413): it lives until Botwoon dies, then waits, falls and lands. The game kept it in the
-    /// segment projectile's horizontal velocity, which no body motion reads.
+    /// The segment's phase (#1413): it lives until Botwoon dies, then waits, falls and lands.
     /// </summary>
     internal BotwoonBodyPhase Phase { get; set; } = BotwoonBodyPhase.Main;
 

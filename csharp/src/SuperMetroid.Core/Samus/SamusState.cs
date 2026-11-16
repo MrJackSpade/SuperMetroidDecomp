@@ -246,7 +246,7 @@ public sealed class SamusState
     /// <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>: the one stored value is both a movement-speed divisor and the
     /// no-FX animation delay buffer, and its setter rejects values outside that range.
     /// </summary>
-    [IntegerQuantity("right-shift applied to horizontal speed, zero when undivided")]
+    [IntegerQuantity("times horizontal speed is halved, zero when undivided")]
     public int XSpeedDivisor
     {
         get => HorizontalSpeed.SpeedDivisor;

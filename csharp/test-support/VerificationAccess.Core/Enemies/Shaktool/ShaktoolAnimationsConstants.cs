@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <summary>Cartridge values and helpers of <see cref="ShaktoolAnimations"/> that only verification reads.</summary>
 internal static class ShaktoolAnimationsConstants
 {
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
+    /// <summary>The spritemaps <paramref name="programs"/> show, held frames among them (#2068), in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params ShaktoolSegment[] programs) =>
         programs.SelectMany(program => ShaktoolAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, ShaktoolCue>.Frame>()
-            .Select(frame => ShaktoolFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(ShaktoolFrameToolingDefinitions.Spritemap);
 }

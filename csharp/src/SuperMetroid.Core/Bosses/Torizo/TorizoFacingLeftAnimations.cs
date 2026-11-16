@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
-using S = SuperMetroid.Core.Bosses.Torizo.TorizoSharedSteps;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -10,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>Torizo's animations facing left: turning, attacks, jumps, falls and landings, with its face and without.</summary>
 internal static class TorizoFacingLeftAnimations
 {
-    /// <summary>Each animation's steps, in the order it plays them.</summary>
+    /// <summary>Each segment's steps, in the order it plays them.</summary>
     internal static Dictionary<TorizoAnimation, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
     {
         [A.TurningLeft] =
@@ -18,8 +17,6 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Cue(new TorizoCue.Signal(K.SetTurningAround)),
             Show(EnemyFrameId.TorizoFacingViewer, 24),
-            .. S.FacingLeftRightLegStep,
-            .. S.FacingLeftLeftLegStep,
         ],
         [A.FacingLeftSpewingChozoOrbsRightFootForward] =
         [
@@ -31,8 +28,9 @@ internal static class TorizoFacingLeftAnimations
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingArmRaised, 8),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingArmDrawnBack, 16),
             Cue(new TorizoCue.Signal(K.PlayShotSound)),
-            Cue(new TorizoCue.Signal(K.SpawnBombTorizoChozoOrbs)),
-            Wait(16),
+        ],
+        [A.FacingLeftSpewingChozoOrbsRightFootForwardEnd] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingArmRaised, 8),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingArmThrust, 8),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingMouthOpening, 8),
@@ -50,8 +48,9 @@ internal static class TorizoFacingLeftAnimations
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmRaised, 8),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmDrawnBack, 16),
             Cue(new TorizoCue.Signal(K.PlayShotSound)),
-            Cue(new TorizoCue.Signal(K.SpawnBombTorizoChozoOrbs)),
-            Wait(16),
+        ],
+        [A.FacingLeftSpewingChozoOrbsLeftFootForwardEnd] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmRaised, 8),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingArmThrust, 8),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingMouthOpening, 8),
@@ -62,6 +61,9 @@ internal static class TorizoFacingLeftAnimations
         [A.FacingLeftSonicBoomsRightFootForward] =
         [
             Cue(new TorizoCue.Signal(K.StartStanding)),
+        ],
+        [A.FacingLeftSonicBoomsRightFootForwardThrowing] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardSpewingHeadLowered, 6),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmDown, 6),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLifting, 6),
@@ -84,12 +86,18 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.SpawnBombTorizoSonicBoom)),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardFarArmLifting, 2),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardFarArmDown, 56),
+        ],
+        [A.FacingLeftSonicBoomsRightFootForwardEnd] =
+        [
             Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.WalkOn(Walking: A.FacingLeftWalkingLeftLegMoving)),
         ],
         [A.FacingLeftSonicBoomsLeftFootForward] =
         [
             Cue(new TorizoCue.Signal(K.StartStanding)),
+        ],
+        [A.FacingLeftSonicBoomsLeftFootForwardThrowing] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardSpewingHeadLowered, 6),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmDown, 6),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmLifting, 6),
@@ -112,6 +120,9 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.SpawnBombTorizoSonicBoom)),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmLifting, 2),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmDown, 56),
+        ],
+        [A.FacingLeftSonicBoomsLeftFootForwardEnd] =
+        [
             Cue(new TorizoCue.Signal(K.StartWalking)),
             Cue(new TorizoCue.WalkOn(Walking: A.FacingLeftWalkingRightLegMoving)),
         ],
@@ -193,23 +204,17 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.LandIn(Landing: A.FacingLeftFalling)),
             Show(EnemyFrameId.TorizoFacingLeftJumpCrouch, 5),
             Show(EnemyFrameId.TorizoFallingLeft, 5),
-            Show(EnemyFrameId.TorizoFacingLeftLeaping, 1),
-            Cue(new TorizoCue.Replay(TorizoReplayKind.WhileRising)),
-            .. S.FacingLeftFallStart,
-            .. S.FacingLeftFallingPose,
         ],
         [A.FacingLeftFalling] =
         [
-            .. S.FacingLeftFallStart,
-            .. S.FacingLeftFallingPose,
+            Cue(new TorizoCue.Signal(K.StartLeaping)),
+            Cue(new TorizoCue.LandIn(Landing: A.FacingLeftLanding)),
         ],
         [A.FacingLeftLanding] =
         [
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
             Cue(new TorizoCue.Signal(K.SpawnLandingDust)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.LandFacelessOrGolden, Target: A.FacingLeftFacelessWalkingLeftLegMoving, Alternate: A.GoldenWalkingLeftLeftLegMoving)),
-            .. S.FacingLeftLeftLegStep,
-            .. S.FacingLeftRightLegStep,
         ],
         [A.FacingLeftJumpingBackwardToLeftFoot] =
         [
@@ -217,15 +222,11 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.LandIn(Landing: A.FacingLeftFallingBackwardToLeftFoot)),
             Show(EnemyFrameId.TorizoFacingLeftJumpCrouch, 5),
             Show(EnemyFrameId.TorizoFallingLeft, 5),
-            Show(EnemyFrameId.TorizoFacingLeftLeaping, 1),
-            Cue(new TorizoCue.Replay(TorizoReplayKind.WhileRising)),
-            .. S.FacingLeftBackwardFallStartToLeftFoot,
-            .. S.FacingLeftBackwardFallingToLeftFoot,
         ],
         [A.FacingLeftFallingBackwardToLeftFoot] =
         [
-            .. S.FacingLeftBackwardFallStartToLeftFoot,
-            .. S.FacingLeftBackwardFallingToLeftFoot,
+            Cue(new TorizoCue.Signal(K.StartLeaping)),
+            Cue(new TorizoCue.LandIn(Landing: A.FacingLeftLandingBackwardOnLeftFoot)),
         ],
         [A.FacingLeftLandingBackwardOnLeftFoot] =
         [
@@ -233,8 +234,6 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.SpawnLandingDust)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.LandFacelessOrGolden, Target: A.FacingLeftFacelessWalkingRightLegMoving, Alternate: A.GoldenFacingLeftLandedBackwardOnLeftFoot)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.BombAttack, Target: A.FacingLeftSpewingChozoOrbsLeftFootForward, Alternate: A.FacingLeftSonicBoomsLeftFootForward)),
-            .. S.FacingLeftRightLegStep,
-            .. S.FacingLeftLeftLegStep,
         ],
         [A.FacingLeftJumpingBackwardToRightFoot] =
         [
@@ -242,15 +241,11 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.LandIn(Landing: A.FacingLeftFallingBackwardToRightFoot)),
             Show(EnemyFrameId.TorizoFacingLeftJumpCrouch, 5),
             Show(EnemyFrameId.TorizoFallingLeft, 5),
-            Show(EnemyFrameId.TorizoFacingLeftLeaping, 1),
-            Cue(new TorizoCue.Replay(TorizoReplayKind.WhileRising)),
-            .. S.FacingLeftBackwardFallStartToRightFoot,
-            .. S.FacingLeftBackwardFallingToRightFoot,
         ],
         [A.FacingLeftFallingBackwardToRightFoot] =
         [
-            .. S.FacingLeftBackwardFallStartToRightFoot,
-            .. S.FacingLeftBackwardFallingToRightFoot,
+            Cue(new TorizoCue.Signal(K.StartLeaping)),
+            Cue(new TorizoCue.LandIn(Landing: A.FacingLeftLandingBackwardOnRightFoot)),
         ],
         [A.FacingLeftLandingBackwardOnRightFoot] =
         [
@@ -258,36 +253,110 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.SpawnLandingDust)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.LandFacelessOrGolden, Target: A.FacingLeftFacelessWalkingLeftLegMoving, Alternate: A.GoldenFacingLeftLandedBackwardOnRightFoot)),
             Cue(new TorizoCue.Choice(TorizoChoiceKind.BombAttack, Target: A.FacingLeftSpewingChozoOrbsRightFootForward, Alternate: A.FacingLeftSonicBoomsRightFootForward)),
-            .. S.FacingLeftLeftLegStep,
-            .. S.FacingLeftRightLegStep,
         ],
         [A.FacelessTurningLeft] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Cue(new TorizoCue.Signal(K.SetTurningAround)),
             Show(EnemyFrameId.TorizoFacingViewer, 8),
-            .. S.FacingLeftFacelessRightLegStep,
-            .. S.FacingLeftFacelessLeftLegStep,
         ],
         [A.FacingLeftFacelessWalkingRightLegMoving] =
         [
-            .. S.FacingLeftFacelessRightLegStep,
-            .. S.FacingLeftFacelessLeftLegStep,
+            Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Left)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
+            Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
+            Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegLifting, 1),
+            Cue(new TorizoCue.Interrupt(TorizoInterruptKind.BombSwipeAtSamusBehind, Animation: A.FacingLeftExplosiveSwipeLeftFootForward)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: 0)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegSwinging, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -5)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegReaching, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -19)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegPlanting, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -16)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegPlanted, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -7)),
         ],
         [A.FacingLeftFacelessWalkingLeftLegMoving] =
         [
-            .. S.FacingLeftFacelessLeftLegStep,
-            .. S.FacingLeftFacelessRightLegStep,
+            Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
+            Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
+            Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegLifting, 1),
+            Cue(new TorizoCue.Interrupt(TorizoInterruptKind.BombSwipeAtSamusBehind, Animation: A.FacingLeftExplosiveSwipeRightFootForward)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: 0)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegSwinging, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -7)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegReaching, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -17)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegPlanting, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -18)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegPlanted, 5),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkFacelessBombTorizo, Velocity: -5)),
         ],
         [A.FacingLeftWalkingRightLegMoving] =
         [
-            .. S.FacingLeftRightLegStep,
-            .. S.FacingLeftLeftLegStep,
+            Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Left)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
+            Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
+            Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegLifting, 10),
+            Cue(new TorizoCue.Interrupt(TorizoInterruptKind.BombSwipeAtSamusBehind, Animation: A.FacingLeftExplosiveSwipeLeftFootForward)),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: 0)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegSwinging, 6),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -5)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegReaching, 6),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -19)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegPlanting, 6),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -16)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingRightLegPlanted, 6),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -7)),
         ],
         [A.FacingLeftWalkingLeftLegMoving] =
         [
-            .. S.FacingLeftLeftLegStep,
-            .. S.FacingLeftRightLegStep,
+            Cue(new TorizoCue.Stepped(HorizontalDirection.Left, Foot: HorizontalDirection.Right)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
+            Cue(new TorizoCue.Signal(K.StartWalking)),
+            Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
+            Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegLifting, 10),
+            Cue(new TorizoCue.Interrupt(TorizoInterruptKind.BombSwipeAtSamusBehind, Animation: A.FacingLeftExplosiveSwipeRightFootForward)),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: 0)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegSwinging, 6),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -7)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegReaching, 6),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -17)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegPlanting, 6),
+            Cue(new TorizoCue.Branch(TorizoBranchKind.BombJumpBackFromSamusInFront)),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -18)),
+            Show(EnemyFrameId.TorizoFacingLeftWalkingLeftLegPlanted, 6),
+            Cue(new TorizoCue.Walk(TorizoWalkKind.WalkBombTorizo, Velocity: -5)),
+        ],
+        [A.FacingLeftRising] =
+        [
+            Show(EnemyFrameId.TorizoFacingLeftLeaping, 1),
+            Cue(new TorizoCue.Replay(TorizoReplayKind.WhileRising)),
+        ],
+        [A.FacingLeftFallingPose] =
+        [
+            Show(EnemyFrameId.TorizoFallingLeft, 5),
+        ],
+        [A.BombChozoOrbBurst] =
+        [
+            Cue(new TorizoCue.Signal(K.SpawnBombTorizoChozoOrbs)),
+            Wait(16),
         ],
     };
 }

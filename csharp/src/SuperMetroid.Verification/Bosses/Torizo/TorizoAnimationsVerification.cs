@@ -13,9 +13,10 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>
 /// #1289, #1600, #1788: Bomb and Golden Torizo's body animations against the retail cartridge. Each animation's phases must
 /// follow the native bank-$AA lists' control flow from the list it starts at (sleeps, stops, gotos, counter loads, counted
-/// repeats, runs on into the next list, and returns, which always continue elsewhere), and each of its steps must match
-/// the native list beat its phase plays there: every frame's duration and spritemap, every common command, every Torizo
-/// instruction's cue and operands, every tile transfer's descriptor, and the fixed sleeps two callbacks schedule.
+/// repeats, runs on into the next list, and returns, which always continue elsewhere), each phase playing one segment whole
+/// (#2235), and each of a segment's steps must match the native list beat its phase plays there: every frame's duration
+/// and spritemap, every common command, every Torizo instruction's cue and operands, every tile transfer's descriptor, and
+/// the waits and the fixed sleeps two callbacks schedule, those that follow one another at once as one wait.
 /// </summary>
 internal static class TorizoAnimationsVerification
 {
@@ -73,7 +74,10 @@ internal static class TorizoAnimationsVerification
     /// <summary>One beat of a native body list.</summary>
     /// <param name="Address">The beat's native address; a callback's sleep stands at the instruction after the callback.</param>
     /// <param name="Kind">What the beat is.</param>
-    /// <param name="SleepUpdates">For a callback's sleep, its length.</param>
+    /// <param name="SleepUpdates">
+    /// For a wait or a callback's sleep, its length, with the length of every wait or sleep that follows it at once in its
+    /// list, which the typed steps write as one wait (#2235).
+    /// </param>
     /// <param name="Transfers">For a run of tile transfers, how many it holds.</param>
     private sealed record BodyBeat(ushort Address, BodyBeatKind Kind, int SleepUpdates = 0, int Transfers = 1);
 
@@ -95,61 +99,62 @@ internal static class TorizoAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertTrue(BodyLists.Zip(BodyLists.Skip(1), (first, second) => first < second).All(ascends => ascends), "native Torizo body lists ascend");
-        AssertEqual(Enum.GetValues<TorizoAnimation>().Length, AnimationEntries.Count, "every Torizo body animation starts at a native list");
+        AssertTrue(AnimationEntries.Keys.ToHashSet().SetEquals(TorizoAnimations.StartingAt.Keys), "every Torizo body animation starts at a native list");
         AssertTrue(AnimationEntries.Values.All(IsBodyList), "every Torizo body animation starts at a native list's entry");
         AssertEqual(AnimationEntries.Count, AnimationEntries.Values.Distinct().Count(), "no two Torizo body animations start at one native list");
         Dictionary<ushort, BodyList> lists = BodyLists.ToDictionary(entry => entry, entry => ReadBodyList(cartridge, entry));
         var played = new HashSet<ushort>();
-        int steps = 0;
-        foreach (TorizoAnimation animation in Enum.GetValues<TorizoAnimation>())
-            steps += CompareAnimation(cartridge, lists, animation, played);
+        var playedSegments = new HashSet<TorizoAnimation>();
+        foreach (TorizoAnimation animation in TorizoAnimations.StartingAt.Keys)
+            CompareAnimation(cartridge, lists, animation, played, playedSegments);
         AssertTrue(played.SetEquals(BodyLists), $"every native Torizo body list is played by some animation; unplayed: {string.Join(", ", BodyLists.Except(played).Select(list => $"${list:X4}"))}");
+        AssertTrue(playedSegments.SetEquals(Enum.GetValues<TorizoAnimation>()),
+            $"every Torizo body segment is played by some animation; unplayed: {string.Join(", ", Enum.GetValues<TorizoAnimation>().Except(playedSegments))}");
+        int steps = Enum.GetValues<TorizoAnimation>().Sum(segment => TorizoAnimations.Segments.Beats(segment).Count);
         VerifyResumedSleeps(cartridge, lists);
         VerifyContinuations(cartridge, lists);
         var poses = new HashSet<ushort>(TorizoAnimations.Segments.Frames.Select(TorizoFrameDefinitionsConstants.Spritemap));
         AssertEqual(TorizoFrameDefinitionsConstants.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
         AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllAnimations)), "the body animations show every Torizo pose");
         AssertTrue(poses.SetEquals(TorizoCollisionDefinitions.FramePointers), "every Torizo pose has its physical frame");
-        Console.WriteLine($"  Torizo animations: {AnimationEntries.Count} animations ({steps} steps, {poses.Count} poses) play all {BodyLists.Length} bank-$AA lists as the cartridge does.");
+        Console.WriteLine($"  Torizo animations: {AnimationEntries.Count} animations ({Enum.GetValues<TorizoAnimation>().Length} segments, {steps} steps, {poses.Count} poses) play all {BodyLists.Length} bank-$AA lists as the cartridge does.");
     }
 
     /// <summary>
-    /// Compares <paramref name="animation"/> with the native lists it plays: its phases, each a run of its own steps in step
-    /// order, with the runs and plays of the lists' control flow from its entry, each step with the native beat it plays, and
-    /// its end. Returns its step count.
+    /// Compares <paramref name="animation"/> with the native lists it plays (#2235): its phases, each playing one segment
+    /// whole, with the runs and plays of the lists' control flow from its entry, each segment's steps with the native beats
+    /// of the run its phase plays, and its end. A segment several animations play is compared with each run it plays.
     /// </summary>
-    private static int CompareAnimation(IImportCartridgeSource cartridge, Dictionary<ushort, BodyList> lists, TorizoAnimation animation,
-        HashSet<ushort> played)
+    private static void CompareAnimation(IImportCartridgeSource cartridge, Dictionary<ushort, BodyList> lists, TorizoAnimation animation,
+        HashSet<ushort> played, HashSet<TorizoAnimation> playedSegments)
     {
         (List<NativePhase> native, AnimationEnd end) = Linearize(lists, Entry(animation));
         Animation<TorizoAnimation> typed = TorizoAnimations.StartingWith(animation);
-        IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> steps = TorizoAnimations.Segments.Beats(animation);
         AssertEqual(native.Count, typed.Phases.Count, $"{animation} plays its native lists' runs");
-        int offset = 0;
+        AssertEqual(animation, typed.Phases[0].Segment, $"{animation} starts at its own segment");
         // The posture the animation's last step cue left, which its decisions' targets follow (#2175).
         TorizoPostureFlags? posture = null;
         for (int index = 0; index < native.Count; index++)
         {
             AnimationPhase<TorizoAnimation> phase = typed.Phases[index];
             NativePhase run = native[index];
-            string at = $"Torizo {animation} phase {index}";
-            AssertEqual(animation, phase.Segment, $"{at} plays its own steps");
-            AssertEqual(offset, phase.FirstBeat, $"{at} follows the phase before it in its steps");
+            string at = $"Torizo {animation} phase {index} ({phase.Segment})";
+            IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> steps = TorizoAnimations.Segments.Beats(phase.Segment);
+            AssertEqual(0, phase.FirstBeat, $"{at} plays its segment from its first step");
+            AssertEqual(steps.Count, phase.BeatCount, $"{at} plays every step of its segment");
             AssertEqual(run.BeatCount, phase.BeatCount, $"{at}'s run length");
             AssertEqual(run.Plays, phase.Plays, $"{at}'s plays");
             for (int beat = 0; beat < run.BeatCount; beat++)
             {
-                AnimationBeat<EnemyFrameId, TorizoCue> step = steps[offset + beat];
+                AnimationBeat<EnemyFrameId, TorizoCue> step = steps[beat];
                 if (step is AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: TorizoCue.Stepped stepped })
                     posture = TorizoFacing.AfterStep(stepped.Direction, stepped.Foot);
-                CompareBeat(cartridge, run, lists[run.List].Beats[run.FirstBeat + beat], step, posture, $"{at} step {offset + beat}");
+                CompareBeat(cartridge, run, lists[run.List].Beats[run.FirstBeat + beat], step, posture, $"{at} step {beat}");
             }
             played.Add(run.List);
-            offset += run.BeatCount;
+            playedSegments.Add(phase.Segment);
         }
-        AssertEqual(steps.Count, offset, $"every step of {animation} is played by one of its phases");
         AssertEqual(end, typed.End, $"{animation}'s end follows its native lists");
-        return steps.Count;
     }
 
     /// <summary>
@@ -197,7 +202,7 @@ internal static class TorizoAnimationsVerification
                 return;
             }
             case BodyBeatKind.Wait:
-                AssertEqual(operand, AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Pause>(step, $"{at}: wait").Duration, $"{at}: wait length");
+                AssertEqual(beat.SleepUpdates, AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Pause>(step, $"{at}: wait").Duration, $"{at}: wait length");
                 return;
             case BodyBeatKind.CallbackSleep:
                 AssertEqual(beat.SleepUpdates, AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Pause>(step, $"{at}: the callback's sleep").Duration,
@@ -363,7 +368,7 @@ internal static class TorizoAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
-                    beats.Add(new(cursor, BodyBeatKind.Wait));
+                    AddWait(new(cursor, BodyBeatKind.Wait, operand));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback when OmittedBodyInstructions.Contains(word):
@@ -377,9 +382,9 @@ internal static class TorizoAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands.Length));
                     // Two callbacks sleep after they run; every other callback runs straight on.
                     if (instruction.Cue.Matches(new TorizoCue.LowHealthExplosions(BombTorizoExplosionSite.Gut)))
-                        beats.Add(new(cursor, BodyBeatKind.CallbackSleep, LowHealthExplosionSleep));
+                        AddWait(new(cursor, BodyBeatKind.CallbackSleep, LowHealthExplosionSleep));
                     else if (instruction.Cue.Matches(new TorizoCue.Signal(TorizoCueKind.SpawnDeathExplosion)))
-                        beats.Add(new(cursor, BodyBeatKind.CallbackSleep, DeathExplosionSleep));
+                        AddWait(new(cursor, BodyBeatKind.CallbackSleep, DeathExplosionSleep));
                     // A return always continues elsewhere and saves no return point: the list ends there.
                     if (Returns(word))
                     {
@@ -394,6 +399,17 @@ internal static class TorizoAnimationsVerification
             break;
         }
         return new BodyList([.. beats], [.. controls]);
+
+        // A wait or sleep straight after another, with no control between, lengthens it: the typed steps write the two as
+        // one wait (#2235), which ends on the same update.
+        void AddWait(BodyBeat wait)
+        {
+            if (beats.Count > 0 && beats[^1] is { Kind: BodyBeatKind.Wait or BodyBeatKind.CallbackSleep } before &&
+                (controls.Count == 0 || controls[^1].AfterBeat < beats.Count))
+                beats[^1] = before with { Kind = BodyBeatKind.Wait, SleepUpdates = before.SleepUpdates + wait.SleepUpdates };
+            else
+                beats.Add(wait);
+        }
     }
 
     /// <summary>Whether the native instruction <paramref name="word"/> returns: to a place a call saved, or to the animation an interruption saved.</summary>
@@ -451,10 +467,9 @@ internal static class TorizoAnimationsVerification
                 walksOn[called] = walkOn.Walking;
             }
         }
-        foreach (TorizoAnimation animation in Enum.GetValues<TorizoAnimation>())
+        foreach (TorizoAnimation animation in TorizoAnimations.StartingAt.Keys)
         {
-            IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> steps = TorizoAnimations.Segments.Beats(animation);
-            if (steps[^1] is not AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: var cue })
+            if (LastStep(animation) is not AnimationBeat<EnemyFrameId, TorizoCue>.Event { Raised: var cue })
                 continue;
             switch (cue)
             {
@@ -479,7 +494,11 @@ internal static class TorizoAnimationsVerification
 
     /// <summary>The cue <paramref name="animation"/>'s steps end with: where an attack, a stagger or a blow-up continues.</summary>
     private static TorizoCue EndCue(TorizoAnimation animation) =>
-        AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(TorizoAnimations.Segments.Beats(animation)[^1], $"Torizo {animation} ends in a cue").Raised;
+        AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Event>(LastStep(animation), $"Torizo {animation} ends in a cue").Raised;
+
+    /// <summary>The last step <paramref name="animation"/> plays: the last of its last phase's segment.</summary>
+    private static AnimationBeat<EnemyFrameId, TorizoCue> LastStep(TorizoAnimation animation) =>
+        TorizoAnimations.Segments.Beats(TorizoAnimations.StartingWith(animation).Phases[^1].Segment)[^1];
 
     /// <summary>The native list a return to <paramref name="address"/> continues in, following any gotos there.</summary>
     private static ushort PastGoTos(IImportCartridgeSource cartridge, ushort address)
@@ -510,6 +529,12 @@ internal static class TorizoAnimationsVerification
         {
             foreach (BodyControl control in lists[list].Controls)
             {
+                // A counter load between beats a list plays once splits no run: it only counts the next list's plays (#2235).
+                if (control.Kind == NativeEnemyControlKind.SetCounter && plays == 1)
+                {
+                    pending = control.Count;
+                    continue;
+                }
                 if (control.AfterBeat > runStart)
                     phases.Add(new(list, runStart, control.AfterBeat - runStart, plays));
                 runStart = control.AfterBeat;

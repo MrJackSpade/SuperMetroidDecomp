@@ -16,9 +16,6 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal static class NativeEnemyProjectileProgramOracle
 {
-    /// <summary>The longest duration a native frame command gives, which a list follows with a rest to hold a frame.</summary>
-    private const ushort NativeHeldFrameDuration = 0x7fff;
-
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
     private static TProgram? ProgramAt<TProgram>(NativeProgramEntry<TProgram>[] entries, ushort address)
         where TProgram : struct, Enum =>
@@ -120,18 +117,19 @@ internal static class NativeEnemyProjectileProgramOracle
     }
 
     /// <summary>
-    /// Compares every typed animation of a family whose animations each own their steps (#1788) with the native bank-$86
-    /// lists it plays: its phases, each a run of its own steps in step order, must be the runs and plays of the lists'
-    /// control flow from the list it starts at (counter loads, counted repeats, gotos and runs on into the next list, a
-    /// goto or run on into a list already entered looping from the phase entered there), each step must match the native
-    /// beat its phase plays there, and its end must be the lists'. Every native list must be played by some animation, and
-    /// no animation may start in a counted list. Returns the total step count.
+    /// Compares every typed animation of a family whose animations each play their own runs (#1788, #2235) with the native
+    /// bank-$86 lists it plays: its phases, each playing one segment whole, must be the runs and plays of the lists' control
+    /// flow from the list it starts at (counter loads, counted repeats, gotos and runs on into the next list, a goto or run
+    /// on into a list already entered looping from the phase entered there), each of a segment's steps must match the native
+    /// beat its phase plays there, and its end must be the lists'. A segment several animations play is compared with each
+    /// run it plays. Every native list and every segment must be played by some animation, and no animation may start in a
+    /// counted list. Returns the total step count.
     /// </summary>
     /// <param name="cartridge">The pinned cartridge.</param>
     /// <param name="lists">The entry of every native list the family's animations play, in bank order.</param>
-    /// <param name="entries">The native list each animation starts at.</param>
-    /// <param name="steps">Each animation's steps.</param>
-    /// <param name="animations">How each animation plays its steps.</param>
+    /// <param name="entries">The native list each animation starts at, by the segment it starts at.</param>
+    /// <param name="steps">Each segment's steps.</param>
+    /// <param name="animations">The animation starting at each segment.</param>
     /// <param name="presentationKey">The installed artwork key a frame shows: its native operand's address.</param>
     /// <param name="rules">How the family's commands are read and compared.</param>
     /// <param name="reflectedPresentationKey">
@@ -160,36 +158,43 @@ internal static class NativeEnemyProjectileProgramOracle
         string family = typeof(TAnimation).Name;
         VerificationAssertions.AssertTrue(lists.Zip(lists.Skip(1), (first, second) => first < second).All(ascends => ascends), $"native {family} lists ascend");
         var isList = new HashSet<ushort>(lists);
-        VerificationAssertions.AssertEqual(Enum.GetValues<TAnimation>().Length, entries.Count, $"every {family} starts at a native list");
+        VerificationAssertions.AssertTrue(entries.Keys.ToHashSet().SetEquals(animations.Keys), $"every {family} animation starts at a native list");
         VerificationAssertions.AssertTrue(entries.Values.All(isList.Contains), $"every {family} starts at a native list's entry");
         VerificationAssertions.AssertEqual(entries.Count, entries.Values.Distinct().Count(), $"no two {family} values start at one native list");
         var played = new HashSet<ushort>();
         var counted = new HashSet<ushort>();
-        int total = 0;
-        foreach (TAnimation animation in Enum.GetValues<TAnimation>())
+        var playedSegments = new HashSet<TAnimation>();
+        foreach (TAnimation animation in animations.Keys)
         {
-            total += CompareAnimation(cartridge, isList, entries[animation], steps.Beats(animation), animation, animations, presentationKey, rules,
+            CompareAnimation(cartridge, isList, entries[animation], steps, animation, animations, presentationKey, rules,
                 reflectedPresentationKey, played, counted);
+            playedSegments.UnionWith(animations[animation].Phases.Select(phase => phase.Segment));
         }
         VerificationAssertions.AssertTrue(played.SetEquals(lists),
             $"every native {family} list is played by some animation; unplayed: {string.Join(", ", lists.Except(played).Select(list => $"${list:X4}"))}");
+        VerificationAssertions.AssertTrue(playedSegments.SetEquals(Enum.GetValues<TAnimation>()),
+            $"every {family} segment is played by some animation; unplayed: {string.Join(", ", Enum.GetValues<TAnimation>().Except(playedSegments))}");
         VerificationAssertions.AssertTrue(!entries.Values.Any(counted.Contains), $"no {family} starts in a counted list");
-        return total;
+        return Enum.GetValues<TAnimation>().Sum(segment => steps.Beats(segment).Count);
     }
 
     /// <summary>
     /// Compares <paramref name="animation"/>, starting at the native list at <paramref name="start"/>, with the lists it
-    /// plays as <see cref="CompareByEntry{TAnimation, TFrame, TEvent}"/> does; records the lists it plays and the lists a
-    /// counted repeat replays. Returns its step count.
+    /// plays as <see cref="CompareByEntry{TAnimation, TFrame, TEvent}"/> does: the native runs are read against its phases'
+    /// segments' steps in phase order, and each phase must play its segment whole, as the run at its place. Records the
+    /// lists it plays and the lists a counted repeat replays.
     /// </summary>
-    private static int CompareAnimation<TAnimation, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, IReadOnlySet<ushort> isList, ushort start, IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats,
+    private static void CompareAnimation<TAnimation, TFrame, TEvent>(
+        IImportCartridgeSource cartridge, IReadOnlySet<ushort> isList, ushort start, AnimationSegments<TAnimation, TFrame, TEvent> steps,
         TAnimation animation, IReadOnlyDictionary<TAnimation, Animation<TAnimation>> animations, Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey, HashSet<ushort> played, HashSet<ushort> counted)
         where TAnimation : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
+        VerificationAssertions.AssertTrue(animations.TryGetValue(animation, out Animation<TAnimation>? typed), $"{animation} has its animation");
+        // The steps the animation plays, each phase's segment in turn, which the native runs are read against.
+        AnimationBeat<TFrame, TEvent>[] beats = [.. typed!.Phases.SelectMany(phase => steps.Beats(phase.Segment))];
         var phases = new List<AnimationPhase<TAnimation>>();
         var entered = new Dictionary<ushort, int> { [start] = 0 };
         // Where the play reached a beat a goto in its own list loops back to (#2166).
@@ -259,11 +264,22 @@ internal static class NativeEnemyProjectileProgramOracle
             if (end is null)
                 list = next ?? throw new InvalidDataException($"{animation}'s native list ${list:X4} neither ends nor continues.");
         }
-        VerificationAssertions.AssertTrue(animations.TryGetValue(animation, out Animation<TAnimation>? typed), $"{animation} has its animation");
-        VerificationAssertions.AssertTrue(typed!.Phases.SequenceEqual(phases), $"{animation}'s phases follow its native lists from ${start:X4}");
+        VerificationAssertions.AssertEqual(phases.Count, typed.Phases.Count, $"{animation} plays its native lists' runs from ${start:X4}");
+        VerificationAssertions.AssertEqual(animation, typed.Phases[0].Segment, $"{animation} starts at its own segment");
+        int first = 0;
+        for (int index = 0; index < phases.Count; index++)
+        {
+            AnimationPhase<TAnimation> phase = typed.Phases[index];
+            string at = $"{animation} phase {index} ({phase.Segment})";
+            VerificationAssertions.AssertEqual(0, phase.FirstBeat, $"{at} plays its segment from its first step");
+            VerificationAssertions.AssertEqual(steps.Beats(phase.Segment).Count, phase.BeatCount, $"{at} plays every step of its segment");
+            VerificationAssertions.AssertEqual(first, phases[index].FirstBeat, $"{at} plays the native run at its place");
+            VerificationAssertions.AssertEqual(phases[index].BeatCount, phase.BeatCount, $"{at}'s run length");
+            VerificationAssertions.AssertEqual(phases[index].Plays, phase.Plays, $"{at}'s plays");
+            first += phase.BeatCount;
+        }
         VerificationAssertions.AssertEqual(end, typed.End, $"{animation}'s end follows its native lists");
-        VerificationAssertions.AssertEqual(beats.Count, offset, $"every step of {animation} is played by one of its phases");
-        return offset;
+        VerificationAssertions.AssertEqual(beats.Length, offset, $"every step of {animation} is played by one of its phases");
     }
 
     /// <summary>Reads one typed segment's native list, comparing its beats with the segment's.</summary>
@@ -328,9 +344,10 @@ internal static class NativeEnemyProjectileProgramOracle
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0 && firstBeat + addresses.Count < beats.Count &&
                 beats[firstBeat + addresses.Count] is AnimationBeat<TFrame, TEvent>.HeldFrame held)
             {
-                // A typed held frame stands for the list's longest frame followed at once by its sleep, or by a goto back to
-                // the frame, which shows the same frame again and again for good, whatever duration it names (#1607, #2068,
-                // #2096). Where that frame is its list's only one the goto is read as the list's loop; where it follows the
+                // A typed held frame stands for a frame followed at once by its list's sleep, or by a goto back to the frame,
+                // which shows the same frame again and again for good, whatever duration it names (#1607, #2068, #2096): after
+                // it nothing the list plays shows anything else, so its duration only times a sleep that changes nothing
+                // (#2235). Where that frame is its list's only one the goto is read as the list's loop; where it follows the
                 // beats before it in one segment, the segment rests on it at the goto.
                 bool firstOfList = addresses.Count == 0 && cursor == entry;
                 _ = Next("held frame");
@@ -341,8 +358,6 @@ internal static class NativeEnemyProjectileProgramOracle
                 bool loopsAlone = loopsOnItself && firstOfList;
                 VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep || loopsOnItself,
                     $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
-                if (!loopsOnItself)
-                    VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                 cursor = unchecked((ushort)(cursor + 4));
                 if (loopsOnItself && !loopsAlone)
                 {

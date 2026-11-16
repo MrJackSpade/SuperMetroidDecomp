@@ -232,30 +232,30 @@ internal sealed class NorfairRidleyDeath
         SignedEightEight horizontalSpeed =
             SignedEightEight.FromSixteenthsOfPixel(RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random)) +
             SignedEightEight.FromPixels(RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random));
-        var fragmentState = new RidleyExplosionFragmentState
-        {
-            Lifetime = RidleyExplosionDefinitions.GetPart(part).Lifetime,
-            Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
-        };
-        fragment.SetSpeciesState(fragmentState);
-
         // Tail fragments start from their tail segment; the body fragments start from the body.
+        RidleyBreakupFrame picture;
         if (RidleyExplosionDefinitions.TailSegment.TryGetValue(part, out int tailIndex))
         {
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             TrigonometryAngle tailTipDirection = tail.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction);
-            fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(
-                RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, tailTipDirection)), AnimationPlace.StartOfAnimation);
-            return;
+            picture = RidleyBreakup.SelectTailFrame(part, tailTipDirection);
         }
-
-        RidleyExplosionBodyPartDefinition bodyPart =
-            RidleyBreakup.SelectBodyPart(
-                part,
-                facingRight: state.FacingDirection != RidleyFacing.Left);
-        fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
-        fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(bodyPart.Frame), AnimationPlace.StartOfAnimation);
+        else
+        {
+            RidleyExplosionBodyPartDefinition bodyPart =
+                RidleyBreakup.SelectBodyPart(
+                    part,
+                    facingRight: state.FacingDirection != RidleyFacing.Left);
+            fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
+            picture = bodyPart.Frame;
+        }
+        fragment.SetSpeciesState(new RidleyExplosionFragmentState
+        {
+            Lifetime = RidleyExplosionDefinitions.GetPart(part).Lifetime,
+            Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
+            Picture = picture,
+        });
     }
 
     /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>

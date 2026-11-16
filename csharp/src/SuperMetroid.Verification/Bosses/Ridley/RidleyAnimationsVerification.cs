@@ -37,7 +37,7 @@ internal static class RidleyAnimationsVerification
         VerifyFacingBranch();
         VerifyLowEnergyBranch();
         Console.WriteLine($"  Ridley animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats), " +
-            $"{Enum.GetValues<RidleyBreakupFrame>().Length} breakup segments and {fireball.Count} fireball segments match their native lists; " +
+            $"{Enum.GetValues<RidleyBreakupFrame>().Length} held breakup pictures and {fireball.Count} fireball segments match their native lists; " +
             "the facing and low-energy branches redirect natively.");
     }
 

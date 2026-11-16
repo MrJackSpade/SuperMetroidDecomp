@@ -100,6 +100,8 @@ internal static class RidleyNativeListAddresses
     internal static readonly FireballEntry[] FireballEntries =
     [
         new FireballEntry(RidleyFireballSegment.Fireball, 0x9552),
+        // The flight is the part of the fireball's list its goto loops back to (#2235): after the launch's two poses.
+        new FireballEntry(RidleyFireballSegment.FireballFlight, 0x9560),
         new FireballEntry(RidleyFireballSegment.AfterburnFinal, 0x9574),
         new FireballEntry(RidleyFireballSegment.HorizontalCenter, 0x95a0),
         new FireballEntry(RidleyFireballSegment.VerticalCenter, 0x95d3),

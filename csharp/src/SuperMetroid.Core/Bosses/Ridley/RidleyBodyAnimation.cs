@@ -112,17 +112,14 @@ internal sealed class RidleyBodyAnimation
         AdvanceRidleyBodyAnimation(place, context.Samus);
 
     /// <summary>
-    /// Runs a breakup fragment's animation where the shared enemy animation runs: its pose shows for one update
-    /// and then holds, raising the new-frame flag when shown.
+    /// Shows a breakup fragment's picture where the shared enemy animation runs (#2235): a still picture, which the
+    /// fragment shows for good on the update its clock first runs out, raising the new-frame flag.
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemyPlace fragment)
     {
         if (!fragment.AnimationClock.Expire())
             return;
-        RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
-        AnimationPlayback<RidleyBreakupFrame> playback = state.Playback;
-        EnemyAnimationPlayback.Play(fragment, RidleyBreakupAnimations.Segments, ref playback, RidleyBreakupFrameDefinitions.ShownFrames.Of,
-            cue => throw new InvalidOperationException("Ridley's breakup animations raise no events."));
-        state.Playback = playback;
+        fragment.Frame = RidleyBreakupFrameDefinitions.ShownFrames.Of(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture);
+        fragment.AnimationClock.ShowForGood();
     }
 }

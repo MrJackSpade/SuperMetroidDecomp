@@ -66,7 +66,7 @@ internal sealed class RidleyNativeInstructionPointers
         if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
         {
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
-            return RidleyNativeProgramOracle.BreakupPointer(actor.RequireSpeciesState<RidleyExplosionFragmentState>().Playback);
+            return RidleyNativeProgramOracle.BreakupPointer(actor);
         }
         if (actor.PipeBugPlayback is { } pipeBug)
             return pipeBugs.Pointer(pipeBug);

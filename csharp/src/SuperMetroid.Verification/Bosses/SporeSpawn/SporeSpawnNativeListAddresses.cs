@@ -23,7 +23,11 @@ internal static class SporeSpawnNativeListAddresses
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.CloseAndMove, 0xe729),
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.Death, 0xe77d),
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.DyingExplosions, 0xe78d),
+        // The closing is the part of the explosions' list after its counted repeat (#2235).
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.DeathClosing, 0xe79b),
         new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.Hardening, 0xe7bd),
+        // The fade is the part of the hardening dust's list after its counted repeat (#2235).
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.DeathFade, 0xe7c7),
     ];
 
     /// <summary>The native body lists' extent, $A5:E6B9..E811, which production must never read.</summary>

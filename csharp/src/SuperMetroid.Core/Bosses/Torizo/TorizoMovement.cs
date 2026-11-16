@@ -198,7 +198,7 @@ internal sealed class TorizoMovement
             return;
         }
 
-        state.Velocity += state.JumpAcceleration;
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + state.JumpAcceleration);
     }
 
     /// <summary>

@@ -233,7 +233,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))
                         : CartridgeImportSource.Require(rom).ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
-                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(RidleyNativeProgramOracle.BreakupFrameOf(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Playback)),
+                    AssertEqual(expectedInstruction, RidleyNativeProgramOracle.BreakupList(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture),
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");
                 }
                 else
@@ -250,7 +250,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         $"Ridley breakup production body Y ${parameter:X2}/{facingIndex}");
                     AssertEqual(
                         CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTables[bodyIndex] + facingIndex * 2)),
-                        RidleyNativeProgramOracle.BreakupList(RidleyNativeProgramOracle.BreakupFrameOf(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Playback)),
+                        RidleyNativeProgramOracle.BreakupList(fragment.RequireSpeciesState<RidleyExplosionFragmentState>().Picture),
                         $"Ridley breakup production body instruction ${parameter:X2}/{facingIndex}");
                 }
                 cases++;

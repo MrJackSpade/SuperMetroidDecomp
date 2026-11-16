@@ -102,6 +102,9 @@ internal static class SporeSpawnAnimations
             Show(F.SporeSpawnParted44, 1),
             Cue(new SporeSpawnCue.Signal(K.SpawnDyingExplosion)),
             Wait(DeathBurstWait),
+        ],
+        [P.DeathClosing] =
+        [
             .. Closing(),
             Show(F.SporeSpawnShutTwin, 1),
             Cue(new SporeSpawnCue.Signal(K.Harden)),
@@ -110,6 +113,9 @@ internal static class SporeSpawnAnimations
         [
             Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
             Wait(DeathBurstWait),
+        ],
+        [P.DeathFade] =
+        [
             .. Enumerable.Range(0, DeathShadeSteps).SelectMany(step => new[]
             {
                 Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
@@ -123,16 +129,23 @@ internal static class SporeSpawnAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>> StartingAt { get; } = new Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>>
     {
-        [P.InitialDead] = new([new(P.InitialDead, 0, 3, 1)], AnimationEnd.Holds),
-        [P.InitialAlive] = new([new(P.InitialAlive, 0, 3, 1)], AnimationEnd.Holds),
-        [P.FightStarted] = new([new(P.FightStarted, 0, 3, 1), new(P.OpenAndStop, 0, Segments.Beats(P.OpenAndStop).Count, 1), new(P.OpenPulse, 0, 4, OpenPulseRepeats), new(P.CloseAndMove, 0, Segments.Beats(P.CloseAndMove).Count, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.OpenAndStop] = new([new(P.OpenAndStop, 0, Segments.Beats(P.OpenAndStop).Count, 1), new(P.OpenPulse, 0, 4, OpenPulseRepeats), new(P.CloseAndMove, 0, Segments.Beats(P.CloseAndMove).Count, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.CloseAndMove] = new([new(P.CloseAndMove, 0, Segments.Beats(P.CloseAndMove).Count, 1), new(P.OpenAndStop, 0, Segments.Beats(P.OpenAndStop).Count, 1), new(P.OpenPulse, 0, 4, OpenPulseRepeats)], AnimationEnd.LoopsFrom(0)),
-        [P.Death] = new([new(P.Death, 0, 3, 1), new(P.DyingExplosions, 0, 3, DeathBurstRepeats), new(P.DyingExplosions, 3, Segments.Beats(P.DyingExplosions).Count - 3, 1), new(P.Hardening, 0, 2, DeathBurstRepeats), new(P.Hardening, 2, Segments.Beats(P.Hardening).Count - 2, 1)], AnimationEnd.Holds),
+        [P.InitialDead] = new([Whole(P.InitialDead)], AnimationEnd.Holds),
+        [P.InitialAlive] = new([Whole(P.InitialAlive)], AnimationEnd.Holds),
+        [P.FightStarted] = new([Whole(P.FightStarted), Whole(P.OpenAndStop), Repeat(P.OpenPulse, OpenPulseRepeats), Whole(P.CloseAndMove)], AnimationEnd.LoopsFrom(1)),
+        [P.OpenAndStop] = new([Whole(P.OpenAndStop), Repeat(P.OpenPulse, OpenPulseRepeats), Whole(P.CloseAndMove)], AnimationEnd.LoopsFrom(0)),
+        [P.CloseAndMove] = new([Whole(P.CloseAndMove), Whole(P.OpenAndStop), Repeat(P.OpenPulse, OpenPulseRepeats)], AnimationEnd.LoopsFrom(0)),
+        [P.Death] = new([Whole(P.Death), Repeat(P.DyingExplosions, DeathBurstRepeats), Whole(P.DeathClosing), Repeat(P.Hardening, DeathBurstRepeats), Whole(P.DeathFade)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SporeSpawnBodySegment> StartingWith(SporeSpawnBodySegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<SporeSpawnBodySegment> Whole(SporeSpawnBodySegment segment) => Repeat(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/> (#2235).</summary>
+    private static AnimationPhase<SporeSpawnBodySegment> Repeat(SporeSpawnBodySegment segment, int plays) =>
+        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>The six closing poses, from the second-to-last opening pose back to the first.</summary>
     private static IEnumerable<AnimationBeat<EnemyFrameId, SporeSpawnCue>> Closing() =>

@@ -1,16 +1,20 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's projectile animations (#641, #1788): one for each animation a spawn, a motion, a
-/// reaction, a resting egg's wake or another animation's cue starts, named for what it shows. Each is its steps, the
-/// phases it plays them in and how it ends (<see cref="TorizoProjectileAnimations"/>).
+/// Bomb and Golden Torizo's projectile animation segments (#641, #1788, #2235): each animation a spawn, a motion, a
+/// reaction, a resting egg's wake or another animation's cue starts begins at the segment named for what it shows; the runs
+/// it repeats, loops on or moves on to are segments of their own (<see cref="TorizoProjectileAnimations"/>).
 /// </summary>
 internal enum TorizoProjectileSegment
 {
     /// <summary>A low-health explosion: it moves in front of Samus, harmless, then three times returns to its origin, scatters and plays its five poses, then is deleted.</summary>
     LowHealthExplosion,
+    /// <summary>A low-health explosion's burst: it returns to its origin, scatters and plays its five poses, three times.</summary>
+    LowHealthExplosionBurst,
     /// <summary>A death explosion: one time in four it puffs into <see cref="DeathSmoke"/> instead; otherwise it twice returns to its origin, scatters and plays its six poses, then is deleted.</summary>
     DeathExplosion,
+    /// <summary>A death explosion's burst: it returns to its origin, scatters and plays its six poses, twice.</summary>
+    DeathExplosionBurst,
     /// <summary>A death explosion's smoke puff: it twice returns to its origin, scatters and plays its four poses, then is deleted.</summary>
     DeathSmoke,
     /// <summary>Bomb Torizo's drool, forming for four updates: the drop's forming poses, then <see cref="DroolNoDelay"/>'s release and fall.</summary>
@@ -19,6 +23,8 @@ internal enum TorizoProjectileSegment
     DroolTwoFrameDelay,
     /// <summary>Bomb Torizo's drool released at once: it starts falling, harmless, then shows its falling pose for good.</summary>
     DroolNoDelay,
+    /// <summary>A released drool drop's falling pose, held while it falls.</summary>
+    DroolFalling,
     /// <summary>A drool drop reaching a wall: it stops and is deleted.</summary>
     DroolWallImpact,
     /// <summary>A drool drop splashing on the floor: it stops, plays its three splash poses, then is deleted.</summary>
@@ -53,10 +59,16 @@ internal enum TorizoProjectileSegment
     ChozoOrbShot,
     /// <summary>A sonic boom thrown left: its sound and two firing poses, then its flying pose for good.</summary>
     SonicBoomFiredLeft,
+    /// <summary>A sonic boom flying left, its flying pose held.</summary>
+    SonicBoomFlyingLeft,
     /// <summary>A sonic boom thrown right: its sound and two firing poses, then its flying pose for good.</summary>
     SonicBoomFiredRight,
+    /// <summary>A sonic boom flying right, its flying pose held.</summary>
+    SonicBoomFlyingRight,
     /// <summary>A sonic boom bursting on a wall: it stops, turns harmless and moves in front, then five times returns to its origin, scatters and plays its five poses, then is deleted.</summary>
     SonicBoomWallImpact,
+    /// <summary>A sonic boom's burst on a wall: it returns to its origin, scatters and plays its five poses, five times.</summary>
+    SonicBoomWallImpactBurst,
     /// <summary>The dust Torizo's right foot raises on landing: its four poses, rising, then deletion.</summary>
     LandingDustRightFoot,
     /// <summary>The dust Torizo's left foot raises on landing: its four poses, rising, then deletion.</summary>
@@ -69,18 +81,28 @@ internal enum TorizoProjectileSegment
     EggBouncingRight,
     /// <summary>An egg hatching facing right: it stops, cracks open, turns harmful and shot-blocking, then hatches into <see cref="EggHatchedRight"/>.</summary>
     EggHatchingRight,
+    /// <summary>A cracked egg's hatch, either way: it turns harmful and shot-blocking, then continues in its hatched animation.</summary>
+    EggHatch,
     /// <summary>A hatched egg's creature charging left: its sound, then its four poses for good.</summary>
     EggHatchedLeft,
+    /// <summary>A hatched egg's creature charging left: its four poses, looping.</summary>
+    HatchlingChargingLeft,
     /// <summary>A hatched egg's creature charging right: its sound, then its four poses for good.</summary>
     EggHatchedRight,
+    /// <summary>A hatched egg's creature charging right: its four poses, looping.</summary>
+    HatchlingChargingRight,
     /// <summary>A shot egg breaking facing left: it stops, plays its five poses, then is deleted.</summary>
     EggBreakLeft,
     /// <summary>A shot egg breaking facing right: it stops, plays its five poses, then is deleted.</summary>
     EggBreakRight,
     /// <summary>A caught super missile thrown right: held, then aimed at Samus and thrown, spinning for good.</summary>
     SuperMissileRight,
+    /// <summary>A thrown super missile spinning, thrown right: its eight poses, looping.</summary>
+    SuperMissileSpinningRight,
     /// <summary>A caught super missile thrown left: held, then aimed away from Samus and thrown, spinning for good.</summary>
     SuperMissileLeft,
+    /// <summary>A thrown super missile spinning, thrown left: its eight poses, looping.</summary>
+    SuperMissileSpinningLeft,
     /// <summary>A thrown super missile exploding: it widens, stops, turns harmful, plays its sound and six poses, then is deleted.</summary>
     SuperMissileImpact,
     /// <summary>The eye beam bursting on a wall: it stops, plays its five poses, then is deleted.</summary>
@@ -90,6 +112,10 @@ internal enum TorizoProjectileSegment
     /// disabled, then explodes and is deleted.
     /// </summary>
     EyeBeamFloorImpact,
+    /// <summary>The eye beam's floor impact sparking, again while Golden Torizo's eye-beam explosions are disabled, then exploding and deleted.</summary>
+    EyeBeamFloorImpactFlames,
     /// <summary>The eye beam in flight: its five poses, for good.</summary>
     EyeBeam,
+    /// <summary>A projectile deleting itself: the end of an explosion's or a burst's repeated run.</summary>
+    Deletion,
 }

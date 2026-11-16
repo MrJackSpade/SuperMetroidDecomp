@@ -154,7 +154,7 @@ internal sealed class TorizoChoices
     {
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
         state.Velocity = new(TorizoFacing.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
-        state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
+        state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
         torizo.AnimationClock.StepOnNextUpdate();
     }
 
@@ -165,7 +165,7 @@ internal sealed class TorizoChoices
     {
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
         state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
-        state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
+        state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
         torizo.AnimationClock.StepOnNextUpdate();
     }
 
@@ -224,7 +224,7 @@ internal sealed class TorizoChoices
         // The jump back launches away from the way Torizo faces.
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
         state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
-        state.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
+        state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
         torizo.AnimationClock.StepOnNextUpdate();
         return TorizoAnimations.ContinueWith(target);
     }

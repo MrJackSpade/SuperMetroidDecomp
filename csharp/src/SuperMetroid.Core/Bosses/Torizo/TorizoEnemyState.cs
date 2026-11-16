@@ -98,10 +98,10 @@ public sealed class TorizoEnemyState
     internal bool FallsAtRestingSpeed { get; private set; }
 
     /// <summary>
-    /// Signed 1/256-pixel acceleration a jump adds to <see cref="Velocity"/> every frame until it lands. Only the Y axis is
-    /// meaningful; X stays zero, so adding the whole vector leaves the horizontal velocity unchanged.
+    /// Signed 1/256-pixel downward acceleration a jump adds to <see cref="Velocity"/>'s vertical speed every frame until it
+    /// lands (#2235): one axis, since a jump never changes its sideways speed.
     /// </summary>
-    public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }
+    public SignedEightEight JumpAcceleration { get; internal set; }
 
     /// <summary>The main phase the Torizo runs each frame; it starts settling under gravity as it wakes.</summary>
     public TorizoPhase Phase { get; internal set; } = TorizoPhase.Falling;

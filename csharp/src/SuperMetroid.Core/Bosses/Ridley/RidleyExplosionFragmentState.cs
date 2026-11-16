@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Animation;
-
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The state of one fragment of Norfair Ridley's breakup.</summary>
@@ -11,7 +9,9 @@ internal sealed class RidleyExplosionFragmentState
     /// <summary>The updates the fragment lives, counted down past zero.</summary>
     public int Lifetime { get; internal set; }
 
-    /// <summary>The fragment's playing breakup animation and where it stands (#641, #1600), set when it spawns.</summary>
-    internal AnimationPlayback<RidleyBreakupFrame> Playback { get; set; } =
-        new(RidleyBreakupAnimations.StartingWith(RidleyBreakupFrame.TailBaseLink), AnimationPlace.StartOfAnimation);
+    /// <summary>
+    /// The piece of Ridley the fragment shows, chosen when it spawns (#2235): a still picture, shown for good on the
+    /// fragment's first animation update.
+    /// </summary>
+    internal required RidleyBreakupFrame Picture { get; init; }
 }

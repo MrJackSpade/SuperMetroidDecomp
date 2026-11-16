@@ -58,7 +58,9 @@ internal static class SporeSpawnAnimationsVerification
             new NativeEnemyCueRules<SporeSpawnCue>(
                 word => BodyInstructions.TryGetValue(word, out var instruction) ? instruction.Operands : null,
                 (word, operands, cue, at) => CompareBodyCue(word, operands, cue, at)));
-        NativeEnemyAnimationOracle.CompareAnimations(lists, SporeSpawnAnimations.StartingAt);
+        // The death's closing and fade are the parts of its counted lists after their repeats, which the death runs on into (#2235).
+        NativeEnemyAnimationOracle.CompareAnimations(lists, SporeSpawnAnimations.StartingAt,
+            onlyRunOnInto: new HashSet<SporeSpawnBodySegment> { SporeSpawnBodySegment.DeathClosing, SporeSpawnBodySegment.DeathFade });
         return lists;
     }
 
@@ -139,7 +141,10 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
                 if (native.Deleted)
                     break;
-                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+                // A held frame (#2235) shows its picture for good: the native timer running down to the list's sleep shows
+                // nothing else, so only the picture is compared once the typed animation rests.
+                if (!Rests(projectile))
+                    AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             }
             AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
@@ -147,6 +152,11 @@ internal static class SporeSpawnAnimationsVerification
         }
         return updates;
     }
+
+    /// <summary>Whether <paramref name="projectile"/>'s typed animation rests where it stands: its play is done for good.</summary>
+    private static bool Rests(EnemyProjectile projectile) =>
+        projectile.Animation is SporeSpawnProjectileAnimation { Playback: { Animation.Phases.Count: > 0 } playback }
+            && playback.Place.Beat > playback.Animation.Phases[playback.Place.Phase].BeatCount;
 
     /// <summary>
     /// A projectile system with Spore Spawn loaded in slot zero, whose spores take his colours and whose spore drops roll

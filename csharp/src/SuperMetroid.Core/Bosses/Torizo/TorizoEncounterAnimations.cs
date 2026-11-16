@@ -1,17 +1,19 @@
 using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
-using S = SuperMetroid.Core.Bosses.Torizo.TorizoSharedSteps;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The encounter animations both Torizos share: the gut and face blow-ups, the death, the stun and the Bomb Torizo's wake.</summary>
+/// <summary>
+/// The encounter segments both Torizos share: the gut and face blow-ups, the death, the stun, the Bomb Torizo's wake and the
+/// seated eyes and standing colour fade both wakes play.
+/// </summary>
 internal static class TorizoEncounterAnimations
 {
-    /// <summary>Each animation's steps, in the order it plays them.</summary>
+    /// <summary>Each segment's steps, in the order it plays them.</summary>
     internal static Dictionary<TorizoAnimation, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
     {
         [A.BombTorizoGutBlowingUp] =
@@ -44,10 +46,18 @@ internal static class TorizoEncounterAnimations
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
+        ],
+        [A.DyingExplosions] =
+        [
             Cue(new TorizoCue.Signal(K.SpawnDeathExplosion)),
-            Wait(1),
-            Wait(6),
+            Wait(7),
+        ],
+        [A.DyingFadeToBlack] =
+        [
             Cue(new TorizoCue.Signal(K.FadeToBlack)),
+        ],
+        [A.DyingFlickering] =
+        [
             Cue(new TorizoCue.Signal(K.SpawnDeathExplosion)),
             Wait(1),
             Cue(new TorizoCue.Signal(K.MakeVisible)),
@@ -69,6 +79,9 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Signal(K.MakeInvisible)),
             Wait(2),
             Cue(new TorizoCue.Signal(K.AdvanceColourFade)),
+        ],
+        [A.DyingFinish] =
+        [
             Wait(64),
             Cue(new TorizoCue.Signal(K.FinishDeath)),
         ],
@@ -91,6 +104,9 @@ internal static class TorizoEncounterAnimations
             Show(EnemyFrameId.TorizoFacingLeftSeated, 8),
             ShowArtwork(L.EyesLightingUp4),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),
+        ],
+        [A.SeatedEyesLightingAgain] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
             ShowArtwork(L.EyesLightingAgain1),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
@@ -99,6 +115,9 @@ internal static class TorizoEncounterAnimations
             ShowArtwork(L.EyesLightingAgain3),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 4),
             ShowArtwork(L.EyesLightingAgain4),
+        ],
+        [A.BombTorizoStandingUp] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftSeated, 48),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-9, 0))),
             Show(EnemyFrameId.TorizoFacingLeftRisingFromSeat, 16),
@@ -112,19 +131,26 @@ internal static class TorizoEncounterAnimations
             Show(EnemyFrameId.TorizoFacingLeftUprightStepping, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Displacement: new(-7, 0))),
             Cue(new TorizoCue.Signal(K.FadeToNormalColors)),
+        ],
+        [A.StandingColourFade] =
+        [
             Show(EnemyFrameId.TorizoFacingLeftUprightWideStance, 4),
             Cue(new TorizoCue.Signal(K.AdvanceColourFade)),
+        ],
+        [A.BombTorizoFightStart] =
+        [
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.StartBombTorizoFight)),
             Show(EnemyFrameId.TorizoFacingLeftUprightWideStance, 16),
-            .. S.FacingLeftLeftLegStep,
-            .. S.FacingLeftRightLegStep,
         ],
         [A.Stunned] =
         [
             Cue(new TorizoCue.Signal(K.StartStanding)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Wait(24),
+        ],
+        [A.StunnedEyesLightingAgain] =
+        [
             Wait(3),
             ShowArtwork(L.EyesLightingAfterStun1),
             Wait(3),
@@ -133,6 +159,9 @@ internal static class TorizoEncounterAnimations
             ShowArtwork(L.EyesLightingAfterStun3),
             Wait(3),
             ShowArtwork(L.EyesLightingAfterStun4),
+        ],
+        [A.StunnedRecovery] =
+        [
             Wait(16),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.UnmarkStunned)),

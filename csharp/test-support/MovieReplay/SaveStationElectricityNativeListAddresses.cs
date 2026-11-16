@@ -13,9 +13,11 @@ internal static class SaveStationElectricityNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<SaveStationElectricitySegment>[] Entries =
     [
-        new NativeProgramEntry<SaveStationElectricitySegment>(SaveStationElectricitySegment.Start, 0xe683),
         new NativeProgramEntry<SaveStationElectricitySegment>(SaveStationElectricitySegment.Cycle, 0xe687),
     ];
+
+    /// <summary>The native entry the discharge starts at (#2061): it loads the cycles' count and runs on into the cycle's list.</summary>
+    internal const ushort DischargeStart = 0xe683;
 
     /// <summary>The bank-$86 bytes the lists occupy, which production must never read.</summary>
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xe683, 0xe6ad);
@@ -24,5 +26,6 @@ internal static class SaveStationElectricityNativeListAddresses
     internal static ushort Entry(SaveStationElectricitySegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules,
+        countedEntries: [new NativeCountedEntry<SaveStationElectricitySegment>("the discharge", SaveStationElectricityAnimations.Discharge, DischargeStart)]);
 }

@@ -72,7 +72,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
                 Effects,
                 _statue.SceneGraphics);
-            projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustSegment.TourianDescentDust));
+            projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
             projectile.State = new AnchoredProjectileState(TourianDescentDustAnchor);
         }
     }

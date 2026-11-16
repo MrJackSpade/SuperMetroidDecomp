@@ -22,15 +22,16 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = FuneNamiheBehavior.InitializeFuneNamihe;
-            Action<RoomEnemyPlace, FuneNamiheEnemyState, SamusState> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
+            Action<RoomEnemyPlace> initialize = namihe ? FuneNamiheBehavior.InitializeNamihe : FuneNamiheBehavior.InitializeFune;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.Definition);
             place.SetSpawnParameter1(place.DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
             place.SetSpawnParameter2(place.DefinitionId, 0x1000);
             place.Position = place.Position.WithWholeY(0x0200);
             initialize(place);
-            FuneNamiheEnemyState state = (enemies.FuneNamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[0]."));
+            FuneNamiheEnemyState state = namihe
+                ? enemies.NamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NamiheStates[0].")
+                : enemies.FuneStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneStates[0].");
             ushort idleCursor = (ushort)((namihe
                 ? FuneNamiheSelectorOracle.NamiheIdleLeftCursor
                 : FuneNamiheSelectorOracle.FuneIdleLeftCursor) +
@@ -38,7 +39,7 @@ internal static class FuneNamiheDefinitionsVerification
             AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(place, (state), namihe ? new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, place.Position.Y.Whole)) } : RoomEnemyFrameFixtures.StandaloneSamus());
+            RunMain(place, state, namihe ? new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, place.Position.Y.Whole)) } : RoomEnemyFrameFixtures.StandaloneSamus());
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
             AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production active list {variant}");
@@ -46,6 +47,22 @@ internal static class FuneNamiheDefinitionsVerification
 
         Console.WriteLine(
             "Fune/Namihe definitions: eight native selectors and all eight real idle/active installs pass with table reads forbidden.");
+    }
+
+    /// <summary>Runs one main-AI update of the Fune or Namihe whose state is <paramref name="state"/>.</summary>
+    private static void RunMain(RoomEnemyPlace place, FuneNamiheEnemyState state, SamusState samus)
+    {
+        switch (state)
+        {
+            case FuneEnemyState fune:
+                FuneNamiheBehavior.RunFuneMain(place, fune);
+                return;
+            case NamiheEnemyState namihe:
+                FuneNamiheBehavior.RunNamiheMain(place, namihe, samus);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined Fune/Namihe state {state}.");
+        }
     }
 
     /// <summary>
@@ -59,7 +76,9 @@ internal static class FuneNamiheDefinitionsVerification
         {
             ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
-            var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { IsNamihe = namihe, ShowsActiveAnimation = active, FacingRight = right };
+            FuneNamiheEnemyState state = namihe
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { ShowsActiveAnimation = active, FacingRight = right }
+                : new FuneEnemyState(FuneAction.WaitForCooldown) { ShowsActiveAnimation = active, FacingRight = right };
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheAnimation(state)),
                 "Fune/Namihe production species/activity/facing selection matches native pointer");
         }

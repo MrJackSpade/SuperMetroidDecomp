@@ -7,7 +7,7 @@ internal enum IntroCeresFlightPhase
     WaitForMusicQueue,
     /// <summary>The front-view gunship zooms toward the camera while stars and background accelerate diagonally.</summary>
     FlyingIntoCamera,
-    /// <summary>The rear-view station image grows while its fixed-color flash fades.</summary>
+    /// <summary>The rear-view station image grows while its white flash fades.</summary>
     FlyingTowardCeres,
     /// <summary>The SPACE COLONY caption writes letters, optional katakana, and a final hold.</summary>
     SpaceColonyTitle,

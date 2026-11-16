@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -32,12 +32,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
-    /// <summary>The room's Chozo statue, which its hand trigger wakes; null until the statue is placed.</summary>
-    private RoomEnemyPlace? _statue;
+    /// <summary>The room's enemy places, among which the hand trigger finds the room's statue.</summary>
+    private readonly EnemyPlaces _places;
 
-    /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
-    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx)
+    /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners and the room's enemy places.</summary>
+    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx,
+        EnemyPlaces places)
     {
+        _places = Ensure.NotNull(places);
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
@@ -91,7 +93,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             HandTriggered = false,
         };
         statue.SetSpeciesState(state);
-        _statue = statue;
 
         if (state.IsWreckedShip)
         {
@@ -116,11 +117,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock)
     {
         Ensure.NotNull(level);
-        RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
-        if (statue.DefinitionId != EnemyDefinitionId.Chozo)
-            throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");
-
-        ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
+        // The hand belongs to the room's one statue, the enemy that holds a statue's state.
+        ChozoStatueState state = _places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>()).OfType<ChozoStatueState>().Single();
         Position16<RoomBlocks> triggerPosition = handBlock;
         RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 
@@ -190,11 +188,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 // The cue writes the liquid motion values consumed by the liquid's step once, when
                 // it runs; the liquid owns them from then on.
-                _roomFx.FxOverlay?.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
+                _roomFx.FxOverlay.MoveLiquidAfter(ChozoStatueFxData.LoweringDelay, ChozoStatueFxData.LoweringVelocity);
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
-                _roomFx.FxOverlay?.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
+                _roomFx.FxOverlay.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:
@@ -288,7 +286,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
             EnemyProjectileBehavior.Still,
             graphics: default);
-        projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustSegment.Footsteps));
+        projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)));
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
     }
 

@@ -38,8 +38,7 @@ public sealed class CacatacEnemyState
     public int RightPatrolX { get; internal set; }
 
     /// <summary>
-    /// Whether it hangs from a ceiling or stands on a floor, as its spawn mounting names. The game tests only zero versus nonzero, so this is a
-    /// Boolean discriminator rather than a guessed flags enum.
+    /// Whether it hangs from a ceiling or stands on a floor, as its spawn mounting names.
     /// </summary>
     public bool UpsideUp { get; internal set; }
 }

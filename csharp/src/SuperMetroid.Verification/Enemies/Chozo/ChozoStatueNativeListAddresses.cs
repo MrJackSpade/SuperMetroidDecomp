@@ -23,7 +23,7 @@ internal static class ChozoStatueNativeListAddresses
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipInitial, 0xe457),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivated, 0xe461),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivatedLoop, 0xe49d),
-        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivatedLoop2, 0xe4c1),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipWalkingWithSamus, 0xe4c1),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

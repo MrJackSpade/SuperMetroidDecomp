@@ -63,9 +63,9 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
-        session.SetDisplayBrightness(session.GameplayFadeIn.Brightness);
+        session.SetDisplayBrightness(session.GameplayFadeIn.Level);
         session.HandleGunshipLandingSave();
-        if (session.GameplayFadeIn.Brighten() == PauseFadeTiming.FullyLit)
+        if (session.GameplayFadeIn.Brighten())
             session.FinishGameplayFadeIn();
     }
 

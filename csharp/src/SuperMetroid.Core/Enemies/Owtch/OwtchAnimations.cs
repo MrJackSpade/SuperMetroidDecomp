@@ -37,13 +37,14 @@ internal static class OwtchAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at; the loops only run on from the
+    /// animations that start them (#2061).
+    /// </summary>
     internal static IReadOnlyDictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
         [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MovingLeftLoop] = new([new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MovingRight] = new([new(P.MovingRight, 0, 1, 1), new(P.MovingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MovingRightLoop] = new([new(P.MovingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

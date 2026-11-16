@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -29,10 +30,11 @@ internal static class EnemySystemFixtures
     /// <param name="breakableTerrain">The room objects its enemies break blocks into, or null for an empty list of its own.</param>
     /// <param name="area">The area the room is in.</param>
     /// <param name="doorPassage">Samus's passage through a door, or null for one of its own that never starts.</param>
+    /// <param name="roomFx">The room's effect state, or null for an effect of its own with no liquid.</param>
     internal static RoomEnemySystem New(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
-        AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null)
+        AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null)
     {
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
@@ -44,6 +46,7 @@ internal static class EnemySystemFixtures
             BossArtwork = new BossArtworkBinding(),
             BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
             DoorPassage = doorPassage ?? new DoorPassage(),
+            RoomFx = roomFx ?? new RoomFxOverlayState(),
         });
         system.BossArtwork = installedBosses;
         return system;

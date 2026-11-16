@@ -38,7 +38,7 @@ public static class EndingSequenceDefinitions
         /// <summary>The copyright panel's hold.</summary>
         public const int CopyrightHoldFrames = 180;
 
-        /// <summary>The waiting backdrop fade's steps: 32 additions of target-component / 32 in 256ths.</summary>
+        /// <summary>The waiting backdrop fade's steps: it brightens to its colours in 32 equal steps.</summary>
         public const int WaitingBackdropFadeFrames = 32;
 
         /// <summary>The waiting backdrop's hold.</summary>

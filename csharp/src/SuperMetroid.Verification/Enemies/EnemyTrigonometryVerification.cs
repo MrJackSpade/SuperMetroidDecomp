@@ -400,6 +400,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyFlyBehavior), () => VerifyFlyBehavior()),
         new(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(LoadRepositoryRom())),
         new(nameof(BullBehaviorVerification.VerifyBullBehavior), () => BullBehaviorVerification.VerifyBullBehavior()),
+        new(nameof(BullBehaviorVerification.VerifyBullSpeedStaysInFlightRange), () => BullBehaviorVerification.VerifyBullSpeedStaysInFlightRange()),
         new(nameof(VerifyKagoAnimations), () => VerifyKagoAnimations(LoadRepositoryRom())),
         new(nameof(VerifyKagoBehavior), () => VerifyKagoBehavior()),
         new(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(LoadRepositoryRom())),

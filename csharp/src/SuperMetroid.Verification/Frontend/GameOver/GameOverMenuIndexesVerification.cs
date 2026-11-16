@@ -51,7 +51,7 @@ internal static class GameOverMenuIndexesVerification
         foreach (bool ceres in new[] { true, false })
         {
             var answered = new GameOverMenuState(AudioQueues.Standalone(), presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
-            answered.Phase = GameOverMenuPhase.Main;
+            answered.SkipToPhase(GameOverMenuPhase.Main);
             answered.Step(0);
             answered.Step(ControllerButton.A);
             AssertEqual(ceres, answered.CeresArrivalRequested, $"Yes on loading state $1F={ceres} requests the Ceres loader");

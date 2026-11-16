@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -23,11 +24,11 @@ public sealed class CeresDepartureState
     /// </summary>
     public int HoldFramesRemaining { get; private set; }
 
-    /// <summary>
-    /// Master brightness during the blackout fade, from fifteen (full) down to zero (black); every step is
-    /// guarded by the level above one, so the value never leaves that range.
-    /// </summary>
-    public int Brightness { get; private set; } = 15;
+    /// <summary>The blackout fade: fully lit until the fade, then one level darker on every call until black.</summary>
+    private readonly ScreenFade fade = new(DisplayBrightness.Full);
+
+    /// <summary>Master brightness during the blackout fade, from full down to black.</summary>
+    public int Brightness => fade.Level;
 
     /// <summary>Starts the elevator hold from the room main's one-frame request.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>
@@ -37,7 +38,7 @@ public sealed class CeresDepartureState
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
         HoldFramesRemaining = CeresElevatorShaftRoomMainState.DepartureHoldFrames;
-        Brightness = 15;
+        fade.Restart(DisplayBrightness.Full, 0);
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }
 
@@ -70,16 +71,10 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.FadingToBlack)
             throw new InvalidOperationException("Ceres departure fade is not active.");
 
-        // Room main explicitly sets both fade delays to zero. The fade-out therefore
-        // steps brightness on every call. Brightness one becomes a blanked screen
-        // rather than a representable brightness zero, which is exposed here as Complete.
-        if (Brightness > 1)
-        {
-            Brightness--;
+        // Room main explicitly makes the fade step on every call; the call that reaches black completes the departure.
+        if (!fade.Darken())
             return false;
-        }
 
-        Brightness = 0;
         Phase = CeresDeparturePhase.Complete;
         return true;
     }

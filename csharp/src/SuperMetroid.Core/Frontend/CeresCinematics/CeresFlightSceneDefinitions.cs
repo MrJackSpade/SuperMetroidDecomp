@@ -11,6 +11,9 @@ internal static class CeresFlightSceneDefinitions
     /// <summary>How long the flight's track waits on the music queue: fourteen passes.</summary>
     internal static MusicQueueDelay MusicDelay { get; } = new(14);
 
+    /// <summary>Updates each step of the flight's closing fade-out takes: one level every second update.</summary>
+    internal const int FadeOutUpdatesPerStep = 2;
+
     /// <summary>
     /// The gunship engine's flickering colours on the rear view's floor, started as the rear view is set up, just before the
     /// station's navigation lights (#1733).

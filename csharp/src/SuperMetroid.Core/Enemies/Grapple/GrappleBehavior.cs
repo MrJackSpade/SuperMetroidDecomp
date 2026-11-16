@@ -14,16 +14,13 @@ internal sealed class GrappleBehavior : IGrappleTargets
 {
     /// <summary>Provides the interactive enemies in order and runs their main AI under the grapple's frame.</summary>
     private readonly IEnemyLifecycle _lifecycle;
-    /// <summary>Guards endpoint checks until a room is loaded.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Starts the full generic death and drop sequence for grapple-killed enemies.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Binds enemy ordering, room state and death handling.</summary>
-    internal GrappleBehavior(IEnemyLifecycle lifecycle, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
+    /// <summary>Binds enemy ordering and death handling.</summary>
+    internal GrappleBehavior(IEnemyLifecycle lifecycle, EnemyDeathsAndDrops deathsAndDrops)
     {
         _lifecycle = lifecycle;
-        _room = room;
         _deathsAndDrops = deathsAndDrops;
     }
 

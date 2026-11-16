@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>The state of one Norfair Rio, parent or flame follower.</summary>
+/// <summary>The state of a Norfair Rio parent; its flame follower keeps a <see cref="NorfairRioFollowerState"/>.</summary>
 public sealed class NorfairRioEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
@@ -25,9 +25,6 @@ public sealed class NorfairRioEnemyState
     /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The behaviour the parent and its flame follower both run.</summary>
+    /// <summary>The behaviour the parent runs.</summary>
     public NorfairRioAction Action { get; internal set; }
-
-    /// <summary>Whether this is the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
-    public bool IsFollower { get; internal set; }
 }

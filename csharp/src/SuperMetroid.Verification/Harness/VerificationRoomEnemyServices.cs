@@ -56,8 +56,10 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public ISamusControlLock SamusControls => this;
     /// <summary>Exposes this fixture's Mother Brain overrides through the enemy service contract.</summary>
     public IMotherBrainRoomEffects MotherBrain => this;
-    /// <summary>Uses loaded room services for the Tourian statue room's water and descent.</summary>
-    public ITourianStatueRoom TourianStatueRoom => Loaded("read the Tourian statue room").TourianStatueRoom;
+    /// <summary>Optional case-owned Tourian statue room: its water and the entrance statue's descent.</summary>
+    public ITourianStatueRoom? FixedTourianStatueRoom { get; set; }
+    /// <summary>Uses the case's Tourian statue room, or the loaded room services' one.</summary>
+    public ITourianStatueRoom TourianStatueRoom => FixedTourianStatueRoom ?? Loaded("read the Tourian statue room").TourianStatueRoom;
 
     /// <summary>Advances RNG through a case callback or the services installed by room loading.</summary>
     public int Generate() => NextRandom is { } next ? next() : Loaded("generate a random number").Random.Generate();

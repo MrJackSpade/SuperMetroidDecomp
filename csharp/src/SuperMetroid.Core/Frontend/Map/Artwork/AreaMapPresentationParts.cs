@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 [ArchitectureReview("context-bag", "The import's one hand-off of the installed map, pause, HUD and frontend presentation catalogs to AreaMapPresentation; every member is immutable installed presentation data, not a service.")]
 internal sealed record AreaMapPresentationParts
 {
-    /// <summary>Areas.</summary>
+    /// <summary>Each area's installed map, with its exploration rules.</summary>
     public required IReadOnlyDictionary<AreaId, IAreaMapView> Areas { get; init; }
 
     /// <summary>Uppercase SHA-256 identity of length-framed map rules, station masks, and installed presentation resources in fixed order; an edit in place changes the identity.</summary>

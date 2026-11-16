@@ -135,8 +135,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace owner,
         NuclearWaffleEnemyState state)
     {
-        // The four spawn parameters each select one segment's association.
-        // Keep array order identical to the later descending update loop.
+        // Each of the four links is spawned for its own place along the waffle's arm, in the order the update later
+        // walks them from the last.
         for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
         {
             EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();

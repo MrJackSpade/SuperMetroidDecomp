@@ -33,8 +33,8 @@ public sealed class BullEnemyState
 
     /// <summary>
     /// The speed change applied at each interval expiry. It grows or shrinks by <see cref="AccelerationDelta"/> through
-    /// <see cref="Accelerate"/> and <see cref="Decelerate"/>, wrapping as the game's arithmetic does, so a change taken
-    /// past zero reads as below zero.
+    /// <see cref="Accelerate"/> and <see cref="Decelerate"/>; braking after a kick can take it below zero, which stops the
+    /// flight (<see cref="HasStopped"/>).
     /// </summary>
     public SignedEightEight Acceleration { get; internal set; }
 
@@ -45,36 +45,30 @@ public sealed class BullEnemyState
     public SignedEightEight AccelerationDelta { get; internal set; }
 
     /// <summary>
-    /// The flight speed, projected by the heading's sine and cosine into the X and Y displacements. It changes only by wrapping
-    /// steps, so a deceleration that overshoots leaves a speed below zero, which the next decelerating update reads as
-    /// stopped (<see cref="HasStopped"/>) before the Bull moves again.
+    /// The flight speed, projected by the heading's sine and cosine into the X and Y displacements: zero or more, and at
+    /// most 2880 256ths of a pixel an update. A flight starts from rest and gains 24, 48, 72 ... 256ths an interval, so a
+    /// speed below the fastest cap of 2815 256ths takes at most one more step, from 2520 to 2880. Braking a flight takes
+    /// away 24 256ths less each interval than the flight gained, so the acceleration runs out with the speed still above
+    /// zero; an immune shot's kick, six pixels an update braked from a pixel an interval, runs out of acceleration at 304
+    /// 256ths, or, kicked while the Bull waits and so with no braking change, brakes a whole pixel an interval onto
+    /// exactly zero.
     /// </summary>
     public SignedEightEight Speed { get; internal set; }
 
-    /// <summary>
-    /// Whether flight is still below <see cref="MaxSpeed"/>, read from the wrapping difference as signed, as the game
-    /// does; an overshooting update is not clamped.
-    /// </summary>
-    internal bool IsBelowMaximumSpeed => (Speed - MaxSpeed).IsNegative;
+    /// <summary>Whether flight is still below <see cref="MaxSpeed"/>; an overshooting update is not clamped.</summary>
+    internal bool IsBelowMaximumSpeed => Speed < MaxSpeed;
 
-    /// <summary>Whether a decelerating update stops the flight: the speed or the acceleration is zero or has gone below zero.</summary>
-    internal bool HasStopped =>
-        Speed.IsZero || Speed.IsNegative || Acceleration.IsZero || Acceleration.IsNegative;
+    /// <summary>Whether a decelerating update stops the flight: the speed is zero or the acceleration has run out.</summary>
+    internal bool HasStopped => Speed.IsZero || Acceleration <= SignedEightEight.Zero;
 
-    /// <summary>
-    /// An accelerating interval expiry: the acceleration grows by its delta, then the speed grows by the acceleration,
-    /// each sum wrapping as the game's does.
-    /// </summary>
+    /// <summary>An accelerating interval expiry: the acceleration grows by its delta, then the speed grows by the acceleration.</summary>
     internal void Accelerate()
     {
         Acceleration += AccelerationDelta;
         Speed += Acceleration;
     }
 
-    /// <summary>
-    /// A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the
-    /// acceleration, each difference wrapping as the game's does, so an overshoot leaves a value below zero.
-    /// </summary>
+    /// <summary>A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the acceleration.</summary>
     internal void Decelerate()
     {
         Acceleration -= AccelerationDelta;

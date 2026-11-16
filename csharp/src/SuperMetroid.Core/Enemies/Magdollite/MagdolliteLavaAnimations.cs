@@ -15,10 +15,6 @@ internal static class MagdolliteLavaAnimations
     internal static AnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(
         new Dictionary<MagdolliteLavaSegment, AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>[]>
     {
-        [P.SharedDelete] =
-        [
-            Cue(new(K.Delete)),
-        ],
         [P.Left] =
         [
             Show(EnemyProjectileFrameId.MagdolliteLavaLeft, 1),
@@ -30,16 +26,16 @@ internal static class MagdolliteLavaAnimations
         [P.Shot] =
         [
             Cue(new(K.SpawnDrops)),
+            Cue(new(K.Delete)),
         ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>> StartingAt { get; } = new Dictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>>
     {
-        [P.SharedDelete] = new([new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
         [P.Left] = new([new(P.Left, 0, 1, 1)], AnimationEnd.Holds),
         [P.Right] = new([new(P.Right, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Shot] = new([new(P.Shot, 0, 1, 1), new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Shot] = new([new(P.Shot, 0, 2, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

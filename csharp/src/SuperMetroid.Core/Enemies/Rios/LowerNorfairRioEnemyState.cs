@@ -2,8 +2,8 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The state of the Lower Norfair Rio. This variant shares the physical parent/follower layout with the Norfair Rio but
-/// uses a visibility switch of its own.
+/// The state of a Lower Norfair Rio parent; its flame follower keeps a <see cref="LowerNorfairRioFollowerState"/>. This
+/// variant shares the physical parent/follower layout with the Norfair Rio but uses a visibility switch of its own.
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
@@ -28,9 +28,6 @@ public sealed class LowerNorfairRioEnemyState
     /// <summary>Signed 1/256-pixel velocity in room pixels per update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The current behaviour, which the parent and its flame follower both run.</summary>
+    /// <summary>The parent's current behaviour.</summary>
     public LowerNorfairRioAction Action { get; internal set; }
-
-    /// <summary>Whether this is the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
-    public bool IsFollower { get; internal set; }
 }

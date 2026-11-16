@@ -20,6 +20,13 @@ internal static class ModuleInventory
         string mapText = File.ReadAllText(Path.Combine(root, "csharp", ModuleMap.FileName));
         ModuleMap map = ModuleMap.Parse(mapText, root);
         var files = new SortedDictionary<string, FileEntry>(StringComparer.Ordinal);
+        // Each file is described from the first project compiling it; binding those trees on every processor first
+        // leaves the serial walk below only the bound answers to read.
+        var first = new HashSet<string>(StringComparer.Ordinal);
+        SemanticModels.Bind(solution.Projects.SelectMany(project => project.Compilation.SyntaxTrees
+            .Where(tree => map.Relative(tree.FilePath) is { } relative && !relative.Contains("/obj/", StringComparison.Ordinal) &&
+                !relative.StartsWith("test-temp/", StringComparison.Ordinal) && first.Add(relative))
+            .Select(tree => (project.Compilation, tree))));
         foreach (var (project, compilation) in solution.Projects)
         {
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
@@ -75,14 +82,13 @@ internal static class ModuleInventory
         string? ns = root.DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString();
         string self = ModuleKey(map, relative, ns);
         int? layer = map.CoreLayerOf(ns);
-        SemanticModel model = compilation.GetSemanticModel(tree);
         var dependsOn = new SortedSet<string>(StringComparer.Ordinal);
         foreach (SimpleNameSyntax name in root.DescendantNodes().OfType<SimpleNameSyntax>())
         {
             if (name.IsPartOfStructuredTrivia() || name.FirstAncestorOrSelf<UsingDirectiveSyntax>() is not null ||
                 name.FirstAncestorOrSelf<BaseNamespaceDeclarationSyntax>() is { } declaration && declaration.Name.Span.Contains(name.Span))
                 continue;
-            ISymbol? symbol = model.GetSymbolInfo(name).Symbol;
+            ISymbol? symbol = SemanticModels.At(compilation, tree, name).GetSymbolInfo(name).Symbol;
             INamedTypeSymbol? type = symbol as INamedTypeSymbol ?? symbol?.ContainingType;
             if (type is null)
                 continue;

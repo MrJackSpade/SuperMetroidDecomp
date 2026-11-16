@@ -8,8 +8,6 @@ internal enum BullSegment
 {
     /// <summary>The normal animation.</summary>
     Normal,
-    /// <summary>The shot animation.</summary>
+    /// <summary>The quick cycle of its poses an immune shot sets off.</summary>
     Shot,
-    /// <summary>The shot loop animation.</summary>
-    ShotLoop,
 }

@@ -32,8 +32,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case PlatformCueKind.MoveLeft:
-                // The ordinary and duplicate move-left cues are equivalent: both publish leftward horizontal
-                // movement before the next frame.
                 SetPlatformHorizontalMovementFromCue(place, PlatformHorizontalMovement.Left);
                 break;
             case PlatformCueKind.MoveRight:
@@ -311,7 +309,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, PlatformAnimations.StartingWith(segment));
     }
 
-    /// <summary>Runs the four equivalent movement cues.</summary>
+    /// <summary>Sets the direction main AI moves the platform, <paramref name="movement"/>, as a movement cue asks.</summary>
     private static void SetPlatformHorizontalMovementFromCue(
         RoomEnemyPlace place,
         PlatformHorizontalMovement movement)
@@ -358,8 +356,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>
-    /// The frozen Tripper's frame. The frozen draw tests the complete X-movement value for zero: every nonzero value shows
-    /// the right-moving frame, including values outside the normal direction range.
+    /// The frozen Tripper's frame: the left-moving frame while it moves left, the right-moving frame while it moves right.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
         direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;

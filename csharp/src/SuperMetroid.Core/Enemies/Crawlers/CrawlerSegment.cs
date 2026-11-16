@@ -1,83 +1,43 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations (#641): one segment per crawl, in authored order.
 /// Their steps are <see cref="CrawlerAnimations"/>.
 /// </summary>
 internal enum CrawlerSegment
 {
-    /// <summary>The Sciser upside right animation.</summary>
+    /// <summary>The Sciser crawling with its upper side right.</summary>
     SciserUpsideRight,
-    /// <summary>The loop.</summary>
-    SciserUpsideRightLoop,
-    /// <summary>The Sciser upside left animation.</summary>
+    /// <summary>The Sciser crawling with its upper side left.</summary>
     SciserUpsideLeft,
-    /// <summary>The loop.</summary>
-    SciserUpsideLeftLoop,
-    /// <summary>The Sciser upside down animation.</summary>
+    /// <summary>The Sciser crawling with its upper side down.</summary>
     SciserUpsideDown,
-    /// <summary>The loop.</summary>
-    SciserUpsideDownLoop,
-    /// <summary>The Sciser upside up animation.</summary>
+    /// <summary>The Sciser crawling with its upper side up.</summary>
     SciserUpsideUp,
-    /// <summary>The loop.</summary>
-    SciserUpsideUpLoop,
-    /// <summary>The zero upside right animation.</summary>
+    /// <summary>The Zero crawling with its upper side right.</summary>
     ZeroUpsideRight,
-    /// <summary>The loop.</summary>
-    ZeroUpsideRightLoop,
-    /// <summary>The zero upside left animation.</summary>
+    /// <summary>The Zero crawling with its upper side left.</summary>
     ZeroUpsideLeft,
-    /// <summary>The loop.</summary>
-    ZeroUpsideLeftLoop,
-    /// <summary>The zero upside down animation.</summary>
+    /// <summary>The Zero crawling with its upper side down.</summary>
     ZeroUpsideDown,
-    /// <summary>The loop.</summary>
-    ZeroUpsideDownLoop,
-    /// <summary>The zero upside up animation.</summary>
+    /// <summary>The Zero crawling with its upper side up.</summary>
     ZeroUpsideUp,
-    /// <summary>The loop.</summary>
-    ZeroUpsideUpLoop,
-    /// <summary>The Viola upside down animation.</summary>
-    ViolaUpsideDown,
-    /// <summary>The Viola upside up animation.</summary>
-    ViolaUpsideUp,
-    /// <summary>The Viola upside right animation.</summary>
-    ViolaUpsideRight,
-    /// <summary>The Viola upside left animation.</summary>
-    ViolaUpsideLeft,
-    /// <summary>The Viola normal animation.</summary>
+    /// <summary>The Viola's crawl, the same on every surface.</summary>
     ViolaNormal,
-    /// <summary>The h Zoomer upside right animation.</summary>
+    /// <summary>The orange Zoomer crawling with its upper side right.</summary>
     OrangeZoomerUpsideRight,
-    /// <summary>The loop.</summary>
-    OrangeZoomerUpsideRightLoop,
-    /// <summary>The h Zoomer upside left animation.</summary>
+    /// <summary>The orange Zoomer crawling with its upper side left.</summary>
     OrangeZoomerUpsideLeft,
-    /// <summary>The loop.</summary>
-    OrangeZoomerUpsideLeftLoop,
-    /// <summary>The h Zoomer upside down animation.</summary>
+    /// <summary>The orange Zoomer crawling with its upper side down.</summary>
     OrangeZoomerUpsideDown,
-    /// <summary>The loop.</summary>
-    OrangeZoomerUpsideDownLoop,
-    /// <summary>The h Zoomer upside up animation.</summary>
+    /// <summary>The orange Zoomer crawling with its upper side up.</summary>
     OrangeZoomerUpsideUp,
-    /// <summary>The loop.</summary>
-    OrangeZoomerUpsideUpLoop,
-    /// <summary>The shared upside right animation.</summary>
+    /// <summary>The Zoomer, Zeela or Sova crawling with its upper side right.</summary>
     SharedUpsideRight,
-    /// <summary>The loop.</summary>
-    SharedUpsideRightLoop,
-    /// <summary>The shared upside left animation.</summary>
+    /// <summary>The Zoomer, Zeela or Sova crawling with its upper side left.</summary>
     SharedUpsideLeft,
-    /// <summary>The loop.</summary>
-    SharedUpsideLeftLoop,
-    /// <summary>The shared upside down animation.</summary>
+    /// <summary>The Zoomer, Zeela or Sova crawling with its upper side down.</summary>
     SharedUpsideDown,
-    /// <summary>The loop.</summary>
-    SharedUpsideDownLoop,
-    /// <summary>The shared upside up animation.</summary>
+    /// <summary>The Zoomer, Zeela or Sova crawling with its upper side up.</summary>
     SharedUpsideUp,
-    /// <summary>The loop.</summary>
-    SharedUpsideUpLoop,
 }

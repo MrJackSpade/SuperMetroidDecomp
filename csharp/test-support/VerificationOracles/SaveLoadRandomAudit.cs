@@ -27,7 +27,7 @@ internal static class SaveLoadRandomAudit
                 Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10,
             };
             var saves = new SaveSlotStore(SaveMapPresentationFixture.Create());
-            saves.SaveSlot(0, save);
+            saves.SaveSlot(SaveSlot.A, save);
             var game = new SuperMetroidGame(saves);
             bindPresentation(game);
             bool insertedWait = false;

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
@@ -10,8 +11,14 @@ public sealed class MorphBallEyeEnemyState
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal MorphBallEyeEnemyState(MorphBallEyeAction action) => Action = action;
 
-    /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
+    /// <summary>The animation the enemy plays and where it stands in it (#1600): the eyelid's or the mount's.</summary>
     internal AnimationPlayback<MorphBallEyeSegment> Playback { get; set; }
+
+    /// <summary>
+    /// The pose the open eye looks along while it tracks Samus (#2070), chosen from its angle on each update it tracks; null
+    /// while its eyelid or its mount animation shows instead.
+    /// </summary>
+    internal EnemyFrameId? Aim { get; set; }
 
     /// <summary>
     /// Whether the eye is activated: set once the beam object has initialized, cleared once

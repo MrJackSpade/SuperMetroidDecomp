@@ -18,7 +18,7 @@ internal static class BootDemoSetCountVerification
     {
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
         saveRam.SetGameCompleted(true);
-        AssertTrue(saveRam.ReadSlot(0) is null && saveRam.ReadSlot(1) is null && saveRam.ReadSlot(2) is null,
+        AssertTrue(saveRam.ReadSlot(SaveSlot.A) is null && saveRam.ReadSlot(SaveSlot.B) is null && saveRam.ReadSlot(SaveSlot.C) is null,
             "fixture has no valid slot");
 
         var game = new SuperMetroidGame(saveRam);
@@ -29,7 +29,7 @@ internal static class BootDemoSetCountVerification
             "boot with no valid slot plays the three ordinary demo sets");
 
         // Saving creates a valid slot. The marker stays overwritten and the boot count stays latched.
-        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
+        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot());
         AssertEqual("madadameyohn", ReadMarker(saveRam),
             "a later save does not restore the completion marker");
         AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, game.Session.DemoPlaylist,

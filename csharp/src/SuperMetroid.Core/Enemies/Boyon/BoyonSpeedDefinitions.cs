@@ -9,11 +9,8 @@ public static class BoyonSpeedDefinitions
     /// <summary>The sample every index at or past <see cref="StoredSampleCount"/> reads: the curve's saturated height.</summary>
     public const int SaturatedSample = 255;
 
-    /// <summary>The largest multiplier a bounce curve takes: the multiply reads it whole, so a larger one is rejected.</summary>
-    public const int LargestMultiplier = 255;
-
-    /// <summary>The largest scaled sample, <see cref="SaturatedSample"/> times <see cref="LargestMultiplier"/>.</summary>
-    public const int LargestScaledSample = SaturatedSample * LargestMultiplier;
+    /// <summary>The largest scaled sample, <see cref="SaturatedSample"/> times <see cref="LargestArcMultiplier"/>.</summary>
+    public const int LargestScaledSample = SaturatedSample * LargestArcMultiplier;
 
     /// <summary>
     /// The highest arc a Boyon bounces, in whole pixels: the game's height test agrees with a plain

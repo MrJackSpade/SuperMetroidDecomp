@@ -35,7 +35,7 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 return new CompareResult(true, update + 1);
-            if (!RestsOnHeldFrame(native.Timer, projectile.FrameHold))
+            if (!RestsOnHeldFrame(native.Timer, projectile.FrameHold) && !RestsForGood(projectile.FrameHold))
                 AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
@@ -54,4 +54,11 @@ internal static class NativeEnemyProjectileParity
     /// </summary>
     internal static bool RestsOnHeldFrame(ushort nativeTimer, WrappingCountdown hold) =>
         hold.RawValue == unchecked((ushort)(nativeTimer - NativeHeldFrameDuration));
+
+    /// <summary>
+    /// Whether <paramref name="hold"/> is the timer of a typed animation resting for good (#2068): it starts from zero and
+    /// wraps, past the longest duration a frame can name, while a native list that shows one frame again and again counts
+    /// that frame's leftover duration down and reloads it, a timer nothing reads. The frame is still compared.
+    /// </summary>
+    private static bool RestsForGood(WrappingCountdown hold) => hold.RawValue is 0 or > NativeHeldFrameDuration;
 }

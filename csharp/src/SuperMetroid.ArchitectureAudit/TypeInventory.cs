@@ -181,7 +181,7 @@ internal static class TypeInventory
             foreach (SyntaxReference reference in creator.DeclaringSyntaxReferences)
             {
                 SyntaxNode declaration = reference.GetSyntax();
-                SemanticModel model = compilation.GetSemanticModel(declaration.SyntaxTree);
+                SemanticModel model = SemanticModels.Of(compilation, declaration.SyntaxTree);
                 foreach (BaseObjectCreationExpressionSyntax creation in declaration.DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
                 {
                     if (creation.ArgumentList is not { } arguments ||

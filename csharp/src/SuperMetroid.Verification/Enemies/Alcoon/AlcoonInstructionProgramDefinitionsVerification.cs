@@ -46,7 +46,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState(new SharedRandom());
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices((installedArt ?? InstalledFixtures.EnemyArtwork).Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }, installedBosses: (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses);
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = assets.LevelData });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = assets.LevelData, Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
 
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??
@@ -103,13 +103,9 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             .Select(step => new ReachedPose(step.Program, step.Step))
             .ToHashSet();
         string missed = string.Join(", ", poses.Where(pose => !reachedPoses.Contains(pose)).Select(pose => $"{pose.Program}[{pose.Step}]"));
-        AssertEqual(44, poses.Count, "the Alcoon's programs author 44 poses");
-        AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
-        AssertTrue(poses.Except(reachedPoses).All(pose =>
-                pose.Program is AlcoonSegment.FireLeft or AlcoonSegment.FireRight &&
-                AlcoonAnimations.Segments.Beats(pose.Program)[pose.Step - 1] is AnimationBeat<EnemyFrameId, AlcoonCue>.Event cue &&
-                cue.Raised.Kind == AlcoonCueKind.StartWalking),
-            "native start-walking cues skip the two trailing unreachable poses");
+        // The fire animations end at their start-walking cue (#2061): every authored pose is reachable.
+        AssertEqual(42, poses.Count, "the Alcoon's programs author 42 poses");
+        AssertTrue(poses.SetEquals(reachedPoses), $"real Alcoon reaches every authored pose; missing={missed}");
         Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));
 
         Console.WriteLine(installedArt is null

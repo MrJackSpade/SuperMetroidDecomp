@@ -83,14 +83,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 : GrowingShutterAction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
-        var state = new GrowingShutterEnemyState(place, action)
+        var state = new GrowingShutterEnemyState(action)
         {
             ActivationTimer = settings.ActivationWait,
             ActivationDistance = settings.ActivationDistance,
         };
         place.SetSpeciesState(state);
 
-        state.PlaceSectionOrigins(growsUp);
+        state.PlaceSectionOrigins(place.Position.Y.Whole, growsUp);
         state.GrowthLevel = 0;
 
         state.GrowthSpeed = settings.GrowthSpeed;
@@ -179,13 +179,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         place.Position = place.Position.AdvanceY(state.GrowthSpeed);
-        Position16<RoomPixels> target = state.OriginForLevel() + new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() + GrowingShutterSectionLength);
 
         // The non-negative test returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
-        if ((target - place.Position.Whole).Y >= 0)
+        if (CoordinateAxis.Difference(targetY, place.Position.Y.Whole) >= 0)
             return;
-        FinishGrowingShutterSection(place, state, target, direction: VerticalDirection.Down);
+        FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Down);
     }
 
     /// <summary>Runs the four upward growth stages.</summary>
@@ -199,14 +199,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.PreviousPosition = place.Position.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
-        Position16<RoomPixels> target = state.OriginForLevel() - new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
-        if ((target - place.Position.Whole).Y < 0)
+        int targetY = CoordinateAxis.Wrap(state.OriginYForLevel() - GrowingShutterSectionLength);
+        if (CoordinateAxis.Precedes(targetY, place.Position.Y.Whole))
         {
             CarrySamusWithGrowingShutter(place, state, samus);
             return;
         }
 
-        FinishGrowingShutterSection(place, state, target, direction: VerticalDirection.Up);
+        FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Up);
         CarrySamusWithGrowingShutter(place, state, samus);
     }
 
@@ -233,20 +233,23 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Snaps a completed section, enlarges its collision radius, and selects the next artwork.</summary>
+    /// <summary>
+    /// Snaps a completed section to its target row <paramref name="targetY"/>, enlarges its collision radius, and selects
+    /// the next artwork.
+    /// </summary>
     internal static void FinishGrowingShutterSection(
         RoomEnemyPlace place,
         GrowingShutterEnemyState state,
-        Position16<RoomPixels> target,
+        int targetY,
         VerticalDirection direction)
     {
         bool finalSection = state.GrowthLevel == 3;
-        Position16<RoomPixels> placed = finalSection
-            ? target
-            : target + new Offset16<RoomPixels>(0, direction == VerticalDirection.Up
+        int placedY = finalSection
+            ? targetY
+            : CoordinateAxis.Wrap(targetY + (direction == VerticalDirection.Up
                 ? GrowingShutterIntermediateInset
-                : -GrowingShutterIntermediateInset);
-        place.Position = place.Position.WithWholeY(placed.Y);
+                : -GrowingShutterIntermediateInset));
+        place.Position = place.Position.WithWholeY(placedY);
         state.GrowthLevel += 1;
 
         if (finalSection)
@@ -424,10 +427,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Definition {place.DefinitionId} does not use vertical-shutter initialization.");
         }
 
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
+        ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();
+        var state = new VerticalShutterEnemyState(InitialAction(settings.TriggerMode));
         place.SetSpeciesState(state);
 
-        ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
@@ -471,11 +474,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        // The initial action calls through its parameter table during this very AI
-        // call; it does not spend a frame setting the selected wait action.
-        // Keep Initial live until activation writes the moving action, as the game does.
-        switch (state.Action == VerticalShutterAction.Initial
-            ? SelectInitialVerticalShutterAction(state) : state.Action)
+        switch (state.Action)
         {
             case VerticalShutterAction.WaitForTimer:
                 state.ActionTimer = state.ActionTimer.Decrement().Remaining;
@@ -519,7 +518,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunVerticalShutterStopped(place, state, camera, end: VerticalDirection.Down);
                 break;
 
-            case VerticalShutterAction.Initial:
             default:
                 throw new InvalidDataException(
                     $"Vertical shutter has no behaviour for action {state.Action}.");
@@ -534,18 +532,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Selects the vertical population's timer, proximity, activation, or idle initial action.</summary>
-    internal static VerticalShutterAction SelectInitialVerticalShutterAction(VerticalShutterEnemyState state)
+    /// <summary>
+    /// The action a vertical shutter whose trigger is <paramref name="triggerMode"/> starts in: waiting for its timer or for
+    /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
+    /// initialization installs it once and the first update already runs it.
+    /// </summary>
+    internal static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
     {
-        return state.TriggerMode switch
-        {
-            ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
-            ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
-            ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
-            _ => throw new InvalidDataException($"Vertical shutter trigger mode {state.TriggerMode} is invalid."),
-        };
-    }
+        ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
+        ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
+        ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
+        ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
+        _ => throw new InvalidDataException($"Vertical shutter trigger mode {triggerMode} is invalid."),
+    };
 
     /// <summary>Starts movement in the primary vertical direction and queues on-screen audio.</summary>
     private void ActivateVerticalShutter(

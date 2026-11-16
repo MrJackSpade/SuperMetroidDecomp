@@ -36,8 +36,6 @@ internal sealed class EyeDoorBehavior
 
         RoomEnemyProjectileKind kind = request.Definition switch
         {
-            EyeDoorProjectileDefinition.Projectile =>
-                RoomEnemyProjectileKind.EyeDoorProjectile,
             EyeDoorProjectileDefinition.Sweat =>
                 RoomEnemyProjectileKind.EyeDoorSweat,
             EyeDoorProjectileDefinition.ScatteredSmoke or EyeDoorProjectileDefinition.CenteredSmoke =>
@@ -53,12 +51,6 @@ internal sealed class EyeDoorBehavior
         Position16<RoomBlocks> block = request.RoomObjectBlock;
         switch (request.Definition)
         {
-            case EyeDoorProjectileDefinition.Projectile:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Shot, graphics: default);
-                projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial));
-                InitializeEyeDoorProjectile(projectile, request, block, system);
-                return;
-
             case EyeDoorProjectileDefinition.Sweat:
                 EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: default);
                 projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling));
@@ -81,6 +73,22 @@ internal sealed class EyeDoorBehavior
                 throw new InvalidOperationException(
                     $"Eye-door projectile definition {request.Definition} escaped its initializer step.");
         }
+    }
+
+    /// <summary>
+    /// Spawns the eye's attack with room graphics, placed on the side the eye faces and keeping the eye's door, which
+    /// <paramref name="system"/> records opened.
+    /// </summary>
+    public void SpawnEyeDoorAttack(EyeDoorAttackRequest request, SharedGameState system)
+    {
+        Ensure.NotNull(system);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        if (projectile is null)
+            return; // Spawning fails when the room has no place left for an enemy projectile.
+
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: default);
+        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial));
+        InitializeEyeDoorProjectile(projectile, request, system);
     }
 
     /// <summary>
@@ -129,8 +137,7 @@ internal sealed class EyeDoorBehavior
     /// </summary>
     private static void InitializeEyeDoorProjectile(
         EnemyProjectile projectile,
-        EyeDoorProjectileRequest request,
-        Position16<RoomBlocks> block,
+        EyeDoorAttackRequest request,
         SharedGameState doors)
     {
         Offset16<RoomPixels> origin = request.Facing switch
@@ -139,9 +146,8 @@ internal sealed class EyeDoorBehavior
             EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightShotOrigin,
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
-        projectile.State = new EyeDoorShotState(request.Door ?? throw new InvalidOperationException(
-            $"The eye-door attack at block {request.RoomObjectBlock} was spawned without its door."), doors);
-        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
+        projectile.State = new EyeDoorShotState(request.Door, doors);
+        projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + origin);
     }
 
     /// <summary>Places sweat below the eye block and launches it toward the side the eye faces.</summary>

@@ -15,7 +15,6 @@ internal static class MorphBallEyeNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<MorphBallEyeSegment>[] Entries =
     [
-        new NativeProgramEntry<MorphBallEyeSegment>(MorphBallEyeSegment.Active, 0x8fac),
         new NativeProgramEntry<MorphBallEyeSegment>(MorphBallEyeSegment.FacingRightDeactivating, 0x8ff0),
         new NativeProgramEntry<MorphBallEyeSegment>(MorphBallEyeSegment.FacingRightClosed, 0x8ffc),
         new NativeProgramEntry<MorphBallEyeSegment>(MorphBallEyeSegment.FacingLeftDeactivating, 0x9002),
@@ -28,4 +27,9 @@ internal static class MorphBallEyeNativeListAddresses
         new NativeProgramEntry<MorphBallEyeSegment>(MorphBallEyeSegment.MountFacingUp, 0x904a),
     ];
 
+    /// <summary>
+    /// The list the cartridge aimed the open eye with (#2070): sixteen ten-update frames in turn order, which the eye
+    /// restarted every update at the frame its angle's sixteenth of the turn numbered, followed by a goto back to the list.
+    /// </summary>
+    internal const ushort AimList = 0x8fac;
 }

@@ -71,6 +71,8 @@ internal static class CeresDestructionSceneDefinitions
         internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
         internal const int ZebesHoldFrames = 64;
+        /// <summary>Updates each step of the cinematic's slow fades takes: one level every second update.</summary>
+        internal const int FadeUpdatesPerStep = 2;
     }
 
     /// <summary>

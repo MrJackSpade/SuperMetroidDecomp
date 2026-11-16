@@ -38,7 +38,7 @@ internal static class EnemyFireballLaunchDefinitionsVerification
         {
             for (int index = 0; index < 8; index++)
             {
-                var settings = (FuneNamiheSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Fune, PopulationWords.Parameters(0, (high << 8) | index));
+                var settings = (FuneSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Fune, PopulationWords.Parameters(0, (high << 8) | index));
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((left ? 0x86deb6 : 0x86deb8) + index * 4));
                 AssertEqual(expected, left ? settings.LaunchSpeed.Negated().RawValue : settings.LaunchSpeed.RawValue,
                     left ? "NamiFune native negative horizontal speed and high-byte aliases" : "NamiFune native positive horizontal speed and high-byte aliases");

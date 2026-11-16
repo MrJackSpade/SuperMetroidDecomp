@@ -18,13 +18,8 @@ internal static class HibashiAnimationsVerification
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
                 (word, operands, cue, at) =>
                 {
-                    var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     // A rising cue's native routine is the step's own: the cue applies the step the routine's place names.
-                    HibashiEruptionStep? expectedStep = instruction.Kind == HibashiCueKind.EruptionStep
-                        ? HibashiDefinitions.EruptionSteps[instruction.Value]
-                        : null;
-                    AssertEqual(expectedStep, cue.Step, $"{at}: eruption step");
+                    AssertEqual(Instructions[word].Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }));
         Console.WriteLine($"  Hibashi animations: {Entries.Length} segments ({beats} beats) and {HibashiAnimations.StartingAt.Count} animations match bank $A6.");

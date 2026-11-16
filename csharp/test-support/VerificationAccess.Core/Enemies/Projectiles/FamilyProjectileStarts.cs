@@ -171,11 +171,11 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.MetareeParticleDownRight or RoomEnemyProjectileKind.MetareeParticleUpRight or
             RoomEnemyProjectileKind.MetareeParticleDownLeft or RoomEnemyProjectileKind.MetareeParticleUpLeft =>
             new SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment.Metaree),
-        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustSegment.Footsteps),
-        RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustSegment.TourianDescentDust),
+        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)),
+        RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
             new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallEnergy),
-        RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacProjectileSegment.LeftFacingUp),
+        RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacSpikeDirection.LeftFacingUp),
         RoomEnemyProjectileKind.NuclearWaffleBody => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial),
         RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Front),
         RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Middle),
@@ -184,7 +184,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.EyeDoorProjectile => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial),
         RoomEnemyProjectileKind.EyeDoorSweat => new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling),
         RoomEnemyProjectileKind.EyeDoorSmoke => new MiscDustProjectileAnimation(MiscDustProjectileSegment.SmallExplosion),
-        RoomEnemyProjectileKind.SaveStationElectricity => new SaveStationElectricityAnimation(SaveStationElectricitySegment.Start),
+        RoomEnemyProjectileKind.SaveStationElectricity => new SaveStationElectricityAnimation(),
         RoomEnemyProjectileKind.DownwardGateMoving => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Closed),
         RoomEnemyProjectileKind.NoobTubeCrack => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack)),

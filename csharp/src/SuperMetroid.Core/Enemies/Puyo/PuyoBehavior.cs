@@ -90,8 +90,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the grounded Puyo.</summary>
     private void RunGroundedPuyo(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
-        // Decrementing and then testing for a non-negative count means a zero cooldown waits one frame and then wraps to 65535
-        // before hopping. This is not equivalent to a conventional "if timer != 0" test.
+        // The cooldown counts down before it is tested: a cooldown of N keeps the Puyo grounded for N updates and it hops
+        // on the next, so a zero cooldown hops at once.
         if (--state.HopCooldownTimer >= 0)
             return;
 
@@ -141,39 +141,32 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         CalculateInitialPuyoHopSpeed(state);
     }
 
-    /// <summary>Runs the integration loop without simplifying its odd units.</summary>
+    /// <summary>
+    /// Finds where the hop's rise starts on the speed curve: stepping from the curve's start by the hop's launch search step,
+    /// the first place at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum past the hop's
+    /// height. The rise's half and three-quarter places, which pace its poses, are shares of that place. A search that steps
+    /// nowhere is refused, and one that runs off the curve fails when its speed is read.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The hop's search steps nowhere or runs off the curve.</exception>
     internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
-        int timeAccumulator = 0;
-        int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
-        int xSpeed = hop.XSpeed;
-        // The search sums distances in 256ths of a pixel, so the jump height is compared in the same units.
-        int jumpHeight = UnsignedEightEight.FromParts(whole: hop.JumpHeight, fraction: 0);
-
-        for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
+        if (hop.LaunchSearchStep <= QuadraticSpeedCurvePlace.Start)
+            throw new InvalidDataException($"Puyo hop {state.CurrentHop} has no launch search step.");
+        SignedSixteenSixteen height = SignedSixteenSixteen.FromWholePixels(hop.JumpHeight);
+        QuadraticSpeedCurvePlace place = QuadraticSpeedCurvePlace.Start;
+        SignedSixteenSixteen risen = SignedSixteenSixteen.Zero;
+        do
         {
-            timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
-            QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator).Speed;
-
-            // Summing each mark's coarse speed, in 256ths of a pixel, gives the 1/256-pixel distance estimate used only to
-            // find the initial curve mark.
-            distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
-                curveSpeed.CoarseToward(EnemySpeedSign.Positive));
-            if (!WrappingCounter.IsBehind(jumpHeight, distanceAccumulator))
-                continue;
-
-            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator);
-            state.Falling = false;
-            state.InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator >> 1);
-            state.InitialYSpeedCurvePlaceThreeQuarters =
-                QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(timeAccumulator >> 2) + state.InitialYSpeedCurvePlaceHalf;
-            return;
+            place += hop.LaunchSearchStep;
+            risen += SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.Speed.CoarseToward(EnemySpeedSign.Positive));
         }
+        while (risen <= height);
 
-        throw new InvalidDataException(
-            $"Puyo hop {state.CurrentHop} never reached " +
-            "its authored jump-height threshold.");
+        state.YSpeedCurvePlace = place;
+        state.Falling = false;
+        state.InitialYSpeedCurvePlaceHalf = place.DividedBy(2);
+        state.InitialYSpeedCurvePlaceThreeQuarters = place.DividedBy(4) + state.InitialYSpeedCurvePlaceHalf;
     }
 
     /// <summary>The definition of the hop <paramref name="state"/> is making.</summary>
@@ -318,11 +311,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepAirbornePlace(Hop(state).CurveStep);
 
-        // X speed is authored as 1/256 pixels, but the Japanese and North American release moves it by the whole pixels only
+        // X speed is authored with a fraction, but the Japanese and North American release moves it by the whole pixels only
         // and zeroes the subspeed; only the European release uses the fraction. The giant
         // hop's 1.25 therefore moves exactly one pixel per frame either way.
-        int xSpeed = Hop(state).XSpeed;
-        int whole = EightEight.WholeOf(xSpeed);
+        int whole = Hop(state).XSpeed.WholePixels;
         if (state.Direction == PuyoDirection.Left)
             whole = -whole;
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(whole);

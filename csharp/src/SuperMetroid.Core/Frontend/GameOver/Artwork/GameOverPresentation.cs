@@ -21,13 +21,13 @@ public sealed class GameOverPresentation
         CursorFrameDuration = placements.CursorFrameDuration;
     }
 
-    /// <summary>Shared drawing origin of the Baby and egg compositions in screen pixels, with both coordinates in 0-255.</summary>
+    /// <summary>Shared drawing origin of the Baby and egg compositions on the screen, in pixels.</summary>
     public Offset16<ScreenPixels> BabyAnchor { get; }
-    /// <summary>Missile-cursor horizontal screen coordinate in pixels, shared by both answers and bounded to 0-255.</summary>
+    /// <summary>The missile cursor's horizontal place on the screen, in pixels, shared by both answers.</summary>
     public int CursorX { get; }
-    /// <summary>Missile-cursor vertical screen coordinate in pixels for the Yes answer, bounded to 0-255.</summary>
+    /// <summary>The missile cursor's vertical place on the screen for the Yes answer, in pixels.</summary>
     public int YesCursorY { get; }
-    /// <summary>Missile-cursor vertical screen coordinate in pixels for the No answer, bounded to 0-255.</summary>
+    /// <summary>The missile cursor's vertical place on the screen for the No answer, in pixels.</summary>
     public int NoCursorY { get; }
     /// <summary>Menu updates per frame of the looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }

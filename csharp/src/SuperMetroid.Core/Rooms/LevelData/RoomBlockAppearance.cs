@@ -14,6 +14,9 @@ public readonly record struct RoomBlockAppearance(int Block, BlockMirroring Mirr
     /// </summary>
     private const int EmptyBlock = 255;
 
+    /// <summary>The block set's empty block, unmirrored: a block that shows nothing.</summary>
+    public static RoomBlockAppearance Nothing { get; } = new(EmptyBlock, BlockMirroring.None);
+
     /// <summary>Whether the block shows nothing: the block set's empty block, however it is mirrored (#1610).</summary>
     public bool ShowsNothing => Block == EmptyBlock;
 

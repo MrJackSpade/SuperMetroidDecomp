@@ -102,8 +102,8 @@ internal static class SpacetimeBeamVerification
             "SpaceTime corruption does not rewrite live equipment");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave }));
-        SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
+        saveRam.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave }));
+        SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
             "save retains invalid SpaceTime equipment");
@@ -233,8 +233,8 @@ internal static class SpacetimeBeamVerification
             var restartBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             var restartSaves = new SaveSlotStore(RetailPresentationFixture());
-            restartSaves.SaveSlot(0, CreateResetSnapshot());
-            restartSaves.SelectSlot(0);
+            restartSaves.SaveSlot(SaveSlot.A, CreateResetSnapshot());
+            restartSaves.SelectSlot(SaveSlot.A);
             var game = CreateRetailGameFixture(
                 restartSaves,
                 new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = skipOpening },

@@ -6,16 +6,12 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 internal enum SkulteraSegment
 {
-    /// <summary>The swimming left animation.</summary>
+    /// <summary>The swim to the left, looped.</summary>
     SwimmingLeft,
-    /// <summary>The loop.</summary>
-    SwimmingLeftLoop,
     /// <summary>The turning right animation.</summary>
     TurningRight,
-    /// <summary>The swimming right animation.</summary>
+    /// <summary>The swim to the right, looped.</summary>
     SwimmingRight,
-    /// <summary>The loop.</summary>
-    SwimmingRightLoop,
     /// <summary>The turning left animation.</summary>
     TurningLeft,
 }

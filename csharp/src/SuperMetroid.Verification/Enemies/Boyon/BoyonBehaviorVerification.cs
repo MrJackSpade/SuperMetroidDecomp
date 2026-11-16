@@ -72,10 +72,7 @@ internal static class BoyonBehaviorVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(BoyonSpeedDefinitions.LargestJumpHeight * 256 + 1) },
             "an arc above 128 pixels is refused");
         foreach (int multiplier in new[] { 0, BoyonSpeedDefinitions.LargestArcMultiplier + 1 })
-        {
-            var state = new BoyonEnemyState { SpeedMultiplier = multiplier, JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(0x3000) };
-            AssertThrows<ArgumentOutOfRangeException>(() => BoyonBehavior.DeriveBoyonArcBaseline(state), $"an arc derived with multiplier {multiplier} is refused");
-        }
+            AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { SpeedMultiplier = multiplier }, $"a Boyon with multiplier {multiplier} is refused");
         Console.WriteLine($"  Boyon arc baseline: {derivations} derivations end at the original's entry and distance.");
     }
 

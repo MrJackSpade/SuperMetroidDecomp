@@ -147,7 +147,7 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(LoadStationDefinitions.CeresElevator), "Ceres has no file-select map anchor");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
-        SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(0) ??
+        SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(SaveSlot.A) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
@@ -173,9 +173,9 @@ internal static class MapLoadAnchorsVerification
             var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = station, Health = 99, MaxHealth = 99 };
             snapshot.Progress.SetAreaMap(station.Area, acquired: true);
             snapshot.Progress.UsedStations.Add(station);
-            saves.SaveSlot(0, snapshot);
+            saves.SaveSlot(SaveSlot.A, snapshot);
             byte[] before = ReadSram();
-            var slot = saves.ReadSlot(0);
+            var slot = saves.ReadSlot(SaveSlot.A);
             var native = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog, MenuSheetFixtures.For(catalog));
             var compiled = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), slot, 0, catalog, MenuSheetFixtures.For(catalog));
             // Area-specific expanding-window durations differ. Compare every

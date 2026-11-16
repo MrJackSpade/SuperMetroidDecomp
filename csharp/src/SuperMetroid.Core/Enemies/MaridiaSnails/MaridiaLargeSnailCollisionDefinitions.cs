@@ -3,10 +3,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Physical collision for Oum's 30 frames. Every frame
-/// has exactly one component at (0,0); only its hitbox-list
-/// changes. The editable sprite pieces and the three reaction identities are
-/// intentionally separate from this catalog.
+/// The hitboxes of each of Oum's 30 frames, which change as it rolls and attacks, each with the reaction it gives;
+/// they are independent of the pictures the frames show.
 /// </summary>
 internal static class MaridiaLargeSnailCollisionDefinitions
 {

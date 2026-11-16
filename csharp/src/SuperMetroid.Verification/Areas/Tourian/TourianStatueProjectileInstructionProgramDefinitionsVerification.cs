@@ -48,6 +48,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             TourianStatueProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork);
         enemies.VerificationServices().NextRandom = () => 4;
+        enemies.VerificationServices().FixedTourianStatueRoom = new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0);
 
         enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         EnemyProjectile eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);

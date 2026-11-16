@@ -116,6 +116,26 @@ public sealed class RoomLevelData
         new([], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
 
     /// <summary>
+    /// A room whose blocks only collide (#2088): each block, row by row, collides as <paramref name="collision"/> gives,
+    /// shows nothing and has no behaviour; nothing lies past the grid and the room has no doors. The opening's collision
+    /// rooms, which it draws as pictures of its own, are built with it.
+    /// </summary>
+    /// <param name="size">Room size in 16-pixel blocks; both are positive.</param>
+    /// <param name="collision">How each block collides, exactly width times height entries in row-major order.</param>
+    /// <exception cref="ArgumentException"><paramref name="collision"/> does not hold one entry per room block.</exception>
+    public static RoomLevelData CollisionOnly(Extent16<RoomBlocks> size, ReadOnlySpan<RoomCollisionType> collision)
+    {
+        var terrain = new RoomTerrainBlock[collision.Length];
+        for (int block = 0; block < terrain.Length; block++)
+            terrain[block] = new RoomTerrainBlock(RoomBlockAppearance.Nothing, collision[block]);
+        var behaviors = new RoomBlockBehavior[collision.Length];
+        behaviors.AsSpan().Fill(RoomBlockBehavior.None);
+        var background = new RoomBlockAppearance[collision.Length];
+        background.AsSpan().Fill(RoomBlockAppearance.Nothing);
+        return new(size, new RoomLevelPlanes(terrain, behaviors, background), NothingBeyondGrid(), []);
+    }
+
+    /// <summary>
     /// Room size in 16-pixel blocks. The width is every row's index stride; the height comes from the room's level, which
     /// may hold more rows than the room's screens show.
     /// </summary>

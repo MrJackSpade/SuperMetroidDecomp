@@ -206,7 +206,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
-        bool withinVerticalBand = CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= -96;
+        bool withinVerticalBand = CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= -YardMotionDefinitions.HidingReachAbove;
         SamusFacingDirection samusFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool samusLookingAtYard = place.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == SamusFacingDirection.Left
@@ -376,7 +376,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int next = state.TurnTransitionDisableCounter + 1;
-        if (next >= 16)
+        if (next >= YardMotionDefinitions.TurnSuppressionPasses)
         {
             state.TurnTransitionDisabled = false;
             return;
@@ -430,7 +430,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, state.AirborneVelocity.Y))
         {
             int wholeY = state.AirborneVelocity.Y.WholePixels;
-            if (wholeY is >= 0 and < 3)
+            if (wholeY is >= 0 and < YardMotionDefinitions.LandingWholeSpeedLimit)
             {
                 LandYard(place, state, samus);
                 return;
@@ -463,9 +463,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SetYardAirborneLists(place, state);
         }
 
-        // Yard deliberately tail-calls the common crawler initializer after landing, but
-        // retains its own state and main AI. Reproduce only its velocity: the live crawl
-        // speed on both axes, the horizontal one reversed for a block on Yard's right.
+        // After landing, Yard starts crawling as a new crawler does, but keeps its own state and main AI. Only the
+        // crawler's starting velocity carries over: the live crawl speed on both axes, the horizontal one reversed for
+        // a block on Yard's right.
         state.BlockSide = state.AirborneFacingDirection == YardAirborneFacing.Right
             ? CrawlerSurfaceOrientation.UpsideLeft
             : CrawlerSurfaceOrientation.UpsideRight;

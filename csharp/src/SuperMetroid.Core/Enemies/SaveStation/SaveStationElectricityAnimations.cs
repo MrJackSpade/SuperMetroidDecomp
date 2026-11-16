@@ -16,9 +16,6 @@ internal static class SaveStationElectricityAnimations
     internal static AnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<SaveStationElectricitySegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.Start] =
-        [
-        ],
         [P.Cycle] =
         [
             Show(EnemyProjectileFrameId.SaveStationElectricityStartFirst, 1),
@@ -33,14 +30,11 @@ internal static class SaveStationElectricityAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>> StartingAt { get; } = new Dictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>
-    {
-        [P.Start] = new([new(P.Cycle, 0, 8, 20), new(P.Cycle, 8, 1, 1)], AnimationEnd.Holds),
-    };
+    /// <summary>No animation starts at a segment: the electricity's one animation is started by name (#2061).</summary>
+    internal static IReadOnlyDictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>> StartingAt { get; } = new Dictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>();
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SaveStationElectricitySegment> StartingWith(SaveStationElectricitySegment segment) => StartingAt[segment];
+    /// <summary>The electricity's discharge (#2061): twenty eight-pose cycles, then the deletion.</summary>
+    internal static Animation<SaveStationElectricitySegment> Discharge { get; } = new([new(P.Cycle, 0, 8, 20), new(P.Cycle, 8, 1, 1)], AnimationEnd.Holds);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

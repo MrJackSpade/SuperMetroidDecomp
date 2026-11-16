@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <summary>File-select phases, including combined data-management steps and explicit frame-wait continuations.</summary>
 public enum FileSelectPhase
 {
-    /// <summary>Brighten the initialized screen until its brightness reaches 15.</summary>
+    /// <summary>Brighten the initialized screen until it is fully lit.</summary>
     FadeIn,
     /// <summary>Accept slot, Copy, Clear and Exit navigation; data-management items are skipped when all slots are empty.</summary>
     Main,

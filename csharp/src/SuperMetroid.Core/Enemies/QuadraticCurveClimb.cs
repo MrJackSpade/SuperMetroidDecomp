@@ -1,19 +1,26 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// How a hop that accelerates along the shared quadratic speed curve climbs (#2026): the height it climbs and the marks it
-/// steps along the curve each pass, which fix the place it starts its climb from (<see cref="StartPlace"/>).
+/// How a climb that accelerates along the shared quadratic speed curve is planned (#2026, #2065): the height it climbs and
+/// how far it steps along the curve each pass, which fix the place it starts its climb from (<see cref="StartPlace"/>).
+/// The Beetom's leaps, the hoppers' hops and the Ki-Hunter's detached wings plan their climbs this way.
 /// </summary>
-/// <param name="Height">How high the hop climbs, no higher than <see cref="QuadraticSpeedCurveDefinitions.LargestClimbHeight"/> pixels.</param>
-/// <param name="MarksPerPass">How many whole marks along the curve each pass of the search steps.</param>
-internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height, int MarksPerPass)
+/// <param name="Height">How high the climb rises, no higher than <see cref="QuadraticSpeedCurveDefinitions.LargestClimbHeight"/> pixels.</param>
+/// <param name="StepPerPass">How far along the curve each pass of the search steps.</param>
+internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
 {
     /// <summary>
-    /// The place the hop starts its climb from, as the Beetom and the hoppers choose it: stepping from the curve's start
-    /// <see cref="MarksPerPass"/> marks a pass, the first place at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>)
-    /// of the places passed sum to <see cref="Height"/>; summing full speeds would change every hop. The height is reached
-    /// within the curve's marks or never: past them reading the speed rejects the climb before the place could grow
-    /// further, and a climb of no marks a pass sums the start's speed of zero only (#1627).
+    /// The most passes a search can make before its place leaves the curve: a step of a single 256th of a mark leaves it
+    /// after this many.
+    /// </summary>
+    private static int MostPasses => QuadraticSpeedCurvePlace.PastLastMark.InTwoHundredFiftySixthsOfMark;
+
+    /// <summary>
+    /// The place the climb starts from: stepping from the curve's start <see cref="StepPerPass"/> a pass, the first place
+    /// at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum to <see cref="Height"/>;
+    /// summing full speeds would change every climb. The height is reached within the curve's marks or never: past them
+    /// reading the speed rejects the climb before the place could grow further, and a climb that steps nowhere sums the
+    /// start's speed of zero only (#1627).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The height is negative or above the largest climb height.</exception>
     /// <exception cref="InvalidDataException">The climb does not reach its height within the curve's marks.</exception>
@@ -21,20 +28,20 @@ internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height,
     {
         get
         {
-            if (Height.IsNegative || Height.InTwoFiftySixths > SignedSixteenSixteen.FromWholePixels(QuadraticSpeedCurveDefinitions.LargestClimbHeight).InTwoFiftySixths)
+            if (Height.IsNegative || Height > SignedSixteenSixteen.FromWholePixels(QuadraticSpeedCurveDefinitions.LargestClimbHeight))
                 throw new ArgumentOutOfRangeException(nameof(Height), Height,
-                    $"A hop climbs no lower than nothing and no higher than {QuadraticSpeedCurveDefinitions.LargestClimbHeight} pixels.");
-            QuadraticSpeedCurvePlace step = QuadraticSpeedCurvePlace.FromMarks(MarksPerPass);
+                    $"A climb rises no lower than nothing and no higher than {QuadraticSpeedCurveDefinitions.LargestClimbHeight} pixels.");
             QuadraticSpeedCurvePlace place = QuadraticSpeedCurvePlace.Start;
             SignedSixteenSixteen climbed = SignedSixteenSixteen.Zero;
-            for (int pass = 0; pass < QuadraticSpeedCurveDefinitions.MarkCount; pass++)
+            for (int pass = 0; pass < MostPasses; pass++)
             {
-                place += step;
+                place += StepPerPass;
                 climbed += SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.Speed.CoarseToward(EnemySpeedSign.Positive));
-                if (climbed.InTwoFiftySixths >= Height.InTwoFiftySixths)
+                if (climbed >= Height)
                     return place;
             }
-            throw new InvalidDataException($"A hop climbing {Height.InTwoFiftySixths} 256ths of a pixel at {MarksPerPass} marks a pass never reaches its height.");
+            throw new InvalidDataException(
+                $"A climb of {Height.InTwoFiftySixths} 256ths of a pixel at {StepPerPass.InTwoHundredFiftySixthsOfMark} 256ths of a mark a pass never reaches its height.");
         }
     }
 }

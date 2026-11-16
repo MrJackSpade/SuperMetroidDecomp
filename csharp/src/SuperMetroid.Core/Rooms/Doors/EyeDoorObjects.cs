@@ -51,7 +51,8 @@ internal sealed class EyeDoorObjects
             : throw new ArgumentOutOfRangeException(nameof(placed), placed, "Not an eye-door room object.");
         PlacedDoor? placedDoor = PlacedDoor.For(door);
         place.Become(component == EyeDoorComponent.Eye
-            ? new EyeDoorEyeObject(orientation, placedDoor)
+            ? new EyeDoorEyeObject(orientation, placedDoor
+                ?? throw new InvalidDataException($"The eye door's eye at block {place.Block} names no door."))
             : new EyeDoorPartObject(orientation, component, placedDoor));
 
         if (placedDoor?.IsOpenedForGood(_system.HasOpenedDoor) == true)
@@ -89,29 +90,32 @@ internal sealed class EyeDoorObjects
         return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
-    /// <summary>The eye fires its projectile and queues its sound.</summary>
-    internal void Shoot(RoomObjectPlace place, EyeDoorEyeObject eye)
+    /// <summary>
+    /// The eye of <paramref name="door"/> facing <paramref name="facing"/> fires its attack, which bursts once the door
+    /// opens, and queues its sound.
+    /// </summary>
+    internal void Shoot(RoomObjectPlace place, EyeDoorOrientation facing, LockedDoor door)
     {
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Projectile, eye);
+        _enemies.SpawnEyeDoorAttack(new EyeDoorAttackRequest(facing, Ensure.NotNull(place).Block, door));
         _sounds.Queue(
             EyeDoorDefinitions.ProjectileSound,
             Priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>The eye sweats.</summary>
-    internal void SpawnSweat(RoomObjectPlace place, EyeDoorEyeObject eye) =>
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Sweat, eye);
+    /// <summary>The eye facing <paramref name="facing"/> sweats.</summary>
+    internal void SpawnSweat(RoomObjectPlace place, EyeDoorOrientation facing) =>
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.Sweat, facing);
 
-    /// <summary>Two randomly placed smoke puffs about the eye.</summary>
-    internal void SpawnTwoSmoke(RoomObjectPlace place, EyeDoorEyeObject eye)
+    /// <summary>Two randomly placed smoke puffs.</summary>
+    internal void SpawnTwoSmoke(RoomObjectPlace place, EyeDoorOrientation facing)
     {
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, eye);
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, eye);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.ScatteredSmoke, facing);
     }
 
-    /// <summary>One centred smoke puff about the eye.</summary>
-    internal void SpawnSmoke(RoomObjectPlace place, EyeDoorEyeObject eye) =>
-        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.CenteredSmoke, eye);
+    /// <summary>One centred smoke puff.</summary>
+    internal void SpawnSmoke(RoomObjectPlace place, EyeDoorOrientation facing) =>
+        SpawnEyeDoorProjectile(place, EyeDoorProjectileDefinition.CenteredSmoke, facing);
 
     /// <summary>
     /// Moves the eye up one block and writes the blue cap facing
@@ -150,19 +154,10 @@ internal sealed class EyeDoorObjects
         }
     }
 
-    /// <summary>
-    /// Sends an eye-door projectile request with the eye's facing, source block and door, none once the eye is spent, to
-    /// enemy services.
-    /// </summary>
+    /// <summary>Sends an eye-door sweat or smoke request with the eye's facing and source block to enemy services.</summary>
     private void SpawnEyeDoorProjectile(
         RoomObjectPlace place,
         EyeDoorProjectileDefinition definition,
-        EyeDoorEyeObject eye)
-    {
-        _enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
-            definition,
-            eye.Orientation,
-            place.Block,
-            eye.Door?.Door));
-    }
+        EyeDoorOrientation facing) =>
+        _enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(definition, facing, place.Block));
 }

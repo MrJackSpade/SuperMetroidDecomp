@@ -64,7 +64,7 @@ internal sealed class EnemyRoomEffects
         ApplyPendingMotherBrainObjects(requests, roomObjects, roomFxOverlay, roomColourEffects);
         ApplyPendingShitroidWallObjects(requests, roomObjects);
         ApplyPendingPhantoonDoorObject(requests, roomObjects);
-        ApplyPendingChozoStatueObjects(roomObjects, roomFxOverlay, enemies);
+        ApplyPendingChozoStatueObjects(roomObjects, enemies);
         ApplyPendingTorizoBellyGlow(requests, roomColourEffects);
     }
 
@@ -246,13 +246,11 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Binds the enemies' room FX and consumes pending Chozo terrain publications.
-    /// Also runs at the frame's entry, before movement, so Samus cannot collide before a pending
-    /// initialization setup has installed the hand block.
+    /// Consumes pending Chozo terrain publications. Also runs at the frame's entry, before movement, so Samus cannot
+    /// collide before a pending initialization setup has installed the hand block.
     /// </summary>
-    internal void ApplyPendingChozoStatueObjects(RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, RoomEnemySystem enemies)
+    internal void ApplyPendingChozoStatueObjects(RoomObjectSystem roomObjects, RoomEnemySystem enemies)
     {
-        enemies.RoomFx.BindRoomFx(roomFxOverlay);
         if (_room.LevelData is not null)
             enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(_room.LevelData, roomObjects.ChozoStatue);
     }

@@ -44,6 +44,7 @@ internal static class RenamePairing
             .SelectMany(symbol => symbol.ContainingType.DeclaringSyntaxReferences.Select(reference => reference.SyntaxTree)
                 .Where(identity.IsRepositorySource).Select(tree => new RenamedIn(tree, symbol)))
             .GroupBy(entry => entry.Tree, entry => entry.Symbol);
+        var checks = new List<(IGrouping<SyntaxTree, ISymbol> Declared, Task<Diagnostic?> Added)>();
         foreach (var declared in declaringTrees)
         {
             var tree = declared.Key;
@@ -58,10 +59,18 @@ internal static class RenamePairing
                 .Concat(moves.All.Where(move => move.Tree == tree).Select(move => new TextEdit(move.Node.FullSpan, "")));
             var written = tree.WithChangedText(SourceText.From(
                 RelocationOutput.InPlace(tree, edits, moves.MovedSpans.TryGetValue(tree, out var spans) ? spans : []), tree.GetText().Encoding));
-            var before = (await ErrorsAsync(project.Compilation, tree, tree, analyzers)).Select(Key).ToHashSet(StringComparer.Ordinal);
-            var added = (await ErrorsAsync(project.Compilation.ReplaceSyntaxTree(tree, written), written, tree, analyzers))
-                .FirstOrDefault(diagnostic => !before.Contains(Key(diagnostic)));
-            if (added is null)
+            // Each file is checked on its own compilation, so the files are checked at once; their refusals are taken in
+            // order below.
+            checks.Add((declared, Task.Run(async () =>
+            {
+                var before = (await ErrorsAsync(project.Compilation, tree, tree, analyzers)).Select(Key).ToHashSet(StringComparer.Ordinal);
+                return (await ErrorsAsync(project.Compilation.ReplaceSyntaxTree(tree, written), written, tree, analyzers))
+                    .FirstOrDefault(diagnostic => !before.Contains(Key(diagnostic)));
+            })));
+        }
+        foreach (var (declared, check) in checks)
+        {
+            if (await check is not { } added)
                 continue;
             foreach (var symbol in declared)
                 refusals.TryAdd(symbol, $"{symbol.ToDisplayString()}, which must lose its underscore to become internal (SME6354), but " +

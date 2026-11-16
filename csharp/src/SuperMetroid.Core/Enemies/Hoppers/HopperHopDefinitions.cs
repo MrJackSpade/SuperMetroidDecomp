@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 internal static class HopperHopDefinitions
 {
     /// <summary>The small hop: it climbs 16 pixels, three marks a pass.</summary>
-    internal static QuadraticCurveClimb SmallHop { get; } = new(SignedSixteenSixteen.FromWholePixels(16), 3);
+    internal static QuadraticCurveClimb SmallHop { get; } = new(SignedSixteenSixteen.FromWholePixels(16), QuadraticSpeedCurvePlace.FromMarks(3));
 
     /// <summary>The big hop: it climbs 48 pixels, four marks a pass.</summary>
-    internal static QuadraticCurveClimb BigHop { get; } = new(SignedSixteenSixteen.FromWholePixels(48), 4);
+    internal static QuadraticCurveClimb BigHop { get; } = new(SignedSixteenSixteen.FromWholePixels(48), QuadraticSpeedCurvePlace.FromMarks(4));
 
     /// <summary>How fast either hop carries a hopper sideways, in whole pixels an update.</summary>
     internal const int HorizontalSpeed = 3;

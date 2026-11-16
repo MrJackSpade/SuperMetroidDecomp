@@ -91,9 +91,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             BeginTimeUp();
             stateAfterDarkening = SuperMetroidGameState.WhitingOutFromTimeUp;
         }
-        if (session.StepScreenFadeOut() == 0)
+        if (session.StepScreenFadeOut())
         {
-            session.screenFade.Clear();
+            session.screenFade.StepEvery(1);
             session.GameState = stateAfterDarkening;
         }
     }
@@ -104,10 +104,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The fade-in state runs the whole main-gameplay update behind the screen fade, so
         // its out-of-health, pause, door and other publications all apply here.
         RunMainGameplayState(controllerInput);
-        if (session.StepScreenFadeIn() == PauseFadeTiming.FullyLit)
+        if (session.StepScreenFadeIn())
         {
             // The fade-in state explicitly restores main gameplay on the terminal frame.
-            session.screenFade.Clear();
+            session.screenFade.StepEvery(1);
             session.GameState = SuperMetroidGameState.MainGameplay;
         }
     }
@@ -151,7 +151,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if ((session.Runtime ?? throw new InvalidOperationException("Time-up white-out requires a gameplay runtime.")).FadeOut.Step())
         {
             session.GameState = SuperMetroidGameState.WhitingOutFromTimeUp;
-            session.screenFade.Clear();
+            session.screenFade.StepEvery(1);
         }
         session.display.PublishGameplay(session.GameplayRuntime);
     }
@@ -166,8 +166,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.display.PublishGameplay(session.GameplayRuntime);
         // The fade-out reloads the counter from the screen fade's delay, which
         // the gunship zeroed, so the brightness falls one step on every call.
-        session.SetDisplayBrightness(session.EscapeFade.Darken());
-        if (session.EscapeFade.Brightness == 0)
+        bool black = session.EscapeFade.Darken();
+        session.SetDisplayBrightness(session.EscapeFade.Level);
+        if (black)
         {
             // The liftoff state resets display ownership, stops the escape timer/music,
             // cancels all three SFX libraries, and publishes the ending state. The new
@@ -274,7 +275,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // Samus's pause check executes during the already-completed
             // main-gameplay frame. It initializes both fade counters and publishes
             // the pause state; the following update consumes the first delay.
-            session.screenFade.Reload();
+            session.screenFade.SetCadence(PauseFadeTiming.CounterReload, PauseFadeTiming.CounterReload);
             session.Close<PauseMenuState>();
             session.GameState = SuperMetroidGameState.PausingDarkening;
         }

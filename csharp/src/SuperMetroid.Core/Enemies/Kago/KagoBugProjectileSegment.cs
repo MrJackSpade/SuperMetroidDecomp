@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal enum KagoBugProjectileSegment
 {
-    /// <summary>The shared delete animation.</summary>
-    SharedDelete,
     /// <summary>The still pose a new bug holds while it waits to make its first jump.</summary>
     Waiting,
     /// <summary>The landed animation.</summary>
@@ -18,6 +16,6 @@ internal enum KagoBugProjectileSegment
     JumpStart,
     /// <summary>The jump loop animation.</summary>
     JumpLoop,
-    /// <summary>The shot animation.</summary>
+    /// <summary>The shot animation: the bug bursts, drops its pickup and is deleted.</summary>
     Shot,
 }

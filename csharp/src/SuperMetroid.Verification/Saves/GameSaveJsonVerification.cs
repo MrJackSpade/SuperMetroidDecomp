@@ -63,13 +63,13 @@ internal static class GameSaveJsonVerification
             action: ControllerAction.Shoot,
             physicalButton: ControllerButton.Y);
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
-        saveRam.SaveSlot(1, snapshot);
+        saveRam.SaveSlot(SaveSlot.B, snapshot);
 
         // The former preservation-only word is the native reserve-missile accumulator.
         snapshot = snapshot with { ReserveMissiles = 165, JapaneseText = true };
-        saveRam.SaveSlot(1, snapshot);
+        saveRam.SaveSlot(SaveSlot.B, snapshot);
         saveRam.SetGameCompleted(true);
-        saveRam.SelectSlot(1);
+        saveRam.SelectSlot(SaveSlot.B);
         byte[] expectedSram = SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
 
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(saveRam);
@@ -90,7 +90,7 @@ internal static class GameSaveJsonVerification
         SaveSlotStore restored = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture());
         AssertTrue(expectedSram.SequenceEqual(SaveRamCodec.Encode(restored, RetailPresentationFixture())),
             "JSON save round trip rebuilds canonical SRAM from named state");
-        SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(1) ??
+        SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(SaveSlot.B) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
         AssertEqual(94, restoredSlot.Health, "JSON health");
@@ -98,7 +98,7 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.CollectedItems.HasAll(
             SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             "JSON collected equipment flags");
-        SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(1) ?? throw new InvalidOperationException("The saved slot 1 failed.");
+        SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(SaveSlot.B) ?? throw new InvalidOperationException("The saved slot 1 failed.");
         AssertTrue(restoredSlot.Progression.SameAs(savedSlot.Progression),
             "JSON events, bosses, items, doors, stations, maps and explored cells");
         AssertTrue(restoredSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ZebesAwake]),
@@ -213,8 +213,8 @@ internal static class GameSaveJsonVerification
             BinaryPrimitives.WriteUInt16LittleEndian(image.AsSpan(SaveRamLayout.SelectedSlotComplementOffset), complement);
             SaveSlotStore decoded = SaveRamCodec.Decode(image, presentation);
 
-            AssertEqual(expected, decoded.ReadSelectedSlot(), $"{label}: SRAM decode matches the cartridge");
-            AssertEqual(FileSelectItemRows.ForSaveSlot(SaveSlots.AtStoreNumber(expected)), new FileSelectMenuState(decoded, mapPresentation: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
+            AssertEqual(SaveSlots.All[expected], decoded.ReadSelectedSlot(), $"{label}: SRAM decode matches the cartridge");
+            AssertEqual(FileSelectItemRows.ForSaveSlot(SaveSlots.All[expected]), new FileSelectMenuState(decoded, mapPresentation: presentation, spriteSheets: MenuSheetFixtures.For(presentation)).SelectedItem,
                 $"{label}: file-select initial cursor matches $81:9ED8");
             AssertEqual(expected, GameSaveJsonCodec.Capture(decoded).SelectedSlot,
                 $"{label}: JSON capture keeps the cartridge-selected slot");
@@ -244,7 +244,7 @@ internal static class GameSaveJsonVerification
             HudItem = HudItem.XRay,
             ReserveMode = ReserveTankMode.Manual,
         };
-        store.SaveSlot(0, snapshot);
+        store.SaveSlot(SaveSlot.A, snapshot);
         byte[] sram = SaveRamCodec.Encode(store, maps);
 
         GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
@@ -291,12 +291,12 @@ internal static class GameSaveJsonVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
             var system = new SharedGameState(new SharedRandom());
             system.MarkSaveStationUsed(used);
-            store.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system,
+            store.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system,
                 new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.DraygonSave }));
             return GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));
         }
         PersistentProgress Loaded(string json) =>
-            (GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), maps).ReadSlot(0)
+            (GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), maps).ReadSlot(SaveSlot.A)
                 ?? throw new InvalidOperationException("The JSON save lost slot 0.")).Progression;
 
         byte[] table = new byte[SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.UsedStationByteCount];
@@ -333,7 +333,7 @@ internal static class GameSaveJsonVerification
             "the schema-eight fixture lists the Crocomire save station by its number");
         norfair["stations"] = new JsonArray(3, 6, 15);
         PersistentProgress fromJson = (GameSaveJsonCodec.ToStore(LegacyGameSaveJson.Deserialize(overwritten.ToJsonString(), "game save", out _), maps)
-            .ReadSlot(0) ?? throw new InvalidOperationException("The upgraded JSON save lost slot 0.")).Progression;
+            .ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("The upgraded JSON save lost slot 0.")).Progression;
 
         Array.Clear(table);
         table[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair) * sizeof(ushort)] = 1 << 3 | 1 << 6;

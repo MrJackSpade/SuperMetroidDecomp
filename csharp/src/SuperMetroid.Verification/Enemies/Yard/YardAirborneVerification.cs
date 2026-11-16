@@ -73,8 +73,8 @@ internal static class YardAirborneVerification
 
         var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = LoadStationDefinitions.CrateriaSave };
         var saves = new SaveSlotStore(RetailPresentationFixtureVerification.RetailPresentationFixture());
-        saves.SaveSlot(0, snapshot);
-        SuperMetroidSaveSlot slot = saves.ReadSlot(0) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        SuperMetroidSaveSlot slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
         var loaded = CreateRetailRuntimeFixture();
         loaded.YardKickDistance.Record(stale);
         loaded.RoomLoader.InitializeSavedGame(slot);
@@ -150,7 +150,7 @@ internal static class YardAirborneVerification
         foreach (YardBehavior behavior in new[] { YardBehavior.Dropped, YardBehavior.Kicked, YardBehavior.BeamLaunched })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
             var actor = enemies.Places.InUpdateOrder[0];
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));

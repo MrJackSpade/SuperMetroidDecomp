@@ -23,9 +23,9 @@ internal static class SaveStationElectricityBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.SaveStationElectricity.Spawn(new(10, 2));
         EnemyProjectile electricity = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
-        AssertTrue(electricity.Animation is SaveStationElectricityAnimation { PlayingSegment: SaveStationElectricitySegment.Start }, "the electricity starts its cycles");
+        AssertTrue(electricity.Animation is SaveStationElectricityAnimation { PlayingSegment: SaveStationElectricitySegment.Cycle }, "the electricity starts its cycles");
         (bool deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, electricity,
-            SaveStationElectricityNativeListAddresses.Entry(SaveStationElectricitySegment.Start), 200, "save-station electricity");
+            SaveStationElectricityNativeListAddresses.DischargeStart, 200, "save-station electricity");
         AssertTrue(deleted, "the electricity deletes after its cycles");
         AssertEqual(161, updates, "twenty eight-pose cycles, then the deletion update");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the electricity's native list bytes");

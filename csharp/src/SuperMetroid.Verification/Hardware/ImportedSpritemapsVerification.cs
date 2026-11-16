@@ -40,7 +40,9 @@ internal static class ImportedSpritemapsVerification
         EnemyProjectile projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
     {
-        if (!projectile.IsActive || projectile.FrameHold.IsZero) return;
+        // A projectile resting with no hold left shows no new frame, unless it rests on a frame shown for good, which still
+        // presents the native frame its list shows again and again (#2068).
+        if (!projectile.IsActive || (projectile.FrameHold.IsZero && (expectedOperand is null || projectile.PresentationOperandAddress != expectedOperand))) return;
         ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
         ushort nativePointer = LittleEndianBytes.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
         executedOperands.Add(operand);

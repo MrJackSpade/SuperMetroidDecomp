@@ -801,13 +801,13 @@ internal static class LookupStream5Verification
         for (int selected = 0; selected < 4; selected++)
         {
             var stock = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, state), new(240, 128));
-            ushort startX = stock.Scroll.X, startY = stock.Scroll.Y;
+            int startX = stock.Scroll.X, startY = stock.Scroll.Y;
             for (int tick = 1; tick <= 8; tick++)
             {
                 AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : ControllerButton.None), "Stock sound boundary");
                 int delta = tick >= 4 ? 8 : 0;
-                AssertEqual(unchecked((ushort)(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0))), stock.Scroll.X, "Horizontal pulse");
-                AssertEqual(unchecked((ushort)(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0))), stock.Scroll.Y, "Vertical pulse");
+                AssertEqual(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0), (int)stock.Scroll.X, "Horizontal pulse");
+                AssertEqual(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0), (int)stock.Scroll.Y, "Vertical pulse");
                 AssertEqual(tick == 8 ? MapScrollDirection.None : (MapScrollDirection)(selected + 1), stock.Direction, "Accepted direction survives release");
             }
         }
@@ -1036,7 +1036,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
         Action<YappingMawEnemyState,YappingMawAim> set = YappingMawBehavior.SetYappingMawHeldOffset;
         var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-        var state = new YappingMawEnemyState(place) { DistanceToSamus = 32 };
+        var state = new YappingMawEnemyState { DistanceToSamus = 32 };
         // The cartridge's held-offset table lists the aims clockwise from up, the order of the aim sequence.
         for (int direction = 0; direction < 8; direction++)
         {

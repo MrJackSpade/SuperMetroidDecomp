@@ -108,9 +108,9 @@ internal static class RoomEnemySystemAccess
         /// <summary>Botwoon's live state while its room is loaded.</summary>
         internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior.BotwoonState;
 
-        /// <summary>Per-slot Evir states, indexed by enemy slot.</summary>
-        internal IReadOnlyList<EvirEnemyState?> EvirStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<EvirEnemyState>())];
+        /// <summary>Per-place Evir states, indexed by enemy place.</summary>
+        internal IReadOnlyList<EvirBodyState?> EvirStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<EvirBodyState>())];
 
         /// <summary>The enemy drops waiting in the projectile pool: each drop an enemy makes takes a pickup's place there.</summary>
         internal int ActiveEnemyDropPickups =>
@@ -195,9 +195,13 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<OwtchEnemyState?> OwtchStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<OwtchEntity, OwtchEnemyState>())];
 
-        /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
-        internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FuneNamiheEntity, FuneNamiheEnemyState>())];
+        /// <summary>Typed state for all physical places occupied by a Fune.</summary>
+        internal IReadOnlyList<FuneEnemyState?> FuneStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FuneEntity, FuneEnemyState>())];
+
+        /// <summary>Typed state for all physical places occupied by a Namihe.</summary>
+        internal IReadOnlyList<NamiheEnemyState?> NamiheStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NamiheEntity, NamiheEnemyState>())];
 
         /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates =>
@@ -298,15 +302,15 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonEntity, DragonPartState>() as DragonEnemyState)];
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonEntity, DragonEnemyState>())];
 
         /// <summary>Typed Dragon wing state for every physical slot a wing occupies.</summary>
         internal IReadOnlyList<DragonWingState?> DragonWingStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonEntity, DragonPartState>() as DragonWingState)];
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonEntity, DragonWingState>())];
 
         /// <summary>Typed Dragon body or wing state for every physical slot either occupies.</summary>
         internal IReadOnlyList<DragonPartState?> DragonPartStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonEntity, DragonPartState>())];
+            [.. self.Places.InUpdateOrder.Select(place => (DragonPartState?)place.EntityState<DragonEntity, DragonEnemyState>() ?? place.EntityState<DragonEntity, DragonWingState>())];
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>

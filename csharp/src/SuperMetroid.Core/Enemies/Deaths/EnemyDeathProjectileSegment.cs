@@ -1,21 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// The generic enemy-death explosions, the drops they become and the respawn tail (#641): one segment per animation a spawn, branch or family step enters, in authored order.
+/// The generic enemy-death explosions, the drops they become and the respawn tail (#641) animation segments, in authored order.
 /// Their steps are <see cref="EnemyDeathProjectileAnimations"/>.
 /// </summary>
 internal enum EnemyDeathProjectileSegment
 {
     /// <summary>The respawn tail animation.</summary>
     RespawnTail,
-    /// <summary>The big explosion animation.</summary>
+    /// <summary>One burst of the big explosion, repeated, then the drop.</summary>
     BigExplosion,
-    /// <summary>The loop.</summary>
-    BigExplosionLoop,
-    /// <summary>The mini Kraid explosion animation.</summary>
+    /// <summary>One burst of Mini-Kraid's explosion, repeated, then the drop.</summary>
     MiniKraidExplosion,
-    /// <summary>The loop.</summary>
-    MiniKraidExplosionLoop,
     /// <summary>The normal explosion animation.</summary>
     NormalExplosion,
     /// <summary>The small explosion animation.</summary>

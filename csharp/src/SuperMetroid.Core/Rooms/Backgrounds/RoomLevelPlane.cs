@@ -43,10 +43,11 @@ public sealed class RoomLevelPlane
 
     /// <summary>
     /// The plane's blocks as a frame shows them (#1403), read once: a collectible's picture where one lies, unmirrored, and
-    /// each other block's own (#1764).
+    /// each other block's own (#1764), or nothing (#2100).
     /// </summary>
+    /// <exception cref="InvalidOperationException">A block is terrain beyond the room, which no plane shows.</exception>
     public RoomBlockCells Cells => field ??= new RoomBlockCells(Size,
         [.. blocks.Select((block, index) => collectibles.TryGetValue(index, out CollectiblePicture picture)
             ? new RoomBlockCell(RoomCellPicture.Of(picture), BlockMirroring.None)
-            : new RoomBlockCell(RoomCellPicture.OfBlock(block.Block), block.Mirroring))]);
+            : new RoomBlockCell(RoomCellPicture.Of(block), block.Mirroring))]);
 }

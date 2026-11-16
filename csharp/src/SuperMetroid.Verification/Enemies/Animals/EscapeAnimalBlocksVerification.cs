@@ -57,7 +57,7 @@ internal static class EscapeAnimalBlocksVerification
             roomObjects.Step(level);
         AssertTrue(system.HasEvent(StoryEvent.CrittersEscaped), "native animation sets rescue event");
         for (int y = 10; y <= 12; y++)
-            AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "native rescue opening clears artwork but remains solid to Samus");
+            AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "native rescue opening clears artwork but remains solid to Samus");
         Console.WriteLine("Animal rescue: native setup, ROM break animation, cleared wall and event verified.");
     }
 

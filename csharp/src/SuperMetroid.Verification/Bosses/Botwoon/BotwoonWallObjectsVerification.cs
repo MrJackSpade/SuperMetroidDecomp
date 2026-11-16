@@ -106,7 +106,7 @@ internal static class BotwoonWallObjectsVerification
             if (clear && frame == 0)
             {
                 for (int y = 4; y <= 12; y++)
-                    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+                    AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air),
                         level.GetCollisionBlock(new Position16<RoomBlocks>(15, y)).Terrain,
                         $"Botwoon clear row {y}");
             }

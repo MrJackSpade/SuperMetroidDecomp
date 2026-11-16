@@ -21,8 +21,11 @@ public static class RoomObjectSetupBlockFiles
     public const string VisualFileName = "setup-blocks.json";
 
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
-    /// <remarks>Revision 2 names no cartridge (#1693): the installation receipt does.</remarks>
-    internal const int FormatVersion = 2;
+    /// <remarks>
+    /// Revision 2 names no cartridge (#1693): the installation receipt does. Revision 3 writes no block for a setup block
+    /// that shows nothing (#2100).
+    /// </remarks>
+    internal const int FormatVersion = 3;
 
     /// <summary>Camel-case field names, mirroring by name and readable output for the installed document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -49,7 +52,7 @@ public static class RoomObjectSetupBlockFiles
         foreach (RoomObjectSetupBlock block in Enum.GetValues<RoomObjectSetupBlock>())
         {
             RoomBlockAppearance shown = Picture(bus, block);
-            entries.Add(new BlockEntry(Id(block), shown.Block, shown.Mirroring));
+            entries.Add(new BlockEntry(Id(block), shown.ShowsNothing ? null : shown.Block, shown.Mirroring));
         }
         Directory.CreateDirectory(directory);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), JsonOptions);
@@ -152,7 +155,8 @@ public static class RoomObjectSetupBlockFiles
             RoomBlockAppearance shown;
             try
             {
-                shown = RoomBlockAppearance.Of(entry.Block, entry.Mirroring);
+                shown = entry.Block is { } number ? RoomBlockAppearance.Of(number, entry.Mirroring)
+                    : RoomBlockAppearance.Nothing.WithMirroring(entry.Mirroring);
             }
             catch (ArgumentOutOfRangeException error)
             {
@@ -186,6 +190,9 @@ public static class RoomObjectSetupBlockFiles
     /// <summary>The installed document: its format and every setup block's picture.</summary>
     private sealed record BlockDocument(int Version, BlockEntry[] Blocks);
 
-    /// <summary>One setup block's picture: its published name, the block it shows and how that block is mirrored.</summary>
-    private sealed record BlockEntry(string Id, int Block, BlockMirroring Mirroring);
+    /// <summary>
+    /// One setup block's picture: its published name, the block it shows, or null where it shows nothing, and how it is
+    /// mirrored.
+    /// </summary>
+    private sealed record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
 }

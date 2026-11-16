@@ -22,7 +22,8 @@ public static class LevelBlockTilemapExpander
     /// <param name="blockDefinitions">The block compositions, <see cref="RoomMetatileFormat.TilesPerBlock"/> tiles each.</param>
     public static ExpandedBlockTiles Expand(RoomBlockAppearance appearance, ReadOnlySpan<BackgroundTile> blockDefinitions)
     {
-        int blockIndex = appearance.Block;
+        // The level word's number: open space is the block set's own empty block, which the cartridge draws like any other.
+        int blockIndex = RoomLevelWordCodec.BlockNumberOf(appearance);
         int first = blockIndex * RoomMetatileFormat.TilesPerBlock;
         if (first + RoomMetatileFormat.TilesPerBlock > blockDefinitions.Length)
         {

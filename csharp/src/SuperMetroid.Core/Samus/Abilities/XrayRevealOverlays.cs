@@ -45,7 +45,7 @@ public static class XrayRevealOverlays
 
     /// <summary>A visible overlay's whole block, mirrored as its appearance mirrors it (#2047).</summary>
     private static RevealedBlock Arranged(RoomBlockAppearance appearance) =>
-        new(RoomCellPicture.OfBlock(appearance.Block), XrayRevealMap.Mirrored(appearance.Mirroring));
+        new(RoomCellPicture.Of(appearance), XrayRevealMap.Mirrored(appearance.Mirroring));
 
     /// <summary>Places an overlay's block where it lies, when that is inside the revealed area.</summary>
     private static void Write(Span<RevealedBlock?> blocks, RevealedBlock revealed, Position16<RoomBlocks> block,

@@ -21,7 +21,7 @@ internal static class DownwardGateVisualsVerification
         // The synthetic population's header begins at the opening list, which
         // selects the sixth resident column frame before its gate pre-instruction.
         RoomObjectDraw sixthColumn = NativeObjectDraws.At<DownwardGateDraw>(0xa55d);
-        AssertEqual(RoomBlockAppearance.Of(0x0ff),
+        AssertEqual(RoomBlockAppearance.Nothing,
             stock.Image(sixthColumn).At(RoomObjectDownwardGateVisualFiles.Family.Layouts[sixthColumn].Runs.Span[0].CellAt(1)),
             "stock gate visual retains the physical column art");
 
@@ -31,7 +31,7 @@ internal static class DownwardGateVisualsVerification
             (TestAddressSpace bus, RoomLevelData level, RoomObjectSystem roomObjects, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft);
             StepDownwardGateObject(roomObjects, level);
-            AssertEqual(RoomBlockAppearance.Of(0x0ff),
+            AssertEqual(RoomBlockAppearance.Nothing,
                 level.DisplayedAppearance(gateBlockIndex + level.Size.X),
                 "first gate PLM step draws its selected second-column visual word");
             StepDownwardGateObject(roomObjects, level);
@@ -46,9 +46,9 @@ internal static class DownwardGateVisualsVerification
         }
 
         var native = Render();
-        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.ShootableBlock), native.Physical,
+        AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.ShootableBlock), native.Physical,
             "stock gate draw retains its physical second-column word");
-        AssertEqual(RoomBlockAppearance.Of(0x0ff), native.Streamed,
+        AssertEqual(RoomBlockAppearance.Nothing, native.Streamed,
             "stock gate block streams its native block");
 
 

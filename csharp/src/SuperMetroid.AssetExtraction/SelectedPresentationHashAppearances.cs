@@ -9,15 +9,19 @@ internal static class SelectedPresentationHashAppearances
     extension(SelectedPresentationHash hash)
     {
         /// <summary>
-        /// Block appearances hash as each block number followed by the mirroring's name, so the hash names what a
-        /// block shows rather than how a file or the original game stores it.
+        /// Block appearances hash as each block number, or the name of what a block shows that is no block (#2100), followed
+        /// by the mirroring's name, so the hash names what a block shows rather than how a file or the original game stores
+        /// it.
         /// </summary>
         public void AppendAppearances(string label, ReadOnlySpan<RoomBlockAppearance> appearances)
         {
             hash.Append(label, appearances.Length);
             foreach (RoomBlockAppearance appearance in appearances)
             {
-                hash.Append("block", appearance.Block);
+                if (appearance.ShowsBlock)
+                    hash.Append("block", appearance.Block);
+                else
+                    hash.AppendName("shows", appearance.ShowsNothing ? "nothing" : "beyond the room");
                 hash.AppendName("mirroring", appearance.Mirroring.ToString());
             }
         }

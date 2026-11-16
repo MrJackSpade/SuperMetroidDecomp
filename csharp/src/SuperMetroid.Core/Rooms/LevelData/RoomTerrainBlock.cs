@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public readonly record struct RoomTerrainBlock(RoomBlockAppearance Appearance, RoomCollisionType Collision)
 {
     /// <summary>The block showing <paramref name="block"/> mirrored by <paramref name="mirroring"/> and colliding as <paramref name="collision"/>.</summary>
-    /// <param name="block">The block's number in the tileset's block set, 0 through <see cref="RoomBlockAppearance.LastBlock"/>.</param>
+    /// <param name="block">The block's number in the tileset's block set, zero or more; the tileset's sheet bounds it.</param>
     /// <param name="mirroring">How the block is mirrored.</param>
     /// <param name="collision">How the block collides.</param>
     public static RoomTerrainBlock Of(int block, BlockMirroring mirroring, RoomCollisionType collision) =>

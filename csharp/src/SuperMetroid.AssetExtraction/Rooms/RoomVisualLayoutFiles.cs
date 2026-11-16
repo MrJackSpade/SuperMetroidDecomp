@@ -19,16 +19,18 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// room-object writes.
 /// </summary>
 /// <remarks>
-/// A level document holds each plane as its blocks' numbers, row by row, and its blocks' mirroring as one character per
-/// block (<see cref="MirroringCodes"/>: unmirrored, horizontal, vertical, both).
+/// A level document holds each plane as its blocks' numbers, row by row, null for a block that shows nothing (#2100), and
+/// its blocks' mirroring as one character per block (<see cref="MirroringCodes"/>: unmirrored, horizontal, vertical,
+/// both).
 /// </remarks>
 public static class RoomVisualLayoutFiles
 {
     /// <summary>
-    /// Schema revision of the per-level layout documents; version 3 holds block numbers and mirroring instead of level words.
-    /// No manifest lists the documents (#1693): the levels are the retail rooms', and each document names its level and size.
+    /// Schema revision of the per-level layout documents; version 3 holds block numbers and mirroring instead of level words,
+    /// and 5 holds null for a block that shows nothing (#2100). No manifest lists the documents (#1693): the levels are the
+    /// retail rooms', and each document names its level and size.
     /// </summary>
-    private const int FormatVersion = 4;
+    private const int FormatVersion = 5;
 
     /// <summary>The character a document writes for each mirroring.</summary>
     private static readonly Dictionary<BlockMirroring, char> MirroringCodes = new()
@@ -141,7 +143,8 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>A plane of appearances as a document writes it.</summary>
     private static RoomLayoutPlaneDocument WritePlane(RoomBlockAppearance[] blocks) =>
-        new([.. blocks.Select(block => block.Block)], new string(blocks.Select(block => MirroringCodes[block.Mirroring]).ToArray()));
+        new([.. blocks.Select(block => block.ShowsNothing ? (int?)null : block.Block)],
+            new string(blocks.Select(block => MirroringCodes[block.Mirroring]).ToArray()));
 
     /// <summary>A document's plane as appearances.</summary>
     /// <exception cref="InvalidDataException">The plane's arrays differ in length or hold an unknown mirroring code.</exception>
@@ -154,7 +157,8 @@ public static class RoomVisualLayoutFiles
         {
             if (!MirroringByCode.TryGetValue(plane.Mirroring[index], out BlockMirroring mirroring))
                 throw new InvalidDataException($"Mirroring code '{plane.Mirroring[index]}' is not one of {string.Concat(MirroringByCode.Keys)}.");
-            blocks[index] = new RoomBlockAppearance(plane.Blocks[index], mirroring);
+            blocks[index] = (plane.Blocks[index] is { } block ? RoomBlockAppearance.Of(block) : RoomBlockAppearance.Nothing)
+                .WithMirroring(mirroring);
         }
         return blocks;
     }
@@ -199,5 +203,5 @@ public static class RoomVisualLayoutFiles
         public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
     /// <summary>One plane of a layout document: each block's number, row by row, and one mirroring code per block.</summary>
-    private sealed record RoomLayoutPlaneDocument(int[] Blocks, string Mirroring);
+    private sealed record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
 }

@@ -1203,7 +1203,7 @@ internal sealed class RoomLoader
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
         if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior))
-            return RoomBlockPictureTable.NoneDrawn();
+            return RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet);
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks), []);
     }

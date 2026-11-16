@@ -35,7 +35,7 @@ internal static class BabyMetroidWallClearTimingVerification
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.
         for (int row = 9; row <= 12; row++)
             level.SetTerrain(row * level.Size.X + WallColumn,
-                RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock));
+                new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.SolidBlock));
 
         ShitroidEnemyState shitroid = runtime.Enemies.Shitroid;
         shitroid.Action = ShitroidAction.RiseAfterFeeding;

@@ -28,8 +28,8 @@ public static class StraddledTerrainFiles
     /// <summary>Every collision kind, in the order the lead classes are listed.</summary>
     private static readonly RoomCollisionType[] Kinds = Enum.GetValues<RoomCollisionType>();
 
-    /// <summary>How many block numbers a block set holds.</summary>
-    private const int BlockCount = RoomBlockAppearance.LastBlock + 1;
+    /// <summary>How many block numbers a level word names; the file names blocks by these numbers (#2100).</summary>
+    private const int BlockCount = RoomLevelWordCodec.BlockNumbers;
 
     /// <summary>Every mirroring by its name.</summary>
     private static readonly Dictionary<string, BlockMirroring> MirroringsByName =
@@ -83,7 +83,7 @@ public static class StraddledTerrainFiles
             RoomTerrainBlock terrain = RoomLevelWordCodec.Decode((ushort)value);
             if (!leadOf.TryAdd(terrain, RoomLevelWordCodec.SecondStoredHalf((ushort)value)))
                 throw new InvalidOperationException($"Two level words decode to {terrain}.");
-            int block = terrain.Appearance.Block;
+            int block = RoomLevelWordCodec.BlockNumberOf(terrain.Appearance);
             int tail = RoomLevelWordCodec.FirstStoredHalf((ushort)value);
             if (tailOf[block] >= 0 && tailOf[block] != tail)
                 throw new InvalidOperationException($"The start of block {block} depends on more than its number.");
@@ -100,7 +100,8 @@ public static class StraddledTerrainFiles
         int[] tailHalves = [.. tailClasses.Select(blocks => tailOf[blocks[0]])];
         var leads = new List<StraddledTerrainDocument.Lead>();
         foreach (IGrouping<int, RoomTerrainBlock> leadClass in leadOf.Keys
-            .OrderBy(terrain => terrain.Collision).ThenBy(terrain => terrain.Appearance.Mirroring).ThenBy(terrain => terrain.Appearance.Block)
+            .OrderBy(terrain => terrain.Collision).ThenBy(terrain => terrain.Appearance.Mirroring)
+            .ThenBy(terrain => RoomLevelWordCodec.BlockNumberOf(terrain.Appearance))
             .GroupBy(terrain => leadOf[terrain]))
         {
             RoomTerrainBlock first = leadClass.First();
@@ -109,7 +110,7 @@ public static class StraddledTerrainFiles
             leads.Add(new StraddledTerrainDocument.Lead(
                 first.Collision.ToString(),
                 first.Appearance.Mirroring.ToString(),
-                Runs(leadClass.Select(terrain => terrain.Appearance.Block)),
+                Runs(leadClass.Select(terrain => RoomLevelWordCodec.BlockNumberOf(terrain.Appearance))),
                 [.. tailHalves.Select(tail => Outcome(RoomLevelWordCodec.Decode(RoomLevelWordCodec.OfStoredHalves(leadClass.Key, tail))))]));
         }
         return new StraddledTerrainDocument(
@@ -156,7 +157,7 @@ public static class StraddledTerrainFiles
             BlockMirroring mirroring = Named(MirroringsByName, leadClass.Mirroring);
             foreach (int block in Blocks(leadClass.Blocks, $"lead class {lead}"))
             {
-                RoomTerrainBlock terrain = RoomTerrainBlock.Of(block, mirroring, kind);
+                var terrain = new RoomTerrainBlock(RoomLevelWordCodec.AppearanceOf(block, mirroring), kind);
                 if (!leads.TryAdd(terrain, lead))
                     throw new InvalidDataException($"Straddled-terrain block {terrain} lies in two lead classes.");
                 // The start of a block contributes the same whatever its mirroring and kind.
@@ -201,7 +202,7 @@ public static class StraddledTerrainFiles
             throw new InvalidDataException($"Straddled-terrain {what} holds no blocks.");
         foreach (StraddledTerrainDocument.BlockRun? run in runs)
         {
-            if (run is null || run.First < 0 || run.Last < run.First || run.Last > RoomBlockAppearance.LastBlock)
+            if (run is null || run.First < 0 || run.Last < run.First || run.Last >= BlockCount)
                 throw new InvalidDataException($"Straddled-terrain {what} holds a run of blocks no block set holds.");
             for (int block = run.First; block <= run.Last; block++)
                 yield return block;
@@ -210,7 +211,7 @@ public static class StraddledTerrainFiles
 
     /// <summary>How the file names a straddled terrain block.</summary>
     private static StraddledTerrainDocument.Outcome Outcome(RoomTerrainBlock terrain) =>
-        new(terrain.Appearance.Block, terrain.Appearance.Mirroring.ToString(), terrain.Collision.ToString());
+        new(RoomLevelWordCodec.BlockNumberOf(terrain.Appearance), terrain.Appearance.Mirroring.ToString(), terrain.Collision.ToString());
 
     /// <summary>The terrain block an outcome names.</summary>
     /// <exception cref="InvalidDataException">The outcome names a block, mirroring or collision kind the game does not have.</exception>
@@ -218,9 +219,10 @@ public static class StraddledTerrainFiles
     {
         if (outcome is null)
             throw new InvalidDataException("Straddled-terrain file has an empty outcome.");
-        if (outcome.Block is < 0 or > RoomBlockAppearance.LastBlock)
+        if (outcome.Block is < 0 or >= BlockCount)
             throw new InvalidDataException($"Straddled-terrain outcome names block {outcome.Block}, which no block set holds.");
-        return RoomTerrainBlock.Of(outcome.Block, Named(MirroringsByName, outcome.Mirroring), Named(KindsByName, outcome.Collision));
+        return new RoomTerrainBlock(RoomLevelWordCodec.AppearanceOf(outcome.Block, Named(MirroringsByName, outcome.Mirroring)),
+            Named(KindsByName, outcome.Collision));
     }
 
     /// <summary>The value <paramref name="name"/> names exactly.</summary>

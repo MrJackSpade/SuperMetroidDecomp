@@ -17,7 +17,7 @@ internal static class RoomGridBoundsVerification
     {
         const int width = 300, height = 2;
         RoomTerrainBlock[] foreground = [.. Enumerable.Range(0, width * height)
-            .Select(index => RoomTerrainBlock.Of(index % RoomBlockAppearance.LastBlock, BlockMirroring.None, RoomCollisionType.Air))];
+            .Select(index => RoomTerrainBlock.Of(index, BlockMirroring.None, RoomCollisionType.Air))];
         var wide = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(foreground, new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]),
             RoomLevelData.NothingBeyondGrid(), []);

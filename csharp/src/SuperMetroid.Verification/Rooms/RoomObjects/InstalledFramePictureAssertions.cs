@@ -192,7 +192,7 @@ internal static class InstalledFramePictureAssertions
             Rejected("an unknown frame name", array => array[0]!["id"] = array[0]!["id"]!.GetValue<string>().ToUpperInvariant());
             Rejected("a missing cell", array => array[0]!["cells"]!.AsArray().RemoveAt(0));
             Rejected("a cell outside the frame", array => array[0]!["cells"]![0]!["x"] = 64);
-            Rejected("an invalid block", array => array[0]!["cells"]![0]!["block"] = RoomBlockAppearance.LastBlock + 1);
+            Rejected("an invalid block", array => array[0]!["cells"]![0]!["block"] = -1);
             AssertEqual(frames.Count, installed.All.Count, family.Name + " extracted file names every frame");
         }
         finally

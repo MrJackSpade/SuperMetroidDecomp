@@ -136,7 +136,8 @@ internal static class RoomBlockInventoryVerification
         RoomObjectVisualCatalogSet catalogs = RoomObjectVisualCatalogSet.Load(content);
         IReadOnlyList<RoomBlockWriter> writers = RoomBlockWriters.Of(catalogs,
             XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName)));
-        var family = new HashSet<int>(catalogs.ShotBlock.Images.All.Values.SelectMany(image => image.Cells.Values).Select(shown => shown.Block))
+        var family = new HashSet<int>(catalogs.ShotBlock.Images.All.Values.SelectMany(image => image.Cells.Values)
+            .Where(shown => shown.ShowsBlock).Select(shown => shown.Block))
         {
             catalogs.SetupBlocks.Shown(RoomObjectSetupBlock.ShotBlockParent).Block,
         };
@@ -190,9 +191,9 @@ internal static class RoomBlockInventoryVerification
     /// <summary>The first block, by number, whose start makes the read straddling <paramref name="first"/> and it collide as shootable air.</summary>
     internal static RoomTerrainBlock ShootableAirTail(StraddledTerrain<RoomTerrainBlock> straddled, RoomTerrainBlock first)
     {
-        for (int block = 0; block <= RoomBlockAppearance.LastBlock; block++)
+        for (int block = 0; block < RoomLevelWordCodec.BlockNumbers; block++)
         {
-            var second = RoomTerrainBlock.Of(block, BlockMirroring.None, RoomCollisionType.Air);
+            var second = new RoomTerrainBlock(RoomLevelWordCodec.AppearanceOf(block, BlockMirroring.None), RoomCollisionType.Air);
             if (straddled.Straddling(first, second).Collision == RoomCollisionType.ShootableAir)
                 return second;
         }

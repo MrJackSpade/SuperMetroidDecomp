@@ -204,13 +204,20 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         Ensure.NotNull(terrain);
         Ensure.NotNull(straddledShots);
         Ensure.NotNull(entrances);
+        // A block that shows nothing places no block of the tileset (#2100).
         var placed = new HashSet<int>();
         foreach (RoomBlockAppearance block in level.Foreground.Span)
-            placed.Add(block.Block);
+        {
+            if (block.ShowsBlock)
+                placed.Add(block.Block);
+        }
         if (state.BackgroundScrollModes.Source == RoomBackgroundSource.Level)
         {
             foreach (RoomBlockAppearance block in level.Background.Span)
-                placed.Add(block.Block);
+            {
+                if (block.ShowsBlock)
+                    placed.Add(block.Block);
+            }
         }
         var reactions = new HashSet<RoomTerrainReaction>();
         for (int index = 0; index < terrain.Foreground.Length; index++)

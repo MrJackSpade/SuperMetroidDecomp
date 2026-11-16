@@ -27,21 +27,22 @@ public sealed class RoomBlockPictureTable
 
     /// <summary>
     /// The table of a room whose frame draws none of its level's blocks: the Ceres elevator shaft, whose screen is its turning
-    /// floor (#1647). No block and no collectible has a picture.
+    /// floor (#1647). It covers every block of <paramref name="sheet"/>'s tileset, and no block and no collectible has a
+    /// picture.
     /// </summary>
-    internal static RoomBlockPictureTable NoneDrawn() =>
-        new(new LayeredPicture?[RoomBlockAppearance.LastBlock + 1], new Dictionary<CollectiblePicture, LayeredPicture>());
+    internal static RoomBlockPictureTable NoneDrawn(RoomBlockSheet sheet) =>
+        new(new LayeredPicture?[Ensure.NotNull(sheet).Inputs.Count], new Dictionary<CollectiblePicture, LayeredPicture>());
 
-    /// <summary>The blocks the table covers, used or not: blocks zero up to this.</summary>
+    /// <summary>The blocks the table covers, used or not: blocks zero up to this, every block the tileset installs (#2100).</summary>
     public int Blocks => blocks.Length;
 
     /// <summary>The picture each collectible picture the planes use shows.</summary>
     internal IReadOnlyDictionary<CollectiblePicture, LayeredPicture> Collectibles => collectibles;
 
     /// <summary>
-    /// The picture <paramref name="shown"/> shows, or null when the planes do not use it; a used block whose picture shows
-    /// nothing has neither part.
+    /// The picture <paramref name="shown"/> shows, or null when the planes do not use it or it shows nothing (#2100); a used
+    /// block whose picture shows nothing has neither part.
     /// </summary>
     public LayeredPicture? Picture(RoomCellPicture shown) =>
-        shown.ShowsCollectible ? collectibles.GetValueOrDefault(shown.Collectible) : blocks[shown.Block];
+        shown.ShowsNothing ? null : shown.ShowsCollectible ? collectibles.GetValueOrDefault(shown.Collectible) : blocks[shown.Block];
 }

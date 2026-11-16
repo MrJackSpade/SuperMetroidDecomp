@@ -35,9 +35,10 @@ public static class XrayRevealVisualFiles
     /// revision 8 lists each rule's blocks as its shape copies them instead of four corners with zero for the unused ones,
     /// and names the tanks' reveal blocks <c>tanks</c> (#1756); revision 9 drops the block an extension chain leaving the
     /// room showed, since a chain leaving the room reveals nothing (#1792); revision 10 names the reactions as the room's area
-    /// resolves them, so Brinstar's own Speed Booster blocks are named for themselves alone (#1805).
+    /// resolves them, so Brinstar's own Speed Booster blocks are named for themselves alone (#1805); revision 11 writes no
+    /// block for an appearance that shows nothing (#2100).
     /// </summary>
-    private const int FormatVersion = 10;
+    private const int FormatVersion = 11;
 
     /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -125,7 +126,7 @@ public static class XrayRevealVisualFiles
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlayDefinitions.All
             .Select(overlay => ReadRoomOverlay(bus, overlay)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new XrayRevealVisualDocument(FormatVersion, entries, tanks, rooms),
+            new XrayRevealVisualDocument(FormatVersion, entries, [.. tanks.Select(AppearanceDocument.Of)], rooms),
             JsonOptions);
         using var file = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
         file.Write(json);
@@ -152,10 +153,19 @@ public static class XrayRevealVisualFiles
             foreach (Enum? reaction in ReadingsNamed(entry))
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
-        var overlays = new InstalledXrayOverlays(document.Tanks,
-            document.Rooms.Select(room => new XrayRoomOverlayBlocks(OverlayNamed(room.Overlay),
-                room.Tiles.Select(tile =>
-                    new XrayRoomOverlayVisual(tile.Block, RoomBlockAppearance.Of(tile.Appearance.Block, tile.Appearance.Mirroring))).ToArray())));
+        RoomBlockAppearance[] tanks;
+        XrayRoomOverlayBlocks[] rooms;
+        try
+        {
+            tanks = [.. document.Tanks.Select(tank => tank.ToAppearance())];
+            rooms = [.. document.Rooms.Select(room => new XrayRoomOverlayBlocks(OverlayNamed(room.Overlay),
+                room.Tiles.Select(tile => new XrayRoomOverlayVisual(tile.Block, tile.Appearance.ToAppearance())).ToArray()))];
+        }
+        catch (ArgumentOutOfRangeException error)
+        {
+            throw new InvalidDataException($"X-ray visuals {path} show an invalid block.", error);
+        }
+        var overlays = new InstalledXrayOverlays(tanks, rooms);
         return new InstalledXrayReveals(mappings, overlays);
     }
 
@@ -164,7 +174,7 @@ public static class XrayRevealVisualFiles
     {
         if (document.Version != FormatVersion || document.Entries is null ||
             document.Tanks is null || document.Rooms is null ||
-            document.Tanks.Length != InstalledXrayOverlays.TankCount ||
+            document.Tanks.Length != InstalledXrayOverlays.TankCount || document.Tanks.Any(tank => tank is null) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
         if (!document.Rooms.Select(room => room.Overlay).SequenceEqual(XrayRoomOverlayDefinitions.All.Select(overlay => overlay.Name), StringComparer.Ordinal))
@@ -172,7 +182,7 @@ public static class XrayRevealVisualFiles
         foreach (XrayRoomOverlayEntry room in document.Rooms)
         {
             if (room.Tiles is null || room.Tiles.Length == 0 ||
-                room.Tiles.Any(tile => tile is null))
+                room.Tiles.Any(tile => tile?.Appearance is null))
                 throw new InvalidDataException(
                     $"X-ray visuals {path} contain an invalid room overlay {room.Overlay}.");
         }
@@ -295,7 +305,7 @@ public static class XrayRevealVisualFiles
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} carries collision {decoded.Collision} in ${word:X4}.");
             tiles.Add(new XrayRoomOverlayTileDocument((byte)coordinate,
-                LittleEndianBytes.HighByte(coordinate), decoded.Appearance));
+                LittleEndianBytes.HighByte(coordinate), AppearanceDocument.Of(decoded.Appearance)));
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
@@ -321,7 +331,22 @@ public static class XrayRevealVisualFiles
     /// <param name="Tanks">The four tanks' reveal appearances.</param>
     /// <param name="Rooms">The special rooms' overlays.</param>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
-        RoomBlockAppearance[] Tanks, XrayRoomOverlayEntry[] Rooms);
+        AppearanceDocument[] Tanks, XrayRoomOverlayEntry[] Rooms);
+
+    /// <summary>An appearance as the document writes it (#2100).</summary>
+    /// <param name="Block">The block shown, or null where nothing shows.</param>
+    /// <param name="Mirroring">How it is mirrored.</param>
+    private sealed record AppearanceDocument(int? Block, BlockMirroring Mirroring)
+    {
+        /// <summary>The document of <paramref name="appearance"/>.</summary>
+        internal static AppearanceDocument Of(RoomBlockAppearance appearance) =>
+            new(appearance.ShowsNothing ? null : appearance.Block, appearance.Mirroring);
+
+        /// <summary>The appearance the document names.</summary>
+        /// <exception cref="ArgumentOutOfRangeException">The block is negative, or the mirroring is not the two reflections.</exception>
+        internal RoomBlockAppearance ToAppearance() =>
+            Block is { } block ? RoomBlockAppearance.Of(block, Mirroring) : RoomBlockAppearance.Nothing.WithMirroring(Mirroring);
+    }
     /// <summary>One compiled collision-kind and reaction rule's editable blocks with its fixed copy shape.</summary>
     /// <param name="CollisionType">The rule's collision kind.</param>
     /// <param name="Reactions">The reactions the rule covers, named as the kind's reactions; none for a kind that reads none.</param>
@@ -362,7 +387,7 @@ public static class XrayRevealVisualFiles
     /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the
     /// struct's legal zero/default value during deserialization.</remarks>
     [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
-    private sealed record XrayRoomOverlayTileDocument(int X, int Y, RoomBlockAppearance Appearance)
+    private sealed record XrayRoomOverlayTileDocument(int X, int Y, AppearanceDocument Appearance)
     {
         /// <summary>The tile's block column, 0 through 255.</summary>
         public int X { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, X);

@@ -250,7 +250,7 @@ internal static class CollectiblesVerification
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
         fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
-        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
+        AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");

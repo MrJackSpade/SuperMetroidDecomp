@@ -49,7 +49,7 @@ internal static class BotwoonWallVisualsVerification
             InstalledRoomObjectBotwoonWallVisuals stock =
                 installation.LoadRoomObjectBotwoonWallVisuals();
             for (int block = 0; block < 9; block++)
-                AssertEqual(RoomBlockAppearance.Of(0x0ff),
+                AssertEqual(RoomBlockAppearance.Nothing,
                     stock.Image(BotwoonWallObjectDrawDefinitions.Clear).At(new Offset16<RoomBlocks>(0, block)),
                     $"stock Botwoon wall clear block {block} matches ROM");
 

@@ -30,7 +30,8 @@ internal static class RoomLevelStreamDecoder
     /// <exception cref="InvalidDataException">
     /// The level's size word, foreground, behaviours or background are malformed, a reacting block's behaviour gives its
     /// collision kind no reaction (its kind's dispatch would read past the end of its tables, which no retail block does,
-    /// #1742) or different reactions in the level's areas (#1805), or the cartridge's fill is not the game's edge-solid block.
+    /// #1742) or different reactions in the level's areas (#1805), or the cartridge's fill does not collide as the game's
+    /// edge-solid block.
     /// </exception>
     internal static InstalledRoomLevel Decode(RoomLevelId level, ReadOnlySpan<byte> stream, int widthInBlocks,
         IReadOnlyCollection<AreaId> areas)
@@ -46,9 +47,10 @@ internal static class RoomLevelStreamDecoder
         if ((availableBackgroundBytes & 1) != 0)
             throw new InvalidDataException($"Room level {level} ends inside a background level word.");
 
-        // The game fills the space past the installed data with its edge-solid block, so the cartridge's fill must be it.
-        if (RoomLevelWordCodec.Decode(RoomLevelSpaceDefinitions.PrefillWord) != RoomTerrainBlocks.EdgeSolid)
-            throw new InvalidDataException("The cartridge's level-space fill is not the game's edge-solid block.");
+        // The game fills the space past the installed data with its edge-solid block, which the room never shows, so the
+        // cartridge's fill must collide as it does (#2100).
+        if (RoomLevelWordCodec.Decode(RoomLevelSpaceDefinitions.PrefillWord).Collision != RoomTerrainBlocks.EdgeSolid.Collision)
+            throw new InvalidDataException("The cartridge's level-space fill does not collide as the game's edge-solid block.");
         ReadOnlySpan<byte> payload = stream[SizeWordBytes..];
         ushort[] space = LevelSpace(payload);
         var foreground = ImmutableArray.CreateBuilder<RoomTerrainBlock>(blockCount);

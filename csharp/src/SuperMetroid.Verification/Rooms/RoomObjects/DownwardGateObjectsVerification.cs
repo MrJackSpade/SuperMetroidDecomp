@@ -160,7 +160,7 @@ internal static class DownwardGateObjectsVerification
         // must wake its blue-left gate exactly as it does in room $8F:9E52.
         StepDownwardGateObject(roomObjects, level);
         StepDownwardGateObject(roomObjects, level);
-        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.ShootableBlock),
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
@@ -193,7 +193,7 @@ internal static class DownwardGateObjectsVerification
         }
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
-        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+        AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air),
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled final open draw clears the second column collision word");
         RoomObjectPlaceSnapshot openedGate = roomObjects.PopulationPlaces.Single(place =>

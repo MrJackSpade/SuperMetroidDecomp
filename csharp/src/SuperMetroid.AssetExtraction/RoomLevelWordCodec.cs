@@ -8,6 +8,8 @@ namespace SuperMetroid.AssetExtraction;
 /// The codec of the cartridge's room level word (#1469): the one place its bit layout is known. A level word packs a
 /// block's number in its tileset's block set (bits 0 through 9), its horizontal and vertical mirroring (bits 10 and 11)
 /// and its collision kind (the high nibble, the index of the kind's handler in the cartridge's collision jump tables).
+/// The block set's block 255 is the open space every tileset shares, which shows nothing: the codec decodes it as
+/// <see cref="RoomBlockAppearance.Nothing"/>, so the game never numbers it (#2100).
 /// The import decodes every level word once, here; the game holds <see cref="RoomTerrainBlock"/>s. Tools that write
 /// words back use the same layout through Tooling's encoder. The codec also names the two halves each word is stored
 /// as, which a Wave shot's read landing halfway through a block takes from two neighbouring words; the import decodes
@@ -18,6 +20,12 @@ public static class RoomLevelWordCodec
 {
     /// <summary>The bits naming the block shown.</summary>
     private const int BlockMask = (1 << 10) - 1;
+
+    /// <summary>How many block numbers a level word can name: every value of its block bits.</summary>
+    internal const int BlockNumbers = BlockMask + 1;
+
+    /// <summary>The block number a level word stores for open space, which shows nothing in every tileset.</summary>
+    private const int NothingBlockNumber = 255;
 
     /// <summary>The bit mirroring the block left to right.</summary>
     internal const int HorizontalBit = 1 << 10;
@@ -77,7 +85,30 @@ public static class RoomLevelWordCodec
     /// <summary>Decodes the appearance half of a level word, ignoring its collision nibble.</summary>
     /// <param name="word">A cartridge level word, or an appearance-only word.</param>
     public static RoomBlockAppearance DecodeAppearance(ushort word) =>
-        new(word & BlockMask,
+        AppearanceOf(word & BlockMask,
             ((word & HorizontalBit) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
             ((word & VerticalBit) != 0 ? BlockMirroring.Vertical : BlockMirroring.None));
+
+    /// <summary>
+    /// The appearance a level word naming block <paramref name="blockNumber"/> with <paramref name="mirroring"/> stores:
+    /// that block of the tileset, or nothing for the open-space block.
+    /// </summary>
+    /// <param name="blockNumber">The block number, 0 through <see cref="BlockNumbers"/> less one.</param>
+    /// <param name="mirroring">How the block is mirrored.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The number is not one a level word can name.</exception>
+    public static RoomBlockAppearance AppearanceOf(int blockNumber, BlockMirroring mirroring) =>
+        Ensure.BetweenInclusive(0, BlockNumbers - 1, blockNumber) == NothingBlockNumber
+            ? RoomBlockAppearance.Nothing.WithMirroring(mirroring)
+            : RoomBlockAppearance.Of(blockNumber, mirroring);
+
+    /// <summary>
+    /// The block number a level word stores for <paramref name="appearance"/>: its block's, the open-space block for
+    /// nothing, and the fill's block for terrain beyond the room, which the cartridge's level space holds there.
+    /// </summary>
+    /// <param name="appearance">The appearance.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The block is past what a level word can name.</exception>
+    public static int BlockNumberOf(RoomBlockAppearance appearance) =>
+        appearance.ShowsNothing ? NothingBlockNumber
+            : appearance.IsBeyondRoom ? Rooms.RoomLevelSpaceDefinitions.PrefillWord & BlockMask
+            : Ensure.BetweenInclusive(0, BlockNumbers - 1, appearance.Block);
 }

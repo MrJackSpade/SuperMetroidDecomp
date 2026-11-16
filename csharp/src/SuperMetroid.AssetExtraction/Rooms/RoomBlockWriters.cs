@@ -39,7 +39,7 @@ internal static class RoomBlockWriters
             .. PerFrame(catalogs.LinkedRestore.Images, LinkedRestoreWrittenIn),
             new(FrameBlocks(catalogs.SpeedBooster.Images), state => state.HoldsSpeedBoosterBlocks),
             new(FrameBlocks(catalogs.SamusEater.Images), state => state.HoldsSamusEaterPlants),
-            .. catalogs.SetupBlocks.All.Select(setup => new RoomBlockWriter(                new HashSet<int> { setup.Value.Block }, SetupBlockWrittenIn(setup.Key))),
+            .. catalogs.SetupBlocks.All.Select(setup => new RoomBlockWriter(BlocksOf([setup.Value]), SetupBlockWrittenIn(setup.Key))),
             // The blue door caps a shootable cap opens, and those closing behind Samus as she comes through a door.
             .. PerFrame(catalogs.BlueDoor.Images, BlueDoorFrameWrittenIn),
             // The room objects the population places.
@@ -76,7 +76,7 @@ internal static class RoomBlockWriters
             // The X-ray reveal: each reveal where the terrain holds the block it copies over, each tank where one is placed,
             // and a room's overlay only there.
             .. XrayRevealWriters(xray),
-            .. TankKinds.Select(tank => new RoomBlockWriter(new HashSet<int> { xray.Overlays.TankBlock(tank).Block },
+            .. TankKinds.Select(tank => new RoomBlockWriter(BlocksOf([xray.Overlays.TankBlock(tank)]),
                 state => state.PlacesCollectible((kind, _) => kind == tank))),
             .. xray.Overlays.rooms.Select(overlay => new RoomBlockWriter(                BlocksOf(overlay.Value.Select(tile => tile.Appearance)), state => Equals(state.XrayOverlay, overlay.Key))),
         ];
@@ -268,11 +268,12 @@ internal static class RoomBlockWriters
     private static HashSet<int> BlockPairBlocks() =>
         [.. RoomObjectCollectibleDrawDefinitions.BlockPairBlocks.Values];
 
-    /// <summary>The blocks <paramref name="shown"/> show, each once.</summary>
-    private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) => [.. shown.Select(block => block.Block)];
+    /// <summary>The blocks <paramref name="shown"/> show, each once; an appearance that shows nothing shows none (#2100).</summary>
+    private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) =>
+        [.. shown.Where(block => block.ShowsBlock).Select(block => block.Block)];
 
     /// <summary>Every block one installed frame shows.</summary>
-    private static HashSet<int> BlocksOf(RoomObjectFrameImage image) => [.. image.Cells.Values.Select(shown => shown.Block)];
+    private static HashSet<int> BlocksOf(RoomObjectFrameImage image) => BlocksOf(image.Cells.Values);
 
     /// <summary>Written in a room state whose population places one of <paramref name="headers"/>.</summary>
     private static Func<InventoriedRoomState, bool> Placing(IEnumerable<RoomObjectKind> headers)
@@ -290,5 +291,5 @@ internal static class RoomBlockWriters
 
     /// <summary>Every block any of a room object's installed frames shows.</summary>
     private static HashSet<int> FrameBlocks<TFrame>(RoomObjectFrameImages<TFrame> images) where TFrame : notnull =>
-        [.. images.All.Values.SelectMany(image => image.Cells.Values).Select(shown => shown.Block)];
+        BlocksOf(images.All.Values.SelectMany(image => image.Cells.Values));
 }

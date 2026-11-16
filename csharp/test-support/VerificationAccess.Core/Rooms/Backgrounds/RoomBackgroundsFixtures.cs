@@ -393,7 +393,7 @@ internal static class RoomBackgroundsFixtures
             for (int index = 0; index < blocks.Length; index++)
             {
                 int draw = random.Next(ushort.MaxValue + 1);
-                blocks[index] = RoomBlockAppearance.Of(draw & RoomBlockAppearance.LastBlock,
+                blocks[index] = RoomBlockAppearance.Of(draw % Definitions,
                     ((draw & (1 << 10)) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
                     ((draw & (1 << 11)) != 0 ? BlockMirroring.Vertical : BlockMirroring.None));
             }

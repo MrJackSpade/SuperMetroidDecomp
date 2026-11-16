@@ -103,8 +103,8 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomBlockAppearance.Of(0x057), setupBlocks.Shown(RoomObjectSetupBlock.PowerBombBlockParent), "Power Bomb block parent setup picture");
         AssertEqual(RoomBlockAppearance.Of(0x09f), setupBlocks.Shown(RoomObjectSetupBlock.SuperMissileBlockParent), "Super Missile block parent setup picture");
         AssertEqual(RoomBlockAppearance.Of(0x09f), setupBlocks.Shown(RoomObjectSetupBlock.CritterWallStruck), "struck rescue wall setup picture");
-        AssertEqual(RoomBlockAppearance.Of(0x0ff), setupBlocks.Shown(RoomObjectSetupBlock.TreadmillIdle), "idle treadmill row setup picture");
-        AssertEqual(RoomBlockAppearance.Of(0x0ff), setupBlocks.Shown(RoomObjectSetupBlock.TreadmillRunning), "running treadmill row setup picture");
+        AssertEqual(RoomBlockAppearance.Nothing, setupBlocks.Shown(RoomObjectSetupBlock.TreadmillIdle), "idle treadmill row setup picture");
+        AssertEqual(RoomBlockAppearance.Nothing, setupBlocks.Shown(RoomObjectSetupBlock.TreadmillRunning), "running treadmill row setup picture");
 
         Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and terrain blocks keep their values.");
     }

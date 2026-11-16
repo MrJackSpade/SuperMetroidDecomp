@@ -99,7 +99,7 @@ internal static class BombTorizoHandVerification
             "hand fragments preserve cartridge order");
         AssertTrue(!roomObjects.BombTorizoHand.HandRemains,
             "final delete removes header seen by Torizo AI");
-        AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
+        AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air),
             level.GetCollisionBlock(handOrigin).Terrain,
             "five-run cleared hand removes its physical origin block");
         AssertEqual(1, roomObjects.Sounds.MusicRequests.Count,

@@ -18,7 +18,7 @@ internal static class BabyMetroidThemeVerification
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 0;
-        var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var sequence = MotherBrainLateFightFixtures.NewSequence();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);

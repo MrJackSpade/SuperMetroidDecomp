@@ -56,14 +56,32 @@ internal sealed class MotherBrainHead
         head.SetSpeciesState(state);
 
         head.Health = 3000;
-        // The brain initializer gives the head enemy the dummy animation for life (the encounter state's
-        // head-place cursor starts there): its dummy frame is the head's collision hitbox.
-        // The visible brain runs a separate animation.
+        // The head shows her brain's hit area from its next animation update on (#2220); the visible brain runs a
+        // separate animation.
         head.AnimationClock.StepOnNextUpdate();
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
         state.Head = head;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
+    }
+
+    /// <summary>
+    /// The head place's animation update (#2220): its first shows her brain's hit area for good, which is what Samus and
+    /// her shots meet there; the visible brain runs its own animation in her brain's draw.
+    /// </summary>
+    internal static void AdvanceMotherBrainHeadPlace(RoomEnemyPlace head)
+    {
+        if (head.AnimationClock.Expire())
+            ShowBrainHitArea(head);
+    }
+
+    /// <summary>
+    /// Shows her brain's hit area on <paramref name="place"/> for good, as a frame whose hold is left to wrap from zero.
+    /// </summary>
+    internal static void ShowBrainHitArea(RoomEnemyPlace place)
+    {
+        place.Frame = EnemyFrameId.MotherBrainBrainHitArea;
+        place.AnimationClock.Show(0);
     }
 
     /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>

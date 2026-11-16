@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Cartridge values and helpers of <see cref="MotherBrainBodyVisualDefinitions"/> that only verification reads.</summary>
 internal static class MotherBrainBodyVisualDefinitionsConstants
 {
-    /// <summary>Recognizes a selected body root with a BG2 stream, excluding the OAM-only dummy.</summary>
+    /// <summary>Recognizes a selected body root with a BG2 stream.</summary>
     internal static bool HasBg2(ushort pointer) => pointer == MotherBrainBodyVisualDefinitionsConstants.Standing ||
         InRun(pointer, MotherBrainBodyVisualDefinitionsConstants.WalkingStart, 3, 0x52) || InRun(pointer, MotherBrainBodyVisualDefinitionsConstants.LaterWalkingStart, 6, 0x4a) ||
         InRun(pointer, MotherBrainBodyVisualDefinitionsConstants.Uncrouching, 2, 0x4a) || InRun(pointer, MotherBrainBodyVisualDefinitionsConstants.DeathBeamStart, 4, 0x4a);
@@ -41,7 +41,6 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
         EnemyFrameId.MotherBrainBodyCrouched,
         EnemyFrameId.MotherBrainBodyUncrouching,
         EnemyFrameId.MotherBrainBodyLeaningDown,
-        EnemyFrameId.MotherBrainBodyInitialDummy,
         EnemyFrameId.MotherBrainBodyHandCurling,
         EnemyFrameId.MotherBrainBodyArmDrawnBack,
         EnemyFrameId.MotherBrainBodyArmFlungOut,
@@ -51,7 +50,7 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
     internal static NativeEnemySpritemapDefinition Frame(EnemyFrameId frame) => Frame(Array.IndexOf(CartridgeOrder, frame));
     /// <summary>Calculates the published OAM identity. Native record strides are
     /// two header bytes plus eight bytes per component; explicit run boundaries
-    /// preserve the shorter crouched/dummy frames and skipped unselected roots.
+    /// preserve the shorter crouched frame and skip unselected roots, her brain's blank frame among them.
     /// The name is the one the installed extended-frame document stores the frame under (#1623).</summary>
     internal static NativeEnemySpritemapDefinition Frame(int index)
     {
@@ -59,8 +58,8 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
         ushort pointer = (ushort)(index == 0 ? Standing
             : index < 4 ? WalkingStart + 0x52 * (index - 1)
             : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)
-            : index < 13 ? Uncrouching + 0x4a * (index - 10)
-            : DeathBeamStart + 0x4a * (index - 13));
+            : index < 12 ? Uncrouching + 0x4a * (index - 10)
+            : DeathBeamStart + 0x4a * (index - 12));
         string name = EnemyFrameNameDefinitions.Names[CartridgeOrder[index]];
         return new(MotherBrainBodyVisualToolingDefinitions.Bank, pointer, name);
     }

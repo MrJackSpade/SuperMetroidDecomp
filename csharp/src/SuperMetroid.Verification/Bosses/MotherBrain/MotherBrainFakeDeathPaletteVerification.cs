@@ -28,12 +28,13 @@ internal static class MotherBrainFakeDeathPaletteVerification
             var enemies = CreateFakeDeathPaletteEnemy();
             var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
             {
-                Phase = toGrey
-                    ? MotherBrainBodyPhase.FakeDeathDescentFadeToGray
-                    : MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray,
                 TubeCollapseStep = MotherBrainTubeCollapseStep.Finished,
                 FakeDeathExplosionTimer = { Count = 100 },
             };
+            if (toGrey)
+                state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
+            else
+                state.AscentPhase = MotherBrainAscentPhase.TransitionFromGray;
             Action<MotherBrainEnemyState> step = toGrey
                 ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
                 : MotherBrainFakeDeath.TransitionMotherBrainFromGray;
@@ -62,8 +63,9 @@ internal static class MotherBrainFakeDeathPaletteVerification
             step(state);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                 "fake-death grey terminator leaves every CGRAM word unchanged");
-            AssertEqual(toGrey ? MotherBrainBodyPhase.FakeDeathDescentCollapseTubes :
-                MotherBrainBodyPhase.SecondPhaseStretchingShakeHead, state.Phase,
+            AssertTrue(toGrey
+                    ? state.Stage == MotherBrainBodyStage.FakeDeathDescent && state.DescentPhase == MotherBrainDescentPhase.CollapseTubes
+                    : state.Stage == MotherBrainBodyStage.Phase2Fight && state.Phase2FightPhase == MotherBrainPhase2FightPhase.StretchingShakeHead,
                 "fake-death grey terminator preserves the native phase transition");
         }
     }

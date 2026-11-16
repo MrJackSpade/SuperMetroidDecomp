@@ -1011,8 +1011,8 @@ internal static class LookupStream3Verification
         foreach (bool mixed in new[] { false, true })
         {
             var bursts = new MotherBrainBurstCycle();
-            var scatter = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), bursts);
-            scatter.State.Body.Position = new(320, 192);
+            var scatter = MotherBrainLateFightFixtures.NewSequence(bursts);
+            scatter.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(320, 192));
             for (int burst = 0; burst < 8; burst++)
             {
                 PrivateState.Set(bursts, nameof(MotherBrainBurstCycle.Interval), 0);
@@ -1029,14 +1029,14 @@ internal static class LookupStream3Verification
                     short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
                     AssertEqual(group, bursts.Place, "stream 3 death scatter reverse group order");
                     AssertEqual(new OctantVector(x, y), new OctantVector(requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
-                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
-                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
+                    AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.BodyPosition.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
+                    AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.BodyPosition.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
                     AssertEqual(mixed ? MotherBrainDeathExplosionAnimation.BigExplosion : MotherBrainDeathExplosionAnimation.Smoke, requests[item].Animation, "stream 3 independent death type case");
                 }
             }
         }
-        var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
-        sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStartEscape;
+        var sequence = MotherBrainLateFightFixtures.NewSequence();
+        sequence.Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -1067,8 +1067,8 @@ internal static class LookupStream3Verification
         }
         foreach (int stage in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
-            var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
-            sequence.State.Body.Position = sequence.State.Body.Position.WithX(0);
+            var sequence = MotherBrainLateFightFixtures.NewSequence();
+            sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(0);
             sequence.DrainedByBaby.PainfulWalkingStage = stage;
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
             sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalking.AnimationDelay(Math.Min(stage, 7));
@@ -1085,7 +1085,7 @@ internal static class LookupStream3Verification
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var sequence = MotherBrainLateFightFixtures.NewSequence();
         EncounterArtworkUpload[] Copies(params string[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
             EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
         foreach (bool timerList in new[] { true, false })

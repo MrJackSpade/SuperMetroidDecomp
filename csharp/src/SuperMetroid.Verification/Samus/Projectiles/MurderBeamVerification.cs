@@ -137,11 +137,10 @@ internal static class MurderBeamVerification
         AssertEqual(400, target.FrozenTimer,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
 
-        var phaseBoundary = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var phaseBoundary = MotherBrainLateFightFixtures.NewSequence();
         phaseBoundary.StartFinishOffSequence();
         phaseBoundary.BeginPhase3RecoveryFromBabyCutscene();
-        AssertEqual(MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance,
-            phaseBoundary.State.Phase, "Mother Brain enters the phase-three recovery boundary");
+        AssertEqual(MotherBrainPhase3FightPhase.RecoverMakeSomeDistance, phaseBoundary.Encounter.Phase3FightPhase, "Mother Brain enters the phase-three recovery boundary");
         for (int frame = 0; frame < 120; frame++)
         {
             shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);

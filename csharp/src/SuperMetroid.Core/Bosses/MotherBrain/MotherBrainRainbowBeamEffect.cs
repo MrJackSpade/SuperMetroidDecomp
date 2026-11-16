@@ -23,18 +23,15 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <summary>What the beam shows now, or null while it is hidden; taking it never advances the beam.</summary>
     public MotherBrainRainbowBeamRenderSnapshot? RenderSnapshot => Active && Geometry is { } cone ? new(Color, cone) : null;
 
-    /// <summary>One update of the beam, after the head's position and beam aim have been resolved.</summary>
-    /// <param name="active">Enemy-owned enable state; false hides the beam without advancing its colour, and a later activation restarts the color cycle.</param>
+    /// <summary>One update that hides the beam, without advancing its colour; the next update that shows it restarts the colour cycle.</summary>
+    public void Hide() => Active = false;
+
+    /// <summary>One update that shows the beam, after the head's position and beam aim have been resolved.</summary>
     /// <param name="head">Head enemy's whole-pixel room position. The mouth lies fourteen pixels right of it and five below.</param>
     /// <param name="angle">Beam center aim; only its whole angle units are used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Angular width; its whole steps are halved with integer truncation to obtain each edge's displacement in steps.</param>
-    public void Step(bool active, Position16<RoomPixels> head, RotationAngle angle, RotationAngle angularWidth)
+    public void Show(Position16<RoomPixels> head, RotationAngle angle, RotationAngle angularWidth)
     {
-        if (!active)
-        {
-            Active = false;
-            return;
-        }
         if (!Active)
         {
             Active = true;

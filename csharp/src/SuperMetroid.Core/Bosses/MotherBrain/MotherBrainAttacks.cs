@@ -13,15 +13,13 @@ internal sealed class MotherBrainAttacks
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-    private readonly MotherBrainRainbowAndDeath _rainbowAndDeath;
+
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainAttacks(EnemyRoomBinding room, MotherBrainRainbowAndDeath rainbowAndDeath)
+    internal MotherBrainAttacks(EnemyRoomBinding room)
     {
         _room = room;
-        _rainbowAndDeath = rainbowAndDeath;
     }
 
     /// <summary>Runs the body's current phase, one of four.</summary>
@@ -56,7 +54,7 @@ internal sealed class MotherBrainAttacks
                 state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
                 state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
-                state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
                 return;
 
             default:
@@ -86,17 +84,11 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>Advances the between-attacks delay and chooses when another attack may start.</summary>
-    internal void RunMotherBrainSecondPhaseThinking(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    internal void RunMotherBrainSecondPhaseThinking(MotherBrainEnemyState state)
     {
         if (state.Head.Health == 0)
         {
-            StartLiveMotherBrainRainbowBeam(
-                state,
-                samus,
-                sharedProjectiles);
+            StartLiveMotherBrainRainbowBeam(state);
             return;
         }
         if (state.Pose != MotherBrainBodyPose.Standing)
@@ -109,7 +101,7 @@ internal sealed class MotherBrainAttacks
             {
                 // The attack setup installs the attack sequence and returns. It does not execute
                 // phase zero until the body's next enemy-AI call.
-                state.Phase = MotherBrainBodyPhase.SecondPhaseTryAttack;
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.TryAttack;
                 return;
             }
             HandleMotherBrainWalking(state);
@@ -123,13 +115,13 @@ internal sealed class MotherBrainAttacks
         }
         if (MotherBrainRandomDefinitions.AttacksWhenWounded.IsTakenBy(random))
         {
-            state.Phase = MotherBrainBodyPhase.SecondPhaseTryAttack;
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.TryAttack;
             return;
         }
         // The hand-beam setup installs the ordinary red hand-beam sequence. It does not execute phase
         // zero until the next body AI call; the rainbow beam's sequence is separate and
         // entered only when health reaches zero.
-        state.Phase = MotherBrainBodyPhase.SecondPhaseHandBeam;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.HandBeam;
     }
 
     /// <summary>
@@ -156,7 +148,7 @@ internal sealed class MotherBrainAttacks
 
             case MotherBrainAttackPhase.EndAttack:
                 state.AttackPhase = MotherBrainAttackPhase.ChooseAttack;
-                state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
                 return;
 
             default:
@@ -190,7 +182,7 @@ internal sealed class MotherBrainAttacks
             // The laser branch abandons the rest of the attack choice, then installs and
             // starts the quick laser aim. Running its first step here keeps it in the same
             // frame rather than introducing an otherwise visible idle frame.
-            state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly;
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
             PositionMotherBrainHeadQuicklyForLaser(state, samus);
             return;
         }
@@ -199,7 +191,7 @@ internal sealed class MotherBrainAttacks
         // to the attack Samus's distance chooses.
         if (MotherBrainRandomDefinitions.AttackPresses.IsTakenBy(random) && state.BombCounter < 1)
         {
-            state.Phase = MotherBrainBodyPhase.SecondPhaseBombDecideWalking;
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;
             DecideMotherBrainBombWalking(state);
             return;
         }
@@ -218,7 +210,7 @@ internal sealed class MotherBrainAttacks
                 MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2);
                 return;
             case MotherBrainSecondPhaseAttack.Laser:
-                state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly;
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
                 PositionMotherBrainHeadQuicklyForLaser(state, samus);
                 return;
             case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
@@ -226,7 +218,7 @@ internal sealed class MotherBrainAttacks
                 // already alive. The body still spends the full cooldown in phase one.
                 return;
             case MotherBrainSecondPhaseAttack.Bomb:
-                state.Phase = MotherBrainBodyPhase.SecondPhaseBombDecideWalking;
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;
                 DecideMotherBrainBombWalking(state);
                 return;
             default:
@@ -260,7 +252,7 @@ internal sealed class MotherBrainAttacks
                 state.BodyTargetXPosition = targetX;
                 if (!TryWalkMotherBrainBackwards(state, targetX))
                 {
-                    state.Phase = MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards;
+                    state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombWalkingBackwards;
                     return;
                 }
             }
@@ -288,7 +280,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        state.Phase = MotherBrainBodyPhase.SecondPhaseBombCrouch;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombCrouch;
         CrouchMotherBrainForBomb(state);
     }
 
@@ -303,7 +295,7 @@ internal sealed class MotherBrainAttacks
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
-        state.Phase = MotherBrainBodyPhase.SecondPhaseBombFired;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombFired;
         state.PhaseTimer.Count = 44;
     }
 
@@ -319,7 +311,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        state.Phase = MotherBrainBodyPhase.SecondPhaseBombStandUp;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombStandUp;
 
         // The wait falls directly into the stand-up, so a crouched body starts standing twice on
         // this frame. Both starts restart the same animation and timer, and the stand-up
@@ -336,7 +328,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>Returns the body and head to their neutral thinking phase after a bomb.</summary>
     private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
-        state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
 
     /// <summary>
     /// Walks Mother Brain backwards toward <paramref name="targetX"/> at the medium gait; the hard floor at X=48 reports
@@ -412,7 +404,7 @@ internal sealed class MotherBrainAttacks
         state.LowerNeckMovement = targetMovement;
         state.UpperNeckMovement = targetMovement;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Quick;
-        state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadSlowlyAndFire;
         state.PhaseTimer.Count = 4;
     }
 
@@ -428,7 +420,7 @@ internal sealed class MotherBrainAttacks
 
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
-        state.Phase = MotherBrainBodyPhase.SecondPhaseLaserFinishAttack;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserFinishAttack;
         state.PhaseTimer.Count = 16;
     }
 
@@ -437,18 +429,15 @@ internal sealed class MotherBrainAttacks
     /// phase and cooldown intentionally remain as selected: the laser body state replaces
     /// the attack sequence, so the chain does not pass through that sequence's end phase.
     /// </summary>
-    internal void FinishMotherBrainLaserAttack(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    internal void FinishMotherBrainLaserAttack(MotherBrainEnemyState state)
     {
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
         state.LowerNeckMovement = MotherBrainNeckMovement.BobUp;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-        state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
-        RunMotherBrainSecondPhaseThinking(state, samus, sharedProjectiles);
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
+        RunMotherBrainSecondPhaseThinking(state);
     }
 
     /// <summary>Advances the chosen walk direction, animation, and footstep cadence.</summary>
@@ -497,23 +486,11 @@ internal sealed class MotherBrainAttacks
     /// same body-AI call, but the freshly installed rainbow timer is not decremented until
     /// Mother Brain's next enemy turn.
     /// </summary>
-    internal void StartLiveMotherBrainRainbowBeam(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
-        MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
         state.NextRainbowFrame = 0;
-        state.RainbowAppliedHeadAnimation = null;
-        state.RainbowAppliedSmallPurpleBreathWrites = 0;
-        _rainbowAndDeath.ApplyLiveMotherBrainRainbowState(
-            state,
-            sequence,
-            step: null,
-            samus,
-            sharedProjectiles);
     }
 }

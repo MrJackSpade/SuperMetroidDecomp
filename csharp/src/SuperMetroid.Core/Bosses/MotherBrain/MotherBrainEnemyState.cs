@@ -40,12 +40,127 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
-    /// <summary>The body's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
-    public MotherBrainBodyPhase Phase { get; internal set; }
+    /// <summary>
+    /// The stage her body is in (#2208), which names the type of the phase it runs on its next AI turn; setting a stage's
+    /// phase enters that stage. Her body's setup leaves it in the <see cref="MotherBrainBodyStage.Glass"/> stage.
+    /// </summary>
+    public MotherBrainBodyStage Stage { get; private set; }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathDescent"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainDescentPhase DescentPhase
+    {
+        get => Stage == MotherBrainBodyStage.FakeDeathDescent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathDescent);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.FakeDeathDescent;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathAscent"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainAscentPhase AscentPhase
+    {
+        get => Stage == MotherBrainBodyStage.FakeDeathAscent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathAscent);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.FakeDeathAscent;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase2Fight"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainPhase2FightPhase Phase2FightPhase
+    {
+        get => Stage == MotherBrainBodyStage.Phase2Fight ? field : throw NotIn(MotherBrainBodyStage.Phase2Fight);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Phase2Fight;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.RainbowBeam"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainRainbowPhase RainbowPhase
+    {
+        get => Stage == MotherBrainBodyStage.RainbowBeam ? field : throw NotIn(MotherBrainBodyStage.RainbowBeam);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.RainbowBeam;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FinishingSamusOff"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainFinishOffPhase FinishOffPhase
+    {
+        get => Stage == MotherBrainBodyStage.FinishingSamusOff ? field : throw NotIn(MotherBrainBodyStage.FinishingSamusOff);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.FinishingSamusOff;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.DrainedByBaby"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainDrainedPhase DrainedPhase
+    {
+        get => Stage == MotherBrainBodyStage.DrainedByBaby ? field : throw NotIn(MotherBrainBodyStage.DrainedByBaby);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.DrainedByBaby;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Reviving"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainRevivalPhase RevivalPhase
+    {
+        get => Stage == MotherBrainBodyStage.Reviving ? field : throw NotIn(MotherBrainBodyStage.Reviving);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Reviving;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase3Fight"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainPhase3FightPhase Phase3FightPhase
+    {
+        get => Stage == MotherBrainBodyStage.Phase3Fight ? field : throw NotIn(MotherBrainBodyStage.Phase3Fight);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Phase3Fight;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Dying"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainDeathPhase DeathPhase
+    {
+        get => Stage == MotherBrainBodyStage.Dying ? field : throw NotIn(MotherBrainBodyStage.Dying);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Dying;
+        }
+    }
+
+    /// <summary>The failure of reading a stage's phase while her body is in another.</summary>
+    private InvalidOperationException NotIn(MotherBrainBodyStage stage) =>
+        new($"Mother Brain's body is in its {Stage} stage, not {stage}.");
 
     /// <summary>
     /// How many of the mural's rows her fake death's ascent has drawn (#2211): zero when the reveal starts, two more each
-    /// update of <see cref="MotherBrainBodyPhase.FakeDeathAscentDrawMural"/>.
+    /// update of <see cref="MotherBrainAscentPhase.DrawMural"/>.
     /// </summary>
     public int MuralRowsDrawn { get; internal set; }
     /// <summary>The brain's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
@@ -90,7 +205,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal MotherBrainColours Colours { get; } = new();
 
     /// <summary>
-    /// The brain's own animation (#641, #1600), separate from the head enemy's dummy animation: its place rests on the
+    /// The brain's own animation (#641, #1600), separate from the head place, which shows her brain's hit area: its place rests on the
     /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the animation
     /// setter and the draw-time runner write it.
     /// </summary>
@@ -103,15 +218,16 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public int BrainFrameTimer { get; internal set; }
 
-    /// <summary>The body enemy's animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<MotherBrainBodySegment> BodyPlayback { get; set; } =
-        new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
+    /// <summary>
+    /// The body enemy's animation and where it stands (#641, #1600), or null before its first animation, while her body
+    /// shows her brain's hit area (#2220).
+    /// </summary>
+    internal AnimationPlayback<MotherBrainBodySegment>? BodyPlayback { get; set; }
 
-    /// <summary>The head enemy's animation and where it stands; it keeps the initial dummy for life.</summary>
-    internal AnimationPlayback<MotherBrainBodySegment> HeadPlayback { get; set; } =
-        new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
-
-    /// <summary>Earthquake timer copied into the head-shake timer after the glass event.</summary>
+    /// <summary>
+    /// How many more of her brain's draws shake it, counted down by each draw: the glass event's earthquake loads it, and
+    /// the brain's shake cue, the Hyper Beam recoil and the drained beam's refresh load fifty.
+    /// </summary>
     public int BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Shared flag that asks Mother Brain Rinkas and turrets to remove themselves.</summary>
@@ -198,8 +314,6 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
-    /// <summary>One-shot latch for her death clearing her body.</summary>
-    public bool DeathBodyLayerCleared { get; internal set; }
     /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
@@ -209,7 +323,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainBurstCycle Bursts { get; }
 
-    /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
+    /// <summary>
+    /// The step her colours' current transition has reached, counting from zero: leaving the fake death's grey, greying
+    /// as the Baby drains her, reviving from it, and her final death's fades.
+    /// </summary>
     public int GrayTransitionCounter { get; internal set; }
 
     /// <summary>Allows the head animation's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
@@ -292,20 +409,18 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }
 
     /// <summary>
-    /// The rainbow, finish-off, Baby and phase-three state machine, attached to
-    /// the real body/head pair only after phase-two health reaches zero. Physical actor
-    /// coordinates and animations remain owned by this room system; this object owns the long
-    ///  phase chain and forced-Samus calculations.
+    /// The rainbow, finish-off, Baby and phase-three phases, attached once phase-two health reaches zero. They run over
+    /// this encounter, reading and writing its body, brain, phase, neck and flags in place (#2209), and keep only what the
+    /// late fight alone needs: the beam, the forced Samus movement, the Baby's arrival and her death's progress.
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
     {
         get;
         internal set
         {
-            // An attached sequence reads and writes the encounter's own walk credit, and its death explosions and the
-            // escape door's dust continue the encounter's bursts (#1872): it is built over both.
-            if (value is not null && (!ReferenceEquals(value.Walk, Walk) || !ReferenceEquals(value.Bursts, Bursts)))
-                throw new InvalidOperationException("A rainbow-beam sequence attached to Mother Brain's encounter is built over its walk credit and burst cycle.");
+            // An attached sequence runs this encounter: its walk credit, its bursts (#1872) and its state are this one's.
+            if (value is not null && !ReferenceEquals(value.Encounter, this))
+                throw new InvalidOperationException("A rainbow-beam sequence attached to Mother Brain's encounter is built over that encounter.");
             field = value;
         }
     }
@@ -335,30 +450,20 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>Whether body AI currently shows the rainbow beam.</summary>
-    public bool RainbowBeamActive { get; internal set; }
     /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
-    /// <summary>Current angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
-    public RotationAngle RainbowBeamAngle { get; internal set; }
-    /// <summary>Rainbow-beam angular width, published by body AI as the beam widens or narrows; independent of pixel width at a given screen row.</summary>
-    public RotationAngle RainbowBeamAngularWidth { get; internal set; }
 
     /// <summary>
-    /// Last brain animation copied from the rainbow state machine into the brain.
-    /// The brain cursor advances away from the animation start, so comparing against it
-    /// would reinstall the animation and reset its timer every frame. This separate
-    /// producer-owned latch mirrors the fact that the brain-animation request runs only when body AI
-    /// explicitly requests a different brain animation.
+    /// Advances her rainbow beam's effect for this update from her brain at <paramref name="head"/>: it shows while the
+    /// late fight's attack holds the beam, aimed and as wide as the attack has it, and is hidden otherwise.
     /// </summary>
-    internal MotherBrainHeadSegment? RainbowAppliedHeadAnimation { get; set; }
-
-    /// <summary>
-    /// Last <see cref="MotherBrainLateFightState.SmallPurpleBreathGenerationWriteCount"/>
-    /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-animation clear
-    /// survives until the body next writes the flag.
-    /// </summary>
-    internal uint RainbowAppliedSmallPurpleBreathWrites { get; set; }
+    internal void StepRainbowBeam(Position16<RoomPixels> head)
+    {
+        if (RainbowBeamSequence is { RainbowAttack.BeamActive: true } beam)
+            RainbowBeam.Show(head, beam.RainbowBeamAngle, beam.RainbowAttack.AngularWidth);
+        else
+            RainbowBeam.Hide();
+    }
 
 
     /// <summary>

@@ -63,10 +63,6 @@ internal static class MotherBrainAnimations
         [B.CrouchSlow] = [.. Crouch(8, 8)],
         [B.CrouchFast] = [.. Crouch(2, 2)],
         [B.HandBeam] = HandBeam(),
-        [B.InitialDummy] =
-        [
-            BodyShow(EnemyFrameId.MotherBrainBodyInitialDummy, 0),
-        ],
     });
 
     /// <summary>Each body segment's animation: its segment played once, then held.</summary>

@@ -34,7 +34,7 @@ internal static class CinematicCrystalFlashVerification
             CrystalFlashPhase phaseBefore = samus.CrystalFlash.Phase;
             ushort yBefore = samus.Position.Y.Whole;
 
-            var rainbow = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+            var rainbow = MotherBrainLateFightFixtures.NewSequence();
             rainbow.RainbowAttack.StartActiveBeam(samus);
             AssertEqual(DrainedSamusPhase.RainbowBeamLocked, samus.Drained.Phase,
                 $"Mother Brain command $18 installs drained lock after {movementCalls} Flash calls");
@@ -58,7 +58,7 @@ internal static class CinematicCrystalFlashVerification
             SamusState motherSamus) = CreateCinematicFlashRuntime(movementCalls: 12);
         motherSamus.MaxHealth = 9999;
         motherSamus.Health = 699;
-        var motherRainbow = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var motherRainbow = MotherBrainLateFightFixtures.NewSequence();
         motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
         var motherCameraCheckpoint = new RainbowBeamCameraCheckpoint();
         bool motherUnlocked = false;
@@ -66,9 +66,7 @@ internal static class CinematicCrystalFlashVerification
         {
             MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, new RainbowBeamAttackFrame { EnemyFrameCounter = frame, MainEnemyExecutionCounter = frame, CameraCheckpoint = motherCameraCheckpoint });
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
-            bool unlockedSamus = !motherSamus.Control.InputLocked &&
-                step.PhaseBefore != MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall &&
-                step.PhaseAfter == MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall;
+            bool unlockedSamus = !motherSamus.Control.InputLocked && step.BeamEnded;
             motherRuntime.StepFrame(0);
             if (!unlockedSamus)
                 continue;

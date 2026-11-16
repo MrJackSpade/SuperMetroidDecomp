@@ -29,7 +29,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
         var step = new BabyMetroidCutsceneStepResult(
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
-            BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
+            LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
             DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
             BabyFadeShade: null, RecoveryLightsFrame: null);
@@ -50,7 +50,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, EnemySound.SmallExplosion),
         };
         runtime.Enemies.Audio.BeginFrame();
-        runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle()), death);
+        runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, death);
         AssertSequenceEqual(
             new[]
             {

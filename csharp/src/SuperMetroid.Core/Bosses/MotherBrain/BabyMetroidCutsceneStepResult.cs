@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,
     BabyMetroidCutscenePhase PhaseAfter,
-    bool BodyStumbleRequested,
     bool LatchSoundQueued,
     IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
     bool AmbientCrySoundQueued,

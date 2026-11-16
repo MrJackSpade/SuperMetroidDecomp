@@ -27,7 +27,7 @@ internal static class RainbowReleaseKnockbackVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.Kinematics.YSpeed = default;
 
-        var rainbow = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var rainbow = MotherBrainLateFightFixtures.NewSequence();
         rainbow.RainbowAttack.StartActiveBeam(samus);
         AssertEqual(DrainedSamusPhase.RainbowBeamLocked, samus.Drained.Phase, "the rainbow beam locks Samus");
         AssertEqual(SamusPoseId.KnockbackLeftPose, samus.Pose, "the lock installs knockback pose $54");

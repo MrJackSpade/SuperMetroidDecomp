@@ -1779,7 +1779,7 @@ internal static class EnemyFrameLegacyNameDefinitions
         [EnemyFrameId.MotherBrainBodyCrouched] = "mother_brain_body_oam_crouched",
         [EnemyFrameId.MotherBrainBodyUncrouching] = "mother_brain_body_oam_uncrouching",
         [EnemyFrameId.MotherBrainBodyLeaningDown] = "mother_brain_body_oam_leaning_down",
-        [EnemyFrameId.MotherBrainBodyInitialDummy] = "mother_brain_body_oam_initial_dummy",
+
         [EnemyFrameId.MotherBrainBodyHandCurling] = "mother_brain_body_oam_death_beam_0",
         [EnemyFrameId.MotherBrainBodyArmDrawnBack] = "mother_brain_body_oam_death_beam_1",
         [EnemyFrameId.MotherBrainBodyArmFlungOut] = "mother_brain_body_oam_death_beam_2",

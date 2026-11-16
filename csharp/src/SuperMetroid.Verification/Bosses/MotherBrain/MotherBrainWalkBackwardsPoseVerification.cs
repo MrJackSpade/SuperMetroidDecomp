@@ -14,11 +14,11 @@ internal static class MotherBrainWalkBackwardsPoseVerification
 
         MotherBrainRainbowBeamAttackSequence Walking(ushort x, MotherBrainBodyPose pose)
         {
-            var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+            var sequence = MotherBrainLateFightFixtures.NewSequence();
             sequence.DrainedByBaby.PainfulWalkingForward = false;
             sequence.DrainedByBaby.PainfulWalkingAnimationDelay = 0x0002;
-            sequence.State.Body.Position = sequence.State.Body.Position.WithX(x);
-            sequence.State.Body.Pose = pose;
+            sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(x);
+            sequence.Encounter.Pose = pose;
             return sequence;
         }
 

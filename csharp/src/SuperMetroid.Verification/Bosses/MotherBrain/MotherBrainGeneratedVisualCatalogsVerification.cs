@@ -11,8 +11,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainGeneratedVisualCatalogsVerification
 {
     /// <summary>
-    /// Pinned bank A9 body frame addresses and the names the installed extended-frame document stores them under (#1623),
-    /// including the initial dummy pose.
+    /// Pinned bank A9 body frame addresses and the names the installed extended-frame document stores them under (#1623).
     /// </summary>
     private static readonly NativeEnemySpritemapDefinition[] OriginalMotherBrainFrames =
     [
@@ -28,7 +27,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         new(0xa9, 0xa252, "mother_brain_body_crouched"),
         new(0xa9, 0xa28c, "mother_brain_body_uncrouching"),
         new(0xa9, 0xa2d6, "mother_brain_body_leaning_down"),
-        new(0xa9, 0xa320, "mother_brain_body_initial_dummy"),
+
         new(0xa9, 0xa384, "mother_brain_body_hand_curling"),
         new(0xa9, 0xa3ce, "mother_brain_body_arm_drawn_back"),
         new(0xa9, 0xa418, "mother_brain_body_arm_flung_out"),
@@ -56,31 +55,31 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         "mother_brain_body_bg2_death_beam_3",
     ];
 
-    /// <summary>Checks 17 OAM identities, native part counts, iteration, and bounds.</summary>
+    /// <summary>Checks 16 OAM identities, native part counts, iteration, and bounds.</summary>
     internal static void VerifyMotherBrainGeneratedOamCatalog(CartridgeImportAddressSpace rom)
     {
-        AssertEqual(17, MotherBrainBodyVisualDefinitions.Frames.Length, "Mother Brain OAM count");
+        AssertEqual(16, MotherBrainBodyVisualDefinitions.Frames.Length, "Mother Brain OAM count");
         for (int i = 0; i < OriginalMotherBrainFrames.Length; i++)
         {
             var expected = OriginalMotherBrainFrames[i];
             AssertEqual(expected, MotherBrainBodyVisualDefinitionsConstants.Frame(i), "Mother Brain published OAM identity/name");
             ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | expected.Pointer);
-            int expectedCount = i is >= 1 and <= 3 ? 10 : i == 9 ? 7 : i == 12 ? 1 : 9;
+            int expectedCount = i is >= 1 and <= 3 ? 10 : i == 9 ? 7 : 9;
             AssertEqual((ushort)expectedCount, count, "Mother Brain native frame stride geometry");
         }
         AssertTrue(OriginalMotherBrainFrames.SequenceEqual(MotherBrainBodyVisualDefinitions.Frames.ToArray()), "Mother Brain OAM materialization");
         int ordinal = 0;
         foreach (var frame in MotherBrainBodyVisualDefinitions.Frames)
             AssertEqual(OriginalMotherBrainFrames[ordinal++], frame, "Mother Brain OAM iteration");
-        AssertEqual(17, ordinal, "Mother Brain OAM iteration count");
+        AssertEqual(16, ordinal, "Mother Brain OAM iteration count");
         AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitionsConstants.Frame(-1), "negative Mother Brain OAM index");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitionsConstants.Frame(17), "Mother Brain OAM past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitionsConstants.Frame(16), "Mother Brain OAM past end");
     }
 
-    /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
+    /// <summary>Checks 16 BG2 frames and parity of generated extraction JSON.</summary>
     internal static void VerifyMotherBrainGeneratedBg2Catalog(CartridgeImportAddressSpace rom)
     {
-        SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)
+        SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames
             .Select((frame, index) => new SpritemapFrameDefinition(frame.Pointer, OriginalMotherBrainBg2Names[index])).ToArray();
         AssertEqual(16, MotherBrainBodyBg2FrameDefinitions.Frames.Length, "Mother Brain BG2 count");
         for (int i = 0; i < expected.Length; i++)
@@ -90,12 +89,12 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(pointers.Contains((ushort)pointer),
                 RoomEnemyPlaceFrameAccess.TryFrameAt(0xa9, (ushort)pointer) is { } frame && MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(frame),
-                "Mother Brain exact BG2 domain including dummy exclusion");
+                "Mother Brain exact BG2 domain, without her brain's blank frame");
         byte[] generatedJson = MotherBrainBodyBg2FrameFiles.Extract(rom);
         using var stream = new MemoryStream(generatedJson, writable: false);
         var loaded = MotherBrainBodyBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0, "Mother Brain generated catalog loads all frames");
-        AssertTrue(!loaded.TryGet(0xa320, out _), "Mother Brain dummy has no BG2 catalog entry");
+        AssertTrue(!loaded.TryGet(0xa320, out _), "her brain's blank frame has no BG2 catalog entry");
     }
 }

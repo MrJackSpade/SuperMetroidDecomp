@@ -3,21 +3,25 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>What one step of Mother Brain's rainbow beam attack did: its phase before and after, Samus's forced movement and the requests it made.</summary>
+/// <summary>What one step of Mother Brain's late fight asked of the room: Samus's forced movement, her colours and the requests it made.</summary>
 [IndependentFlag("independent requests and edges one attack step reports to the room")]
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(
-    MotherBrainBodyPhase PhaseBefore,
-    MotherBrainBodyPhase PhaseAfter,
     MotherBrainForcedSamusMovementResult? Movement,
     bool SoundQueued,
-    bool ColoursRequested,
+    bool RainbowColours,
+    bool BeamEnded,
+    bool DrainedBeamRanOut,
+    int? DrainColourStep,
+    int? RevivalColourStep,
+    bool BrainDetached,
+    bool BodyFlickers,
+    int? DeathFadeStep,
+    int? CorpseFadeStep,
     MotherBrainRainbowExplosionRequest? Explosion,
     bool ChargeSoundQueued,
-    bool BodyWalkRequested,
-    bool HeadAnimationRequested,
-    bool BodyPostureRequested,
+    bool BodyClearRequested,
     bool BabySpawnRequested,
-    bool FinalBeamSoundQueued,
+    bool FinalBeamFired,
     IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions,
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
     bool MusicStopQueued,

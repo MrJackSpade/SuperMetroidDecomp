@@ -13,10 +13,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal void StartFinishOffSequence()
         {
-            self.RainbowAttack.RequestWalkForwardReallySlow(unchecked((ushort)(self.State.Body.Position.X + 0x0010)));
+            self.RainbowAttack.RequestWalkForwardReallySlow(unchecked((ushort)(self.State.BodyPosition.X + 0x0010)));
             self.State.BabyArrivalReadyingElapsed = 0;
             self.State.BabyMetroidSpawned = false;
-            self.State.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOff;
+            self.Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;
         }
 
         /// <summary>
@@ -30,21 +30,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         {
             // Generic enemy damage saturates at zero. A host subtraction with ushort wrapping
             // would resurrect a nearly dead boss, so perform the borrow test before the write.
-            self.State.BrainHealth = damage >= self.State.BrainHealth
+            SuperMetroid.Core.Enemies.RoomEnemyPlace brain = self.Encounter.Head;
+            brain.Health = damage >= brain.Health
                 ? (ushort)0
-                : unchecked((ushort)(self.State.BrainHealth - damage));
-        }
-
-        /// <summary>
-        /// Executes the body-owned shake countdown consumed while the later graphics hook draws
-        /// Mother Brain's brain at <c>$A9:9382-$939A</c>. Call after all enemy slots, matching the
-        /// renderer: `$BE96` can then observe zero and reseed fifty on the following frame.
-        /// </summary>
-        internal ushort StepBrainShakeForDraw()
-        {
-            if (self.State.BrainMainShakeTimer != 0)
-                self.State.BrainMainShakeTimer--;
-            return checked((ushort)(self.State.BrainMainShakeTimer & 6));
+                : unchecked((ushort)(brain.Health - damage));
         }
     }
 }

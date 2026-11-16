@@ -59,52 +59,38 @@ internal sealed class MotherBrainRainbowAndDeath
         _access = dependencies.Access;
     }
 
-    /// <summary>Consumes death actor events exactly once, alongside the live rainbow adapter.</summary>
-    internal void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state,
-        MotherBrainRainbowBeamAttackSequence sequence, MotherBrainRainbowBeamAttackStepResult step)
+    /// <summary>Carries out what one step of her death asked of the room: explosions, fades, music, the escape and its door.</summary>
+    internal void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
     {
         foreach (var explosion in step.DeathExplosions)
         {
             SpawnMotherBrainDeathExplosion(state, explosion);
             _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }
-        if (step.PhaseBefore == MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects &&
-            step.PhaseAfter != step.PhaseBefore)
+        if (step.BrainDetached)
         {
             // Her brain is detached: it keeps the colours it shows, and only the corpse's fade changes them (#1544).
             state.Colours.DetachBrain();
-            state.DroolGenerationEnabled = false;
         }
-        bool bodyFade = step.PhaseBefore == MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody ||
-            step.PhaseAfter == MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody;
-        if (bodyFade)
+        if (step.BodyFlickers)
         {
             // Her death flickers the body and the background together on every update, not just on colour steps.
             state.DeathHidesBodyLayer = MotherBrainCadenceDefinitions.DeathFadeHidesBodyEverySecondUpdate.IsDue(state.Body.FrameCounter);
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);
-            if (step.ColoursRequested)
-                state.Colours.ShowDeathFade(sequence.State.GreyTransitionCounter - 1);
+            if (step.DeathFadeStep is int deathFade)
+                state.Colours.ShowDeathFade(deathFade);
         }
-        if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBodyLayerCleared)
+        if (step.BodyClearRequested)
         {
-            state.DeathBodyLayerCleared = true;
+            // Her faded body is gone: the flicker stops and her body stays hidden, its picture cleared from the background.
             state.DeathHidesBodyLayer = false;
-            state.Body.Contact = sequence.ThirdPhaseDeath.BodyContact;
-            state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
-            state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
+            state.Body.Presence = state.Body.Presence.With(EnemyPresence.Hidden);
             _presentation.RequireBossBody().Clear();
         }
-        if (sequence.ThirdPhaseDeath.BrainDrawSetupRequested)
-        {
-            // Decapitation transfers position ownership from the articulated neck to the
-            // death sequence. Otherwise the next head AI call overwrites falling Y again.
-            state.BrainAction = MotherBrainBrainAction.SetupBrainToBeDrawn;
-            state.Head.Position = state.Head.Position.WithWhole(sequence.State.BrainPosition);
-        }
-        if (step.PhaseBefore == MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey && step.ColoursRequested)
-            state.Colours.ShowCorpseFade(sequence.State.GreyTransitionCounter - 1);
+        if (step.CorpseFadeStep is int corpseFade)
+            state.Colours.ShowCorpseFade(corpseFade);
         foreach (var dust in step.CorpseDustRequests)
         {
             _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);
@@ -188,14 +174,9 @@ internal sealed class MotherBrainRainbowAndDeath
             throw new InvalidOperationException(
                 "Mother Brain entered a rainbow phase without its live sequence owner.");
 
-        // The body animation and articulated-head AI ran through her body and brain on
-        // previous frames. Take that state before running the step so walk completion and neck
-        // aiming are decided from the same state the game would read.
-        SynchronizeLiveMotherBrainRainbowActor(state, sequence);
-
         bool typewriterFinished = false;
-        if (sequence.State.Phase is MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText or
-            MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle)
+        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase is MotherBrainDeathPhase.TypeOutZebesEscapeText or
+            MotherBrainDeathPhase.SpawnTimeBombSetSubtitle)
         {
             var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
             typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
@@ -208,112 +189,35 @@ internal sealed class MotherBrainRainbowAndDeath
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
 
-    /// <summary>Copies rainbow-beam phase state into the live actor place.</summary>
-    internal static void SynchronizeLiveMotherBrainRainbowActor(
-        MotherBrainEnemyState state,
-        MotherBrainRainbowBeamAttackSequence sequence)
-    {
-        RoomEnemyPlace head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyCollidesByFrameHitboxes = state.Body.CollidesByFrameHitboxes, BodyShowsNewFrame = state.Body.AnimationClock.ShowsNewFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainCollidesByFrameHitboxes = head.CollidesByFrameHitboxes, BrainShowsNewFrame = head.AnimationClock.ShowsNewFrame, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
-    }
-
     /// <summary>
-    /// Publishes only values produced by the current body-AI call. In particular, cooldown
-    /// and earthquake timers are event writes rather than continuously mirrored values;
-    /// continuously copying the sequence's retained value would undo the global owners'
-    /// normal per-frame decrements.
+    /// Carries out what one step of the late fight asked of the room: colours, the beam's sound and earthquake, Samus's
+    /// cooldown, the Baby's spawn, beam explosions and her death's requests. The phases wrote her own state in place.
     /// </summary>
     internal void ApplyLiveMotherBrainRainbowState(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence,
-        MotherBrainRainbowBeamAttackStepResult? step,
+        MotherBrainRainbowBeamAttackStepResult current,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles)
     {
+        Ensure.NotNull(state);
+        Ensure.NotNull(sequence);
         Ensure.NotNull(sharedProjectiles);
-        RoomEnemyPlace head = state.Head;
-
-        // The brain-animation request resets the physical animation's timer only when body AI requests a new animation.
-        // The dedicated latch is essential because the running animation advances away from
-        // the animation's start while the request itself remains unchanged.
-        if (sequence.State.HeadAnimation is { } headSegment &&
-            (step is { HeadAnimationRequested: true } ||
-             headSegment != state.RainbowAppliedHeadAnimation))
-        {
-            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, headSegment);
-            state.RainbowAppliedHeadAnimation = headSegment;
-        }
-
-        if (step is { } result &&
-            (result.BodyWalkRequested || result.BodyPostureRequested))
-        {
-            MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
-                "Mother Brain's body asked for an animation during the rainbow beam without naming one.");
-            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
-        }
-
-        state.Phase = sequence.State.Phase;
-        state.PhaseTimer.Count = sequence.State.PhaseTimer.Count;
-        state.NeckTurnPerUpdate = sequence.State.NeckTurnPerUpdate;
-        state.NeckMovementEnabled = sequence.State.NeckMovementEnabled;
-        state.LowerNeckMovement = sequence.State.LowerNeckMovement;
-        state.UpperNeckMovement = sequence.State.UpperNeckMovement;
-        if (sequence.ThirdPhaseFight.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
-            sequence.ThirdPhaseFight.Phase3NeckRecoilTimer == 10)
-        {
-            // The rainbow setup loads fifty during the one-shot setup call, immediately before the
-            // fallthrough decrements neck timer eleven to ten. Her brain's draw owns
-            // subsequent shake decrements, so publish this event only on that exact setup
-            // result rather than copying the sequence's retained value every enemy frame.
-            state.BrainMainShakeTimer = 50;
-        }
-        state.Form = sequence.State.Body.Form;
-        state.Body.Contact = sequence.ThirdPhaseDeath.BodyContact;
-        state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
-        state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
-        state.Body.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BodyCollidesByFrameHitboxes;
-        state.Body.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BodyShowsNewFrame;
-        head.Health = sequence.State.BrainHealth;
-        head.Contact = sequence.ThirdPhaseDeath.BrainContact;
-        head.Processing = sequence.ThirdPhaseDeath.BrainProcessing;
-        head.Presence = sequence.ThirdPhaseDeath.BrainPresence;
-        head.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BrainCollidesByFrameHitboxes;
-        head.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BrainShowsNewFrame;
-        // The sequence only ever turns the hitboxes off; it leaves the parts whose hitboxes are on as they are.
-        if (!sequence.ThirdPhaseDeath.HitboxesEnabled)
-            state.HitboxesEnabled = MotherBrainHitboxParts.None;
-        if (sequence.State.SmallPurpleBreathGenerationWriteCount != state.RainbowAppliedSmallPurpleBreathWrites)
-        {
-            state.SmallPurpleBreathGenerationEnabled = sequence.State.SmallPurpleBreathGenerationEnabled;
-            state.RainbowAppliedSmallPurpleBreathWrites = sequence.State.SmallPurpleBreathGenerationWriteCount;
-        }
-        state.DroolGenerationEnabled = sequence.State.DroolGenerationEnabled;
-
-        // These values drive the rainbow beam effect. The beam renderer is deliberately fed
-        // from this single aim calculation.
-        state.RainbowBeamActive = sequence.RainbowAttack.BeamActive;
-        state.RainbowBeamAngle = sequence.RainbowBeamAngle;
-        state.RainbowBeamAngularWidth = sequence.RainbowAttack.AngularWidth;
-
-        if (step is not { } current)
-            return;
-
-        if (current.PhaseBefore == MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam &&
-            current.PhaseAfter == MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding)
+        if (current.FinalBeamFired)
             state.NextRainbowFrame = 0;
         ApplyMotherBrainBeamColours(state, current);
         // The brain's step runs after the body's. Its health check is enabled during revival, but the health colours wait
         // until the corpse has revived.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             state.Colours.ShowHealth(MotherBrainHealthShades.Band(state.Head.Health));
-        ApplyLiveMotherBrainDeath(state, sequence, current);
+        ApplyLiveMotherBrainDeath(state, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
             // stops the same looping sound. Preserve the start or stop the sequence selected.
             _motherBrainEncounter.RequestRainbowBeamSound(sequence.State.RainbowBeamSoundPlaying
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain);
-        if (current.ChargeSoundQueued || current.FinalBeamSoundQueued)
+        if (current.ChargeSoundQueued || current.FinalBeamFired)
             _motherBrainEncounter.RequestBodySound(EnemySound.Silence);
         if (current.Explosion is not null)
             _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
@@ -322,8 +226,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // the drain start replaces it with the full drain duration, the finish stops it when the beam contracts below
         // its minimum width, and the death sequence starts the brain's landing quake and the escape's.
         current.Earthquake?.ApplyTo(_earthquake);
-        if (current.PhaseBefore == MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring &&
-            current.PhaseAfter == MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall)
+        if (current.BeamEnded)
             _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StopRainbowDrain);
 
         // The attack gives Samus's shared projectile cooldown as its neck lowers, as the beam starts and as it ends;
@@ -368,40 +271,29 @@ internal sealed class MotherBrainRainbowAndDeath
     private static void ApplyMotherBrainBeamColours(MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackStepResult step)
     {
-        bool draining = step.PhaseBefore == MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey;
-        bool reviving = step.PhaseBefore == MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey;
-        if ((draining || reviving) && step.ColoursRequested)
+        // Her revival shows over the drain's last grey step, which it leaves showing in two of her colours.
+        if (step.DrainColourStep is int drain)
         {
-            // The sequence increments before publishing this request. Her revival shows over the drain's last grey
-            // step, which it leaves showing in two of her colours.
-            int index = MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).State.GreyTransitionCounter - 1;
-            if (draining)
-                state.Colours.ShowDrain(index);
-            else
-                state.Colours.ShowRevival(index);
+            state.Colours.ShowDrain(drain);
             return;
         }
-        if (step.PhaseBefore == MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring &&
-            step.PhaseAfter == MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall)
+        if (step.RevivalColourStep is int revival)
+        {
+            state.Colours.ShowRevival(revival);
+            return;
+        }
+        if (step.BeamEnded)
         {
             state.Colours.ShowRestored();
             return;
         }
-        if (step.PhaseBefore == MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam &&
-            step.PhaseAfter == MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut)
+        if (step.DrainedBeamRanOut)
         {
             state.Colours.ShowRainbow(MotherBrainRainbowColourDefinitions.DrainedRainbowFrame);
             return;
         }
-        bool rainbowPhase = step.PhaseBefore is
-            MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall or
-            MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay or
-            MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus or
-            MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus or
-            MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring or
-            MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance or
-            MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam;
-        if (!rainbowPhase || !step.ColoursRequested || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
+        // The rainbow colours' handler steps them only on its phase of the body's update count.
+        if (!step.RainbowColours || !MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(state.Body.FrameCounter))
             return;
 
         int frame = state.NextRainbowFrame;

@@ -29,8 +29,8 @@ internal static class MotherBrainMissileWalkResetVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
 
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
-        sequence.State.Body.Form = MotherBrainForm.ThirdPhase;
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
+        sequence.Encounter.Form = MotherBrainForm.ThirdPhase;
         sequence.ThirdPhaseFight.Phase3WalkCounter = MotherBrainWalkCredit.Of(64);
         state.RainbowBeamSequence = sequence;
         state.Form = MotherBrainForm.ThirdPhase;
@@ -56,7 +56,7 @@ internal static class MotherBrainMissileWalkResetVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         state.RainbowBeamSequence = sequence;
         AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.ThirdPhaseFight.Phase3WalkCounter, "an attached sequence reads the encounter's credit");
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);

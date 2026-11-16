@@ -1,9 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>
-/// Mother Brain's body animations, in authored order. The body enemy
-/// runs them, and so does the head enemy, which keeps <see cref="InitialDummy"/> (its frame being its hitbox) for life.
-/// </summary>
+/// <summary>Mother Brain's body animations, in authored order, which her body runs.</summary>
 public enum MotherBrainBodySegment
 {
     /// <summary>Mother Brain body animation: walking forwards, really fast.</summary>
@@ -44,7 +41,4 @@ public enum MotherBrainBodySegment
     CrouchFast,
     /// <summary>The red hand-beam body animation.</summary>
     HandBeam,
-    /// <summary>Shared by the body and head enemies.</summary>
-    /// <remarks>Its zero duration is the game's: the timer wraps and the dummy frame stays for good.</remarks>
-    InitialDummy,
 }

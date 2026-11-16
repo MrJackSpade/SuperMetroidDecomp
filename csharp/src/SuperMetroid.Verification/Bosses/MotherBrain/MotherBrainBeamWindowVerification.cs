@@ -35,7 +35,7 @@ internal static class MotherBrainBeamWindowVerification
             System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString())));
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = installedColours };
         AssertTrue(beam.RenderSnapshot is null, "the beam shows nothing before it first aims");
-        void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
+        void Step() => beam.Show(new(100, 95), RotationAngle.QuarterTurn, Width(64));
         Step();
         AssertEqual(installedColours.BeamInitialColor, beam.Color, "the beam's first update shows its initial colour");
         AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)),
@@ -76,13 +76,13 @@ internal static class MotherBrainBeamWindowVerification
         int cursor = beam.ColourStep;
         _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
         AssertEqual(cursor, beam.ColourStep, "repainting cannot advance beam simulation");
-        beam.Step(false, new(0, 0), default, RotationAngle.Zero);
+        beam.Hide();
         AssertTrue(beam.RenderSnapshot is null, "a hidden beam shows nothing");
         Step();
         AssertEqual(installedColours.BeamInitialColor, beam.Color, "a new attack restarts the colour cycle");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
-            beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), Width(2));
+            beam.Show(new(100, 95), RotationAngle.FromSteps(angle), Width(2));
             bool up = angle is 96 or 128 or 160;
             MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam aimed.");
             AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), TrigonometryAngle.HalfTurn - geometry.UpperEdge, TrigonometryAngle.HalfTurn - geometry.LowerEdge),
@@ -91,7 +91,7 @@ internal static class MotherBrainBeamWindowVerification
                 $"quadrant {angle} stays on its ray side of the mouth");
         }
         VerifyLeftwardCone(beam);
-        beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
+        beam.Show(new(356, 95), RotationAngle.QuarterTurn, Width(64));
         AssertEqual(new Position16<RoomPixels>(370, 100), beam.Geometry?.Mouth, "the mouth stays where it lies in the room");
         AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), ScreenGeometry.GameplayHudHeightPixels),
             Cone(beam, new(256, 0)), "a scrolled camera places the cone like the unscrolled head");
@@ -104,9 +104,9 @@ internal static class MotherBrainBeamWindowVerification
     /// </summary>
     private static void VerifyLeftwardCone(MotherBrainRainbowBeamEffect beam)
     {
-        beam.Step(true, new(100, 95), RotationAngle.FromSteps(128), Width(32));
+        beam.Show(new(100, 95), RotationAngle.FromSteps(128), Width(32));
         ScreenWindow up = Cone(beam);
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2));
+        beam.Show(new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2));
         AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), new TrigonometryAngle(191), new TrigonometryAngle(193)), beam.Geometry,
             "a leftward aim publishes its own edges");
         AssertTrue(Cone(beam) != up, "a leftward aim does not keep the earlier cone");

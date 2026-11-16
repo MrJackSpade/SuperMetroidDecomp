@@ -24,7 +24,7 @@ internal static class MotherBrainRaiseCounterVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain;
+        state.AscentPhase = MotherBrainAscentPhase.RaiseMotherBrain;
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         var camera = runtime.Room.LoadedCamera;
 

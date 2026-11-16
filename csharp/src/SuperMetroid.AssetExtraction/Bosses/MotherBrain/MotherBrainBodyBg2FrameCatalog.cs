@@ -16,7 +16,7 @@ public sealed class MotherBrainBodyBg2FrameCatalog
     /// <summary>Wraps the validated common BG2 catalog after all required Mother Brain poses have been admitted.</summary>
     private MotherBrainBodyBg2FrameCatalog(EnemyBg2FrameCatalog frames) => Writes = frames;
 
-    /// <summary>Loads BG2 artwork for all sixteen named bank-$A9 body poses, excluding the OAM-only initial dummy; compiles ordered horizontal tile runs without importing body motion, hitboxes, or instruction timing.</summary>
+    /// <summary>Loads BG2 artwork for all sixteen named bank-$A9 body poses; compiles ordered horizontal tile runs without importing body motion, hitboxes, or instruction timing.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, containing every required pose with nonempty bounded writes in 32-by-64 tilemap-cell coordinates and placed tiles.</param>
     /// <returns>Installed visual writes keyed by the same native extended-frame roots used by the body's compiled instruction programs.</returns>
     /// <exception cref="InvalidDataException">JSON properties/schema, required pose identities, command counts, destinations, or tiles are invalid.</exception>

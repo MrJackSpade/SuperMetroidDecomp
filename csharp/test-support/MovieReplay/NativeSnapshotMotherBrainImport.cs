@@ -33,11 +33,12 @@ internal static class NativeSnapshotMotherBrainImport
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");
         state.Form = DecodeForm(W(MotherBrainMemory.Form));
+        // The body's function word names the stage her body is in and its phase (#2208).
+        MotherBrainNativeWords.ImportBodyPhase(state, W(MotherBrainMemory.BodyFunction));
         ImportMotherBrainBodyImage(runtime, state, W);
         state.Pose = DecodePose(W(MotherBrainMemory.Pose));
-        state.BodyPlacement = BodyPlacementOf(state.Form, MotherBrainNativeWords.DecodeBodyPhase(W(MotherBrainMemory.BodyFunction)).Phase);
+        state.BodyPlacement = BodyPlacementOf(state);
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
-        (state.Phase, state.MuralRowsDrawn) = MotherBrainNativeWords.DecodeBodyPhase(W(MotherBrainMemory.BodyFunction));
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
         state.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
@@ -70,8 +71,10 @@ internal static class NativeSnapshotMotherBrainImport
             SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(place.Ordinal) + MovieDesyncMemory.EnemyAnimationScriptOffset);
         AnimationPlayback<MotherBrainBodySegment> BodyPlaybackAt(RoomEnemyPlace place) => NativeEnemyAnimationOracle.PlaybackAt(
             body, MotherBrainNativeListAddresses.BodyEntries, MotherBrainAnimations.BodyStartingAt, AnimationScript(place));
-        state.BodyPlayback = BodyPlaybackAt(state.Body);
-        state.HeadPlayback = BodyPlaybackAt(state.Head);
+        // A body still on the parts' initial list has had no animation yet (#2220).
+        state.BodyPlayback = MotherBrainNativeListAddresses.InitialListWords.Contains(AnimationScript(state.Body))
+            ? null
+            : BodyPlaybackAt(state.Body);
         Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
         {
@@ -117,9 +120,8 @@ internal static class NativeSnapshotMotherBrainImport
         // The game reads only the low byte of each aim angle, the byte angle it stored.
         state.HandBeamNextAngle = new TrigonometryAngle(W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue);
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
-        state.RainbowBeamAngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
-        if (RainbowSequencePhases.Contains(state.Phase))
-            ImportNativeMotherBrainRainbowSequence(state, state.Phase, W);
+        if (LateFightStages.Contains(state.Stage))
+            ImportNativeMotherBrainRainbowSequence(state, W);
     }
 
     /// <summary>
@@ -133,142 +135,66 @@ internal static class NativeSnapshotMotherBrainImport
         return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
-    /// <summary>The body functions the live rainbow sequence runs, which a recorded function in this set resumes.</summary>
-    private static readonly HashSet<MotherBrainBodyPhase> RainbowSequencePhases =
+    /// <summary>The stages the late fight's sequence runs, which a recorded body function in one of them resumes (#2208).</summary>
+    private static readonly HashSet<MotherBrainBodyStage> LateFightStages =
     [
-        MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck,
-        MotherBrainBodyPhase.SecondPhaseRainbowStartCharging,
-        MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck,
-        MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge,
-        MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown,
-        MotherBrainBodyPhase.SecondPhaseRainbowStartFiring,
-        MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall,
-        MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay,
-        MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus,
-        MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus,
-        MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring,
-        MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall,
-        MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand,
-        MotherBrainBodyPhase.SecondPhaseRainbowLowerHead,
-        MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction,
-        MotherBrainBodyPhase.SecondPhaseFinishSamusOff,
-        MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp,
-        MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire,
-        MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam,
-        MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby,
-        MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam,
-        MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey,
-        MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey,
-        MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey,
-        MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife,
-        MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey,
-        MotherBrainBodyPhase.SecondPhaseReviveWakeUp,
-        MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch,
-        MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby,
-        MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath,
-        MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath,
-        MotherBrainBodyPhase.SecondPhaseMurderBabyAttack,
-        MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown,
-        MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack,
-        MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack,
-        MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding,
-        MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance,
-        MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting,
-        MotherBrainBodyPhase.ThirdPhaseFightingMain,
-        MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown,
-        MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom,
-        MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding,
-        MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom,
-        MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects,
-        MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut,
-        MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody,
-        MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions,
-        MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation,
-        MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround,
-        MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse,
-        MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey,
-        MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey,
-        MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver,
-        MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway,
-        MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay,
-        MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning,
-        MotherBrainBodyPhase.ThirdPhaseDeathStartEscape,
-        MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
-        MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText,
-        MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer,
-        MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor,
-        MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing,
+        MotherBrainBodyStage.RainbowBeam,
+        MotherBrainBodyStage.FinishingSamusOff,
+        MotherBrainBodyStage.DrainedByBaby,
+        MotherBrainBodyStage.Reviving,
+        MotherBrainBodyStage.Phase3Fight,
+        MotherBrainBodyStage.Dying,
     ];
 
     /// <summary>
-    /// Rebuilds the rainbow-beam sequence that owns phase two from the beam onward. The
-    /// sequence keeps its own copies of native words; live actor words are re-synchronized
-    /// before each step, so only the sequence-owned words are imported here.
+    /// Rebuilds the rainbow-beam sequence that runs phase two from the beam onward. It runs over the imported encounter,
+    /// whose phase, neck and flags were imported above (#2209), so only what the late fight alone keeps is imported here.
     /// </summary>
-    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state,
-        MotherBrainBodyPhase phase, Func<int, ushort> W)
+    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state, Func<int, ushort> W)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
-        sequence.State.Phase = phase;
-        sequence.State.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
-        sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
-        sequence.State.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        sequence.State.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
-        sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction)));
-        sequence.State.NeckTurnPerUpdate = RotationAngleConstants.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
-        sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        sequence.State.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
-            W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        sequence.State.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
-            W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }
 
-    /// <summary>The body phases from which her rise has placed her body with her (#1949, #2031).</summary>
-    private static readonly HashSet<MotherBrainBodyPhase> RisingWithBodyAreaPhases =
+    /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>
+    private static readonly HashSet<MotherBrainAscentPhase> RisingWithBodyAreaPhases =
     [
-        MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake,
-        MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain,
-        MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched,
-        MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray,
+        MotherBrainAscentPhase.StartMusicAndEarthquake,
+        MotherBrainAscentPhase.RaiseMotherBrain,
+        MotherBrainAscentPhase.WaitUntilUncrouched,
+        MotherBrainAscentPhase.TransitionFromGray,
     ];
 
-    /// <summary>The body phases after her escape's start has placed her body at the room's corner for the warning.</summary>
-    private static readonly HashSet<MotherBrainBodyPhase> EscapeWarningPhases =
+    /// <summary>The phases of her death after her escape's start has placed her body at the room's corner for the warning.</summary>
+    private static readonly HashSet<MotherBrainDeathPhase> EscapeWarningPhases =
     [
-        MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
-        MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText,
-        MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer,
-        MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor,
-        MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing,
+        MotherBrainDeathPhase.SpawnTimeBombSetSubtitle,
+        MotherBrainDeathPhase.TypeOutZebesEscapeText,
+        MotherBrainDeathPhase.DoorExplodingStartTimer,
+        MotherBrainDeathPhase.BlowUpEscapeDoor,
+        MotherBrainDeathPhase.KeepEarthquakeGoing,
     ];
 
     /// <summary>
-    /// Where her body is placed at a recorded <paramref name="form"/> and <paramref name="phase"/> (#1949, #2031): unplaced until
-    /// her rise places it, with her from then on, and at the room's corner once her escape's start has shown the warning
-    /// there, as the port's rise and escape start place it.
+    /// Where her body is placed at the imported form and body phase of <paramref name="state"/> (#1949, #2031): unplaced
+    /// until her rise places it, with her from then on, and at the room's corner once her escape's start has shown the
+    /// warning there, as the port's rise and escape start place it.
     /// </summary>
-    internal static MotherBrainBodyPlacement BodyPlacementOf(MotherBrainForm form, MotherBrainBodyPhase phase) =>
-        EscapeWarningPhases.Contains(phase) ? MotherBrainBodyPlacement.AtRoomCorner
-        : form >= MotherBrainForm.SecondPhase || (form == MotherBrainForm.FakeDeath && RisingWithBodyAreaPhases.Contains(phase))
+    internal static MotherBrainBodyPlacement BodyPlacementOf(MotherBrainEnemyState state) =>
+        state.Stage == MotherBrainBodyStage.Dying && EscapeWarningPhases.Contains(state.DeathPhase) ? MotherBrainBodyPlacement.AtRoomCorner
+        : state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath &&
+            state.Stage == MotherBrainBodyStage.FakeDeathAscent && RisingWithBodyAreaPhases.Contains(state.AscentPhase))
             ? MotherBrainBodyPlacement.FollowsBody
             : MotherBrainBodyPlacement.Unplaced;
 
@@ -329,13 +255,9 @@ internal static class NativeSnapshotMotherBrainImport
     /// <exception cref="InvalidDataException">The staged screen is not one installed body frame over her blank.</exception>
     private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
     {
-        MotherBrainBodyPhase function = MotherBrainNativeWords.DecodeBodyPhase(W(MotherBrainMemory.BodyFunction)).Phase;
-        bool transferred = state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath && function is
-            MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain or MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense or
-            MotherBrainBodyPhase.FakeDeathAscentPrepareForRising or MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody or
-            MotherBrainBodyPhase.FakeDeathAscentContinuePausing or MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake or
-            MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain or MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched or
-            MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray);
+        bool transferred = state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath &&
+            state.Stage == MotherBrainBodyStage.FakeDeathAscent &&
+            state.AscentPhase is not (MotherBrainAscentPhase.DrawMural or MotherBrainAscentPhase.SetupPhase2Graphics));
         if (!transferred)
             return;
         var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];

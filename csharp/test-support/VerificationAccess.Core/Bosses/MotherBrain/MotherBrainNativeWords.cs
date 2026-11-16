@@ -40,122 +40,199 @@ internal static class MotherBrainNativeWords
 
     /// <summary>
     /// The bank-$A9 routines that draw the mural two rows at a time (#2211), one per pair of rows from the top: the port's
-    /// one <see cref="MotherBrainBodyPhase.FakeDeathAscentDrawMural"/> with that many rows drawn.
+    /// one <see cref="MotherBrainAscentPhase.DrawMural"/> with that many rows drawn.
     /// </summary>
     internal static readonly ushort[] MuralRevealFunctions = [0x8c87, 0x8c9e, 0x8cb5, 0x8ccc, 0x8ce3, 0x8cfa];
 
-    /// <summary>The body phase a recorded bank-$A9 routine word names, and the mural rows it has drawn.</summary>
-    internal static (MotherBrainBodyPhase Phase, int MuralRowsDrawn) DecodeBodyPhase(ushort word) =>
-        Array.IndexOf(MuralRevealFunctions, word) is var pair and >= 0
-            ? (MotherBrainBodyPhase.FakeDeathAscentDrawMural, pair * MotherBrainMuralDefinitions.RowsEachUpdate)
-            : (MotherBrainBodyPhases.Decode(word, "recorded MotherBrainBodyPhase"), 0);
+    /// <summary>The bank-$A9 routine word of her glass stage, her first phase, which runs no phase of its own (#2208).</summary>
+    internal const ushort GlassWord = 0x87e1;
 
-    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainBodyPhase"/>.</summary>
-    internal static readonly NativeWordIdentities<MotherBrainBodyPhase> MotherBrainBodyPhases = new(new Dictionary<MotherBrainBodyPhase, ushort>
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainDescentPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainDescentPhase> DescentPhases = new(new Dictionary<MotherBrainDescentPhase, ushort>
     {
-        [MotherBrainBodyPhase.FirstPhase] = 0x87e1,
-        [MotherBrainBodyPhase.FakeDeathDescentInitialPause] = 0x881d,
-        [MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock] = 0x8829,
-        [MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic] = 0x884d,
-        [MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock] = 0x886c,
-        [MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash] = 0x8884,
-        [MotherBrainBodyPhase.FakeDeathDescentFadeToGray] = 0x88b2,
-        [MotherBrainBodyPhase.FakeDeathDescentCollapseTubes] = 0x88d3,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMural] = 0x8c87,
-        [MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics] = 0x8d11,
-        [MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain] = 0x8d49,
-        [MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense] = 0x8d79,
-        [MotherBrainBodyPhase.FakeDeathAscentPrepareForRising] = 0x8d8b,
-        [MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody] = 0x8db4,
-        [MotherBrainBodyPhase.FakeDeathAscentContinuePausing] = 0x8dc3,
-        [MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake] = 0x8dec,
-        [MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain] = 0x8e4d,
-        [MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched] = 0x8e95,
-        [MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray] = 0x8eaa,
-        [MotherBrainBodyPhase.SecondPhaseStretchingShakeHead] = 0x8ef5,
-        [MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp] = 0x8f14,
-        [MotherBrainBodyPhase.SecondPhaseStretchingFinish] = 0x8f33,
-        [MotherBrainBodyPhase.SecondPhaseThinking] = 0xb605,
-        [MotherBrainBodyPhase.SecondPhaseTryAttack] = 0xb64b,
-        [MotherBrainBodyPhase.SecondPhaseBombDecideWalking] = 0xb781,
-        [MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards] = 0xb7ac,
-        [MotherBrainBodyPhase.SecondPhaseBombCrouch] = 0xb7c6,
-        [MotherBrainBodyPhase.SecondPhaseBombFired] = 0xb7e8,
-        [MotherBrainBodyPhase.SecondPhaseBombStandUp] = 0xb7f8,
-        [MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly] = 0xb80e,
-        [MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire] = 0xb839,
-        [MotherBrainBodyPhase.SecondPhaseLaserFinishAttack] = 0xb863,
-        [MotherBrainBodyPhase.SecondPhaseHandBeam] = 0xb87d,
-        [MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck] = 0xb8eb,
-        [MotherBrainBodyPhase.SecondPhaseRainbowStartCharging] = 0xb91a,
-        [MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck] = 0xb92b,
-        [MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge] = 0xb93f,
-        [MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown] = 0xb951,
-        [MotherBrainBodyPhase.SecondPhaseRainbowStartFiring] = 0xb975,
-        [MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall] = 0xb9e5,
-        [MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay] = 0xba00,
-        [MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus] = 0xba27,
-        [MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus] = 0xba3c,
-        [MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring] = 0xba5e,
-        [MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall] = 0xbac4,
-        [MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand] = 0xbad1,
-        [MotherBrainBodyPhase.SecondPhaseRainbowLowerHead] = 0xbadd,
-        [MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction] = 0xbb06,
-        [MotherBrainBodyPhase.SecondPhaseFinishSamusOff] = 0xbd45,
-        [MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp] = 0xbd98,
-        [MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire] = 0xbda9,
-        [MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam] = 0xbdc1,
-        [MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby] = 0xbdd2,
-        [MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam] = 0xbded,
-        [MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding] = 0xbe1a,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback] = 0xbe38,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance] = 0xbe5d,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam] = 0xbe96,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut] = 0xbf0e,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom] = 0xbf41,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode] = 0xbf56,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey] = 0xbf7d,
-        [MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey] = 0xbf95,
-        [MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey] = 0xc059,
-        [MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife] = 0xc066,
-        [MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey] = 0xc08f,
-        [MotherBrainBodyPhase.SecondPhaseReviveWakeUp] = 0xc0ba,
-        [MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch] = 0xc0e4,
-        [MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby] = 0xc0fb,
-        [MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath] = 0xc11e,
-        [MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath] = 0xc147,
-        [MotherBrainBodyPhase.SecondPhaseMurderBabyAttack] = 0xc15c,
-        [MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown] = 0xc182,
-        [MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack] = 0xc18e,
-        [MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack] = 0xc19a,
-        [MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding] = 0xc1a6,
-        [MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance] = 0xc1cf,
-        [MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting] = 0xc1f0,
-        [MotherBrainBodyPhase.ThirdPhaseFightingMain] = 0xc209,
-        [MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown] = 0xc24e,
-        [MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom] = 0xaee1,
-        [MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding] = 0xaf12,
-        [MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom] = 0xaf21,
-        [MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects] = 0xaf54,
-        [MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut] = 0xaf9d,
-        [MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody] = 0xafb6,
-        [MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions] = 0xb013,
-        [MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation] = 0xb115,
-        [MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround] = 0xb12d,
-        [MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse] = 0xb15e,
-        [MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey] = 0xb173,
-        [MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey] = 0xb189,
-        [MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver] = 0xb1b8,
-        [MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway] = 0xb1d5,
-        [MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay] = 0xb211,
-        [MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning] = 0xb258,
-        [MotherBrainBodyPhase.ThirdPhaseDeathStartEscape] = 0xb26d,
-        [MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle] = 0xb2d1,
-        [MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText] = 0xb2e3,
-        [MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer] = 0xb2f9,
-        [MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor] = 0xb32a,
-        [MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing] = 0xb33c,
+        [MotherBrainDescentPhase.InitialPause] = 0x881d,
+        [MotherBrainDescentPhase.PauseBeforeLock] = 0x8829,
+        [MotherBrainDescentPhase.PauseBeforeMusic] = 0x884d,
+        [MotherBrainDescentPhase.PauseBeforeUnlock] = 0x886c,
+        [MotherBrainDescentPhase.PauseBeforeFlash] = 0x8884,
+        [MotherBrainDescentPhase.FadeToGray] = 0x88b2,
+        [MotherBrainDescentPhase.CollapseTubes] = 0x88d3,
     });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainAscentPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainAscentPhase> AscentPhases = new(new Dictionary<MotherBrainAscentPhase, ushort>
+    {
+        [MotherBrainAscentPhase.DrawMural] = 0x8c87,
+        [MotherBrainAscentPhase.SetupPhase2Graphics] = 0x8d11,
+        [MotherBrainAscentPhase.SetupPhase2Brain] = 0x8d49,
+        [MotherBrainAscentPhase.PauseForSuspense] = 0x8d79,
+        [MotherBrainAscentPhase.PrepareForRising] = 0x8d8b,
+        [MotherBrainAscentPhase.ReadyStandingBody] = 0x8db4,
+        [MotherBrainAscentPhase.ContinuePausing] = 0x8dc3,
+        [MotherBrainAscentPhase.StartMusicAndEarthquake] = 0x8dec,
+        [MotherBrainAscentPhase.RaiseMotherBrain] = 0x8e4d,
+        [MotherBrainAscentPhase.WaitUntilUncrouched] = 0x8e95,
+        [MotherBrainAscentPhase.TransitionFromGray] = 0x8eaa,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainPhase2FightPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainPhase2FightPhase> Phase2FightPhases = new(new Dictionary<MotherBrainPhase2FightPhase, ushort>
+    {
+        [MotherBrainPhase2FightPhase.StretchingShakeHead] = 0x8ef5,
+        [MotherBrainPhase2FightPhase.StretchingBringHeadUp] = 0x8f14,
+        [MotherBrainPhase2FightPhase.StretchingFinish] = 0x8f33,
+        [MotherBrainPhase2FightPhase.Thinking] = 0xb605,
+        [MotherBrainPhase2FightPhase.TryAttack] = 0xb64b,
+        [MotherBrainPhase2FightPhase.BombDecideWalking] = 0xb781,
+        [MotherBrainPhase2FightPhase.BombWalkingBackwards] = 0xb7ac,
+        [MotherBrainPhase2FightPhase.BombCrouch] = 0xb7c6,
+        [MotherBrainPhase2FightPhase.BombFired] = 0xb7e8,
+        [MotherBrainPhase2FightPhase.BombStandUp] = 0xb7f8,
+        [MotherBrainPhase2FightPhase.LaserPositionHeadQuickly] = 0xb80e,
+        [MotherBrainPhase2FightPhase.LaserPositionHeadSlowlyAndFire] = 0xb839,
+        [MotherBrainPhase2FightPhase.LaserFinishAttack] = 0xb863,
+        [MotherBrainPhase2FightPhase.HandBeam] = 0xb87d,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainRainbowPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainRainbowPhase> RainbowPhases = new(new Dictionary<MotherBrainRainbowPhase, ushort>
+    {
+        [MotherBrainRainbowPhase.ExtendNeck] = 0xb8eb,
+        [MotherBrainRainbowPhase.StartCharging] = 0xb91a,
+        [MotherBrainRainbowPhase.RetractNeck] = 0xb92b,
+        [MotherBrainRainbowPhase.WaitForCharge] = 0xb93f,
+        [MotherBrainRainbowPhase.ExtendNeckDown] = 0xb951,
+        [MotherBrainRainbowPhase.StartFiring] = 0xb975,
+        [MotherBrainRainbowPhase.MoveSamusTowardWall] = 0xb9e5,
+        [MotherBrainRainbowPhase.OneFrameDelay] = 0xba00,
+        [MotherBrainRainbowPhase.StartDrainingSamus] = 0xba27,
+        [MotherBrainRainbowPhase.DrainingSamus] = 0xba3c,
+        [MotherBrainRainbowPhase.FinishFiring] = 0xba5e,
+        [MotherBrainRainbowPhase.LetSamusFall] = 0xbac4,
+        [MotherBrainRainbowPhase.WaitForSamusToLand] = 0xbad1,
+        [MotherBrainRainbowPhase.LowerHead] = 0xbadd,
+        [MotherBrainRainbowPhase.DecideNextAction] = 0xbb06,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainFinishOffPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainFinishOffPhase> FinishOffPhases = new(new Dictionary<MotherBrainFinishOffPhase, ushort>
+    {
+        [MotherBrainFinishOffPhase.GetSamusToLowEnergy] = 0xbd45,
+        [MotherBrainFinishOffPhase.StandUp] = 0xbd98,
+        [MotherBrainFinishOffPhase.Admire] = 0xbda9,
+        [MotherBrainFinishOffPhase.ChargeFinalBeam] = 0xbdc1,
+        [MotherBrainFinishOffPhase.ReadyBaby] = 0xbdd2,
+        [MotherBrainFinishOffPhase.FireFinalBeam] = 0xbded,
+        [MotherBrainFinishOffPhase.FinalBeamHolding] = 0xbe1a,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainDrainedPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainDrainedPhase> DrainedPhases = new(new Dictionary<MotherBrainDrainedPhase, ushort>
+    {
+        [MotherBrainDrainedPhase.TakenAback] = 0xbe38,
+        [MotherBrainDrainedPhase.RegainBalance] = 0xbe5d,
+        [MotherBrainDrainedPhase.FiringRainbowBeam] = 0xbe96,
+        [MotherBrainDrainedPhase.RainbowBeamRunOut] = 0xbf0e,
+        [MotherBrainDrainedPhase.MoveToBackOfRoom] = 0xbf41,
+        [MotherBrainDrainedPhase.GoIntoLowPowerMode] = 0xbf56,
+        [MotherBrainDrainedPhase.PrepareTransitionToGrey] = 0xbf7d,
+        [MotherBrainDrainedPhase.TransitionToGrey] = 0xbf95,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainRevivalPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainRevivalPhase> RevivalPhases = new(new Dictionary<MotherBrainRevivalPhase, ushort>
+    {
+        [MotherBrainRevivalPhase.InanimateGrey] = 0xc059,
+        [MotherBrainRevivalPhase.ShowSignsOfLife] = 0xc066,
+        [MotherBrainRevivalPhase.TransitionFromGrey] = 0xc08f,
+        [MotherBrainRevivalPhase.WakeUp] = 0xc0ba,
+        [MotherBrainRevivalPhase.WakeUpStretch] = 0xc0e4,
+        [MotherBrainRevivalPhase.WalkUpToBaby] = 0xc0fb,
+        [MotherBrainRevivalPhase.PrepareNeckForBabyDeath] = 0xc11e,
+        [MotherBrainRevivalPhase.FinishPreparingForBabyDeath] = 0xc147,
+        [MotherBrainRevivalPhase.MurderBabyAttack] = 0xc15c,
+        [MotherBrainRevivalPhase.MurderBabyAttackCooldown] = 0xc182,
+        [MotherBrainRevivalPhase.PrepareForFinalBabyAttack] = 0xc18e,
+        [MotherBrainRevivalPhase.ExecuteFinalBabyAttack] = 0xc19a,
+        [MotherBrainRevivalPhase.FinalBabyAttackHolding] = 0xc1a6,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainPhase3FightPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainPhase3FightPhase> Phase3FightPhases = new(new Dictionary<MotherBrainPhase3FightPhase, ushort>
+    {
+        [MotherBrainPhase3FightPhase.RecoverMakeSomeDistance] = 0xc1cf,
+        [MotherBrainPhase3FightPhase.RecoverSetupForFighting] = 0xc1f0,
+        [MotherBrainPhase3FightPhase.FightingMain] = 0xc209,
+        [MotherBrainPhase3FightPhase.FightingAttackCooldown] = 0xc24e,
+    });
+
+    /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainDeathPhase"/>, the body's function word (#2208).</summary>
+    internal static readonly NativeWordIdentities<MotherBrainDeathPhase> DeathPhases = new(new Dictionary<MotherBrainDeathPhase, ushort>
+    {
+        [MotherBrainDeathPhase.MoveToBackOfRoom] = 0xaee1,
+        [MotherBrainDeathPhase.IdleWhilstExploding] = 0xaf12,
+        [MotherBrainDeathPhase.StumbleToMiddleOfRoom] = 0xaf21,
+        [MotherBrainDeathPhase.DisableBrainEffects] = 0xaf54,
+        [MotherBrainDeathPhase.SetupBodyFadeOut] = 0xaf9d,
+        [MotherBrainDeathPhase.FadeOutBody] = 0xafb6,
+        [MotherBrainDeathPhase.FinalFewExplosions] = 0xb013,
+        [MotherBrainDeathPhase.RealizeDecapitation] = 0xb115,
+        [MotherBrainDeathPhase.BrainFallsToGround] = 0xb12d,
+        [MotherBrainDeathPhase.ReadyCorpse] = 0xb15e,
+        [MotherBrainDeathPhase.SetupFadeToGrey] = 0xb173,
+        [MotherBrainDeathPhase.FadeToGrey] = 0xb189,
+        [MotherBrainDeathPhase.CorpseTipsOver] = 0xb1b8,
+        [MotherBrainDeathPhase.CorpseRotsAway] = 0xb1d5,
+        [MotherBrainDeathPhase.PauseBeforeEscape] = 0xb211,
+        [MotherBrainDeathPhase.ReadyEscapeWarning] = 0xb258,
+        [MotherBrainDeathPhase.StartEscape] = 0xb26d,
+        [MotherBrainDeathPhase.SpawnTimeBombSetSubtitle] = 0xb2d1,
+        [MotherBrainDeathPhase.TypeOutZebesEscapeText] = 0xb2e3,
+        [MotherBrainDeathPhase.DoorExplodingStartTimer] = 0xb2f9,
+        [MotherBrainDeathPhase.BlowUpEscapeDoor] = 0xb32a,
+        [MotherBrainDeathPhase.KeepEarthquakeGoing] = 0xb33c,
+    });
+
+    /// <summary>
+    /// Installs the body phase a recorded bank-$A9 routine word names, entering the stage whose phase it is (#2208): one
+    /// of the mural's routines enters the ascent's drawing with the rows it has drawn, and the glass stage's word requires
+    /// the encounter still in it, the stage it begins in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The word names no phase of her body's.</exception>
+    internal static void ImportBodyPhase(MotherBrainEnemyState state, ushort word)
+    {
+        if (word == GlassWord)
+        {
+            if (state.Stage != MotherBrainBodyStage.Glass)
+                throw new InvalidDataException($"A recorded glass-stage Mother Brain cannot be imported over her {state.Stage} stage.");
+            return;
+        }
+        if (Array.IndexOf(MuralRevealFunctions, word) is var pair and >= 0)
+        {
+            state.AscentPhase = MotherBrainAscentPhase.DrawMural;
+            state.MuralRowsDrawn = pair * MotherBrainMuralDefinitions.RowsEachUpdate;
+            return;
+        }
+        state.MuralRowsDrawn = 0;
+        if (DescentPhases.TryDecode(word, out MotherBrainDescentPhase descentPhase))
+            state.DescentPhase = descentPhase;
+        else if (Phase2FightPhases.TryDecode(word, out MotherBrainPhase2FightPhase phase2FightPhase))
+            state.Phase2FightPhase = phase2FightPhase;
+        else if (RainbowPhases.TryDecode(word, out MotherBrainRainbowPhase rainbowPhase))
+            state.RainbowPhase = rainbowPhase;
+        else if (FinishOffPhases.TryDecode(word, out MotherBrainFinishOffPhase finishOffPhase))
+            state.FinishOffPhase = finishOffPhase;
+        else if (DrainedPhases.TryDecode(word, out MotherBrainDrainedPhase drainedPhase))
+            state.DrainedPhase = drainedPhase;
+        else if (RevivalPhases.TryDecode(word, out MotherBrainRevivalPhase revivalPhase))
+            state.RevivalPhase = revivalPhase;
+        else if (Phase3FightPhases.TryDecode(word, out MotherBrainPhase3FightPhase phase3FightPhase))
+            state.Phase3FightPhase = phase3FightPhase;
+        else if (DeathPhases.TryDecode(word, out MotherBrainDeathPhase deathPhase))
+            state.DeathPhase = deathPhase;
+        else
+            state.AscentPhase = AscentPhases.Decode(word, "recorded Mother Brain body phase");
+    }
 
     /// <summary>The bank-$A2 routine word naming each <see cref="RinkaAction"/>.</summary>
     internal static readonly NativeWordIdentities<RinkaAction> RinkaActions = new(new Dictionary<RinkaAction, ushort>

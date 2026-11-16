@@ -29,7 +29,7 @@ internal static class MotherBrainFakeDeathLockVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
-        state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
+        state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
         state.PhaseTimer.Count = 0;
         // The original's lock stores to the room's second cell: in Mother Brain's row of four screens, the second screen.
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
@@ -44,7 +44,7 @@ internal static class MotherBrainFakeDeathLockVerification
             AssertEqual(screen == new Position16<RoomScreens>(1, 0) ? RoomScrollState.Closed : RoomScrollState.Open, scrolls.ReadScreen(screen),
                 $"the arena lock closes only the second screen, leaving screen {screen} as it was");
 
-        state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
+        state.DescentPhase = MotherBrainDescentPhase.PauseBeforeUnlock;
         state.PhaseTimer.Count = 0;
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked,
@@ -65,7 +65,7 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain.");
-        state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
+        state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
         state.PhaseTimer.Count = 100;
         state.TubeCollapseStep = MotherBrainTubeCollapseStep.Finished;
         state.FakeDeathExplosionIndex = 0;

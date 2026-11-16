@@ -18,7 +18,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     public override void RunMainAi(IEnemyAiFrame frame) => MotherBrainHead.RunMotherBrainHeadMain(Place, Encounter, frame.Samus);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainPlaceAnimation(Place, Encounter, context.Samus);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MotherBrainHead.AdvanceMotherBrainHeadPlace(Place);
 
     /// <summary>The head's touch reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesTouch => MotherBrainReactions.HeadTouch;

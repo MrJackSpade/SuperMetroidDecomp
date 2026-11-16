@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain finishing Samus off: standing up, admiring, and charging and firing the final beam until the Baby Metroid arrives.</summary>
 internal sealed class MotherBrainFinishSamusOffPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
+
+    /// <summary>The encounter the late fight runs, the one owner of the state these phases read and write.</summary>
+    private MotherBrainEnemyState Encounter => _state.Encounter;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFinishSamusOffPhases(MotherBrainLateFightState state)
@@ -44,14 +47,14 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// Runs the second phase finish samus off body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame)
     {
         // The low-energy check asks whether a few more onion rings could put Samus at the encounter's intended
         // low-energy floor. Equality counts as low and changes the body phase without falling into the stand-up
         // step on this call.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.StandUp;
             return false;
         }
 
@@ -62,7 +65,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffHoldsBack))
         {
             if (MotherBrainCadenceDefinitions.FinishOffPostureEveryThirtySecondUpdate.IsDue(frame.EnemyFrameCounter))
-                requests.BodyPostureRequested = _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
+                _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
             return false;
         }
 
@@ -84,17 +87,16 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// Runs the second phase finish samus off stand up body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseFinishSamusOffStandUp(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseFinishSamusOffStandUp()
     {
         // The standing helper reports her standing only if she already stood at call entry.
         // Crouched/leaning poses request their matching stand animation and report her not
         // yet standing; walking/transition poses simply wait for their current animation.
-        bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);
-        requests.BodyPostureRequested = postureRequested;
+        bool stoodUp = _state.MakeBodyStandUp();
         if (stoodUp)
         {
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire;
-            _state.PhaseTimer.Count = 16;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.Admire;
+            Encounter.PhaseTimer.Count = 16;
             return true;
         }
         return false;
@@ -107,11 +109,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
         // Stand-up falls through here, so the freshly loaded countdown takes its first step on the same AI call.
-        if (_state.PhaseTimer.StepRunsOut())
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam;
-            _state.PhaseTimer.Count = 256;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ChargeFinalBeam;
+            Encounter.PhaseTimer.Count = 256;
         }
         return false;
     }
@@ -122,10 +124,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
     {
-        if (_state.PhaseTimer.StepRunsOut())
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ReadyBaby;
             return true;
         }
         return false;
@@ -144,8 +146,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam;
-            _state.PhaseTimer.Count = 256;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
+            Encounter.PhaseTimer.Count = 256;
         }
         return false;
     }
@@ -156,14 +158,14 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (_state.PhaseTimer.StepRunsOut())
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
-            _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
-            _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-            _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
-            requests.FinalBeamSoundQueued = true; // The final beam's sound.
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding;
+            Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+            Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
+            Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
+            requests.FinalBeamFired = true; // The final beam's sound, and her rainbow colours start again from the first.
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FinalBeamHolding;
         }
         return false;
     }
@@ -179,4 +181,20 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // with the taken-aback step after latching onto her head.
         return false;
     }
+
+    /// <summary>
+    /// Runs the body's current <see cref="MotherBrainFinishOffPhase"/> phase. True when it moves to the next body phase and the game runs on
+    /// into it within the same call.
+    /// </summary>
+    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.FinishOffPhase switch
+    {
+        MotherBrainFinishOffPhase.GetSamusToLowEnergy => RunSecondPhaseFinishSamusOff(samus, frame),
+        MotherBrainFinishOffPhase.StandUp => RunSecondPhaseFinishSamusOffStandUp(),
+        MotherBrainFinishOffPhase.Admire => RunSecondPhaseFinishSamusOffAdmire(),
+        MotherBrainFinishOffPhase.ChargeFinalBeam => RunSecondPhaseFinishSamusOffChargeFinalBeam(),
+        MotherBrainFinishOffPhase.ReadyBaby => RunSecondPhaseFinishSamusOffReadyBaby(requests),
+        MotherBrainFinishOffPhase.FireFinalBeam => RunSecondPhaseFinishSamusOffFireFinalBeam(requests),
+        MotherBrainFinishOffPhase.FinalBeamHolding => RunSecondPhaseFinalRainbowBeamHolding(),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainFinishOffPhase)} {Encounter.FinishOffPhase}."),
+    };
 }

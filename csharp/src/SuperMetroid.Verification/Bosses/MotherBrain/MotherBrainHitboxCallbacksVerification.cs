@@ -19,16 +19,22 @@ internal static class MotherBrainHitboxCallbacksVerification
     /// <summary>Bytes in one native extended-frame component record.</summary>
     private const int ComponentRecordBytes = 8;
 
-    /// <summary>Compares all seventeen frame roots' components and rectangles with the cartridge.</summary>
+    /// <summary>
+    /// Compares all sixteen body frame roots' components and rectangles with the cartridge, and her brain's rectangle with
+    /// the root of the blank brain frame her parts' initial list shows (#2220).
+    /// </summary>
     internal static void VerifyMotherBrainHitboxCallbacks(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int rectangles = 0;
-        for (int index = 0; index < MotherBrainBodyFrameDefinitions.FrameCount; index++)
+        IEnumerable<(string Name, ushort Pointer, EnemyCollisionComponent[] Components)> roots = Enumerable
+            .Range(0, MotherBrainBodyFrameDefinitions.FrameCount)
+            .Select(MotherBrainBodyVisualDefinitionsConstants.Frame)
+            .Select(frame => (frame.Name, frame.Pointer, MotherBrainCollision.ComponentsAt(frame.Pointer).ToArray()))
+            .Append(("her brain's blank frame", (ushort)0xa320, MotherBrainCollisionDefinitions.BrainComponents));
+        foreach ((string name, ushort pointer, EnemyCollisionComponent[] components) in roots)
         {
-            NativeEnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitionsConstants.Frame(index);
-            int root = (int)new SnesAddress(frame.Bank, frame.Pointer);
-            ReadOnlySpan<EnemyCollisionComponent> components = MotherBrainCollision.ComponentsAt(frame.Pointer);
+            int root = (int)new SnesAddress(MotherBrainCollision.Bank, pointer);
             // #2211: the port lists only the native components that hold rectangles, in their order; the collision tests
             // walk the rectangles, so a native component without one is never tested.
             int listed = 0;
@@ -38,19 +44,19 @@ internal static class MotherBrainHitboxCallbacksVerification
                 int list = (int)new SnesAddress(MotherBrainCollision.Bank, cartridge.ReadCartridgeWord(record + 6));
                 if (cartridge.ReadCartridgeWord(list) == 0)
                     continue;
-                AssertTrue(listed < components.Length, $"frame {frame.Name} lists native component {component}");
+                AssertTrue(listed < components.Length, $"frame {name} lists native component {component}");
                 EnemyCollisionComponent compiled = components[listed++];
                 AssertEqual(cartridge.ReadCartridgeWord(record), unchecked((ushort)compiled.Offset.X),
-                    $"frame {frame.Name} component {component} X");
+                    $"frame {name} component {component} X");
                 AssertEqual(cartridge.ReadCartridgeWord(record + 2), unchecked((ushort)compiled.Offset.Y),
-                    $"frame {frame.Name} component {component} Y");
+                    $"frame {name} component {component} Y");
                 AssertEqual(cartridge.ReadCartridgeWord(list), compiled.Hitboxes.Count,
-                    $"frame {frame.Name} component {component} rectangle count");
+                    $"frame {name} component {component} rectangle count");
                 for (int box = 0; box < compiled.Hitboxes.Count; box++)
                 {
                     int entry = list + 2 + box * HitboxRecordBytes;
                     EnemyCollisionHitbox hitbox = compiled.Hitboxes[box];
-                    string at = $"frame {frame.Name} component {component} rectangle {box}";
+                    string at = $"frame {name} component {component} rectangle {box}";
                     AssertEqual(cartridge.ReadCartridgeWord(entry), unchecked((ushort)hitbox.Left), $"{at} left");
                     AssertEqual(cartridge.ReadCartridgeWord(entry + 2), unchecked((ushort)hitbox.Top), $"{at} top");
                     AssertEqual(cartridge.ReadCartridgeWord(entry + 4), unchecked((ushort)hitbox.Right), $"{at} right");
@@ -62,11 +68,11 @@ internal static class MotherBrainHitboxCallbacksVerification
                     rectangles++;
                 }
             }
-            AssertEqual(components.Length, listed, $"frame {frame.Name} lists only the native components that hold rectangles");
+            AssertEqual(components.Length, listed, $"frame {name} lists only the native components that hold rectangles");
         }
 
         Console.WriteLine(
-            $"Mother Brain hitbox callbacks: {MotherBrainBodyFrameDefinitions.FrameCount} frame roots and {rectangles} rectangles match the cartridge's edges and callbacks.");
+            $"Mother Brain hitbox callbacks: {MotherBrainBodyFrameDefinitions.FrameCount} body frame roots, her brain's and {rectangles} rectangles match the cartridge's edges and callbacks.");
     }
 
     /// <summary>Runs the Mother Brain hitbox-callback ROM oracle.</summary>

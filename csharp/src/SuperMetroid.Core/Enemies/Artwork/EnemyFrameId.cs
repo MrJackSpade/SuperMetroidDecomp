@@ -3416,8 +3416,11 @@ public enum EnemyFrameId
     MotherBrainBodyUncrouching,
     /// <summary>Mother Brain: body leaning down.</summary>
     MotherBrainBodyLeaningDown,
-    /// <summary>Mother Brain: body initial dummy.</summary>
-    MotherBrainBodyInitialDummy,
+    /// <summary>
+    /// Mother Brain: her brain's hit area (#2220), which her head shows from its first animation update on and her body
+    /// until its first animation; it has no picture, and what meets it meets her brain's rectangle.
+    /// </summary>
+    MotherBrainBrainHitArea,
     /// <summary>Mother Brain: her body standing as her hand beam begins, her hand curling.</summary>
     MotherBrainBodyHandCurling,
     /// <summary>Mother Brain: her body with her hand beam's arm drawn back, its fist closed.</summary>

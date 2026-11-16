@@ -36,7 +36,7 @@ internal static class BabyMetroidInheritedFractionsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
+        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
 
         RoomEnemyPlace free = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.None);
         free.Position = free.Position.WithFractionX(0x1400).WithFractionY(0x2800);

@@ -213,23 +213,33 @@ internal static class MotherBrainEncodingDomainsVerification
     /// </summary>
     private static void VerifySnapshotPlacesBodyArea()
     {
-        AssertEqual(MotherBrainBodyPlacement.Unplaced,
-            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.Glass, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
+        static MotherBrainEnemyState At(MotherBrainForm form) => new(
+            new SuperMetroid.Core.Enemies.RoomEnemyPlace(0, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
+                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Form = form };
+        MotherBrainEnemyState glass = At(MotherBrainForm.Glass);
+        glass.AscentPhase = MotherBrainAscentPhase.ContinuePausing;
+        AssertEqual(MotherBrainBodyPlacement.Unplaced, NativeSnapshotMotherBrainImport.BodyPlacementOf(glass),
             "her glass form leaves her body's area unplaced");
-        AssertEqual(MotherBrainBodyPlacement.Unplaced,
-            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
+        MotherBrainEnemyState pausing = At(MotherBrainForm.FakeDeath);
+        pausing.AscentPhase = MotherBrainAscentPhase.ContinuePausing;
+        AssertEqual(MotherBrainBodyPlacement.Unplaced, NativeSnapshotMotherBrainImport.BodyPlacementOf(pausing),
             "the pause before her rise leaves her body's area unplaced");
-        AssertEqual(MotherBrainBodyPlacement.FollowsBody,
-            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain),
+        MotherBrainEnemyState rising = At(MotherBrainForm.FakeDeath);
+        rising.AscentPhase = MotherBrainAscentPhase.RaiseMotherBrain;
+        AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(rising),
             "her rise places her body's area with her");
-        AssertEqual(MotherBrainBodyPlacement.FollowsBody,
-            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.SecondPhase, MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck),
+        MotherBrainEnemyState phaseTwo = At(MotherBrainForm.SecondPhase);
+        phaseTwo.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
+        AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(phaseTwo),
             "a mid-phase-two snapshot places her body's area with her");
-        AssertEqual(MotherBrainBodyPlacement.FollowsBody,
-            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathStartEscape),
+        MotherBrainEnemyState escaping = At(MotherBrainForm.ThirdPhase);
+        escaping.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(escaping),
             "her body's area stays with her until her escape's start shows the warning");
-        AssertEqual(MotherBrainBodyPlacement.AtRoomCorner,
-            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText),
+        MotherBrainEnemyState typing = At(MotherBrainForm.ThirdPhase);
+        typing.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
+        AssertEqual(MotherBrainBodyPlacement.AtRoomCorner, NativeSnapshotMotherBrainImport.BodyPlacementOf(typing),
             "the escape warning's typing lies at the room's corner");
     }
 

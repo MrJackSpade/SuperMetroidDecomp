@@ -20,7 +20,7 @@ internal sealed class ProjectileTrails
 
     /// <summary>
     /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
-    /// places them from the placement its shown animation frame selects in its trail list.
+    /// places them from the placement its trail list gives the frame it shows.
     /// </summary>
     internal void SpawnTrail(SamusProjectile projectile)
     {
@@ -49,12 +49,12 @@ internal sealed class ProjectileTrails
         ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
             group, projectile.Type.BeamCombination, projectile.Direction);
 
-        // A shot whose direction names no placement list leaves no trail, and neither does a shot whose list has shown no
-        // frame yet or whose frame lies past its list's placements: those placements are not part of the game's design
+        // A shot whose direction names no placement list leaves no trail, and neither does a shot whose animation has shown
+        // no frame yet or whose frame its list places no trail for: those placements are not part of the game's design
         // (owner decision on #1318, #1625).
         if (list is not { } placements ||
-            GetTrailAnimationFrame(projectile) is not { } animationFrame ||
-            ProjectileTrailPlacements.Start(placements, animationFrame) is not { } placement)
+            GetTrailFrame(projectile) is not { } frame ||
+            ProjectileTrailPlacements.Start(placements, frame) is not { } placement)
             return;
 
         var trail = new SamusProjectileTrail(projectile.PicturedBeams);
@@ -75,12 +75,12 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>
-    /// The animation frame a trail reads from <paramref name="projectile"/>: the animation frame of the frame its
-    /// animation last showed, or null before its animation has shown one.
+    /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before
+    /// its animation has shown one.
     /// </summary>
-    internal static int? GetTrailAnimationFrame(SamusProjectile projectile) =>
-        SamusProjectilePlayback.ShownAnimationFrame(projectile.Playback
-            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."));
+    internal static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
+        SamusProjectilePlayback.ShownFrame(projectile.Playback
+            ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile."));
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with the position wrapping at 65536.</summary>
     private static int AddOffset(int origin, int offset) => CoordinateAxis.Wrap(origin + offset - 4);

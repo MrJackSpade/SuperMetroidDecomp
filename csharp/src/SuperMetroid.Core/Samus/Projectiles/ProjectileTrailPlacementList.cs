@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>A list of trail placements, read by the projectile's animation frame.</summary>
+/// <summary>A list of trail placements, read by the frame the projectile shows.</summary>
 internal enum ProjectileTrailPlacementList
 {
     /// <summary>Where <see cref="ProjectileTrailFamily.UnchargedDefault"/> trails start for every direction.</summary>

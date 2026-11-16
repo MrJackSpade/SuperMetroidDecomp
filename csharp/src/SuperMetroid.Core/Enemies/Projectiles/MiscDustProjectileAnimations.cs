@@ -183,7 +183,11 @@ internal static class MiscDustProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MiscDustAnimation> StartingWith(MiscDustAnimation segment) => StartingAt[segment];
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is not one of the fourteen animations.</exception>
+    internal static Animation<MiscDustAnimation> StartingWith(MiscDustAnimation segment) =>
+        StartingAt.TryGetValue(segment, out Animation<MiscDustAnimation>? animation)
+            ? animation
+            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined misc-dust animation.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

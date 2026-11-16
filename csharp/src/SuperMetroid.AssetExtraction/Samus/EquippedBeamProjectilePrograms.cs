@@ -76,9 +76,9 @@ internal static class EquippedBeamProjectilePrograms
     }
 
     /// <summary>Every record a projectile fired or placed with <paramref name="beams"/> equipped can show.</summary>
-    internal static IEnumerable<SamusProjectileFrame> Records(SamusBeamCombination beams) =>
+    internal static IEnumerable<SamusProjectileFrameId> Records(SamusBeamCombination beams) =>
         Of(beams).SelectMany(program => SamusProjectileAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>()
+            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
             .Select(show => show.Shown)
             .Distinct();
 

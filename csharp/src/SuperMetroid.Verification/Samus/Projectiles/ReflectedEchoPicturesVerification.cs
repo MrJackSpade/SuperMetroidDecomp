@@ -31,7 +31,7 @@ internal static class ReflectedEchoPicturesVerification
                 // The program reflection restarts the echo in, as the enemy impact selects it.
                 if (SamusProjectileSelection.BeamShotAnimation(reflected.BeamCombination, reflected.IsChargedBeam, direction) is not { } program)
                     continue;
-                foreach (SamusProjectileFrame frame in ShownFrames(program))
+                foreach (SamusProjectileFrameId frame in ShownFrames(program))
                 {
                     ProjectileSpriteId composition = bindings.Resolve(frame);
                     if (!composition.DrawsNothing)
@@ -55,9 +55,9 @@ internal static class ReflectedEchoPicturesVerification
     }
 
     /// <summary>Every frame the animation starting at <paramref name="start"/> shows, in every segment it plays.</summary>
-    private static HashSet<SamusProjectileFrame> ShownFrames(SamusProjectileSegment start) =>
+    private static HashSet<SamusProjectileFrameId> ShownFrames(SamusProjectileSegment start) =>
         [.. SamusProjectileAnimations.StartingWith(start).Phases
             .SelectMany(phase => SamusProjectileAnimations.Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
-            .OfType<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>()
+            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
             .Select(frame => frame.Shown)];
 }

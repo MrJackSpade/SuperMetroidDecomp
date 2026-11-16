@@ -14,7 +14,7 @@ internal static class ProjectileSpriteLocations
 {
 
     /// <summary>The bank-$93 address of the composition each timed projectile record draws, by record.</summary>
-    internal static Dictionary<SamusProjectileFrame, ushort> RecordSprites(ISnesAddressSpace bus)
+    internal static Dictionary<SamusProjectileFrameId, ushort> RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);

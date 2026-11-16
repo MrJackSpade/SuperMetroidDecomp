@@ -1019,11 +1019,10 @@ public sealed class SamusBombProjectileSystem
         }
         if (duration == 0)
             throw new InvalidDataException($"Bomb frame {frame} has zero duration.");
-        SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
         bomb.FrameHold = WrappingCountdown.Start(duration);
         bomb.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's bombs show their frames' installed compositions, which are not bound.")).Resolve(frame);
-        bomb.Radius = gameplay.Radius;
+        bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
         bomb.Playback = playback;
         return false;
     }

@@ -36,5 +36,5 @@ internal static class SamusProjectileProgramAddresses
     internal static AnimationPlayback<SamusProjectileSegment>? PlaybackAt(ushort address) => Layout.PlaybackAt(address);
 
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
-    internal static ushort RecordAddress(SamusProjectileFrame record) => Layout.RecordPosition(record);
+    internal static ushort RecordAddress(SamusProjectileFrameId record) => Layout.RecordPosition(record);
 }

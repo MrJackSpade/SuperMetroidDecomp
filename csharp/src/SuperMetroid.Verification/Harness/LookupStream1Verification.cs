@@ -1671,7 +1671,7 @@ internal static class LookupStream1Verification
         {
             ushort pointer = expected[index];
             AssertEqual(pointer, SamusProjectileFrameDefinitions.TimedRecordAddresses[index], "Calculated indexed pointer");
-            Extent16<RoomPixels> radius = SamusProjectileProgramsVerification.RecordAt(pointer).Radius;
+            Extent16<RoomPixels> radius = SamusProjectileFrameDefinitions.Radius(SamusProjectileProgramsVerification.RecordAt(pointer));
             AssertEqual(Word(0x930000 | (pointer + 4)), LittleEndianBytes.Word((byte)radius.X, (byte)radius.Y), "Typed record radii are the native bytes");
         }
         var document = new ProjectileFrameBindingDocument
@@ -1695,7 +1695,7 @@ internal static class LookupStream1Verification
             AssertEqual(sprite, slot.SpritemapPointer, "Installed artwork selection");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius");
-            AssertEqual<int?>(Word(0x930000 | (pointer + 6)), ProjectileTrails.GetTrailAnimationFrame(slot), "Actual trail phase unchanged");
+            AssertEqual<SamusProjectileFrameId?>(SamusProjectileProgramsVerification.RecordAt(pointer), ProjectileTrails.GetTrailFrame(slot), "Actual trail frame is the record's");
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
             if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
@@ -1797,7 +1797,7 @@ internal static class LookupStream1Verification
                         looped = !visited.Add(pointer);
                         timer = word; sprite = Word(0x930000 | (pointer + 2));
                         x = LookupStream1ProjectileProgramsRomByte(rom, 0x930000 | (pointer + 4)); y = LookupStream1ProjectileProgramsRomByte(rom, 0x930000 | (pointer + 5));
-                        trail = Word(0x930000 | (pointer + 6)); pointer += 8;
+                        trail = pointer; pointer += 8;
                     }
                 }
                 AssertEqual(deleted, shots.Animation.AdvanceProjectileAnimation(slot), "Exact native projectile deletion tick");
@@ -1811,7 +1811,7 @@ internal static class LookupStream1Verification
                 }
                 AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail),
                     new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y,
-                        ProjectileTrails.GetTrailAnimationFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record.")),
+                        SamusProjectileProgramAddresses.RecordAddress(ProjectileTrails.GetTrailFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record."))),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y),
                     new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),

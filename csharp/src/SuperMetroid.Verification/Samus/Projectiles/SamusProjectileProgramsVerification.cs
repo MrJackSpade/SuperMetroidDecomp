@@ -34,7 +34,7 @@ internal static class SamusProjectileProgramsVerification
         foreach ((ushort entry, SamusProjectileSegment program) in byEntry)
         {
             AssertEqual(Word(entry - sizeof(ushort)), SamusProjectileProgramAddresses.Prefix(program), $"projectile {program}: word before its list");
-            IReadOnlyList<AnimationBeat<SamusProjectileFrame, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(program);
+            IReadOnlyList<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(program);
             var addresses = new List<ushort>();
             NativeEnemyControl<SamusProjectileSegment> end;
             ushort cursor = entry;
@@ -52,14 +52,12 @@ internal static class SamusProjectileProgramsVerification
                 if (unchecked((short)word) >= 0)
                 {
                     AssertTrue(index < beats.Count, $"{at}: the segment has a beat for the timed record");
-                    var show = AssertIs<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
+                    var show = AssertIs<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(new SamusProjectileFrame(program, index), show.Shown, $"{at}: the segment's next record");
-                    SamusProjectileFrameGameplay record = SamusProjectileFrameDefinitions.Get(show.Shown);
                     AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Shown), $"{at}: record address");
                     ushort radii = Word(cursor + 4);
-                    AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
-                    AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");
+                    AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)),
+                        SamusProjectileFrameDefinitions.Radius(show.Shown), $"{at}: radii");
                     records.Add(cursor);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount));
@@ -170,14 +168,14 @@ internal static class SamusProjectileProgramsVerification
         return compared;
     }
 
-    /// <summary>The typed record at bank-$93 record address <paramref name="address"/>.</summary>
-    internal static SamusProjectileFrameGameplay RecordAt(ushort address)
+    /// <summary>The frame of the timed record at bank-$93 record address <paramref name="address"/>.</summary>
+    internal static SamusProjectileFrameId RecordAt(ushort address)
     {
         if (address == 0 || !SamusProjectileProgramAddresses.Layout.TryPlaceAt(address, out SamusProjectileSegmentBeat place))
             throw new InvalidDataException($"$93:{address:X4} is not a Samus projectile list position.");
-        IReadOnlyList<AnimationBeat<SamusProjectileFrame, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(place.Segment);
-        return place.Beat < beats.Count && beats[place.Beat] is AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame show
-            ? SamusProjectileFrameDefinitions.Get(show.Shown)
+        IReadOnlyList<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(place.Segment);
+        return place.Beat < beats.Count && beats[place.Beat] is AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame show
+            ? show.Shown
             : throw new InvalidDataException($"$93:{address:X4} is not a timed record.");
     }
 

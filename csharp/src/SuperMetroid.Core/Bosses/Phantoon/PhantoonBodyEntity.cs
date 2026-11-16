@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;

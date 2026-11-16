@@ -6,7 +6,6 @@ using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Nuclear;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

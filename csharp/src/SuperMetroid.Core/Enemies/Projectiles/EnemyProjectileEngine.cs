@@ -206,7 +206,7 @@ internal sealed class EnemyProjectileEngine
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch animation, EnemyProjectile.FreePlace). One that ended plays no animation, so nothing runs.
-            AdvanceEnemyProjectileAnimations(_places[place], samus, camera, shortCounter);
+            AdvanceEnemyProjectileAnimations(_places[place], samus, camera, shortCounter, samusBombs);
         }
     }
 
@@ -544,15 +544,17 @@ internal sealed class EnemyProjectileEngine
     /// <param name="samus">Samus, for cues that act on her.</param>
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
     /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
+    /// <param name="samusBombs">Samus's bombs, whose power bomb explosion a cue may test.</param>
     internal void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,
-        int shortCounter)
+        int shortCounter,
+        SamusBombProjectileSystem samusBombs)
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(new(projectile, samus, camera, shortCounter), this);
+            animation.Advance(new(projectile, samus, camera, shortCounter, Ensure.NotNull(samusBombs)), this);
             return;
         }
 

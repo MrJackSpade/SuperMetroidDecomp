@@ -81,8 +81,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             top.SetSpeciesState(part);
             for (int index = 0; index < GunshipTakeoffDefinitions.EngineReadyingDuration; index++)
                 enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(top);
-            AssertTrue(enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "readying the engines shows the takeoff look");
-            return EncounterArtworkPlacements.Of(enemies.Room.Session.Looks, resolver);
+            AssertTrue(enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "readying the engines shows the takeoff look");
+            return EncounterArtworkPlacements.Of(enemies.Presentation.Looks, resolver);
         }
     }
 }

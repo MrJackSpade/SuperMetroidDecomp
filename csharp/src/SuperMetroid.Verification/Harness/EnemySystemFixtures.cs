@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -40,6 +41,7 @@ internal static class EnemySystemFixtures
         {
             Session = session,
             Compatibility = compatibility,
+            Looks = new EncounterLooks(),
             Definitions = definitions ?? CompiledRoomEnemyDefinitions.Instance,
             Services = services ?? new VerificationRoomEnemyServices(null),
             Area = area,

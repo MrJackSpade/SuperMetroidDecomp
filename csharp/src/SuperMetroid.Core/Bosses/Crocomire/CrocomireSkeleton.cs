@@ -201,7 +201,7 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
-    internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
+    internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state, SamusState samus)
     {
         if (!CrocomireBodyAnimationGroups.SkeletonAtRest.Contains(state.BodyResidentAnimation))
         {
@@ -223,7 +223,8 @@ internal sealed class CrocomireSkeleton
             xBase: 576,
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 96,
-            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
+            samus: samus);
         state.DeathPhase = state.DeathPhase.Next();
     }
 

@@ -17,7 +17,10 @@ internal static class RidleyMissedLungeVerification
     internal static void VerifyRidleyMissedLunge()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        // The power bomb explosion of the pass's bombs, which a missed lunge dodges while it is armed.
+        var bomb = new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
+            enemies.RidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, bomb);
         Action<RoomEnemyPlace, RidleyEnemyState, RidleyWallImpact> move = enemies.CeresRidleyBehavior.Flight.IntegrateRidleyMovement;
         var place = enemies.Places.InUpdateOrder[0];
         place.Health = 1000;
@@ -93,10 +96,8 @@ internal static class RidleyMissedLungeVerification
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
         AssertEqual(32, state.PhaseTimer, "native death-roar timer is armed");
 
-        var bomb = new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         bomb.Arm();
         bomb.Spawn(new(200, 400));
-        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours(), bomb);
         ResetLunge(160, 400);
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyPhase.NorfairPowerBombDodge, state.Phase, "bomb selects native dodge instead of ordinary retreat");

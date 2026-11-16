@@ -30,7 +30,7 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     internal void ReactToTouch(EnemyTouchContext context)
     {
         if (context.Place.Definition.Touch == EnemyReaction.NormalEnemyTouch)
-            collision().ResolveNormalEnemyTouch(context.Place, context.Samus);
+            collision().ResolveNormalEnemyTouch(context);
     }
 
     /// <summary>The shared shot reaction <paramref name="definition"/> names, or null when it names none.</summary>

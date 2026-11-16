@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -48,6 +49,12 @@ internal sealed record RoomScope
     /// frames its animations selected, the display names its blocks', cells' and written cells' pictures by it.
     /// </summary>
     public required RoomAppearance Appearance { get; init; }
+
+    /// <summary>
+    /// The look each of the room's encounters shows (#1538, #2160), which the frames its looks change and the Ceres Ridley
+    /// arena's backgrounds follow. The room's enemies show their looks into it; the next room's load builds its own.
+    /// </summary>
+    public required EncounterLooks Looks { get; init; }
 
     /// <summary>Resolves the pre-coloured picture each block the room's planes show draws as (#1392).</summary>
     public required RoomBlockPictureResolver BlockPictures { get; init; }

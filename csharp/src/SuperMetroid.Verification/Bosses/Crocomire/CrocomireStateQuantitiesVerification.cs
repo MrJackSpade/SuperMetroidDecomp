@@ -283,7 +283,7 @@ internal static class CrocomireStateQuantitiesVerification
         for (int frame = 1; frame <= 20; frame++)
         {
             NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(16), 6);
-            behavior.Skeleton.RunCrocomireSkeletonCollapse(state);
+            behavior.Skeleton.RunCrocomireSkeletonCollapse(state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"skeleton collapse frame {frame}: speed fraction word");
             AssertEqual(whole, state.SkeletonVelocity.UnsignedWholePixels, $"skeleton collapse frame {frame}: speed whole word");
         }

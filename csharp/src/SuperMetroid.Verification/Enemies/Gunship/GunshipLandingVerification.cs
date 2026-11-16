@@ -202,7 +202,7 @@ internal static class GunshipLandingVerification
             "event $0E bypasses restoration and publishes takeoff start");
         AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.LastEnemyFrame.Gunship,
             "accelerating gunship publishes frontend state-$26 boundary");
-        AssertTrue(enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
+        AssertTrue(enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
             "takeoff shows its look once the engines are readied");
         AssertEqual(6, maximumLiftoffDustActors,
             "takeoff frame 64 spawns all six room-graphics dust actors");

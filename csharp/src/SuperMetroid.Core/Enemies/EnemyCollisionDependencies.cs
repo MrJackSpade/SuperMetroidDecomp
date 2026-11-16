@@ -21,9 +21,6 @@ internal sealed record EnemyCollisionDependencies
     /// <summary>The room's earthquake, which a hit that shakes the room starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>The current enemy frame's timing and state, which collision reactions read.</summary>
-    public required EnemyFrameContext FrameContext { get; init; }
-
     /// <summary>The room's enemy projectiles, which collision outcomes reach.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 

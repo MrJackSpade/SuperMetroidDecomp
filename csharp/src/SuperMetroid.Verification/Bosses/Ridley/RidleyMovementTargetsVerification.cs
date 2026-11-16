@@ -48,7 +48,10 @@ internal static class RidleyMovementTargetsVerification
         Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
         Action<RoomEnemyPlace, RidleyEnemyState, SamusState, RidleyWallSweepTarget> sweep = enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep;
         Action<RoomEnemyPlace, RidleyEnemyState, SamusState> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToSide;
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        // The power bomb explosion of idle bombs, none exploding, which a missed lunge would dodge.
+        var powerBomb = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePowerBombExplosion();
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
+            enemies.RidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, powerBomb);
         var place = enemies.Places.InUpdateOrder[0];
         var state = new RidleyEnemyState();
         // Independent closed form of native inertia from zero velocity: target selection
@@ -113,7 +116,10 @@ internal static class RidleyMovementTargetsVerification
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> approach = enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach;
+        // The power bomb explosion of idle bombs, none exploding, which a missed lunge would dodge.
+        var idlePowerBomb = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePowerBombExplosion();
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> approach = (ridley, ridleyState, target) =>
+            NorfairRidleyCombat.TickNorfairRidleyGrabApproach(ridley, ridleyState, target, idlePowerBomb);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {

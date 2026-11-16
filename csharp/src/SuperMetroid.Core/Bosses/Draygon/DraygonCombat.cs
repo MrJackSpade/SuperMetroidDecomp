@@ -72,7 +72,7 @@ internal sealed class DraygonCombat
             throw new InvalidDataException(
                 $"Draygon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         ResolveDraygonReaction(context.Place, context.Samus);
     }
 

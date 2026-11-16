@@ -23,7 +23,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Queues sounds produced during Beetom movement and contact.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Provides the active frame's Samus and room data to its behaviours.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Handles common contact before Beetom's attachment behavior.</summary>
     private readonly EnemyCollision _collision;
@@ -431,7 +431,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveBeetomTouch(
         RoomEnemyPlace place,
         BeetomEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
         if (!state.AttachedToSamus)
         {
@@ -444,7 +445,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
-            _collision.ResolveNormalEnemyTouch(place, samus);
+            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
             samus.KnockbackTimer = 0;
             return;
@@ -528,5 +529,5 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
     internal void ReactToBeetomTouch(EnemyTouchContext context) =>
-        ResolveBeetomTouch(context.Place, context.Place.RequireSpeciesState<BeetomEnemyState>(), context.Samus);
+        ResolveBeetomTouch(context.Place, context.Place.RequireSpeciesState<BeetomEnemyState>(), context.Samus, context.PseudoScrew);
 }

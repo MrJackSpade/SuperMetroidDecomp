@@ -35,14 +35,14 @@ internal static class EncounterLooksVerification
         AssertTrue(EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, eyes.Name) < EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, gut.Name),
             "the import composes the gut's look over the lit eyes'");
 
-        looks.Restart();
-        AssertEqual(EncounterLook.Loaded(EncounterArtwork.Gunship), looks.Current(EncounterArtwork.Gunship), "a room load shows every encounter's room's load again");
+        AssertEqual(EncounterLook.Loaded(EncounterArtwork.Gunship), new EncounterLooks().Current(EncounterArtwork.Gunship),
+            "the next room's own looks show every encounter's room's load again");
 
         AssertEqual("frame", EncounterLook.PictureName("frame", []), "a frame no look changes is pictured under its own name");
         AssertEqual("frame|Gunship=Takeoff", EncounterLook.PictureName("frame", [GunshipTakeoffDefinitions.TakeoffLook]),
             "a changed frame's picture names the encounter and the look it shows");
         AssertThrows<ArgumentException>(() => new EncounterLook(EncounterArtwork.Gunship, "Take|off"), "a look's name holds no picture name's separator");
-        Console.WriteLine("Encounter looks: encounters show the look they last named, restart per room, and name the finished pictures frames show.");
+        Console.WriteLine("Encounter looks: encounters show the look they last named, start afresh in each room, and name the finished pictures frames show.");
     }
 
     /// <summary>Runs the encounter looks check.</summary>

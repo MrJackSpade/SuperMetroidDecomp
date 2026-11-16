@@ -14,17 +14,22 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyPresentation
 {
-    /// <summary>The enemy session, which holds the installed sheets and the encounters' looks.</summary>
+    /// <summary>The enemy session, which holds the installed sheets.</summary>
     private readonly EnemySession _session;
 
-    /// <summary>Binds enemy presentation to its session's installed artwork and the runtime's shared fade step count.</summary>
-    /// <param name="session">The enemy session, which holds the installed sheets and the encounters' looks.</param>
+    /// <summary>
+    /// Binds enemy presentation to its session's installed artwork, the room's encounter looks and the runtime's shared
+    /// fade step count.
+    /// </summary>
+    /// <param name="session">The enemy session, which holds the installed sheets.</param>
+    /// <param name="looks">The look each of the room's encounters shows: the room scope's (#2160).</param>
     /// <param name="fadeStepCount">
     /// The runtime's shared fade step count, which its door, death and time-up fades also count their steps on.
     /// </param>
-    internal EnemyPresentation(EnemySession session, SharedFadeStepCount fadeStepCount)
+    internal EnemyPresentation(EnemySession session, EncounterLooks looks, SharedFadeStepCount fadeStepCount)
     {
         _session = Ensure.NotNull(session);
+        Looks = Ensure.NotNull(looks);
         FadeStepCount = Ensure.NotNull(fadeStepCount);
     }
 
@@ -68,7 +73,7 @@ internal sealed class EnemyPresentation
         BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
     /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
-    internal EncounterLooks Looks => _session.Looks;
+    internal EncounterLooks Looks { get; }
 
     /// <summary>Shows <paramref name="look"/> on its encounter's frames from this update on (#1538).</summary>
     internal void ShowLook(EncounterLook look) => Looks.Show(look);

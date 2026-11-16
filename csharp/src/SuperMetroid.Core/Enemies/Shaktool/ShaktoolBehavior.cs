@@ -550,7 +550,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Shaktool contact is the common normal-enemy touch, death animation included.</summary>
     internal void ReactToShaktoolTouch(EnemyTouchContext context) =>
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context);
 
     /// <summary>Runs the post-common lethal-shot tail for regular projectile hits.</summary>
     internal EnemyShotReaction ShaktoolShotReaction => field ??= new()

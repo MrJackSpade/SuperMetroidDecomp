@@ -101,7 +101,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                     $"Yapping Maw {name} initializer did not publish typed state.");
             AssertEqual(new AnimationPlayback<YappingMawSegment>(YappingMawAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Yapping Maw {name} initializer program");
-            AssertEqual(4, state.BodyProjectiles.Count(projectile => projectile is not null),
+            AssertEqual(4, state.Links.Count,
                 $"Yapping Maw {name} initializer body links");
             AssertTrue(state.RootEffectActor is not null,
                 $"Yapping Maw {name} initializer root sprite object");
@@ -181,7 +181,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
-        var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
+        var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation), Links = [] };
         place.SetSpeciesState(state);
         return new NewInitializedYappingMawResult(enemies, place, state);
     }

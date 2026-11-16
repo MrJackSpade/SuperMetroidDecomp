@@ -16,7 +16,7 @@ internal sealed class RidleyBreakupPieceEntity(RidleyBehavior ridley, RoomEnemyP
     public void Initialize() => ridley.Death.RunRidleyExplosionInitializationAi(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place);

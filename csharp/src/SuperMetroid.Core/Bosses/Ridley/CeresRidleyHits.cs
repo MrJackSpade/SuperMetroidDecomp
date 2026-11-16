@@ -141,7 +141,9 @@ internal sealed class CeresRidleyHits
         ResolveCeresRidleyShotAfterCollision(c.Enemy);
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>
-    internal bool ResolveRidleyBodySamusContact(SamusState samus)
+    /// <param name="samus">Samus.</param>
+    /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
+    internal bool ResolveRidleyBodySamusContact(SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         Ensure.NotNull(samus);
         // Samus contact gates ordinary contact only on the contact-damage mode and Samus's invincibility timer, never on
@@ -186,6 +188,7 @@ internal sealed class CeresRidleyHits
         _collision.ResolveNormalEnemyTouch(
             place,
             samus,
+            pseudoScrew,
             deathAnimation: TouchDeathAnimation.Skip);
         return true;
     }

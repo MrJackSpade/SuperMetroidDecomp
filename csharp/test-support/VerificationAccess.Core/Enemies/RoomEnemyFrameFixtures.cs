@@ -44,6 +44,18 @@ internal static class RoomEnemyFrameFixtures
     internal static SamusState StandaloneSamus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation,
         new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
 
+    /// <summary>
+    /// Samus's held charge for a check whose touches run outside the enemy pass (#2159): idle new Samus projectiles and her
+    /// starting colours, as the standalone frame holds them.
+    /// </summary>
+    internal static PseudoScrewCharge StandalonePseudoScrew() => new(InstalledFixtures.CreateProjectileSystem(), new SamusColours());
+
+    /// <summary>
+    /// The power bomb explosion of idle new Samus bombs, none exploding, for a check whose enemies run outside the enemy
+    /// and projectile passes (#2159).
+    /// </summary>
+    internal static SamusPowerBombExplosionState StandalonePowerBombExplosion() => InstalledFixtures.CreateBombSystem().PowerBombExplosion;
+
     /// <summary>Builds the frame from one set of inputs.</summary>
     private static RoomEnemyFrame Standalone(RoomLevelData level, int frameCounter, StandaloneInputs inputs) => new()
     {

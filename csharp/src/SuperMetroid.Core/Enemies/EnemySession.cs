@@ -92,12 +92,6 @@ public sealed class EnemySession
     /// </summary>
     internal BossAndIntroOverreadServices BossOverreads { get; }
 
-    /// <summary>
-    /// The look each of the room's encounters shows (#1538), which the frames its looks change and the Ceres
-    /// Ridley arena's backgrounds follow. Each room load starts it afresh.
-    /// </summary>
-    internal EncounterLooks Looks { get; } = new();
-
     /// <summary>The installed pre-coloured enemy sheets every room's enemies draw from.</summary>
     internal IEnemySheetSource Sheets { get; }
 

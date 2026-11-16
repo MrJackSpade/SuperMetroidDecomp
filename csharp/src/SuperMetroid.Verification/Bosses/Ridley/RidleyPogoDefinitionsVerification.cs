@@ -79,9 +79,15 @@ internal static class RidleyPogoDefinitionsVerification
         ushort seed = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
         enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        // The power bomb explosion of idle bombs, none exploding, which a missed lunge would dodge.
+        var powerBomb = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePowerBombExplosion();
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
+            enemies.RidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, powerBomb);
         Action<RoomEnemyPlace, RidleyEnemyState, SamusState> attack = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToHeight;
         var place = enemies.Places.InUpdateOrder[0];
+        // One new Samus and one open room serve every word: neither setup changes them.
+        SamusState samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();
+        RoomLevelData openRoom = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             seed = (ushort)raw;
@@ -90,7 +96,7 @@ internal static class RidleyPogoDefinitionsVerification
             place.Position = place.Position.WithWhole(new(128, 288));
             // Null Samus deliberately takes the non-spin handoff after the timer write;
             // it avoids consuming a timer tick while exercising the real setup dispatcher.
-            run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            run(place, state, samus, 0, openRoom);
             AssertEqual(0, advances, "Native Ridley wall sweep setup must not advance RNG");
             AssertEqual(1, reads, "Wall sweep setup samples current RNG once");
             AssertEqual((ushort)((raw & 31) + 32), state.PhaseTimer, "Wall sweep setup exact native timer");
@@ -100,7 +106,7 @@ internal static class RidleyPogoDefinitionsVerification
             state.Phase = RidleyPhase.NorfairPogoMoveToHeight;
             state.PhaseTimer = 0;
             state.TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray();
-            attack(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+            attack(place, state, samus);
             AssertEqual(0, advances, "Native Ridley pogo start must not advance RNG");
             AssertEqual(2, reads, "Pogo velocity and pogo timer sample the same current word");
             AssertEqual((ushort)((raw & 63) + 128), state.PhaseTimer, "Pogo attack exact native timer");

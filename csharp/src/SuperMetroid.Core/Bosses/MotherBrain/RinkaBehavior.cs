@@ -410,7 +410,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
     internal void ReactToRinkaTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         ResolveRinkaCombatAfterCommon(context.Place);
     }
 

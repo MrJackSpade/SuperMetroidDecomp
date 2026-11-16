@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -101,7 +102,8 @@ internal sealed class DraygonDeath
     /// <summary>Sinks the body past the room floor, then persists boss defeat and requests its drop.</summary>
     internal void SinkDraygonBelowTheRoom(
         DraygonEnemyState state,
-        int frameCounter)
+        int frameCounter,
+        SamusState samus)
     {
         SpawnDyingDraygonSmoke(frameCounter);
         MoveDraygonDeathEvirs(state);
@@ -120,7 +122,8 @@ internal sealed class DraygonDeath
             xBase: 128,
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
-            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
+            samus: samus);
         // The body is deleted, and the eye takes the body's properties.
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Eye.Contact = body.Contact;

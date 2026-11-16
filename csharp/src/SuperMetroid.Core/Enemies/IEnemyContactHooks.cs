@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An enemy with contact work the shared pass runs at fixed points around its ordinary collision passes.</summary>
@@ -11,8 +9,4 @@ internal interface IEnemyContactHooks : IEnemyEntity
 
     /// <summary>Whether the occupant resolves its own Samus touch, so the ordinary touch pass skips it.</summary>
     bool OwnsSamusTouch { get; }
-
-    /// <summary>Runs after the ordinary Samus contact pass.</summary>
-    /// <param name="samus">Samus.</param>
-    void ResolveAfterSamusContact(SamusState samus);
 }

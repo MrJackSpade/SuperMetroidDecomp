@@ -312,6 +312,15 @@ service may name the check that confirms the behaviour it reproduces. A check th
 check`), the condition a replay tests, treating a value as another with no breakage told, an inventory and a frozen
 enemy stay English.
 
+#2133 widens the review trail to relocation history, read in every type, hardware owners included, outside markup: a
+ticket followed by what a thing was or where it moved (`(#1620, was <c>Old.Name</c>)`, `(#1620, was in Bosses,
+unmarked)`, `(#1416: moved from the deleted catalog)`), a parenthetical opening with what a thing was, formerly was or
+where it moved (`(was in Bosses)`, `(moved from Samus's movement, #1621)`), and where a thing moved from when its clause
+names no destination (`moved here from the ending catalog`). Which member a summary's subject was before a ticket
+renamed or moved it, and which module it lived in, are the repository's history. A thing that moved from one state or
+place to another (`the elevator moved from its arrival to its return`), a ticket cited for the change it names and a
+parenthetical of what a thing is stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

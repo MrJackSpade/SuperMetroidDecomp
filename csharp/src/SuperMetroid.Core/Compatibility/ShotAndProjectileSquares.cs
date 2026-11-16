@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Where one of Samus's shots meets an enemy projectile (#1620, was <c>EnemyProjectileEngine.CoarseContactCell</c>): only
-/// when both stand in the same 32-pixel square of the room, the squares counted from the room's top left corner, whatever
-/// the sizes of the shot and the projectile. A shot crossing a projectile just over a square's edge passes it by, and one
-/// far from it but inside its square destroys it; nothing about the two pictures' overlap is tested.
+/// Where one of Samus's shots meets an enemy projectile: only when both stand in the same 32-pixel square of the room,
+/// the squares counted from the room's top left corner, whatever the sizes of the shot and the projectile. A shot
+/// crossing a projectile just over a square's edge passes it by, and one far from it but inside its square destroys it;
+/// nothing about the two pictures' overlap is tested.
 /// </summary>
 /// <remarks>
 /// Consulted for each live shot that can strike against each live projectile that blocks shots, in the projectile pass's

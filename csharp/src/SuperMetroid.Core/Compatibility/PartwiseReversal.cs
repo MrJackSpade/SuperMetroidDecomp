@@ -2,12 +2,11 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The two ways the original reverses some enemies' speeds one part at a time, the fraction's carry never reaching the
-/// whole pixels (#1620, were <c>SignedSixteenSixteen.NegatedPartsSeparately</c> and
-/// <c>SignedSixteenSixteen.ComplementedWholeNegatedFraction</c>): negating the whole pixels and the fraction each on their
-/// own, which reverses a speed with no fraction exactly and leaves one with a fraction a pixel an update short of its true
-/// reversal, back along its first direction; and complementing the whole pixels while negating the fraction, which
-/// reverses a speed with a fraction exactly and leaves one with none a pixel an update past its true reversal, so a
-/// speed of nothing becomes a pixel an update backward.
+/// whole pixels: negating the whole pixels and the fraction each on their own, which reverses a speed with no fraction
+/// exactly and leaves one with a fraction a pixel an update short of its true reversal, back along its first direction;
+/// and complementing the whole pixels while negating the fraction, which reverses a speed with a fraction exactly and
+/// leaves one with none a pixel an update past its true reversal, so a speed of nothing becomes a pixel an update
+/// backward.
 /// </summary>
 /// <remarks>
 /// Consulted only by the services that name each reversal for the game, at the moment each enemy reverses its speed:

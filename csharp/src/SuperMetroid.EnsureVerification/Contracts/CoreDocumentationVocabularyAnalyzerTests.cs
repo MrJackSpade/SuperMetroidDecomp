@@ -724,6 +724,20 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <remarks>Treating the station's room as sufficient discarded the elevator's view.</remarks>\nint F => 0; }",
             "('Treating the station's room as sufficient discarded')");
         Expect(CompatibilityService + "/// <summary>Evidence: hard-coding the step broke the carry.</summary>\n[CompatibilityService(\"carry\")] class Carry { }", "('hard-coding the step broke')");
+        // Relocation history, in every type, hardware owners included (#2133): a ticket followed by what a thing was or
+        // where it moved, a parenthetical opening with what a thing was or where it moved, and where a thing moved from.
+        Expect("class P { /// <summary>Where Ridley aims (#1620, was <c>CeresRidleyFlight.JitteredFireballTarget</c>): a jitter.</summary>\nint F => 0; }", "('#1620, was')");
+        Expect("class P { /// <summary>Partwise reversals (#1620, were <c>A.B</c> and <c>A.C</c>).</summary>\nint F => 0; }", "('#1620, were')");
+        Expect(CompatibilityService + "/// <summary>One axis of a seeking boss's velocity (#1620, was in Bosses, unmarked). Evidence: the run.</summary>\n[CompatibilityService(\"run\")] class Run { }", "('#1620, was')");
+        Expect("class P { /// <summary>The ending's actors (#1416: moved from the deleted ending catalog).</summary>\nint F => 0; }", "('#1416: moved')");
+        Expect(CompatibilityService + "/// <summary>How Samus's speeds behave (moved from Samus's movement, #1621). Evidence: the speed.</summary>\n[CompatibilityService(\"speed\")] class Speed { }", "('(moved')");
+        Expect("class P { // The rule (was in Bosses) reverses the speed.\n }", "('(was')");
+        Expect("class P { string Name => \"The table, moved here from the ending catalog.\"; }", "('moved here from')");
+        Expect(EncodingOwner + "[EncodingOwner(\"angle\")] readonly struct A { /// <summary>The angle (formerly <c>Old.Angle</c>).</summary>\nint Raw => 0; }", "('(formerly')");
+        // A thing that moved from one state or place to another, a ticket cited for its change, a parenthetical of what a
+        // thing is and a hardware owner's description of its behaviour are English.
+        Expect("class P { /// <summary>The arriving elevator moved from <see cref=\"P.F\"/> to <see cref=\"P.F\"/>; the shot moved from its muzzle to the wall (#1989); a shell (the one that was kicked) stops.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Where it moved to is what it leaves in its place; Samus was in the air. Evidence: the move (#1620).</summary>\n[CompatibilityService(\"move\")] class Move { }");
         // A check of the repository cited by its kind or its name, outside hardware owners (#2105).
         Expect("class P { /// <summary>The Tourian animation lookup check matches each statue's segments.</summary>\nint F => 0; }", "('lookup check')");
         Expect("class P { // The eye-fade verification checks every shade.\n }", "('verification checks')");

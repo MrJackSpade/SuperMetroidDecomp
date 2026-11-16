@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Where Ceres Ridley aims while he breathes fireballs (#1620, was <c>CeresRidleyFlight.JitteredFireballTarget</c>): a
-/// jitter of up to seven pixels moves the point he hovers toward diagonally from where the attack began, both coordinates
-/// by the jitter, except that a jitter toward the left and up lifts the point one pixel less than it moves it left. So
-/// his hover drifts down and right on average while he breathes, and a jitter of one pixel left does not lift him at all.
+/// Where Ceres Ridley aims while he breathes fireballs: a jitter of up to seven pixels moves the point he hovers toward
+/// diagonally from where the attack began, both coordinates by the jitter, except that a jitter toward the left and up
+/// lifts the point one pixel less than it moves it left. So his hover drifts down and right on average while he
+/// breathes, and a jitter of one pixel left does not lift him at all.
 /// </summary>
 /// <remarks>
 /// Consulted on every update of the fireball attack, after the jitter is drawn from the random value and before Ridley

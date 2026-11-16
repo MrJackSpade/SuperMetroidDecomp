@@ -4,9 +4,8 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's scene actors: where each starts, which of the screen's colours it draws in and which cinematic animation it runs
-/// (#1416: moved from the deleted ending catalog; where the actors' constructors and animations lie in game data is the
-/// cinematic import's).
+/// The ending's scene actors: where each starts, which of the screen's colours it draws in and which cinematic
+/// animation it runs.
 /// </summary>
 internal static class EndingActorDefinitions
 {

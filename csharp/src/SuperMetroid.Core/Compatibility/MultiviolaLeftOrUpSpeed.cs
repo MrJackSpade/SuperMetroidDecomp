@@ -1,13 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How a Multiviola turns its speed along an axis leftward or upward (#1620, was
-/// <c>MultiviolaBehavior.NegateWithoutFractionOverflow</c>): the speed's whole pixels are complemented and its fraction
-/// negated on its own (<see cref="PartwiseReversal.WholeComplementedFractionNegated"/>), which is exact for a speed with a
-/// fraction and a pixel an update further left or up for one without. Along an axis its heading gives no speed at all the
-/// Multiviola therefore still moves a pixel an update left or up: heading straight right it drifts up a pixel an update,
-/// heading straight up it drifts left a pixel an update. The Multiviola placed heading straight left in Norfair's Mickey
-/// Mouse room heads straight right, drifting up, after its first wall and floor bounces.
+/// How a Multiviola turns its speed along an axis leftward or upward: the speed's whole pixels are complemented and its
+/// fraction negated on its own (<see cref="PartwiseReversal.WholeComplementedFractionNegated"/>), which is exact for a
+/// speed with a fraction and a pixel an update further left or up for one without. Along an axis its heading gives no
+/// speed at all the Multiviola therefore still moves a pixel an update left or up: heading straight right it drifts up
+/// a pixel an update, heading straight up it drifts left a pixel an update. The Multiviola placed heading straight left
+/// in Norfair's Mickey Mouse room heads straight right, drifting up, after its first wall and floor bounces.
 /// </summary>
 /// <remarks>
 /// Consulted on every update of a Multiviola, once for each axis its heading points left or up along, after its speeds

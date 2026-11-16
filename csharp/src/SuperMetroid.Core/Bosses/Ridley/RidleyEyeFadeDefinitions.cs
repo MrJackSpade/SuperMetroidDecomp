@@ -1,13 +1,14 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Compiled shade-selection schedule for Ridley's eye fade. The selected
-/// colours remain presentation data; this catalog owns only the fixed shade and completion
-/// metadata consumed by Ridley's eye-fade step.
+/// Ridley's eye fade (#2247): his eyes show sixteen shades, one an update from the darkest to his own eye colours, then
+/// hold his own eye colours before his body fade begins. The colours are the import's.
 /// </summary>
 internal static class RidleyEyeFadeDefinitions
 {
+    /// <summary>The eye shades the fade shows, fifteen (darkest) down to zero (his own eye colours).</summary>
+    public const int ShadeCount = 16;
 
-    /// <summary>Number of colour-producing steps in the fade.</summary>
-    public const int FadeStepCount = 64;
+    /// <summary>The updates the fade holds his own eye colours after its last shade.</summary>
+    public const int HoldUpdates = 48;
 }

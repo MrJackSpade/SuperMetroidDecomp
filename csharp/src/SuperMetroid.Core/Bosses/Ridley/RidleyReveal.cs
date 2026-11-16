@@ -90,8 +90,8 @@ internal sealed class RidleyReveal
     }
 
     /// <summary>
-    /// Advances Ridley's eye fade one step on each AI call, showing the step's eye shade, and starts his body fade once the
-    /// eyes have finished.
+    /// Advances Ridley's eye fade an update on each AI call: its sixteen shades, then its hold; once it has held, his body
+    /// fade starts.
     /// </summary>
     internal static void TickEyeFadeIn(RidleyEncounterState ridley)
     {
@@ -101,15 +101,16 @@ internal sealed class RidleyReveal
             return;
         ridley.PhaseTimer = 0;
 
-        RidleyEyeFadeStep fadeStep = RidleyEyeFade.Get(ridley.EyeFade.Step);
-        if (fadeStep.IsComplete)
+        if (ridley.EyeFade.IsComplete)
         {
             ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
             ridley.MovementAnimationEnabled = true;
             return;
         }
 
-        ridley.Colours.ShowEyeFade(fadeStep.Shade);
+        // Each of the fade's first updates shows its next, lighter shade; its hold keeps the last, his own eye colours.
+        if (ridley.EyeFade.NextShade is { } shade)
+            ridley.Colours.ShowEyeFade(shade);
         ridley.EyeFade = ridley.EyeFade.Next();
     }
 

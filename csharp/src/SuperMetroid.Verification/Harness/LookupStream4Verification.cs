@@ -866,7 +866,7 @@ internal static class LookupStream4Verification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.FrameIndex = 1;
+        escape.Floor.GetawayUpdate = 1;
         Action<SamusState?, int> tick = escape.RunGetawayRoomMain;
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);

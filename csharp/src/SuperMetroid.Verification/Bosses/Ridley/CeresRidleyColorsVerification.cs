@@ -86,14 +86,14 @@ internal static class CeresRidleyColorsVerification
         Action<RoomEnemyPlace, RidleyEncounterState> bodyTick = enemies.RidleyBody.Reveal.TickBodyFadeIn;
         Action<CeresRidleyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes };
-        for (ushort step = 0; step < RidleyEyeFadeDefinitions.FadeStepCount; step++)
+        // The eye fade shows its sixteen shades from the darkest, then holds his own eye colours (#2247).
+        for (int step = 0; step < RidleyEyeFadeDefinitions.ShadeCount + RidleyEyeFadeDefinitions.HoldUpdates; step++)
         {
-            state.EyeFade = new RidleyEyeFadeProgress(step);
             state.PhaseTimer = 0;
             eyeTick(state);
-            int row = RidleyEyeFade.Get(step).Shade;
-            AssertEqual(step + 1, state.EyeFade.Step,
-                $"installed eye fade step {step} advances");
+            int row = Math.Max(0, RidleyEyeFadeDefinitions.ShadeCount - 1 - step);
+            AssertEqual(new RidleyEyeFadeProgress(Math.Min(step + 1, RidleyEyeFadeDefinitions.ShadeCount), Math.Max(0, step + 1 - RidleyEyeFadeDefinitions.ShadeCount)),
+                state.EyeFade, $"installed eye fade update {step} advances");
             CheckCgram(state, CeresRidleyColorFormat.EyeFadeColorCount,
                 CeresRidleyShadeDefinitionsConstants.EyeFadeCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveEyeFade(row, color),

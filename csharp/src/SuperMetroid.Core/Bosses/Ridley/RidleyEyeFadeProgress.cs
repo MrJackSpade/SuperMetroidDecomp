@@ -1,12 +1,22 @@
+using static SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeDefinitions;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// How far Ridley's eye fade has gone (#2228): the step of its schedule (<see cref="RidleyEyeFade"/>) the next update
-/// shows, from zero; the schedule's last step completes the fade.
+/// How far Ridley's eye fade has gone (#2228, #2247): how many of its shades it has shown, then how many updates of its
+/// hold it has spent. It completes once it has shown every shade and held for the whole hold.
 /// </summary>
-/// <param name="Step">The step the next update shows, zero through the schedule's completing step.</param>
-public readonly record struct RidleyEyeFadeProgress(int Step)
+/// <param name="ShadesShown">The shades shown, zero through <see cref="ShadeCount"/>.</param>
+/// <param name="UpdatesHeld">The updates held after the last shade, zero through <see cref="HoldUpdates"/>.</param>
+public readonly record struct RidleyEyeFadeProgress(int ShadesShown, int UpdatesHeld)
 {
-    /// <summary>The progress once this step has shown.</summary>
-    internal RidleyEyeFadeProgress Next() => new(Step + 1);
+    /// <summary>The shade the next update shows, fifteen (darkest) down to zero, or null once every shade has shown and the fade holds.</summary>
+    internal int? NextShade => ShadesShown < ShadeCount ? ShadeCount - 1 - ShadesShown : null;
+
+    /// <summary>Whether the fade has shown every shade and held for the whole hold.</summary>
+    internal bool IsComplete => ShadesShown == ShadeCount && UpdatesHeld == HoldUpdates;
+
+    /// <summary>The progress once the next update has shown its shade, or spent an update of the hold.</summary>
+    internal RidleyEyeFadeProgress Next() =>
+        NextShade is null ? this with { UpdatesHeld = UpdatesHeld + 1 } : this with { ShadesShown = ShadesShown + 1 };
 }

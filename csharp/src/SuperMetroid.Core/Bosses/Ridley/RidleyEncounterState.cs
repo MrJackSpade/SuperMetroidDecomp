@@ -65,7 +65,7 @@ public abstract class RidleyEncounterState
         internal set => field = !LiftedOff ? value : throw LiftedOffAlready();
     }
 
-    /// <summary>How far his eye fade has gone; it starts at its first step (#2228).</summary>
+    /// <summary>How far his eye fade has gone; it starts before its first shade (#2228, #2247).</summary>
     public RidleyEyeFadeProgress EyeFade { get; internal set; }
 
     /// <summary>How far his body fade has gone; it starts at black (#2228).</summary>

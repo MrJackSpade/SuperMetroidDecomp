@@ -12,31 +12,34 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 /// <summary>Checks Ceres Ridley's getaway curve and Mode 7 transfer lists against retail data.</summary>
 internal static class CeresRidleyGetawayDefinitionsVerification
 {
-    /// <summary>Compares zoom and both velocity components through the terminal frame.</summary>
+    /// <summary>Compares the zoom and drift of every update of the getaway, and its duration, with the cartridge's tables.</summary>
     internal static void VerifyCompiledCeresRidleyGetaway(CartridgeImportAddressSpace rom)
     {
-        for (int index = 0; index <= 112; index++)
+        // The cartridge ends its zoom table with a -1 word after the getaway's last update and nowhere earlier; the
+        // curves last exactly that long (#2247).
+        AssertEqual(112, CeresRidleyGetawayCurve.Duration, "Ceres getaway lasts its curves' 112 updates");
+        for (int index = 0; index <= CeresRidleyGetawayCurve.Duration; index++)
         {
             int offset = index * 2;
-            var frame = CeresRidleyGetawayCurve.FromIndex(index);
             ushort nativeZoom = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6ae4d + offset);
-            if (offset == 224)
+            if (index == CeresRidleyGetawayCurve.Duration)
             {
-                // The terminator is a finished frame in Core (#1413); the oracle confirms the cartridge ends its zoom
-                // table with the -1 word there and nowhere earlier.
-                AssertEqual(ushort.MaxValue, nativeZoom, "Ceres getaway native terminator");
-                AssertTrue(frame.IsFinished, "Ceres getaway terminator ends the getaway");
+                AssertEqual(ushort.MaxValue, nativeZoom, "Ceres getaway native terminator follows the last update");
                 continue;
             }
-            AssertTrue(!frame.IsFinished, "Ceres getaway authored frames do not end the getaway");
-            AssertEqual(FloorZoom.FromTwoHundredFiftySixths(nativeZoom), frame.Zoom, "Ceres getaway exact native zoom");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), frame.Velocity.Y, "Ceres getaway exact native Y increment");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
+            AssertTrue(nativeZoom != ushort.MaxValue, "Ceres getaway native table holds no terminator before the last update");
+            AssertEqual(FloorZoom.FromTwoHundredFiftySixths(nativeZoom), CeresRidleyGetawayCurve.ZoomAt(index), "Ceres getaway exact native zoom");
+            Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(index);
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), drift.Y, "Ceres getaway exact native Y increment");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), drift.X, "Ceres getaway exact native X subtraction");
         }
-        foreach (int invalid in new[] { -1, 113, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.FromIndex(invalid), "Ceres invalid curve index");
+        foreach (int invalid in new[] { -1, 112, int.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.ZoomAt(invalid), "Ceres getaway zoom outside its updates");
+            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.DriftAt(invalid), "Ceres getaway drift outside its updates");
+        }
         Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
-        Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
+        Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match the zoom and drift curves, including irregular zoom steps and the terminator after the last update.");
     }
 
     /// <summary>

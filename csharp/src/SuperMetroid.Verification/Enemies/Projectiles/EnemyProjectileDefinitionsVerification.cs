@@ -187,14 +187,14 @@ internal static class EnemyProjectileDefinitionsVerification
                     RoomEnemyProjectileKind.None or
                         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
-                        RoomEnemyProjectileKind.SkreeParticleDownRight or
-                        RoomEnemyProjectileKind.SkreeParticleUpRight or
-                        RoomEnemyProjectileKind.SkreeParticleDownLeft or
-                        RoomEnemyProjectileKind.SkreeParticleUpLeft or
-                        RoomEnemyProjectileKind.MetareeParticleDownRight or
-                        RoomEnemyProjectileKind.MetareeParticleUpRight or
-                        RoomEnemyProjectileKind.MetareeParticleDownLeft or
-                        RoomEnemyProjectileKind.MetareeParticleUpLeft or
+                        RoomEnemyProjectileKind.SkreeParticleOuterRight or
+                        RoomEnemyProjectileKind.SkreeParticleInnerRight or
+                        RoomEnemyProjectileKind.SkreeParticleOuterLeft or
+                        RoomEnemyProjectileKind.SkreeParticleInnerLeft or
+                        RoomEnemyProjectileKind.MetareeParticleOuterRight or
+                        RoomEnemyProjectileKind.MetareeParticleInnerRight or
+                        RoomEnemyProjectileKind.MetareeParticleOuterLeft or
+                        RoomEnemyProjectileKind.MetareeParticleInnerLeft or
                         RoomEnemyProjectileKind.CrocomireProjectile or
                         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                         RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
@@ -321,14 +321,14 @@ internal static class EnemyProjectileDefinitionsVerification
                     RoomEnemyProjectileKind.None or
                         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
-                        RoomEnemyProjectileKind.SkreeParticleDownRight or
-                        RoomEnemyProjectileKind.SkreeParticleUpRight or
-                        RoomEnemyProjectileKind.SkreeParticleDownLeft or
-                        RoomEnemyProjectileKind.SkreeParticleUpLeft or
-                        RoomEnemyProjectileKind.MetareeParticleDownRight or
-                        RoomEnemyProjectileKind.MetareeParticleUpRight or
-                        RoomEnemyProjectileKind.MetareeParticleDownLeft or
-                        RoomEnemyProjectileKind.MetareeParticleUpLeft or
+                        RoomEnemyProjectileKind.SkreeParticleOuterRight or
+                        RoomEnemyProjectileKind.SkreeParticleInnerRight or
+                        RoomEnemyProjectileKind.SkreeParticleOuterLeft or
+                        RoomEnemyProjectileKind.SkreeParticleInnerLeft or
+                        RoomEnemyProjectileKind.MetareeParticleOuterRight or
+                        RoomEnemyProjectileKind.MetareeParticleInnerRight or
+                        RoomEnemyProjectileKind.MetareeParticleOuterLeft or
+                        RoomEnemyProjectileKind.MetareeParticleInnerLeft or
                         RoomEnemyProjectileKind.CrocomireProjectile or
                         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                         RoomEnemyProjectileKind.CrocomireSpikeWallPieces or

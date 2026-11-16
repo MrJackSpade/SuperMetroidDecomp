@@ -146,8 +146,8 @@ internal static class CinematicSpriteAnimations
         ],
         [P.CeresVortex] =
         [
-            Show(S.VortexEven, 1),
-            Show(S.VortexOdd, 1),
+            Show(S.VortexFirst, 1),
+            Show(S.VortexSecond, 1),
         ],
         [P.ZebesPlanet] =
         [

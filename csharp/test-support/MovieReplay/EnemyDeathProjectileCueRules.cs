@@ -13,8 +13,8 @@ internal static class EnemyDeathProjectileCueRules
     private static readonly Dictionary<NativeEnemyProjectileInstruction, EnemyDeathProjectileCueRulesCommand> Commands = new()
     {
         [NativeEnemyProjectileInstruction.Delete] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.Delete, 0),
-        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.SpawnSpriteWithin32, 2),
-        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.SpawnSpriteWithin16, 2),
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.SpawnEffectActorWithin32, 2),
+        [NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.SpawnEffectActorWithin16, 2),
         [NativeEnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.PlayEnemyKilledSound, 0),
         [NativeEnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.PlaySmallExplosionSound, 0),
         [NativeEnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX] = new EnemyDeathProjectileCueRulesCommand(EnemyDeathProjectileCueKind.PlayContactKilledSound, 0),

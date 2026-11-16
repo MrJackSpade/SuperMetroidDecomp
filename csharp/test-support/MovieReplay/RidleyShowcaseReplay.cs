@@ -862,14 +862,14 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.None:
                     case RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace:
                     case RoomEnemyProjectileKind.YappingMawBody:
-                    case RoomEnemyProjectileKind.SkreeParticleDownRight:
-                    case RoomEnemyProjectileKind.SkreeParticleUpRight:
-                    case RoomEnemyProjectileKind.SkreeParticleDownLeft:
-                    case RoomEnemyProjectileKind.SkreeParticleUpLeft:
-                    case RoomEnemyProjectileKind.MetareeParticleDownRight:
-                    case RoomEnemyProjectileKind.MetareeParticleUpRight:
-                    case RoomEnemyProjectileKind.MetareeParticleDownLeft:
-                    case RoomEnemyProjectileKind.MetareeParticleUpLeft:
+                    case RoomEnemyProjectileKind.SkreeParticleOuterRight:
+                    case RoomEnemyProjectileKind.SkreeParticleInnerRight:
+                    case RoomEnemyProjectileKind.SkreeParticleOuterLeft:
+                    case RoomEnemyProjectileKind.SkreeParticleInnerLeft:
+                    case RoomEnemyProjectileKind.MetareeParticleOuterRight:
+                    case RoomEnemyProjectileKind.MetareeParticleInnerRight:
+                    case RoomEnemyProjectileKind.MetareeParticleOuterLeft:
+                    case RoomEnemyProjectileKind.MetareeParticleInnerLeft:
                     case RoomEnemyProjectileKind.CrocomireProjectile:
                     case RoomEnemyProjectileKind.CrocomireBridgeCrumbling:
                     case RoomEnemyProjectileKind.CrocomireSpikeWallPieces:

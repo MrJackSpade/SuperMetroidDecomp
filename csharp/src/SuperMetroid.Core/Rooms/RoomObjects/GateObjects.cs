@@ -88,11 +88,11 @@ internal sealed class GateObjects
     public bool TrySpawnDownwardGateTrigger(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (!bts.TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger))
+        if (!behavior.TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger))
             return false;
 
         // Spawning the trigger still takes a room-object place even though every trigger setup frees it again

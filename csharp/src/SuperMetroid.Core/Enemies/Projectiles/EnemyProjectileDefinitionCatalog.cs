@@ -13,21 +13,21 @@ internal static class EnemyProjectileDefinitionCatalog
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.YappingMawBody] = new(
             new(2, 2), 5, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.SkreeParticleDownRight] = new(
+        [RoomEnemyProjectileKind.SkreeParticleOuterRight] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.SkreeParticleUpRight] = new(
+        [RoomEnemyProjectileKind.SkreeParticleInnerRight] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.SkreeParticleDownLeft] = new(
+        [RoomEnemyProjectileKind.SkreeParticleOuterLeft] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.SkreeParticleUpLeft] = new(
+        [RoomEnemyProjectileKind.SkreeParticleInnerLeft] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.MetareeParticleDownRight] = new(
+        [RoomEnemyProjectileKind.MetareeParticleOuterRight] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.MetareeParticleUpRight] = new(
+        [RoomEnemyProjectileKind.MetareeParticleInnerRight] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.MetareeParticleDownLeft] = new(
+        [RoomEnemyProjectileKind.MetareeParticleOuterLeft] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.MetareeParticleUpLeft] = new(
+        [RoomEnemyProjectileKind.MetareeParticleInnerLeft] = new(
             new(2, 2), 4, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.CrocomireProjectile] = new(
             new(8, 8), 20, EnemyProjectilePropertyFlags.BlocksShots, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),

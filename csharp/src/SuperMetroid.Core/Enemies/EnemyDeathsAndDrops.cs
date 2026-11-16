@@ -600,7 +600,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathProjectileCueKind.Delete:
                 projectile.Delete();
                 return null;
-            case EnemyDeathProjectileCueKind.SpawnSpriteWithin32:
+            case EnemyDeathProjectileCueKind.SpawnEffectActorWithin32:
                 _projectiles.SpawnRandomEnemyDeathSprite(
                     projectile,
                     cue.EffectActor,
@@ -608,7 +608,7 @@ internal sealed class EnemyDeathsAndDrops
                     EnemyDeathExplosionDefinitions.WideSpriteVerticalScatter,
                     center: 32);
                 return null;
-            case EnemyDeathProjectileCueKind.SpawnSpriteWithin16:
+            case EnemyDeathProjectileCueKind.SpawnEffectActorWithin16:
                 _projectiles.SpawnRandomEnemyDeathSprite(
                     projectile,
                     cue.EffectActor,

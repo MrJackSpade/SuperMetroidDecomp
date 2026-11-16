@@ -36,7 +36,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// arithmetic (#1726, <see cref="MachineArithmeticWords"/>). A name that says <c>Ntsc</c> or <c>Pal</c>, read
 /// case-sensitively, names the video standard (#1848, <see cref="VideoStandardWords"/>). A name that says <c>Sleep</c> names
 /// the animation interpreter's sleep instruction (#2021, <see cref="SleepWords"/>), and one that says <c>FrameBehavior</c> the
-/// per-frame routine pointer an animation installed (#2022, <see cref="FrameBehaviourPhrases"/>). See
+/// per-frame routine pointer an animation installed (#2022, <see cref="FrameBehaviourPhrases"/>). A name that says
+/// <c>Controller</c> with a number names the console's controller port (#2079, <see cref="ControllerPort"/>), and one that
+/// says <c>Bts</c> the level data's block type secondary byte (#2079, in <see cref="HardwareWords"/>). See
 /// <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -67,6 +69,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         // one-word background tilemap. A room layer named as the destination engine names it (TileMap, TileMapLayer) is
         // two words and stays the game's own.
         "Spritemap", "Scanline", "Tilemap",
+        // #2079: the level data's block type secondary, the second byte of a block, which named the block's behaviour by
+        // the byte the cartridge stored it in.
+        "Bts",
     ];
 
     /// <summary>
@@ -223,6 +228,15 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
+    /// The console's controller port (#2079): a camel-case word that is <c>Controller</c> followed by the port's number,
+    /// without regard to case. The cartridge read the actions from its first controller port, and a Core name that says
+    /// <c>Controller1</c> (a <c>_controller1</c> field, a <c>PreviousController1Input</c> property) names the port instead
+    /// of the player's actions. <c>Controller</c> alone or before another word stays the game's own: a controller, a
+    /// controller's input.
+    /// </summary>
+    internal const string ControllerPortWord = "Controller";
+
+    /// <summary>
     /// The hardware's tile (#1726), matched as whole camel-case words like <see cref="HardwareWords"/>: the eight-pixel
     /// picture the machine drew its backgrounds and sprites from (<c>AnimatedTileObject</c>, <c>TileFlip</c>,
     /// <c>BehindFrontTiles</c>, a <c>tiles</c> local), and the block named as four of them (<c>TankMetatile</c>). Core names
@@ -289,9 +303,10 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             "arithmetic or the video standard where it means a release, the animation interpreter's sleep where it means " +
             "an animation that holds or a wake, or the per-frame routine an animation installed where it means an action, " +
             "motion or phase, or the hardware's sprite object where it means an effect actor, a cinematic actor, the " +
-            "screen's sprites or a block animation; hardware behaviour the game needs lives in " +
+            "screen's sprites or a block animation, or the console's controller port where it means the player's " +
+            "actions; hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, #1726, " +
-            "#1848, #2004, #2021, #2022, docs/core-vocabulary.md).");
+            "#1848, #2004, #2021, #2022, #2079, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -514,6 +529,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     {
         if (HardwareWord(identifier) is { } word)
             return $"names the hardware ('{word}')";
+        if (ControllerPort(identifier) is { } port)
+            return $"names the controller port ('{port}')";
         if (Words(identifier).FirstOrDefault(VideoStandardWords.Contains) is { } standard)
             return $"names the video standard ('{standard}')";
         if (HardwareTile(identifier) is { } tile && !typedForMap())
@@ -795,6 +812,24 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     private static bool IsHexLetter(char character) => character is >= 'A' and <= 'F';
 
     private static bool IsDecimalDigit(char character) => character is >= '0' and <= '9';
+
+    /// <summary>
+    /// The camel-case word of <paramref name="identifier"/> that is <see cref="ControllerPortWord"/> followed by a port
+    /// number, ignoring case, as written, or null (#2079).
+    /// </summary>
+    internal static string? ControllerPort(string identifier)
+    {
+        foreach (string word in Words(identifier))
+        {
+            if (word.Length > ControllerPortWord.Length &&
+                word.StartsWith(ControllerPortWord, StringComparison.OrdinalIgnoreCase) &&
+                word.Substring(ControllerPortWord.Length).All(IsDecimalDigit))
+            {
+                return word;
+            }
+        }
+        return null;
+    }
 
     /// <summary>The hardware word <paramref name="identifier"/> contains as a whole camel-case word, or null.</summary>
     internal static string? HardwareWord(string identifier)

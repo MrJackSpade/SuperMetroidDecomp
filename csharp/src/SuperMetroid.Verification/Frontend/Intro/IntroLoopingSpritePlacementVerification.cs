@@ -35,7 +35,7 @@ internal static class IntroLoopingSpritePlacementVerification
     /// <summary>The screen place the asteroid at loop place <paramref name="x"/>, 30 pixels down, is drawn at (#1974).</summary>
     private static Offset16<ScreenPixels> Drawn(int x, int loop)
     {
-        var actor = new IntroDiscoverySprite(new(x, 30), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), CinematicSpriteSegment.CeresSmallAsteroid)
+        var actor = new CinematicActor(new(x, 30), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), CinematicSpriteSegment.CeresSmallAsteroid)
         {
             HorizontalLoopWidth = loop,
         };

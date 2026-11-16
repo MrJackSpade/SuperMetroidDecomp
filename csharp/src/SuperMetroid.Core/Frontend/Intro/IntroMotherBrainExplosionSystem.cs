@@ -57,7 +57,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     internal sealed class ExplosionActor
     {
         /// <summary>The cinematic actor running the explosion's animation.</summary>
-        private readonly IntroDiscoverySprite sprite;
+        private readonly CinematicActor sprite;
 
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
@@ -65,7 +65,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             CinematicSpriteSegment segment,
             int startDelay)
         {
-            sprite = new IntroDiscoverySprite(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), segment);
+            sprite = new CinematicActor(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), segment);
             sprite.DelayFirstStep(startDelay);
         }
 

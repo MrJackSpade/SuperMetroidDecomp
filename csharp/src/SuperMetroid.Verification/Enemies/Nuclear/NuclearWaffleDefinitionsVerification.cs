@@ -28,7 +28,7 @@ internal static class NuclearWaffleDefinitionsVerification
         for (byte direction = 0; direction < 2; direction++)
         {
             int offset = direction * 4;
-            var settings = (NuclearWaffleSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x2000 | direction));
+            var settings = (NuclearWaffleSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.NuclearWaffle, PopulationWords.Parameters(0x2001, 0x2000 | direction));
             NuclearWaffleSweepDefinition definition = NuclearWaffleSweeps.Sweep(settings.Direction);
             AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset))), definition.StartAngle,
                 $"Nuclear Waffle start angle {direction}");
@@ -50,9 +50,9 @@ internal static class NuclearWaffleDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemyPlace> initialize = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Puromi, place.Definition);
-            place.SetSpawnParameter1(EnemyDefinitionId.Puromi, 0x2001);
-            place.SetSpawnParameter2(EnemyDefinitionId.Puromi, (ushort)(0x2000 | direction));
+            place.Bind(EnemyDefinitionId.NuclearWaffle, place.Definition);
+            place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, 0x2001);
+            place.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, (ushort)(0x2000 | direction));
             place.Position = place.Position.WithWhole(new(0x0180, 0x0200));
             initialize(place);
 
@@ -79,9 +79,9 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle production sprite links {direction}");
         }
 
-        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x2002)),
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.NuclearWaffle, PopulationWords.Parameters(0x2001, 0x2002)),
             "the import rejects a Nuclear Waffle direction beyond the two sweeps");
-        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Puromi, PopulationWords.Parameters(0x2001, 0x20ff)),
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.NuclearWaffle, PopulationWords.Parameters(0x2001, 0x20ff)),
             "the import rejects the largest Nuclear Waffle direction");
 
         Console.WriteLine(
@@ -107,9 +107,9 @@ internal static class NuclearWaffleDefinitionsVerification
         const int finishingUpdate = 163;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Puromi, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(speedIndex, radius));
-        place.SetSpawnParameter2(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(1, 0));
+        place.Bind(EnemyDefinitionId.NuclearWaffle, place.Definition);
+        place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(speedIndex, radius));
+        place.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(1, 0));
         place.Position = place.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");

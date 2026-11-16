@@ -166,6 +166,13 @@ animations (`SpawnStatueAnimations`). `Object` alone stays the game's own: the r
 places, sets up and runs (`RoomObject`, `BlueDoorCapObject`, `DeleteObject`), and an object in plain English
 (`SpaceObjects`, `SpawnedObjectOwner`).
 
+A name that says `Controller` with a port number names the console's controller port and is reported too (#2079,
+`CoreVocabularyAnalyzer.ControllerPort`), in any case (`_controller1`, `PreviousController1Input`, `controller2`). The
+cartridge read the player's actions from its first controller port. Core names the player's actions (`_playerActions`,
+`LastSeenPlayerActions`). `Controller` alone or before another word stays the game's own: a controller, a controller's
+input. A name that says `Bts` names the level data's block type secondary, the byte a block's behaviour was stored in,
+and is reported as a hardware word (#2079); Core names the block's behaviour (`behavior`).
+
 SME6454 also reads the original's numbering of the game (#1769). In every type it reports a numbered routine or variable
 label (`Func126`, `Func139–142`, `var4`). Outside hardware owners it reports a game state, load station or area by
 number (`game state eight`, `station 18`, `area six`, `area-zero`); a pose by the original's number, in hexadecimal or as

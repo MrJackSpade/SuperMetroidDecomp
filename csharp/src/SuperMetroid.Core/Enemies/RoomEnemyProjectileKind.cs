@@ -16,21 +16,21 @@ public enum RoomEnemyProjectileKind
     /// <summary>The Maw's projectile-backed body.</summary>
     YappingMawBody,
     /// <summary>Skree's downward-right burst particle.</summary>
-    SkreeParticleDownRight,
+    SkreeParticleOuterRight,
     /// <summary>Skree's upward-right burst particle.</summary>
-    SkreeParticleUpRight,
+    SkreeParticleInnerRight,
     /// <summary>Skree's downward-left burst particle.</summary>
-    SkreeParticleDownLeft,
+    SkreeParticleOuterLeft,
     /// <summary>Skree's upward-left burst particle.</summary>
-    SkreeParticleUpLeft,
+    SkreeParticleInnerLeft,
     /// <summary>Metaree's downward-right metal particle.</summary>
-    MetareeParticleDownRight,
+    MetareeParticleOuterRight,
     /// <summary>Metaree's upward-right metal particle.</summary>
-    MetareeParticleUpRight,
+    MetareeParticleInnerRight,
     /// <summary>Metaree's downward-left metal particle.</summary>
-    MetareeParticleDownLeft,
+    MetareeParticleOuterLeft,
     /// <summary>Metaree's upward-left metal particle.</summary>
-    MetareeParticleUpLeft,
+    MetareeParticleInnerLeft,
     /// <summary>Crocomire's fired attack projectile.</summary>
     CrocomireProjectile,
     /// <summary>The collapsing bridge's debris actor.</summary>

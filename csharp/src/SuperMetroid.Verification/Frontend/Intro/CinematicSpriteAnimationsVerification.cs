@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// #1290, #1600: every typed cinematic sprite segment and animation against the retail bank-$8B lists. Each segment must
 /// match its native list beat by beat (durations, poses, pre-instructions and owner cues), each animation the lists'
 /// counters, branches, runs on and ends, and each animation must then play through the real
-/// <see cref="IntroDiscoverySprite"/> exactly as an independent reader of the native list does, update by update.
+/// <see cref="CinematicActor"/> exactly as an independent reader of the native list does, update by update.
 /// </summary>
 internal static class CinematicSpriteAnimationsVerification
 {
@@ -192,7 +192,7 @@ internal static class CinematicSpriteAnimationsVerification
     /// </summary>
     private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
     {
-        var actor = new IntroDiscoverySprite(default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), program);
+        var actor = new CinematicActor(default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), program);
         var native = new NativeReader(cartridge, entry);
         var cues = new List<CinematicSpriteCueKind>();
         for (int update = 0; update < PlaybackUpdates; update++)

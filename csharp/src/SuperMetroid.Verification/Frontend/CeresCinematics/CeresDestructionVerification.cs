@@ -36,7 +36,7 @@ internal static void VerifyCeresDestructionCinematic()
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from its loop countdown, which belongs
     // to the program's counted loops and must remain untouched.
-    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteSegment.CeresSmallExplosion);
+    var delayedExplosion = new CinematicActor(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteSegment.CeresSmallExplosion);
     delayedExplosion.DelayFirstStep(3);
     delayedExplosion.Step();
     delayedExplosion.Step();

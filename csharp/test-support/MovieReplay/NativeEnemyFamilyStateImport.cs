@@ -590,7 +590,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Action = BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
             beetom.ActionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
-            beetom.PreviousController1Input = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
+            beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {
@@ -661,12 +661,12 @@ internal static class NativeEnemyFamilyStateImport
         {
             faceBlock.Activated = words.A != 0;
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Puromi && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
+        if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
             waffle.WaitingTimer = unchecked((short)words.B);
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.LavaRocks && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
+        if (enemy.DefinitionId == EnemyDefinitionId.Polyp && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Action = PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
             polyp.CooldownTimer = unchecked((short)words.B);

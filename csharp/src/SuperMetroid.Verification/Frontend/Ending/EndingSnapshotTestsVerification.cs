@@ -375,7 +375,7 @@ internal static class EndingSnapshotTestsVerification
                 byte[] held = [];
                 if (sample)
                 {
-                    // IntroDiscoverySprite.Draw only writes OAM; it does not advance
+                    // CinematicActor.Draw only writes OAM; it does not advance
                     // this ending's sprite state. Independent owners still guard against
                     // an accidental producer-side mutation introduced by extraction.
                     var expected = new DisplayPacket(tick, Live());

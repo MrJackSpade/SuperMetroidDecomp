@@ -80,7 +80,7 @@ internal sealed class EndingEscapeScenes
     {
         foreach (EndingSprite wrapper in sprites)
         {
-            IntroDiscoverySprite sprite = wrapper.Sprite;
+            CinematicActor sprite = wrapper.Sprite;
             EndingCloudMotion.Step(wrapper, _stage.FloorZoom);
             sprite.Step();
         }

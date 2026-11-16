@@ -376,6 +376,22 @@ internal static class CoreVocabularyAnalyzerTests
             $"'frameBehaviors' {frameBehavior} ('FrameBehavior')");
         // The words alone, apart or in another order are the game's own: a frame, a behaviour, a shot behaviour.
         Expect("class P { int Frame; int Behavior; int ShotBehavior; int BehaviorFrame; int FrameCountBehavior; }");
+        // The console's controller port (#2079), in each kind of declaration the renamed enemy-frame and room-loader
+        // fields and the Beetom's state used it in: a field, a property, a parameter, a local and a type; any port number.
+        const string controllerPort = "names the controller port";
+        Expect("class P { readonly int _controller1; }", $"'_controller1' {controllerPort} ('controller1')");
+        Expect("class P { int PreviousController1Input { get; set; } }", $"'PreviousController1Input' {controllerPort} ('Controller1')");
+        Expect("class P { void Read(int controller2) { } }", $"'controller2' {controllerPort} ('controller2')");
+        Expect("class P { void Run() { int CONTROLLER1 = 0; _ = CONTROLLER1; } }", $"'CONTROLLER1' {controllerPort} ('CONTROLLER1')");
+        Expect("sealed class Controller1Reader { }", $"'Controller1Reader' {controllerPort} ('Controller1')");
+        // A controller, its input and the player's actions are the game's own, as is a number apart from the word.
+        Expect("class P { int Controller; int ControllerInput; int GameController; int PlayerActions; int Controller_1; int ControllerOne; }");
+        // The level data's block type secondary (#2079): the gate trigger's parameter, a field and a type.
+        Expect("class P { bool Spawn(int bts) => bts != 0; }", "'bts' names the hardware ('Bts')");
+        Expect("class P { int BtsValue; }", "'BtsValue' names the hardware ('Bts')");
+        Expect("enum RoomBts { None }", "'RoomBts' names the hardware ('Bts')");
+        // Words that only share the letters are the game's own.
+        Expect("class P { int Bots; int Butts; int Behavior; }");
         // The hardware's object (#2004, #1977), in each kind of declaration the renamed effect actors, cinematic actors and
         // statue animations used it in: a type and its file, an enum, a field, a parameter, a method, a property and a local.
         const string hardwareObject = "names the hardware's object";

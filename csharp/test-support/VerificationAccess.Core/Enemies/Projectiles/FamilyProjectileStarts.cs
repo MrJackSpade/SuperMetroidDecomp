@@ -55,10 +55,10 @@ internal static class FamilyProjectileStarts
     internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) => kind switch
     {
         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace => PrePhantoonRoomBehavior.HoldingProjectile,
-        RoomEnemyProjectileKind.SkreeParticleDownRight or RoomEnemyProjectileKind.SkreeParticleUpRight or
-            RoomEnemyProjectileKind.SkreeParticleDownLeft or RoomEnemyProjectileKind.SkreeParticleUpLeft or
-            RoomEnemyProjectileKind.MetareeParticleDownRight or RoomEnemyProjectileKind.MetareeParticleUpRight or
-            RoomEnemyProjectileKind.MetareeParticleDownLeft or RoomEnemyProjectileKind.MetareeParticleUpLeft =>
+        RoomEnemyProjectileKind.SkreeParticleOuterRight or RoomEnemyProjectileKind.SkreeParticleInnerRight or
+            RoomEnemyProjectileKind.SkreeParticleOuterLeft or RoomEnemyProjectileKind.SkreeParticleInnerLeft or
+            RoomEnemyProjectileKind.MetareeParticleOuterRight or RoomEnemyProjectileKind.MetareeParticleInnerRight or
+            RoomEnemyProjectileKind.MetareeParticleOuterLeft or RoomEnemyProjectileKind.MetareeParticleInnerLeft =>
             SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.Behavior,
         RoomEnemyProjectileKind.CrocomireProjectile => enemies.CrocomireBehavior.Combat.MouthShot,
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces =>
@@ -165,11 +165,11 @@ internal static class FamilyProjectileStarts
             new FuneNamiheFireballAnimation(FuneNamiheFireballSegment.Left),
         RoomEnemyProjectileKind.PolypRock => new PolypRockAnimation(PolypRockSegment.Initial),
         RoomEnemyProjectileKind.LavaThrownByMagdollite => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Left),
-        RoomEnemyProjectileKind.SkreeParticleDownRight or RoomEnemyProjectileKind.SkreeParticleUpRight or
-            RoomEnemyProjectileKind.SkreeParticleDownLeft or RoomEnemyProjectileKind.SkreeParticleUpLeft =>
+        RoomEnemyProjectileKind.SkreeParticleOuterRight or RoomEnemyProjectileKind.SkreeParticleInnerRight or
+            RoomEnemyProjectileKind.SkreeParticleOuterLeft or RoomEnemyProjectileKind.SkreeParticleInnerLeft =>
             new SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment.Skree),
-        RoomEnemyProjectileKind.MetareeParticleDownRight or RoomEnemyProjectileKind.MetareeParticleUpRight or
-            RoomEnemyProjectileKind.MetareeParticleDownLeft or RoomEnemyProjectileKind.MetareeParticleUpLeft =>
+        RoomEnemyProjectileKind.MetareeParticleOuterRight or RoomEnemyProjectileKind.MetareeParticleInnerRight or
+            RoomEnemyProjectileKind.MetareeParticleOuterLeft or RoomEnemyProjectileKind.MetareeParticleInnerLeft =>
             new SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment.Metaree),
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustSegment.Footsteps),
         RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustSegment.TourianDescentDust),

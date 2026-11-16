@@ -18,7 +18,7 @@ internal static class PolypBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.LavaRocks, place.Definition);
+        place.Bind(EnemyDefinitionId.Polyp, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         enemies.PolypBehavior.InitializePolyp(place);
         AssertEqual(new AnimationPlayback<PolypSegment>(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),

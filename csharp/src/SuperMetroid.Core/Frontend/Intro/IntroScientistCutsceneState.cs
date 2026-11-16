@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroScientistCutsceneState
 {
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
-    internal readonly IntroDiscoverySprite baby;
+    internal readonly CinematicActor baby;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor animation.</summary>
     private IntroScientistCutsceneState(IntroLaboratoryScene scene)
@@ -19,7 +19,7 @@ internal sealed class IntroScientistCutsceneState
             : IntroBabyActorDefinitions.ExaminedBaby;
 
         // The delivered and examined babies' definitions use separate laboratory pages and mirrored pan axes.
-        baby = new IntroDiscoverySprite(
+        baby = new CinematicActor(
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
             definition.Animation);

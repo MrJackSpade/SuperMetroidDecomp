@@ -74,14 +74,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private CeresSceneSpriteSheet Sprites => new(spriteSheets.Get(ZebesRevealed
         ? SpriteSheetId.ZebesRevealSprites : SpriteSheetId.CeresDestructionSprites), ActorShading);
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
-    internal readonly List<IntroDiscoverySprite> actors = [];
+    internal readonly List<CinematicActor> actors = [];
     /// <summary>Each sliding reveal actor's upward speed, from rest when the slide starts; a deleted actor's is dropped.</summary>
-    private readonly Dictionary<IntroDiscoverySprite, SignedEightEight> slideSpeeds = [];
+    private readonly Dictionary<CinematicActor, SignedEightEight> slideSpeeds = [];
     /// <summary>
     /// The small asteroids and the vortex, which the Ceres scene draws after every other actor, so the large asteroid and
     /// the blasts overlap them.
     /// </summary>
-    private readonly List<IntroDiscoverySprite> ceresActorsDrawnLast = [];
+    private readonly List<CinematicActor> ceresActorsDrawnLast = [];
     /// <summary>The blast that destroys the station (#1981), centred on it in screen pixels.</summary>
     private readonly CeresStationBlast stationExplosion;
     /// <summary>
@@ -90,22 +90,22 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
     /// <summary>Planet actor whose slide uses the larger acceleration.</summary>
-    internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
+    internal CinematicActor? ZebesPlanetActor { get; private set; }
     /// <summary>
     /// What each persistent actor behind the explosion shows (#1768); the blasts sharing the actor list are not among
     /// them.
     /// </summary>
-    private readonly Dictionary<IntroDiscoverySprite, CeresDestructionActorRole> destructionActorRoles = [];
+    private readonly Dictionary<CinematicActor, CeresDestructionActorRole> destructionActorRoles = [];
     /// <summary>
     /// What each Zebes reveal actor shows (#1768), the Japanese subtitle's once the title has spawned it with Japanese
     /// text (#1733): the role selects the actor's slide away and whether its leaving the screen ends the scene.
     /// </summary>
-    private readonly Dictionary<IntroDiscoverySprite, ZebesRevealActorRole> revealActorRoles = [];
+    private readonly Dictionary<CinematicActor, ZebesRevealActorRole> revealActorRoles = [];
     /// <summary>
     /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
     /// joins the reveal's actors.
     /// </summary>
-    private IntroDiscoverySprite? spawnedSubtitle;
+    private CinematicActor? spawnedSubtitle;
     /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
     private readonly bool japaneseText;
 
@@ -445,7 +445,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         foreach (CeresDestructionActorRole role in CeresDestructionActorDefinitions.DestructionSpawnOrder)
         {
             // Each actor starts at its role's installed placement (#1596).
-            IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.InitialActor(role),
+            CinematicActor actor = CreateActor(CeresDestructionActors.InitialActor(role),
                 content.CeresDestruction.DestructionActors[role].Place);
             actors.Add(actor);
             destructionActorRoles.Add(actor, role);
@@ -491,7 +491,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         revealActorRoles.Clear();
         foreach (ZebesRevealActorRole role in CeresDestructionActorDefinitions.RevealSpawnOrder)
         {
-            IntroDiscoverySprite actor = CreateZebesActor(role);
+            CinematicActor actor = CreateZebesActor(role);
             if (role == ZebesRevealActorRole.Planet)
                 ZebesPlanetActor = actor;
             actors.Add(actor);
@@ -544,10 +544,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private bool MusicQueueFinished() => !audio.HasQueuedMusic;
 
     /// <summary>Installs an authored sprite at <paramref name="start"/> with its colouring and animation.</summary>
-    private static IntroDiscoverySprite CreateActor(
+    private static CinematicActor CreateActor(
         CeresDestructionActorDefinition definition, Offset16<ScreenPixels> start)
     {
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
@@ -561,11 +561,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// Creates the Zebes reveal actor that shows <paramref name="role"/> at its installed placement (#1596, #1733) and
     /// records its role.
     /// </summary>
-    private IntroDiscoverySprite CreateZebesActor(ZebesRevealActorRole role)
+    private CinematicActor CreateZebesActor(ZebesRevealActorRole role)
     {
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "The Zebes reveal requires installed cinematic artwork.");
-        IntroDiscoverySprite actor = CreateActor(CeresDestructionActors.ZebesActor(role), content.CeresDestruction.RevealActors[role].Place);
+        CinematicActor actor = CreateActor(CeresDestructionActors.ZebesActor(role), content.CeresDestruction.RevealActors[role].Place);
         revealActorRoles.Add(actor, role);
         return actor;
     }
@@ -601,7 +601,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
         for (int index = actors.Count - 1; index >= 0; index--)
         {
-            IntroDiscoverySprite actor = actors[index];
+            CinematicActor actor = actors[index];
             if (destructionActorRoles.TryGetValue(actor, out CeresDestructionActorRole role))
             {
                 CeresDestructionActorDefinition definition = CeresDestructionActors.InitialActor(role);
@@ -639,7 +639,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         stationExplosion.Spawn(Offset16<ScreenPixels>.Of(blastX, blastY));
         audio.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
-        var cinematicExplosion = new IntroDiscoverySprite(
+        var cinematicExplosion = new CinematicActor(
             Offset16<ScreenPixels>.Of(blastX, blastY),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
             CeresExplosionDefinitions.StationBlastActor.Animation);
@@ -653,7 +653,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CinematicActorDefinition definition,
         CeresExplosionPlacement placement)
     {
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             Offset16<ScreenPixels>.Of(
                 CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.WholePixels + placement.Offset.X,
                 CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.WholePixels + placement.Offset.Y),
@@ -668,7 +668,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Applies the fleeing gunship's X subvelocity and signed Y velocity to an explosion sprite.</summary>
-    private static void MoveExplosion(IntroDiscoverySprite actor)
+    private static void MoveExplosion(CinematicActor actor)
     {
         actor.Position = new(
             IntroCinematicMotion.AddFraction(actor.Position.X, CeresDestructionSceneDefinitions.Motion.GunshipXSubvelocity),
@@ -680,7 +680,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         for (int index = actors.Count - 1; index >= 0; index--)
         {
-            IntroDiscoverySprite actor = actors[index];
+            CinematicActor actor = actors[index];
             if (motion == ZebesActorsMotion.SlidingAway)
             {
                 if (!revealActorRoles.TryGetValue(actor, out ZebesRevealActorRole role))
@@ -896,9 +896,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         screenSprites.BeginFrame();
         // Same-priority sprite overlap is decided by drawing order.
-        IEnumerable<IntroDiscoverySprite> drawActors = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
+        IEnumerable<CinematicActor> drawActors = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? actors.Where(actor => !ceresActorsDrawnLast.Contains(actor)).Concat(actors.Where(ceresActorsDrawnLast.Contains)) : actors;
-        foreach (IntroDiscoverySprite actor in drawActors)
+        foreach (CinematicActor actor in drawActors)
             actor.Draw(screenSprites, installedArt: Sprites);
         screenSprites.FinishFrame();
     }

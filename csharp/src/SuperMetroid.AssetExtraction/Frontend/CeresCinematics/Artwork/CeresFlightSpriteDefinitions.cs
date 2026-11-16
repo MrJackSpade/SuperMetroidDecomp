@@ -14,7 +14,7 @@ public static class CeresFlightSpriteDefinitions
         new("large-asteroid", CinematicSpritePose.LargeAsteroid, 19),
         new("station-under-attack", CinematicSpritePose.StationUnderAttack, 41),
         new("small-asteroid", CinematicSpritePose.SmallAsteroid, 16),
-        new("vortex-even", CinematicSpritePose.VortexEven, 36),
-        new("vortex-odd", CinematicSpritePose.VortexOdd, 33),
+        new("vortex-first", CinematicSpritePose.VortexFirst, 36),
+        new("vortex-second", CinematicSpritePose.VortexSecond, 33),
     ];
 }

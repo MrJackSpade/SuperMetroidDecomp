@@ -31,13 +31,13 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
-    internal readonly IntroDiscoverySprite egg;
+    internal readonly CinematicActor egg;
     /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then page three's cross-fade.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
     /// <summary>How the confused baby moves: waiting for the hatch, rising out of the egg, idling, then dancing.</summary>
     private ConfusedBabyMotion babyMotion = ConfusedBabyMotion.WaitingForHatch;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
-    internal readonly IntroDiscoverySprite confusedBaby;
+    internal readonly CinematicActor confusedBaby;
 
     /// <summary>Sets up the scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     /// <param name="random">The session's random number generator, which the demo's Samus animation draws from.</param>
@@ -234,7 +234,7 @@ internal sealed class IntroBabyDiscoveryState
                     eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.EggHatch,
-                    priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
+                    priority: IntroCinematicDefinitions.Sounds.SoundPriority);
                 return;
 
             case CinematicSpriteCueKind.StartIntroPage3:
@@ -350,7 +350,7 @@ internal sealed class IntroBabyDiscoveryState
             // that creates the four egg-slime drops.
             audio.QueueSound(
                 IntroCinematicDefinitions.Sounds.BabyCry1,
-                priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
+                priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 
         // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 1/256 pixels.
@@ -389,7 +389,7 @@ internal sealed class IntroBabyDiscoveryState
             if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyDanceFrames))
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.BabyCry1,
-                    priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
+                    priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 
         BabyVelocity = BabyVelocity.WithX(AccelerateToward(
@@ -437,7 +437,7 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>Integrates one 1/256-pixel velocity component into the actor's subpixel position.</summary>
     private static void AddEightEightVelocity(
-        IntroDiscoverySprite sprite,
+        CinematicActor sprite,
         Axis axis,
         SignedEightEight velocity)
     {
@@ -447,9 +447,9 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Instantiates a cinematic actor with its authored position, colouring and animation.</summary>
-    private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
+    private static CinematicActor CreateActor(IntroBabyActorDefinition definition)
     {
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
             definition.Animation);

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
-    private readonly IntroDiscoverySprite actor =
+    private readonly CinematicActor actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
     /// <summary>Remaining colour alternations after a missile hit.</summary>

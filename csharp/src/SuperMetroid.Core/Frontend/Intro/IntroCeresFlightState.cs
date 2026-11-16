@@ -29,7 +29,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Optional edited rear-view actor positions.</summary>
     private CeresFlightActorPlacements? actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
-    private readonly IntroDiscoverySprite stars =
+    private readonly CinematicActor stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars, CeresFlightActorDefinitions.FrontStarsStart);
 
     /// <summary>The front stars' speed on each axis, which the background rush shares.</summary>
@@ -295,9 +295,9 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>
-    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
+    private static CinematicActor CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
     {
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
@@ -389,7 +389,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite animation.</summary>
     private void StepRearViewActors()
     {
-        foreach ((CeresRearViewActorRole role, IntroDiscoverySprite actor) in RearViewActors)
+        foreach ((CeresRearViewActorRole role, CinematicActor actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
             if (definition.WrapX)
@@ -401,7 +401,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Applies signed horizontal motion to an actor that travels no loop.</summary>
-    private static void AddSignedX(IntroDiscoverySprite actor, SignedSixteenSixteen delta)
+    private static void AddSignedX(CinematicActor actor, SignedSixteenSixteen delta)
     {
         actor.Position = actor.Position.WithX(actor.Position.X + delta);
     }

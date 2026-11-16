@@ -39,8 +39,8 @@ public sealed class BeetomEnemyState
     public int ActionTimer { get; internal set; }
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
     public int ButtonCounter { get; internal set; }
-    /// <summary>Controller input last observed by initialization or the attached counter; any differing input, including releases, decrements <see cref="ButtonCounter"/>.</summary>
-    public GameplayAction PreviousController1Input { get; internal set; }
+    /// <summary>The player's actions last observed by initialization or the attached counter; any differing actions, including releases, decrement <see cref="ButtonCounter"/>.</summary>
+    public GameplayAction LastSeenPlayerActions { get; internal set; }
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BeetomSegment> Playback { get; set; }
     /// <summary>Short-hop starting place: the first multiple of four marks along the curve whose integrated quadratic speeds reach the short hop's height.</summary>

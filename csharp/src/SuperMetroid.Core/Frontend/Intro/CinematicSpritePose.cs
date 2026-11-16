@@ -79,10 +79,10 @@ public enum CinematicSpritePose
     StationUnderAttack,
     /// <summary>Small asteroid.</summary>
     SmallAsteroid,
-    /// <summary>Vortex even.</summary>
-    VortexEven,
-    /// <summary>Vortex odd.</summary>
-    VortexOdd,
+    /// <summary>The vortex's first drawing, alternating with its second every update.</summary>
+    VortexFirst,
+    /// <summary>The vortex's second drawing, alternating with its first every update.</summary>
+    VortexSecond,
     /// <summary>Planet zebes.</summary>
     PlanetZebes,
     /// <summary>Planet zebes title.</summary>

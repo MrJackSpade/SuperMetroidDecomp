@@ -52,8 +52,11 @@ public static class IntroCinematicDefinitions
     /// <summary>The actors' sounds.</summary>
     public static class Sounds
     {
-        /// <summary>The queue limit the opening's sounds are requested under.</summary>
-        public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
+        /// <summary>
+        /// How crowded the sound queue may be for the opening's sounds to join it: the Baby's cries, the hatching and the
+        /// typewriter are requested at the usual priority.
+        /// </summary>
+        public static readonly SoundRequestPriority SoundPriority = SoundRequestPriority.Normal;
         /// <summary>The Baby Metroid's first cry.</summary>
         public static readonly SoundEffectId BabyCry1 = RoomSound.BabyMetroidCry1;
         /// <summary>The typewriter sound while narration characters appear.</summary>

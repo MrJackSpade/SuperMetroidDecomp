@@ -25,7 +25,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. GunshipPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new GunshipEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new GunshipEntity(this, place, common);
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -34,21 +34,21 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>The loaded room's bindings: its events and the game-state services that set up Samus's pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where the top hull finds the ship's other pieces when it is placed.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>
     /// The top hull of the ship whose save prompt awaits its answer (<see cref="AnswerGunshipSavePrompt"/>), or null when
     /// no prompt is pending.
     /// </summary>
-    private RoomEnemySlot? _topAwaitingSaveAnswer;
+    private RoomEnemyPlace? _topAwaitingSaveAnswer;
 
-    /// <summary>Binds the frame, room, and slot owners used by the ship's three-part actor.</summary>
-    internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable, EnemyFrameResultBuilder frameResults)
+    /// <summary>Binds the frame, room, and place owners used by the ship's three-part actor.</summary>
+    internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyPlaces places, EnemyFrameResultBuilder frameResults)
     {
         _frameResults = frameResults;
         _audio = audio;
         _projectiles = projectiles;
         _room = room;
-        _slotTable = slotTable;
+        _places = places;
     }
     /// <summary>Room load: the placement scenario.</summary>
     internal void BeginRoomLoad(GunshipLoadScenario scenario) => _gunshipLoadScenario = scenario;
@@ -64,31 +64,31 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The system is not loaded or no gunship save prompt is awaiting a response.</exception>
     public void AnswerGunshipSavePrompt()
     {
-        RoomEnemySlot top = _topAwaitingSaveAnswer
+        RoomEnemyPlace top = _topAwaitingSaveAnswer
             ?? throw new InvalidOperationException("The gunship save prompt is not awaiting a response.");
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         _topAwaitingSaveAnswer = null;
         State(top).Phase = GunshipPhase.WaitForExitPadToOpen;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
     }
 
-    /// <summary>Starts <paramref name="segment"/> on <paramref name="slot"/> from the next update.</summary>
-    private static void StartGunshipAnimation(RoomEnemySlot slot, GunshipSegment segment)
+    /// <summary>Starts <paramref name="segment"/> on <paramref name="place"/> from the next update.</summary>
+    private static void StartGunshipAnimation(RoomEnemyPlace place, GunshipSegment segment)
     {
-        slot.AnimationClock.StepOnNextUpdate();
-        slot.RequireSpeciesState<GunshipPieceState>().Playback =
+        place.AnimationClock.StepOnNextUpdate();
+        place.RequireSpeciesState<GunshipPieceState>().Playback =
             new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a hull or pad piece's typed animation where the shared enemy animation would.</summary>
-    internal static void AdvanceGunshipAnimation(RoomEnemySlot slot)
+    internal static void AdvanceGunshipAnimation(RoomEnemyPlace place)
     {
-        if (!slot.AnimationClock.Expire())
+        if (!place.AnimationClock.Expire())
             return;
-        GunshipPieceState piece = slot.RequireSpeciesState<GunshipPieceState>();
+        GunshipPieceState piece = place.RequireSpeciesState<GunshipPieceState>();
         AnimationPlayback<GunshipSegment> playback = piece.Playback;
-        EnemyAnimationPlayback.Play(slot, GunshipAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(place, GunshipAnimations.Segments, ref playback,
             cue => throw new InvalidOperationException($"The gunship's animations publish no cue; got {cue}."));
         piece.Playback = playback;
     }
@@ -97,29 +97,29 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Initializes the top hull and selects ordinary idle or post-Ceres descent, which places it against the loading
     /// <paramref name="samus"/>.
     /// </summary>
-    internal void InitializeGunshipTop(RoomEnemySlot slot, SamusState samus)
+    internal void InitializeGunshipTop(RoomEnemyPlace place, SamusState samus)
     {
-        var pieces = new GunshipPieces(slot, _slotTable.ListedAfter(slot, 1), _slotTable.ListedAfter(slot, 2));
-        slot.SetSpeciesState(pieces);
-        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
-        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        slot.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(slot, GunshipAnimations.StartingWith(GunshipSegment.TopHull))));
+        var pieces = new GunshipPieces(place, _places.ListedAfter(place, 1), _places.ListedAfter(place, 2));
+        place.SetSpeciesState(pieces);
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        place.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(GunshipSegment.TopHull))));
         GunshipState ship;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
             // enters the high-altitude descent used only after Ceres.
-            slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
+            place.Position = place.Position.WithWrappedWholeY(samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
             ship = new GunshipState(GunshipPhase.DescendAfterCeres);
         }
         else
         {
-            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - GunshipMotionDefinitions.LandedTopHullRaise);
-            ship = new GunshipState(GunshipPhase.Idle) { BaseY = slot.Position.Y.Whole };
+            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - GunshipMotionDefinitions.LandedTopHullRaise);
+            ship = new GunshipState(GunshipPhase.Idle) { BaseY = place.Position.Y.Whole };
         }
         ship.BobTimer = 1;
         ship.BobPhase = 0;
-        slot.SetSpeciesState(ship);
+        place.SetSpeciesState(ship);
         // Every placement, landed or descending after Ceres, starts the lights' glow among the room's colour effects. The
         // glow keeps this gunship (#1783): it runs until the room's colour effects are cleared and shows on these pieces.
         _frameResults.Glow = new EnemyGlowStart(GunshipLightDefinitions.Glow, pieces);
@@ -129,38 +129,38 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Initializes bottom hull or pad from the enemies its room lists before it; after Ceres the bottom hull is placed
     /// against the loading <paramref name="samus"/>.
     /// </summary>
-    internal void InitializeGunshipBottom(RoomEnemySlot slot, SamusState samus)
+    internal void InitializeGunshipBottom(RoomEnemyPlace place, SamusState samus)
     {
-        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
-        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        slot.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(slot, GunshipAnimations.StartingWith(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
+        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        place.SetSpeciesState(new GunshipPieceState(EnemyAnimationPlayback.Start(place, GunshipAnimations.StartingWith(place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
             ? GunshipSegment.BottomEntrancePad
             : GunshipSegment.BottomHull))));
 
-        if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
+        if (place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
-            slot.Position = slot.Position.WithWrappedWholeY(GunshipPadBorrowedHeight.Start(
-                distance => _slotTable.ListedBefore(slot, distance).Position.Y.Whole));
+            place.Position = place.Position.WithWrappedWholeY(GunshipPadBorrowedHeight.Start(
+                distance => _places.ListedBefore(place, distance).Position.Y.Whole));
         }
         else
         {
             if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
             {
-                slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
+                place.Position = place.Position.WithWrappedWholeY(samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
             }
             else
             {
-                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
+                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
                 // The ship's engine sound starts with its bottom hull, which the room lists right after the top hull that
                 // holds the ship.
-                State(_slotTable.ListedBefore(slot, 1)).EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelay;
+                State(_places.ListedBefore(place, 1)).EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelay;
             }
         }
     }
 
     /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>
     internal void RunGunshipTopMain(
-        RoomEnemySlot top,
+        RoomEnemyPlace top,
         SamusState samus,
         GameplayAction newlyPressedControllerInput)
     {
@@ -258,7 +258,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Carries Samus and all ship parts downward, slowing below Y=768 before the landing clamp.</summary>
-    private static void DescendPostCeresGunship(RoomEnemySlot top, SamusState samus)
+    private static void DescendPostCeresGunship(RoomEnemyPlace top, SamusState samus)
     {
         // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
         // 4.5 pixels an update; below that threshold it slows to 2.5 and clamps the
@@ -269,8 +269,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
             return;
 
-        RoomEnemySlot bottom = Pieces(top).Bottom;
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace bottom = Pieces(top).Bottom;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         top.Position = top.Position.WithWholeY(GunshipMotionDefinitions.LandedTopY);
         bottom.Position = bottom.Position.WithWholeY(GunshipMotionDefinitions.LandedBottomY);
         pad.Position = pad.Position.WithWholeY(GunshipMotionDefinitions.LandedPadY);
@@ -279,20 +279,20 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
-    internal void BouncePostCeresGunship(RoomEnemySlot top, SamusState samus)
+    internal void BouncePostCeresGunship(RoomEnemyPlace top, SamusState samus)
     {
         int yDelta = GunshipMotion.LandingBrakeYDelta(State(top).LandingBrakeStep);
         samus.Position += new Offset16<RoomPixels>(0, yDelta);
-        foreach (RoomEnemySlot slot in Pieces(top).All)
+        foreach (RoomEnemyPlace place in Pieces(top).All)
         {
-            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + yDelta);
+            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + yDelta);
         }
 
         State(top).LandingBrakeStep++;
         if (State(top).LandingBrakeStep < GunshipMotionDefinitions.LandingBrakeYDeltas.Length)
             return;
 
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         State(top).Phase = GunshipPhase.WaitForLandingEntranceToOpen;
         State(top).BaseY = top.Position.Y.Whole;
         State(top).BobTimer = 1;
@@ -306,13 +306,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Raises Samus from the landed ship and closes its pad at the exit height.</summary>
-    private void RaisePostCeresSamus(RoomEnemySlot top, SamusState samus)
+    private void RaisePostCeresSamus(RoomEnemyPlace top, SamusState samus)
     {
         samus.Position -= new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.ArrivalRiseStep);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, State(top).BaseY - GunshipBoardingDefinitions.ExitHeight) >= 0)
             return;
 
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         State(top).Phase = GunshipPhase.FinishLanding;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
@@ -320,16 +320,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Adds the same 1/65536-pixel Y displacement to Samus and all three ship components.</summary>
-    private static void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, SignedSixteenSixteen delta)
+    private static void AddGunshipYFixed(SamusState samus, RoomEnemyPlace top, SignedSixteenSixteen delta)
     {
         FixedCoordinate samusY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction)
             .MovedBy(delta);
         samus.Position = samus.Position.WithWholeY(samusY.Whole);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(samusY.Fraction);
 
-        foreach (RoomEnemySlot slot in Pieces(top).All)
+        foreach (RoomEnemyPlace place in Pieces(top).All)
         {
-            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(delta));
+            place.Position = place.Position.WithY(place.Position.Y.MovedBy(delta));
         }
     }
 
@@ -346,7 +346,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipPhase.FinishSamusExit or GunshipPhase.ReadyTakeoffEngines;
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
-    internal static void StepGunshipBob(RoomEnemySlot top)
+    internal static void StepGunshipBob(RoomEnemyPlace top)
     {
         if (--State(top).BobTimer > 0)
             return;
@@ -354,16 +354,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(State(top).BobPhase);
         State(top).BobTimer = bob.Timer;
         int yDelta = bob.YDelta;
-        foreach (RoomEnemySlot slot in Pieces(top).All)
+        foreach (RoomEnemyPlace place in Pieces(top).All)
         {
-            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + yDelta);
+            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + yDelta);
         }
         State(top).BobPhase = (State(top).BobPhase + 1) % GunshipMotionDefinitions.IdleBobs.Length;
     }
 
     /// <summary>Accepts a new Down press inside the standing entrance box and opens the pad.</summary>
     private void HandleIdleGunshipEntrance(
-        RoomEnemySlot top,
+        RoomEnemyPlace top,
         SamusState samus,
         GameplayAction newlyPressedControllerInput)
     {
@@ -378,7 +378,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
         if (insideEntrance && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Standing)
         {
-            RoomEnemySlot pad = Pieces(top).EntrancePad;
+            RoomEnemyPlace pad = Pieces(top).EntrancePad;
             State(top).Phase = GunshipPhase.WaitForEntranceToOpen;
             // The alignment stores the ship's X as both Samus's current and previous X, so the camera sees
             // no horizontal motion from this alignment.
@@ -398,19 +398,19 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Decrements the phase timer, treating one and a step past zero as expiry.</summary>
-    private static bool TickGunshipPhaseTimer(RoomEnemySlot top)
+    private static bool TickGunshipPhaseTimer(RoomEnemyPlace top)
     {
         return --State(top).PhaseTimer <= 0;
     }
 
     /// <summary>Lowers Samus into the ship until she is aboard, then closes the pad.</summary>
-    private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState samus)
+    private void LowerSamusIntoGunship(RoomEnemyPlace top, SamusState samus)
     {
         samus.Position += new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.BoardingStep);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, State(top).BaseY + GunshipBoardingDefinitions.BoardedDepth) < 0)
             return;
 
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         State(top).Phase = GunshipPhase.WaitForEntranceToClose;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
@@ -418,7 +418,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Refills Samus by the ship's refill step or skips directly to escape takeoff after Mother Brain.</summary>
-    private void RestoreSamusInGunship(RoomEnemySlot top, SamusState samus)
+    private void RestoreSamusInGunship(RoomEnemyPlace top, SamusState samus)
     {
         // The Zebes-timebomb-set event is set by Mother Brain's death sequence. Bypasses every refill
         // and save-prompt branch here, starts showing the takeoff artwork, and keeps the
@@ -449,13 +449,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Raises Samus out of the ship, then closes the pad and emits the exit event.</summary>
-    private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState samus)
+    private void RaiseSamusOutOfGunship(RoomEnemyPlace top, SamusState samus)
     {
         samus.Position -= new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.LeavingStep);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, State(top).BaseY - GunshipBoardingDefinitions.ExitHeight) >= 0)
             return;
 
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         State(top).Phase = GunshipPhase.FinishSamusExit;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
@@ -469,7 +469,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// update's frame on, and the engines fire up.
     /// </summary>
     /// <exception cref="InvalidDataException">The readying ran past its duration.</exception>
-    internal void ReadyGunshipTakeoffEngines(RoomEnemySlot top)
+    internal void ReadyGunshipTakeoffEngines(RoomEnemyPlace top)
     {
         int elapsed = State(top).EngineReadyingElapsed;
         if (elapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
@@ -485,7 +485,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs the 128-frame engine-rumble phase.</summary>
-    private void FireUpGunshipEngines(RoomEnemySlot top, SamusState samus)
+    private void FireUpGunshipEngines(RoomEnemyPlace top, SamusState samus)
     {
         int rumbleFrame = State(top).RumbleFrame;
         bool strong = rumbleFrame >= GunshipTakeoffDefinitions.RumbleStrengthensFrame;
@@ -500,7 +500,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         {
             // The six calls happen after the frame counter reaches
             // exactly 64. Descending projectile allocation means the last cloud, the outer left one, occupies the
-            // highest surviving slot, matching the ordinary scheduler.
+            // highest surviving place, matching the ordinary scheduler.
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
                 GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
         }
@@ -512,7 +512,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs constant two-pixel liftoff.</summary>
-    private static void LiftGunshipAtConstantSpeed(RoomEnemySlot top, SamusState samus)
+    private static void LiftGunshipAtConstantSpeed(RoomEnemyPlace top, SamusState samus)
     {
         MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - GunshipTakeoffDefinitions.SteadyLiftoffRise));
         if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.AcceleratingLiftoffY) < 0)
@@ -523,7 +523,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs the accelerating takeoff phase.</summary>
-    private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState samus)
+    private void AccelerateEscapingGunship(RoomEnemyPlace top, SamusState samus)
     {
         MoveEscapingGunship(top, samus);
         if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.TakeoffCompleteY) < 0)
@@ -534,7 +534,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Carries the escaping ship and Samus on up, faster each update.</summary>
-    private static void MoveEscapingGunship(RoomEnemySlot top, SamusState samus)
+    private static void MoveEscapingGunship(RoomEnemyPlace top, SamusState samus)
     {
         GunshipState ship = State(top);
         ship.AccelerateEscape();
@@ -546,7 +546,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>Positions hull and pad at fixed whole-pixel offsets from Samus during escape.</summary>
     private static void MoveGunshipAndSamusToY(
-        RoomEnemySlot top,
+        RoomEnemyPlace top,
         SamusState samus,
         int samusY)
     {
@@ -555,10 +555,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Places the top hull, the entrance pad and the bottom hull where they sit around Samus at <paramref name="samusY"/>.</summary>
-    private static void PlaceGunshipAroundSamus(RoomEnemySlot top, int samusY)
+    private static void PlaceGunshipAroundSamus(RoomEnemyPlace top, int samusY)
     {
-        RoomEnemySlot bottom = Pieces(top).Bottom;
-        RoomEnemySlot pad = Pieces(top).EntrancePad;
+        RoomEnemyPlace bottom = Pieces(top).Bottom;
+        RoomEnemyPlace pad = Pieces(top).EntrancePad;
         top.Position = top.Position.WithWrappedWholeY(samusY - GunshipMotionDefinitions.TopHullAboveSamus);
         pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
         bottom.Position = bottom.Position.WithWrappedWholeY(samusY + GunshipMotionDefinitions.BottomHullBelowSamus);
@@ -573,17 +573,17 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs Gunship's main AI.</summary>
-    internal void RunGunshipMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunGunshipMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunGunshipTopMain(
-            slot,
+            place,
             frame.Samus,
             frame.NewlyPressedControllerInput);
     }
 
     /// <summary>The state of the ship <paramref name="top"/> runs.</summary>
-    private static GunshipState State(RoomEnemySlot top) => GunshipState.Of(top);
+    private static GunshipState State(RoomEnemyPlace top) => GunshipState.Of(top);
 
     /// <summary>The gunship's pieces, which <paramref name="top"/> found when it was placed.</summary>
-    private static GunshipPieces Pieces(RoomEnemySlot top) => top.RequireSpeciesState<GunshipPieces>();
+    private static GunshipPieces Pieces(RoomEnemyPlace top) => top.RequireSpeciesState<GunshipPieces>();
 }

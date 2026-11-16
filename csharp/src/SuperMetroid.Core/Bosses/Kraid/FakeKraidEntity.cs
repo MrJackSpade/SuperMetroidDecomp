@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>One Mini-Kraid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Mini-Kraid species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunFakeKraidInitializationAi(Slot, surroundings);
+    public void Initialize(EnemySpawnSurroundings surroundings) => species.RunFakeKraidInitializationAi(Place, surroundings);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunFakeKraidMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFakeKraidTypedAnimation(Place, context);
 
     /// <summary>Whether the fake Kraid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

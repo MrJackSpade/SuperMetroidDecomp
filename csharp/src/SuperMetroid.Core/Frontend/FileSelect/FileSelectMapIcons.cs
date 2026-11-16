@@ -26,7 +26,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     internal AreaId MapArea => area;
 
     /// <summary>Shared boss-marker drawing used by pause and file-select maps.</summary>
-    public void DrawBossMarkers(ScreenSprites entries, Position16<MapPixels> scroll)
+    public void DrawBossMarkers(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
         var layout = landmarks ?? throw new InvalidOperationException(
             "Map boss markers require installed landmark layout.");
@@ -50,7 +50,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     }
 
     /// <summary>The game draws these objects before Samus's selected-station indicator.</summary>
-    public void DrawBeforeMarker(ScreenSprites entries, Position16<MapPixels> scroll)
+    public void DrawBeforeMarker(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
         DrawBossMarkers(entries, scroll);
         Simple(MapStationKind.Missile, MapSpriteId.StationMissile);
@@ -70,7 +70,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     }
 
     /// <summary>Normal file select adds the gunship and downloaded elevator labels, not debug save icons.</summary>
-    public void DrawAfterMarker(ScreenSprites entries, Position16<MapPixels> scroll, Action? drawArrows = null)
+    public void DrawAfterMarker(ScreenSprites entries, Offset16<MapPixels> scroll, Action? drawArrows = null)
     {
         if (area == AreaId.Crateria)
         {
@@ -83,7 +83,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     }
 
     /// <summary>Destination lettering is visible only after downloading this area's map.</summary>
-    public void DrawElevatorLabels(ScreenSprites entries, Position16<MapPixels> scroll)
+    public void DrawElevatorLabels(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
         if (!system.HasAreaMap(area)) return;
         var elevatorLayout = landmarks ?? throw new InvalidOperationException(
@@ -95,7 +95,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         }
     }
     /// <summary>Converts a map-space landmark to screen space and draws it with installed sprite art.</summary>
-    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll,
+    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Offset16<MapPixels> scroll,
         MapSpriteColouring colouring)
     {
         MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),

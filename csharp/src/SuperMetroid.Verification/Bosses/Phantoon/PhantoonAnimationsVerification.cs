@@ -31,10 +31,10 @@ internal static class PhantoonAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        RoomEnemySlot eye = enemies.SlotTable.Slots[1];
-        RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
-        RoomEnemySlot mouth = enemies.SlotTable.Slots[3];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
+        RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
+        RoomEnemyPlace mouth = enemies.Places.InUpdateOrder[3];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
         tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
@@ -49,7 +49,7 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>The program a Phantoon part is playing.</summary>
-    internal static PhantoonPartSegment PartProgram(RoomEnemySystem enemies, RoomEnemySlot part) =>
+    internal static PhantoonPartSegment PartProgram(RoomEnemySystem enemies, RoomEnemyPlace part) =>
         RequireState(enemies).PlayingProgram(part);
 
     /// <summary>The system's Phantoon state.</summary>
@@ -81,7 +81,7 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Runs one part update, optionally expiring the current frame first.</summary>
-    private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
+    private static void Pass(RoomEnemyPlace part, bool forceExpiry = false)
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
@@ -96,7 +96,7 @@ internal static class PhantoonAnimationsVerification
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
-        RoomEnemySlot eye = state.Eye;
+        RoomEnemyPlace eye = state.Eye;
         state.PartPlayback(eye) = PhantoonEnemyState.Starting(PhantoonPartSegment.EyeOpen);
         eye.AnimationClock.StepOnNextUpdate();
         for (int frame = 0; frame < 3; frame++)
@@ -122,7 +122,7 @@ internal static class PhantoonAnimationsVerification
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
-        RoomEnemySlot mouth = state.Mouth;
+        RoomEnemyPlace mouth = state.Mouth;
         state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartSegment.MouthSpawnFlame);
         Pass(mouth, forceExpiry: true);
         Pass(mouth, forceExpiry: true);
@@ -182,15 +182,15 @@ internal static class PhantoonAnimationsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = () => 128;
         enemies.DeathsAndDrops.BindSamus(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 });
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(128, 96));
         return enemies;
     }
 
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
-    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, RoomEnemySlot, bool> spawn, string producer)
+    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, RoomEnemyPlace, bool> spawn, string producer)
     {
-        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, enemies.SlotTable.Slots[0]), $"the real {producer} producer allocates a flame");
+        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, enemies.Places.InUpdateOrder[0]), $"the real {producer} producer allocates a flame");
         return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
     }
 
@@ -198,7 +198,7 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(starting.SlotTable.Slots[0], PhantoonFlameSpawns.StartingFlameStart(0)), "the real starting producer allocates a flame");
+        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(starting.Places.InUpdateOrder[0], PhantoonFlameSpawns.StartingFlameStart(0)), "the real starting producer allocates a flame");
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
@@ -208,7 +208,7 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns the last flame of an even rage wave, the one the cartridge's first rage parameter starts.</summary>
-    private static bool SpawnRageFlame(PhantoonPatterns patterns, RoomEnemySlot body) =>
+    private static bool SpawnRageFlame(PhantoonPatterns patterns, RoomEnemyPlace body) =>
         patterns.SpawnPhantoonRageFlame(body, PhantoonFlameSpawns.EvenRageWave[^1]);
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>

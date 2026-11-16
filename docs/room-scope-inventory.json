@@ -312,16 +312,6 @@
   {
    "file": "Rooms/RoomLoader.cs",
    "body": "LoadRoom",
-   "step": "Enemies.ResumeDoorTransitionGates(DoorGates)",
-   "classification": "carry-over",
-   "evidence": "the door gates, clear during population as the enemy load cleared them, are re-asserted (#1194)",
-   "reads": [
-    "carry-over DoorGates"
-   ]
-  },
-  {
-   "file": "Rooms/RoomLoader.cs",
-   "body": "LoadRoom",
    "step": "ActiveRoomState.Adopt(scope.Complete())",
    "classification": "room",
    "evidence": "the finished scope replaces the outgoing room's",
@@ -682,9 +672,9 @@
    "evidence": "a slot cleared when released or when its room-lifetime table is rebuilt"
   },
   {
-   "file": "Enemies/RoomEnemySlot.cs",
+   "file": "Enemies/RoomEnemyPlace.cs",
    "line": 179,
-   "owner": "RoomEnemySlot",
+   "owner": "RoomEnemyPlace",
    "method": "Clear",
    "classification": "per-slot",
    "evidence": "a slot cleared when released or when its room-lifetime table is rebuilt"

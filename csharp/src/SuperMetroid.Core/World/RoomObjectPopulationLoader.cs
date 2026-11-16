@@ -178,19 +178,19 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.MotherBrainGlass)
         {
-            _motherBrainGlass.SetupMotherBrainGlassSlot(level, place);
+            _motherBrainGlass.SetupMotherBrainGlass(level, place);
             return true;
         }
 
         if (objectKind == RoomObjectKind.BombTorizoHand)
         {
-            _bombTorizoHand.SetupBombTorizoHandSlot(place, bosses);
+            _bombTorizoHand.SetupBombTorizoHand(place, bosses);
             return true;
         }
 
         if (objectKind == RoomObjectKind.MetroidRoomClearance)
         {
-            TourianObjects.SetupMetroidsClearedSlot(place);
+            TourianObjects.SetupMetroidsCleared(place);
             return true;
         }
 
@@ -210,7 +210,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.NoobTube)
         {
-            _noobTube.SetupNoobTubeSlot(level, place);
+            _noobTube.SetupNoobTube(level, place);
             return true;
         }
 
@@ -241,7 +241,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (DraygonCannonObjects.SetupOf(objectKind) is { } cannonSetup)
         {
-            DraygonCannonObjects.SetupDraygonCannonSlot(level, place, cannonSetup, placement.Cannon
+            DraygonCannonObjects.SetupDraygonCannon(level, place, cannonSetup, placement.Cannon
                 ?? throw new InvalidDataException($"Draygon cannon placement {objectKind} names no Draygon wall cannon."));
             return true;
         }

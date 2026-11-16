@@ -73,8 +73,8 @@ internal static class YardAirborneVerification
 
         var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = LoadStationDefinitions.CrateriaSave };
         var saves = new SaveSlotStore(RetailPresentationFixtureVerification.RetailPresentationFixture());
-        saves.SaveSlot(0, snapshot);
-        SuperMetroidSaveSlot slot = saves.ReadSlot(0) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        SuperMetroidSaveSlot slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
         var loaded = CreateRetailRuntimeFixture();
         loaded.YardKickDistance.Record(stale);
         loaded.RoomLoader.InitializeSavedGame(slot);
@@ -111,7 +111,7 @@ internal static class YardAirborneVerification
 
         RoomEnemySystem enemies = runtime.Room.LoadedScope.Enemies;
         int yard = Enumerable.Range(0, enemies.YardStates.Count).First(place => enemies.YardStates[place] is not null);
-        RoomEnemySlot actor = enemies.SlotTable.Slots[yard];
+        RoomEnemyPlace actor = enemies.Places.InUpdateOrder[yard];
         YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -151,7 +151,7 @@ internal static class YardAirborneVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
-            var actor = enemies.SlotTable.Slots[0];
+            var actor = enemies.Places.InUpdateOrder[0];
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.AnimationClock.HoldFor(ushort.MaxValue);

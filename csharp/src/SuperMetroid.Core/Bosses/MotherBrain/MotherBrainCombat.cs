@@ -74,7 +74,7 @@ internal sealed class MotherBrainCombat
     /// vulnerability damage is applied without the ordinary enemy-deletion tail.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
-        RoomEnemySlot head,
+        RoomEnemyPlace head,
         SamusProjectile projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
@@ -85,7 +85,7 @@ internal sealed class MotherBrainCombat
         if (!ReferenceEquals(state.Head, head))
         {
             throw new InvalidOperationException(
-                "Mother Brain head shot AI ran for a slot not linked to the loaded body.");
+                "Mother Brain head shot AI ran for a place not linked to the loaded body.");
         }
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
@@ -151,7 +151,7 @@ internal sealed class MotherBrainCombat
     /// </summary>
     internal void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
-        RoomEnemySlot head,
+        RoomEnemyPlace head,
         SamusProjectile projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileType projectileType,
@@ -236,7 +236,7 @@ internal sealed class MotherBrainCombat
     /// her later forms take the common no-death bomb damage. The frame-hitbox collision has already marked the bomb.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
-        RoomEnemySlot head,
+        RoomEnemyPlace head,
         SamusBomb bomb)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
@@ -244,7 +244,7 @@ internal sealed class MotherBrainCombat
         if (!ReferenceEquals(state.Head, head))
         {
             throw new InvalidOperationException(
-                "Mother Brain head normal-bomb AI ran for a slot not linked to the loaded body.");
+                "Mother Brain head normal-bomb AI ran for a place not linked to the loaded body.");
         }
 
         if (state.Form == MotherBrainForm.Glass)
@@ -264,15 +264,15 @@ internal sealed class MotherBrainCombat
         // The brain's touch is not ordinary touch damage. A spin-jumping Samus toggles
         // the head's visible flash length between the game's 13/14-frame
         // cadence; every other movement type returns without changing either actor.
-        RoomEnemySlot slot = context.Slot;
+        RoomEnemyPlace place = context.Place;
         if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
-            slot.FlashTimer = slot.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(slot.FlashTimer)
+            place.FlashTimer = place.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(place.FlashTimer)
                 ? 14
                 : 13;
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindMotherBrainHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindMotherBrainHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (enemy.DefinitionId is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))

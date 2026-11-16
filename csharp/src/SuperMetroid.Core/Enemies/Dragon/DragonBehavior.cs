@@ -12,28 +12,28 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DragonEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new DragonEntity(this, place, common);
 
     /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy places, where each part finds its partners when it is placed.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>
     /// The enemy each Dragon part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), which it found when
     /// it was placed: a body's own wing, or the enemy listed after a wing.
     /// </summary>
-    private readonly EnemyPartLinks<RoomEnemySlot> _followUpRecipients = new();
+    private readonly EnemyPartLinks<RoomEnemyPlace> _followUpRecipients = new();
     /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Receives each fireball's sound in call order, as the game queues it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Dragon body AI, paired-wing state, fireball spawning and its sound to room systems.</summary>
-    internal DragonBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision,
+    internal DragonBehavior(EnemyProjectileEngine projectiles, EnemyPlaces places, EnemyCollision collision,
         EnemyAudioQueue audio)
     {
         _projectiles = projectiles;
-        _slotTable = slotTable;
+        _places = places;
         _collision = collision;
         _audio = audio;
     }
@@ -62,28 +62,28 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Dragon.</summary>
-    internal void InitializeDragon(RoomEnemySlot slot)
+    internal void InitializeDragon(RoomEnemyPlace place)
     {
-        bool isWing = slot.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing;
+        bool isWing = place.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing;
         // Every part finds the enemy its follow-up to a hit reaches.
-        _followUpRecipients.Place(slot, FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 1)[0]);
+        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 1)[0]);
 
         if (isWing)
         {
             // The wing begins on the left-facing wings animation and never runs body AI.
             // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
-            slot.SetSpeciesState(new DragonWingState
+            place.SetSpeciesState(new DragonWingState
             {
                 RequestedAnimation = DragonSegment.WingsFacingLeft,
                 InstalledAnimation = DragonSegment.WingsFacingLeft,
                 Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),
             });
-            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             return;
         }
 
         // A body finds its wing, which its room lists right after it.
-        slot.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _slotTable.ListedAfter(slot, 1))
+        place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.ListedAfter(place, 1))
         {
             AnimationFinished = false,
             RequestedAnimation = DragonSegment.IdleFacingLeft,
@@ -93,28 +93,28 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Dragon body's five actions.</summary>
-    private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState samus)
+    private void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
     {
         switch (state.Action)
         {
             case DragonAction.WaitToRise:
-                RunDragonWaitToRise(slot, state, samus);
+                RunDragonWaitToRise(place, state, samus);
                 return;
 
             case DragonAction.Rising:
-                RunDragonRising(slot, state);
+                RunDragonRising(place, state);
                 return;
 
             case DragonAction.Attacking:
-                RunDragonAttacking(slot, state);
+                RunDragonAttacking(place, state);
                 return;
 
             case DragonAction.WaitToSink:
-                RunDragonWaitToSink(slot, state);
+                RunDragonWaitToSink(place, state);
                 return;
 
             case DragonAction.Sinking:
-                RunDragonSinking(slot, state);
+                RunDragonSinking(place, state);
                 return;
 
             default:
@@ -125,14 +125,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits for Samus before rising.</summary>
     internal static void RunDragonWaitToRise(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         DragonEnemyState bodyState,
         SamusState samus)
     {
         if (--bodyState.ActionTimer >= 0)
             return;
 
-        RoomEnemySlot wing = bodyState.Wing;
+        RoomEnemyPlace wing = bodyState.Wing;
         DragonWingState wingState = wing.RequireSpeciesState<DragonWingState>();
         bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Rising;
@@ -151,7 +151,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Rises out of the lava.</summary>
-    internal static void RunDragonRising(RoomEnemySlot body, DragonEnemyState bodyState)
+    internal static void RunDragonRising(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         if (--bodyState.ActionTimer < 0)
         {
@@ -164,13 +164,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The 1/65536-pixel constant is exactly -1.0, so both
         // subpositions remain untouched while body and wing rise one whole pixel.
-        RoomEnemySlot wing = bodyState.Wing;
+        RoomEnemyPlace wing = bodyState.Wing;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole - 1);
     }
 
     /// <summary>Attacks, spitting fireballs.</summary>
-    internal void RunDragonAttacking(RoomEnemySlot body, DragonEnemyState bodyState)
+    internal void RunDragonAttacking(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         StartDragonAnimation(body, bodyState);
         if (!bodyState.AnimationFinished)
@@ -196,7 +196,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits before sinking.</summary>
     private static void RunDragonWaitToSink(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         DragonEnemyState bodyState)
     {
         if (--bodyState.ActionTimer != 0)
@@ -208,7 +208,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sinks back into the lava.</summary>
-    private static void RunDragonSinking(RoomEnemySlot body, DragonEnemyState bodyState)
+    private static void RunDragonSinking(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         if (--bodyState.ActionTimer < 0)
         {
@@ -217,7 +217,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // As with rising, the sink moves exactly one whole pixel each update.
-        RoomEnemySlot wing = bodyState.Wing;
+        RoomEnemyPlace wing = bodyState.Wing;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole + 1);
     }
@@ -227,11 +227,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body deletes its wing; a surviving body mirrors every timer and handler that affects
     /// visible hurt and freeze rendering into that wing, which only shows.
     /// </summary>
-    private void ResolveDragonCombatAfterCommon(RoomEnemySlot actor)
+    private void ResolveDragonCombatAfterCommon(RoomEnemyPlace actor)
     {
         // The follow-up reaches the enemy placed after whichever part was hit: the body's own wing, or,
         // for a power bomb hitting the intangible wing, the next enemy (FollowUpAfterStruckPart).
-        RoomEnemySlot following = _followUpRecipients.Of(actor);
+        RoomEnemyPlace following = _followUpRecipients.Of(actor);
         if (actor.Health == 0)
         {
             following.Presence = following.Presence.With(EnemyPresence.Deleted);
@@ -247,14 +247,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts a newly requested animation once and resets its frame timer.</summary>
     internal static void StartDragonAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DragonPartState state)
     {
         if (!state.ReinstallRequested && state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
         state.ReinstallRequested = false;
-        state.Playback = EnemyAnimationPlayback.Start(slot, DragonAnimations.StartingWith(state.RequestedAnimation));
+        state.Playback = EnemyAnimationPlayback.Start(place, DragonAnimations.StartingWith(state.RequestedAnimation));
     }
 
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot reaction.</summary>
@@ -268,19 +268,19 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyDragonFireball(context.Projectile, context.Camera.Y));
 
     /// <summary>Runs Dragon's main AI.</summary>
-    internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunDragonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         // The body moves its cosmetic wing with it; the wing takes no action of its own.
-        if (slot.SpeciesState<DragonEnemyState>() is { } body)
-            RunDragonMain(slot, body, frame.Samus);
+        if (place.SpeciesState<DragonEnemyState>() is { } body)
+            RunDragonMain(place, body, frame.Samus);
     }
 
     /// <summary>Advances Dragon's typed animation: a body's, whose attack raises its finishing cue, or a wing's, which raises none.</summary>
-    internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    internal static void AdvanceDragonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
-        if (slot.SpeciesState<DragonEnemyState>() is not null)
+        if (place.SpeciesState<DragonEnemyState>() is not null)
         {
-            EnemyAnimationPlayback.Advance(slot, DragonAnimations.Segments,
+            EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
                 static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
                 static (state, cue) =>
                 {
@@ -289,7 +289,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 });
             return;
         }
-        EnemyAnimationPlayback.Advance(slot, DragonAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
             static (DragonWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Dragon wing's cue-free animation raised {cue}."));
     }
@@ -309,8 +309,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs ordinary enemy touch damage before mirroring Dragon's hurt and freeze state into its wing.</summary>
     internal void ReactToDragonTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-        ResolveDragonCombatAfterCommon(context.Slot);
+        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        ResolveDragonCombatAfterCommon(context.Place);
     }
     /// <summary>Upward launch velocity of each Dragon fireball: three pixels and 193 256ths per update.</summary>
     private static readonly SignedEightEight DragonFireballInitialYVelocity = -SignedEightEight.FromParts(3, 193);
@@ -320,7 +320,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SignedEightEight DragonFireballGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
-    internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
+    internal void SpawnDragonFireball(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

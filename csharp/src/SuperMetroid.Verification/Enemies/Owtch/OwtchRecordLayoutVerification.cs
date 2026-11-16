@@ -16,10 +16,10 @@ internal static class OwtchRecordLayoutVerification
     internal static void VerifyOwtchRecordLayout()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var state = new OwtchEnemyState();
-        slot.SetSpeciesState(state);
-        NativeEnemyFamilyStateImport.Import(enemies, slot, new NativeEnemyRecordWords(
+        place.SetSpeciesState(state);
+        NativeEnemyFamilyStateImport.Import(enemies, place, new NativeEnemyRecordWords(
             A: 0x1234, B: 0x0002, C: 0xedcc, D: 0xfffd, E: OwtchNativeWords.Behaviors.Word(OwtchBehaviorState.Underground), F: 0x0010));
         AssertEqual(SignedSixteenSixteen.FromParts(2, 0x1234), state.Speed, "variables 0/1 are the speed's fraction and whole, variables 2/3 its negation");
         AssertEqual(OwtchBehaviorState.Underground, state.Behavior, "variable 4 is the state");

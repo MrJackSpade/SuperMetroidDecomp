@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="Chain">The chain's seven segments, its leading saw first.</param>
 /// <param name="Previous">The enemy the room lists right before the segment, which it orbits; null for the leading saw.</param>
 /// <param name="Next">The enemy the room lists right after the segment, which the centre faces; null for a segment listed last.</param>
-internal sealed record ShaktoolChainPlaces(RoomEnemySlot[] Chain, RoomEnemySlot? Previous, RoomEnemySlot? Next);
+internal sealed record ShaktoolChainPlaces(RoomEnemyPlace[] Chain, RoomEnemyPlace? Previous, RoomEnemyPlace? Next);

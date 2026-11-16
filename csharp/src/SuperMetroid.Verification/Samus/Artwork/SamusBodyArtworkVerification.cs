@@ -435,7 +435,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual((drawingWindowEnd - displacements) / 2, placement.FrameCount, $"arm-cannon pose {pose:X2} placed frames");
             for (int frame = 0; frame < placement.FrameCount; frame++)
                 AssertEqual(Offset16<RoomPixels>.Of(unchecked((sbyte)bus.ReadCartridgeByte(displacements + frame * 2)),
-                        unchecked((sbyte)bus.ReadCartridgeByte(displacements + frame * 2 + 1))), placement.Offsets[frame],
+                        unchecked((sbyte)bus.ReadCartridgeByte(displacements + frame * 2 + 1))), placement.OffsetNumbered(SamusPoseNumbering.FromNumber(pose), frame),
                     $"arm-cannon pose {pose:X2} frame {frame} displacement");
         }
         foreach (ushort pointer in SamusArmCannonArtworkFormat.TileSourcePointers)

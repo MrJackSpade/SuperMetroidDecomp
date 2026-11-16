@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// </summary>
 public static class GameOptionsDefinitions
 {
-    /// <summary>The fully lit brightness level the options fade-in reaches, which scales rendered colours.</summary>
-    public const int MaximumBrightness = 15;
     /// <summary>How far, in pixels, the controller page scrolls down to show its Exit and Reset rows.</summary>
     public const int ControllerScrollLimit = 32;
     /// <summary>Pixels the controller page scrolls per update.</summary>

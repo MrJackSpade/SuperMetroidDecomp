@@ -26,7 +26,7 @@ internal static class FuneNamiheFireballBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FuneNamiheFireballNativeListAddresses.Extent, "Fune/Namihe fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot source = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         foreach (RoomEnemyProjectileKind kind in new[] { RoomEnemyProjectileKind.FuneFireball, RoomEnemyProjectileKind.NamiheFireball })
         {

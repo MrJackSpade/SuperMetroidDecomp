@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Evir;
 public sealed class EvirBodyState : EvirPartState
 {
     /// <summary>Starts the state of a body whose spit the room lists at <paramref name="spit"/>, two places after it.</summary>
-    internal EvirBodyState(RoomEnemySlot spit) => Spit = Ensure.NotNull(spit);
+    internal EvirBodyState(RoomEnemyPlace spit) => Spit = Ensure.NotNull(spit);
 
     /// <summary>The place of the body's spit, which its room lists two places after it, found when the body was placed.</summary>
-    internal RoomEnemySlot Spit { get; }
+    internal RoomEnemyPlace Spit { get; }
 
     /// <summary>
     /// The body's bobbing countdown, decremented every update and expiring when it steps below zero, which reverses

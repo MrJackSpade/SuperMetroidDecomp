@@ -26,16 +26,16 @@ public static class GameSaveJsonCodec
     public static GameSaveJsonDocument Capture(SaveSlotStore saves)
     {
         Ensure.NotNull(saves);
-        var slots = new GameSaveSlotJsonDocument?[SaveSlotStore.SlotCount];
+        var slots = new GameSaveSlotJsonDocument?[SaveSlots.All.Count];
         for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
         {
-            SuperMetroidSaveSlot? slot = saves.ReadSlot(slotIndex);
+            SuperMetroidSaveSlot? slot = saves.ReadSlot(SlotAt(slotIndex));
             slots[slotIndex] = slot is null ? null : CaptureSlot(slot);
         }
 
         return new GameSaveJsonDocument
         {
-            SelectedSlot = saves.ReadSelectedSlot(),
+            SelectedSlot = SlotNumber(saves.ReadSelectedSlot()),
             Slots = slots,
             GameCompleted = saves.HasCompletedGame,
         };
@@ -90,9 +90,9 @@ public static class GameSaveJsonCodec
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
             if (document.Slots[slotIndex] is { } slot)
-                saves.SaveSlot(slotIndex, ToSnapshot(slot));
+                saves.SaveSlot(SlotAt(slotIndex), ToSnapshot(slot));
         }
-        saves.SelectSlot(document.SelectedSlot);
+        saves.SelectSlot(SlotAt(document.SelectedSlot));
         saves.SetGameCompleted(document.GameCompleted);
         return saves;
     }
@@ -100,7 +100,7 @@ public static class GameSaveJsonCodec
     /// <summary>Projects one save slot into named resources, flags, events, and explored map cells.</summary>
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
-        Slot = slot.Slot,
+        Slot = SlotNumber(slot.Slot),
         Checkpoint = slot.Checkpoint.Name,
         Resources = new SaveResourcesJsonDocument(
             slot.Health,
@@ -207,6 +207,17 @@ public static class GameSaveJsonCodec
         LoadStationDefinitions.All.SingleOrDefault(station => string.Equals(station.Name, checkpoint, StringComparison.Ordinal))
             ?? throw new InvalidDataException($"{property} '{checkpoint}' names no load station");
 
+    /// <summary>The slot a JSON save numbers <paramref name="number"/>: its place in the file select's list, from zero.</summary>
+    private static SaveSlot SlotAt(int number) => SaveSlots.All[number];
+
+    /// <summary>The number a JSON save gives <paramref name="slot"/>: its place in the file select's list, from zero.</summary>
+    private static int SlotNumber(SaveSlot slot)
+    {
+        for (int number = 0; number < SaveSlots.All.Count; number++)
+            if (SaveSlots.All[number] == slot) return number;
+        throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot.");
+    }
+
     /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
     private static void Validate(GameSaveJsonDocument document)
     {
@@ -217,9 +228,9 @@ public static class GameSaveJsonCodec
                 $"schemaVersion {document.SchemaVersion} is unsupported; expected " +
                 $"{GameSaveJsonFormat.SchemaVersion}");
         }
-        if ((uint)document.SelectedSlot >= SaveSlotStore.SlotCount)
+        if ((uint)document.SelectedSlot >= SaveSlots.All.Count)
             throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
-        if (document.Slots is null || document.Slots.Length != SaveSlotStore.SlotCount)
+        if (document.Slots is null || document.Slots.Length != SaveSlots.All.Count)
             throw new InvalidDataException("slots must contain exactly three entries");
 
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)

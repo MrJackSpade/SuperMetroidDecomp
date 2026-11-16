@@ -111,7 +111,7 @@ public sealed class YappingMawEnemyState
     /// <summary>Result of the point-based viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
 
-    /// <summary>The four physical body-link slots, ordered root to mouth.</summary>
+    /// <summary>The four physical body-link places, ordered root to mouth.</summary>
     public EnemyProjectile?[] BodyProjectiles { get; } =
         new EnemyProjectile?[4];
 

@@ -39,14 +39,14 @@ internal static class YappingMawRetractionHoldVerification
             AssertEqual(moved, YappingMawRetractionHold.CarriesHeldSamus(reach, aim is YappingMawAim.Right or YappingMawAim.Left),
                 $"{context}: the rule");
 
-            (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) = NewYappingMaw(reachParameter);
+            (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) = NewYappingMaw(reachParameter);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
-            enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
-            enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");
 
             state.Aim = aim;
@@ -56,10 +56,10 @@ internal static class YappingMawRetractionHoldVerification
             state.HasGrabbedSamus = true;
             state.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
             samus.Position = samus.Position.WithWhole(EarlierHold);
-            enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
 
             AssertEqual(YappingMawAction.RetractedDelay, state.Action, $"{context}: the curl below nothing ends the retraction");
-            AssertEqual(moved ? slot.Position.Whole + state.HeldSamusOffset : EarlierHold, samus.Position.Whole,
+            AssertEqual(moved ? place.Position.Whole + state.HeldSamusOffset : EarlierHold, samus.Position.Whole,
                 $"{context}: where Samus stands after the retraction's last update");
         }
         Console.WriteLine("  Yapping Maw retraction hold: both reaches and all eight bites carry or leave the held Samus as the original's attack end.");
@@ -69,14 +69,14 @@ internal static class YappingMawRetractionHoldVerification
     private static NewInitializedYappingMawResult NewYappingMaw(int reachParameter)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.Position = slot.Position.WithWhole(new(128, 128));
-        slot.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 301);
-        slot.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, reachParameter);
-        enemies.YappingMawBehavior.InitializeYappingMaw(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Position = place.Position.WithWhole(new(128, 128));
+        place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 301);
+        place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, reachParameter);
+        enemies.YappingMawBehavior.InitializeYappingMaw(place);
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
-        return new NewInitializedYappingMawResult(enemies, slot, state);
+        return new NewInitializedYappingMawResult(enemies, place, state);
     }
 }

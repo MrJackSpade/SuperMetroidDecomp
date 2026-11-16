@@ -14,29 +14,29 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NorfairRioEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NorfairRioEntity(this, place, common);
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves horizontal and vertical contact during the dive and return.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>The room's enemy places, where each flame follower finds its parent when it is placed.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
-    private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
+    private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
     /// <summary>The state of the parent each flame follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
     private readonly EnemyPartLinks<NorfairRioEnemyState> _parentStates = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Captures the room RNG, terrain, and slot table needed by Rio AI.</summary>
-    internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
+    /// <summary>Captures the room RNG, terrain, and place table needed by Rio AI.</summary>
+    internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)
     {
         _audio = audio;
         _room = room;
         _terrain = terrain;
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>Strict wrapped X-distance threshold for a random dive opportunity.</summary>
@@ -45,14 +45,14 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SignedEightEight NorfairRioGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Initializes the Norfair Rio.</summary>
-    internal void InitializeNorfairRio(RoomEnemySlot slot)
+    internal void InitializeNorfairRio(RoomEnemyPlace place)
     {
-        if (slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower)
+        if (place.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower)
         {
-            _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
-            ValidateNorfairRioParent(slot);
-            _parentStates.Place(slot, GetPrecedingNorfairRioSlot(slot).RequireSpeciesState<NorfairRioEnemyState>());
-            slot.SetSpeciesState(new NorfairRioFollowerState
+            _parents.Place(place, _places.ListedBefore(place, 1));
+            ValidateNorfairRioParent(place);
+            _parentStates.Place(place, GetPrecedingNorfairRioPlace(place).RequireSpeciesState<NorfairRioEnemyState>());
+            place.SetSpeciesState(new NorfairRioFollowerState
             {
                 InstalledAnimation = NorfairRioSegment.FlamesAscending,
                 Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
@@ -60,7 +60,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.SetSpeciesState(new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity)
+        place.SetSpeciesState(new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity)
         {
             AnimationSignal = false,
             FollowerYOffset = 0,
@@ -74,7 +74,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Every parent, like every follower, advances the shared enemy RNG before it acts.
     /// </summary>
     private void RunNorfairRioMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairRioEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -90,14 +90,14 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
-                        slot.Position.X.Whole,
+                        place.Position.X.Whole,
                         NorfairRioHorizontalTriggerDistance))
                 {
                     if (state.AnimationSignal)
                     {
                         state.AnimationSignal = false;
                         StartNorfairRioAnimation(
-                            slot,
+                            place,
                             state,
                             NorfairRioSegment.Idle);
                     }
@@ -108,10 +108,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = new EightEightVector<RoomPixels>(
                     RioLaunchDefinitions.NorfairXVelocity,
                     RioLaunches.NorfairYVelocity(random));
-                if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
+                if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
                 StartNorfairRioAnimation(
-                    slot,
+                    place,
                     state,
                     NorfairRioSegment.StartDescending);
                 state.Action = NorfairRioAction.WaitForTakeoffAnimation;
@@ -122,7 +122,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 state.AnimationSignal = false;
                 StartNorfairRioAnimation(
-                    slot,
+                    place,
                     state,
                     NorfairRioSegment.Descending);
                 state.Action = NorfairRioAction.Dive;
@@ -130,26 +130,26 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.Dive:
-                MoveNorfairRioHorizontally(level, slot, state);
+                MoveNorfairRioHorizontally(level, place, state);
                 if (_terrain.MoveEnemyVertically(
                         level,
-                        slot,
+                        place,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
-                    BeginNorfairRioReturn(slot, state);
+                    BeginNorfairRioReturn(place, state);
                     return;
                 }
 
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - NorfairRioGravity);
                 if (state.Velocity.Y.IsNegative)
-                    BeginNorfairRioReturn(slot, state);
+                    BeginNorfairRioReturn(place, state);
                 return;
 
             case NorfairRioAction.ReturnToPerch:
-                MoveNorfairRioHorizontally(level, slot, state);
+                MoveNorfairRioHorizontally(level, place, state);
                 if (_terrain.MoveEnemyVertically(
                         level,
-                        slot,
+                        place,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     state.Action = NorfairRioAction.FinishLanding;
@@ -161,7 +161,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.AnimationSignal = false;
                     StartNorfairRioAnimation(
-                        slot,
+                        place,
                         state,
                         NorfairRioSegment.Ascending);
                 }
@@ -198,10 +198,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Copies parent freeze, visibility, animation, and flame offset to the adjacent follower.</summary>
     private void FollowNorfairRioParent(
-        RoomEnemySlot follower,
+        RoomEnemyPlace follower,
         NorfairRioFollowerState followerState)
     {
-        RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
+        RoomEnemyPlace parent = GetPrecedingNorfairRioPlace(follower);
         if (parent.Health == 0)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
@@ -231,12 +231,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reverses vertical travel, installs the ascent animation, and enters the return state.</summary>
     private static void BeginNorfairRioReturn(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairRioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
         StartNorfairRioAnimation(
-            slot,
+            place,
             state,
             NorfairRioSegment.StartAscending);
         state.Action = NorfairRioAction.ReturnToPerch;
@@ -245,12 +245,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves across room terrain and reverses horizontal speed on contact.</summary>
     private void MoveNorfairRioHorizontally(
         RoomLevelData level,
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairRioEnemyState state)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 state.Velocity.X.ToSixteenSixteenDelta()))
         {
             state.Velocity = state.Velocity.ReversedX();
@@ -259,10 +259,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Restarts a parent's animation only when it changes.</summary>
     private static void StartNorfairRioAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairRioEnemyState state,
         NorfairRioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
+        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
@@ -270,27 +270,27 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Restarts a flame follower's animation only when it changes.</summary>
     private static void StartNorfairRioAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         NorfairRioFollowerState state,
         NorfairRioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
+        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
     /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
-    private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower) => _parents.Of(follower);
+    private RoomEnemyPlace GetPrecedingNorfairRioPlace(RoomEnemyPlace follower) => _parents.Of(follower);
 
     /// <summary>Requires a flame follower to directly follow a primary Geruta population entry.</summary>
-    private void ValidateNorfairRioParent(RoomEnemySlot follower)
+    private void ValidateNorfairRioParent(RoomEnemyPlace follower)
     {
-        RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
+        RoomEnemyPlace parent = GetPrecedingNorfairRioPlace(follower);
         if (parent.DefinitionId != EnemyDefinitionId.Geruta ||
             parent.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower)
         {
             throw new InvalidDataException(
-                $"Norfair Rio follower in slot {follower.SlotIndex} must immediately follow " +
+                $"Norfair Rio follower in place {follower.Ordinal} must immediately follow " +
                 "a parent of the same definition.");
         }
     }
@@ -299,32 +299,32 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the Norfair Rio's main AI: a flame follower advances the shared enemy RNG, as every parent does, then follows
     /// its parent.
     /// </summary>
-    internal void RunNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunNorfairRioMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        if (slot.SpeciesState<NorfairRioFollowerState>() is { } follower)
+        if (place.SpeciesState<NorfairRioFollowerState>() is { } follower)
         {
             _room.Random.Generate();
-            FollowNorfairRioParent(slot, follower);
+            FollowNorfairRioParent(place, follower);
             return;
         }
         RunNorfairRioMain(
-            slot,
-            slot.RequireSpeciesState<NorfairRioEnemyState>(),
+            place,
+            place.RequireSpeciesState<NorfairRioEnemyState>(),
             frame.Samus,
             frame.Level);
     }
 
     /// <summary>Advances the Norfair Rio's typed animation: a parent's, whose cues it carries out, or a flame follower's, which raise none.</summary>
-    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
-        if (slot.SpeciesState<NorfairRioFollowerState>() is not null)
+        if (place.SpeciesState<NorfairRioFollowerState>() is not null)
         {
-            EnemyAnimationPlayback.Advance(slot, NorfairRioAnimations.Segments,
+            EnemyAnimationPlayback.Advance(place, NorfairRioAnimations.Segments,
                 static (NorfairRioFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
                 static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
             return;
         }
-        EnemyAnimationPlayback.Advance(slot, NorfairRioAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, NorfairRioAnimations.Segments,
             static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

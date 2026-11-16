@@ -38,43 +38,43 @@ internal static class BeetomInstructionProgramDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork?.Bosses);
         enemies.VerificationServices().SeedRandom = _ => { };
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.Position = slot.Position.WithWholeX(0x0200);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Beetom, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Position = place.Position.WithWholeX(0x0200);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
-        enemies.BeetomBehavior.InitializeBeetom(slot, samus, 0);
+        enemies.BeetomBehavior.InitializeBeetom(place, samus, 0);
         BeetomEnemyState state = enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0].");
-        object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        object?[] processArguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
         AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(BeetomSegment.CrawlingLeft), AnimationPlace.StartOfAnimation), state.Playback,
             "real Beetom initializer installs the left crawl");
-        RunBeetomLoop(processArguments, slot, state, BeetomSegment.CrawlingLeftLoop, callsThroughGoto: 5);
-        AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), "left crawl stops off-screen processing");
+        RunBeetomLoop(processArguments, place, state, BeetomSegment.CrawlingLeftLoop, callsThroughGoto: 5);
+        AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen), "left crawl stops off-screen processing");
 
-        BeetomBehavior.StartBeetomCrawling(slot, state, HorizontalDirection.Right);
+        BeetomBehavior.StartBeetomCrawling(place, state, HorizontalDirection.Right);
         AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(BeetomSegment.CrawlingRight), AnimationPlace.StartOfAnimation), state.Playback, "right crawl is installed");
-        RunBeetomLoop(processArguments, slot, state, BeetomSegment.CrawlingRightLoop, callsThroughGoto: 5);
-        AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), "right crawl stops off-screen processing");
+        RunBeetomLoop(processArguments, place, state, BeetomSegment.CrawlingRightLoop, callsThroughGoto: 5);
+        AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen), "right crawl stops off-screen processing");
 
         foreach ((bool left, BeetomSegment hop) in new[] { new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(true, BeetomSegment.HopLeft), new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(false, BeetomSegment.HopRight) })
         {
-            BeetomBehavior.StartBeetomHop(slot, state, QuadraticSpeedCurvePlace.Start, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
+            BeetomBehavior.StartBeetomHop(place, state, QuadraticSpeedCurvePlace.Start, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
             AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(hop), AnimationPlace.StartOfAnimation), state.Playback, $"{hop} is installed");
-            RunBeetomCalls(processArguments, slot, 5);
+            RunBeetomCalls(processArguments, place, 5);
             AnimationPlayback<BeetomSegment> held = state.Playback;
-            RunBeetomCalls(processArguments, slot, 2);
+            RunBeetomCalls(processArguments, place, 2);
             AssertEqual(held, state.Playback, $"{hop} holds its last pose");
-            AssertEqual(BeetomAnimationsConstants.Spritemaps(hop).Last(), slot.SpritemapPointer, $"{hop} ends on its last pose");
-            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{hop} starts off-screen processing");
+            AssertEqual(BeetomAnimationsConstants.Spritemaps(hop).Last(), place.SpritemapPointer, $"{hop} ends on its last pose");
+            AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen), $"{hop} starts off-screen processing");
         }
 
         foreach ((bool left, BeetomSegment drain, BeetomSegment loop) in new[]
                  { new VerifyBeetomInstructionProgramDefinitionsCase(true, BeetomSegment.DrainingLeft, BeetomSegment.DrainingLeftLoop), new VerifyBeetomInstructionProgramDefinitionsCase(false, BeetomSegment.DrainingRight, BeetomSegment.DrainingRightLoop) })
         {
-            BeetomBehavior.StartBeetomDrain(slot, state, left ? HorizontalDirection.Left : HorizontalDirection.Right);
+            BeetomBehavior.StartBeetomDrain(place, state, left ? HorizontalDirection.Left : HorizontalDirection.Right);
             AssertEqual(new AnimationPlayback<BeetomSegment>(BeetomAnimations.StartingWith(drain), AnimationPlace.StartOfAnimation), state.Playback, $"{drain} is installed");
-            RunBeetomLoop(processArguments, slot, state, loop, callsThroughGoto: 9);
+            RunBeetomLoop(processArguments, place, state, loop, callsThroughGoto: 9);
         }
 
         AssertTrue(BeetomAnimationsConstants.Spritemaps(Enum.GetValues<BeetomSegment>()).ToHashSet().SetEquals(
@@ -95,10 +95,10 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = nextRandom;
-        Action<RoomEnemySlot, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        initialize(slot, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
+        Action<RoomEnemyPlace, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Beetom, place.Definition);
+        initialize(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
         Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
         return new CreateBeetomDistantSelectionFixtureResult(enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
     }
@@ -152,28 +152,28 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces the requested number of animation updates.</summary>
-    private static void RunBeetomCalls(object?[] arguments, RoomEnemySlot slot, int calls)
+    private static void RunBeetomCalls(object?[] arguments, RoomEnemyPlace place, int calls)
     {
         for (int call = 0; call < calls; call++)
         {
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
         }
     }
 
     /// <summary>Advances a crawl or drain program through its loop's restart and checks it shows the loop's first pose again.</summary>
     private static void RunBeetomLoop(object?[] arguments,
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         BeetomEnemyState state,
         BeetomSegment loop,
         int callsThroughGoto)
     {
-        RunBeetomCalls(arguments, slot, callsThroughGoto);
+        RunBeetomCalls(arguments, place, callsThroughGoto);
         AnimationPlayback<BeetomSegment> playback = state.Playback;
         AnimationPhase<BeetomSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         AssertTrue(phase.Segment == loop && phase.FirstBeat + playback.Place.Beat == 1,
             $"Beetom {loop} restarts and shows its first pose");
-        AssertEqual(BeetomAnimationsConstants.Spritemaps(loop).First(), slot.SpritemapPointer, $"Beetom {loop} first pose");
+        AssertEqual(BeetomAnimationsConstants.Spritemaps(loop).First(), place.SpritemapPointer, $"Beetom {loop} first pose");
     }
 
     /// <summary>Reads a native Beetom instruction word from bank A8 solely for comparison with compiled definitions.</summary>

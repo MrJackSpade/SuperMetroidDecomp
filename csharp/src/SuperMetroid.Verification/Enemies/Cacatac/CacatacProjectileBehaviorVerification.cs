@@ -21,12 +21,11 @@ internal static class CacatacProjectileBehaviorVerification
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
+            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
             enemies.CacatacBehavior.SpawnCacatacSpike(source, direction);
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
-            CacatacProjectileSegment program = CacatacSpikes.Animation(direction);
-            AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.PlayingSegment == program, $"a {direction} spike starts {program}");
-            (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, CacatacProjectileNativeListAddresses.Entry(program), 8, direction.ToString());
+            AssertTrue(spike.Animation is CacatacProjectileAnimation animation && animation.PlayingSegment == direction, $"a {direction} spike starts its direction's animation");
+            (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, CacatacProjectileNativeListAddresses.Entry(direction), 8, direction.ToString());
             AssertTrue(!deleted, $"the {direction} spike holds its pose");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the spikes' native list bytes");

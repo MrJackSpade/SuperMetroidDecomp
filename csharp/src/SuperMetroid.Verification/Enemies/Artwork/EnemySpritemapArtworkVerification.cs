@@ -91,11 +91,11 @@ internal static class EnemySpritemapArtworkVerification
         ImportEnemyArtwork stock)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        RoomEnemySlot bull = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace bull = enemies.Places.InUpdateOrder[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
         bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
+        new Action<RoomEnemyPlace>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frame = 0; frame < 41; frame++)
@@ -449,21 +449,21 @@ internal static class EnemySpritemapArtworkVerification
                 continue;
             // A room draws a frame as the enemy whose behaviour shows it; a frame only an enemy drawing from the characters
             // it uploads shows, as Ridley carrying the Ceres Baby, draws through that enemy's own route instead.
-            if (FrameOwner(RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer)) is not { } owner)
+            if (FrameOwner(RoomEnemyPlaceFrameAccess.FrameAt(frame.Bank, frame.Pointer)) is not { } owner)
                 continue;
             // An enemy no retail room places, as the shootable horizontal shutter, has no production room to draw it in.
             if (!SpawnedObjectFixtures.Drawn(owner))
                 continue;
-            RoomEnemySlot? drawn = null;
+            RoomEnemyPlace? drawn = null;
             RoomEnemySystem? drawnRoom = null;
             int drawnRow = 0;
             int drawnBase = 0;
-            var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer, owner, inspect: (slot, system) =>
+            var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer, owner, inspect: (place, system) =>
                 {
-                    drawn = slot;
+                    drawn = place;
                     drawnRoom = system;
-                    drawnRow = slot.PaletteRowIn(system);
-                    drawnBase = slot.NativeTileBaseIn(system);
+                    drawnRow = place.PaletteRowIn(system);
+                    drawnBase = place.NativeTileBaseIn(system);
                 },
                 spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
@@ -502,21 +502,21 @@ internal static class EnemySpritemapArtworkVerification
 
         static OamBuffer DrawEnemy(ImportEnemyArtwork art,
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
-            Action<RoomEnemySlot, RoomEnemySystem>? inspect = null, byte? spritemapBank = null)
+            Action<RoomEnemyPlace, RoomEnemySystem>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(definition));
-            enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             // The enemy is placed as a retail room places it, so an actor its placement's settings choose, as an ordinary
             // Ceres door its facing (#1989), binds as it does there.
             if (SuperMetroid.AssetExtraction.World.RoomStates.RoomStateDefinitions.All.SelectMany(state => state.EnemyPopulation.Placements.ToArray())
                     .FirstOrDefault(placement => placement.DefinitionId == definition) is { DefinitionId: not EnemyDefinitionId.None } placed)
-                slot.SetSpawnSettings(placed.SpawnSettings);
-            slot.Bind(definition, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.Shading = PictureShading.Standard;
+                place.SetSpawnSettings(placed.SpawnSettings);
+            place.Bind(definition, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Shading = PictureShading.Standard;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             byte frameBank = spritemapBank ?? (definition == EnemyDefinitionId.YappingMaw
@@ -620,14 +620,14 @@ internal static class EnemySpritemapArtworkVerification
                           EnemyDefinitionId.Skree
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank);
-            slot.Frame = RoomEnemySlotFrameAccess.FrameAt(frameBank, pointer);
-            if (slot.Frame is { } shown)
+            place.Frame = RoomEnemyPlaceFrameAccess.FrameAt(frameBank, pointer);
+            if (place.Frame is { } shown)
                 SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
-            slot.AnimationClock.HoldFor(7);
-            slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
+            place.AnimationClock.HoldFor(7);
+            place.Position = place.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawAsOam(oam, new(0, 0));
-            inspect?.Invoke(slot, enemies);
+            inspect?.Invoke(place, enemies);
             return oam;
         }
     }
@@ -681,7 +681,7 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
         // She draws from the sheet her room's set composes from this artwork, at the indexes it loads her with.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
-        EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
+        EnemyFrameId frame = RoomEnemyPlaceFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
         enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldFrame(sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, PictureShading.Standard),

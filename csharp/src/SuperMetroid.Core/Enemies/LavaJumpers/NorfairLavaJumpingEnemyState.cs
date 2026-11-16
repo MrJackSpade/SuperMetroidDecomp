@@ -34,7 +34,12 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>The jump's phase.</summary>
     public NorfairLavaJumpingEnemyAction Action { get; internal set; }
 
-    /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>
+    /// <summary>
+    /// One update's gravity: adds <paramref name="gravity"/> to the velocity. A jump launches at about eight pixels an update
+    /// and falls back into the lava's row at about that speed, so the velocity stays far inside its type; a velocity
+    /// past the type's range fails loudly.
+    /// </summary>
     /// <param name="gravity">The 1/256-pixel gravity step.</param>
-    internal void ApplyGravity(SignedEightEight gravity) => YVelocity += gravity;
+    internal void ApplyGravity(SignedEightEight gravity) =>
+        YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(YVelocity.InTwoHundredFiftySixthsOfPixel + gravity.InTwoHundredFiftySixthsOfPixel);
 }

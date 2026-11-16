@@ -14,7 +14,7 @@ internal static class PhantoonEnemyStateAccess
         /// the one its animation starts at.
         /// </summary>
         /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-        internal PhantoonPartSegment PlayingProgram(RoomEnemySlot part)
+        internal PhantoonPartSegment PlayingProgram(RoomEnemyPlace part)
         {
             AnimationPlayback<PhantoonPartSegment> playback = self.PartPlayback(part);
             return playback.Animation.Phases[playback.Place.Phase].Segment;

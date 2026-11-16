@@ -46,4 +46,7 @@ public sealed class NorfairPipeBugState
 
     /// <summary>The stagger the member runs after rising, its role's (#1840), or null before its formation assigns one.</summary>
     public NorfairPipeBugAction? PostRiseAction { get; internal set; }
+
+    /// <summary>How far, in pixels, the member's stagger moves it from where its rise ended: its role's (#2071).</summary>
+    public int StaggerOffset { get; internal set; }
 }

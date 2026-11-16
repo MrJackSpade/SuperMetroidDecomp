@@ -320,14 +320,14 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
-        RoomTerrainBlock[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
+        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(characterArtwork: stock);
         state.SetupFirstIllustratedPage();
         state.SetupMotherBrainFlashback();
         var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
         for (int index = 0; index < native.Length; index++)
-            AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain,
+            AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain.Collision,
                 $"Mother Brain flashback collision block {index} matches the decoded original without ROM reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "flashback setup never rereads the physical level source");

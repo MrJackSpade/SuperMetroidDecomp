@@ -78,10 +78,10 @@ internal static class RidleySupplementalArtworkVerification
         ImportEnemyArtwork artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(slot, "Ceres Ridley");
-        slot.Position = slot.Position.WithWhole(new(200, 100));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(place, "Ceres Ridley");
+        place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var state = new RidleyEnemyState
@@ -101,7 +101,7 @@ internal static class RidleySupplementalArtworkVerification
         enemies.RidleyEncounter.Ridley = state;
         var oam = new OamBuffer();
         oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(
-            frame, slot, Position16<RoomPixels>.Zero));
+            frame, place, Position16<RoomPixels>.Zero));
         return oam;
     }
 

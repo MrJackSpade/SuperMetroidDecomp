@@ -6,14 +6,14 @@ public sealed class EvirArmsState : EvirPartState
     /// <summary>Starts the state of arms whose body, listed right before them, is <paramref name="body"/>.</summary>
     /// <param name="body">The body's place.</param>
     /// <param name="bodyState">The body's state as the arms found it.</param>
-    internal EvirArmsState(RoomEnemySlot body, EvirBodyState bodyState)
+    internal EvirArmsState(RoomEnemyPlace body, EvirBodyState bodyState)
     {
         Body = Ensure.NotNull(body);
         BodyState = Ensure.NotNull(bodyState);
     }
 
     /// <summary>The place of the arms' body, which their room lists right before them.</summary>
-    internal RoomEnemySlot Body { get; }
+    internal RoomEnemyPlace Body { get; }
 
     /// <summary>
     /// The body's state as the arms found it when they were placed. The arms keep reaching it after the body has left its

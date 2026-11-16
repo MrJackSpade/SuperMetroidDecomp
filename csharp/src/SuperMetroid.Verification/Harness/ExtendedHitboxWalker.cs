@@ -13,7 +13,7 @@ internal static class ExtendedHitboxWalker
     internal static bool Find(object?[] arguments)
     {
         bool found = EnemyCollision.TryFindFrameHitboxReaction(
-            arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
+            arguments[0] as RoomEnemyPlace ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Value<Position16<RoomPixels>>(arguments, 1),
             Value<Extent16<RoomPixels>>(arguments, 2),
             (Value<bool>(arguments, 3)) ? HitboxContactKind.Shot : HitboxContactKind.Touch,

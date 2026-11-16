@@ -11,6 +11,9 @@ public static class RioLaunchDefinitions
     public static SignedEightEight NorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
     /// <summary>Lower Norfair Rio initial downward velocity, seven pixels per update.</summary>
     public static SignedEightEight LowerNorfairYVelocity { get; } = SignedEightEight.FromParts(7, 0);
+    /// <summary>How far below a live Lower Norfair Rio its flames follow, in pixels.</summary>
+    internal const int LowerNorfairFlameDrop = 12;
+
     /// <summary>Lower Norfair Rio horizontal speed, one pixel per update.</summary>
     public static SignedEightEight LowerNorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
 

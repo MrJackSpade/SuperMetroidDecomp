@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -50,7 +51,7 @@ internal sealed class EndingCreditsRoll
         _artwork.CurrentCredits = new CreditsScroll();
         _artwork.PostCreditsText.Clear();
         sprites.Clear();
-        _stage.Brightness = 15;
+        _stage.Fade.Show(DisplayBrightness.Full);
         _stage.Phase = EndingCreditsPhase.Credits;
     }
 
@@ -59,7 +60,7 @@ internal sealed class EndingCreditsRoll
     {
         // The credits' end starts the post-credits scenes in their own colours, blanks the screen and holds for sixty calls.
         _stage.LoadColours(EndingColourLoad.PostCredits);
-        _stage.Brightness = 0;
+        _stage.Fade.Show(0);
         _stage.PhaseTimer = 60;
         _stage.Phase = EndingCreditsPhase.PostCreditsBlank;
     }

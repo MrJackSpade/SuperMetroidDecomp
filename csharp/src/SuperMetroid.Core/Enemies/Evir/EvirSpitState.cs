@@ -7,7 +7,7 @@ public sealed class EvirSpitState : EvirPartState
     /// <param name="action">What the spit starts doing.</param>
     /// <param name="body">The body's place.</param>
     /// <param name="bodyState">The body's state as the spit found it.</param>
-    internal EvirSpitState(EvirSpitAction action, RoomEnemySlot body, EvirBodyState bodyState)
+    internal EvirSpitState(EvirSpitAction action, RoomEnemyPlace body, EvirBodyState bodyState)
     {
         Action = action;
         Body = Ensure.NotNull(body);
@@ -15,7 +15,7 @@ public sealed class EvirSpitState : EvirPartState
     }
 
     /// <summary>The place of the spit's body, which its room lists two places before it.</summary>
-    internal RoomEnemySlot Body { get; }
+    internal RoomEnemyPlace Body { get; }
 
     /// <summary>
     /// The body's state as the spit found it when it was placed. The spit keeps reaching it after the body has left its

@@ -10,18 +10,18 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new AtomicEntity(place, common);
 
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static void InitializeAtomic(RoomEnemySlot slot)
+    internal static void InitializeAtomic(RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
 
-        slot.AnimationClock.Restart();
+        place.AnimationClock.Restart();
 
-        AtomicSpawnSettings settings = slot.SpawnSettings<AtomicSpawnSettings>();
+        AtomicSpawnSettings settings = place.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
 
         state.Speed = settings.Speed;
@@ -32,33 +32,33 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// update.
     /// </summary>
     private static void RunAtomicMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         AtomicEnemyState state,
         SamusState samus)
     {
         // Being level with Samus counts as her being below or to the right, so it moves down or right. The comparison is
         // by whether the coordinate difference across the room's wrap is negative, so an Atomic and Samus on either side
         // of the wrap still chase the short way.
-        SignedSixteenSixteen vertical = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0
+        SignedSixteenSixteen vertical = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) < 0
             ? -state.Speed
             : state.Speed;
-        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(vertical));
+        place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
-        SignedSixteenSixteen horizontal = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+        SignedSixteenSixteen horizontal = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
             ? -state.Speed
             : state.Speed;
-        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(horizontal));
+        place.Position = place.Position.WithX(place.Position.X.MovedBy(horizontal));
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, AtomicAnimations.Segments,
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, AtomicAnimations.Segments,
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
 
     /// <summary>Runs Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal static void RunAtomicMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunAtomicMain(slot, slot.RequireSpeciesState<AtomicEnemyState>(), frame.Samus);
+        RunAtomicMain(place, place.RequireSpeciesState<AtomicEnemyState>(), frame.Samus);
     }
 }

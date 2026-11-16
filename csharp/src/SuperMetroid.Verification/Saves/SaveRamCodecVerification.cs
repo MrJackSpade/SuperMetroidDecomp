@@ -28,9 +28,9 @@ internal static class SaveRamCodecVerification
     {
         IAreaMapSource maps = RetailPresentationFixture();
         var written = new SaveSlotStore(maps);
-        written.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
-        written.SaveSlot(1, Snapshot(health: 77, area: AreaId.Norfair));
-        written.SelectSlot(1);
+        written.SaveSlot(SaveSlot.A, Snapshot(health: 61, area: AreaId.Brinstar));
+        written.SaveSlot(SaveSlot.B, Snapshot(health: 77, area: AreaId.Norfair));
+        written.SelectSlot(SaveSlot.B);
         byte[] image = SaveRamCodec.Encode(written, maps);
         // Damage slot 1's payload under both directories, then mark the image with a non-signature marker.
         image[SaveRamLayout.SlotOffset(1) + SaveRamLayout.HealthOffset] ^= 16;
@@ -46,13 +46,13 @@ internal static class SaveRamCodecVerification
             marker.CopyTo(image, SaveRamLayout.CompletionMarkerOffset);
             SaveSlotStore decoded = SaveRamCodec.Decode(image, maps);
 
-            AssertTrue(decoded.ReadSlot(1) is null && !decoded.IsSlotValid(1), "a slot failing both checksum pairs decodes empty");
-            AssertTrue(PayloadOf(decoded.ReadSlot(0), maps).SequenceEqual(PayloadOf(written.ReadSlot(0), maps)),
+            AssertTrue(decoded.ReadSlot(SaveSlot.B) is null && !decoded.IsSlotValid(1), "a slot failing both checksum pairs decodes empty");
+            AssertTrue(PayloadOf(decoded.ReadSlot(SaveSlot.A), maps).SequenceEqual(PayloadOf(written.ReadSlot(SaveSlot.A), maps)),
                 "a valid slot decodes to the record that was written");
-            AssertEqual(1, decoded.ReadSelectedSlot(), "the selection decodes as written, whatever the selected slot holds");
+            AssertEqual(SaveSlot.B, decoded.ReadSelectedSlot(), "the selection decodes as written, whatever the selected slot holds");
             AssertEqual(expectedCarry, AddsRumbleFrame(decoded), "the decoded boot carry compares the raw marker words");
             AssertTrue(!decoded.HasCompletedGame, "a noncanonical marker is not the completed-game signature");
-            decoded.SaveSlot(2, Snapshot(health: 33, area: AreaId.Crateria));
+            decoded.SaveSlot(SaveSlot.C, Snapshot(health: 33, area: AreaId.Crateria));
             AssertEqual(expectedCarry, AddsRumbleFrame(decoded),
                 "a later save keeps the raw marker comparison for the next boot");
         }
@@ -78,22 +78,22 @@ internal static class SaveRamCodecVerification
         AssertTrue(!store.DetermineCompletionDemoSetUnlocked(), "an all-invalid boot leaves the completion demo set out");
         AssertEqual("madadameyohn", Marker(), "an all-invalid boot writes the corrupt-SRAM marker");
         RoundTrips("an all-invalid boot");
-        store.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
+        store.SaveSlot(SaveSlot.A, Snapshot(health: 61, area: AreaId.Brinstar));
         // Last word "hn" ($6E68) is above "id" ($6469): the corrupt marker leaves the next boot's carry set.
         AssertTrue(AddsRumbleFrame(store), "boot carry over the corrupt marker");
         AssertEqual("madadameyohn", Marker(), "a save leaves the marker");
         RoundTrips("saving slot A");
-        store.SaveSlot(2, Snapshot(health: 88, area: AreaId.Maridia));
+        store.SaveSlot(SaveSlot.C, Snapshot(health: 88, area: AreaId.Maridia));
         RoundTrips("saving slot C");
-        store.CopySlot(0, 1);
-        AssertTrue(PayloadOf(store.ReadSlot(1), maps).SequenceEqual(PayloadOf(store.ReadSlot(0), maps)), "a copied slot holds the source's save");
-        AssertEqual(1, store.ReadSlot(1)?.Slot, "a copied slot reports its own index");
+        store.CopySlot(SaveSlot.A, SaveSlot.B);
+        AssertTrue(PayloadOf(store.ReadSlot(SaveSlot.B), maps).SequenceEqual(PayloadOf(store.ReadSlot(SaveSlot.A), maps)), "a copied slot holds the source's save");
+        AssertEqual<SaveSlot?>(SaveSlot.B, store.ReadSlot(SaveSlot.B)?.Slot, "a copied slot reports its own slot");
         RoundTrips("copying slot A to B");
-        store.ClearSlot(2);
-        AssertTrue(store.ReadSlot(2) is null, "a cleared slot is empty");
+        store.ClearSlot(SaveSlot.C);
+        AssertTrue(store.ReadSlot(SaveSlot.C) is null, "a cleared slot is empty");
         RoundTrips("clearing slot C");
-        store.SelectSlot(1);
-        AssertEqual(1, SaveRamCodec.Decode(SaveRamCodec.Encode(store, maps), maps).ReadSelectedSlot(), "the selection encodes with its complement");
+        store.SelectSlot(SaveSlot.B);
+        AssertEqual(SaveSlot.B, SaveRamCodec.Decode(SaveRamCodec.Encode(store, maps), maps).ReadSelectedSlot(), "the selection encodes with its complement");
         RoundTrips("selecting slot B");
         store.SetGameCompleted(true);
         AssertEqual("supermetroid", Marker(), "completion writes the signature");
@@ -126,12 +126,12 @@ internal static class SaveRamCodecVerification
             GameTimeMinutes = 59,
             GameTimeHours = 99,
         };
-        written.SaveSlot(0, extremes);
+        written.SaveSlot(SaveSlot.A, extremes);
         byte[] image = SaveRamCodec.Encode(written, maps);
         SaveSlotStore decoded = SaveRamCodec.Decode(image, maps);
         AssertTrue(SaveRamCodec.Encode(decoded, maps).SequenceEqual(image),
             "SRAM -> store -> SRAM keeps the full-range slot fields byte for byte");
-        SuperMetroidSaveSlot slot = decoded.ReadSlot(0) ?? throw new InvalidOperationException("The full-range slot failed its checksums.");
+        SuperMetroidSaveSlot slot = decoded.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("The full-range slot failed its checksums.");
         AssertEqual(SaveRamLayout.DebugFlagSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.DebugFlagOffset),
             "a save holds the placement-mode word a new file stores");
         AssertEqual(SaveRamLayout.NewFileMarkerSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.NewFileMarkerOffset),
@@ -186,10 +186,10 @@ internal static class SaveRamCodecVerification
                      new VerifyWidenedSlotFieldsRoundTripCase("clock hours", extremes with { GameTimeHours = 100 }),
                  })
         {
-            AssertThrows<InvalidOperationException>(() => written.SaveSlot(1, outOfRange),
+            AssertThrows<InvalidOperationException>(() => written.SaveSlot(SaveSlot.B, outOfRange),
                 $"a {field} past its domain is rejected instead of wrapping");
         }
-        AssertTrue(written.ReadSlot(1) is null, "a rejected save leaves its slot unchanged");
+        AssertTrue(written.ReadSlot(SaveSlot.B) is null, "a rejected save leaves its slot unchanged");
         Console.WriteLine("Save slot fields: full-domain values round-trip through SRAM exactly; out-of-domain values are rejected.");
     }
 

@@ -41,7 +41,7 @@ internal sealed class DraygonGoop
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
 
-        RoomEnemySlot body = state.Body;
+        RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;

@@ -46,8 +46,8 @@ internal static class BossResetOnLoadVerification
         // out of escape so room selection can demonstrate both Torizo encounters.
         snapshot.Progress.ClearEvent(StoryEvent.ZebesTimebombSet);
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        var slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
         LockedDoor[] eyeDoors = [LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LNFarmingEyeDoorFacingRight,
             LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
             LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft];
@@ -91,7 +91,7 @@ internal static class BossResetOnLoadVerification
             AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Brinstar, DefeatedBosses.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }
-        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression.SameAs(slot.Progression),
+        AssertTrue((saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")).Progression.SameAs(slot.Progression),
             "loading with reset does not rewrite the stored save");
         Console.WriteLine("Boss reset: disabled defaults, strict INI, full saved-state preservation, outside-Tourian flags, five eye doors, Spore/Torizo/Shaktool room selection and load-only application pass.");
     }

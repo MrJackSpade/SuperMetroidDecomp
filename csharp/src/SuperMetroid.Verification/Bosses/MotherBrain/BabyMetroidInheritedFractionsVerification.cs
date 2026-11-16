@@ -38,11 +38,11 @@ internal static class BabyMetroidInheritedFractionsVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
 
-        RoomEnemySlot free = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.None);
+        RoomEnemyPlace free = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.None);
         free.Position = free.Position.WithFractionX(0x1400).WithFractionY(0x2800);
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
 
-        AssertTrue(ReferenceEquals(free, state.BabyMetroidSlot), "the Baby takes the first free slot");
+        AssertTrue(ReferenceEquals(free, state.BabyMetroidPlace), "the Baby takes the first free slot");
         AssertEqual((ushort)0x0140, free.Position.X.Whole, "init writes the Baby's X");
         AssertEqual((ushort)0x0060, free.Position.Y.Whole, "init writes the Baby's Y");
         AssertEqual((ushort)0x1400, free.Position.X.Fraction, "the Baby keeps the slot's X fraction");

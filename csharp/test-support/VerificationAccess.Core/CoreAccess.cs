@@ -36,7 +36,7 @@ namespace SuperMetroid.Core;
 internal static class CoreAccess
 {
     /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
-    internal static bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectile shot)
+    internal static bool KraidMouthHitboxOverlapsShot(RoomEnemyPlace body, ushort hitboxPointer, SamusProjectile shot)
     {
         KraidPassBounds bounds = KraidBehaviorConstants.PlaceKraidPassBounds(body, hitboxPointer);
         return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
@@ -116,7 +116,7 @@ internal static class CoreAccess
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
-        internal Position16<MapPixels> MapScroll => pause.MapScrollPosition;
+        internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
 
         /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
         internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>
@@ -181,10 +181,10 @@ internal static class CoreAccess
             enemies.ChozoStatueBehavior.ChozoStatueObjectRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            [.. enemies.SlotTable.Slots.Select(slot => slot.SpeciesState<ChozoStatueState>())];
+            [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];
         /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
-            [.. enemies.SlotTable.Slots.Select(slot => slot.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];
+            [.. enemies.Places.InUpdateOrder.Select(place => place.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];
     }
 
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>

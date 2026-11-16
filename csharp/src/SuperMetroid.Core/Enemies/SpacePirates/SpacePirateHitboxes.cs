@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateHitboxes
 {
     /// <summary>The reaction of the first Pirate hitbox the probe overlaps.</summary>
-    internal static bool Find(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool Find(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         foreach (EnemyCollisionComponent component in

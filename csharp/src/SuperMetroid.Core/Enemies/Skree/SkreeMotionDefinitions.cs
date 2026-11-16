@@ -1,0 +1,17 @@
+namespace SuperMetroid.Core.Enemies.Skree;
+
+/// <summary>How a Skree winds up, dives and burrows (#2076).</summary>
+internal static class SkreeMotionDefinitions
+{
+    /// <summary>How close Samus comes horizontally, in pixels and exclusive, before an idling Skree winds up.</summary>
+    internal const int WindUpDistance = 48;
+
+    /// <summary>How far a diving Skree falls each update, and how far below it it looks for the floor, in pixels.</summary>
+    internal const int DiveStep = 6;
+
+    /// <summary>How long a Skree burrows into the floor before it is gone, in updates.</summary>
+    internal const int BurrowDuration = 21;
+
+    /// <summary>The burrow updates left at which the Skree throws up its debris.</summary>
+    internal const int DebrisBurstAt = 8;
+}

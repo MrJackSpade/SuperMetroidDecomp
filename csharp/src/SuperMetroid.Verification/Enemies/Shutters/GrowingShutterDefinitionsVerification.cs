@@ -25,9 +25,9 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemySlot> initialize = ShuttersBehavior.InitializeGrowingShutter;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.ShutterGrowing, slot.Definition);
+        Action<RoomEnemyPlace> initialize = ShuttersBehavior.InitializeGrowingShutter;
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.ShutterGrowing, place.Definition);
         for (ushort selector = 0; selector < 4; selector++)
         {
             for (int high = 0; high < 256; high++)
@@ -36,18 +36,18 @@ internal static class GrowingShutterDefinitionsVerification
                 {
                     // The native selector's high bit is the extra-property word that names the growth direction, its low
                     // bit the initialization word that names the wait.
-                    slot.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
+                    place.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                         selector & 1, 0, selector >> 1, 0, (high << 8) | speed));
-                    slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
-                    initialize(slot);
+                    place.Position = place.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
+                    initialize(place);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
                     AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word(state.Action), "Shutter real dispatch without bus");
                     AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthSpeed.WholePixels, "Shutter native whole speed");
                     AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                        AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8 * level)), state.SectionOriginY(level), $"Shutter wrapped origin {level}");
-                    AssertTrue(!slot.CollidesByFrameHitboxes && !slot.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
+                        AssertEqual(unchecked((ushort)(place.Position.Y.Whole + direction * 8 * level)), state.SectionOriginY(level), $"Shutter wrapped origin {level}");
+                    AssertTrue(!place.CollidesByFrameHitboxes && !place.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
                 }
             }
         }

@@ -36,11 +36,11 @@ internal static class PipeBugBehaviorVerification
                 _ => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Geega, 0),
             };
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            Initialize(enemies, slot, definition, parameter);
-            slot.PipeBugPlayback = PipeBugsBehavior.StartPipeBugAnimation(slot, program);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            Initialize(enemies, place, definition, parameter);
+            place.PipeBugPlayback = PipeBugsBehavior.StartPipeBugAnimation(place, program);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Segments, program, PipeBugFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Segments, program)),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Segments, program)),
                 $"Pipe Bug {program} loop");
         }
         Console.WriteLine("  Pipe Bug behavior: four initializers start their native loops and all sixteen loops run on time.");
@@ -58,14 +58,14 @@ internal static class PipeBugBehaviorVerification
         foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
-            NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            Initialize(enemies, place, EnemyDefinitionId.Gamet, 0);
+            NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.StaggerTarget = 72;
             state.FormationCounter = before;
-            enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
+            enemies.PipeBugsBehavior.RunPipeBugsMainAi(place, Frame(new(200, 128)));
             AssertEqual(after, state.FormationCounter, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.FlyRight : NorfairPipeBugAction.WaitForStagger, state.Action,
                 $"Norfair Pipe Bug departs only on reaching its target (count {before})");
@@ -73,15 +73,15 @@ internal static class PipeBugBehaviorVerification
 
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
-            BrinstarPipeBugState state = slot.RequireSpeciesState<BrinstarPipeBugState>();
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            Initialize(enemies, place, EnemyDefinitionId.Zeb, 0);
+            BrinstarPipeBugState state = place.RequireSpeciesState<BrinstarPipeBugState>();
             state.Action = BrinstarPipeBugAction.WaitForSamus;
-            enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(28, 78)));
+            enemies.PipeBugsBehavior.RunPipeBugsMainAi(place, Frame(new(28, 78)));
             AssertTrue(state.FliesLeft, "Brinstar Pipe Bug flies left of Samus on her left");
             AssertEqual(BrinstarPipeBugAction.WaitForSamus, state.Action, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
-            enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(148, 78)));
+            enemies.PipeBugsBehavior.RunPipeBugsMainAi(place, Frame(new(148, 78)));
             AssertTrue(!state.FliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(BrinstarPipeBugAction.Emerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
             AssertEqual(PipeBugSegment.ZebRisingRight, state.InstalledAnimation, "Brinstar Pipe Bug emerges facing right");
@@ -90,11 +90,11 @@ internal static class PipeBugBehaviorVerification
         {
             const int onePixel = 65536;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
-            Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
-            YellowPipeBugState state = slot.RequireSpeciesState<YellowPipeBugState>();
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            place.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
+            Initialize(enemies, place, EnemyDefinitionId.Geega, 0);
+            YellowPipeBugState state = place.RequireSpeciesState<YellowPipeBugState>();
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.FlightSpeed, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Action = YellowPipeBugAction.ArcRight;
             state.ArcRising = true;
@@ -102,8 +102,8 @@ internal static class PipeBugBehaviorVerification
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];
             for (int update = 0; update < expected.Length; update++)
             {
-                enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
-                AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), slot.Position.X,
+                enemies.PipeBugsBehavior.RunPipeBugsMainAi(place, Frame(new(200, 128)));
+                AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), place.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
                 AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCounter, $"yellow Pipe Bug arc record after update {update}");
                 if (update < 2)
@@ -117,28 +117,63 @@ internal static class PipeBugBehaviorVerification
             new FrameCounters(0));
     }
 
+    /// <summary>
+    /// #2071: a Norfair formation member's one stagger action moves it by its role's offset. For each member above or below
+    /// the leader, the production main AI runs its stagger from where its rise ended until it waits: it stops exactly its
+    /// role's offset from there, counting the formation once each update it moved.
+    /// </summary>
+    internal static void VerifyNorfairPipeBugStaggerOffsets()
+    {
+        ClockedEnemyAiFrame frame = new(
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 128)) } },
+            new FrameCounters(0));
+        foreach (NorfairPipeBugRole role in new[] { PipeBugDefinitions.UpperNearRole, PipeBugDefinitions.UpperFarRole, PipeBugDefinitions.LowerNearRole, PipeBugDefinitions.LowerFarRole })
+        {
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
+            NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
+            AssertEqual(NorfairPipeBugAction.Stagger, role.PostRiseAction, $"the member {role.StaggerOffset} pixels from the leader staggers by its offset");
+            state.Action = NorfairPipeBugAction.Stagger;
+            state.StaggerOffset = role.StaggerOffset;
+            state.RiseEndY = 128;
+            state.FormationCounter = 0;
+            int updates = 0;
+            while (state.Action == NorfairPipeBugAction.Stagger && updates <= Math.Abs(role.StaggerOffset) + 1)
+            {
+                enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, frame);
+                updates++;
+            }
+            AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"the member staggering {role.StaggerOffset} pixels then waits");
+            AssertEqual(128 + role.StaggerOffset, slot.Position.Y.Whole, $"the member staggering {role.StaggerOffset} pixels stops there");
+            AssertEqual(updates, state.FormationCounter, $"the member staggering {role.StaggerOffset} pixels counts each update");
+        }
+        Console.WriteLine("  Norfair Pipe Bug staggers: each member moves by its role's offset and then waits.");
+    }
+
     /// <summary>A freshly initialized Pipe Bug's animation.</summary>
     private static SuperMetroid.Core.Animation.AnimationPlayback<PipeBugSegment> Initialized(EnemyDefinitionId definition, ushort parameter)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        Initialize(enemies, slot, definition, parameter);
-        return slot.PipeBugPlayback ?? throw new InvalidOperationException("The Pipe Bug initializer left no state.");
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        Initialize(enemies, place, definition, parameter);
+        return place.PipeBugPlayback ?? throw new InvalidOperationException("The Pipe Bug initializer left no state.");
     }
 
-    /// <summary>Runs <paramref name="definition"/>'s real initializer on <paramref name="slot"/>.</summary>
-    private static void Initialize(RoomEnemySystem enemies, RoomEnemySlot slot, EnemyDefinitionId definition, ushort parameter)
+    /// <summary>Runs <paramref name="definition"/>'s real initializer on <paramref name="place"/>.</summary>
+    private static void Initialize(RoomEnemySystem enemies, RoomEnemyPlace place, EnemyDefinitionId definition, ushort parameter)
     {
-        slot.Bind(definition, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(definition, parameter);
+        place.Bind(definition, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(definition, parameter);
         switch (definition)
         {
             case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:
-                PipeBugsBehavior.InitializeBrinstarPipeBug(slot);
+                PipeBugsBehavior.InitializeBrinstarPipeBug(place);
                 break;
             case EnemyDefinitionId.Gamet:
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
                 break;
             case EnemyDefinitionId.None:
             case EnemyDefinitionId.Boyon:
@@ -292,7 +327,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.PirateMagentaWalking:
             case EnemyDefinitionId.PirateSilverWalking:
             default:
-                PipeBugsBehavior.InitializeYellowPipeBug(slot);
+                PipeBugsBehavior.InitializeYellowPipeBug(place);
                 break;
         }
     }
@@ -304,6 +339,7 @@ internal static class PipeBugBehaviorVerification
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPipeBugBehavior), () => VerifyPipeBugBehavior());
         Suite(nameof(VerifyPipeBugStateQuantities), () => VerifyPipeBugStateQuantities());
+        Suite(nameof(VerifyNorfairPipeBugStaggerOffsets), () => VerifyNorfairPipeBugStaggerOffsets());
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
         return 0;
     }

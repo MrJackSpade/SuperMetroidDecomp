@@ -14,28 +14,28 @@ internal static class FirefleaMovementDefinitionsVerification
         const ushort radiusTable = 0x8d1d;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot> initialize = FirefleaBehavior.InitializeFireflea;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
+        Action<RoomEnemyPlace> initialize = FirefleaBehavior.InitializeFireflea;
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
 
         for (byte radiusIndex = 0; radiusIndex < 8; radiusIndex++)
         {
             ushort address = checked((ushort)(radiusTable + radiusIndex * 2));
             ushort native = LittleEndianBytes.Word(FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | address), FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | (address + 1)));
-            slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0x0002);
-            slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, (ushort)(radiusIndex << 8));
-            AssertEqual(native, slot.SpawnSettings<FirefleaSpawnSettings>().Radius,
+            place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0x0002);
+            place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, (ushort)(radiusIndex << 8));
+            AssertEqual(native, place.SpawnSettings<FirefleaSpawnSettings>().Radius,
                 $"imported Fireflea radius {radiusIndex}");
-            slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
-            initialize(slot);
+            place.Position = place.Position.WithWhole(new(0x100, 0x100));
+            initialize(place);
             AssertEqual(native, ((enemies.FirefleaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FirefleaStates[0].")).Flight as CirclingFirefleaState
                 ?? throw new InvalidOperationException("Verification requires a circling Fireflea.")).Radius,
                 $"Fireflea initializer radius {radiusIndex}");
         }
 
-        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 8 << 8),
+        AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 8 << 8),
             "Fireflea import rejects the radius past its table");
-        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, byte.MaxValue << 8),
+        AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, byte.MaxValue << 8),
             "Fireflea import rejects a radius selector that would read adjacent code");
 
         // The circle turns by the speed's whole pixels' low byte as steps and its fraction's high byte as 256ths of a

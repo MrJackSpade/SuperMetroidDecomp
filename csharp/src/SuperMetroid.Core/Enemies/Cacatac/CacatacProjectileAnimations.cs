@@ -1,18 +1,18 @@
 using SuperMetroid.Core.Animation;
-using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProjectileSegment;
+using P = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The Cacatac's spike animations, one per launch direction (#641). Each
+/// The Cacatac's spike animations, one per launch direction, which names it (#641, #2067). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
 internal static class CacatacProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CacatacProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<CacatacProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<CacatacSpikeDirection, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.LeftFacingUp] =
         [
@@ -57,7 +57,7 @@ internal static class CacatacProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CacatacProjectileSegment, Animation<CacatacProjectileSegment>> StartingAt { get; } = new Dictionary<CacatacProjectileSegment, Animation<CacatacProjectileSegment>>
+    internal static IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = new Dictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>
     {
         [P.LeftFacingUp] = new([new(P.LeftFacingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.UpLeft] = new([new(P.UpLeft, 0, 1, 1)], AnimationEnd.Holds),
@@ -71,8 +71,12 @@ internal static class CacatacProjectileAnimations
         [P.RightFacingDown] = new([new(P.RightFacingDown, 0, 1, 1)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CacatacProjectileSegment> StartingWith(CacatacProjectileSegment segment) => StartingAt[segment];
+    /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
+    internal static Animation<CacatacSpikeDirection> StartingWith(CacatacSpikeDirection direction) =>
+        StartingAt.TryGetValue(direction, out Animation<CacatacSpikeDirection>? animation)
+            ? animation
+            : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

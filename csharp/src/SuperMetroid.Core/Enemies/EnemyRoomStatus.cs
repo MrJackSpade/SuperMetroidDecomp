@@ -1,10 +1,10 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text, Fireflea
-/// darkness, the enemy door-transition flag.
+/// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text and Fireflea
+/// darkness.
 /// </summary>
 internal sealed class EnemyRoomStatus
 {
@@ -15,12 +15,6 @@ internal sealed class EnemyRoomStatus
     /// <summary>The enemy state that outlives each room.</summary>
     private readonly EnemySession _session;
 
-    /// <summary>
-    /// Whether enemies see a door transition in progress. Ridley's shared wait
-    /// remains active while destination enemy visuals run during the room fade.
-    /// This is distinct from the elevator/Zebetite gate.
-    /// </summary>
-    public bool EnemyDoorTransitionActive { get; set; }
     /// <summary>
     /// The room's kill count, zero or more: reset at load and incremented by death paths through
     /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated

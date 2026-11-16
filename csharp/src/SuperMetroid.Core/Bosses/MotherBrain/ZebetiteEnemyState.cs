@@ -41,7 +41,7 @@ public sealed class ZebetiteEnemyState
     /// shares them as <see cref="Compatibility.ZebetiteShotShare"/> describes. The half names the enemy in that place
     /// in the room, whatever occupies it later.
     /// </summary>
-    internal RoomEnemySlot? LinkedHalf { get; set; }
+    internal RoomEnemyPlace? LinkedHalf { get; set; }
 
     /// <summary>Whether this is the linked bottom half; it skips primary colour cycling and dies without advancing the Zebetite count or respawning.</summary>
     public bool IsSecondaryHalf { get; internal set; }

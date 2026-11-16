@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks when the three Etecoons request their fanfare after an elevator door transition.</summary>
 internal static class EtecoonFanfareVerification
@@ -18,24 +19,25 @@ internal static class EtecoonFanfareVerification
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var passage = new DoorPassage();
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, doorPassage: passage);
         for (int index = 0; index < 3; index++)
         {
-            var slot = enemies.SlotTable.Slots[index];
-            slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
-            slot.Bind(slot.DefinitionId, RoomEnemyDefinitionLookup.Get(slot.DefinitionId));
-            slot.Health = slot.Definition.Health;
-            slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
-            slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
-            slot.Contact = EnemyContact.IgnoresSamus;
-            slot.Processing = EnemyProcessing.OffScreen;
-            slot.Presence = EnemyPresence.None;
-            slot.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
-            EtecoonBehavior.InitializeEtecoon(slot);
+            var place = enemies.Places.InUpdateOrder[index];
+            place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
+            place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
+            place.Health = place.Definition.Health;
+            place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);
+            place.Position = place.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
+            place.Contact = EnemyContact.IgnoresSamus;
+            place.Processing = EnemyProcessing.OffScreen;
+            place.Presence = EnemyPresence.None;
+            place.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
+            EtecoonBehavior.InitializeEtecoon(place);
         }
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));
-        enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
+        passage.Start();
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
@@ -43,7 +45,7 @@ internal static class EtecoonFanfareVerification
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
                 AssertTrue((state ?? throw new InvalidOperationException("Verification requires state.")).AwaitingSamus, "the transition keeps the Etecoon dormant");
         }
-        enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
+        passage.Finish();
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "trio publishes one fanfare after fade");
         var request = enemies.Audio.SoundRequests[0];

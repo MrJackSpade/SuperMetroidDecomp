@@ -9,4 +9,4 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 /// <param name="State">The state.</param>
 /// <param name="Body">The body.</param>
 /// <param name="Arm">The arm.</param>
-internal readonly record struct NewKraidResult(RoomEnemySystem Enemies, KraidEnemyState State, RoomEnemySlot Body, RoomEnemySlot Arm);
+internal readonly record struct NewKraidResult(RoomEnemySystem Enemies, KraidEnemyState State, RoomEnemyPlace Body, RoomEnemyPlace Arm);

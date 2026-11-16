@@ -25,10 +25,6 @@ internal static class PipeBugsNativeWords
         [NorfairPipeBugAction.WaitForSamus] = 0x8bff,
         [NorfairPipeBugAction.Rise] = 0x8ca6,
         [NorfairPipeBugAction.LeaderStagger] = 0x8cff,
-        [NorfairPipeBugAction.UpperNearStagger] = 0x8d0c,
-        [NorfairPipeBugAction.UpperFarStagger] = 0x8d4e,
-        [NorfairPipeBugAction.LowerNearStagger] = 0x8d90,
-        [NorfairPipeBugAction.LowerFarStagger] = 0x8dd2,
         [NorfairPipeBugAction.FlyLeft] = 0x8e14,
         [NorfairPipeBugAction.FlyRight] = 0x8e35,
         [NorfairPipeBugAction.WaitForStagger] = 0x8e5a,
@@ -43,6 +39,19 @@ internal static class PipeBugsNativeWords
         [YellowPipeBugAction.FlyRight] = 0x90bd,
         [YellowPipeBugAction.ArcLeft] = 0x915a,
         [YellowPipeBugAction.ArcRight] = 0x91d8,
+    });
+
+    /// <summary>
+    /// The routine word naming each Norfair formation role's stagger after rising (#2071): the leader's holds its height,
+    /// and each other member's moves it by its role's offset, the cartridge giving every offset a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<NorfairPipeBugRole> FormationStaggers = new(new Dictionary<NorfairPipeBugRole, ushort>
+    {
+        [PipeBugDefinitions.LeaderRole] = 0x8cff,
+        [PipeBugDefinitions.UpperNearRole] = 0x8d0c,
+        [PipeBugDefinitions.UpperFarRole] = 0x8d4e,
+        [PipeBugDefinitions.LowerNearRole] = 0x8d90,
+        [PipeBugDefinitions.LowerFarRole] = 0x8dd2,
     });
 
     /// <summary>

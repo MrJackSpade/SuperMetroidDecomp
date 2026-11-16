@@ -78,7 +78,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
         else if (session.ActiveFileSelect.NewGameRequested)
         {
-            session.SelectSaveSlot(SaveSlots.StoreNumber(session.ActiveFileSelect.SelectedSaveSlot), session.ActiveFileSelect.SelectedSlotContainsSave);
+            session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
             session.RaiseSavesChanged();
             // Existing slots restore the same seven controller bindings and two
             // special settings that saving copied from live state. A new

@@ -59,7 +59,7 @@ internal sealed class RuntimeArtwork
         _mapPresentation = installed.MapPresentation;
         _spriteSheets = installed.SpriteSheets;
         ProjectileSheets = SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(installed.SpriteSheets);
-        SamusArtwork = new SamusArtworkBinding(installed.SamusBodyArt, installed.SpriteSheets, installed.GrappleFlarePlacement,
+        SamusArtwork = new SamusArtworkBinding(installed.SamusBodyArt, installed.SamusShownFrames, installed.SpriteSheets, installed.GrappleFlarePlacement,
             installed.GrappleSwingFrames);
         ProjectileFrameBindings = installed.ProjectileFrameBindings;
         ChargeFlarePlacement = installed.ChargeFlarePlacement;
@@ -141,5 +141,12 @@ internal sealed class RuntimeArtwork
             SamusArtwork.Body = value;
             SamusArtwork.ArmCannon = value.ArmCannon;
         }
+    }
+
+    /// <summary>Host-owned frames Samus's body can show and the pictures they draw; restored and future Samus states use the same edit.</summary>
+    public SuperMetroid.Core.Samus.Drawing.SamusShownFrames SamusShownFrames
+    {
+        get => SamusArtwork.ShownFrames;
+        set => SamusArtwork.ShownFrames = value;
     }
 }

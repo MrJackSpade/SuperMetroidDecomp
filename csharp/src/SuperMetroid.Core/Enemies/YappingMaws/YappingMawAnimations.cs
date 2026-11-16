@@ -81,12 +81,12 @@ internal static class YappingMawAnimations
         ],
         [P.CooldownUpRight] =
         [
-            Cue(new(K.HoldSamusUpRight)),
+            Cue(new(K.HoldSamus, YappingMawAim.UpRight)),
             Show(EnemyFrameId.YappingMawAttackingUpRightThird, 4),
         ],
         [P.CooldownUp] =
         [
-            Cue(new(K.HoldSamusUp)),
+            Cue(new(K.HoldSamus, YappingMawAim.Up)),
         ],
         [P.CooldownUpLoop] =
         [
@@ -98,9 +98,9 @@ internal static class YappingMawAnimations
         ],
         [P.CooldownUpLeft] =
         [
-            Cue(new(K.HoldSamusUpLeft)),
+            Cue(new(K.HoldSamus, YappingMawAim.UpLeft)),
             Show(EnemyFrameId.YappingMawAttackingUpLeftThird, 4),
-            Cue(new(K.HoldSamusUp)),
+            Cue(new(K.HoldSamus, YappingMawAim.Up)),
         ],
         [P.CooldownUpLeftLoop] =
         [
@@ -112,12 +112,12 @@ internal static class YappingMawAnimations
         ],
         [P.CooldownDownRight] =
         [
-            Cue(new(K.HoldSamusDownRight)),
+            Cue(new(K.HoldSamus, YappingMawAim.DownRight)),
             Show(EnemyFrameId.YappingMawAttackingDownRightThird, 4),
         ],
         [P.CooldownDown] =
         [
-            Cue(new(K.HoldSamusDown)),
+            Cue(new(K.HoldSamus, YappingMawAim.Down)),
         ],
         [P.CooldownDownLoop] =
         [
@@ -129,9 +129,9 @@ internal static class YappingMawAnimations
         ],
         [P.CooldownDownLeft] =
         [
-            Cue(new(K.HoldSamusDownLeft)),
+            Cue(new(K.HoldSamus, YappingMawAim.DownLeft)),
             Show(EnemyFrameId.YappingMawAttackingDownLeftThird, 4),
-            Cue(new(K.HoldSamusDown)),
+            Cue(new(K.HoldSamus, YappingMawAim.Down)),
         ],
         [P.CooldownDownLeftLoop] =
         [

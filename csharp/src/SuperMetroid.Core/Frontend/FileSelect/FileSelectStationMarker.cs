@@ -55,7 +55,7 @@ public sealed class FileSelectStationMarker
     }
 
     /// <summary>Appends the current marker without advancing time; repainting cannot speed up the animation.</summary>
-    public void Draw(ScreenSprites entries, Position16<MapPixels> scroll, SpriteSheet? sheet = null)
+    public void Draw(ScreenSprites entries, Offset16<MapPixels> scroll, SpriteSheet? sheet = null)
     {
         Offset16<ScreenPixels> origin = MapPosition.RelativeToScroll(scroll);
         // The backing is drawn behind the station marker on even animation loops.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
@@ -23,8 +24,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>Supplies shared Ceres and Norfair movement, fade, and animation behavior.</summary>
     private readonly CeresRidleyBehavior _ceresRidleyBehavior;
-    /// <summary>Checks active door-transition state before the Norfair intro.</summary>
-    private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>Samus's passage through a door, which holds the Norfair intro until it ends.</summary>
+    private readonly DoorPassage _doorPassage;
     /// <summary>Runs Ridley's body and breakup animations and applies their cues.</summary>
     internal RidleyBodyAnimation Animation { get; }
 
@@ -46,7 +47,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         Animation = new RidleyBodyAnimation(dependencies.Audio, _ridleyEncounter, dependencies.RidleyProjectiles);
         Combat = new NorfairRidleyCombat(new NorfairRidleyCombatDependencies { Room = _room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, RidleyEncounter = _ridleyEncounter, RidleyTail = _ridleyTail, RidleyProjectiles = dependencies.RidleyProjectiles, RoomFx = dependencies.RoomFx, FrameContext = dependencies.FrameContext });
         Death = new NorfairRidleyDeath(dependencies.Lifecycle, _room, dependencies.DeathsAndDrops, _ridleyEncounter, dependencies.RidleyProjectiles, dependencies.RoomFx, dependencies.Audio);
-        _roomStatus = dependencies.RoomStatus;
+        _doorPassage = dependencies.DoorPassage;
     }
 
     /// <summary>
@@ -55,7 +56,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// frame.
     /// </summary>
     private void RunNorfairRidleyMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SamusState samus,
         GameplayAction controllerInput,
         RoomLevelData level,
@@ -63,32 +64,32 @@ internal sealed class RidleyBehavior : IEnemySpecies
         SamusBombProjectileSystem sharedProjectiles,
         Position16<RoomPixels> camera = default)
     {
-        RidleyEnemyState state = _ridleyEncounter.RequireNorfairRidley(slot);
+        RidleyEnemyState state = _ridleyEncounter.RequireNorfairRidley(place);
         state.HurtMovementClamp = Math.Max(0, state.HurtMovementClamp - 4);
 
-        RidleyInteractions.UpdateNorfairRidleyIntangibility(slot, state, camera);
+        RidleyInteractions.UpdateNorfairRidleyIntangibility(place, state, camera);
         NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
 
-        RunNorfairRidleyPhase(slot, state, samus, controllerInput, level);
+        RunNorfairRidleyPhase(place, state, samus, controllerInput, level);
 
         if (state.MovementAnimationEnabled)
         {
-            CeresRidleyHits.UpdateRidleyHurtFlash(slot, state, slot.FrameCounter);
-            _ceresRidleyBehavior.Flight.IntegrateRidleyMovement(slot, state);
+            CeresRidleyHits.UpdateRidleyHurtFlash(place, state, place.FrameCounter);
+            _ceresRidleyBehavior.Flight.IntegrateRidleyMovement(place, state);
             CeresRidleyFlight.TickRidleyWingAnimation(state);
-            _ridleyTail.TickRidleyTail(slot, state, samus);
-            _ridleyTail.ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
+            _ridleyTail.TickRidleyTail(place, state, samus);
+            _ridleyTail.ResolveRidleyTailProjectileHits(place, state, samusProjectiles);
             // Main places carried Samus after body/tail movement.
             if (state.GrabState != RidleyGrabState.Released)
-                NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
+                NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(place, state, samus);
         }
 
-        RidleyInteractions.UpdateNorfairRidleyHealthBand(slot, state);
+        RidleyInteractions.UpdateNorfairRidleyHealthBand(place, state);
     }
 
     /// <summary>Runs the current Norfair reveal, flight, swoop, wall sweep, pogo, grab or death phase.</summary>
     internal void RunNorfairRidleyPhase(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         RidleyEnemyState state,
         SamusState samus,
         GameplayAction controllerInput,
@@ -97,7 +98,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         switch (state.Phase)
         {
             case RidleyPhase.WaitForDoorTransition:
-                if (_roomStatus.EnemyDoorTransitionActive)
+                if (_doorPassage.IsUnderWay)
                     return;
                 state.Phase = RidleyPhase.InitialDelay;
                 state.PhaseTimer = 170;
@@ -113,20 +114,20 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.FadeInBody:
-                _ceresRidleyBehavior.FadeIn.TickBodyFadeIn(slot, state);
+                _ceresRidleyBehavior.FadeIn.TickBodyFadeIn(place, state);
                 return;
 
             case RidleyPhase.WaitBeforeRoar:
                 if (--state.PhaseTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
+                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.OpeningRoar);
                     state.PhaseTimer = 0;
                     state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }
                 return;
 
             case RidleyPhase.WaitBeforeLiftoff:
-                Combat.TickNorfairRidleyArenaReveal(slot, state);
+                Combat.TickNorfairRidleyArenaReveal(place, state);
                 return;
 
             case RidleyPhase.ClearVelocity:
@@ -134,38 +135,38 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.NorfairEnterArena:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(64, 256), divisor: 2);
-                if (CeresRidleyFlight.IsWithinRidleyRectangle(slot, new(64, 256), new(8, 8)))
+                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state, new Position16<RoomPixels>(64, 256), divisor: 2);
+                if (CeresRidleyFlight.IsWithinRidleyRectangle(place, new(64, 256), new(8, 8)))
                 {
                     state.FightMode = RidleyFightMode.Fighting;
                     state.Phase = RidleyPhase.NorfairSelectAttack;
-                    SelectNorfairRidleyAttack(slot, state, samus, controllerInput, level);
+                    SelectNorfairRidleyAttack(place, state, samus, controllerInput, level);
                 }
                 return;
 
             case RidleyPhase.NorfairSelectAttack:
-                SelectNorfairRidleyAttack(slot, state, samus, controllerInput, level);
+                SelectNorfairRidleyAttack(place, state, samus, controllerInput, level);
                 return;
 
             case RidleyPhase.NorfairHoverSetup:
                 state.Phase = RidleyPhase.NorfairHover;
                 state.PhaseTimer = 128;
-                NorfairRidleyCombat.TickNorfairRidleyHover(slot, state);
+                NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
                 return;
 
             case RidleyPhase.NorfairHover:
-                NorfairRidleyCombat.TickNorfairRidleyHover(slot, state);
+                NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
                 return;
 
             case RidleyPhase.NorfairSwoopSetup:
                 state.Phase = RidleyPhase.NorfairSwoopMoveToStart;
                 state.SwoopPhaseTimer = 10;
                 state.SwoopAngleAccumulator = RotationAngle.Zero;
-                NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(slot, state);
+                NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
                 return;
 
             case RidleyPhase.NorfairSwoopMoveToStart:
-                NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(slot, state);
+                NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
                 return;
 
             case RidleyPhase.NorfairSwoopAimDown:
@@ -210,7 +211,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                         RidleyPhase.NorfairSwoopRecover,
                         32))
                 {
-                    NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(slot, state);
+                    NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(place, state);
                 }
                 return;
 
@@ -231,27 +232,27 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.TailExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Phase = RidleyPhase.NorfairSweepToWallBehind;
                 state.PhaseTimer = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + 32;
-                Combat.TickNorfairRidleyWallSweep(slot, state, samus, RidleyWallSweepTarget.WallBehind);
+                Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
             case RidleyPhase.NorfairSweepToWallBehind:
-                Combat.TickNorfairRidleyWallSweep(slot, state, samus, RidleyWallSweepTarget.WallBehind);
+                Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
             case RidleyPhase.NorfairSweepToWallAhead:
-                Combat.TickNorfairRidleyWallSweep(slot, state, samus, RidleyWallSweepTarget.WallAhead);
+                Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallAhead);
                 return;
 
             case RidleyPhase.NorfairPogoMoveToSide:
-                Combat.TickNorfairRidleyPogoMoveToSide(slot, state, samus);
+                Combat.TickNorfairRidleyPogoMoveToSide(place, state, samus);
                 return;
 
             case RidleyPhase.NorfairPogoMoveToHeight:
-                Combat.TickNorfairRidleyPogoMoveToHeight(slot, state, samus);
+                Combat.TickNorfairRidleyPogoMoveToHeight(place, state, samus);
                 return;
 
             case RidleyPhase.NorfairPogoFall:
-                Combat.TickNorfairRidleyPogoFall(slot, state, samus, level);
+                Combat.TickNorfairRidleyPogoFall(place, state, samus, level);
                 return;
 
             case RidleyPhase.NorfairPogoRise:
@@ -259,19 +260,19 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.NorfairGrabApproach:
-                Combat.TickNorfairRidleyGrabApproach(slot, state, samus);
+                Combat.TickNorfairRidleyGrabApproach(place, state, samus);
                 return;
 
             case RidleyPhase.NorfairPowerBombDodge:
-                Combat.TickNorfairRidleyPowerBombDodge(slot, state);
+                Combat.TickNorfairRidleyPowerBombDodge(place, state);
                 return;
 
             case RidleyPhase.NorfairCarrySetup:
-                NorfairRidleyCombat.BeginNorfairRidleyCarry(slot, state);
+                NorfairRidleyCombat.BeginNorfairRidleyCarry(place, state);
                 return;
 
             case RidleyPhase.NorfairCarryMoveToAnchor:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 16);
+                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state, state.Target, 16);
                 if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
                 {
                     state.Phase = RidleyPhase.NorfairCarryRise;
@@ -289,7 +290,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     state.PhaseTimer = 64;
                 }
                 else
-                    NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target.WithY(256), 16);
+                    NorfairRidleyMovement.MoveNorfairRidleyToward(place, state, state.Target.WithY(256), 16);
                 return;
 
             case RidleyPhase.NorfairCarryRelease:
@@ -302,24 +303,24 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 else
                 {
                     NorfairRidleyMovement.MoveNorfairRidleyToward(
-                        slot, state, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.FacingDirection), 224), 16);
+                        place, state, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.FacingDirection), 224), 16);
                 }
                 return;
 
             case RidleyPhase.NorfairMoveToDeathSpot:
-                NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot(slot, state);
+                NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot(place, state);
                 return;
 
             case RidleyPhase.NorfairDeathRoar:
-                Death.TickNorfairRidleyDeathRoar(slot, state);
+                Death.TickNorfairRidleyDeathRoar(place, state);
                 return;
 
             case RidleyPhase.NorfairDeathExplosions:
-                Death.TickNorfairRidleyDeathExplosions(slot, state, samus);
+                Death.TickNorfairRidleyDeathExplosions(place, state, samus);
                 return;
 
             case RidleyPhase.NorfairDeathBreakup:
-                Death.BeginNorfairRidleyBreakup(slot, state);
+                Death.BeginNorfairRidleyBreakup(place, state);
                 return;
 
             case RidleyPhase.NorfairDeathWait:
@@ -327,7 +328,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.NorfairDeathFinish:
-                Death.TickNorfairRidleyDeathFinish(slot, state);
+                Death.TickNorfairRidleyDeathFinish(place, state);
                 return;
 
             case RidleyPhase.NorfairDeathComplete:
@@ -364,7 +365,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>Chooses an attack situation by Samus's movement, Ridley's health and Samus's height in the arena.</summary>
     internal void SelectNorfairRidleyAttack(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         RidleyEnemyState state,
         SamusState samus,
         GameplayAction controllerInput,
@@ -375,12 +376,12 @@ internal sealed class RidleyBehavior : IEnemySpecies
         {
             situation = RidleyAttackSituation.SpinJumping;
         }
-        else if (slot.Health == 0)
+        else if (place.Health == 0)
         {
             situation = RidleyAttackSituation.ZeroHealth;
             state.ZeroHealthLungeCount++;
         }
-        else if (slot.Health < 14400)
+        else if (place.Health < 14400)
         {
             situation = RidleyAttackSituation.Ordinary;
         }
@@ -402,13 +403,13 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         // The choice runs the chosen phase at once. Retain that same-frame setup
         // so timers, animation changes, and velocity all begin on the selected frame.
-        RunNorfairRidleyPhase(slot, state, samus, controllerInput, level);
+        RunNorfairRidleyPhase(place, state, samus, controllerInput, level);
     }
 
     /// <summary>Runs Lower Norfair Ridley's main AI.</summary>
-    internal void RunRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
+    internal void RunRidleyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
         RunNorfairRidleyMain(
-            slot,
+            place,
             frame.Samus,
             frame.ControllerInput,
             frame.Level,
@@ -422,7 +423,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// remain active on every hurt frame.
     /// </summary>
     internal void RunNorfairRidleyHurt(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         SamusState samus,
         GameplayAction controllerInput,
         RoomLevelData level,
@@ -457,9 +458,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Adds Ridley's hurt behaviour for the post-hit AI window.</summary>
     /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement and phase work runs only
     /// on even actor frames, while tail projectile armor and hurt flashes remain live on every frame.</remarks>
-    internal void RunRidleyHurt(RoomEnemySlot slot, RoomEnemyFrame frame) =>
+    internal void RunRidleyHurt(RoomEnemyPlace place, RoomEnemyFrame frame) =>
         RunNorfairRidleyHurt(
-            slot,
+            place,
             frame.Samus,
             frame.ControllerInput,
             frame.Level,

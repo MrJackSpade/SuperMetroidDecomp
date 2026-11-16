@@ -115,7 +115,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             foreach (int color in GameplayShownColours.ComparedIn(runtime))
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
                     words.Add(shown[color].ToWord());
-            foreach (var actor in runtime.Enemies.SlotTable.Slots)
+            foreach (var actor in runtime.Enemies.Places.InUpdateOrder)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
                     actor.AnimationClock.Hold.RawValue]);
@@ -296,7 +296,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             VerificationAssertions.AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.Clock.ShortCounter,
                 $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", GameStateNumberCodec.Encode(game.GameState), NativeSnapshotMemory.GameState);
-            Check("Enemy door gate", runtime.Enemies.RoomStatus.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
+            Check("Enemy door gate", runtime.DoorTransition.Passage.IsUnderWay ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
             // Native door-header loading publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending
             // door while ActiveRoom still owns the source room's loaded data.
@@ -498,11 +498,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     VerificationAssertions.AssertEqual(NativeSnapshotMemory.HandleAnimTiles, W(NativeSnapshotMemory.DoorFunction), "deferred destination owners reach native completed-loading boundary");
                 Check("RNG", runtime.System.RandomNumber, NativeSnapshotMemory.Random);
             }
-            foreach (var actor in runtime.Enemies.SlotTable.Slots)
+            foreach (var actor in runtime.Enemies.Places.InUpdateOrder)
             {
                 if (deferLoadingOwners) continue;
-                int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
-                string owner = $"Enemy {actor.SlotIndex}";
+                int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.Ordinal);
+                string owner = $"Enemy {actor.Ordinal}";
                 Check(owner + " identity", actor.AwaitsRespawn
                     ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.AwaitingRespawnHeader
                     : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
@@ -547,7 +547,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 W(NativeSnapshotMemory.EnemyBase) == SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Ridley))
             {
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
-                if (runtime.Enemies.SlotTable.Slots[0].Contact.HasAny(EnemyContact.IgnoresSamus) != expectedGate)
+                if (runtime.Enemies.Places.InUpdateOrder[0].Contact.HasAny(EnemyContact.IgnoresSamus) != expectedGate)
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 // Ridley's AI function is an identity (#1413): the native routine word is translated and the identities compared.
                 ushort nativeFunctionWord = W(NativeSnapshotMemory.RidleyFunction);
@@ -990,7 +990,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // death's pickup is its explosion's.
                     KilledEnemy killed = projectile.KilledEnemy;
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
-                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.SlotIndex ?? 0) | (killed.Respawns ? 0x8000 : 0),
+                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.Ordinal ?? 0) | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);
@@ -1052,10 +1052,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
     {
         if (contact is null)
             return null;
-        foreach (RoomEnemySlot place in enemies.SlotTable.Slots)
+        foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder)
         {
             if (ReferenceEquals(place, contact))
-                return place.SlotIndex;
+                return place.Ordinal;
         }
         throw new InvalidDataException("Samus's solid-enemy contact names an enemy that is not one of the room's places.");
     }

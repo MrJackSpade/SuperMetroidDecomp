@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
+    /// <summary>How long a Pirate that reflects a shot stays invincible, in updates.</summary>
+    internal const int ReflectInvincibility = 10;
+
     /// <summary>
     /// The Pirates' hitbox sets, which components name directly; a set that repeats another's rectangles stays its
     /// own.

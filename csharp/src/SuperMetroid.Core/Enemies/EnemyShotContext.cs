@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="HealthBefore">Enemy health after impact and before vulnerability damage (set for the later stages).</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyShotContext(
-    RoomEnemySlot Enemy,
+    RoomEnemyPlace Enemy,
     SamusProjectile Projectile,
     SamusProjectileSystem Projectiles,
     SamusState Samus,

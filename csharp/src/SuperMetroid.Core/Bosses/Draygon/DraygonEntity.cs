@@ -8,61 +8,61 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>One Draygon occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Draygon species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
+internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (DraygonPartDefinitions.Parts[Slot.DefinitionId])
+        switch (DraygonPartDefinitions.Parts[Place.DefinitionId])
         {
             case DraygonPart.Body:
-                species.Parts.InitializeDraygonBody(Slot);
+                species.Parts.InitializeDraygonBody(Place);
                 break;
             case DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms:
-                species.Parts.InitializeDraygonPart(Slot);
+                species.Parts.InitializeDraygonPart(Place);
                 break;
             default:
-                throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Draygon entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (DraygonPartDefinitions.Parts[Slot.DefinitionId])
+        switch (DraygonPartDefinitions.Parts[Place.DefinitionId])
         {
             case DraygonPart.Body:
-                species.RunDraygonBodyMainAi(Slot, frame);
+                species.RunDraygonBodyMainAi(Place, frame);
                 break;
             case DraygonPart.Eye:
-                species.RunDraygonEyeMainAi(Slot, frame);
+                species.RunDraygonEyeMainAi(Place, frame);
                 break;
             case DraygonPart.Tail or DraygonPart.Arms:
-                species.RunDraygonTailMainAi(Slot, frame);
+                species.RunDraygonTailMainAi(Place, frame);
                 break;
             default:
-                throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Draygon entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceDraygonTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceDraygonTypedAnimation(Place, context);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        return DraygonCombat.FindDraygonHitboxReaction(Slot, probe, out reaction);
+        return DraygonCombat.FindDraygonHitboxReaction(Place, probe, out reaction);
     }
 
     /// <summary>Whether the occupant is Draygon's body, the one part with reactions of its own.</summary>
-    private bool IsBody => Slot.DefinitionId == EnemyDefinitionId.DraygonBody;
+    private bool IsBody => Place.DefinitionId == EnemyDefinitionId.DraygonBody;
 
     /// <summary>The body's touch reaction, which its definition leaves to it; the other parts name shared ones.</summary>
     public EnemyReaction? SpeciesTouch => IsBody ? DraygonReactions.Touch : null;
@@ -79,7 +79,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     {
         if (!IsBody)
             return base.RunHurt(frame);
-        species.Combat.ApplyDraygonHurt(Slot, species.Combat.RequireCompleteDraygonState(Slot), frame.Samus);
+        species.Combat.ApplyDraygonHurt(Place, species.Combat.RequireCompleteDraygonState(Place), frame.Samus);
         return true;
     }
 
@@ -130,7 +130,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
 
     /// <summary>Only the body's contact and shots meet its own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
+        Place.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>

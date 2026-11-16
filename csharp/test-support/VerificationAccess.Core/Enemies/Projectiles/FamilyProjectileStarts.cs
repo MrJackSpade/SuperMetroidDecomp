@@ -175,7 +175,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustSegment.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
             new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallEnergy),
-        RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacProjectileSegment.LeftFacingUp),
+        RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacSpikeDirection.LeftFacingUp),
         RoomEnemyProjectileKind.NuclearWaffleBody => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial),
         RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Front),
         RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Middle),

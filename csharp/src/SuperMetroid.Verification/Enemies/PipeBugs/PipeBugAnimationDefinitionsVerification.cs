@@ -21,13 +21,13 @@ internal static class PipeBugAnimationDefinitionsVerification
         foreach (bool strong in new[] { false, true })
         {
             var initializedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
-            initializedSlot.Bind(strong
+            RoomEnemyPlace initializedPlace = initializedEnemies.Places.InUpdateOrder[0];
+            initializedPlace.Bind(strong
                 ? EnemyDefinitionId.Zebbo
-                : EnemyDefinitionId.Zeb, initializedSlot.Definition);
-            initializedSlot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
-            initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
-            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
+                : EnemyDefinitionId.Zeb, initializedPlace.Definition);
+            initializedPlace.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
+            initializedPlace.Position = initializedPlace.Position.WithWhole(new(0x0100, 0x0080));
+            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace);
             AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
                     PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
                 (initializedEnemies.BrinstarPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,
@@ -41,20 +41,20 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, selector),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
-                slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
+                var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry).WithAnimationClock(hold: 0x2222);
+                place.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen)
                 {
                     InstalledAnimation = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
                         ? PipeBugAnimationChoices.ShootingWithSameFacing(selector)
                         : PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left),
                 };
-                PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state, selector);
+                PipeBugsBehavior.SelectBrinstarPipeBugAnimation(place, state, selector);
                 AssertEqual(selector, state.InstalledAnimation,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation), state.Playback,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
-                AssertEqual(1, slot.AnimationClock.Hold.RawValue,
+                AssertEqual(1, place.AnimationClock.Hold.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
             }
         }

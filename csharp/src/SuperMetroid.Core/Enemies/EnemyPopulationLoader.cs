@@ -12,17 +12,17 @@ internal sealed class EnemyPopulationLoader
     private readonly EnemyRoomBinding _room;
     /// <summary>Receives the boss identity declared by an initialized population entry.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Holds the room's enemy slots and the extent the population fills.</summary>
-    private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies enemy definitions and runs each slot's initialization AI.</summary>
+    /// <summary>Holds the room's enemy places and the extent the population fills.</summary>
+    private readonly EnemyPlaces _places;
+    /// <summary>Applies enemy definitions and runs each place's initialization AI.</summary>
     private readonly IEnemyLifecycle _lifecycle;
 
-    /// <summary>Binds room artwork, status, slot storage, and the enemy lifecycle for a population load.</summary>
-    internal EnemyPopulationLoader(EnemyRoomBinding room, EnemyRoomStatus roomStatus, EnemySlotTable slotTable, IEnemyLifecycle lifecycle)
+    /// <summary>Binds room artwork, status, place storage, and the enemy lifecycle for a population load.</summary>
+    internal EnemyPopulationLoader(EnemyRoomBinding room, EnemyRoomStatus roomStatus, EnemyPlaces places, IEnemyLifecycle lifecycle)
     {
         _room = room;
         _roomStatus = roomStatus;
-        _slotTable = slotTable;
+        _places = places;
         _lifecycle = lifecycle;
     }
     /// <summary>
@@ -36,34 +36,34 @@ internal sealed class EnemyPopulationLoader
         private set => _room.Session.DeathQuota = value;
     }
 
-    /// <summary>Initializes each population slot, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
+    /// <summary>Initializes each population place, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
     internal void LoadPopulation(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
         EnemySpawnSurroundings surroundings)
     {
         ReadOnlySpan<RoomEnemyPlacement> placements = populationDefinition.Placements.Span;
-        for (int slotIndex = 0; slotIndex < placements.Length; slotIndex++)
+        for (int ordinal = 0; ordinal < placements.Length; ordinal++)
         {
-            RoomEnemyPlacement population = placements[slotIndex];
+            RoomEnemyPlacement population = placements[ordinal];
             EnemyDefinitionId enemy = population.DefinitionId;
-            if (slotIndex == EnemySlotOrder.Capacity)
+            if (ordinal == EnemyPlaceOrder.Capacity)
             {
                 throw new InvalidDataException(
                     $"Enemy population {populationDefinition.Name} has more placements than a room holds enemies.");
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
-            RoomEnemySlot slot = _slotTable.Slots[slotIndex];
-            _lifecycle.InitializeSlotFromDefinition(slot, population, definition);
+            RoomEnemyPlace place = _places.InUpdateOrder[ordinal];
+            _lifecycle.InitializePlaceFromDefinition(place, population, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            _lifecycle.RunInitializationAi(slot, surroundings);
+            _lifecycle.RunInitializationAi(place, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point
             // at its origin meanwhile. An enemy without an animation shows no frame.
-            slot.Frame = slot.Processing.HasAny(EnemyProcessing.Animates)
+            place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
                 ? EnemyFrameId.Empty
                 : null;
 
@@ -74,6 +74,6 @@ internal sealed class EnemyPopulationLoader
         if (placements.IsEmpty)
             return;
         DeathQuota = populationDefinition.DeathQuota;
-        _slotTable.EnemyCount = placements.Length;
+        _places.EnemyCount = placements.Length;
     }
 }

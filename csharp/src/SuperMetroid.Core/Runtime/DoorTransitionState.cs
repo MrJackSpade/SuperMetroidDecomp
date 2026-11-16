@@ -77,9 +77,8 @@ internal sealed class DoorTransitionState
 
         runtime.Hud.EnableMinimapAfterDoorEntry();
         runtime.Player.Samus.Control.LockOutPlayer();
-        runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = true;
-        runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
-        door = runtime.RoomLoader.PendingDoorTransition;
+        runtime.DoorTransition.Passage.Start();
+        door =runtime.RoomLoader.PendingDoorTransition;
         sourceIsolated = runtime.Room.ActiveRoom?.UsesIsolatedDoorTransition
             ?? throw new InvalidOperationException("Door transition requires a source room.");
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
@@ -103,8 +102,6 @@ internal sealed class DoorTransitionState
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 
-        // Derive the door-owned enemy gate for resumed snapshots as well.
-        runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         runtime.Room.LoadedScope.CeresHaze.Step(Phase switch
         {
             DoorTransitionPhase.FadeInDestinationRoom => CeresHazeRoomFade.FadeIn,
@@ -312,10 +309,9 @@ internal sealed class DoorTransitionState
                 if (FadeSteps.Step())
                 {
                     runtime.DoorFade.End();
-                    // The last fade step releases the door's enemy gate after the enemies run.
+                    // The last fade step finishes Samus's passage after the enemies run.
                     // Movement resumes on the following gameplay frame, not this one.
-                    runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = false;
-                    runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = false;
+                    runtime.DoorTransition.Passage.Finish();
                     // Elevator arrival retains the elevator's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     // The elevatube's door setup also installs that lock. The fade

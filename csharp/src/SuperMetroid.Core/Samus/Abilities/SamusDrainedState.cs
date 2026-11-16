@@ -322,7 +322,7 @@ public sealed class SamusDrainedState
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
-            frame: SamusAnimationDelayDefinitions.DrainedStandingLeftAnimation.Start,
+            frame: SamusAnimationFrame.Start,
             timer: 16);
         Phase = DrainedSamusPhase.Standing;
         samus.CommitPoseHistory();
@@ -346,10 +346,9 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // These are frames of the left-facing drained animations, which land where the game's layout of the asymmetrical
-        // drained animations puts them. In particular, the crouch's release frame is the value its held crouch's repeat
-        // carries rather than a frame of its own; the game intentionally draws it until the next animation decrement
-        // advances it.
+        // These are named places in the left-facing drained animations; where each lands in the animation Samus plays is an
+        // installed outcome (#2048). The crouch's release place is the one its held crouch's repeat carries rather than a
+        // frame of its own, and it is drawn until the next animation step advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)

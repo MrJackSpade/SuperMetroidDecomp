@@ -15,17 +15,21 @@ internal sealed class FallingSparksBehavior
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Allocates the periodic effect-actor trail.</summary>
     private readonly RoomEffectActors _effectActors;
+    /// <summary>How far a falling spark's floor probe creeps it down before it falls.</summary>
+    private readonly FallingSparkFloorProbe _floorProbe;
 
-    /// <summary>Binds room RNG, projectile allocation, and effect-actor trail ownership.</summary>
-    internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEffectActors effectActors)
+    /// <summary>Binds room RNG, projectile allocation, effect-actor trail ownership and the floor probe's creep.</summary>
+    internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEffectActors effectActors,
+        FallingSparkFloorProbe floorProbe)
     {
         _room = room;
         _projectiles = projectiles;
         _effectActors = effectActors;
+        _floorProbe = floorProbe;
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
-    internal void SpawnFallingSpark(RoomEnemySlot source)
+    internal void SpawnFallingSpark(RoomEnemyPlace source)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -70,15 +74,13 @@ internal sealed class FallingSparksBehavior
         RoomLevelData level,
         int frameCycle)
     {
-        // A falling spark first moves through the generic collision helper. The helper's accepted movement is
-        // *additional* to the spark's own 1/65536-pixel movement below; omitting it shifts the floor-contact frame.
+        // A falling spark first looks for the floor: the probe creeps it down (FallingSparkFloorProbe) through the
+        // enemy projectiles' block collision, slope reactions included, and the creep stays on top of the spark's own
+        // fall below.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         if (spark.VerticalSpeed.WholePixels >= 0)
         {
-            // The enemy-projectile vertical mover, slope reactions included, reads the spark's whole speed in
-            // pixels, zero or more on this branch, as that many 256ths of a pixel an update.
-            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical,
-                    SignedEightEight.FromTwoHundredFiftySixthsOfPixel(spark.VerticalSpeed.WholePixels)))
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, _floorProbe.CreepFor(spark.VerticalSpeed)))
             {
                 BeginFallingSparkFloorImpact(projectile);
                 return;

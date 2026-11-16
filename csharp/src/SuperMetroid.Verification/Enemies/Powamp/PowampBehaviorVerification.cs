@@ -22,12 +22,12 @@ internal static class PowampBehaviorVerification
     internal static void VerifyPowampBehavior(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         enemies.PowampBehavior.InitializePowamp(balloon);
-        RoomEnemySlot body = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));

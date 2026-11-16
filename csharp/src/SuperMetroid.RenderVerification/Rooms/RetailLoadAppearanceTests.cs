@@ -23,7 +23,7 @@ internal static class RetailLoadAppearanceTests
             var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create());
-            saves.SaveSlot(0, save);
+            saves.SaveSlot(SaveSlot.A, save);
             return saves;
         }
         var legacy = InstalledFixtures.CreateGame(Saves());

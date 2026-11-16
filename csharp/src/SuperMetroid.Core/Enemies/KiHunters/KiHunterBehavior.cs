@@ -16,7 +16,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. KiHunterPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KiHunterEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new KiHunterEntity(this, place, common);
 
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;
@@ -27,49 +27,49 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues the acid-spit sound under the enemy queue limit.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>The room's enemy places, where a body and its wings find each other when they are placed.</summary>
-    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPlaces _places;
     /// <summary>The wings each body found when it was placed, which its room lists right after it.</summary>
-    private readonly EnemyPartLinks<RoomEnemySlot> _wingsOfBody = new();
+    private readonly EnemyPartLinks<RoomEnemyPlace> _wingsOfBody = new();
     /// <summary>The body each pair of wings found when it was placed, which its room lists right before them.</summary>
-    private readonly EnemyPartLinks<RoomEnemySlot> _bodyOfWings = new();
+    private readonly EnemyPartLinks<RoomEnemyPlace> _bodyOfWings = new();
     /// <summary>
     /// The settings of the wings each body's wings were placed with, which name the health at which the body loses them;
     /// a body reads them after its wings were deleted as set up, as a wingless Ki-Hunter's are.
     /// </summary>
     private readonly EnemyPartLinks<KiHunterWingsSpawnSettings> _wingSettingsOfBody = new();
 
-    /// <summary>Connects Ki-Hunter AI to room collision, projectile, audio and slot services.</summary>
-    internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable)
+    /// <summary>Connects Ki-Hunter AI to room collision, projectile, audio and place services.</summary>
+    internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyPlaces places)
     {
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
         _audio = audio;
-        _slotTable = slotTable;
+        _places = places;
     }
 
     /// <summary>
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
     /// the current direction, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private KiHunterSegment? ApplyKiHunterCue(RoomEnemySlot slot, KiHunterCue cue)
+    private KiHunterSegment? ApplyKiHunterCue(RoomEnemyPlace place, KiHunterCue cue)
     {
         switch (cue.Kind)
         {
             case KiHunterCueKind.ReturnToFlying:
                 // The cue returns the body's flying animation while separately restarting the attached wings.
-                return ReturnKiHunterToSteadyAnimation(slot);
+                return ReturnKiHunterToSteadyAnimation(place);
             case KiHunterCueKind.StartHop:
-                StartKiHunterGroundJumpFromCue(slot.RequireSpeciesState<KiHunterBodyState>());
+                StartKiHunterGroundJumpFromCue(place.RequireSpeciesState<KiHunterBodyState>());
                 return null;
             case KiHunterCueKind.StartWinglessThinking:
-                StartKiHunterGroundWaitFromCue(slot.RequireSpeciesState<KiHunterBodyState>());
+                StartKiHunterGroundWaitFromCue(place.RequireSpeciesState<KiHunterBodyState>());
                 return null;
             case KiHunterCueKind.SpitLeft:
-                SpawnKiHunterAcidFromCue(slot, direction: HorizontalDirection.Left);
+                SpawnKiHunterAcidFromCue(place, direction: HorizontalDirection.Left);
                 return null;
             case KiHunterCueKind.SpitRight:
-                SpawnKiHunterAcidFromCue(slot, direction: HorizontalDirection.Right);
+                SpawnKiHunterAcidFromCue(place, direction: HorizontalDirection.Right);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(KiHunterCueKind)} {cue.Kind}.");
@@ -84,7 +84,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KiHunterGroundAttackDistance = 96;
 
 
-    /// <summary>The detached wing's step along the speed curve: a mark and a half per update while it slows, and per step while its reset is found.</summary>
+    /// <summary>The detached wing's step along the speed curve while it slows: a mark and a half per update.</summary>
     private static readonly QuadraticSpeedCurvePlace DetachedSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
     /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
     private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
@@ -98,9 +98,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
-    internal void InitializeKiHunter(RoomEnemySlot body)
+    internal void InitializeKiHunter(RoomEnemyPlace body)
     {
-        _wingsOfBody.Place(body, _slotTable.ListedAfter(body, 1));
+        _wingsOfBody.Place(body, _places.ListedAfter(body, 1));
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol);
         body.SetSpeciesState(state);
 
@@ -125,10 +125,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Ki-Hunter's wings, which find their body listed right before them.</summary>
-    internal void InitializeKiHunterWings(RoomEnemySlot wings)
+    internal void InitializeKiHunterWings(RoomEnemyPlace wings)
     {
-        _bodyOfWings.Place(wings, _slotTable.ListedBefore(wings, 1));
-        RoomEnemySlot body = GetKiHunterBody(wings);
+        _bodyOfWings.Place(wings, _places.ListedBefore(wings, 1));
+        RoomEnemyPlace body = GetKiHunterBody(wings);
         _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
         var state = new KiHunterWingState(KiHunterWingAction.FollowBody);
         wings.SetSpeciesState(state);
@@ -142,7 +142,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the body's main behaviour.</summary>
     private void RunKiHunterMain(
-        RoomEnemySlot actor,
+        RoomEnemyPlace actor,
         KiHunterBodyState state,
         SamusState samus,
         RoomLevelData level)
@@ -182,7 +182,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the wings' main behaviour: following the body, or flying off once detached.</summary>
-    private void RunKiHunterWingMain(RoomEnemySlot wings, KiHunterWingState state, RoomLevelData level)
+    private void RunKiHunterWingMain(RoomEnemyPlace wings, KiHunterWingState state, RoomLevelData level)
     {
         switch (state.Action)
         {
@@ -200,7 +200,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Flies the patrol.</summary>
     private void RunKiHunterFlyingPatrol(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         SamusState samus,
         RoomLevelData level)
@@ -271,7 +271,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the elliptic diving arc.</summary>
     private void RunKiHunterSwoop(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         RoomLevelData level)
     {
@@ -334,7 +334,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the collision escape leg.</summary>
     private void RunKiHunterSwoopRecovery(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         RoomLevelData level)
     {
@@ -360,7 +360,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Falls under gravity after losing the wings.</summary>
     private void RunKiHunterFalling(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         RoomLevelData level)
     {
@@ -378,7 +378,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Sets up a grounded jump.</summary>
     private void StartKiHunterGroundJump(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         SamusState samus)
     {
@@ -398,7 +398,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves through an airborne hop.</summary>
     private void RunKiHunterGroundJump(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         RoomLevelData level)
     {
@@ -441,7 +441,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits after landing and decides what to do next.</summary>
     private static void RunKiHunterGroundWait(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         SamusState samus)
     {
@@ -456,7 +456,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Selects the left or right acid-spit animation.</summary>
     private static void SelectKiHunterAcidSpit(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         KiHunterBodyState state,
         SamusState samus)
     {
@@ -471,15 +471,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves attached wings with the body.</summary>
-    private void FollowKiHunterBody(RoomEnemySlot wings)
+    private void FollowKiHunterBody(RoomEnemyPlace wings)
     {
-        RoomEnemySlot body = GetKiHunterBody(wings);
+        RoomEnemyPlace body = GetKiHunterBody(wings);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
     /// <summary>Runs the detached wings' behaviour.</summary>
     private void RunDetachedKiHunterWing(
-        RoomEnemySlot wings,
+        RoomEnemyPlace wings,
         KiHunterWingState state,
         RoomLevelData level)
     {
@@ -498,7 +498,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the detached wings' orbit, including its odd authored speed read.</summary>
-    internal static void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterWingState state)
+    internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
             state.DetachedSpeedCurvePlace,
@@ -517,7 +517,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the detached wings' collision-bearing arc.</summary>
     private void RunDetachedKiHunterWingCollisionArc(
-        RoomEnemySlot wings,
+        RoomEnemyPlace wings,
         KiHunterWingState state,
         RoomLevelData level)
     {
@@ -556,9 +556,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body mirrors freeze/hurt timing into its wing until health reaches the wing's
     /// detach health; that exact threshold—not an invented constant—starts detachment.
     /// </summary>
-    private void ResolveKiHunterShotAfterCommon(RoomEnemySlot body)
+    private void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body)
     {
-        RoomEnemySlot wings = GetKiHunterWings(body);
+        RoomEnemyPlace wings = GetKiHunterWings(body);
         bool wingsInPlace = WingsInPlace(wings) is not null;
         if (body.Health == 0)
         {
@@ -598,10 +598,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes all fields the wing detachment writes.</summary>
-    private static void DetachKiHunterWings(RoomEnemySlot wings, KiHunterWingState state)
+    private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.SavedWingPosition = wings.Position.Whole;
-        CalculateKiHunterDetachedSpeedReset(state);
+        state.DetachedSpeedReset = KiHunterMotionDefinitions.DetachedWingClimb.StartPlace;
 
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
@@ -619,25 +619,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Processing = wings.Processing.With(EnemyProcessing.OffScreen);
     }
 
-    /// <summary>
-    /// Walks the quadratic speed curve until the detached wing's speed sum reaches its threshold. The reset cannot run
-    /// past the curve: reading its speed rejects a place past the curve's last mark.
-    /// </summary>
-    private static void CalculateKiHunterDetachedSpeedReset(KiHunterWingState state)
-    {
-        state.DetachedSpeedReset = QuadraticSpeedCurvePlace.Start;
-        state.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        do
-        {
-            state.DetachedSpeedReset += DetachedSpeedStep;
-            state.AccumulateDetachedSpeed(state.DetachedSpeedReset.Speed.CoarseToward(EnemySpeedSign.Positive));
-        }
-        while (WrappingCounter.IsBehind(state.DetachedSpeedAccumulator, KiHunterMotionDefinitions.DetachedSpeedThreshold));
-    }
-
     /// <summary>Centers the detached wing's orbit at its current position with a negative quarter-turn seed.</summary>
     private static void BeginDetachedKiHunterWingOrbit(
-        RoomEnemySlot wings,
+        RoomEnemyPlace wings,
         KiHunterWingState state)
     {
         state.WingMovement = KiHunterWingMovement.Orbit;
@@ -648,7 +632,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Seeds the detached wing's collision-bearing fall arc at its current position.</summary>
     private static void BeginDetachedKiHunterWingCollisionArc(
-        RoomEnemySlot wings,
+        RoomEnemyPlace wings,
         KiHunterWingState state)
     {
         state.WingMovement = KiHunterWingMovement.FallingCollisionArc;
@@ -684,14 +668,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;
 
     /// <summary>Animation cue: return to steady art and sync attached wings.</summary>
-    private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemySlot body)
+    private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemyPlace body)
     {
         KiHunterBodyState state = body.RequireSpeciesState<KiHunterBodyState>();
         bool movingRight = state.Velocity.X.WholePixels >= 0;
         KiHunterSegment wingSegment = movingRight
             ? KiHunterSegment.WingsRight
             : KiHunterSegment.WingsLeft;
-        RoomEnemySlot wings = GetKiHunterWings(body);
+        RoomEnemyPlace wings = GetKiHunterWings(body);
         if (WingsInPlace(wings) is { Action: KiHunterWingAction.FollowBody } wingState)
             StartKiHunterAnimation(wings, wingState, wingSegment);
         return movingRight
@@ -708,7 +692,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = KiHunterAction.GroundWait;
 
     /// <summary>Emits the acid projectile and sound, then starts the 24-frame spit wait.</summary>
-    private void SpawnKiHunterAcidFromCue(RoomEnemySlot body, HorizontalDirection direction)
+    private void SpawnKiHunterAcidFromCue(RoomEnemyPlace body, HorizontalDirection direction)
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
@@ -716,7 +700,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>
-    private void SetKiHunterPairFacing(RoomEnemySlot body, bool movingRight)
+    private void SetKiHunterPairFacing(RoomEnemyPlace body, bool movingRight)
     {
         StartKiHunterAnimation(
             body,
@@ -724,7 +708,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             movingRight
                 ? KiHunterSegment.FlyingRight
                 : KiHunterSegment.FlyingLeft);
-        RoomEnemySlot wings = GetKiHunterWings(body);
+        RoomEnemyPlace wings = GetKiHunterWings(body);
         if (WingsInPlace(wings) is { Action: KiHunterWingAction.FollowBody } wingState)
         {
             StartKiHunterAnimation(
@@ -741,24 +725,24 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// wings are deleted as they are set up, and detached wings are deleted where they land. A body whose wings are
     /// gone has none to keep in step with its flight.
     /// </summary>
-    private static KiHunterWingState? WingsInPlace(RoomEnemySlot wings) => wings.SpeciesState<KiHunterWingState>();
+    private static KiHunterWingState? WingsInPlace(RoomEnemyPlace wings) => wings.SpeciesState<KiHunterWingState>();
 
     /// <summary>
     /// The wings the body found when it was placed, which its room lists right after it. They may already be gone, as a
     /// wingless Ki-Hunter's are from the start, and the body's behaviour asks <see cref="WingsInPlace"/> before it
     /// touches them.
     /// </summary>
-    private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body) => _wingsOfBody.Of(body);
+    private RoomEnemyPlace GetKiHunterWings(RoomEnemyPlace body) => _wingsOfBody.Of(body);
 
     /// <summary>The body the wings found when they were placed, which their room lists right before them.</summary>
-    private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings) => _bodyOfWings.Of(wings);
+    private RoomEnemyPlace GetKiHunterBody(RoomEnemyPlace wings) => _bodyOfWings.Of(wings);
 
     /// <summary>Restarts a body animation from its first step.</summary>
-    private static void StartKiHunterAnimation(RoomEnemySlot body, KiHunterBodyState state, KiHunterSegment segment) =>
+    private static void StartKiHunterAnimation(RoomEnemyPlace body, KiHunterBodyState state, KiHunterSegment segment) =>
         state.Playback = EnemyAnimationPlayback.Start(body, KiHunterAnimations.StartingWith(segment));
 
     /// <summary>Restarts a wing animation from its first step.</summary>
-    private static void StartKiHunterAnimation(RoomEnemySlot wings, KiHunterWingState state, KiHunterSegment segment) =>
+    private static void StartKiHunterAnimation(RoomEnemyPlace wings, KiHunterWingState state, KiHunterSegment segment) =>
         state.Playback = EnemyAnimationPlayback.Start(wings, KiHunterAnimations.StartingWith(segment));
 
     /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
@@ -823,27 +807,27 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Ki-Hunter's main AI.</summary>
-    internal void RunKiHunterMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunKiHunterMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        if (slot.SpeciesState<KiHunterWingState>() is { } wings)
-            RunKiHunterWingMain(slot, wings, frame.Level);
+        if (place.SpeciesState<KiHunterWingState>() is { } wings)
+            RunKiHunterWingMain(place, wings, frame.Level);
         else
-            RunKiHunterMain(slot, slot.RequireSpeciesState<KiHunterBodyState>(), frame.Samus, frame.Level);
+            RunKiHunterMain(place, place.RequireSpeciesState<KiHunterBodyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances the Ki-Hunter body's or wings' typed animation.</summary>
-    internal void AdvanceKiHunterTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    internal void AdvanceKiHunterTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
-        if (slot.SpeciesState<KiHunterWingState>() is not null)
+        if (place.SpeciesState<KiHunterWingState>() is not null)
         {
-            EnemyAnimationPlayback.Advance(slot, KiHunterAnimations.Segments,
+            EnemyAnimationPlayback.Advance(place, KiHunterAnimations.Segments,
                 static (KiHunterWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
                 (state, cue) => throw new InvalidOperationException($"A Ki-Hunter wing animation raised {cue}."));
             return;
         }
-        EnemyAnimationPlayback.Advance(slot, KiHunterAnimations.Segments,
+        EnemyAnimationPlayback.Advance(place, KiHunterAnimations.Segments,
             static (KiHunterBodyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyKiHunterCue(slot, cue) is { } target
+            (state, cue) => ApplyKiHunterCue(place, cue) is { } target
                 ? new AnimationContinuation<KiHunterSegment>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
     }
@@ -864,7 +848,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns an acid spit from its definition and initializer.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    internal void SpawnKiHunterAcidSpit(RoomEnemySlot body, bool movingRight)
+    internal void SpawnKiHunterAcidSpit(RoomEnemyPlace body, bool movingRight)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

@@ -19,13 +19,13 @@ internal static class MetroidBehaviorVerification
     internal static void VerifyMetroidBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Metroid, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         // The room spawn primes the instruction timer before the species initializer runs.
-        slot.AnimationClock.StepOnNextUpdate();
-        slot.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(slot);
+        place.AnimationClock.StepOnNextUpdate();
+        place.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
+        enemies.MetroidBehavior.InitializeMetroid(place);
         MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
         AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation),
             state.Playback, "the Metroid starts chasing");
@@ -35,9 +35,9 @@ internal static class MetroidBehaviorVerification
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };
             state.Playback = new(MetroidAnimations.StartingWith(loop), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
+            place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Segments, loop, MetroidFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Segments, loop)), $"Metroid {loop} loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Segments, loop)), $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
             AssertTrue(enemies.Audio.LatestSound is not null, $"Metroid {loop} loop plays its sound");
         }

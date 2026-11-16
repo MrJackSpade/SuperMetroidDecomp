@@ -29,8 +29,8 @@ internal static class ShitroidScrollPairVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
-        RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
-            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
+        RoomEnemyPlace shitroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
+            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;

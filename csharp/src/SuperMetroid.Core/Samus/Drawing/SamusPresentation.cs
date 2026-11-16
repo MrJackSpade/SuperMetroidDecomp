@@ -48,12 +48,12 @@ internal sealed class SamusPresentation
     public static void InitializeAnimation(SamusState samus) => InitializeAnimation(samus, SamusAnimationFrame.Start);
 
     /// <summary>
-    /// Starts the pose's animation on <paramref name="initialFrame"/>, a frame written for another animation landing where
-    /// the game's layout puts it in the pose's (<see cref="SamusAnimationDelays.Land"/>), and seeds the timer as
+    /// Starts the pose's animation on <paramref name="initialFrame"/>, a place named for another animation landing on the
+    /// frame the import decoded for it in the pose's (<see cref="SamusAnimationDelays.Land"/>), and seeds the timer as
     /// <see cref="InitializeAnimation(SamusState)"/> does.
     /// </summary>
     internal static void InitializeAnimation(SamusState samus, SamusAnimationPlace initialFrame) =>
-        InitializeAnimation(samus, SamusAnimationDelays.Land(samus.Pose, initialFrame));
+        InitializeAnimation(samus, SamusAnimationDelays.Land(samus.Pose, initialFrame, samus.FramesBeyondAnimation));
 
     /// <summary>
     /// Starts the pose's animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, and seeds the
@@ -108,12 +108,22 @@ internal sealed class SamusPresentation
     internal static void SetPoseAndAnimationFromScriptedController(SamusState samus, 
         SamusPoseId pose,
         SamusAnimationPlace frame,
+        int timer) =>
+        SetPoseAndAnimationFromScriptedController(samus, pose, SamusAnimationDelays.Land(pose, frame, samus.FramesBeyondAnimation), timer);
+
+    /// <summary>
+    /// Writes Pose and a frame of its own animation as
+    /// <see cref="SetPoseAndAnimationFromScriptedController(SamusState, SamusPoseId, SamusAnimationPlace, int)"/> does.
+    /// </summary>
+    internal static void SetPoseAndAnimationFromScriptedController(SamusState samus,
+        SamusPoseId pose,
+        SamusAnimationFrame frame,
         int timer)
     {
         // Both drained controllers store only the pose; the prior movement and collision radii stay.
         samus.WritePoseWithoutInitialization(pose);
         samus.AnimatedPose = pose;
-        samus.AnimationFrame = SamusAnimationDelays.Land(pose, frame);
+        samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
         samus.PendingTransitionalPose = null;
     }
@@ -128,7 +138,10 @@ internal sealed class SamusPresentation
     {
         if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
-        samus.SetAnimationFrame(picture.AnimationFrame);
+        SamusPoseAnimation swing = SamusAnimationDelayDefinitions.GrappleSwingAnimation;
+        if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(samus.AnimationPose), swing))
+            throw new InvalidOperationException($"Grapple swing art cannot be assigned while Samus animates by pose {samus.AnimationPose}'s animation.");
+        samus.AnimationFrame = swing.Resolve(picture.AnimationFrame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(15);
     }
 
@@ -387,7 +400,7 @@ internal sealed class SamusPresentation
     /// Draws Samus in her standing and ordinary-running poses.
     /// </summary>
     /// <remarks>
-    /// The body is one whole picture (#1513, #1585): her pose at the picture frame <see cref="SamusShownFrames"/> gives the
+    /// The body is one whole picture (#1513, #1585): her pose at the picture frame the installed <see cref="SamusShownFrames"/> give the
     /// animation frame, placed at the origin the import baked into that installed frame (#1517). The body is always a whole
     /// Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>
@@ -400,7 +413,7 @@ internal sealed class SamusPresentation
         Ensure.NotNull(sprites);
 
         // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
-        SamusAnimationFrame pictureFrame = SamusShownFrames.Of(samus.FramesBeyondAnimation).PictureFrame(samus);
+        SamusAnimationFrame pictureFrame = _artwork.ShownFrames.PictureFrame(samus);
 
         // The draw applies invincibility flicker to the body frames, not to
         // animation or graphics streaming as a whole. An odd frame hides ordinary invincible

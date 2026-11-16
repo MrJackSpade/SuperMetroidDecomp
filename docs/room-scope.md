@@ -98,14 +98,15 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   loading on `PaletteFxSessionState`, which each room's `RoomPaletteFxSystem` reads.
 - **X-ray direct G-mode** is demoted, not reset.
 - **Elevatube script movement ownership** survives the door fade (3f9fbfb58, #391).
-- **Door and elevator transition gates** (`$0797`, `$0795`) are owned by door-transition code for the whole transition.
-  The destination's enemies load with them clear, as the enemy load cleared them, and `RoomTransitionCarryOver.DoorGates`
-  re-asserts them once the enemies are loaded, where `DoorTransitionState` used to. The Etecoon fanfare depends on them
-  (0188ab9a2, #1194).
+- **Samus's passage through a door** (`DoorPassage`, the original's door and elevator transition flags `$0797`,
+  `$0795`) is not room state: the door transition owns it from its start to the destination fade-in's last step, and the
+  runtime hands it to its readers (#2038). The original's enemy load cleared the flags and the door code set them again
+  once the enemies were loaded; no enemy's initialization reads them, so the passage holds through the load. The Etecoon
+  fanfare depends on it (0188ab9a2, #1194).
 - **Enemy projectile hand-over** (`RoomHandOver`, #1476): enemy projectile deletion (`$86:8016/8154`) clears a
   place's fractions but leaves its whole position and velocity for the next projectile that does not set them; the 13%,
   100%, lowc and Ridley movies diverge in enemy projectiles without them. The first free enemy place is not handed over:
-  each room finds it from its own places (`EnemySlotOrder`, #1471). The enemy graphics set is not handed over either: a
+  each room finds it from its own places (`EnemyPlaceOrder`, #1471). The enemy graphics set is not handed over either: a
   room that loads none draws under the standard sprites alone, as stale tiles and colours are a presentation quirk.
 - **Session RNG and progression** stay session-lifetime (#1330); layer-3 FX reads the RNG value during the load.
 

@@ -26,7 +26,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
     internal RidleyParts Parts { get; } = new();
 
     /// <inheritdoc/>
-    void ICeresRidleyScene.AttachRoomDoor(RoomEnemySlot door) => Parts.AttachCeresRoomDoor(door);
+    void ICeresRidleyScene.AttachRoomDoor(RoomEnemyPlace door) => Parts.AttachCeresRoomDoor(door);
 
     /// <summary>
     /// Ridley's state beyond what every enemy has while either encounter owns his body,
@@ -62,40 +62,40 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus, ICeresRidleyScene
     }
 
     /// <summary>Requires Ridley's body as a Ridley definition and its shared state extension.</summary>
-    internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
+    internal RidleyEnemyState RequireRidley(RoomEnemyPlace place)
     {
-        if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
-            !Parts.IsBody(slot) ||
+        if (!RidleyInteractions.IsRidleyDefinition(place.DefinitionId) ||
+            !Parts.IsBody(place) ||
             Ridley is null)
         {
             throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} executed shared Ridley code without being Ridley's body " +
+                $"Enemy place {place.Ordinal} executed shared Ridley code without being Ridley's body " +
                 "with an extended Ridley state.");
         }
         return Ridley;
     }
 
     /// <summary>Admits only Lower Norfair Ridley before returning the shared state extension.</summary>
-    internal RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)
+    internal RidleyEnemyState RequireNorfairRidley(RoomEnemyPlace place)
     {
-        if (slot.DefinitionId != EnemyDefinitionId.Ridley)
+        if (place.DefinitionId != EnemyDefinitionId.Ridley)
         {
             throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} executed Lower Norfair Ridley code as " +
-                $"definition {slot.DefinitionId}.");
+                $"Enemy place {place.Ordinal} executed Lower Norfair Ridley code as " +
+                $"definition {place.DefinitionId}.");
         }
-        return RequireRidley(slot);
+        return RequireRidley(place);
     }
 
     /// <summary>Admits only Ceres Ridley's body and initialized state extension.</summary>
-    internal RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
+    internal RidleyEnemyState RequireCeresRidley(RoomEnemyPlace place)
     {
-        if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
-            !Parts.IsBody(slot) ||
+        if (place.DefinitionId != EnemyDefinitionId.RidleyCeres ||
+            !Parts.IsBody(place) ||
             Ridley is null)
         {
             throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} ran Ceres Ridley's behaviour without being " +
+                $"Enemy place {place.Ordinal} ran Ceres Ridley's behaviour without being " +
                 "Ceres Ridley's body with the extended Ceres Ridley state.");
         }
 

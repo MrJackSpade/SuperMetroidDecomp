@@ -87,11 +87,11 @@ internal static class MovieDesyncComparison
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus} native={Native(0x093f)} " +
                 $"nmi port={game.GameplayRuntimeForVerification.Clock.Counter:X4} native-raw={Native(0x05b6)}");
-            foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.DefinitionId != EnemyDefinitionId.None))
+            foreach (var actor in traceEnemies.Places.InUpdateOrder.Where(place => place.DefinitionId != EnemyDefinitionId.None))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
-                int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
-                Console.WriteLine($"  enemy {actor.SlotIndex} {actor.DefinitionId} " +
+                int slotBase = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.Ordinal);
+                Console.WriteLine($"  enemy {actor.Ordinal} {actor.DefinitionId} " +
                     $"port timer={actor.AnimationClock.Hold.RawValue:X4} prop={SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(actor):X}" +
                     $"pos={actor.Position.X.Whole:X4}.{actor.Position.X.Fraction:X4}/{actor.Position.Y.Whole:X4}.{actor.Position.Y.Fraction:X4} " +
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)} " +
@@ -232,10 +232,10 @@ internal static class MovieDesyncComparison
                     MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.Position.Y.Whole, MovieDesyncMemory.EnemyProjectileY + offset);
         }
-        foreach (var actor in runtime.Enemies.SlotTable.Slots)
+        foreach (var actor in runtime.Enemies.Places.InUpdateOrder)
         {
-            int address = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
-            string owner = $"Enemy {actor.SlotIndex}";
+            int address = MovieDesyncMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.Ordinal);
+            string owner = $"Enemy {actor.Ordinal}";
             Check(owner + " identity", actor.AwaitsRespawn
                 ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.AwaitingRespawnHeader
                 : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address + MovieDesyncMemory.EnemyIdentityOffset);

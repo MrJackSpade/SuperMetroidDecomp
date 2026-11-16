@@ -41,10 +41,18 @@ internal static class SuperMetroidRuntimeAccess
         internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyDefinitionSource definitions,
             IRoomEnemyServices services, IRoomEnemyLoad request)
         {
-            var enemies = new RoomEnemySystem(
-                SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.ContinuingWithFixturePopulations(self.EnemySession),
-                RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance), definitions, services, self.Room.LoadedRoom.Area,
-                new SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding(), new EnemyRoomParts(self.Room.LoadedScope.RoomObjects.BreakableTerrain, self.Room.LoadedScope.FxOverlay));
+            var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
+            {
+                Session = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.ContinuingWithFixturePopulations(self.EnemySession),
+                Compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance),
+                Definitions = definitions,
+                Services = services,
+                Area = self.Room.LoadedRoom.Area,
+                BossArtwork = new SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding(),
+                BreakableTerrain = self.Room.LoadedScope.RoomObjects.BreakableTerrain,
+                RoomFx = self.Room.LoadedScope.FxOverlay,
+                DoorPassage = self.DoorTransition.Passage,
+            });
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
             return enemies;
@@ -60,8 +68,18 @@ internal static class SuperMetroidRuntimeAccess
         {
             RoomScope scope = self.Room.LoadedScope;
             RoomEnemySystem loaded = scope.Enemies;
-            var enemies = new RoomEnemySystem(self.EnemySession, RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance), loaded.Room.Definitions, layer(loaded.Room.Services), loaded.Room.Area,
-                loaded.BossArtworkBinding, new EnemyRoomParts(scope.RoomObjects.BreakableTerrain, scope.FxOverlay));
+            var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
+            {
+                Session = self.EnemySession,
+                Compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance),
+                Definitions = loaded.Room.Definitions,
+                Services = layer(loaded.Room.Services),
+                Area = loaded.Room.Area,
+                BossArtwork = loaded.BossArtworkBinding,
+                BreakableTerrain = scope.RoomObjects.BreakableTerrain,
+                RoomFx = scope.FxOverlay,
+                DoorPassage = self.DoorTransition.Passage,
+            });
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies });
             enemies.Load(new RoomEnemyLoadRequest(scope.Room.State.EnemyPopulation,

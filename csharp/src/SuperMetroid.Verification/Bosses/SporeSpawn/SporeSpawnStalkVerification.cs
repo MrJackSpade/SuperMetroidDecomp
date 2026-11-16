@@ -23,7 +23,7 @@ internal static class SporeSpawnStalkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;

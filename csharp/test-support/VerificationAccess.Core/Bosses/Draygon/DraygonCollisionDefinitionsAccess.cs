@@ -30,7 +30,7 @@ internal static class DraygonCollisionDefinitionsAccess
     {
         /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
         internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
-            DraygonCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
+            DraygonCollision.ComponentsAt(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame));
     }
 
     /// <summary>Native views of the catalog.</summary>
@@ -44,7 +44,7 @@ internal static class DraygonCollisionDefinitionsAccess
         /// component of it names an empty hitbox list, which the port omits (#1937).
         /// </summary>
         internal static bool IsCollisionFreeFrame(ushort pointer) =>
-            RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer) is { } shown &&
+            RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, pointer) is { } shown &&
             DraygonCollisionDefinitions.FrameComponents.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components) &&
             components.IsEmpty;
 

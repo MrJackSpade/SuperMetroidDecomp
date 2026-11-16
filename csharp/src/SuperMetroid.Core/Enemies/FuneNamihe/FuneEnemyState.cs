@@ -10,21 +10,19 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
     public FuneAction Action { get; internal set; }
 
     /// <summary>
-    /// The count of waiting updates, reset to zero when the wait ends: it counts up to <see cref="CooldownTime"/>, a
-    /// spawn setting of at most 255 updates, so it never reaches the 32768 at which the game's signed comparison of the
-    /// two would differ from a plain one, and never wraps (#2045).
+    /// The count of waiting updates, reset to zero when the wait ends: it counts up to <see cref="CooldownTime"/> (#2045).
     /// </summary>
     public int CooldownTimer
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
 
-    /// <summary>The number of updates the Fune waits, from the spawn settings, 0 through 255.</summary>
+    /// <summary>The number of updates the Fune waits, from the spawn settings, zero or more.</summary>
     public int CooldownTime
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.AtLeastZero(value);
     }
 
     /// <inheritdoc/>

@@ -11,7 +11,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BullEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BullEntity(this, place, common);
 
     /// <summary>Each Bull acceleration or deceleration tick changes the acceleration by 24 256ths of a pixel an update.</summary>
     private static readonly SignedEightEight BullAccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
@@ -24,22 +24,22 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
     private const int BullMovementDelayFrames = 16;
 
-    /// <summary>Hands each new Bull the previous Bull in its slot, whose shot-reaction guard it inherits.</summary>
-    private readonly SlotInheritance<BullEnemyState> _inheritance;
+    /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
+    private readonly PlaceInheritance<BullEnemyState> _inheritance;
 
-    /// <summary>Binds the slot-inheritance service Bull setup uses.</summary>
-    /// <param name="inheritance">Hands each new Bull the previous Bull in its slot.</param>
-    internal BullBehavior(SlotInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
+    /// <summary>Binds the place-inheritance service Bull setup uses.</summary>
+    /// <param name="inheritance">Hands each new Bull the previous Bull in its place.</param>
+    internal BullBehavior(PlaceInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Initializes the Bull.</summary>
-    internal void InitializeBull(RoomEnemySlot slot)
+    internal void InitializeBull(RoomEnemyPlace place)
     {
-        BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
-        slot.SetSpeciesState(state);
+        BullEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
+        place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(slot, BullAnimations.StartingWith(BullSegment.Normal));
+        state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Normal));
 
-        BullSpawnSettings settings = slot.SpawnSettings<BullSpawnSettings>();
+        BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
         BullSpeedIntervals intervals = settings.Intervals;
         state.AccelerationIntervalTimerReset = intervals.Acceleration;
         state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
@@ -49,7 +49,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a Bull's per-frame behaviour through all four of its actions.</summary>
-    internal static void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState samus)
+    internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         state.ShotReactionDisableTimer = state.ShotReactionDisableTimer.Decrement().Remaining;
         if (state.ShotReactionDisableTimer.IsZero)
@@ -71,7 +71,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BullAction.TargetSamus:
-                state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
+                state.AngleToSamus = CalculateBullAngleToSamus(place, samus);
                 state.Angle = state.AngleToSamus.ToTrigonometryAngle();
                 state.Action = BullAction.Accelerating;
                 state.AccelerationDelta = BullAccelerationDelta;
@@ -80,8 +80,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             case BullAction.Accelerating:
                 if (state.IsBelowMaximumSpeed)
                     AccelerateBull(state);
-                MoveBull(slot, state);
-                TriggerBullDecelerationIfOffTarget(slot, state, samus);
+                MoveBull(place, state);
+                TriggerBullDecelerationIfOffTarget(place, state, samus);
                 return;
 
             case BullAction.Decelerating:
@@ -93,7 +93,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Speed = SignedEightEight.Zero;
                     return;
                 }
-                MoveBull(slot, state);
+                MoveBull(place, state);
                 DecelerateBull(state);
                 return;
 
@@ -104,9 +104,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
-    private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
+    private static RotationAngle CalculateBullAngleToSamus(RoomEnemyPlace place, SamusState samus) =>
         EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)))
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)))
             .ToMirroredTrigonometryAngle().TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
@@ -131,11 +131,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts braking when the signed angle difference reaches 48.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         BullEnemyState state,
         SamusState samus)
     {
-        state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
+        state.AngleToSamus = CalculateBullAngleToSamus(place, samus);
 
         // The off-target test measures the turn from the heading to Samus's bearing as the game reckons it
         // (BullOffTargetTurn). A turn of 48 of the angle's 256ths or more is off target.
@@ -147,14 +147,14 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Integrates both 1/65536-pixel position components from the committed angle and 1/256-pixel speed.</summary>
-    internal static void MoveBull(RoomEnemySlot slot, BullEnemyState state)
+    internal static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
     {
-        slot.Position = slot.Position.WithX(AddBullComponent(
-            slot.Position.X,
+        place.Position = place.Position.WithX(AddBullComponent(
+            place.Position.X,
             ReadBullSignedSine(state.Angle.TurnedBy(TrigonometryAngle.QuarterTurn)),
             state.Speed));
-        slot.Position = slot.Position.WithY(AddBullComponent(
-            slot.Position.Y,
+        place.Position = place.Position.WithY(AddBullComponent(
+            place.Position.Y,
             ReadBullSignedSine(state.Angle),
             state.Speed));
     }
@@ -165,18 +165,18 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Moves one axis of the Bull by its speed along the sine: the sine's magnitude in whole 256ths (its finer part
-    /// dropped) times the speed in 256ths of a pixel, read unsigned as the game's multiply reads it, a step up or left
-    /// reversed as <see cref="BullBackwardStep"/> reverses it.
+    /// dropped) times the speed in 256ths of a pixel, never below zero (<see cref="BullEnemyState.Speed"/>), a step up or
+    /// left reversed as <see cref="BullBackwardStep"/> reverses it.
     /// </summary>
     private static FixedCoordinate AddBullComponent(
         FixedCoordinate position,
         int sine,
         SignedEightEight speed)
     {
-        // The sine's magnitude is below 128 256ths and the speed below 65536 256ths, so the step fits a 1/65536-pixel displacement.
+        // The sine's magnitude is below 128 256ths and the speed at most 2880 256ths, so the step fits a 1/65536-pixel displacement.
         int sineTwoFiftySixths = UnsignedEightEight.Whole(Math.Abs(sine));
         SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
-            sineTwoFiftySixths, speed.UnsignedTwoHundredFiftySixthsOfPixel).AsDisplacement();
+            sineTwoFiftySixths, speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
         SignedSixteenSixteen displacement = sine < 0 ? BullBackwardStep.Of(forward) : forward;
 
         // The displacement moves the position as one 1/65536-pixel value: a fraction that passes a whole pixel moves the whole
@@ -186,7 +186,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the no-damage tail of the Bull's shot reaction.</summary>
     internal static void ResolveBullImmuneShot(
-        RoomEnemySlot bull,
+        RoomEnemyPlace bull,
         BullEnemyState state,
         SamusProjectileDirection projectileDirection)
     {
@@ -203,8 +203,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Bull's normal and immune-shot animations (#641).</summary>
-    internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, BullAnimations.Segments,
+    internal static void AdvanceBullAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
 

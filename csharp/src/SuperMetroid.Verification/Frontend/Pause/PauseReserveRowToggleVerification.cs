@@ -72,7 +72,7 @@ internal static class PauseReserveRowToggleVerification
         foreach (SamusBomb slot in bombs.Bombs)
             slot.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(2, 0x4321);
 
-        menu.Step(0, ControllerButton.Up | ControllerButton.A, null, 0, bombs);
+        menu.Step(0, ControllerButton.Up | ControllerButton.A, 0, 0, bombs);
 
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, menu.SelectedControl, "Up from the top beam moves into the reserve column's first row");
         AssertEqual(SignedSixteenSixteen.FromParts(ReserveRowToggleSpreadBombSpeed.Repaint(2), 0x4321), bombs.Bombs[^1].BombSpreadVerticalVelocity,

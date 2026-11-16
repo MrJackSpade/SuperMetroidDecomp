@@ -119,11 +119,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal FloorZoom Zoom { get; private set; } = FloorZoom.OwnSize;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
-    /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
-    [IntegerQuantity("screen brightness level, zero through fifteen")]
-    private int brightness;
-    /// <summary>Alternating-call delay between brightness changes.</summary>
-    private int fadeCounter = 1;
+    /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second call.</summary>
+    private readonly ScreenFade fade = new(0, stepDelay: 1, firstWait: 1);
     /// <summary>Phase-specific hold countdown.</summary>
     private int phaseTimer;
     /// <summary>
@@ -210,7 +207,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>Current phase, including the alternate game-over route.</summary>
-    public CeresDestructionPhase Phase { get; internal set; }
+    public CeresDestructionPhase Phase { get; private set; }
 
     /// <summary>True after the completion star leaves the Zebes screen or the terminal route ends.</summary>
     public bool Finished => Phase == CeresDestructionPhase.Finished;
@@ -269,8 +266,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FadeInAndDrift:
                 StepInitialDrift();
                 Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
-                StepSlowFadeIn();
-                if (brightness == 15)
+                if (fade.Brighten())
                 {
                     explosionRepeatCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                     Phase = CeresDestructionPhase.ApproachExplosion;
@@ -310,7 +306,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.HoldAfterExplosion:
                 if (--phaseTimer <= 0)
                 {
-                    fadeCounter = 1;
+                    fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
                     Phase = CeresDestructionPhase.FadeOutCeres;
                 }
                 break;
@@ -318,7 +314,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FadeOutCeres:
                 // Once the screen is black the next step is installed; it runs next update.
                 // The game-over route instead stops the music and ends at the death black-out.
-                if (StepSlowFadeOut())
+                if (fade.Darken())
                 {
                     if (WithSamus)
                     {
@@ -334,8 +330,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.FadeInZebes:
                 StepRevealPixelation();
-                StepSlowFadeIn();
-                if (brightness == 15)
+                if (fade.Brighten())
                     Phase = CeresDestructionPhase.RemoveZebesPixelation;
                 break;
 
@@ -473,8 +468,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Background = FixedVector<FloorPixels>.Zero;
         angle = RotationAngle.Zero;
         Zoom = FloorZoom.OwnSize;
-        brightness = 0;
-        fadeCounter = 1;
+        fade.Show(0);
+        fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
         revealBlockWidth = CeresDestructionSceneDefinitions.RevealPixelation.StartingBlockWidth;
         usesFloor = false;
     }
@@ -506,24 +501,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Background = Background.WithX(Background.X + CeresDestructionSceneDefinitions.Motion.NegativeQuarterPixel);
     }
 
-    /// <summary>Raises master brightness one level on alternating calls, capped at fifteen.</summary>
-    private void StepSlowFadeIn()
-    {
-        if (fadeCounter-- > 0)
-            return;
-        fadeCounter = 1;
-        brightness = Math.Min(15, brightness + 1);
-    }
-
-    /// <summary>Lowers brightness on alternating calls and reports the first fully black frame.</summary>
-    private bool StepSlowFadeOut()
-    {
-        if (fadeCounter-- > 0)
-            return false;
-        fadeCounter = 1;
-        brightness = Math.Max(0, brightness - 1);
-        return brightness == 0;
-    }
 
     /// <summary>
     /// Narrows the Zebes reveal's pixelation blocks by one pixel every fourth cinematic frame, from one-pixel blocks
@@ -571,7 +548,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
 
-    /// <summary>Spawns authored blast waves and advances live Ceres actors in descending slot order.</summary>
+    /// <summary>Spawns authored blast waves and advances live Ceres actors in descending place order.</summary>
     private void StepCeresActors()
     {
         explosionSpawnerFrame++;
@@ -722,7 +699,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actor.Step(HandleZebesCue);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
-            // A subtitle the title has just spawned takes the next free object slot, which the cinematic's object handling
+            // A subtitle the title has just spawned takes the next free object place, which the cinematic's object handling
             // reaches after the title's on the same update: it runs once now and shows its first pose.
             if (spawnedSubtitle is { } subtitle)
             {
@@ -848,7 +825,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(new FramePaint(Backdrop), layers, brightness);
+        return new(new FramePaint(Backdrop), layers, fade.Level);
     }
 
     /// <summary>

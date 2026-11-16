@@ -326,7 +326,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load corpse pictures body phase. True when it moves to the next body phase and the game runs
+    /// Runs the third phase death's readying of her corpse. True when it moves to the next body phase and the game runs
     /// on into it in the same update.
     /// </summary>
     internal bool RunThirdPhaseDeathReadyCorpse()
@@ -442,7 +442,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load escape timer pictures body phase. True when it moves to the next body phase and the game runs
+    /// Runs the third phase death's readying of the escape timer and message. True when it moves to the next body phase and the game runs
     /// on into it in the same update.
     /// </summary>
     internal bool RunThirdPhaseDeathReadyEscapeWarning()

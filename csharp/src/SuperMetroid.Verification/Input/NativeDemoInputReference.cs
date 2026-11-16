@@ -153,7 +153,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// </summary>
     internal static string Of(DemoInputState state, ushort frameBehavior) =>
         $"{state.Enabled}/{frameBehavior}/{DemoInputNativeListAddresses.Address(state.Position)}/" +
-        $"{state.FrameHold.RawValue}/{GameplayActionWordCodec.ToJoypadWord(state.Held)}/{GameplayActionWordCodec.ToJoypadWord(state.NewlyPressed)}/{GameplayActionWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
+        $"{state.FrameHold}/{GameplayActionWordCodec.ToJoypadWord(state.Held)}/{GameplayActionWordCodec.ToJoypadWord(state.NewlyPressed)}/{GameplayActionWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
         $"{GameplayActionWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{GameplayActionWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>

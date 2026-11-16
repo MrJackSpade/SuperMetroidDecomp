@@ -92,6 +92,10 @@ internal static class DemoInputProgramsVerification
                 break;
             }
         }
+        // Every native duration matched above is at least one, so the playback's plain countdown reaches zero on every input;
+        // a recording refuses an input that would last no update (#2138).
+        AssertThrows<ArgumentException>(() => new DemoRecording([new DemoInput(GameplayAction.None, GameplayAction.None, 0)], DemoRecordingEnd.Stops),
+            "a recording refuses an input that lasts no update");
         Console.WriteLine($"  Demo-input recordings: {DemoInputNativeListAddresses.Objects.Length} objects and {DemoInputNativeListAddresses.Entries.Length} recordings ({records} input records) match bank $91.");
     }
 

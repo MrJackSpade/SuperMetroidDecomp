@@ -374,13 +374,13 @@ internal static class LookupStream1Verification
         {
             byte expected = LookupStream1TimerCadenceRomByte(rom, 0x809eec + index);
             total += expected;
-            AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)index), "Every native rational cadence sample");
+            AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)index), "Every authored cadence step matches the native table");
             AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
             AssertEqual(expected, EscapeTimerCadence.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
             timer.SelectRunningPhase(EscapeTimerPhase.InPlace);
             timer.SetRemaining(EscapeTimerClock.Time(0, 1, 50));
-            AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
+            AssertTrue(!timer.Process((ushort)index), "The authored cadence stays non-expiring");
             AssertEqual(EscapeTimerClock.Time(0, 1, 50) - expected, timer.RemainingCentiseconds, "Actual Process consumes each native correction");
         }
         AssertEqual(213, total, "Native full-period centisecond budget");

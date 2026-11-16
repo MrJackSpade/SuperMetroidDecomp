@@ -518,7 +518,7 @@ internal static void VerifyDemoInputObject()
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following
     // call decrements to zero and fetches the next record.
-    AssertEqual(1, demo.FrameHold.RawValue, "final visible record frame retains timer one");
+    AssertEqual(1, demo.FrameHold, "final visible record frame retains timer one");
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)

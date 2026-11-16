@@ -94,7 +94,7 @@ internal static class IntroBabyActorDefinitionsVerification
             reference.Step((ushort)frame, crossfadeFinishing: false);
             AssertEqual(nativeDemo.Position, demo.Position,
                 $"SR388 demo list cursor at frame {frame} matches ROM-backed controller");
-            AssertEqual(nativeDemo.FrameHold.RawValue, demo.FrameHold.RawValue,
+            AssertEqual(nativeDemo.FrameHold, demo.FrameHold,
                 $"SR388 demo countdown at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.Held, demo.Held,
                 $"SR388 held input at frame {frame} matches ROM-backed controller");

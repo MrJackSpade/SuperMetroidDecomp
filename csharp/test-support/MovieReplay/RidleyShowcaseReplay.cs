@@ -851,7 +851,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.RidleyFireball:
                         // $86:940E consumes F only as a zero/nonzero afterburn gate.
                         // The caller may leave a noncanonical nonzero parameter (e.g. $E).
-                        if ((projectile.RemainingAfterburns != 0) !=
+                        if ((projectile.StateOf<RidleyAfterburnChainState>().Remaining != 0) !=
                             (W(NativeSnapshotMemory.EnemyProjectileVariableF + index) == 0))
                             mismatches.Add(owner + " fireball afterburn gate differs");
                         break;
@@ -864,9 +864,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         // The native chain count is a byte stepped past zero by the afterburn that ends the chain, which
                         // leaves it at $FF; the port's count of afterburns left stays at zero.
                         int nativeRemainingAfterburns = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
-                        CheckValue(owner + " remaining afterburns", projectile.RemainingAfterburns,
+                        CheckValue(owner + " remaining afterburns", projectile.StateOf<RidleyAfterburnChainState>().Remaining,
                             nativeRemainingAfterburns == 0xff ? 0 : nativeRemainingAfterburns);
-                        Check(owner + " next afterburn kind", EnemyProjectileNativeWords.Kinds.Word(projectile.NextAfterburnKind), NativeSnapshotMemory.EnemyProjectileVariableF + index);
+                        // The cartridge stores the kind a directional afterburn's successor takes, its own (#2245); a centre stores none.
+                        RoomEnemyProjectileKind successorKind = projectile.Kind is RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
+                            RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter ? RoomEnemyProjectileKind.None : projectile.Kind;
+                        Check(owner + " next afterburn kind", EnemyProjectileNativeWords.Kinds.Word(successorKind), NativeSnapshotMemory.EnemyProjectileVariableF + index);
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:

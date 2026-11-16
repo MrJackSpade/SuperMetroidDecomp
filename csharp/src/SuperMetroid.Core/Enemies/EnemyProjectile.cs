@@ -87,17 +87,6 @@ public sealed class EnemyProjectile
     /// animations move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
-    /// <summary>
-    /// How many more afterburns of Ridley's fireball or Mother Brain's bomb this one's chain spawns after it: each
-    /// directional afterburn hands its successor one fewer, and one that has none left spawns no successor.
-    /// </summary>
-    public int RemainingAfterburns
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
-    /// <summary>The kind of the next directional afterburn the chain spawns.</summary>
-    internal RoomEnemyProjectileKind NextAfterburnKind { get; set; }
     /// <summary>What the projectile's family keeps on it (#1470), given by its spawner; none until then.</summary>
     internal EnemyProjectileState? State { get; set; }
 
@@ -196,8 +185,6 @@ public sealed class EnemyProjectile
         Graphics = SpriteGraphics.SharedStandard;
         Damage = 0;
         Depth = EnemyProjectileDepth.BehindSamus;
-        RemainingAfterburns = 0;
-        NextAfterburnKind = RoomEnemyProjectileKind.None;
         State = null;
         CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         KilledEnemy = default;

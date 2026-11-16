@@ -33,13 +33,16 @@ public sealed class BotwoonEnemyState
     public int RingIndex { get; internal set; }
     /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
     public int InitialDelayTimer { get; internal set; }
-    /// <summary>Frames left of the spit-action cooldown, seeded from <see cref="BotwoonFightDefinitions.HiddenSpitCooldown"/> for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
-    public int AttackTimer { get; internal set; }
     /// <summary>
-    /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
-    /// until it reaches 256, when the head starts falling; it stays within 240..256.
+    /// His head's cooldown after a spit volley (#2267): it lasts the volley's <see cref="BotwoonSpitVolley.CooldownUpdates"/>,
+    /// and when it runs out his head follows his movement again.
     /// </summary>
-    public int DeathTimer { get; internal set; }
+    public BossCountdown SpitCooldown { get; } = new();
+    /// <summary>
+    /// His wait before his head falls (#2267): it starts once his tail has finished crossing into the wall after the fatal
+    /// hit and lasts <see cref="BotwoonDeathDefinitions.PreFallWaitUpdates"/>, his head falling from the update after.
+    /// </summary>
+    public BossCountdown PreFallWait { get; } = new();
     /// <summary>
     /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on three quarters of a mark,
     /// and the whole marks choose the fall speed. The head reaches the floor before the curve ends, well below mark 95.
@@ -47,10 +50,16 @@ public sealed class BotwoonEnemyState
     public QuadraticSpeedCurvePlace DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
     public int WallExplosionFrame { get; internal set; }
-    /// <summary>Frames until the next large wall explosion, active from update 64 and reloaded to 12 once it runs past zero.</summary>
-    public int LargeExplosionTimer { get; internal set; }
-    /// <summary>Frames until the next pair of small wall explosions, active from update 64 and reloaded to four once it runs past zero.</summary>
-    public int SmallExplosionTimer { get; internal set; }
+    /// <summary>
+    /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
+    /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.
+    /// </summary>
+    public BossCountdown LargeExplosionWait { get; } = new();
+    /// <summary>
+    /// The wait for the next pair of small wall explosions (#2267): from the wall sequence's update 64 a pair bursts at
+    /// once, then a pair every <see cref="BotwoonDeathDefinitions.SmallExplosionInterval"/>.
+    /// </summary>
+    public BossCountdown SmallExplosionWait { get; } = new();
     /// <summary>
     /// His speed stage (#2266): how fast he moves and spits and how far apart his body trails, refreshed from his health
     /// each time he chooses a walk outside a hole; he starts at full speed.

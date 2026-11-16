@@ -14,10 +14,6 @@ internal abstract record NinjaSpacePirateCue
     /// <param name="Sound">For a sound cue: the enemy-library sound it plays.</param>
     internal sealed record PlaySound(SoundEffectId? Sound) : NinjaSpacePirateCue;
 
-    /// <summary>Sets the action main AI runs next.</summary>
-    /// <param name="Action">The action the cue installs.</param>
-    internal sealed record SetAction(NinjaSpacePirateAction Action) : NinjaSpacePirateCue;
-
     /// <summary>Sets the look the Pirate draws in.</summary>
     /// <param name="Shading">The shading the Pirate is drawn in from then on (#1512).</param>
     internal sealed record SetShading(PictureShading Shading) : NinjaSpacePirateCue;

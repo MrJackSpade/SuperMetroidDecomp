@@ -54976,19 +54976,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCue.TargetDeathShade",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCueKind",
       "kind": "enum",
       "scope": "product",
@@ -55221,19 +55208,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnReactions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnScrollingHooks",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnScrollingHooks.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -115042,6 +115016,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.RoomCameraFloor",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomCameraFloor.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollAuthoredBytes",
       "kind": "static class",
       "scope": "test",
@@ -150716,6 +150703,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCameraFloorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCameraFloorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingObjectsVerification",
       "kind": "static class",
       "scope": "test",
@@ -150737,6 +150737,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingVisualsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnDeathDriftVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnDeathDriftVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -151205,6 +151218,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Torizo/TorizoBellyGlowEndVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Torizo.TorizoDeathDropsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Torizo/TorizoDeathDropsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

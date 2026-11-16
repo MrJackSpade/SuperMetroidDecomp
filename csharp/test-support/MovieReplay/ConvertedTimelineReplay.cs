@@ -128,10 +128,6 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
             uploadNmis.Expect(update, step.ExcludedNmiAfter - excludedBefore);
             excludedBefore = step.ExcludedNmiAfter;
             loaderProgress.Expect(step.DoorLoaderCompletedEnemySlots);
-            if (update >= traceFromUpdate && Game.RuntimeForVerification is { } tracedRuntime)
-                tracedRuntime.System.Random.CallObserver = () => Console.WriteLine(
-                    "  rng call: " + string.Join(" <- ", new System.Diagnostics.StackTrace(2)
-                        .GetFrames().Take(4).Select(frame => frame.GetMethod()?.Name)));
             // The last controller read of an eliminated music wait is still input the
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)

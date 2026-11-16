@@ -22,12 +22,6 @@ public sealed class SharedRandom
     /// <summary>The current state.</summary>
     public SharedRandomState State { get; private set; }
 
-    /// <summary>
-    /// Diagnostic-only observer of each <see cref="Generate"/> call, used by movie-replay tracing to attribute RNG
-    /// consumers. Never part of gameplay state.
-    /// </summary>
-    internal Action? CallObserver { get; set; }
-
     /// <summary>Samples the current state, 0 through 65535, without advancing it.</summary>
     public int Read() => State.Value;
 
@@ -38,7 +32,6 @@ public sealed class SharedRandom
     /// <returns>The new state as a sample, 0 through 65535.</returns>
     public int Generate()
     {
-        CallObserver?.Invoke();
         State = State.Next();
         return State.Value;
     }

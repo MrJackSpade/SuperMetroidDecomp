@@ -3,8 +3,9 @@ using System.Reflection;
 namespace SuperMetroid.Core;
 
 /// <summary>
-/// Writes a property through the private setter only its owner's own updates use, so a check or an imported snapshot can
-/// start an owner in a state it would otherwise take many updates to reach (#2107).
+/// Reaches state only its owner's own updates write or read (#2107, #2129): a check, or a native snapshot's import, sets a
+/// property through its private setter or reads a private field, by name, so production keeps no member wider than its
+/// writers for verification's sake.
 /// </summary>
 internal static class PrivateState
 {
@@ -14,4 +15,12 @@ internal static class PrivateState
         (typeof(TOwner).GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.SetMethod
             ?? throw new MissingMemberException(typeof(TOwner).Name, property))
         .Invoke(Ensure.NotNull(owner), BindingFlags.DoNotWrapExceptions, binder: null, [value], culture: null);
+
+    /// <summary>The value of <paramref name="owner"/>'s instance field <paramref name="field"/>.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no instance field of that name.</exception>
+    /// <exception cref="InvalidCastException">The field does not hold a <typeparamref name="TValue"/>.</exception>
+    internal static TValue Field<TOwner, TValue>(TOwner owner, string field) where TOwner : class =>
+        (TValue)(typeof(TOwner).GetField(field, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingMemberException(typeof(TOwner).Name, field))
+        .GetValue(Ensure.NotNull(owner))!;
 }

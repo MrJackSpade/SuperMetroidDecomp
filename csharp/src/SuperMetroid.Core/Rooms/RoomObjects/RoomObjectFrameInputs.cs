@@ -12,7 +12,7 @@ public readonly record struct RoomObjectFrameInputs
     /// <summary>The enemies killed in the room so far (<see cref="Enemies.EnemyRoomStatus.EnemiesKilled"/>).</summary>
     public required int EnemyDeaths { get; init; }
 
-    /// <summary>The room's kill-count requirement for enemy-clear triggers, 0 through 255.</summary>
+    /// <summary>The kills the room's enemy-clear triggers wait for.</summary>
     public required int EnemyDeathQuota { get; init; }
 
     /// <summary>Controller new input.</summary>

@@ -199,9 +199,26 @@ internal static class RoomObjectSystemAccess
         internal bool TryNotifyStationTouch(RoomLevelData level, Position16<RoomBlocks> accessBlock, byte behavior)
             => self.TryNotifyStationTouch(level, accessBlock, RoomBlockBehaviorCodec.Decode(behavior));
 
-        /// <summary>Typed BTS overload used by room collision dispatch.</summary>
+        /// <summary>
+        /// Samus enters the access the way its station accepts (#2129): she runs into a side access's wall from beside it
+        /// and stands on the save station's floor from above. The station's own entry check runs as room collision runs
+        /// it, so a save floor accepts her only once she stands centred on it.
+        /// </summary>
         internal bool TryNotifyStationTouch(RoomLevelData level, Position16<RoomBlocks> accessBlock, RoomBlockBehavior behavior)
-            => self.Stations.TryNotifyStationCollision(level, accessBlock, behavior, SamusPoseId.ForwardStillCrouchHeightPose.ForRoomCollision(), Axis.Horizontal, true, StationSetupGate.Bypassed);
+        {
+            (SamusCollisionPose pose, Axis axis, bool movingPositive) = behavior.TryGetStationAccess(out StationAccessBehavior access)
+                ? access switch
+                {
+                    StationAccessBehavior.MapRight or StationAccessBehavior.EnergyRight or StationAccessBehavior.MissileRight =>
+                        (SamusCollisionPose.RanIntoWallLeft, Axis.Horizontal, false),
+                    StationAccessBehavior.MapLeft or StationAccessBehavior.EnergyLeft or StationAccessBehavior.MissileLeft =>
+                        (SamusCollisionPose.RanIntoWallRight, Axis.Horizontal, true),
+                    StationAccessBehavior.SaveFloor => (SamusCollisionPose.StandingNormal, Axis.Vertical, true),
+                    _ => throw new InvalidOperationException($"Undefined station access {access}."),
+                }
+                : throw new ArgumentException($"Block behaviour {behavior} is no station access.", nameof(behavior));
+            return self.Stations.TryNotifyStationCollision(level, accessBlock, behavior, pose, axis, movingPositive);
+        }
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.

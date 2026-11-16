@@ -70,7 +70,8 @@ internal static class AudioQueuesAccess
 
     /// <summary>The handshake <paramref name="library"/>'s handler runs in <paramref name="queues"/>.</summary>
     private static SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.Handshake HandshakeOf(AudioQueues queues, SoundEffectLibrary library) =>
-        queues.SoundHandshakes.Handshakes[library];
+        PrivateState.Field<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>,
+            Dictionary<SoundEffectLibrary, SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.Handshake>>(queues.SoundHandshakes, "handshakes")[library];
 
     /// <summary>Creates queues for a check that runs them without a game session.</summary>
     extension(AudioQueues)

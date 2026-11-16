@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The installed pictures of the Samus Eater plant's frames (#1557); the three-run terrain layout stays the game's.
+/// The installed pictures of the Samus Eater plant's frames (#1557); the plant keeps the blocks its bite changes.
 /// </summary>
 public sealed class InstalledRoomObjectSamusEaterVisuals
 {

@@ -53,7 +53,7 @@ internal sealed class SamusEaterObjects
     }
 
     /// <summary>One chew's periodic damage to the held Samus.</summary>
-    internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(0, SamusEaterObjectDefinitions.ChewDamage);
+    internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(SamusEaterObjectDefinitions.ChewDamage);
 
     /// <summary>Gives the released Samus her release immunity.</summary>
     internal void ReleaseSamus() =>

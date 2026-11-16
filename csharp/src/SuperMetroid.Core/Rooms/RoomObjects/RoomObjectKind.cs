@@ -12,7 +12,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// row or tube) has no identity here (#1608), and neither has a gate trigger's shot, the Wrecked Ship treadmill or the
 /// Maridia elevatube, nor does any object a Chozo statue, Tourian, the Wrecked Ship, Shaktool's room, the critters'
 /// escape or an enemy's break of a block spawns carry one (#1622): its spawner places it by what it does, and its typed
-/// room object is how the room finds it.
+/// room object is how the room finds it. The same holds for what a block's reaction leaves (a plant's bite, quicksand
+/// and sandfalls, a Speed Booster or crumble block breaking), for a blue door cap and the cap closing behind Samus, and
+/// for the escape gate closing at a door with no resident cap (#2126): their reactions and doors name them by
+/// <see cref="Rooms.LevelData.SpecialBlockReaction"/>, <see cref="ContactCrumbleBlock"/> and the door's own cap object.
 /// </remarks>
 public enum RoomObjectKind
 {
@@ -31,12 +34,6 @@ public enum RoomObjectKind
     /// <summary>A block extending the scroll trigger below it along a vertical chain.</summary>
     UpwardsScrollExtension,
 
-    /// <summary>The Brinstar plant that bites Samus from the floor when she stands inside it.</summary>
-    InsideReactionBrinstarFloorPlant,
-
-    /// <summary>The Brinstar plant that bites Samus from the ceiling when she stands inside it.</summary>
-    InsideReactionBrinstarCeilingPlant,
-
     /// <summary>A map station.</summary>
     MapStation,
 
@@ -52,42 +49,11 @@ public enum RoomObjectKind
     /// <summary>An elevator platform.</summary>
     ElevatorPlatform,
 
-    /// <summary>Maridia's quicksand surface, when Samus stands inside it.</summary>
-    InsideReactionQuicksandSurface,
-
-    /// <summary>Maridia's submerging quicksand, when Samus stands inside it.</summary>
-    InsideReactionSubmergingQuicksand,
-
-    /// <summary>Maridia's slow sandfall, when Samus stands inside it.</summary>
-    InsideReactionSandFallsSlow,
-
-    /// <summary>Maridia's fast sandfall, when Samus stands inside it.</summary>
-    InsideReactionSandFallsFast,
-
-    /// <summary>Maridia's quicksand surface, when Samus touches it.</summary>
-    CollisionReactionQuicksandSurface,
-
-    /// <summary>Maridia's submerging quicksand, when Samus touches it.</summary>
-    CollisionReactionSubmergingQuicksand,
-
-    /// <summary>Maridia's slow sandfall, when Samus touches it.</summary>
-    CollisionReactionSandFallsSlow,
-
-    /// <summary>Maridia's fast sandfall, when Samus touches it.</summary>
-    CollisionReactionSandFallsFast,
-
     /// <summary>A save station.</summary>
     SaveStation,
 
-
     /// <summary>The lava quake of the Speed Booster room's escape, once the Speed Booster is taken.</summary>
     SpeedBoosterEscape,
-
-    /// <summary>
-    /// The fake wall of the old Tourian escape shaft, spawned by its room's setup during the escape; it explodes once
-    /// Samus passes below and to the right of it.
-    /// </summary>
-    OldTourianEscapeShaftFakeWall,
 
     /// <summary>Bomb Torizo's right-facing grey door, which opens once Bomb Torizo is defeated.</summary>
     BombTorizoGreyDoor,
@@ -149,104 +115,17 @@ public enum RoomObjectKind
     /// <summary>A red door cap facing down, opened by missiles.</summary>
     RedDoorFacingDown,
 
-    /// <summary>A blue door cap facing left, opened by any shot.</summary>
-    BlueDoorFacingLeft,
-
-    /// <summary>A blue door cap facing right, opened by any shot.</summary>
-    BlueDoorFacingRight,
-
-    /// <summary>A blue door cap facing up, opened by any shot.</summary>
-    BlueDoorFacingUp,
-
-    /// <summary>A blue door cap facing down, opened by any shot.</summary>
-    BlueDoorFacingDown,
-
-    /// <summary>The blue door cap closing behind Samus after she comes through a left-facing door.</summary>
-    BlueDoorClosingFacingLeft,
-
-    /// <summary>The blue door cap closing behind Samus after she comes through a right-facing door.</summary>
-    BlueDoorClosingFacingRight,
-
-    /// <summary>The blue door cap closing behind Samus after she comes through an upward-facing door.</summary>
-    BlueDoorClosingFacingUp,
-
-    /// <summary>The blue door cap closing behind Samus after she comes through a downward-facing door.</summary>
-    BlueDoorClosingFacingDown,
-
     /// <summary>
     /// The gate of the first room of the Tourian escape. Samus coming in from Mother Brain's room makes the door closing
     /// close it behind her.
     /// </summary>
     MotherBrainEscapeRoomGate,
 
-    /// <summary>
-    /// The escape gate closing behind Samus at a door whose block holds no resident cap.
-    /// </summary>
-    MotherBrainEscapeRoomGateClosing,
-
-    /// <summary>
-    /// The Speed Booster block Samus breaks in Brinstar, with the slower crumble, which comes back.
-    /// </summary>
-    SpeedBlockBrinstarSlowRespawning,
-
-    /// <summary>
-    /// The Speed Booster block Samus breaks in Brinstar, with the slower crumble, which stays broken.
-    /// </summary>
-    SpeedBlockBrinstarSlowPermanent,
-
-    /// <summary>A Speed Booster block Samus breaks, which comes back.</summary>
-    SpeedBlockRespawning,
-
-    /// <summary>The Speed Booster block of Brinstar's Dachora room, which comes back.</summary>
-    SpeedBlockDachoraRespawning,
-
-    /// <summary>A Speed Booster block Samus breaks, which stays broken.</summary>
-    SpeedBlockPermanent,
-
-    /// <summary>A one-block crumble block Samus stands on, which comes back.</summary>
-    ContactCrumble1x1Respawning,
-
-    /// <summary>A two-block-wide crumble block Samus stands on, which comes back.</summary>
-    ContactCrumble2x1Respawning,
-
-    /// <summary>A two-block-tall crumble block Samus stands on, which comes back.</summary>
-    ContactCrumble1x2Respawning,
-
-    /// <summary>A two-by-two crumble block Samus stands on, which comes back.</summary>
-    ContactCrumble2x2Respawning,
-
-    /// <summary>A one-block crumble block Samus stands on, which stays broken.</summary>
-    ContactCrumble1x1Permanent,
-
-    /// <summary>A two-block-wide crumble block Samus stands on, which stays broken.</summary>
-    ContactCrumble2x1Permanent,
-
-    /// <summary>A two-block-tall crumble block Samus stands on, which stays broken.</summary>
-    ContactCrumble1x2Permanent,
-
-    /// <summary>A two-by-two crumble block Samus stands on, which stays broken.</summary>
-    ContactCrumble2x2Permanent,
-
-    /// <summary>The plug of the Lower Norfair Chozo's room, which crumbles once the Chozo lowers the acid.</summary>
-    CrumbleLowerNorfairChozoRoomPlug,
-
-    /// <summary>The Lower Norfair Chozo's hand, which carries Samus when she curls up in it.</summary>
-    LowerNorfairChozoHand,
-
     /// <summary>The glass of Mother Brain's tank, which missiles break.</summary>
     MotherBrainGlass,
 
     /// <summary>The hand of Bomb Torizo's statue, which wakes Bomb Torizo when Samus takes its item.</summary>
     BombTorizoHand,
-
-    /// <summary>The Wrecked Ship Chozo's hand, which carries Samus when she curls up in it.</summary>
-    WreckedShipChozoHand,
-
-    /// <summary>Clears the slope under the Wrecked Ship Chozo, letting Samus reach it.</summary>
-    ClearSlopeAccessForWreckedShipChozo,
-
-    /// <summary>Blocks the slope under the Wrecked Ship Chozo again.</summary>
-    BlockSlopeAccessForWreckedShipChozo,
 
     /// <summary>Maridia's glass tube, which a Power Bomb shatters.</summary>
     NoobTube,

@@ -91,7 +91,7 @@ internal sealed class StationObjects
 
         IRoomSamus samus = _samus.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
-        samus.Position = samus.Position.WithWrappedWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
+        samus.Position = samus.Position.WithWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
         samus.FaceForward();
         samus.Control.LockOutPlayer();
 
@@ -276,7 +276,10 @@ internal sealed class StationObjects
             level.SetBehavior(block, written);
     }
 
-    /// <summary>The station collision notice room collision sends with the block's behaviour.</summary>
+    /// <summary>
+    /// The station collision notice room collision sends with the block's behaviour: checks the entry pose and direction,
+    /// then arms a matching resident station's room-object sequence.
+    /// </summary>
     /// <param name="level">The room's level, through whose blocks the step from the access block to its station runs.</param>
     /// <param name="accessBlock">The access block Samus collided with.</param>
     /// <param name="behavior">The access block's behaviour.</param>
@@ -290,24 +293,6 @@ internal sealed class StationObjects
         SamusCollisionPose collisionPose,
         Axis axis,
         bool movingPositive)
-        => TryNotifyStationCollision(
-            level,
-            accessBlock,
-            behavior,
-            collisionPose,
-            axis,
-            movingPositive,
-            StationSetupGate.Checked);
-
-    /// <summary>Checks the entry pose and direction, then arms a matching resident station's room-object sequence.</summary>
-    internal bool TryNotifyStationCollision(
-        RoomLevelData level,
-        Position16<RoomBlocks> accessBlock,
-        RoomBlockBehavior behavior,
-        SamusCollisionPose collisionPose,
-        Axis axis,
-        bool movingPositive,
-        StationSetupGate setupGate)
     {
         Ensure.NotNull(level);
         if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
@@ -324,7 +309,7 @@ internal sealed class StationObjects
             if (!place.Active || place.Block != stationBlock || place.Behaviour is not StationObject station)
                 continue;
 
-            bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
+            bool setupAccepted = access switch
             {
                 // Right-side access is entered while moving left into the wall in the ran-into-wall-left pose;
                 // left-side access is the mirror in the ran-into-wall-right pose. These are the stations' setup tests

@@ -140,9 +140,8 @@ public static class RoomGridConversions
         (Ensure.BetweenInclusive(0, ushort.MaxValue, blocks) + BlocksPerScreen - 1) / BlocksPerScreen;
 
     /// <summary>
-    /// The block boundary nearest an unsigned room pixel coordinate, 0 through 65536: a coordinate in the first half of its
-    /// block rounds back to the block's first pixel, one in the second half on to the next block's. The boundary past the
-    /// last block lies one beyond the coordinate range, for the caller to wrap.
+    /// The block boundary nearest a room pixel coordinate: a coordinate in the first half of its block rounds back to the
+    /// block's first pixel, one in the second half on to the next block's.
     /// </summary>
     public static int NearestBlockBoundary(int pixel) => (RequirePixel(pixel) + HalfBlockPixels) / BlockPixels * BlockPixels;
 

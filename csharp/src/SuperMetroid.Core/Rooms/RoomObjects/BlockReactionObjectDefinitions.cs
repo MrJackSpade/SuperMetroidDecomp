@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class BlockReactionObjectDefinitions
 {
     /// <summary>
-    /// The behaviour a respawning breakable Grapple block is restored with: the respawning entry of the Grapple
-    /// reaction table, so the restored block breaks again.
+    /// The behaviour a respawning breakable Grapple block is restored with: a breakable anchor that comes back, so the
+    /// restored block breaks again.
     /// </summary>
     internal static readonly RoomBlockBehavior RespawningGrappleBehavior = RoomBlockBehavior.Reacting(GrappleReaction.RespawningBreakableAnchor);
 }

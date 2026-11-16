@@ -19,7 +19,7 @@ internal static class RoomObjectDefinitionMigrationVerification
     internal static void VerifyObjectDefinitionMigration()
     {
         // The header words are verification's; the identities' own values are arbitrary.
-        AssertEqual(0xb6cb, RoomObjectNativeWords.Word(RoomObjectKind.InsideReactionBrinstarFloorPlant), "floor plant header word");
+        AssertEqual(0xb63b, RoomObjectNativeWords.Word(RoomObjectKind.RightwardsScrollExtension), "first PLM header word");
         AssertEqual(0xc85a, RoomObjectNativeWords.Word(RoomObjectKind.YellowDoorFacingLeft), "yellow door header word");
         AssertEqual(0xefcf, RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockReserveTank), "last PLM header word");
         AssertEqual(RoomObjectKind.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");
@@ -27,7 +27,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         // Door and item identification by member equals the former range and stride arithmetic.
         AssertTrue(DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.GreenDoorFacingUp, out ColoredDoorColor color, out ColoredDoorOrientation orientation)
             && color == ColoredDoorColor.Green && orientation == ColoredDoorOrientation.Up, "green door facing up");
-        AssertTrue(!DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.BlueDoorFacingLeft, out _, out _), "blue door is not a colored door");
+        AssertTrue(!DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.MotherBrainEscapeRoomGate, out _, out _), "the escape gate is not a colored door");
         AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectKind.BombTorizoGreyDoor, out ColoredDoorOrientation torizo)
             && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
         AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
@@ -61,7 +61,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(0xffe0, SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue, "pickup lava velocity");
         AssertEqual(16, SamusEaterObjectDefinitions.HeldInvincibilityFrames, "plant hold sustained invincibility frames");
         AssertEqual(48, SamusEaterObjectDefinitions.ReleaseInvincibilityFrames, "plant release invincibility");
-        AssertEqual(2, SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
+        AssertEqual(new UnsignedSixteenSixteen(whole: 2, fraction: 0), SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");
         // The import decodes a clearance watch's word into the event it marks (#1746).
         AssertEqual<RoomObjectRoomArgument?>(MetroidRoomArgument.ObservesNothing,

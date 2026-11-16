@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 

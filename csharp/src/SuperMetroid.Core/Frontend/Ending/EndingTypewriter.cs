@@ -16,8 +16,6 @@ internal sealed class EndingTypewriter
     private readonly bool japaneseText;
     /// <summary>The text this typewriter types.</summary>
     private readonly EndingTextSequence sequence;
-    /// <summary>The installed characters of <see cref="sequence"/>.</summary>
-    private EndingTextCharacter[] characters;
 
     /// <summary>Binds the installed text of <paramref name="sequence"/> without advancing its pacing.</summary>
     public EndingTypewriter(EndingTypewriterSetup setup, EndingTextSequence sequence)
@@ -26,7 +24,7 @@ internal sealed class EndingTypewriter
         inventory = setup.Inventory;
         japaneseText = setup.JapaneseText;
         this.sequence = sequence;
-        characters = Ensure.NotNull(setup.Text).Compile(sequence).ToArray();
+        Characters = Ensure.NotNull(setup.Text).Compile(sequence).ToArray();
     }
 
     /// <summary>Remaining calls until the next character or hold transition.</summary>
@@ -44,14 +42,14 @@ internal sealed class EndingTypewriter
     public bool RequestedItemPercentageScroll { get; private set; }
 
     /// <summary>The installed characters.</summary>
-    private EndingTextCharacter[] Characters => characters;
+    private EndingTextCharacter[] Characters { get; set; }
 
     /// <summary>Binds the installed text when the game is bound to its installed content.</summary>
     /// <exception cref="InvalidDataException">The typed count exceeds the rebound text.</exception>
     public void BindText(EndingTypewriterText value)
     {
-        characters = Ensure.NotNull(value).Compile(sequence).ToArray();
-        if (TypedCount > characters.Length)
+        Characters = Ensure.NotNull(value).Compile(sequence).ToArray();
+        if (TypedCount > Characters.Length)
             throw new InvalidDataException($"Saved ending-text typed count {TypedCount} exceeds the rebound text.");
     }
 

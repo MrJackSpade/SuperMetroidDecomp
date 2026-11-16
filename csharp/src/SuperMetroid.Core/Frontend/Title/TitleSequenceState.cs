@@ -57,11 +57,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     private readonly ControllerInputState controller = new();
     /// <summary>Installed row gradient, bound when the game is bound to its installed content.</summary>
     private TitleGradientPresentation titleGradientPresentation;
-    /// <summary>
-    /// The installed title backdrop (#1512), bound when the game is bound to its installed content; the title's other colours
-    /// are pre-coloured into its sheets.
-    /// </summary>
-    private RgbColor titleBackdrop;
+
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
     /// <summary>The title card whose steps are running.</summary>
@@ -127,7 +123,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         this.audio = Ensure.NotNull(audio);
         BindSpriteSheets(Ensure.NotNull(spriteSheets));
         this.titleGradientPresentation = Ensure.NotNull(titleGradientPresentation);
-        this.titleBackdrop = titleBackdrop;
+        Backdrop = titleBackdrop;
         if (openingMusic == TitleOpeningMusic.Queue)
         {
             audio.QueueMusic(
@@ -186,7 +182,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         // The restored copyright is a shade of the installed title sheet (#1512), so a new installation's glyph colours
         // show with its sheet; only the backdrop is bound here.
-        titleBackdrop = backdrop;
+        Backdrop = backdrop;
     }
 
     /// <summary>
@@ -403,7 +399,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>The colour the title shows behind its floor and sprites: the installed title colours' backdrop (#1512).</summary>
-    private RgbColor Backdrop => titleBackdrop;
+    private RgbColor Backdrop { get; set; }
 
     /// <summary>
     /// The floor's shading (#1512, #1597): the shade each running console light shows, the tube light's then

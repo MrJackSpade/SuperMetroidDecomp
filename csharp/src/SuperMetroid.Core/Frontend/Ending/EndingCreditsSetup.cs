@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending.Artwork;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The game-completion facts the ending credits present (#633).</summary>

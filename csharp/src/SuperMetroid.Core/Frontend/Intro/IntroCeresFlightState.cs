@@ -6,7 +6,6 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.Intro;

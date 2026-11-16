@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Powamp;
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Gives a check's place the placement settings a room would give the leading part of <c>definition</c> before it binds,
-/// so a definition whose species builds a part's own entity from its placement (#2146, #2163, #2164) binds as that part.
+/// so a definition whose species builds a part's own entity from its placement (#2146, #2163, #2164, #2175) binds as that part.
 /// </summary>
 internal static class LeadingPartPlacement
 {
@@ -34,5 +35,8 @@ internal static class LeadingPartPlacement
             place.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
         if (definition is EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Squeept)
             place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+        // A Dragon placement names whether it is the body or the wing (#2175); the body carries the species' members.
+        if (definition == EnemyDefinitionId.Dragon)
+            place.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
     }
 }

@@ -12,7 +12,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new DragonEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        Ensure.NotNull(place).SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing
+            ? new DragonWingEntity(this, place, common)
+            : new DragonEntity(this, place, common);
 
     /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -61,25 +64,23 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int DragonWaitBeforeRiseFrames = 128;
 
 
-    /// <summary>Initializes the Dragon.</summary>
-    internal void InitializeDragon(RoomEnemyPlace place)
+    /// <summary>Initializes a Dragon's wing: it begins on the left-facing wings animation and never runs body AI.</summary>
+    internal void InitializeDragonWing(RoomEnemyPlace place)
     {
-        bool isWing = place.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing;
         // Every part finds the enemy its follow-up to a hit reaches.
-        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 1)[0]);
-
-        if (isWing)
+        PlaceFollowUpRecipient(place);
+        // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
+        place.SetSpeciesState(new DragonWingState
         {
-            // The wing begins on the left-facing wings animation and never runs body AI.
-            // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
-            place.SetSpeciesState(new DragonWingState
-            {
-                Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),
-            });
-            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-            return;
-        }
+            Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),
+        });
+        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+    }
 
+    /// <summary>Initializes a Dragon body, idle below the lava and waiting to rise.</summary>
+    internal void InitializeDragonBody(RoomEnemyPlace place)
+    {
+        PlaceFollowUpRecipient(place);
         // A body finds its wing, which its room lists right after it.
         place.SetSpeciesState(new DragonEnemyState(DragonAction.WaitToRise, wing: _places.ListedAfter(place, 1))
         {
@@ -88,8 +89,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Runs the Dragon body's five actions.</summary>
-    private void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
+    /// <summary>Records the enemy <paramref name="place"/>'s follow-up to a hit reaches: the enemy its room lists right after it.</summary>
+    private void PlaceFollowUpRecipient(RoomEnemyPlace place) =>
+        _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 1)[0]);
+
+    /// <summary>Runs the Dragon body's five actions; the body moves its cosmetic wing with it.</summary>
+    internal void RunDragonMain(RoomEnemyPlace place, DragonEnemyState state, SamusState samus)
     {
         switch (state.Action)
         {
@@ -250,32 +255,21 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyDragonFireball(context.Projectile, context.Camera.Y));
 
-    /// <summary>Runs Dragon's main AI.</summary>
-    internal void RunDragonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        // The body moves its cosmetic wing with it; the wing takes no action of its own.
-        if (place.SpeciesState<DragonEnemyState>() is { } body)
-            RunDragonMain(place, body, frame.Samus);
-    }
+    /// <summary>Advances a Dragon body's typed animation, whose attack raises its finishing cue.</summary>
+    internal static void AdvanceDragonBodyTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
+            static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (state, cue) =>
+            {
+                ApplyDragonCue(state, cue);
+                return null;
+            });
 
-    /// <summary>Advances Dragon's typed animation: a body's, whose attack raises its finishing cue, or a wing's, which raises none.</summary>
-    internal static void AdvanceDragonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
-    {
-        if (place.SpeciesState<DragonEnemyState>() is not null)
-        {
-            EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
-                static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-                static (state, cue) =>
-                {
-                    ApplyDragonCue(state, cue);
-                    return null;
-                });
-            return;
-        }
+    /// <summary>Advances a Dragon wing's typed animation, which raises no cue.</summary>
+    internal static void AdvanceDragonWingTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, DragonAnimations.Segments,
             static (DragonWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Dragon wing's cue-free animation raised {cue}."));
-    }
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal EnemyPowerBombReaction DragonPowerBombReaction => field ??= new()

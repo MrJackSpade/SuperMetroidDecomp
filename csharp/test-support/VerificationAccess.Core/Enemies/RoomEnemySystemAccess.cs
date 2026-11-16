@@ -304,11 +304,11 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Dragon wing state for every physical slot a wing occupies.</summary>
         internal IReadOnlyList<DragonWingState?> DragonWingStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonEntity, DragonWingState>())];
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<DragonWingEntity, DragonWingState>())];
 
         /// <summary>Typed Dragon body or wing state for every physical slot either occupies.</summary>
         internal IReadOnlyList<DragonPartState?> DragonPartStates =>
-            [.. self.Places.InUpdateOrder.Select(place => (DragonPartState?)place.EntityState<DragonEntity, DragonEnemyState>() ?? place.EntityState<DragonEntity, DragonWingState>())];
+            [.. self.Places.InUpdateOrder.Select(place => (DragonPartState?)place.EntityState<DragonEntity, DragonEnemyState>() ?? place.EntityState<DragonWingEntity, DragonWingState>())];
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>

@@ -15,14 +15,16 @@ internal static class DragonOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         body.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
-        enemies.DragonBehavior.InitializeDragon(body);
+        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        enemies.DragonBehavior.InitializeDragonBody(body);
         RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
-        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
-        enemies.DragonBehavior.InitializeDragon(wing);
+        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
+        enemies.DragonBehavior.InitializeDragonWing(wing);
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("The Dragon body has no state.");
+        AssertTrue(body.Entity is DragonEntity && wing.Entity is DragonWingEntity,
+            "parameter one selects the wing's own entity, and its absence the body's");
         AssertTrue(enemies.DragonWingStates[0] is null && enemies.DragonWingStates[1] is not null && enemies.DragonStates[1] is null,
             "parameter one selects the wing, which keeps no body state");
         AssertEqual(DragonAction.WaitToRise, bodyState.Action, "the body starts waiting to rise");

@@ -14,34 +14,40 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each typed body program's native entry point in bank $A6, in authored order.</summary>
     internal static readonly BodyEntry[] BodyEntries =
     [
-        new BodyEntry(RidleyBodySegment.Initial, 0xe538),
+        new BodyEntry(RidleyBodySegment.InitialFacingLeft, 0xe538),
         new BodyEntry(RidleyBodySegment.InitialFacingRight, 0xe542),
-        new BodyEntry(RidleyBodySegment.CeresLunge, 0xe548),
+        new BodyEntry(RidleyBodySegment.CeresLungeFacingLeft, 0xe548),
         new BodyEntry(RidleyBodySegment.CeresLungeFacingRight, 0xe576),
-        new BodyEntry(RidleyBodySegment.RetrieveBabyMetroid, 0xe658),
+        new BodyEntry(RidleyBodySegment.RetrieveBabyMetroidFacingLeft, 0xe658),
         new BodyEntry(RidleyBodySegment.RetrieveBabyMetroidFacingRight, 0xe676),
-        new BodyEntry(RidleyBodySegment.OpeningRoar, 0xe690),
+        new BodyEntry(RidleyBodySegment.OpeningRoarFacingLeft, 0xe690),
         new BodyEntry(RidleyBodySegment.OpeningRoarFacingRight, 0xe6ae),
-        new BodyEntry(RidleyBodySegment.DeathRoar, 0xe6c8),
+        new BodyEntry(RidleyBodySegment.DeathRoarFacingLeft, 0xe6c8),
         new BodyEntry(RidleyBodySegment.DeathRoarFacingRight, 0xe6de),
         new BodyEntry(RidleyBodySegment.TurnFromLeftToRight, 0xe6f0),
         new BodyEntry(RidleyBodySegment.TurnFromRightToLeft, 0xe706),
-        new BodyEntry(RidleyBodySegment.Fireballing, 0xe73a),
-        new BodyEntry(RidleyBodySegment.FireballingEnd, 0xe7ac),
+        new BodyEntry(RidleyBodySegment.FireballingFacingLeft, 0xe73a),
+        new BodyEntry(RidleyBodySegment.FireballingEndFacingLeft, 0xe7ac),
         new BodyEntry(RidleyBodySegment.FireballingFacingRight, 0xe7b4),
         new BodyEntry(RidleyBodySegment.FireballingEndFacingRight, 0xe820),
-        new BodyEntry(RidleyBodySegment.TransitionToFlying, 0xe91d),
+        new BodyEntry(RidleyBodySegment.TransitionToFlyingFacingLeft, 0xe91d),
         new BodyEntry(RidleyBodySegment.TransitionToFlyingFacingRight, 0xe945),
     ];
+
+    /// <summary>
+    /// The bank-$A6 instruction that goes on to its operand's list unless Ridley faces left (#2175). A left-facing list opens
+    /// with it, naming its right-facing counterpart; Ridley's owner starts the counterpart for his facing instead, so the
+    /// instruction is no beat of either.
+    /// </summary>
+    internal const ushort GoToUnlessFacingLeft = 0xe517;
 
     /// <summary>Each bank-$A6 Ridley instruction the body lists use: the cue it must become and its operand words.</summary>
     internal static readonly Dictionary<ushort, BodyInstruction> BodyInstructions = new()
     {
         [0xe4be] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.Roar)), 0),
         [0xe4ca] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.ClearRoaringFlag)), 0),
-        [0xe4d2] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToIfCeresAndSamusLowEnergy>(""), 1),
+        [0xe4d2] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.MayCutFireballingShort)), 1),
         [0xe501] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.SetClawHeight>(""), 1),
-        [0xe517] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToUnlessFacingLeft>(""), 1),
         [0xe51f] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.Move>(""), 2),
         [0xe71c] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Flip(HorizontalDirection.Left)), 0),
         [0xe727] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.FaceForward)), 0),

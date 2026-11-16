@@ -88,7 +88,7 @@ internal sealed class NorfairRidleyCombat
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
-        CeresRidleyFlight.StartRidleyAnimation(_ridleyEncounter.Ridley, place, RidleyBodySegment.Initial);
+        CeresRidleyFlight.StartRidleyAnimation(_ridleyEncounter.Ridley, place, RidleyAnimations.Initial);
 
         // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
         _ridleyEncounter.Ridley.Colours.ShowNorfairArrival();
@@ -118,7 +118,7 @@ internal sealed class NorfairRidleyCombat
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.BattleHeight,
             RidleyLiquidDefinitions.RiseVelocity, RidleyLiquidDefinitions.RiseDelay);
         state.FadeStep = 0;
-        CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.TransitionToFlying);
+        CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.TransitionToFlying);
         state.WingAnimationTimer = 8;
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
@@ -208,7 +208,7 @@ internal sealed class NorfairRidleyCombat
 
         // The fireball choice uses the current random number; it does not draw a new one.
         if (RidleyRandomDefinitions.WallSweepFireballs.IsTakenBy(_room.Random.Read()) && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
-            CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.Fireballing);
+            CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.Fireballing);
 
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
@@ -306,7 +306,7 @@ internal sealed class NorfairRidleyCombat
         {
             state.PogoBounceCount = 0;
             if (state.FacingDirection != RidleyFacing.Turning)
-                CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.Fireballing);
+                CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyAnimations.Fireballing);
         }
         state.Phase = RidleyPhase.NorfairPogoRise;
     }
@@ -561,7 +561,7 @@ internal sealed class NorfairRidleyCombat
         RoomEnemyPlace body,
         RidleyEnemyState state)
     {
-        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.DeathRoar);
+        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyAnimations.DeathRoar);
         state.Phase = RidleyPhase.NorfairDeathRoar;
         state.PhaseTimer = 32;
     }

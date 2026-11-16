@@ -100,7 +100,7 @@ public sealed class RidleyEnemyState
     public int HoverCounter { get; internal set; }
     /// <summary>Ridley's playing body animation and where it stands (#641, #1600); before the first start, the initial animation.</summary>
     internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; } =
-        new(RidleyAnimations.StartingWith(RidleyBodySegment.Initial), AnimationPlace.StartOfAnimation);
+        new(RidleyAnimations.StartingWith(RidleyBodySegment.InitialFacingLeft), AnimationPlace.StartOfAnimation);
     /// <summary>Gets the claw height Ridley's body animation last selected; he starts standing.</summary>
     public RidleyClawHeight ClawHeight { get; internal set; } = RidleyClawHeight.Standing;
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>

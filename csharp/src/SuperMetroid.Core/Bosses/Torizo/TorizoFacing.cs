@@ -16,6 +16,21 @@ internal static class TorizoFacing
     /// <summary>Whether the Torizo faces right.</summary>
     internal static bool FacesRight(RoomEnemyPlace torizo) => Posture(torizo).HasFlag(TorizoPostureFlags.FacingRight);
 
+    /// <summary>
+    /// The posture a step <paramref name="direction"/> on <paramref name="foot"/> leaves (#2165): facing that way, with the
+    /// opposite leg forward when the foot is not on that side. It replaces all three latches.
+    /// </summary>
+    internal static TorizoPostureFlags AfterStep(HorizontalDirection direction, HorizontalDirection foot) =>
+        (direction == HorizontalDirection.Right ? TorizoPostureFlags.FacingRight : TorizoPostureFlags.None)
+        | (foot != direction ? TorizoPostureFlags.OppositeLegForward : TorizoPostureFlags.None);
+
+    /// <summary>
+    /// Whether the step that left <paramref name="posture"/> was on the right foot (#2175): the foot on the facing side, or
+    /// the other with the opposite leg forward.
+    /// </summary>
+    internal static bool SteppedOnRightFoot(TorizoPostureFlags posture) =>
+        posture.HasFlag(TorizoPostureFlags.FacingRight) != posture.HasFlag(TorizoPostureFlags.OppositeLegForward);
+
     /// <summary>Tests whether the Torizo faces the side Samus is on, as its attack branches do.</summary>
     internal static bool FacesSamus(RoomEnemyPlace torizo, SamusState samus)
     {

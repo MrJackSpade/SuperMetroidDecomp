@@ -318,7 +318,9 @@ internal sealed record PartFrameConfiguration(
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Each Torizo starts dormant and wakes after its sleep; its AI, shot reactions and falls start the rest. Bomb
         // Torizo blows up its gut and face and turns and lands with and without its face; Golden Torizo turns, dodges and
-        // catches Super Missiles; both fall and die. Every branch and choice an animation names is followed, so Golden
+        // catches Super Missiles; both fall and die. A walking Torizo's decisions continue in the animation the owner picks
+        // for the posture its step left (#2175, TorizoBranches): Bomb Torizo's jump back, Golden Torizo's jump back, leap
+        // and sit, each way and onto either foot. Every other branch and choice an animation names is followed, so Golden
         // Torizo shows every pose but Bomb Torizo's dormant statue, which only Bomb Torizo's animations show.
         new("TorizoBehavior", null, null, "TorizoAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
@@ -328,6 +330,7 @@ internal sealed record PartFrameConfiguration(
                     "BombTorizoDormant", "BombTorizoAwakening",
                     "BombTorizoGutBlowingUp", "BombTorizoFaceBlowingUp", "FacelessTurningLeft", "FacelessTurningRight",
                     "TurningLeft", "TurningRight", "FacingLeftFalling", "FacingRightFalling", "Dying",
+                    .. TorizoJumpsBack,
                 ],
                 ["GoldenTorizo"] =
                 [
@@ -335,6 +338,8 @@ internal sealed record PartFrameConfiguration(
                     "GoldenDodgeTurningRight", "GoldenFacingLeftCatchingSuperMissileLeftLegForward",
                     "GoldenFacingLeftCatchingSuperMissileRightLegForward", "GoldenFacingRightCatchingSuperMissileLeftLegForward",
                     "GoldenFacingRightCatchingSuperMissileRightLegForward", "FacingLeftFalling", "FacingRightFalling", "Dying",
+                    .. TorizoJumpsBack, "FacingLeftJumpingForward", "FacingRightJumpingForward",
+                    "GoldenFacingLeftSittingDownAttack", "GoldenFacingRightSittingDownAttack",
                 ],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
@@ -358,6 +363,13 @@ internal sealed record PartFrameConfiguration(
     /// <summary>A hopper variant's four programs, as <c>HopperAnimationDefinitions.Programs</c> names them.</summary>
     private static string[] HopperVariant(string variant) =>
         [$"{variant}FloorJumping", $"{variant}FloorLanded", $"{variant}CeilingJumping", $"{variant}CeilingLanded"];
+
+    /// <summary>The jumps back a walking Torizo's decisions continue in, each way onto either foot (#2175).</summary>
+    private static string[] TorizoJumpsBack =>
+    [
+        "FacingLeftJumpingBackwardToLeftFoot", "FacingLeftJumpingBackwardToRightFoot",
+        "FacingRightJumpingBackwardToLeftFoot", "FacingRightJumpingBackwardToRightFoot",
+    ];
 
     /// <summary>The programs a Ki-Hunter's body is started in.</summary>
     private static string[] KiHunterBody =>

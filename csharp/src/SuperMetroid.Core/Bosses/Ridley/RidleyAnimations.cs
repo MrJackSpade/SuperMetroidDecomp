@@ -27,33 +27,42 @@ internal static class RidleyAnimations
     internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
         new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
     {
-        [P.Initial] = [UnlessFacingLeft(P.InitialFacingRight), Show(F.Left, StandingDuration)],
+        [P.InitialFacingLeft] = [Show(F.Left, StandingDuration)],
         [P.InitialFacingRight] = [Show(F.Right, StandingDuration)],
-        [P.CeresLunge] = [UnlessFacingLeft(P.CeresLungeFacingRight), .. Lunge(Side.Left, LungeExtendedDuration), .. Settle(Side.Left)],
+        [P.CeresLungeFacingLeft] = [.. Lunge(Side.Left, LungeExtendedDuration), .. Settle(Side.Left)],
         [P.CeresLungeFacingRight] = [.. Lunge(Side.Right, LungeExtendedDuration), .. Settle(Side.Right)],
-        [P.RetrieveBabyMetroid] = [UnlessFacingLeft(P.RetrieveBabyMetroidFacingRight), .. Lunge(Side.Left, 1)],
+        [P.RetrieveBabyMetroidFacingLeft] = [.. Lunge(Side.Left, 1)],
         [P.RetrieveBabyMetroidFacingRight] = [.. Lunge(Side.Right, 1)],
-        [P.OpeningRoar] = [UnlessFacingLeft(P.OpeningRoarFacingRight), .. OpeningRoar(Side.Left)],
-        [P.OpeningRoarFacingRight] = OpeningRoar(Side.Right),
-        [P.DeathRoar] = [UnlessFacingLeft(P.DeathRoarFacingRight), .. DeathRoar(Side.Left)],
-        [P.DeathRoarFacingRight] = DeathRoar(Side.Right),
+        [P.OpeningRoarFacingLeft] = OpeningRoarBeats(Side.Left),
+        [P.OpeningRoarFacingRight] = OpeningRoarBeats(Side.Right),
+        [P.DeathRoarFacingLeft] = DeathRoarBeats(Side.Left),
+        [P.DeathRoarFacingRight] = DeathRoarBeats(Side.Right),
         [P.TurnFromLeftToRight] = Turn(F.Left, HorizontalDirection.Right, F.Right),
         [P.TurnFromRightToLeft] = Turn(F.Right, HorizontalDirection.Left, F.Left),
-        [P.Fireballing] =
-        [
-            UnlessFacingLeft(P.FireballingFacingRight),
-            .. Fireballing(Side.Left, P.FireballingEnd, [Cue(K.AimFireball)]),
-        ],
-        [P.FireballingEnd] = [Cue(K.ClearRoaringFlag), Show(F.Left, 1)],
-        [P.FireballingFacingRight] = Fireballing(Side.Right, P.FireballingEndFacingRight, []),
+        [P.FireballingFacingLeft] = FireballingBeats(Side.Left, [Cue(K.AimFireball)]),
+        [P.FireballingEndFacingLeft] = [Cue(K.ClearRoaringFlag), Show(F.Left, 1)],
+        [P.FireballingFacingRight] = FireballingBeats(Side.Right, []),
         [P.FireballingEndFacingRight] = [Cue(K.ClearRoaringFlag), Show(F.Right, 1)],
-        [P.TransitionToFlying] =
-        [
-            UnlessFacingLeft(P.TransitionToFlyingFacingRight),
-            .. TransitionToFlying(Side.Left, new(1, -12), new(-4, -8), K.CeresStartLiftoff),
-        ],
-        [P.TransitionToFlyingFacingRight] = TransitionToFlying(Side.Right, new(-1, -12), new(4, -8), K.StartLiftoff),
+        [P.TransitionToFlyingFacingLeft] = TransitionToFlyingBeats(Side.Left, new(1, -12), new(-4, -8), K.CeresStartLiftoff),
+        [P.TransitionToFlyingFacingRight] = TransitionToFlyingBeats(Side.Right, new(-1, -12), new(4, -8), K.StartLiftoff),
     });
+
+    /// <summary>The standing pose, which his owner starts as he is placed.</summary>
+    internal static RidleyFacedAnimation Initial { get; } = new(P.InitialFacingLeft, P.InitialFacingRight);
+    /// <summary>Ceres Ridley's lunge.</summary>
+    internal static RidleyFacedAnimation CeresLunge { get; } = new(P.CeresLungeFacingLeft, P.CeresLungeFacingRight);
+    /// <summary>Ceres Ridley reaching for the Baby Metroid.</summary>
+    internal static RidleyFacedAnimation RetrieveBabyMetroid { get; } = new(P.RetrieveBabyMetroidFacingLeft, P.RetrieveBabyMetroidFacingRight);
+    /// <summary>The opening roar.</summary>
+    internal static RidleyFacedAnimation OpeningRoar { get; } = new(P.OpeningRoarFacingLeft, P.OpeningRoarFacingRight);
+    /// <summary>The death roar.</summary>
+    internal static RidleyFacedAnimation DeathRoar { get; } = new(P.DeathRoarFacingLeft, P.DeathRoarFacingRight);
+    /// <summary>Two fireball bursts, each running on into its end.</summary>
+    internal static RidleyFacedAnimation Fireballing { get; } = new(P.FireballingFacingLeft, P.FireballingFacingRight);
+    /// <summary>The fireballing tail that closes the mouth, where Ceres Ridley cuts his fireballing short.</summary>
+    internal static RidleyFacedAnimation FireballingEnd { get; } = new(P.FireballingEndFacingLeft, P.FireballingEndFacingRight);
+    /// <summary>Taking off.</summary>
+    internal static RidleyFacedAnimation TransitionToFlying { get; } = new(P.TransitionToFlyingFacingLeft, P.TransitionToFlyingFacingRight);
 
     /// <summary>
     /// The animation that starts at each segment: its segment played once, then a rest on its last frame; a fireballing segment
@@ -61,23 +70,23 @@ internal static class RidleyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
-        [P.Initial] = PlaysOnceAndHolds(P.Initial),
+        [P.InitialFacingLeft] = PlaysOnceAndHolds(P.InitialFacingLeft),
         [P.InitialFacingRight] = PlaysOnceAndHolds(P.InitialFacingRight),
-        [P.CeresLunge] = PlaysOnceAndHolds(P.CeresLunge),
+        [P.CeresLungeFacingLeft] = PlaysOnceAndHolds(P.CeresLungeFacingLeft),
         [P.CeresLungeFacingRight] = PlaysOnceAndHolds(P.CeresLungeFacingRight),
-        [P.RetrieveBabyMetroid] = PlaysOnceAndHolds(P.RetrieveBabyMetroid),
+        [P.RetrieveBabyMetroidFacingLeft] = PlaysOnceAndHolds(P.RetrieveBabyMetroidFacingLeft),
         [P.RetrieveBabyMetroidFacingRight] = PlaysOnceAndHolds(P.RetrieveBabyMetroidFacingRight),
-        [P.OpeningRoar] = PlaysOnceAndHolds(P.OpeningRoar),
+        [P.OpeningRoarFacingLeft] = PlaysOnceAndHolds(P.OpeningRoarFacingLeft),
         [P.OpeningRoarFacingRight] = PlaysOnceAndHolds(P.OpeningRoarFacingRight),
-        [P.DeathRoar] = PlaysOnceAndHolds(P.DeathRoar),
+        [P.DeathRoarFacingLeft] = PlaysOnceAndHolds(P.DeathRoarFacingLeft),
         [P.DeathRoarFacingRight] = PlaysOnceAndHolds(P.DeathRoarFacingRight),
         [P.TurnFromLeftToRight] = PlaysOnceAndHolds(P.TurnFromLeftToRight),
         [P.TurnFromRightToLeft] = PlaysOnceAndHolds(P.TurnFromRightToLeft),
-        [P.Fireballing] = new([Whole(P.Fireballing), Whole(P.FireballingEnd)], AnimationEnd.Holds),
-        [P.FireballingEnd] = PlaysOnceAndHolds(P.FireballingEnd),
+        [P.FireballingFacingLeft] = new([Whole(P.FireballingFacingLeft), Whole(P.FireballingEndFacingLeft)], AnimationEnd.Holds),
+        [P.FireballingEndFacingLeft] = PlaysOnceAndHolds(P.FireballingEndFacingLeft),
         [P.FireballingFacingRight] = new([Whole(P.FireballingFacingRight), Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),
         [P.FireballingEndFacingRight] = PlaysOnceAndHolds(P.FireballingEndFacingRight),
-        [P.TransitionToFlying] = PlaysOnceAndHolds(P.TransitionToFlying),
+        [P.TransitionToFlyingFacingLeft] = PlaysOnceAndHolds(P.TransitionToFlyingFacingLeft),
         [P.TransitionToFlyingFacingRight] = PlaysOnceAndHolds(P.TransitionToFlyingFacingRight),
     };
 
@@ -120,7 +129,7 @@ internal static class RidleyAnimations
     }
 
     /// <summary>The opening roar of one facing.</summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] OpeningRoar(Side side) =>
+    private static AnimationBeat<F, RidleyBodyCue>[] OpeningRoarBeats(Side side) =>
     [
         Show(side.Standing, 6),
         Cue(K.Roar),
@@ -132,7 +141,7 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>The death roar of one facing; it rests on the open mouth.</summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] DeathRoar(Side side) =>
+    private static AnimationBeat<F, RidleyBodyCue>[] DeathRoarBeats(Side side) =>
     [
         Show(side.Standing, 6),
         Cue(K.Roar),
@@ -153,19 +162,19 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>
-    /// Two fireball bursts of one facing, either cut short to <paramref name="end"/> in Ceres when Samus is low on
-    /// energy; the left-facing burst aims once more before its second roar, and the animation runs on into its end.
+    /// Two fireball bursts of one facing, either of which Ceres Ridley may cut short when Samus is low on energy
+    /// (<see cref="RidleyBodyCueKind.MayCutFireballingShort"/>); the left-facing burst aims once more before its second roar,
+    /// and the animation runs on into its end.
     /// </summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] Fireballing(Side side, RidleyBodySegment end,
-        AnimationBeat<F, RidleyBodyCue>[] beforeSecondBurst)
+    private static AnimationBeat<F, RidleyBodyCue>[] FireballingBeats(Side side, AnimationBeat<F, RidleyBodyCue>[] beforeSecondBurst)
     {
         var steps = new List<AnimationBeat<F, RidleyBodyCue>>
         {
-            IfCeresAndSamusLowEnergy(end),
+            Cue(K.MayCutFireballingShort),
             Show(side.Standing, 8),
         };
         steps.AddRange(Burst(side));
-        steps.Add(IfCeresAndSamusLowEnergy(end));
+        steps.Add(Cue(K.MayCutFireballingShort));
         steps.Add(Show(side.Standing, BurstPauseDuration));
         steps.AddRange(beforeSecondBurst);
         steps.AddRange(Burst(side));
@@ -188,7 +197,7 @@ internal static class RidleyAnimations
     }
 
     /// <summary>The crouch, two hops and lift-off of one facing.</summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] TransitionToFlying(
+    private static AnimationBeat<F, RidleyBodyCue>[] TransitionToFlyingBeats(
         Side side, Offset16<RoomPixels> firstHop, Offset16<RoomPixels> secondHop, RidleyBodyCueKind liftoff) =>
     [
         Show(side.Standing, 3),
@@ -200,14 +209,6 @@ internal static class RidleyAnimations
         Show(side.LegsHalfExtended, LiftoffPoseDuration),
         Show(side.Standing, LiftoffPoseDuration),
     ];
-
-    /// <summary>Redirects to <paramref name="target"/> unless Ridley faces left.</summary>
-    private static AnimationBeat<F, RidleyBodyCue> UnlessFacingLeft(RidleyBodySegment target) =>
-        Cue(new RidleyBodyCue.GoToUnlessFacingLeft(Target: target));
-
-    /// <summary>Redirects to <paramref name="target"/> in Ceres when Samus is low on energy.</summary>
-    private static AnimationBeat<F, RidleyBodyCue> IfCeresAndSamusLowEnergy(RidleyBodySegment target) =>
-        Cue(new RidleyBodyCue.GoToIfCeresAndSamusLowEnergy(Target: target));
 
     /// <summary>Selects claw height <paramref name="height"/>.</summary>
     private static AnimationBeat<F, RidleyBodyCue> Feet(RidleyClawHeight height) =>

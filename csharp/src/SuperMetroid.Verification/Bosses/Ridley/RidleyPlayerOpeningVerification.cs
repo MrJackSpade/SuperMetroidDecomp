@@ -60,7 +60,7 @@ internal static class RidleyPlayerOpeningVerification
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92));
+        (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92), state.FacingDirection);
         body.AnimationClock.HoldFor(W(seed, 0xf94));
         body.FrameCounter = W(seed, 0xfa4);
         body.SpritemapPointer = W(seed, 0xf8e);

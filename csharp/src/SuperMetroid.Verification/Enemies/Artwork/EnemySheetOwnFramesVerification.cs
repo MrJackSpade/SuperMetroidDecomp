@@ -273,10 +273,15 @@ internal static class EnemySheetOwnFramesVerification
             });
     }
 
-    /// <summary>The body animations a Torizo cue continues in, lands in or interrupts the walk with (#2028).</summary>
+    /// <summary>
+    /// The body animations a Torizo cue continues in, lands in or interrupts the walk with (#2028); a decision's owner
+    /// continues in the animation for the posture the walk's step left, either way and on either foot (#2175).
+    /// </summary>
     private static IEnumerable<TorizoAnimation> TorizoCueTargets(TorizoCue cue) => cue switch
     {
-        TorizoCue.Branch branch => [branch.Target],
+        TorizoCue.Branch branch => [.. new[] { HorizontalDirection.Left, HorizontalDirection.Right }.SelectMany(direction =>
+            new[] { HorizontalDirection.Left, HorizontalDirection.Right }.Select(foot =>
+                TorizoBranches.Target(branch.Kind, TorizoFacing.AfterStep(direction, foot))))],
         TorizoCue.Interrupt interrupt => [interrupt.Animation],
         TorizoCue.Choice choice => [choice.Target, choice.Alternate],
         TorizoCue.LandIn landIn => [landIn.Landing],
@@ -294,22 +299,26 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames.Of,
             [
-                RidleyBodySegment.Initial, RidleyBodySegment.OpeningRoar, RidleyBodySegment.TransitionToFlying, RidleyBodySegment.Fireballing,
-                RidleyBodySegment.TurnFromLeftToRight, RidleyBodySegment.TurnFromRightToLeft, RidleyBodySegment.DeathRoar,
+                .. EitherFacing(RidleyAnimations.Initial, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.Fireballing,
+                    RidleyAnimations.DeathRoar),
+                RidleyBodySegment.TurnFromLeftToRight, RidleyBodySegment.TurnFromRightToLeft,
             ], RidleyCueTargets),
             [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames.Of,
             [
-                RidleyBodySegment.Initial, RidleyBodySegment.OpeningRoar, RidleyBodySegment.TransitionToFlying, RidleyBodySegment.CeresLunge,
-                RidleyBodySegment.RetrieveBabyMetroid, RidleyBodySegment.Fireballing,
+                .. EitherFacing(RidleyAnimations.Initial, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.CeresLunge,
+                    RidleyAnimations.RetrieveBabyMetroid, RidleyAnimations.Fireballing),
             ], RidleyCueTargets),
             [EnemyDefinitionId.RidleyBreakupPiece] = new HashSet<EnemyFrameId>(),
         });
 
-    /// <summary>The body segment whose animation a Ridley cue redirects to.</summary>
+    /// <summary>The segments Ridley's owner starts <paramref name="animations"/> at, facing either way (#2175).</summary>
+    private static IEnumerable<RidleyBodySegment> EitherFacing(params RidleyFacedAnimation[] animations) =>
+        animations.SelectMany(animation => new[] { animation.FacingLeft, animation.FacingRight });
+
+    /// <summary>The body segments whose animation a Ridley cue's owner continues in: a cut-short fireballing's end, either way (#2175).</summary>
     private static IEnumerable<RidleyBodySegment> RidleyCueTargets(RidleyBodyCue cue) => cue switch
     {
-        RidleyBodyCue.GoToUnlessFacingLeft redirect => [redirect.Target],
-        RidleyBodyCue.GoToIfCeresAndSamusLowEnergy redirect => [redirect.Target],
+        RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.MayCutFireballingShort } => EitherFacing(RidleyAnimations.FireballingEnd),
         _ => [],
     };
 

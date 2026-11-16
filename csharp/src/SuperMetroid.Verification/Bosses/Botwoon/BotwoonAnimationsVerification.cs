@@ -92,8 +92,8 @@ internal static class BotwoonAnimationsVerification
             movingState.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
             movingState.InsideHole = false;
             animateHead(movingHead, movingState);
-            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, octantDirections[octant]),
-                movingState.HeadAnimation, $"moving head toward octant {octant}");
+            AssertTrue(PlaysHead(movingState, new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, octantDirections[octant])),
+                $"moving head toward octant {octant}");
             CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
                 movingState, $"AI-selected moving octant {octant}");
 
@@ -105,8 +105,8 @@ internal static class BotwoonAnimationsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };
             aimHead(spitEnemies, spitHead, spitState, samus);
-            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, octantDirections[octant]),
-                spitState.HeadAnimation, $"spitting head toward octant {octant}");
+            AssertTrue(PlaysHead(spitState, new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, octantDirections[octant])),
+                $"spitting head toward octant {octant}");
             // Outside a hidden spit the aim fires a three-shot volley at once. The spit angle is a quarter turn minus
             // the aim and the volley spreads a sixteenth of a turn either side of it, all wrapping around the turn.
             (RoomEnemySystem volleyEnemies, RoomEnemyPlace volleyHead, BotwoonEnemyState volleyState) = NewBotwoonHead();
@@ -138,7 +138,7 @@ internal static class BotwoonAnimationsVerification
         state.InsideHole = true;
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
-        AssertEqual(BotwoonHeadAnimationSegment.Hidden, state.HeadAnimation, "Botwoon's head hides inside the wall");
+        AssertTrue(PlaysHead(state, BotwoonHeadAnimationSegment.Hidden), "Botwoon's head hides inside the wall");
         AssertEqual((ushort)1, head.AnimationClock.Hold.RawValue, "a changed Botwoon head program restarts on the next update");
 
         for (ushort selector = 0; selector < 64; selector += 2)
@@ -238,6 +238,10 @@ internal static class BotwoonAnimationsVerification
         enemies.BotwoonBehavior.AttachBotwoon(head, state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }
+
+    /// <summary>Whether the head plays the animation that begins at <paramref name="segment"/>.</summary>
+    private static bool PlaysHead(BotwoonEnemyState state, BotwoonHeadAnimationSegment segment) =>
+        ReferenceEquals(state.HeadPlayback.Animation, BotwoonAnimations.HeadStartingWith(segment));
 
     /// <summary>Starts a typed head program from its first instruction and compares it with the selected cartridge list.</summary>
     private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, BotwoonHeadAnimationSegment program, string label,

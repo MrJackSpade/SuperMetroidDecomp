@@ -61,10 +61,13 @@ internal static class DragonBehaviorVerification
             for (int part = 0; part < 2; part++)
             {
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[bodySlot + part];
+                place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
                 place.Bind(EnemyDefinitionId.Dragon, place.Definition);
                 place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-                place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
-                enemies.DragonBehavior.InitializeDragon(place);
+                if (part == 0)
+                    enemies.DragonBehavior.InitializeDragonBody(place);
+                else
+                    enemies.DragonBehavior.InitializeDragonWing(place);
             }
         }
         foreach (int bodySlot in new[] { 0, 2 })
@@ -87,10 +90,14 @@ internal static class DragonBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        bool wing = selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight;
+        place.SetSpawnParameter1(EnemyDefinitionId.Dragon, wing ? (ushort)1 : (ushort)0);
         place.Bind(EnemyDefinitionId.Dragon, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.Dragon, selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight ? (ushort)1 : (ushort)0);
-        enemies.DragonBehavior.InitializeDragon(place);
+        if (wing)
+            enemies.DragonBehavior.InitializeDragonWing(place);
+        else
+            enemies.DragonBehavior.InitializeDragonBody(place);
         DragonPartState state = enemies.DragonPartStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
         if (state is DragonEnemyState body)
             body.AnimationFinished = false;

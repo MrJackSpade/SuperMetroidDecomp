@@ -183,7 +183,7 @@ internal static class BotwoonAnimations
     /// <summary>Raises a facing-radius update before showing the closed mouth, which is held.</summary>
     private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] MovingHead(CompassDirection facing) =>
     [
-        HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
+        HeadEvent(new BotwoonHeadCue.ApplyFacingRadius(facing)),
         HeadFrame(BotwoonHeadFrame.Closed(facing), 1),
     ];
 
@@ -191,9 +191,9 @@ internal static class BotwoonAnimations
     private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] SpittingHead(CompassDirection facing) =>
     [
         HeadFrame(BotwoonHeadFrame.Closed(facing), MouthClosedBeforeSpit),
-        HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
-        HeadEvent(BotwoonHeadCue.QueueSpitSound),
-        HeadEvent(BotwoonHeadCue.ReachSpitFrame),
+        HeadEvent(new BotwoonHeadCue.ApplyFacingRadius(facing)),
+        HeadEvent(new BotwoonHeadCue.Signal(BotwoonHeadCueKind.QueueSpitSound)),
+        HeadEvent(new BotwoonHeadCue.Signal(BotwoonHeadCueKind.ReachSpitFrame)),
         // Botwoon holds its open mouth longer only when spitting left (25 updates, the rest 16).
         HeadFrame(BotwoonHeadFrame.Open(facing), facing == CompassDirection.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
     ];

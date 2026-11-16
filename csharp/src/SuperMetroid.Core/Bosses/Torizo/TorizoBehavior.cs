@@ -384,9 +384,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Stepped stepped:
                 // The step replaces all three posture latches: the way it faces, and which leg leads.
-                SetPosture(torizo,
-                    (stepped.Direction == HorizontalDirection.Right ? TorizoPostureFlags.FacingRight : TorizoPostureFlags.None)
-                    | (stepped.Foot != stepped.Direction ? TorizoPostureFlags.OppositeLegForward : TorizoPostureFlags.None));
+                SetPosture(torizo, TorizoFacing.AfterStep(stepped.Direction, stepped.Foot));
                 state.CountDecisionStep();
                 return null;
 
@@ -420,7 +418,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    branch.Target);
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
             {
@@ -515,7 +513,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    branch.Target);
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEyeBeam }:
                 Attacks.SpawnGoldenTorizoEyeBeam(torizo);
@@ -549,7 +547,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     inputs.ControllerInput,
-                    branch.Target);
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoChozoOrbs }:
                 Attacks.SpawnGoldenTorizoChozoOrb(torizo);
@@ -560,7 +558,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     torizo,
                     state,
                     inputs.Samus,
-                    branch.Target);
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
             {

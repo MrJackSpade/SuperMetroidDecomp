@@ -8,10 +8,13 @@ internal abstract record TorizoCue
     {
     }
 
-    /// <summary>A dodge or an attack that leaves the walk for good when its test passes (#2028).</summary>
+    /// <summary>
+    /// A dodge or an attack that leaves the walk for good when its test passes (#2028): the owner continues in the
+    /// decision's animation for the way the walk's last step faced and the foot it stepped on (#2175,
+    /// <see cref="TorizoBranches.Target"/>).
+    /// </summary>
     /// <param name="Kind">The decision and what it tests.</param>
-    /// <param name="Target">The animation the decision continues in, from its start.</param>
-    internal sealed record Branch(TorizoBranchKind Kind, TorizoAnimation Target) : TorizoCue;
+    internal sealed record Branch(TorizoBranchKind Kind) : TorizoCue;
 
     /// <summary>
     /// An attack or a stagger that interrupts the walk when its test passes (#2028): the walk's place is kept, and

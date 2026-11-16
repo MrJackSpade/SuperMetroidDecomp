@@ -486,7 +486,6 @@ internal static class DraygonAnimations
         [P.ArmsFacingLeftGrab] = new([new(P.ArmsFacingLeftGrab, 0, 8, 1)], AnimationEnd.Holds),
         [P.ArmsFacingLeftDying] = new([new(P.ArmsFacingLeftDying, 0, 4, 1), new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosions, 8, 6, 1)], AnimationEnd.LoopsFrom(4)),
         [P.BodyFacingLeftIdle] = new([new(P.BodyFacingLeftIdle, 0, 2, 1)], AnimationEnd.Holds),
-        [P.BodyDying] = new([new(P.BodyDying, 0, 2, 1), new(P.BodyDyingExplosions, 0, 6, 8), new(P.BodyDyingExplosions, 6, 2, 1), new(P.BodyDyingExplosions, 8, 6, 1)], AnimationEnd.LoopsFrom(3)),
         [P.Delete] = new([], AnimationEnd.Stops),
         [P.BodyFacingLeftFireGoop] = new([new(P.BodyFacingLeftFireGoop, 0, 9, 1)], AnimationEnd.Holds),
         [P.BodyFacingLeftRoar] = new([new(P.BodyFacingLeftRoar, 0, 8, 1)], AnimationEnd.Holds),

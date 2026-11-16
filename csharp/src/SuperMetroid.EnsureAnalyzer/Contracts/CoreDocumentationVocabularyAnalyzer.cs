@@ -77,6 +77,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// port's C# construction; and, outside hardware owners, the Japanese and North American release named with no
 /// difference stated, a speed row, a cited variable label, a sort order, a scroll table, colours loaded into a row, a
 /// state extension or extra values, and a literal write.
+/// #2222 adds, outside hardware owners, a background object, a palette's ranges, a colour write or a fade's component
+/// steps, a script's record, the dropped drawing order (once interleaved, a presentation quirk), an opcode mnemonic in
+/// markup, a register reloaded, a field of the C reimplementation, a packed value, a disassembly label, an encounter's
+/// numbered event, stage, form, state, place or region, and the retail population or initializer.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1012,6 +1016,131 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"\bliteral\s+(?:writes?|stores?|assignments?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's cinematic objects named as background objects (#2222), outside hardware owners, spaced or
+    /// hyphenated (five cinematic background-object updates, the eye's background object). Core names the actor, the
+    /// animation or the update. English stays legal: a background alone and an object in the background.
+    /// </summary>
+    private static readonly Regex BackgroundObjectProse = new(
+        @"\bbackground[-\s]+objects?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A palette's slices named as the ranges they colour (#2222), outside hardware owners and markup: a palette, colour,
+    /// text, portrait, projectile, sprite or gameplay range, joined by slashes, commas or a conjunction (text/portrait
+    /// ranges, gameplay and projectile ranges, page-three text and portrait ranges). Core names what fades or shows. English
+    /// stays legal: a range alone, a shot's range and a range of rows.
+    /// </summary>
+    private static readonly Regex PaletteRangeProse = new(
+        @"\b(?:palette|colou?r|text|portrait|projectile|sprite|gameplay)s?(?:\s*[/,]\s*|\s+(?:and|or)\s+|[-\s]+)" +
+        @"(?:(?:palette|colou?r|text|portrait|projectile|sprite|gameplay)s?(?:\s*[/,]\s*|\s+(?:and|or)\s+|[-\s]+))*ranges?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A colour told as a write to the palette or a fade's channel step (#2222), outside hardware owners and markup: a
+    /// colour write, spaced or hyphenated, overwriting up to four words before a colour (explicitly overwrites the two
+    /// glyph colours), and a component update or step (thirty-two component steps). Core says which colours a picture or
+    /// the screen shows and how a fade steps. English stays legal: a colour alone, a colour step, writing a picture's
+    /// colours into a buffer and writing a message.
+    /// </summary>
+    private static readonly Regex ColourWriteProse = new(
+        @"\bcolou?r[-\s]+writes?\b|\boverwrit(?:es|e|ing|ten)\s+(?:[\w'-]+\s+){0,4}?colou?rs?\b" +
+        @"|\bcomponent[-\s]+(?:updates?|steps?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A script's step named as the original's record (#2222), outside hardware owners, spaced or hyphenated: a character,
+    /// caption, glyph, letter, text, script, instruction, wait, delay or one-frame record (between character records, the
+    /// katakana caption record, installed glyph records). Core names what the step types, shows or waits. English stays
+    /// legal: a record of something, the verb and a demo's recording.
+    /// </summary>
+    private static readonly Regex ScriptRecordProse = new(
+        @"\b(?:character|caption|glyph|letter|text|script|instruction|wait|delay|one-frame)[-\s]+records?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The port's narration of the hardware's drawing order it dropped (#2222), outside hardware owners: tiers that once
+    /// interleaved and a presentation quirk the model does not keep (the priority tiers that once interleaved them are a
+    /// presentation quirk). Core states the order the layers are drawn in. English stays legal: interleaving alone and a
+    /// quirk of the game.
+    /// </summary>
+    private static readonly Regex DroppedQuirkProse = new(
+        @"\bonce\s+interleaved\b|\bpresentation\s+quirks?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A CPU opcode's mnemonic set as code in markup (#2222), outside hardware owners, read case-sensitively: the
+    /// increments, decrements, carry and flag instructions and register transfers <see cref="CpuProse"/>'s list leaves out
+    /// (<c>&lt;c&gt;INC&lt;/c&gt;</c> permits more than one ring, <c>&lt;c&gt;DEC&lt;/c&gt;</c>, <c>&lt;c&gt;CLC&lt;/c&gt;</c>), which
+    /// read as words outside markup. Core says what the value does: a count goes up. English stays legal: a name in capitals
+    /// that is no mnemonic (<c>&lt;c&gt;HUD&lt;/c&gt;</c>).
+    /// </summary>
+    private static readonly Regex MarkupMnemonicProse = new(
+        @"<c>\s*(?:INC|DEC|INX|INY|DEX|DEY|CLC|SEC|CLI|SEI|CLV|BIT|TXY|TYX|TCD|TDC|TCS|TSC|XCE)\b[^<]*</c>",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A CPU register reloaded (#2222), outside hardware owners: reload, reloads, reloaded or reloading the X, Y or A
+    /// register, the accumulator or an index register (does not reload Y), the letter read case-sensitively. Core says what
+    /// value the step uses. English stays legal: reloading a timer, a room or a weapon.
+    /// </summary>
+    private static readonly Regex RegisterReloadProse = new(
+        @"\b[Rr]eload(?:s|ed|ing)?\s+(?:the\s+)?(?:[XYA]\b|accumulator\b|index\s+registers?\b)", RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A field of the original's C reimplementation cited in prose (#2222), outside hardware owners and markup: a
+    /// capitalised structure name, a dot and a lower-case field (the Baby place's <c>Enemy.health</c>,
+    /// <c>Samus.x_pos</c>). Core names the value it means. English stays legal: a file's name (<c>Program.cs</c>) and a
+    /// member Core cites with <c>see cref</c>.
+    /// </summary>
+    private static readonly Regex CFieldProse = new(
+        @"\b[A-Z][A-Za-z]*\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*\b(?<!\.(?:cs|json|png|md|smc|sfc|txt|ps1|py|xml|csproj|slnx|dll|exe))",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A value told as stored packed (#2222), outside hardware owners: packed or unpacked, then up to four words and a
+    /// value, field, word, byte, pair, bit, radius, coordinate, position, decimal or digit (the projectile's packed X and
+    /// Y collision radii, a packed decimal pair). Core names the values it holds. English stays legal: a pack of enemies,
+    /// packing pictures onto a sheet and a backend's packing.
+    /// </summary>
+    private static readonly Regex PackedProse = new(
+        @"\b(?:un)?packed\s+(?:[\w-]+\s+){0,4}?(?:values?|fields?|words?|bytes?|pairs?|bits?|radii|radius|coordinates?" +
+        @"|positions?|decimals?|digits?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original disassembly's label set as a summary (#2222), outside hardware owners: an enemy projectile or enemy
+    /// proj animation label (Enemy projectile animation: Mother brains drool) and the original's Japanese text label
+    /// (time Bomb set japan text). Core says what the animation shows. English stays legal: an enemy's animation and
+    /// the Japanese text.
+    /// </summary>
+    private static readonly Regex DisassemblyLabelProse = new(
+        @"\bEnemy\s+(?:proj(?:ectile)?\s+)?animation\s*:|\bjapan\s+text\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's numbering of its encounters' states (#2222), outside hardware owners and markup: an event, form,
+    /// place or region by a number in digits, with an optional to (changes body form to 4, scroll region 1, lands in
+    /// place 17), and a corpse, combat, final-combat, body or story event, form or state by a number in digits or words
+    /// (corpse state one, final-combat state 2, story event two). Core names the story event, the form, the state, the
+    /// scroll or the place. English stays legal: a number that counts the noun after it (a form 2 frames long), a number
+    /// word after a verb or as a determiner (places two pickups, the four definitions that form one encounter), a room's
+    /// or the beam's state by number (#1769), and a stage by number, which names the game's own Speed Booster stages and
+    /// the stages its pictures show.
+    /// </summary>
+    private static readonly Regex NumberedStateProse = new(
+        @"(?:\b(?:events?|forms?|places?|regions?)\s+(?:to\s+)?\d+\b" +
+        @"|\b(?:corpse|combat|final-combat|body|story)[-\s]+(?:events?|forms?|states?)\s+(?:to\s+)?(?:\d+|zero|one|two|three|four" +
+        @"|five|six|seven|eight|nine|ten|eleven|twelve)\b)" +
+        @"(?!\s+(?:of|frames?|pixels?|updates?|steps?|times?|blocks?|seconds?|hits?|calls?)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The cartridge's retail data named for its storage (#2222), outside hardware owners: retail then up to two words and
+    /// a population or an initializer (Mother Brain's retail population, retail part init). Core names the enemies in the
+    /// room and what their setup does. English stays legal: a retail cartridge alone.
+    /// </summary>
+    private static readonly Regex RetailPopulationProse = new(
+        @"\bretail\s+(?:[\w'-]+\s+){0,2}?(?:populations?|init(?:iali[sz](?:ation|ers?|ed))?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// Fix history told by an adverb of error (#2192), part of the review trail and read in every Core type: incorrectly,
     /// wrongly, erroneously or mistakenly (Testing it here incorrectly advanced the animation, Requiring a collision
     /// wrongly skipped the check). Core states what the game does; what an earlier version of the port got wrong is the
@@ -1404,6 +1533,18 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : LoadedRowProse.Match(Markup.Replace(text, " ")) is { Success: true } loadedRow ? loadedRow.Value
             : StateExtensionProse.Match(text) is { Success: true } stateExtension ? stateExtension.Value
             : LiteralWriteProse.Match(text) is { Success: true } literalWrite ? literalWrite.Value
+            : BackgroundObjectProse.Match(text) is { Success: true } backgroundObject ? backgroundObject.Value
+            : PaletteRangeProse.Match(Markup.Replace(text, " ")) is { Success: true } paletteRange ? paletteRange.Value
+            : ColourWriteProse.Match(Markup.Replace(text, " ")) is { Success: true } colourWrite ? colourWrite.Value
+            : ScriptRecordProse.Match(text) is { Success: true } scriptRecord ? scriptRecord.Value
+            : DroppedQuirkProse.Match(text) is { Success: true } droppedQuirk ? droppedQuirk.Value
+            : MarkupMnemonicProse.Match(text) is { Success: true } markupMnemonic ? markupMnemonic.Value
+            : RegisterReloadProse.Match(text) is { Success: true } registerReload ? registerReload.Value
+            : CFieldProse.Match(Markup.Replace(text, " ")) is { Success: true } cField ? cField.Value
+            : PackedProse.Match(text) is { Success: true } packed ? packed.Value
+            : DisassemblyLabelProse.Match(text) is { Success: true } disassemblyLabel ? disassemblyLabel.Value
+            : NumberedStateProse.Match(Markup.Replace(text, " ")) is { Success: true } numberedState ? numberedState.Value
+            : RetailPopulationProse.Match(text) is { Success: true } retailPopulation ? retailPopulation.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

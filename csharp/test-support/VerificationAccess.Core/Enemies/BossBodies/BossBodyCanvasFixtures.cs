@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;

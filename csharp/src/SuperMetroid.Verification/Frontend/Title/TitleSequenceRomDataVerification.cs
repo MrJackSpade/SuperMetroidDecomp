@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;

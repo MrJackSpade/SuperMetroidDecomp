@@ -194,8 +194,8 @@ internal static class ShutterBehaviorVerification
             VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
-            AssertEqual((int)expectedUpperY, state.UpperEndpointY, $"{context}: upper endpoint");
-            AssertEqual((int)expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
+            AssertEqual(expectedUpperY, state.UpperEndpointY, $"{context}: upper endpoint");
+            AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
             SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
             SignedSixteenSixteen up = -down;
             AssertEqual(down, state.DownVelocity,

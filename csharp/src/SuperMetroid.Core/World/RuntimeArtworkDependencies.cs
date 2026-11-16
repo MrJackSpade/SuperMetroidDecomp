@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.World;
 

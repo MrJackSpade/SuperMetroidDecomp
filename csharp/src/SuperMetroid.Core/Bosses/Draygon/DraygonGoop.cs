@@ -10,18 +10,15 @@ internal sealed class DraygonGoop
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
-    private readonly DraygonParts _parts;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;
     /// <summary>How Draygon moves along an angle or horizontally, and the breath bubbles it trails.</summary>
     private readonly DraygonMovement _movement;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGoop(EnemyRoomBinding room, DraygonParts parts, DraygonTurrets turrets, DraygonMovement movement)
+    internal DraygonGoop(EnemyRoomBinding room, DraygonTurrets turrets, DraygonMovement movement)
     {
         _room = room;
-        _parts = parts;
         _turrets = turrets;
         _movement = movement;
     }

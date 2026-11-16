@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;

@@ -48545,6 +48545,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeProgress",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFadeProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFakeDeath",
       "kind": "class",
       "scope": "product",
@@ -50930,19 +50943,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaPlacement",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaPlacement.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaSegment",
       "kind": "enum",
       "scope": "product",
@@ -50993,19 +50993,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaSpawnReservation",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaSpawnReservation.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaSpawnReservations",
@@ -51595,32 +51582,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyFade",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyFadeProgress",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyFadeProgress.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyLook",
       "kind": "record struct",
       "scope": "product",
@@ -51893,6 +51854,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonColours.RunningBodyFade",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonColours.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonCombat",
       "kind": "class",
       "scope": "product",
@@ -52101,19 +52075,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEncounter",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonEncounter.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEncounterSetUp",
       "kind": "static class",
       "scope": "test",
@@ -52156,7 +52117,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonEnemyState.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "context-bag"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyStateAccess",
@@ -52175,7 +52140,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyStateAccess.extension(SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState)",
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyStateAccess.extension(SuperMetroid.Core.Bosses.Phantoon.PhantoonPart)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52228,6 +52193,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFadeProgress",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFadeProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFigureEightStage",
@@ -52455,6 +52433,23 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPart",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPart.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPartCue",
@@ -52785,34 +52780,34 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerDefinitions.DurationChoice",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerDurations",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonTimerDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonTimerDurations.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerDefinitions.TimerKind",
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerLength",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonTimerDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonTimerLength.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerSchedule",
-      "kind": "struct",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -52821,7 +52816,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonTimerSchedule.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonWave",
@@ -75814,6 +75809,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/NoobTube/NoobTubeProjectileFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.NormalShotHit",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/NormalShotHit.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -150581,6 +150589,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonReport1196Verification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonShotDamageVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonShotDamageVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

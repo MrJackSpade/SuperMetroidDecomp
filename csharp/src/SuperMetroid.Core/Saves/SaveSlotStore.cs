@@ -52,7 +52,7 @@ public sealed class SaveSlotStore
     public SaveFileHistory History { get; private set; }
 
     /// <summary>Installs map rules when the host binds artwork.</summary>
-    internal void BindMaps(IAreaMapSource? maps) => this.maps = maps;
+    internal void BindMaps(IAreaMapSource maps) => this.maps = Ensure.NotNull(maps);
 
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(SaveSlot slot)

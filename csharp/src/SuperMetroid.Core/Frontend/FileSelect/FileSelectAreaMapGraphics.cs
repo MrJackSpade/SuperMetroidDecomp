@@ -18,37 +18,30 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>The map's menu screen: its artwork, backdrop and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>The installed world-map backdrops, rebound when presentation content changes.</summary>
-    [AllowNull]
-    private MenuBackdrops Backdrops { get => field ?? throw new InvalidOperationException("No area-map backdrops are installed."); set; }
+    private MenuBackdrops backdrops;
     /// <summary>Installed world-label positions used when placing the screen's sprites.</summary>
-    private WorldMapLabelPositions? labels;
+    private WorldMapLabelPositions labels;
     /// <summary>The installed sheets the world map's foreground and each area's background are pictured in (#1467).</summary>
-    private InstalledSpriteSheets? worldSheets;
+    private InstalledSpriteSheets worldSheets;
     /// <summary>The installed map sprite sheet the title and area labels draw from.</summary>
-    private SpriteSheet? mapSheet;
+    private SpriteSheet mapSheet;
     /// <summary>Replaces label positions without changing the selected area or display state.</summary>
-    internal void BindLabels(WorldMapLabelPositions? content) => labels = content;
+    internal void BindLabels(WorldMapLabelPositions content) => labels = Ensure.NotNull(content);
 
-    /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
-    public static FileSelectAreaMapGraphics FromPresentation(AreaId selectedArea,
-        InstalledScreenContent presentation, InstalledSpriteSheets sheets)
-    {
-        Ensure.NotNull(presentation);
-        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Backdrops, sheets);
-        graphics.BindLabels(presentation.Maps.Labels);
-        return graphics;
-    }
-
-    /// <summary>Initializes the unmasked world-map picture and backdrop owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
+    /// <summary>
+    /// Initializes the unmasked world-map picture, backdrop and label owners from the installed screen content and sheets
+    /// the file-select map draws, and selects the requested Zebes area.
+    /// </summary>
     /// <param name="selectedArea">One of the six Zebes areas.</param>
-    /// <param name="backdrops">The menu backdrops, including each area's world-map backdrop.</param>
+    /// <param name="presentation">The installed screen content: the menu backdrops, each area's world-map backdrop included, and the world-map labels' positions.</param>
     /// <param name="sheets">The installed sprite sheets: the map sprites the title and labels draw from, and the background pictures.</param>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is not one of the six Zebes areas.</exception>
-    public FileSelectAreaMapGraphics(AreaId selectedArea, MenuBackdrops backdrops, InstalledSpriteSheets sheets)
+    public FileSelectAreaMapGraphics(AreaId selectedArea, InstalledScreenContent presentation, InstalledSpriteSheets sheets)
     {
-        Ensure.NotNull(backdrops);
+        Ensure.NotNull(presentation);
         Ensure.NotNull(sheets);
-        Backdrops = backdrops;
+        backdrops = presentation.Backdrops;
+        labels = presentation.Maps.Labels;
         worldSheets = sheets;
         mapSheet = sheets.Get(SpriteSheetId.MapSprites);
         screen = new MenuScreen(backdrops.Menus, sheets);
@@ -65,7 +58,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         if (!AreaIds.IsZebes(selectedArea))
             throw new ArgumentOutOfRangeException(nameof(selectedArea), selectedArea, "Only the six Zebes areas have world-map selections.");
-        screen.Backdrop = Backdrops.World(selectedArea);
+        screen.Backdrop = backdrops.World(selectedArea);
         SelectedArea = selectedArea;
     }
 
@@ -73,26 +66,27 @@ public sealed class FileSelectAreaMapGraphics
     /// Binds every installed resource the area map draws, when the game is bound to its installed content, without
     /// selecting another area.
     /// </summary>
-    internal void BindScreenContent(InstalledScreenContent? catalog)
+    internal void BindScreenContent(InstalledScreenContent catalog)
     {
-        BindLabels(catalog?.Maps.Labels);
-        BindBackdrops(catalog?.Backdrops);
+        Ensure.NotNull(catalog);
+        BindLabels(catalog.Maps.Labels);
+        BindBackdrops(catalog.Backdrops);
     }
 
     /// <summary>Replaces the installed backdrops and shows the current selection's.</summary>
-    private void BindBackdrops(MenuBackdrops? content)
+    private void BindBackdrops(MenuBackdrops content)
     {
-        Backdrops = content;
-        if (content is not null) screen.Backdrop = content.World(SelectedArea);
+        backdrops = Ensure.NotNull(content);
+        screen.Backdrop = content.World(SelectedArea);
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background pictures.</summary>
-    internal void BindSheets(InstalledSpriteSheets? sheets)
+    internal void BindSheets(InstalledSpriteSheets sheets)
     {
-        InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Area-map graphics require the installed sprite sheets.");
-        mapSheet = installed.Get(SpriteSheetId.MapSprites);
-        worldSheets = installed;
-        screen.BindScreenPictures(installed);
+        Ensure.NotNull(sheets);
+        mapSheet = sheets.Get(SpriteSheetId.MapSprites);
+        worldSheets = sheets;
+        screen.BindScreenPictures(sheets);
     }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
@@ -101,8 +95,6 @@ public sealed class FileSelectAreaMapGraphics
         Ensure.NotNull(progress);
         ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
-        if (labels is null || mapSheet is null)
-            throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
         Draw(MapSpriteId.WorldTitle, FileSelectMapDefinitions.WorldTitlePosition, MapSpriteColouring.Labels);
         foreach (AreaId area in FileSelectMapAreaOrder.Labels)
         {
@@ -136,7 +128,7 @@ public sealed class FileSelectAreaMapGraphics
     internal LayeredScene CaptureBackgrounds(AreaMapBackgroundGlow glow)
     {
         // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512).
-        InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
+        InstalledSpriteSheets sheets = worldSheets;
         AreaId area = SelectedArea;
         var foreground = new PicturedPlaneLayer(new PicturedPlane(
             [new PlacedPlanePicture(sheets.Get(ScreenPictureSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),

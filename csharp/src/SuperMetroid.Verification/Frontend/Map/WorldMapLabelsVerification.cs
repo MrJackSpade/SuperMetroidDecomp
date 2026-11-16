@@ -21,10 +21,8 @@ internal static class WorldMapLabelsVerification
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Maps.Labels));
         var guard = NewWorldLabelReadGuard(bus);
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, SuperMetroid.Core.Progression.AreaIds.Zebes.Count).ToArray();
-        var native = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
-        var installed = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
-        native.BindLabels(original.Maps.Labels);
-        installed.BindLabels(original.Maps.Labels);
+        var native = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original, MenuSheetFixtures.For(original));
+        var installed = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original, MenuSheetFixtures.For(original));
         foreach (SuperMetroid.Core.Progression.AreaId areaId in SuperMetroid.Core.Progression.AreaIds.Zebes)
         {
             int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);

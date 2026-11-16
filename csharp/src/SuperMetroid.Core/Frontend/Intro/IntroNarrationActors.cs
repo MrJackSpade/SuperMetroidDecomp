@@ -26,7 +26,7 @@ internal sealed class IntroNarrationActors
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private int textFrameHold;
     /// <summary>The installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
-    private IntroNarrationPresentation? narrationPresentation;
+    private IntroNarrationPresentation narrationPresentation;
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame { get; private set; }
     /// <summary>The page glyphs, compiled from the installed presentation when it is bound.</summary>
@@ -204,10 +204,10 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>Binds the installed narration content when the game is bound to its installed content.</summary>
-    public void BindNarration(IntroNarrationPresentation? presentation)
+    public void BindNarration(IntroNarrationPresentation presentation)
     {
-        narrationPresentation = presentation;
-        narrationAnimation = narrationPage is { } page && presentation is not null
+        narrationPresentation = Ensure.NotNull(presentation);
+        narrationAnimation = narrationPage is { } page
             ? presentation.Compile(page)
             : null;
         if (narrationAnimation is not null && narrationCharacterIndex > narrationAnimation.Length)
@@ -224,10 +224,6 @@ internal sealed class IntroNarrationActors
         narrationCharacterIndex = 0;
         narrationInitialMarkerPending = true;
         narrationFinalHoldStarted = false;
-        if (narrationPresentation is null)
-            throw new InvalidOperationException(
-                "Opening narration requires installed text presentation assets.");
-
         narrationPage = page;
         narrationAnimation = narrationPresentation.Compile(page);
     }

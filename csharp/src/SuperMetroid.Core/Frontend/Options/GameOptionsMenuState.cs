@@ -15,9 +15,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    public void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
-        spriteSheets = sheets ?? throw new InvalidOperationException("Options menu requires the installed sprite sheets.");
+        spriteSheets = Ensure.NotNull(sheets);
         screen.BindScreenPictures(sheets);
     }
 
@@ -31,7 +31,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
-    private InstalledScreenContent? screenContent;
+    private InstalledScreenContent screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
     internal ShownOptionsPage ShownPage { get; private set; }
     /// <summary>Page whose input and cursor policy currently apply.</summary>
@@ -84,10 +84,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Binds the installed menu art when the game is bound to its installed content.</summary>
-    public void BindScreenContent(InstalledScreenContent? catalog)
+    public void BindScreenContent(InstalledScreenContent catalog)
     {
-        screenContent = catalog ?? throw new InvalidOperationException(
-            "Options menu requires installed presentation assets.");
+        screenContent = Ensure.NotNull(catalog);
         screen.Backdrop = catalog.Backdrops.Menus;
         LoadVisiblePage();
     }
@@ -136,8 +135,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // The selection missile is spawned while the menu loads; it then animates
         // after every step's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
-            missile.Step((screenContent ?? throw new InvalidOperationException(
-                "Game options require installed menu presentation assets.")).GameOptions.CursorFrameDuration);
+            missile.Step(screenContent.GameOptions.CursorFrameDuration);
 
         switch (Phase)
         {
@@ -240,8 +238,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
-        var content = screenContent ?? throw new InvalidOperationException(
-            "Options cursor requires installed presentation assets.");
+        var content = screenContent;
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
         // Transitions show no cursor: only a page phase places it, at the selected row of the page it shows.

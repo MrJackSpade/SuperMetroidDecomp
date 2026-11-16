@@ -91,10 +91,8 @@ internal static class FileSelectRoomMapVerification
             RgbaPixel[] pixels = graphics.RenderBackgrounds(new Offset16<MapPixels>(0, -40));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
-            var retailIcons = new FileSelectMapIcons(system, area);
-            retailIcons.BindStations(RetailPresentationFixture().Maps.Stations);
-            retailIcons.BindLandmarks(RetailPresentationFixture().Maps.Landmarks);
-            retailIcons.BindSprites(MenuSheetFixtures.MapSprites(RetailImportPresentationFixture().Sprites));
+            var retailIcons = new FileSelectMapIcons(system, area, RetailPresentationFixture().Maps.Stations, RetailPresentationFixture().Maps.Landmarks,
+                MenuSheetFixtures.MapSprites(RetailImportPresentationFixture().Sprites));
             var retailOam = ScreenSpritesFixtures.Blank();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, new(0, 0));
@@ -134,8 +132,7 @@ internal static class FileSelectRoomMapVerification
         AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
         RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(AreaId.Maridia, maps.Backdrops, MenuSheetFixtures.For(maps));
-        areaGraphics.BindLabels(maps.Maps.Labels);
+        var areaGraphics = new FileSelectAreaMapGraphics(AreaId.Maridia, maps, MenuSheetFixtures.For(maps));
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
         {
@@ -165,7 +162,6 @@ internal static class FileSelectRoomMapVerification
         using var arrowJson = new MemoryStream();
         MapArrowFile.Write(arrowJson, new() { Version = 1, Arrows = arrows });
         arrowJson.Position = 0;
-        var animations = new FileSelectMapAnimations(MapArrowFile.Read(arrowJson));
         var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
             DurationTicks = frame == 0 ? 3 : 2,
@@ -174,7 +170,7 @@ internal static class FileSelectRoomMapVerification
         using var paletteJson = new MemoryStream();
         MapPaletteCycleFile.Write(paletteJson, new() { Version = MapPaletteCycleFile.Version, Frames = paletteFrames });
         paletteJson.Position = 0;
-        animations.BindHighlight(MapPaletteCycleFile.Read(paletteJson).Timing);
+        var animations = new FileSelectMapAnimations(MapArrowFile.Read(arrowJson), MapPaletteCycleFile.Read(paletteJson).Timing);
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
@@ -265,10 +261,8 @@ internal static class FileSelectRoomMapVerification
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
-        var icons = new FileSelectMapIcons(system, AreaId.Brinstar);
-        icons.BindLandmarks(MapLandmarkFile.Read(landmarkJson));
-        icons.BindStations(MapStationLayoutFile.Read(stationJson));
-        icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
+        var icons = new FileSelectMapIcons(system, AreaId.Brinstar, MapStationLayoutFile.Read(stationJson), MapLandmarkFile.Read(landmarkJson),
+            MenuSheetFixtures.MapSprites(sprites));
         ScreenSprites Draw()
         {
             var oam = ScreenSpritesFixtures.Blank();
@@ -395,8 +389,7 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ControllerButton confirm in new ControllerButton[] { ControllerButton.Start, ControllerButton.A })
         {
-            var navigation = new FileSelectMapNavigation(AreaId.Maridia, confirm);
-            navigation.BindLabels(RetailPresentationFixture().Maps.Labels);
+            var navigation = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels, confirm);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
@@ -419,16 +412,14 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(ControllerButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
-        var cancel = new FileSelectMapNavigation(AreaId.Maridia);
-        cancel.BindLabels(RetailPresentationFixture().Maps.Labels);
+        var cancel = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.Right | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
         cancel.Step(0);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
-        var back = new FileSelectMapNavigation(AreaId.Maridia);
-        back.BindLabels(RetailPresentationFixture().Maps.Labels);
+        var back = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels);
         back.Step(ControllerButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
         back.Step(ControllerButton.B);

@@ -27,9 +27,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
-        {
-            InstalledArtwork.BindEndingText(artwork.ScreenContent?.EndingText);
-        }
+            InstalledArtwork.BindEndingText(artwork.ScreenContent.EndingText);
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
             InstalledArtwork.BindBackdrops(artwork.EndingBackdrops);
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
@@ -83,19 +81,25 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>The staff credits and what follows them: the reward copyright and colours, the white flash and the post-credits logo.</summary>
     internal EndingCreditsRoll CreditsRoll { get; }
 
-    /// <summary>Initializes the ending and credits from the saved clear-time and ending setup snapshot.</summary>
-    public EndingCreditsState(AudioQueues audio, EndingCreditsSetup setup)
+    /// <summary>Initializes the ending and credits from the saved clear-time and ending setup snapshot and the installed artwork the ending draws.</summary>
+    /// <param name="audio">The queues the ending's music and sounds go to.</param>
+    /// <param name="setup">The game-completion facts the ending presents.</param>
+    /// <param name="endingText">The installed text the ending types.</param>
+    /// <param name="backdrops">The installed scene backdrops (#1544).</param>
+    /// <param name="spriteSheets">The installed sprite sheets the ending's actors and backgrounds draw from.</param>
+    public EndingCreditsState(AudioQueues audio, EndingCreditsSetup setup, EndingTypewriterText endingText, EndingBackdrops backdrops,
+        InstalledSpriteSheets spriteSheets)
     {
         this.audio = Ensure.NotNull(audio);
+        Ensure.NotNull(setup);
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
-        Stage = new EndingStage(setup.GameTimeHours, screen, sprites);
-        InstalledArtwork = new EndingArtwork(Stage);
+        Stage = new EndingStage(setup.GameTimeHours, screen, sprites, backdrops);
+        InstalledArtwork = new EndingArtwork(Stage, endingText, spriteSheets);
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
         CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, Stage, InstalledArtwork);
-        InstalledArtwork.BindEndingText(setup.EndingText);
         Stage.Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
     /// <summary>
@@ -286,7 +290,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (--Stage.PhaseTimer <= 0)
                 {
                     // The backdrop wait's end shows the complete result panel before its hold.
-                    _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
                     InstalledArtwork.PostCreditsText.ShowResultPanel();
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.ResultPanelHoldFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;

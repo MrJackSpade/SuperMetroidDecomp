@@ -60,8 +60,23 @@ internal sealed class FrontendSession
 
     /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
-    /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
-    public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
+    /// <summary>
+    /// The installed catalogs the host bound (#2224), which every screen and gameplay runtime draws from: a host binds them
+    /// before the session's first update (<see cref="GameSessionComposer"/>), and a rebinding replaces them with other
+    /// installed catalogs, never with none.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Read before a host first bound the session's installed artwork.</exception>
+    public GameArtwork Artwork
+    {
+        get => boundArtwork ?? throw new InvalidOperationException("The session's installed artwork has not been bound.");
+        internal set => boundArtwork = Ensure.NotNull(value);
+    }
+
+    /// <summary>Whether a host has bound the session's installed artwork: from its first binding on.</summary>
+    internal bool ArtworkBound => boundArtwork is not null;
+
+    /// <summary>The installed catalogs the host bound; none only between the session's construction and its first binding.</summary>
+    private GameArtwork? boundArtwork;
     /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves for the rest of the session.</summary>
     internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();
     /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>

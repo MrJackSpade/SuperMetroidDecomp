@@ -528,7 +528,8 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SignedSixteenSixteen> sequence = fast ? EndingShipShake.Fast : EndingShipShake.Slow;
             int count = sequence.Count, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
+            var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 },
+                InstalledFixtures.Maps.EndingText, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(100, 0xC000));
             state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;

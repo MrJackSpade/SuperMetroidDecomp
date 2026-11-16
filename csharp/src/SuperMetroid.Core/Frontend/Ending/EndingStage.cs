@@ -16,9 +16,10 @@ internal sealed class EndingStage
     /// <summary>The ending's live actors in the order they run and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     private readonly List<EndingSprite> sprites ;
 
-    /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingStage(int gameTimeHours, EndingScreen screen, List<EndingSprite> sprites)
+    /// <summary>Builds the component from the collaborators it uses and the installed scene backdrops (#1544).</summary>
+    internal EndingStage(int gameTimeHours, EndingScreen screen, List<EndingSprite> sprites, EndingBackdrops backdrops)
     {
+        Backdrops = Ensure.NotNull(backdrops);
         this.gameTimeHours = gameTimeHours;
         this.screen = screen;
         this.sprites = sprites;
@@ -134,9 +135,7 @@ internal sealed class EndingStage
     });
 
     /// <summary>The installed scene backdrops.</summary>
-    /// <exception cref="InvalidOperationException">The backdrops are not bound.</exception>
-    private EndingBackdrops RequireBackdrops() =>
-        Backdrops ?? throw new InvalidOperationException("Ending scenes require their installed backdrops.");
+    private EndingBackdrops RequireBackdrops() => Backdrops;
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
     internal void StepEndingSpriteMotion(EndingSprite wrapper)
@@ -220,7 +219,7 @@ internal sealed class EndingStage
     internal ColourEffectSystem ColourEffects => screen.Colours.ColourEffects;
 
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
-    internal EndingBackdrops? Backdrops { get; private set; }
+    internal EndingBackdrops Backdrops { get; private set; }
 
     /// <summary>Starts a fast fade: the next step lands two calls from now, and one every two calls after it.</summary>
     internal void StartFastFade() => Fade.StepEvery(EndingCadenceDefinitions.FastFadeUpdatesPerStep);
@@ -230,5 +229,5 @@ internal sealed class EndingStage
         Fade.SetCadence(EndingCadenceDefinitions.PostCreditsFadeStepDelay, EndingCadenceDefinitions.PostCreditsFadeFirstWait);
 
     /// <summary>Selects the backdrops later scenes show (#1544).</summary>
-    internal void BindBackdrops(EndingBackdrops? value) => Backdrops = value;
+    internal void BindBackdrops(EndingBackdrops value) => Backdrops = Ensure.NotNull(value);
 }

@@ -19,10 +19,14 @@ public sealed class MapHighlightAnimation
     /// <summary>The cycle's current frame index, below the installed cycle's frame count; the highlighted sprites show its shade.</summary>
     internal int Frame { get; private set; }
     /// <summary>The installed cycle's timing.</summary>
-    private MapHighlightCycle? content;
+    private MapHighlightCycle content;
+
+    /// <summary>Starts the highlight cycle at its first frame, one update from its next, over the installed cycle's timing.</summary>
+    /// <param name="cycle">The installed cycle's timing.</param>
+    public MapHighlightAnimation(MapHighlightCycle cycle) => content = Ensure.NotNull(cycle);
 
     /// <summary>Binds the installed cycle's timing when the game is bound to its installed content, without resetting the cycle's timer.</summary>
-    public void Bind(MapHighlightCycle? cycle) => content = cycle;
+    public void Bind(MapHighlightCycle cycle) => content = Ensure.NotNull(cycle);
 
     /// <summary>Restores the cycle's initial frame and one-tick delay.</summary>
     public void Reset() { Timer = 1; Frame = 0; }
@@ -31,14 +35,12 @@ public sealed class MapHighlightAnimation
     public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));
 
     /// <summary>Advances to the next highlight frame when its hold ends; true requests the room library's map highlight-loop sound.</summary>
-    /// <exception cref="InvalidOperationException">The installed cycle is not bound.</exception>
     public bool Step()
     {
         if (Timer == 0) return false;
         Timer--;
         if (Timer != 0) return false;
-        MapHighlightCycle cycle = content ?? throw new InvalidOperationException(
-            "The map highlight animation requires the installed highlight cycle.");
+        MapHighlightCycle cycle = content;
         // Preserve the game's increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
         int next = Frame + 1;

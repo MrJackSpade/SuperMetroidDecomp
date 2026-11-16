@@ -474,7 +474,7 @@ internal static class SaveSchemaTranslationVerification
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.
         var frontend = new SuperMetroidGame(ram);
-        frontend.BindArtwork(frontend.Artwork with
+        frontend.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = RetailPresentationFixture(),
         });
@@ -489,10 +489,9 @@ internal static class SaveSchemaTranslationVerification
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
-        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text.Typewriter() });
-        ending.InstalledArtwork.BindBackdrops(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingBackdrops);
         // The game binds the installed sheets with the ending, which draws its stars from them.
-        ending.InstalledArtwork.BindSpriteSheets(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets);
+        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 },
+            text.Typewriter(), InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.Stage.PhaseTimer = 1;
         frontend.Session.Show(ending);

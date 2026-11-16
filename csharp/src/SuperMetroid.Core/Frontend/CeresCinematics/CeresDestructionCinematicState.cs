@@ -32,7 +32,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
-            BindGlowColors(artwork.InstalledPowerBombGlowColors);
+            BindGlowColors(artwork.ScreenContent.PowerBombGlowColors);
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);
         BindSpriteSheets(artwork.SpriteSheets);
@@ -40,9 +40,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Binds the installed sprite sheets the scene's actors draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    internal void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
-        spriteSheets = sheets ?? throw new InvalidOperationException("Ceres destruction requires the installed sprite sheets.");
+        spriteSheets = Ensure.NotNull(sheets);
     }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
@@ -62,7 +62,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
-    internal IntroCinematicArtwork? Artwork { get; private set; }
+    internal IntroCinematicArtwork Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;
 
@@ -198,10 +198,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// before the later engine-flicker colour effect starts, as the scene reloads the
     /// flight's colours only until then (#1512).
     /// </summary>
-    internal void BindArtwork(IntroCinematicArtwork? value)
+    internal void BindArtwork(IntroCinematicArtwork value)
     {
-        Artwork = value;
-        if (value is null) return;
+        Artwork = Ensure.NotNull(value);
         if (CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
             Backdrop = value.CeresFlight.Backdrop;
     }
@@ -424,8 +423,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Sets up the Ceres floor, sprites, colours, and three initial actors after the ninth opening wait.</summary>
     private void SetupCeresDestruction()
     {
-        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
-            "Ceres destruction requires installed cinematic artwork.");
+        IntroCinematicArtwork content = Artwork;
 
         // The scene setup loads the station's two views; the floor shows the station's installed picture (#1467).
         FloorShot = CeresFloorShot.Station;
@@ -453,9 +451,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Stages the planet-reveal map and resets camera, angle, fade, and pixelation.</summary>
     private void SetupZebesReveal()
     {
-        if (Artwork is null)
-            throw new InvalidOperationException("Zebes reveal requires installed cinematic artwork.");
-
         // The reveal starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
         // only when the gunship step later selects the floor again.
         ZebesRevealed = true;
@@ -541,8 +536,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> CreateZebesActor(ZebesRevealActorRole role)
     {
-        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
-            "The Zebes reveal requires installed cinematic artwork.");
+        IntroCinematicArtwork content = Artwork;
         CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor = CreateActor(CeresDestructionActors.ZebesActor(role), content.CeresDestruction.RevealActors[role].Place);
         revealActorRoles.Add(actor, role);
         return actor;

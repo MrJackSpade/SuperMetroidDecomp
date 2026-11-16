@@ -106,7 +106,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         saves.SaveSlot(SaveSlot.A, snapshot);
 
         var game = new SuperMetroidGame(saves);
-        game.BindArtwork(game.Artwork with
+        game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = original,
         });

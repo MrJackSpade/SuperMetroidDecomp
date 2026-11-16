@@ -209,7 +209,7 @@ internal static class CeresSaveStartupVerification
             StartupRoute = SaveLoadingGameState.MainGame,
         });
         var unmodified = new SuperMetroidGame(saves);
-        unmodified.BindArtwork(unmodified.Artwork with
+        unmodified.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = maps,
         });

@@ -686,7 +686,7 @@ internal static class RidleyFullMovieVerification
         // The pause screen's colours are the shadings its pictures name (#1512): the highlight frame and the reserve arrow's.
         PauseMenuState pause = menu ?? throw new InvalidOperationException("Verification requires menu.");
         // The pause screen is bound to the map presentation the game was bound with.
-        var maps = game.Session.Artwork.ScreenContent ?? throw new InvalidOperationException("The game is bound to no map presentation.");
+        var maps = game.Session.Artwork.ScreenContent;
         RgbColor[] initial = PauseShownColours.Of(pause, maps);
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PauseScreenFadeIn && fadeFrames++ < 32)

@@ -136,8 +136,7 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(AreaId.Crateria, maps.Backdrops, MenuSheetFixtures.For(maps));
-        graphics.BindLabels(maps.Maps.Labels);
+        var graphics = new FileSelectAreaMapGraphics(AreaId.Crateria, maps, MenuSheetFixtures.For(maps));
         foreach (AreaId areaId in AreaIds.Zebes)
         {
             int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);

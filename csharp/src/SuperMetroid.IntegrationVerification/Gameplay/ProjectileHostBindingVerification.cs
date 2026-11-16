@@ -21,7 +21,7 @@ internal static class ProjectileHostBindingVerification
         {
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, projectiles.FrameBindings);
             CheckGrapple(session.Game.Artwork, projectiles.Grapple);
-            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), projectiles.FlarePlacement, ChargeFlareSource.Beam);
+            CheckFlare(session.Game.Artwork.ChargeFlarePlacement, projectiles.FlarePlacement, ChargeFlareSource.Beam);
         }
         Console.WriteLine("PASS installed projectile binding: the host binds the installed frame choices, flare placement and Grapple presentation at startup.");
         return 0;

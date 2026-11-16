@@ -14,16 +14,19 @@ public sealed class FileSelectMapNavigation
     private readonly AreaId area;
     /// <summary>The buttons held on the previous update, used to detect new confirm and cancel presses.</summary>
     private ControllerButton previousInput;
-    /// <summary>The installed label positions, when bound.</summary>
-    private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels;
+    /// <summary>The installed world-map label positions the room map's window opens from.</summary>
+    private SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions labels;
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
-    internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? content) => labels = content;
+    internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions content) => labels = Ensure.NotNull(content);
 
     /// <summary>Creates the area and room maps' navigation for a saved area.</summary>
     /// <param name="area">The saved area, one of the six Zebes areas.</param>
+    /// <param name="labels">The installed world-map label positions the room map's window opens from.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
-    public FileSelectMapNavigation(AreaId area, ControllerButton initialHeldInput = ControllerButton.None)
+    public FileSelectMapNavigation(AreaId area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions labels,
+        ControllerButton initialHeldInput = ControllerButton.None)
     {
+        this.labels = Ensure.NotNull(labels);
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map selections.");
         this.area = area;
@@ -64,8 +67,7 @@ public sealed class FileSelectMapNavigation
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
                 break;
             case FileSelectMapNavigationPhase.PreparingWindow:
-                Window = new FileSelectMapWindow(area, labels ?? throw new InvalidOperationException(
-                    "Map-window positions require installed world-map labels."));
+                Window = new FileSelectMapWindow(area, labels);
                 Phase = FileSelectMapNavigationPhase.ExpandingWindow;
                 break;
             case FileSelectMapNavigationPhase.ExpandingWindow:

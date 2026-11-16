@@ -612,8 +612,7 @@ internal static class LookupStream5Verification
             var system = new SharedGameState(new SharedRandom());
             if (downloaded) system.SetAreaMapAcquired(area);
             if (defeated) system.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
-            var icons = new FileSelectMapIcons(system, area);
-            icons.BindLandmarks(layout); icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
+            var icons = new FileSelectMapIcons(system, area, InstalledFixtures.Maps.Maps.Stations, layout, MenuSheetFixtures.MapSprites(sprites));
             var actual = ScreenSpritesFixtures.Blank(); var expected = ScreenSpritesFixtures.Blank();
             icons.DrawBossMarkers(actual, new(7, 9));
             int pointer = Root(MapSourceDefinitions.Landmarks.BossLists, area), bits = defeated ? 1 : 0;

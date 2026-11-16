@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public sealed class FileSelectMapMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    public void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
         areaGraphics.BindSheets(sheets);
         roomGraphics.BindSheets(sheets);
@@ -81,15 +81,13 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         savedProgress = system.Progress;
         Ensure.NotNull(screenContent);
         InstalledSpriteSheets sheets = Ensure.NotNull(spriteSheets);
-        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, screenContent, sheets);
+        areaGraphics = new FileSelectAreaMapGraphics(area, screenContent, sheets);
         roomGraphics = new FileSelectRoomMapGraphics(system, area, screenContent, sheets);
         InstalledScreenContent = screenContent;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(station, screenContent.Maps.SaveMarkers);
-        navigation = new FileSelectMapNavigation(area, initialHeldInput);
-        navigation.BindLabels(screenContent.Maps.Labels);
-        animations = new FileSelectMapAnimations(screenContent.Maps.Arrows);
-        animations.BindHighlight(screenContent.Maps.HighlightCycle);
+        navigation = new FileSelectMapNavigation(area, screenContent.Maps.Labels, initialHeldInput);
+        animations = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
         entry = new FileSelectMapEntry();
     }
 
@@ -101,23 +99,19 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     public bool OptionsRequested { get; private set; }
 
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
-    public void BindScreenContent(InstalledScreenContent? catalog)
+    public void BindScreenContent(InstalledScreenContent catalog)
     {
-        InstalledScreenContent = catalog;
-        navigation.BindLabels(catalog?.Maps.Labels);
+        InstalledScreenContent = Ensure.NotNull(catalog);
+        navigation.BindLabels(catalog.Maps.Labels);
         areaGraphics.BindScreenContent(catalog);
-        animations.BindHighlight(catalog?.Maps.HighlightCycle);
-        animations.BindPresentation(catalog?.Maps.Arrows);
+        animations.BindHighlight(catalog.Maps.HighlightCycle);
+        animations.BindPresentation(catalog.Maps.Arrows);
         roomGraphics.BindScreenContent(catalog);
-        marker.BindPosition(station, catalog?.Maps.SaveMarkers);
+        marker.BindPosition(station, catalog.Maps.SaveMarkers);
     }
 
-    /// <summary>The installed map artwork, which the game binds before the map draws or moves.</summary>
-    /// <exception cref="InvalidOperationException">The game was rebound to no map artwork.</exception>
-    [AllowNull]
-    private InstalledScreenContent InstalledScreenContent { get => field ?? throw new InvalidOperationException(
-        "File-select map requires installed map presentation assets."); set;
-    }
+    /// <summary>The installed map artwork the map draws and moves over.</summary>
+    private InstalledScreenContent InstalledScreenContent { get; set; }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
     private MapScroll CreateScrollForCurrentContent()

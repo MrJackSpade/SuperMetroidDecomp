@@ -55,15 +55,19 @@ public sealed class SuperMetroidGame
     /// catalog whose reference changed reaches the scenes that hold it; unchanged catalogs are left alone. The live runtime
     /// binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
     /// </summary>
+    /// <exception cref="InvalidOperationException">A screen is shown in a session no host bound artwork to before.</exception>
     internal void BindArtwork(GameArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        GameArtwork previous = Session.Artwork;
+        GameArtwork? previous = Session.ArtworkBound ? Session.Artwork : null;
         Session.Artwork = artwork;
         Session.Runtime?.BindArtwork(artwork.Gameplay);
-        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
-            Session.saves.BindMaps(artwork.ScreenContent?.Maps);
-        Session.Screen?.BindArtwork(previous, artwork, Session.GameState);
+        if (previous is null || !ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
+            Session.saves.BindMaps(artwork.ScreenContent.Maps);
+        // Every screen is built over the session's bound artwork, so a shown screen always has artwork to rebind from.
+        if (Session.Screen is { } screen)
+            screen.BindArtwork(previous ?? throw new InvalidOperationException(
+                "A frontend screen is shown in a session whose installed artwork was never bound."), artwork, Session.GameState);
     }
 
 

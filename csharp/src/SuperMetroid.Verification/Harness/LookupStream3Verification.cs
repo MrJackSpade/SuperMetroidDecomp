@@ -2051,6 +2051,7 @@ internal static class LookupStream3Verification
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            NarrationPresentation = InstalledFixtures.Maps.IntroNarration,
         };
         byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
@@ -2171,6 +2172,7 @@ internal static class LookupStream3Verification
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            NarrationPresentation = InstalledFixtures.Maps.IntroNarration,
         };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
@@ -2283,6 +2285,7 @@ BranchesToSharedBody:true),
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            NarrationPresentation = InstalledFixtures.Maps.IntroNarration,
         };
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),

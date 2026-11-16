@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal interface IMenuFrontendScreen : IFrontendScreen
 {
     /// <summary>Rebinds the installed screen content whose part the screen's pictures, colours and sprites come from.</summary>
-    void BindScreenContent(InstalledScreenContent? catalog);
+    void BindScreenContent(InstalledScreenContent catalog);
 
     /// <summary>Binds the installed sprite sheets the screen's sprites draw from.</summary>
-    void BindSpriteSheets(InstalledSpriteSheets? sheets);
+    void BindSpriteSheets(InstalledSpriteSheets sheets);
 
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)

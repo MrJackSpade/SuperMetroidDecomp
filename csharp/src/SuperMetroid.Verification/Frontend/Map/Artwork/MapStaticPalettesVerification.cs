@@ -25,8 +25,8 @@ internal static class MapStaticPalettesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);
         AssertTrue(palette.Colors.SequenceEqual(installed.FileSelect), "all static file-select colors match cartridge");
         AssertEqual(palette.Colors[0], original.Backdrops.Menus, "the file-select backdrop is the cartridge's backdrop colour");
-        var nativeWorld = new FileSelectAreaMapGraphics(AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
-        var world = new FileSelectAreaMapGraphics(AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
+        var nativeWorld = new FileSelectAreaMapGraphics(AreaId.Crateria, original, MenuSheetFixtures.For(original));
+        var world = new FileSelectAreaMapGraphics(AreaId.Crateria, original, MenuSheetFixtures.For(original));
         foreach (AreaId area in AreaIds.Zebes)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);

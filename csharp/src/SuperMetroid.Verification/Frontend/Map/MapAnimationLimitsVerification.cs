@@ -15,8 +15,7 @@ internal static class MapAnimationLimitsVerification
         const int frames = 300, hold = 300;
         var cycle = new MapHighlightCycle([.. Enumerable.Repeat(hold, frames)]);
         AssertEqual(frames, cycle.FrameCount, "the cycle keeps more than 255 frames");
-        var animation = new MapHighlightAnimation();
-        animation.Bind(cycle);
+        var animation = new MapHighlightAnimation(cycle);
         int wraps = 0;
         // The cycle starts one update from its second frame; every frame after that holds its full count, through the
         // wrap to the first frame and up to the update before the second frame shows again.

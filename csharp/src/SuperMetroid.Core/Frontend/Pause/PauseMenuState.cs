@@ -31,9 +31,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
-    public void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    public void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
-        spriteSheets = sheets ?? throw new InvalidOperationException("Pause menu requires the installed sprite sheets.");
+        spriteSheets = Ensure.NotNull(sheets);
         screen.BindScreenPictures(sheets);
     }
 
@@ -50,7 +50,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Queues menu navigation and animation sounds.</summary>
     private readonly AudioQueues audio;
     /// <summary>The map's highlight cycle, advanced once per accepted stable menu update.</summary>
-    internal readonly MapHighlightAnimation mapHighlight = new();
+    internal readonly MapHighlightAnimation mapHighlight;
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
     /// <summary>Provides persistent area map and exploration bits.</summary>
@@ -62,7 +62,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
-    private InstalledScreenContent? screenContent;
+    private InstalledScreenContent screenContent;
     /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
@@ -98,10 +98,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The map screen's scroll position.</summary>
     internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
-    internal FileSelectMapAnimations? CurrentMapArrows { get; private set; }
-    /// <summary>The map arrows, which exist once the map page is set up.</summary>
-    internal FileSelectMapAnimations MapArrows => CurrentMapArrows ??
-        throw new InvalidOperationException("The pause map arrows have not been set up.");
+    internal FileSelectMapAnimations MapArrows { get; }
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
     /// <summary>Current map-position marker frame.</summary>
@@ -117,14 +114,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public PauseMenuState(PauseMenuEntry entry)
     {
 
-        this.screenContent = entry.ScreenContent ?? throw new InvalidOperationException(
-            "Pause menu requires installed map and equipment presentation assets.");
+        Ensure.NotNull(entry);
+        screenContent = Ensure.NotNull(entry.ScreenContent);
 
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
         this.audio = Ensure.NotNull(entry.Audio);
-        CurrentMapArrows = new FileSelectMapAnimations(entry.ScreenContent.Maps.Arrows);
-        mapHighlight.Bind(entry.ScreenContent.Maps.HighlightCycle);
+        MapArrows = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
+        mapHighlight = new MapHighlightAnimation(screenContent.Maps.HighlightCycle);
         area = entry.Area;
         _ = AreaIds.Require(entry.Area);
         this.roomMapPosition = entry.RoomMapPosition;
@@ -249,7 +246,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only the stable map update moves the scroll arrows. Fade paths retain counters but hide arrows.
-        CurrentMapArrows?.StepArrows(_ => false);
+        MapArrows.StepArrows(_ => false);
         pauseFrameCycle = frameCycle;
         // The stable pause update advances the highlight cycle afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
@@ -294,11 +291,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screen.Sprites.BeginFrame();
         if (ScreenMode == PauseScreenMode.Map)
         {
-            var icons = new FileSelectMapIcons(system, area);
-            icons.BindLandmarks(screenContent?.Maps.Landmarks);
-            icons.BindSprites(MapSheet);
+            var icons = new FileSelectMapIcons(system, area, screenContent.Maps.Stations, screenContent.Maps.Landmarks, MapSheet);
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Sprites, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
+            MapArrows.DrawArrows(screen.Sprites, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
             DrawMapPositionIndicator();
             // Pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase drawing order.
@@ -385,8 +380,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     [MemberNotNull(nameof(ShownMap))]
     private void LoadMapPage()
     {
-        InstalledScreenContent maps = screenContent ?? throw new InvalidOperationException(
-            "Pause map requires installed map presentation assets.");
+        InstalledScreenContent maps = screenContent;
         ShownMap = AreaMapProjection.Project(maps.Get(area), system, mapRevealMode);
 
         // Installed backdrops already contain their authored area lettering.
@@ -400,8 +394,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // centre after a secret is explored even though the downloaded limits are unchanged. A reveal assist frames the
         // cells it shows.
         bool hasAreaMap = system.HasAreaMap(area);
-        IAreaMapView map = (screenContent ?? throw new InvalidOperationException(
-            "Pause map requires installed map presentation assets.")).Get(area);
+        IAreaMapView map = screenContent.Get(area);
         MapScrollLimits limits = mapRevealMode == MapRevealMode.None
             ? MapScrollLimits.OfRevealedPlane(map, system)
             : MapScrollLimits.Scan(area, cell => AreaMapVisibility.IsVisible(
@@ -448,8 +441,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void ResetItemSelectorAnimation()
     {
         ItemSelectorAnimationFrame = 0;
-        ItemSelectorAnimationTimer = (screenContent ?? throw new InvalidOperationException(
-            "Pause selector requires installed presentation assets."))
+        ItemSelectorAnimationTimer = screenContent
             .PauseSelectors.InitialDurationTicks;
     }
 
@@ -464,8 +456,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (ItemSelectorAnimationTimer > 0)
             return;
 
-        var selectors = (screenContent ?? throw new InvalidOperationException(
-            "Pause selector requires installed presentation assets.")).PauseSelectors;
+        var selectors = screenContent.PauseSelectors;
         ItemSelectorAnimationFrame = selectors.NormalizePhase(ItemSelectorAnimationFrame + 1);
         ItemSelectorAnimationTimer = selectors.Duration(ItemSelectorAnimationFrame);
     }
@@ -476,8 +467,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
             return;
 
-        var selector = (screenContent ?? throw new InvalidOperationException(
-            "Pause selector requires installed presentation assets.")).PauseSelectors;
+        var selector = screenContent.PauseSelectors;
         selector.Draw(screen.Sprites, PauseSheet, SelectedControl, ItemSelectorAnimationFrame);
     }
 
@@ -689,12 +679,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public void SynchronizeAcceptedHud(ShownHud gameplayHud) => screen.ShowHud(gameplayHud);
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, highlight, and label state.</summary>
-    public void BindScreenContent(InstalledScreenContent? catalog)
+    public void BindScreenContent(InstalledScreenContent catalog)
     {
-        screenContent = catalog ?? throw new InvalidOperationException(
-            "Pause menu requires installed map presentation assets.");
-        CurrentMapArrows ??= new FileSelectMapAnimations(catalog.Maps.Arrows);
-        CurrentMapArrows.BindPresentation(catalog.Maps.Arrows);
+        screenContent = Ensure.NotNull(catalog);
+        MapArrows.BindPresentation(catalog.Maps.Arrows);
         mapHighlight.Bind(catalog.Maps.HighlightCycle);
         // Live highlights and reserve-arrow colours are typed state their owners keep; rebinding never resets their phase.
         screen.BindArtwork(catalog);
@@ -758,8 +746,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         void Draw(PauseReserveTankVisual map, int index)
         {
-            (screenContent ?? throw new InvalidOperationException(
-                "Reserve tanks require installed presentation assets."))
+            screenContent
                 .PauseReserveTanks.Draw(screen.Sprites, PauseSheet, map, index);
         }
     }

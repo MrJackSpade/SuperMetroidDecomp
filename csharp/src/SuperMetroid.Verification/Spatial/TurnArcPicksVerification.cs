@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Spatial;
 
 /// <summary>
 /// Confirms the #1684 sixteen-way picks made by arc of the turn against the sixteenth arithmetic they replace: the arc
-/// division itself, the Morph Ball eye's tracking poses and Ridley's drawn tail tip, each for every angle it can be given.
+/// division itself, the Morph Ball eye's aim frames and Ridley's drawn tail tip, each for every angle it can be given.
 /// The breakup tail tip and the glass shards are checked against the cartridge by their own suites.
 /// </summary>
 internal static class TurnArcPicksVerification
@@ -16,9 +16,9 @@ internal static class TurnArcPicksVerification
     internal static void VerifyTurnArcPicks()
     {
         VerifyTurnArcs();
-        VerifyMorphBallEyeTrackingPlaces();
+        VerifyMorphBallEyeAimFrames();
         VerifyRidleyTailTipFrames();
-        Console.WriteLine("  Turn-arc picks: the arc division, the eye's 65536 tracking places and Ridley's 256 tail-tip frames equal the sixteenth arithmetic.");
+        Console.WriteLine("  Turn-arc picks: the arc division, the eye's 65536 aims and Ridley's 256 tail-tip frames equal the sixteenth arithmetic.");
     }
 
     /// <summary>An arc division picks by the angle's place from its start, names each arc's start, and rejects uneven arcs.</summary>
@@ -32,15 +32,25 @@ internal static class TurnArcPicksVerification
         AssertThrows<ArgumentException>(() => new TurnArcs<int>(TrigonometryAngle.Zero, 0, 0).StartOf(0), "a value held by two arcs has no single start");
     }
 
-    /// <summary>The eye's tracking place for all 65536 angles against the place of the pose its sixteenth numbers.</summary>
-    private static void VerifyMorphBallEyeTrackingPlaces()
+    /// <summary>
+    /// The eye's aim frame for all 65536 angles against the frame its sixteenth numbers in the aim list it replaced (#2070):
+    /// the list's sixteen frames, the first and last each shown twice.
+    /// </summary>
+    private static void VerifyMorphBallEyeAimFrames()
     {
-        Animation<MorphBallEyeSegment> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active);
+        EnemyFrameId[] byPose =
+        [
+            EnemyFrameId.MorphBallEyeLookingUpUpRight, EnemyFrameId.MorphBallEyeLookingUpUpRight, EnemyFrameId.MorphBallEyeLookingUpRight,
+            EnemyFrameId.MorphBallEyeLookingRightUpRight, EnemyFrameId.MorphBallEyeLookingRight, EnemyFrameId.MorphBallEyeLookingRightDownRight,
+            EnemyFrameId.MorphBallEyeLookingDownRight, EnemyFrameId.MorphBallEyeLookingDownDownRight, EnemyFrameId.MorphBallEyeLookingDownDownLeft,
+            EnemyFrameId.MorphBallEyeLookingDownLeft, EnemyFrameId.MorphBallEyeLookingLeftDownLeft, EnemyFrameId.MorphBallEyeLookingLeft,
+            EnemyFrameId.MorphBallEyeLookingLeftUpLeft, EnemyFrameId.MorphBallEyeLookingUpLeft, EnemyFrameId.MorphBallEyeLookingUpUpLeft,
+            EnemyFrameId.MorphBallEyeLookingUpUpLeft,
+        ];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             RotationAngle angle = RotationAngle.FromRaw(raw);
-            AssertEqual(AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking, MorphBallEyeSegment.Active, angle.Sector(16)),
-                MorphBallEyeAnimations.TrackingPlaces.At(angle), $"Morph Ball eye angle {raw} tracking place");
+            AssertEqual(byPose[angle.Sector(16)], MorphBallEyeAnimations.AimFrames.At(angle), $"Morph Ball eye angle {raw} aim");
         }
     }
 

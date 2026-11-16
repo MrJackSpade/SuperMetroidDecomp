@@ -14,14 +14,16 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the Morph Ball eye's initial animations and how its eyelid and tracking animations run.</summary>
 internal static class MorphBallEyeBehaviorVerification
 {
     /// <summary>
     /// The real initializer starts a body's closed eyelid on its mounted side and each mount's directional pose; the
-    /// eyelid closes over 8, 48 and 5 updates and then holds the closed pose; the tracking loop runs its sixteen ten-update poses, and
-    /// a tracking cursor placed at an angle's pose shows that pose first.
+    /// eyelid closes over 8, 48 and 5 updates and then holds the closed pose; and a tracking eye (#2070) shows, on the same
+    /// update its tracking reads Samus's angle, the aim frame of the sixteenth of the turn she lies in from it.
     /// </summary>
     internal static void VerifyMorphBallEyeBehavior()
     {
@@ -53,21 +55,24 @@ internal static class MorphBallEyeBehaviorVerification
         }
 
         (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(parameter1: 0, parameter2: 0);
-        tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active), AnimationPlace.StartOfAnimation);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Segments, MorphBallEyeSegment.Active, MorphBallEyeFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Segments, MorphBallEyeSegment.Active)),
-            "eye tracking loop");
-        ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeSegment.Active)];
-        for (int pose = 0; pose < active.Length; pose++)
+        eye.Position = eye.Position.WithWhole(new(128, 128));
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        samus.CollectedItems = SamusEquipmentFlags.MorphBall;
+        var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(0));
+        IReadOnlyList<EnemyFrameId> aims = MorphBallEyeAnimations.AimFrames.InTurnOrder;
+        for (int arc = 0; arc < aims.Count; arc++)
         {
-            tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active),
-                AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(
-                    MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active), MorphBallEyeSegment.Active, pose));
-            eye.AnimationClock.StepOnNextUpdate();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),
-                $"eye tracking pose {pose}");
+            // Samus stands 48 pixels away along the middle of the arc, counted clockwise from straight up.
+            double bearing = (arc + 0.5) * Math.Tau / aims.Count;
+            samus.Position = FixedPosition<RoomPixels>.FromWhole(new(
+                (ushort)(128 + (int)Math.Round(48 * Math.Sin(bearing))), (ushort)(128 - (int)Math.Round(48 * Math.Cos(bearing)))));
+            tracking.Action = MorphBallEyeAction.Active;
+            tracker.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye, frame);
+            AssertEqual<EnemyFrameId?>(aims[arc], tracking.Aim, $"eye tracking Samus in arc {arc} aims along its pose");
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([MorphBallEyeFrameToolingDefinitions.Spritemap(aims[arc])], [1]),
+                EnemyInstructionRunner.ShownFrames(eye, 1), $"eye tracking Samus in arc {arc} shows its pose on the same update");
         }
-        Console.WriteLine("  Morph Ball eye behavior: initial eyelid and mount poses, both closings and every tracking pose pass.");
+        Console.WriteLine("  Morph Ball eye behavior: initial eyelid and mount poses, both closings and the aim for every arc pass.");
     }
 
     /// <summary>

@@ -252,6 +252,14 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");
         RequireSegmentFrames(MorphBallEyeAnimations.Segments, MorphBallEyeFrameToolingDefinitions.Spritemap, MorphBallEyeFrameToolingDefinitions.Bank,
             nameof(MorphBallEyeAnimations), "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs");
+        // The open eye's aim frames (#2070), which its tracking shows by its angle rather than through a segment.
+        ushort[] morphBallEyeAims = [.. MorphBallEyeAnimations.AimFrames.InTurnOrder.Select(MorphBallEyeFrameToolingDefinitions.Spritemap).Distinct()];
+        foreach (ushort aim in morphBallEyeAims)
+        {
+            report.Require(ResourceDomains.EnemyDisplay, nameof(MorphBallEyeAnimations), ResourceIndex.Address(MorphBallEyeFrameToolingDefinitions.Bank, aim),
+                "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs", exports);
+        }
+        rows.Add(new(morphBallEyeAims.Length));
         RequireSegmentFrames(SkreeMetareeAnimations.Segments, SkreeMetareeFrameToolingDefinitions.Spritemap, SkreeMetareeFrameToolingDefinitions.Bank,
             nameof(SkreeMetareeAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeAnimations.cs");
         RequireSegmentFrames(MochtroidAnimations.Segments, MochtroidFrameToolingDefinitions.Spritemap, MochtroidFrameToolingDefinitions.Bank,

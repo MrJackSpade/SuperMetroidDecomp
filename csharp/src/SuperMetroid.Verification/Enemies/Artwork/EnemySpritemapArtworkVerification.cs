@@ -354,8 +354,9 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledOrangeZoomerInstructionFrames), () => VerifyInstalledOrangeZoomerInstructionFrames(stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock.Enemies));
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
-                MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeSegment>())),
-            "the installed Morph Ball eye frames are exactly the poses its programs show");
+                MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeSegment>())
+                    .Concat(MorphBallEyeAnimations.AimFrames.InTurnOrder.Select(SuperMetroid.Core.Enemies.MorphBallEye.Artwork.MorphBallEyeFrameToolingDefinitions.Spritemap))),
+            "the installed Morph Ball eye frames are exactly the poses its programs and its aim show");
         HashSet<ushort> shaktoolFrames = ShaktoolVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(15, shaktoolFrames.Count,

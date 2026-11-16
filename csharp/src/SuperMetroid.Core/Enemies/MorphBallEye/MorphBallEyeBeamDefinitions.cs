@@ -1,12 +1,9 @@
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
-/// <summary>The Morph Ball eye's tracking poses and its beam's colour and width, as its behaviour writes them.</summary>
+/// <summary>The Morph Ball eye's beam's colour and width, as its behaviour writes them.</summary>
 internal static class MorphBallEyeBeamDefinitions
 {
-    /// <summary>The tracking poses the eye's angle chooses among, one for each equal arc of the turn.</summary>
-    internal const int TrackingPoses = 16;
-
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
     internal static RgbColor InitialColor { get; } = new(132, 132, 0);
 

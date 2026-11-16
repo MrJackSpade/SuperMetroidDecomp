@@ -43,7 +43,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
                 slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
-                var state = new BrinstarPipeBugState(PipeBugAction.BrinstarWaitUntilOnScreen)
+                var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen)
                 {
                     InstalledAnimation = selector == PipeBugAnimationChoices.Rising(strong, HorizontalDirection.Left)
                         ? PipeBugAnimationChoices.ShootingWithSameFacing(selector)

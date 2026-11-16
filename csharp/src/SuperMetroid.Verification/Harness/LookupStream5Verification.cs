@@ -1036,7 +1036,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemySlot,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
         Action<YappingMawEnemyState,YappingMawAim> set = YappingMawBehavior.SetYappingMawHeldOffset;
         var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
-        var state = new YappingMawEnemyState(slot) { DistanceToSamus = 32 };
+        var state = new YappingMawEnemyState { DistanceToSamus = 32 };
         // The cartridge's held-offset table lists the aims clockwise from up, the order of the aim sequence.
         for (int direction = 0; direction < 8; direction++)
         {

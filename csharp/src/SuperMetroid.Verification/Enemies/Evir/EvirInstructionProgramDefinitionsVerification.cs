@@ -33,7 +33,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         {
             var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
+            PrepareEvirBodyLoop(slot, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
                 $"Evir {loop} loop");
@@ -42,11 +42,12 @@ internal static class EvirInstructionProgramDefinitionsVerification
         {
             var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileNormal);
+            // The held pose runs no cue, so the spit's body is never read.
+            EvirSpitState state = PrepareEvirSpit(slot, EvirSegment.ProjectileNormal, body: slot, new EvirBodyState(spit: slot));
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
-            AnimationPlayback<EvirSegment>? held = state.Playback;
+            AnimationPlayback<EvirSegment> held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(held, state.Playback, "normal Evir projectile holds its flight pose");
         }
@@ -58,18 +59,19 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[2];
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
-            body.SetSpeciesState(new EvirEnemyState(EvirAction.HandleBodyOrArms) { InstalledAnimation = EvirSegment.BodyFacingLeft });
+            var bodyState = new EvirBodyState(spit: slot) { InstalledAnimation = EvirSegment.BodyFacingLeft };
+            body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
             slot.Bind(EnemyDefinitionId.EvirProjectile, slot.Definition);
             enemies.EvirBehavior.InitializeEvirProjectile(slot);
-            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileRegenerating);
+            EvirSpitState state = PrepareEvirSpit(slot, EvirSegment.ProjectileRegenerating, body, bodyState);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.Facing = EvirFacing.Right;
             state.InFlight = true;
             state.Regenerating = true;
-            state.Action = EvirAction.ProjectileRegenerating;
-            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState(EvirAction.HandleBodyOrArms) { InstalledAnimation = EvirSegment.BodyFacingLeft });
+            state.Action = EvirSpitAction.Regenerating;
+            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirBodyState(spit: slot) { InstalledAnimation = EvirSegment.BodyFacingLeft });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
@@ -84,7 +86,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertTrue(!state.Regenerating, "regeneration finish cue clears regeneration ownership");
             AssertTrue(!state.InFlight, "regeneration finish cue leaves the projectile stationary");
-            AssertEqual((EvirAction?)EvirAction.ProjectileIdle, state.Action, "regeneration finish cue restores idle AI");
+            AssertEqual(EvirSpitAction.Idle, state.Action, "regeneration finish cue restores idle AI");
             const ushort nativeSpitSound = 0x005e;
             AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, nativeSpitSound),
                 enemies.Audio.LatestSound, "regeneration publishes the native library-two spit sound");
@@ -102,16 +104,11 @@ internal static class EvirInstructionProgramDefinitionsVerification
         return enemies;
     }
 
-    /// <summary>Seeds an Evir body or projectile slot with its bank-$A8 definition and starting program.</summary>
-    internal static EvirEnemyState PrepareEvirInstructionSlot(
-        RoomEnemySlot slot,
-        EnemyDefinitionId definition,
-        EvirSegment program)
+    /// <summary>Seeds an Evir body slot with its bank-$A8 definition and starting program, a body or arms loop.</summary>
+    internal static EvirBodyState PrepareEvirBodyLoop(RoomEnemySlot slot, EvirSegment program)
     {
-        slot.Bind(definition, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.AnimationClock.StepOnNextUpdate();
-        var state = new EvirEnemyState(EvirAction.HandleBodyOrArms)
+        Bind(slot, EnemyDefinitionId.Evir);
+        var state = new EvirBodyState(spit: slot)
         {
             RequestedAnimation = program,
             InstalledAnimation = program,
@@ -119,6 +116,31 @@ internal static class EvirInstructionProgramDefinitionsVerification
         };
         slot.SetSpeciesState(state);
         return state;
+    }
+
+    /// <summary>
+    /// Seeds an Evir spit slot with its bank-$A8 definition and starting program, its body at <paramref name="body"/> with
+    /// <paramref name="bodyState"/>.
+    /// </summary>
+    internal static EvirSpitState PrepareEvirSpit(RoomEnemySlot slot, EvirSegment program, RoomEnemySlot body, EvirBodyState bodyState)
+    {
+        Bind(slot, EnemyDefinitionId.EvirProjectile);
+        var state = new EvirSpitState(EvirSpitAction.Idle, body, bodyState)
+        {
+            RequestedAnimation = program,
+            InstalledAnimation = program,
+            Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
+        };
+        slot.SetSpeciesState(state);
+        return state;
+    }
+
+    /// <summary>Binds <paramref name="slot"/> to <paramref name="definition"/> with its bank-$A8 definition, its animation stepping on the next update.</summary>
+    private static void Bind(RoomEnemySlot slot, EnemyDefinitionId definition)
+    {
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs retail-cartridge Evir animation verification.</summary>

@@ -105,8 +105,8 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Evir] = words => new EvirSpawnSettings(Part: (words.Parameter1 & 65535) != 0 ? EvirBodyPart.Arms : EvirBodyPart.Body, Speed: EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8)), DirectionChangePeriod: Bits(words.Parameter2, 8, 8)),
         [EnemyDefinitionId.FaceBlock] = words => new FaceBlockSpawnSettings(TriggerDistance: Bits(words.Parameter1, 0, 16), Facing: Bits(words.Parameter2, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }),
         [EnemyDefinitionId.Fireflea] = words => Unset("Fireflea starting angle", Bits(words.Parameter1, 8, 8), new FirefleaSpawnSettings(Flight: FirefleaFlightOf((words.Parameter1 & 2) != 0, (words.Parameter1 & 1) != 0 ? EnemySpeedSign.Positive : EnemySpeedSign.Negative, EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8))), Radius: EnemySpawnSelectors.Select("Radius", EnemySpawnSelectorDefinitions.FirefleaRadii, Bits(words.Parameter2, 8, 8)))),
-        [EnemyDefinitionId.Fune] = words => Unset("Fune's Namihe behaviour", Bits(words.Parameter1, 0, 4), FuneNamiheSettings(words)),
-        [EnemyDefinitionId.Namihe] = words => Bits(words.Parameter1, 0, 4) != 0 ? FuneNamiheSettings(words) : throw Unmapped("Namihe's Fune behaviour", 0),
+        [EnemyDefinitionId.Fune] = words => Unset("Fune's Namihe behaviour", Bits(words.Parameter1, 0, 4), FuneSettings(words)),
+        [EnemyDefinitionId.Namihe] = words => Bits(words.Parameter1, 0, 4) != 0 ? NamiheSettings(words) : throw Unmapped("Namihe's Fune behaviour", 0),
         [EnemyDefinitionId.ShipBottomEntrance] = words => new GunshipSpawnSettings(Part: (words.Parameter2 & 65535) != 0 ? GunshipBottomPiece.EntrancePad : GunshipBottomPiece.Hull),
         [EnemyDefinitionId.Hibashi] = words => new HibashiSpawnSettings(InactiveTime: Bits(words.Parameter1, 0, 16), Part: (words.Parameter2 & 65535) != 0 ? HibashiPart.CollisionPart : HibashiPart.Flame),
         [EnemyDefinitionId.Sidehopper] = words => new HopperSpawnSettings(Mounting: (words.Parameter1 & 65535) != 0 ? HopperMounting.Ceiling : HopperMounting.Floor),
@@ -245,9 +245,7 @@ internal static class EnemySpawnSettingsCodec
     public static PopulationWords Encode(EnemyDefinitionId enemy, EnemySpawnSettings settings) =>
         SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.SharedHeaders.ContainsKey(enemy)
             ? Encode(settings) with { Parameter1 = CeresDoorHeaderSelector(enemy, settings) }
-            : enemy == EnemyDefinitionId.Namihe
-                ? Encode(settings) with { Parameter1 = Encode(settings).Parameter1 | NamiheBehaviourBit }
-                : Encode(settings);
+            : Encode(settings);
 
     /// <summary>
     /// The words of an entry for <paramref name="enemy"/> that names no setting of its own: zero words, except that a
@@ -291,7 +289,8 @@ internal static class EnemySpawnSettingsCodec
         EvirSpawnSettings s => Checked(EnemyDefinitionId.Evir, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Part == EvirBodyPart.Arms ? 1 : 0), Parameter2: Place(EnemySpawnSelectors.LinearSpeedRow("Speed", s.Speed), 0, 8) | Place(s.DirectionChangePeriod, 8, 8))),
         FaceBlockSpawnSettings s => Checked(EnemyDefinitionId.FaceBlock, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.TriggerDistance, 0, 16), Parameter2: ((s.Facing switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),
         FirefleaSpawnSettings s => Checked(EnemyDefinitionId.Fireflea, settings, FirefleaWords(s)),
-        FuneNamiheSpawnSettings s => Checked(EnemyDefinitionId.Fune, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Facing == HorizontalDirection.Right ? 16 : 0) | Place(s.CooldownTime, 8, 8), Parameter2: Place(EnemySpawnSelectors.FuneNamiheLaunchSpeedSelector(s.LaunchSpeed), 0, 8) | Place(s.YProximity, 8, 8))),
+        FuneSpawnSettings s => Checked(EnemyDefinitionId.Fune, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Facing == HorizontalDirection.Right ? 16 : 0) | Place(s.CooldownTime, 8, 8), Parameter2: Place(EnemySpawnSelectors.FuneNamiheLaunchSpeedSelector(s.LaunchSpeed), 0, 8))),
+        NamiheSpawnSettings s => Checked(EnemyDefinitionId.Namihe, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Facing == HorizontalDirection.Right ? 16 : 0) | NamiheBehaviourBit, Parameter2: Place(EnemySpawnSelectors.FuneNamiheLaunchSpeedSelector(s.LaunchSpeed), 0, 8) | Place(s.YProximity, 8, 8))),
         GunshipSpawnSettings s => Checked(EnemyDefinitionId.ShipBottomEntrance, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: 0, Parameter2: (s.Part == GunshipBottomPiece.EntrancePad ? 1 : 0))),
         HibashiSpawnSettings s => Checked(EnemyDefinitionId.Hibashi, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.InactiveTime, 0, 16), Parameter2: (s.Part == HibashiPart.CollisionPart ? 1 : 0))),
         HopperSpawnSettings s => Checked(EnemyDefinitionId.Sidehopper, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Mounting == HopperMounting.Ceiling ? 1 : 0), Parameter2: 0)),
@@ -503,9 +502,19 @@ internal static class EnemySpawnSettingsCodec
             ? settings
             : throw Unmapped("SurfaceFamily", words.Parameter2);
 
-    /// <summary>The settings a Fune's or Namihe's words give, apart from the behaviour they name, which is its species'.</summary>
-    private static FuneNamiheSpawnSettings FuneNamiheSettings(PopulationWords words) =>
-        new(Facing: (words.Parameter1 & 240) != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, CooldownTime: Bits(words.Parameter1, 8, 8), LaunchSpeed: EnemySpawnSelectors.FuneNamiheLaunchSpeed(Bits(words.Parameter2, 0, 8)), YProximity: Bits(words.Parameter2, 8, 8));
+    /// <summary>
+    /// The settings a Fune's words give. The species shares its words' layout with the Namihe; the Namihe's wake distance,
+    /// the second parameter's high byte, which retail Fune placements fill, is a value no Fune reads (#2063).
+    /// </summary>
+    private static FuneSpawnSettings FuneSettings(PopulationWords words) =>
+        new(Facing: (words.Parameter1 & 240) != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, CooldownTime: Bits(words.Parameter1, 8, 8), LaunchSpeed: EnemySpawnSelectors.FuneNamiheLaunchSpeed(Bits(words.Parameter2, 0, 8)));
+
+    /// <summary>
+    /// The settings a Namihe's words give, apart from the behaviour they name, which is its species'. The Fune's cooldown,
+    /// the first parameter's high byte, which retail Namihe placements fill, is a value no Namihe reads (#2063).
+    /// </summary>
+    private static NamiheSpawnSettings NamiheSettings(PopulationWords words) =>
+        new(Facing: (words.Parameter1 & 240) != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, LaunchSpeed: EnemySpawnSelectors.FuneNamiheLaunchSpeed(Bits(words.Parameter2, 0, 8)), YProximity: Bits(words.Parameter2, 8, 8));
 
     /// <summary>
     /// A Fireflea's flight from its words: a bobbing Fireflea moves at the row's speed, starting toward the sign; a

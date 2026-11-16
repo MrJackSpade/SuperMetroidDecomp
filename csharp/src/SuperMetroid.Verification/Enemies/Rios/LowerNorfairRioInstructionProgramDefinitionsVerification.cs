@@ -73,7 +73,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioFollowerState>()?.Playback,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
@@ -106,11 +106,11 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, EnemyParameterMasks.FollowerBit);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        LowerNorfairRioEnemyState parentState = parent.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()
-            ?? throw new InvalidOperationException("The Lower Norfair Rio parent has no state.");
-        LowerNorfairRioEnemyState followerState = follower.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()
-            ?? throw new InvalidOperationException("The Lower Norfair Rio follower has no state.");
-        AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
+        AssertTrue(parent.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>() is not null &&
+            parent.EntityState<LowerNorfairRioEntity, LowerNorfairRioFollowerState>() is null &&
+            follower.EntityState<LowerNorfairRioEntity, LowerNorfairRioFollowerState>() is not null &&
+            follower.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>() is null,
+            "parameter one's sign bit selects the follower, which keeps only its own follower state");
         Console.WriteLine("Lower Norfair Rio owned state: the follower selection matches.");
     }
 

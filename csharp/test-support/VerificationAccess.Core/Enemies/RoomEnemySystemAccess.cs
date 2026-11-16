@@ -109,8 +109,8 @@ internal static class RoomEnemySystemAccess
         internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior.BotwoonState;
 
         /// <summary>Per-slot Evir states, indexed by enemy slot.</summary>
-        internal IReadOnlyList<EvirEnemyState?> EvirStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<EvirEnemyState>())];
+        internal IReadOnlyList<EvirBodyState?> EvirStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<EvirBodyState>())];
 
         /// <summary>The enemy drops waiting in the projectile pool: each drop an enemy makes takes a pickup's place there.</summary>
         internal int ActiveEnemyDropPickups =>
@@ -195,9 +195,13 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<OwtchEnemyState?> OwtchStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<OwtchEntity, OwtchEnemyState>())];
 
-        /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
-        internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FuneNamiheEntity, FuneNamiheEnemyState>())];
+        /// <summary>Typed state for all physical slots occupied by a Fune.</summary>
+        internal IReadOnlyList<FuneEnemyState?> FuneStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FuneEntity, FuneEnemyState>())];
+
+        /// <summary>Typed state for all physical slots occupied by a Namihe.</summary>
+        internal IReadOnlyList<NamiheEnemyState?> NamiheStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<NamiheEntity, NamiheEnemyState>())];
 
         /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates =>
@@ -298,15 +302,15 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>() as DragonEnemyState)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonEnemyState>())];
 
         /// <summary>Typed Dragon wing state for every physical slot a wing occupies.</summary>
         internal IReadOnlyList<DragonWingState?> DragonWingStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>() as DragonWingState)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonWingState>())];
 
         /// <summary>Typed Dragon body or wing state for every physical slot either occupies.</summary>
         internal IReadOnlyList<DragonPartState?> DragonPartStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonPartState>())];
+            [.. self.SlotTable.Slots.Select(slot => (DragonPartState?)slot.EntityState<DragonEntity, DragonEnemyState>() ?? slot.EntityState<DragonEntity, DragonWingState>())];
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>

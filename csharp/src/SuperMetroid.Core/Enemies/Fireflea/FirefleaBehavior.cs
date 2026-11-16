@@ -32,54 +32,71 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
     internal static void InitializeFireflea(RoomEnemySlot slot)
     {
-        var state = new FirefleaEnemyState(slot);
-        slot.SetSpeciesState(state);
-        state.Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation);
-
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
-        state.Radius = settings.Radius;
-
-        switch (settings.Flight)
+        FirefleaFlightState flight = settings.Flight switch
         {
-            case FirefleaFlight.Circling circling:
-                state.AngularSpeed = circling.TurnPerUpdate;
-                state.Center = slot.Position.Whole;
-                state.Angle = RotationAngle.Zero;
-                slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
-                return;
-            case FirefleaFlight.Bobbing bobbing:
-                state.Speed = bobbing.Speed;
-                state.SpeedSign = bobbing.StartSign;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}.");
-        }
+            FirefleaFlight.Circling circling => StartCircling(slot, circling, settings.Radius),
+            FirefleaFlight.Bobbing bobbing => StartBobbing(slot, bobbing, settings.Radius),
+            _ => throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}."),
+        };
+        slot.SetSpeciesState(new FirefleaEnemyState(flight)
+        {
+            Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation),
+        });
+    }
 
+    /// <summary>Starts a circling Fireflea on its circle about where it spawned, at the circle's zero angle.</summary>
+    private static CirclingFirefleaState StartCircling(RoomEnemySlot slot, FirefleaFlight.Circling circling, int radius)
+    {
+        var flight = new CirclingFirefleaState
+        {
+            AngularSpeed = circling.TurnPerUpdate,
+            Radius = radius,
+            Center = slot.Position.Whole,
+            Angle = RotationAngle.Zero,
+        };
+        slot.Position = slot.Position.WithWhole(flight.Center + EnemyMath.CircleOffset(flight.Angle.ToTrigonometryAngle(), flight.Radius));
+        return flight;
+    }
+
+    /// <summary>Starts a bobbing Fireflea between the rows <paramref name="radius"/> above and below where it spawned.</summary>
+    private static BobbingFirefleaState StartBobbing(RoomEnemySlot slot, FirefleaFlight.Bobbing bobbing, int radius)
+    {
         int spawnY = slot.Position.Y.Whole;
-        state.MinimumY = CoordinateAxis.Wrap(spawnY - state.Radius);
-        state.MaximumY = CoordinateAxis.Wrap(spawnY + state.Radius);
+        return new BobbingFirefleaState
+        {
+            Speed = bobbing.Speed,
+            SpeedSign = bobbing.StartSign,
+            MinimumY = CoordinateAxis.Wrap(spawnY - radius),
+            MaximumY = CoordinateAxis.Wrap(spawnY + radius),
+        };
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or wrapped vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
     {
-        if (state.UsesCircularMovement)
+        switch (state.Flight)
         {
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
+            case CirclingFirefleaState circling:
+                slot.Position = slot.Position.WithWhole(circling.Center + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), circling.Radius));
+                circling.Angle = circling.Angle.TurnedBy(circling.AngularSpeed);
+                return;
 
-            state.Angle = state.Angle.TurnedBy(state.AngularSpeed);
-            return;
+            case BobbingFirefleaState bobbing:
+                slot.Position = slot.Position.AdvanceY(bobbing.Velocity);
+
+                // The bounds compare by whether the wrapped subtraction is negative, not by ordinary
+                // bounds comparisons. The actor is intentionally allowed to overshoot before its
+                // speed reverses.
+                bool crossedMinimum = CoordinateAxis.Precedes(slot.Position.Y.Whole, bobbing.MinimumY);
+                bool reachedMaximum = !CoordinateAxis.Precedes(slot.Position.Y.Whole, bobbing.MaximumY);
+                if (crossedMinimum || reachedMaximum)
+                    bobbing.SpeedSign = Reversed(bobbing.SpeedSign);
+                return;
+
+            default:
+                throw new InvalidOperationException($"Undefined Fireflea flight {state.Flight}.");
         }
-
-        slot.Position = slot.Position.AdvanceY(state.Velocity);
-
-        // The bounds compare by whether the wrapped subtraction is negative, not by ordinary
-        // bounds comparisons. The actor is intentionally allowed to overshoot before its
-        // speed reverses.
-        bool crossedMinimum = CoordinateAxis.Precedes(slot.Position.Y.Whole, state.MinimumY);
-        bool reachedMaximum = !CoordinateAxis.Precedes(slot.Position.Y.Whole, state.MaximumY);
-        if (crossedMinimum || reachedMaximum)
-            state.SpeedSign = Reversed(state.SpeedSign);
     }
 
     /// <summary>The sign opposite <paramref name="sign"/>.</summary>

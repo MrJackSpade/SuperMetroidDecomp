@@ -80,7 +80,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         AssertEqual(new AnimationPlayback<NorfairRioSegment>(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-            enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Playback,
+            enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioFollowerState>()?.Playback,
             "Norfair Rio follower initializer selects ascending flames");
     }
 

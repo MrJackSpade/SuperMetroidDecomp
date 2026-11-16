@@ -51,7 +51,8 @@ internal static class FirefleaBehaviorVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             slot.Position = slot.Position.WithWhole(new(128, 4));
             FirefleaBehavior.InitializeFireflea(slot);
-            FirefleaEnemyState state = slot.RequireSpeciesState<FirefleaEnemyState>();
+            BobbingFirefleaState state = slot.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
+                ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
             AssertEqual(65532, state.MinimumY, "the upper extent wraps past the room's top edge");
             AssertEqual(12, state.MaximumY, "the lower extent is the spawn Y plus the radius");
             slot.Position = slot.Position.WithWholeY(y);

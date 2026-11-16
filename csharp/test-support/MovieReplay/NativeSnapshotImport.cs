@@ -121,7 +121,11 @@ internal static class NativeSnapshotImport
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
             // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783).
-            IGlowingEnemy? glowingEnemy = effect == ColourEffectId.GunshipGlow ? runtime.Enemies.GunshipBehavior : null;
+            IGlowingEnemy? glowingEnemy = effect == ColourEffectId.GunshipGlow
+                ? runtime.Enemies.SlotTable.Slots.Select(slot => slot.SpeciesState<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>())
+                    .OfType<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>().SingleOrDefault()
+                    ?? throw new InvalidDataException("The native snapshot runs the gunship's glow in a room with no gunship.")
+                : null;
             var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo, glowingEnemy)
             {
                 Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectId>(resumed.Animation, resumed.Place),

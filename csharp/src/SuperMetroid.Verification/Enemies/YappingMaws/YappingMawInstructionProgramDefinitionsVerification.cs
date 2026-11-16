@@ -183,7 +183,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
-        var state = new YappingMawEnemyState(slot) { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
+        var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewInitializedYappingMawResult(enemies, slot, state);
     }

@@ -11,14 +11,9 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 public sealed class YappingMawEnemyState
 {
-    /// <summary>Binds extended tongue and grab state to the live mouth enemy slot.</summary>
-    internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
-
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YappingMawSegment> Playback { get; set; }
 
-    /// <summary>The listed enemy representing the moving mouth, distinct from the four body projectiles and the stationary root effect actor.</summary>
-    public RoomEnemySlot Owner { get; }
     /// <summary>The behaviour main AI runs, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAction Action { get; internal set; }
 

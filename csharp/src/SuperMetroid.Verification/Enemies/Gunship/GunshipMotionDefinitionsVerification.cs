@@ -29,8 +29,11 @@ internal static class GunshipMotionDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
-            // The top hull finds the bottom hull and pad listed after it as production places it.
+            // The top hull finds the bottom hull and pad listed after it as production places it; each piece keeps its own
+            // animation, which the bounce restarts on the pad.
             enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.SlotTable.Slots[1].SetSpeciesState(new GunshipPieceState(default));
+            enemies.SlotTable.Slots[2].SetSpeciesState(new GunshipPieceState(default));
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
             top.SetSpeciesState(part);
@@ -58,7 +61,7 @@ internal static class GunshipMotionDefinitionsVerification
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
-            var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
+            var stepBob = new Action<RoomEnemySlot>(GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             // The top hull finds the bottom hull and pad listed after it as production places it.
             enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());

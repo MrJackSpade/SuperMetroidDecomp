@@ -896,7 +896,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), roles[member].StaggerTarget,
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(roles[member].PostRiseAction),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.NorfairPipeBugActions.Word(roles[member].PostRiseAction),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -917,9 +917,9 @@ internal static class LookupStream2Verification
                 var state = enemies.NorfairPipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(state.PostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action.")),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.NorfairPipeBugActions.Word(state.PostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action.")),
                     "Actual formation writes native role function");
-                AssertEqual(PipeBugAction.NorfairRise, state.Action, "Actual formation begins rising");
+                AssertEqual(NorfairPipeBugAction.Rise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].AnimationClock.Hold.RawValue,

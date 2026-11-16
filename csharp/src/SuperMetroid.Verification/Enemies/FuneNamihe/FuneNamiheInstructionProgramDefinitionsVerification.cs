@@ -64,9 +64,9 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             AssertEqual(program.Right, projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel > 0, $"Fune/Namihe {program.Entry} projectile flies in its facing");
             AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.Audio.LatestSound,
                 $"Fune/Namihe {program.Entry} sound cue");
-            AssertEqual(
-                program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
-                (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Action,
+            AssertTrue(program.Namihe
+                    ? (enemies.NamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires the Namihe's state.")).Action == NamiheAction.WaitForSamus
+                    : (enemies.FuneStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires the Fune's state.")).Action == FuneAction.WaitForCooldown,
                 $"Fune/Namihe {program.Entry} returns main-AI ownership");
         }
         AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.ProgramAt(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
@@ -89,17 +89,27 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.AnimationClock.StepOnNextUpdate();
 
-        var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown)
+        var playback = new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation);
+        if (program.Namihe)
         {
-            ShowsActiveAnimation = program.Active,
-            FacingRight = program.Right,
-            Action = program.Active
-                ? FuneNamiheAction.Spitting
-                : program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
-            IsNamihe = program.Namihe,
-            Playback = new(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation),
-        };
-        enemies.SlotTable.Slots[0].SetSpeciesState(state);
+            enemies.SlotTable.Slots[0].SetSpeciesState(new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
+            {
+                ShowsActiveAnimation = program.Active,
+                FacingRight = program.Right,
+                LaunchSpeed = slot.SpawnSettings<NamiheSpawnSettings>().LaunchSpeed,
+                Playback = playback,
+            });
+        }
+        else
+        {
+            enemies.SlotTable.Slots[0].SetSpeciesState(new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
+            {
+                ShowsActiveAnimation = program.Active,
+                FacingRight = program.Right,
+                LaunchSpeed = slot.SpawnSettings<FuneSpawnSettings>().LaunchSpeed,
+                Playback = playback,
+            });
+        }
 
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         int frames = program.Active ? 140 : 4;

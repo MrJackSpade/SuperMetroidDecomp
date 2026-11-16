@@ -11,7 +11,6 @@ internal static class RiosNativeWords
     /// <summary>The routine word naming each <see cref="LowerNorfairRioAction"/>.</summary>
     internal static readonly NativeWordIdentities<LowerNorfairRioAction> LowerNorfairRioActions = new(new Dictionary<LowerNorfairRioAction, ushort>
     {
-        [LowerNorfairRioAction.FollowParent] = 0xc72e,
         [LowerNorfairRioAction.WaitForAttackOpportunity] = 0xc771,
         [LowerNorfairRioAction.WaitForTakeoffAnimation] = 0xc7bb,
         [LowerNorfairRioAction.Dive] = 0xc7d6,
@@ -22,7 +21,6 @@ internal static class RiosNativeWords
     /// <summary>The routine word naming each <see cref="NorfairRioAction"/>.</summary>
     internal static readonly NativeWordIdentities<NorfairRioAction> NorfairRioActions = new(new Dictionary<NorfairRioAction, ushort>
     {
-        [NorfairRioAction.FollowParent] = 0xc281,
         [NorfairRioAction.WaitForAttackOpportunity] = 0xc2e7,
         [NorfairRioAction.WaitForTakeoffAnimation] = 0xc33f,
         [NorfairRioAction.Dive] = 0xc361,

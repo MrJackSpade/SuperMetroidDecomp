@@ -32,12 +32,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
-    /// <summary>The room's Chozo statue, which its hand trigger wakes; null until the statue is placed.</summary>
-    private RoomEnemySlot? _statue;
+    /// <summary>The room's enemy places, among which the hand trigger finds the room's statue.</summary>
+    private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
-    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx)
+    /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners and the room's enemy places.</summary>
+    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx,
+        EnemySlotTable slotTable)
     {
+        _slotTable = Ensure.NotNull(slotTable);
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
@@ -91,7 +93,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             HandTriggered = false,
         };
         statue.SetSpeciesState(state);
-        _statue = statue;
 
         if (state.IsWreckedShip)
         {
@@ -116,11 +117,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock)
     {
         Ensure.NotNull(level);
-        RoomEnemySlot statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
-        if (statue.DefinitionId != EnemyDefinitionId.Chozo)
-            throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");
-
-        ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
+        // The hand belongs to the room's one statue, the enemy that holds a statue's state.
+        ChozoStatueState state = _slotTable.Slots.Select(slot => slot.SpeciesState<ChozoStatueState>()).OfType<ChozoStatueState>().Single();
         Position16<RoomBlocks> triggerPosition = handBlock;
         RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 

@@ -308,13 +308,13 @@ internal static class NativeEnemyFamilyStateImport
         // bugs keep their action in word A.
         if (slot.SpeciesState<BrinstarPipeBugState>() is { } brinstarPipeBug)
         {
-            brinstarPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.F, "recorded PipeBugAction");
+            brinstarPipeBug.Action = PipeBugsNativeWords.BrinstarPipeBugActions.Decode(words.F, "recorded BrinstarPipeBugAction");
             brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
         }
         if (slot.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
-            norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+            norfairPipeBug.Action = PipeBugsNativeWords.NorfairPipeBugActions.Decode(words.A, "recorded NorfairPipeBugAction");
         if (slot.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
-            yellowPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+            yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
         if (slot.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
         if (slot.SpeciesState<MagdollitePartState>() is MagdolliteBodyState magdolliteBody)
@@ -430,7 +430,8 @@ internal static class NativeEnemyFamilyStateImport
                 growingShutterRecord.SetSectionOriginY(level, originRows[level]);
             growingShutterRecord.GrowthLevel = words.F;
         }
-        if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
+        // A bobbing Fireflea keeps none of these words.
+        if (slot.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })
         {
             firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
@@ -635,7 +636,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             holtz.Action = RiosNativeWords.LowerNorfairRioActions.Decode(words.F, "recorded LowerNorfairRioAction");
-            holtz.IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
         }
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
@@ -753,19 +753,31 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.ElevatorStates[index] is { } elevator)
             elevator.RestingY = words.A;
-        if (enemies.FuneNamiheStates[index] is { } funeNamihe)
+        // A Fune reads no wake distance and a Namihe no cooldown; each takes only its own species' words.
+        if (enemies.FuneStates[index] is { } fune)
         {
-            funeNamihe.Action = FuneNamiheNativeWords.FuneNamiheActions.Decode(words.B, "recorded FuneNamiheAction");
-            funeNamihe.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
-            if ((Index(words.D, 15, "Fune/Namihe behaviour") != 0) != funeNamihe.IsNamihe)
-                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names the other species.");
-            funeNamihe.CooldownTimer = words.E;
-            funeNamihe.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
+            fune.Action = FuneNamiheNativeWords.FuneActions.Decode(words.B, "recorded FuneAction");
+            if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
+                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
+            fune.CooldownTimer = words.E;
+            fune.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
-            if (namihe != funeNamihe.IsNamihe)
-                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names the other species.");
-            funeNamihe.ShowsActiveAnimation = active;
-            funeNamihe.FacingRight = right;
+            if (namihe)
+                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
+            fune.ShowsActiveAnimation = active;
+            fune.FacingRight = right;
+        }
+        if (enemies.NamiheStates[index] is { } namiheState)
+        {
+            namiheState.Action = FuneNamiheNativeWords.NamiheActions.Decode(words.B, "recorded NamiheAction");
+            namiheState.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
+            if (Index(words.D, 15, "Fune/Namihe behaviour") == 0)
+                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Fune.");
+            (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
+            if (!namihe)
+                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Fune.");
+            namiheState.ShowsActiveAnimation = active;
+            namiheState.FacingRight = right;
         }
         if (slot.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             slot.SpeciesState<RipperEnemyState>() is { } ripperVariant)

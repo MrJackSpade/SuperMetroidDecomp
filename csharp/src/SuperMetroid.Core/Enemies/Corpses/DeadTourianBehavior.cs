@@ -104,7 +104,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Power-bomb reactions reject actors whose decomposition already made them intangible.</summary>
     private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemySlot slot)
     {
-        slot.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTourianCorpseRotting(slot);
     }

@@ -150,15 +150,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case KiHunterAction.FlyingPatrol:
-                RequireKiHunterBody(actor);
                 RunKiHunterFlyingPatrol(actor, state, samus, level);
                 return;
             case KiHunterAction.Swooping:
-                RequireKiHunterBody(actor);
                 RunKiHunterSwoop(actor, state, level);
                 return;
             case KiHunterAction.RecoveringFromSwoop:
-                RequireKiHunterBody(actor);
                 RunKiHunterSwoopRecovery(actor, state, level);
                 return;
             case KiHunterAction.FallingAfterWingLoss:
@@ -747,53 +744,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static KiHunterWingState? WingsInPlace(RoomEnemySlot wings) => wings.SpeciesState<KiHunterWingState>();
 
     /// <summary>
-    /// The wings the body found when it was placed. While the pair is being set up the wings must be the body's colour;
-    /// afterwards the wings may already be gone, as a wingless Ki-Hunter's are from the start, and the body's behaviour
-    /// asks <see cref="WingsInPlace"/> before it touches them.
+    /// The wings the body found when it was placed, which its room lists right after it. They may already be gone, as a
+    /// wingless Ki-Hunter's are from the start, and the body's behaviour asks <see cref="WingsInPlace"/> before it
+    /// touches them.
     /// </summary>
-    private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
-    {
-        // A fatal shot clears the body before its shot reaction deletes the wings, so a body that was placed stays one
-        // until the reaction finishes.
-        bool initializedBody = _wingsOfBody.IsPlaced(body);
-        if (!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody)
-            throw new InvalidDataException($"Enemy slot {body.SlotIndex} is not a Ki-Hunter body.");
+    private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body) => _wingsOfBody.Of(body);
 
-        RoomEnemySlot wings = _wingsOfBody.Of(body);
-        if (body.IsFree && initializedBody)
-            return wings;
-
-        EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.DefinitionId] switch
-        {
-            KiHunterPart.KihunterGreen => EnemyDefinitionId.KihunterGreenWings,
-            KiHunterPart.KihunterYellow => EnemyDefinitionId.KihunterYellowWings,
-            KiHunterPart.KihunterRed => EnemyDefinitionId.KihunterRedWings,
-            KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterRedWings or KiHunterPart.KihunterYellowWings => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
-            _ => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
-        };
-        // While the wings are being set up they must be the body's colour. Once the pair is established, wings that are
-        // gone may leave no identity behind; anything else in their place is refused.
-        bool established = _bodyOfWings.IsPlaced(wings);
-        if (wings.DefinitionId != expected &&
-            !(established && wings.IsFree))
-        {
-            throw new InvalidDataException(
-                $"Ki-Hunter body slot {body.SlotIndex} is followed by {wings.DefinitionId}, " +
-                $"not expected wing {expected} or its deleted place.");
-        }
-        return wings;
-    }
-
-    /// <summary>Resolves the body the wings found when they were placed and validates its colour pairing.</summary>
-    private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings)
-    {
-        if (!IsKiHunterWingDefinition(wings.DefinitionId))
-            throw new InvalidDataException($"Enemy slot {wings.SlotIndex} is not a linked Ki-Hunter wing.");
-        RoomEnemySlot body = _bodyOfWings.Of(wings);
-        if (!ReferenceEquals(GetKiHunterWings(body), wings)) // Performs the exact body/variant pairing validation.
-            throw new InvalidDataException($"Ki-Hunter wings {wings.SlotIndex} are not the wings of body {body.SlotIndex}.");
-        return body;
-    }
+    /// <summary>The body the wings found when they were placed, which their room lists right before them.</summary>
+    private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings) => _bodyOfWings.Of(wings);
 
     /// <summary>Restarts a body animation from its first step.</summary>
     private static void StartKiHunterAnimation(RoomEnemySlot body, KiHunterBodyState state, KiHunterSegment segment) =>
@@ -805,13 +763,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
     internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
-
-    /// <summary>Requires a body definition before body-only movement AI.</summary>
-    private static void RequireKiHunterBody(RoomEnemySlot actor)
-    {
-        if (!IsKiHunterBodyDefinition(actor.DefinitionId))
-            throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
-    }
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal EnemyBombReaction KiHunterBombReaction => field ??= new()

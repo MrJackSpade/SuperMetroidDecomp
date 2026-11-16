@@ -21,39 +21,37 @@ internal static class FuneNamiheCooldownVerification
     /// </summary>
     internal static void VerifyFuneNamiheCooldown()
     {
-        FuneNamiheEnemyState waiting = Wait(CooldownTime - 2);
+        FuneEnemyState waiting = Wait(CooldownTime - 2);
         AssertEqual(CooldownTime - 1, waiting.CooldownTimer, "a count short of the cooldown time advances by one");
-        AssertEqual(FuneNamiheAction.FuneWaitForCooldown, waiting.Action, "a count short of the cooldown time keeps waiting");
+        AssertEqual(FuneAction.WaitForCooldown, waiting.Action, "a count short of the cooldown time keeps waiting");
 
-        FuneNamiheEnemyState reached = Wait(CooldownTime - 1);
+        FuneEnemyState reached = Wait(CooldownTime - 1);
         AssertEqual(0, reached.CooldownTimer, "ending the wait resets the count");
-        AssertEqual(FuneNamiheAction.Spitting, reached.Action, "a count reaching the cooldown time ends the wait");
+        AssertEqual(FuneAction.Spitting, reached.Action, "a count reaching the cooldown time ends the wait");
         AssertTrue(reached.ShowsActiveAnimation && !reached.FacingRight, "ending the wait selects the active animation for the same facing");
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
 
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { CooldownTimer = byte.MaxValue + 1 },
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneEnemyState(FuneAction.WaitForCooldown) { CooldownTimer = byte.MaxValue + 1 },
             "a waiting count past the largest cooldown is refused");
         Console.WriteLine("  Fune cooldown: short and reached counts pass.");
     }
 
     /// <summary>Runs one waiting update of a left-facing Fune whose count stands at <paramref name="count"/>.</summary>
-    private static FuneNamiheEnemyState Wait(int count)
+    private static FuneEnemyState Wait(int count)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fune, slot.Definition);
-        var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown)
+        var state = new FuneEnemyState(FuneAction.WaitForCooldown)
         {
             ShowsActiveAnimation = false,
             FacingRight = false,
-            Action = FuneNamiheAction.FuneWaitForCooldown,
-            IsNamihe = false,
             CooldownTime = CooldownTime,
             CooldownTimer = count,
         };
         slot.SetSpeciesState(state);
-        FuneNamiheBehavior.RunFuneNamiheMain(slot, state, RoomEnemyFrameFixtures.StandaloneSamus());
+        FuneNamiheBehavior.RunFuneMain(slot, state);
         return state;
     }
 

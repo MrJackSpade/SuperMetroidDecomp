@@ -39,7 +39,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemySlot slot)
     {
-        var state = new SbugEnemyState(slot, SbugAction.WaitForSamus)
+        var state = new SbugEnemyState(slot.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus)
         {
             // Enemy extension arrays are cleared with the room before initialization: no loop
             // is requested or installed until the first direction is selected.

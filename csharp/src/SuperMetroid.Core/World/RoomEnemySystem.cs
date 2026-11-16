@@ -733,7 +733,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
-        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
+        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx, SlotTable);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresFallingTiles = new CeresFallingTiles(Room, Projectiles, Audio);

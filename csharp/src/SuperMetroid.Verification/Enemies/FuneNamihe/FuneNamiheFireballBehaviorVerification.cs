@@ -35,11 +35,14 @@ internal static class FuneNamiheFireballBehaviorVerification
             source.Bind(species, source.Definition);
             source.SetSpawnParameter1(species, species == EnemyDefinitionId.Namihe ? 1 : 0);
             source.SetSpawnParameter2(species, 0);
+            FuneNamiheEnemyState spitter = species == EnemyDefinitionId.Namihe
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { LaunchSpeed = source.SpawnSettings<NamiheSpawnSettings>().LaunchSpeed }
+                : new FuneEnemyState(FuneAction.WaitForCooldown) { LaunchSpeed = source.SpawnSettings<FuneSpawnSettings>().LaunchSpeed };
             foreach (bool movingRight in new[] { false, true })
             {
                 foreach (EnemyProjectile candidate in enemies.Projectiles.EnemyProjectiles)
                     candidate.Delete();
-                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
+                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, spitter, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
                 EnemyProjectile fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
                 FuneNamiheFireballSegment program = movingRight ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left;
                 AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.PlayingSegment == program,

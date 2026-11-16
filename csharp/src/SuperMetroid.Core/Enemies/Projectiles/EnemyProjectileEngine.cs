@@ -256,7 +256,7 @@ internal sealed class EnemyProjectileEngine
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         SamusHitBurstArtwork hitBursts,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         Ensure.NotNull(sprites);
 
@@ -276,7 +276,7 @@ internal sealed class EnemyProjectileEngine
     public void DrawEnemyProjectilesBehindSamus(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen)
     {
         Ensure.NotNull(sprites);
 

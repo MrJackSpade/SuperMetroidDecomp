@@ -414,7 +414,7 @@ internal sealed class RoomLoader
         // The game updates the background's position and scroll on every
         // convergence step; the gameplay scroll owner performs the same parallax math.
         _backgroundScroll.ForegroundPosition = _room.Camera.PixelPosition;
-        _backgroundScroll.StepScrolling();
+        _backgroundScroll.StepScrolling(timeIsFrozen: false);
         return false;
     }
 

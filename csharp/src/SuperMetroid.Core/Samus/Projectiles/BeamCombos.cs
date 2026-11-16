@@ -93,9 +93,11 @@ internal sealed class BeamCombos
                     : default;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                     shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
-                if (kind is SamusComboKind.Spazer or SamusComboKind.Plasma) shot.ComboOrbitRadius = 40;
+                if (kind is SamusComboKind.Spazer or SamusComboKind.Plasma)
+                    shot.ComboOrbitRadius = kind == SamusComboKind.Spazer ? BeamComboDefinitions.SpazerCirclingRadius : BeamComboDefinitions.PlasmaStartRadius;
                 if (kind == SamusComboKind.Spazer) shot.SpazerPhase = SpazerComboPhase.Circling;
-                if (kind is SamusComboKind.Wave or SamusComboKind.Ice) shot.ComboLifetime = 600;
+                if (kind is SamusComboKind.Wave or SamusComboKind.Ice)
+                    shot.ComboLifetime = kind == SamusComboKind.Wave ? BeamComboDefinitions.WaveLifetime : BeamComboDefinitions.IceOrbitLifetime;
                 if (kind == SamusComboKind.Spazer) shot.SpazerTurnPerUpdate = SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn);
                 if (kind == SamusComboKind.Plasma) shot.PlasmaPhase = PlasmaRingPhase.Expanding;
                 if (kind == SamusComboKind.Wave)
@@ -174,7 +176,7 @@ internal sealed class BeamCombos
             shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
             _trails.SpawnTrail(shot);
         }
-        int distance = outward ? shot.ComboOrbitRadius : 32;
+        int distance = outward ? shot.ComboOrbitRadius : BeamComboDefinitions.IceOrbitRadius;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(shot.ComboAngle, distance);
         shot.Position = shot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
         if (outward && (CoordinateAxis.AsSigned(shot.Position.X.Whole - camera.X + 32) < 0 ||
@@ -193,16 +195,16 @@ internal sealed class BeamCombos
         shot.ComboAngle += OrbitTurnPerUpdate;
         SoundEffectId? sound = null;
         if (outward)
-            shot.ComboOrbitRadius = ComboRingCollapse.Grown(shot.ComboOrbitRadius, 8);
+            shot.ComboOrbitRadius = ComboRingCollapse.Grown(shot.ComboOrbitRadius, BeamComboDefinitions.IceSpreadRadiusStep);
         else
         {
-            // The lifetime starts at 600 and the particle turns outward as it leaves one, so it never passes zero.
+            // The lifetime starts at its full orbit and the particle turns outward as it leaves one, so it never passes zero.
             int oldLifetime = shot.ComboLifetime;
             shot.ComboLifetime = oldLifetime - 1;
             if (oldLifetime == 1)
             {
                 shot.Behavior = SamusShotBehaviors.IceSpecialAttackOutward;
-                shot.ComboOrbitRadius = 40;
+                shot.ComboOrbitRadius = BeamComboDefinitions.IceSpreadStartRadius;
                 sound = SamusSound.IceSpecialAttackEnd;
             }
         }
@@ -293,8 +295,8 @@ internal sealed class BeamCombos
         }
         if (falling)
         {
-            shot.Position += new Offset16<RoomPixels>(0, 8);
-            if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, 248) >= 0)
+            shot.Position += new Offset16<RoomPixels>(0, BeamComboDefinitions.SpazerFallSpeed);
+            if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, BeamComboDefinitions.SpazerFallEndBelowCameraTop) >= 0)
             {
                 _animation.ClearProjectile(shot);
                 return null;
@@ -311,7 +313,7 @@ internal sealed class BeamCombos
                     AdvanceSpazerAngle(shot);
                     if (shot.ComboAngle == TrigonometryAngle.HalfTurn)
                     {
-                        shot.ComboOrbitRadius = 160;
+                        shot.ComboOrbitRadius = BeamComboDefinitions.SpazerFlyingStartRadius;
                         shot.SpazerTurnPerUpdate = SpazerTurn(PartOf(shot).SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
                         shot.Direction = SamusProjectileDirection.UpFacingRight;
                         shot.IsSpent = false;
@@ -324,8 +326,8 @@ internal sealed class BeamCombos
                     else
                     {
                         AdvanceSpazerAngle(shot);
-                        // The radius falls from 160 by five an update, so it meets zero exactly and never passes it.
-                        shot.ComboOrbitRadius -= 5;
+                        // The radius narrows from its flying start by a step that divides it, so it meets zero exactly and never passes it.
+                        shot.ComboOrbitRadius -= BeamComboDefinitions.SpazerFlyingRadiusStep;
                         if (shot.ComboOrbitRadius == 0)
                         {
                             shot.SpazerTurnPerUpdate = TrigonometryAngle.Zero - SpazerTurn(PartOf(shot).SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
@@ -343,8 +345,8 @@ internal sealed class BeamCombos
                     else
                     {
                         AdvanceSpazerAngle(shot);
-                        shot.ComboOrbitRadius += 5;
-                        if (shot.ComboOrbitRadius >= 96) BeginSpazerFall(shot);
+                        shot.ComboOrbitRadius += BeamComboDefinitions.SpazerFlyingRadiusStep;
+                        if (shot.ComboOrbitRadius >= BeamComboDefinitions.SpazerFallingRadius) BeginSpazerFall(shot);
                     }
                     break;
                 default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {shot.SpazerPhase}.");
@@ -402,7 +404,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(shot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        // The lifetime starts at 600 and the particle ends when it reaches zero, so it never passes zero.
+        // The lifetime starts at its full length and the particle ends when it reaches zero, so it never passes zero.
         shot.ComboLifetime -= 1;
         if (shot.ComboLifetime <= 0)
         {

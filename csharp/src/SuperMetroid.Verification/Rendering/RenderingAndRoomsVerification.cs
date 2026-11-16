@@ -639,7 +639,7 @@ internal static void VerifyBackgroundScrollState()
         BackgroundScrollModes = new(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level),
     };
 
-    state.StepScrolling();
+    state.StepScrolling(timeIsFrozen: false);
     AssertEqual(0x1234, state.ForegroundScroll.X, "the foreground's view follows the camera across");
     AssertEqual(0x0200, state.ForegroundScroll.Y, "the foreground's view follows the camera down");
     AssertEqual(0x091a, state.BackgroundPosition.X, "half-speed X parallax");
@@ -651,7 +651,7 @@ internal static void VerifyBackgroundScrollState()
     ushort oldBg2X = state.BackgroundScroll.X;
     state.BackgroundScrollModes = new(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed);
     state.ForegroundPosition = new(0x1300, 0x0300);
-    state.StepScrolling();
+    state.StepScrolling(timeIsFrozen: false);
     AssertEqual(oldLayer2X, state.BackgroundPosition.X, "fixed BG2 X position remains unchanged");
     AssertEqual(oldBg2X, state.BackgroundScroll.X, "fixed BG2 X view remains unchanged");
 

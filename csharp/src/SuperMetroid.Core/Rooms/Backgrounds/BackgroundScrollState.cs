@@ -70,7 +70,7 @@ public sealed class BackgroundScrollState
     /// Implements the gameplay entry point: the layer scrolls and the background parallax follow
     /// the foreground. A frozen frame changes nothing.
     /// </summary>
-    public void StepScrolling(bool timeIsFrozen = false)
+    public void StepScrolling(bool timeIsFrozen)
     {
         if (timeIsFrozen)
             return;

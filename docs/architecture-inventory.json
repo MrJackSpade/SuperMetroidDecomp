@@ -119459,6 +119459,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusKinematicsStateAccess2",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Movement/SamusKinematicsStateAccess2.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusKinematicsStateAccess2.extension(SuperMetroid.Core.Samus.Movement.SamusKinematicsState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Movement/SamusKinematicsStateAccess2.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection",
       "kind": "enum",
       "scope": "product",
@@ -120662,6 +120694,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusEquippedSpinPoses",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusEquippedSpinPoses.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusFlareAim",
@@ -121892,32 +121937,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.MiscDustProjectileSegment",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/MiscDustProjectileSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.MiscDustProjectiles",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/MiscDustProjectiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.MiscDustSmokePlacements",
       "kind": "static class",
       "scope": "product",
@@ -122456,7 +122475,11 @@
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailPlacementDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "definition-catalog",
+      "flags": [
+        "large"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileTrailPlacementList",
@@ -123149,19 +123172,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrame",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -123191,14 +123201,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameGameplay",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameId",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrameGameplay.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrameId.cs"
       ],
       "partial": "none",
       "disposition": "value"

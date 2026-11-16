@@ -69,7 +69,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
         // The rainbow's drain setup leaves Samus able to stand at 700 energy or above and unable to stand
-        // below it. The test reads the wrapped difference as signed, retained by AtLeastBySignedDifference.
+        // below it.
         if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else

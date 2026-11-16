@@ -70,13 +70,11 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
-        // The test checks whether the target Y minus the current Y is negative. For the fight's normal
-        // coordinate range this is exactly Samus's Y <= 124, but preserve the wrapped comparison
-        // instead of introducing a plain integer comparison with different wraps.
-        int difference = CoordinateAxis.Difference(MotherBrainRainbowBeamPushDefinitions.MiddleOfWallY, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
             samus, cameraCheckpoint,
-            difference >= 0 ? MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed : -MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed);
+            samus.Position.Y.Whole <= MotherBrainRainbowBeamPushDefinitions.MiddleOfWallY
+                ? MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed
+                : -MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed);
 
         return CreateResult(
             before,

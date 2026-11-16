@@ -90,11 +90,9 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3TargetXPosition = _state.BodyPosition.X + 1;
                 int forwardDelay = (randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay) ? 2 : 0) + 4;
 
-                // The forward walk reports arrival only for a strictly overshot
-                // target or the independent X 128 limit. Equality still requests a walk.
-                bool reachedForwardTarget =
-                    CoordinateAxis.Difference(Phase3TargetXPosition, _state.BodyPosition.X) < 0 ||
-                    MotherBrainLateFightState.AtLeastBySignedDifference(_state.BodyPosition.X, 128);
+                // The forward walk reports arrival for an overshot target or at its X 128 limit. The target lies one
+                // pixel ahead of her, which she has not overshot, so only the limit reports it here.
+                bool reachedForwardTarget = _state.BodyPosition.X >= 128;
                 if (reachedForwardTarget)
                 {
                     Phase3WalkCounter = MotherBrainWalkCredit.Of(128);

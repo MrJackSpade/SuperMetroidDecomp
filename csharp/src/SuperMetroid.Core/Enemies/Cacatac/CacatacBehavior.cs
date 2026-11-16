@@ -181,7 +181,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
         // Rejects a direction with no spike animation before allocating a projectile.
-        CacatacProjectileSegment segment = CacatacSpikes.Animation(direction);
+        _ = CacatacProjectileAnimations.StartingWith(direction);
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -192,7 +192,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.CacatacSpike,
             Spike,
             SpriteGraphics.SpawnedBy(source));
-        projectile.InstallAnimation(new CacatacProjectileAnimation(segment));
+        projectile.InstallAnimation(new CacatacProjectileAnimation(direction));
         projectile.Position = source.Position;
         projectile.Velocity = CacatacSpikes.Velocity(direction);
     }

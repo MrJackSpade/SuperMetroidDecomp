@@ -1072,8 +1072,8 @@ internal static class LookupStream1Verification
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })
             AssertThrows<InvalidDataException>(() => CacatacTravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
         for (ushort direction = 0; direction < 20; direction += 2)
-            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Animation(
-                CacatacNativeWords.SpikeDirections.Decode(direction, "Cacatac spike direction"))), "stream1 Cacatac named direction program");
+            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(
+                CacatacNativeWords.SpikeDirections.Decode(direction, "Cacatac spike direction")), "stream1 Cacatac named direction program");
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
             AssertEqual(false, CacatacNativeWords.SpikeDirections.TryDecode(invalid, out _), "stream1 Cacatac invalid direction selector");
     }

@@ -64,7 +64,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Walks Mother Brain backwards toward X 40 at the slow gait; the helper's hard floor at X=48 can report arrival
+    /// Walks Mother Brain backwards toward X 40 at the slow gait; the walk's hard floor at X=48 can report arrival
     /// before target 40.
     /// </summary>
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
@@ -298,7 +298,7 @@ internal sealed class MotherBrainAttacks
         state.PhaseTimer.Count = 44;
     }
 
-    /// <summary>Waits after the bomb, including its stand-up fallthrough.</summary>
+    /// <summary>Waits after the bomb, then stands her up in the update the wait ends.</summary>
     internal static void WaitAfterMotherBrainBomb(MotherBrainEnemyState state)
     {
         if (state.PhaseTimer.StepKeepsRunning())

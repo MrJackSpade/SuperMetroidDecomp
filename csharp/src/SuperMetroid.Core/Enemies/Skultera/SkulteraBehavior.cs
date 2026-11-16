@@ -14,7 +14,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SkulteraEntity(this, place, common);
 
-    /// <summary>Room collision helper used by Skultera's horizontal and vertical swim steps.</summary>
+    /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;
 
     /// <summary>Binds Skultera movement to the room enemy terrain rules.</summary>

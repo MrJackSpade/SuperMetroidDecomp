@@ -200,7 +200,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         UpdateSporeSpawnStalks(body, state);
-        // The cadence tests the frame counter that wraps at 65536, not the separate one that wraps at 256.
+        // The dust follows the game's frame counter.
         if (SporeSpawnCadenceDefinitions.IdleDustEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
         {
             int random = _room.Random.Generate();
@@ -239,8 +239,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int end,
         Axis axis)
     {
-        // The signed distance from the anchor to the body is at most 32768 either way, so its
-        // quarters never wrap; only the interpolated coordinates keep sixteen bits.
+        // The links lie a quarter, a half and three quarters of the way along the distance from the anchor to the
+        // body, each placed around the room like any coordinate.
         int delta = CoordinateAxis.Difference(end, anchor);
         bool negative = delta < 0;
         int magnitude = Math.Abs(delta);
@@ -451,8 +451,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
             {
-                // The extended collision walker has already selected the vulnerable
-                // core. The core's shot reaction rejects this projectile family before common damage.
+                // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
                 c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }
@@ -711,9 +710,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Projectile {spore.Kind} reached Spore Spawn's spore impact step.");
         }
 
-        // The new properties: damage zero, high priority, Samus collision enabled, projectile
-        // collision disabled, and deletion on contact. Drawing ignores the priority,
-        // but every collision bit is retained explicitly.
+        // A shot spore does no damage and is gone when it touches Samus, and Samus's shots pass through it.
         spore.Damage = 0;
         spore.CanDamageSamus = true;
         spore.PersistsOnSamusContact = false;

@@ -12,6 +12,6 @@ public enum MorphBallEyeAction
     Activating,
     /// <summary>Aims toward Samus and selects angle-dependent eye artwork while within 176 horizontal and 128 vertical pixels, otherwise begins closing.</summary>
     Active,
-    /// <summary>Waits for the 32-update closing countdown to reach zero or wrap negative, then resumes proximity waiting.</summary>
+    /// <summary>Waits for the 32-update closing countdown to run out, then resumes proximity waiting.</summary>
     Deactivating,
 }

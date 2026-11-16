@@ -163,7 +163,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Runs horizontal Samus tracking plus camera-speed calculation.
     /// Integer movement follows the facing-dependent camera target;
-    /// an unchanged integer position falls through to autoscrolling exactly
+    /// an unchanged integer position goes on to autoscrolling exactly
     /// as the game does (subpixel-only Samus movement still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(

@@ -56,7 +56,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the physical pool to room sprites, earthquakes and audio.</summary>
+    /// <summary>Connects the room's enemy projectiles to room sprites, earthquakes and audio.</summary>
     internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomEffectActors effectActors,
         RoomEarthquake earthquake, EnemyAudioQueue audio)
     {

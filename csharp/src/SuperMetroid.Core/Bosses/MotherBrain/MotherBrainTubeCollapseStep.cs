@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The steps of Mother Brain's secondary sequence, run beside the head's own.
-/// During fake death this independent state machine serializes the physical tube actors,
-/// ceiling projectiles, and one-frame room mutations.
+/// The steps of the tubes' collapse, run beside Mother Brain's own during her fake death: the falling tubes, the
+/// ceiling's falling pieces and the room's blocks they clear, one after another.
 /// </summary>
 public enum MotherBrainTubeCollapseStep
 {
@@ -17,13 +16,13 @@ public enum MotherBrainTubeCollapseStep
     ClearCeilingColumn9,
     /// <summary>After its wait runs out, requests the ceiling projectile at pixel (104,47).</summary>
     SpawnTopLeftTube,
-    /// <summary>Clears ceiling block (6,2), selects the next physical tube, and seeds its shared timer.</summary>
+    /// <summary>Clears ceiling block (6,2), selects the next falling tube, and starts its wait.</summary>
     ClearCeilingColumn6,
-    /// <summary>Requests physical bottom-right tube enemy 1, independently of the ceiling-projectile pool.</summary>
+    /// <summary>Requests the bottom-right falling tube, whatever room the ceiling's pieces leave.</summary>
     SpawnBottomRightTube,
-    /// <summary>Requests bottom-right removal at block (10,9) and selects physical tube enemy 2.</summary>
+    /// <summary>Requests the bottom-right removal at block (10,9) and selects the bottom-middle-left falling tube.</summary>
     ClearBottomRightTube,
-    /// <summary>Requests physical bottom-middle-left tube enemy 2.</summary>
+    /// <summary>Requests the bottom-middle-left falling tube.</summary>
     SpawnBottomMiddleLeftTube,
     /// <summary>Removes the side tube at block (6,10) and starts the 32-count upper-middle-left delay.</summary>
     ClearBottomMiddleLeftTube,
@@ -41,8 +40,8 @@ public enum MotherBrainTubeCollapseStep
     ClearBottomMiddleRightTube,
     /// <summary>After its wait runs out, requests the main falling-tube enemy whose descent carries the head into ascent setup.</summary>
     SpawnMainTube,
-    /// <summary>Removes the remaining tubes at block (7,7) and installs its own empty step as the last one.</summary>
+    /// <summary>Removes the remaining tubes at block (7,7) and finishes the collapse.</summary>
     ClearBottomMiddleTubes,
-    /// <summary>Inert last tube-collapse step while physical falling actors continue independently.</summary>
+    /// <summary>The finished collapse, which does nothing while the falling tubes fall on their own.</summary>
     Finished,
 }

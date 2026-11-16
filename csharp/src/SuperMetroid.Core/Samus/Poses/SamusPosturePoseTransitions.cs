@@ -221,8 +221,8 @@ internal static class SamusPosturePoseTransitions
         }
 
         // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
-        // common pose-change collision check before initialization. The shared helper
-        // reads the target radius from the pose definition rather than assuming the ordinary value 21.
+        // common pose-change collision check before initialization. The check reads the target radius from the pose
+        // definition rather than assuming the ordinary value 21.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
                 level,

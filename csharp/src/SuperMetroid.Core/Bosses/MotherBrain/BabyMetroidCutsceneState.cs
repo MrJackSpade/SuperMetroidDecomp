@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The Baby Metroid cutscene entrance, Mother Brain drain,
-/// release, ceiling retreat, route to Samus, latch, and healing, and its shared
-/// movement helpers.
+/// release, ceiling retreat, route to Samus, latch, and healing, and the movement they share.
 /// </summary>
 /// <remarks>
 /// The entrance uses no floating point, spline or physics engine. It holds a 1/256-pixel velocity, adds
@@ -292,8 +291,8 @@ public sealed class BabyMetroidCutsceneState
                 bool reachedTarget = AccelerateTowardsPoint(target, acceleration: SignedEightEight.FromPixels(2));
                 if (reachedTarget)
                 {
-                    // The helper predicts whole-pixel overshoot but does not itself store
-                    // its returned target coordinate. The drain step performs the exact pin.
+                    // The approach only tells whether the Baby would pass its target's whole pixel; the drain then pins
+                    // the Baby exactly to the target.
                     Velocity = default;
                     Position = Position.WithWhole(target);
                     SetAnimation(MotherBrainBabySegment.DrainingMotherBrain);
@@ -459,8 +458,8 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.ReleaseSamus:
                 // The next step acts on both actors in one call. The speed it gives
                 // Mother Brain's brain is presentation state; the meaningful body change
-                // starts Mother Brain's fast retreat while this same call falls through to
-                // the first flight update.
+                // starts Mother Brain's fast retreat, and the Baby's flight takes its first update in this same
+                // update.
                 motherBrain.PrepareForFinalBabyMetroidAttack();
                 Phase = BabyMetroidCutscenePhase.StareDownMotherBrain;
                 goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
@@ -533,8 +532,8 @@ public sealed class BabyMetroidCutsceneState
                 if (Health == 0)
                 {
                     // The fatal-blow step changes graphics/animation state, freezes the body AI,
-                    // clears velocity, remembers the shake origin, and falls through into
-                    // the first of 17 fatal-blow shake calls.
+                    // clears velocity, remembers the shake origin, and takes the first of its 17 updates of shaking in
+                    // this same update.
                     SetAnimation(MotherBrainBabySegment.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
@@ -577,8 +576,8 @@ public sealed class BabyMetroidCutsceneState
                 if (PhaseTimer.StepRunsOut())
                 {
                     // The Hyper Beam acquisition freezes Samus's drained animation on its Hyper Beam acquisition frame.
-                    // The Hyper Beam step also installs the first rainbow step; neither step is
-                    // executed until the Baby's following enemy-AI call.
+                    // The Hyper Beam step also starts the first rainbow step; neither takes effect until the Baby's next
+                    // update.
                     SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
                     SamusRainbowPhase = BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow;
                     Phase = BabyMetroidCutscenePhase.DeathSequence;
@@ -617,8 +616,8 @@ public sealed class BabyMetroidCutsceneState
 
                     if (AttacksAgainReadyingElapsed == MotherBrainReadyingDefinitions.AttacksAgainDuration)
                     {
-                        // The last readying update falls straight into the next step, so the newly written 176
-                        // becomes 175 on this same call.
+                        // Letting Samus rainbow some more starts in the last readying update, so its timer of 176 already
+                        // reads 175 when the update ends.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                         PhaseTimer.Count = 176;
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;

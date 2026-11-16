@@ -465,7 +465,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return true;
             }
 
-            // Like the ordinary path, the walker only marks the direction. The damage path does not reject a
+            // Like the ordinary path, the collision only marks the direction. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // the Metroid's shot reaction.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);

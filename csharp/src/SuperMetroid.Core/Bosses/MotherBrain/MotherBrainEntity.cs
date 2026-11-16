@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// One of Mother Brain's occupants: her body (<see cref="MotherBrainBodyEntity"/>), her head
 /// (<see cref="MotherBrainHeadEntity"/>) or the falling tubes of her fake death (<see cref="MotherBrainTubesEntity"/>).
-/// Every part answers her engine-owned hitboxes; each runs its own AI and animation.
+/// Every part answers her hitboxes; each runs its own AI and animation.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
 /// <param name="place">The place the part occupies.</param>

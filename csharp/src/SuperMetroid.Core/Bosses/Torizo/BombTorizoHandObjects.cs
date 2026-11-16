@@ -76,7 +76,6 @@ internal sealed class BombTorizoHandObjects
     internal void SpawnFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
-            // The fragment spawn carries both block coordinates, each below 256.
             place.Block));
 
     /// <summary>

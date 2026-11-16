@@ -34,9 +34,8 @@ internal sealed class TorizoMovement
     }
 
     /// <summary>
-    /// Runs the shared Torizo initializer for the Crateria Bomb and Norfair
-    /// Golden definitions. The concrete definition selects the values, so the room's area
-    /// cannot become a second authority for actor identity.
+    /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
+    /// chooses his values.
     /// </summary>
     internal void InitializeTorizo(RoomEnemyPlace torizo, SamusState samus, GameplayAction controllerInput)
     {
@@ -49,9 +48,8 @@ internal sealed class TorizoMovement
         };
         torizo.SetSpeciesState(state);
 
-        // The area's Torizo defeat is shared by the Bomb and Golden Torizo encounters, but it is stored
-        // per area. The room loader supplies the current area's accessor, keeping the actor
-        // independent from save-memory layout and avoiding a room-number special case.
+        // Each area keeps its own Torizo defeat, which both encounters read: a Torizo already beaten in this area
+        // never appears.
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
             torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
@@ -73,17 +71,14 @@ internal sealed class TorizoMovement
         state.Velocity = EightEightVector<RoomPixels>.Zero;
         state.FallAtRestingSpeed();
 
-        // Init writes the shared colours' targets and then selects the encounter-specific body
-        // colours. This runtime exposes the live colours rather than separate current/target
-        // buffers, so install those final visible colours directly in their owners.
-        // Both statues draw in the colours they share with their own body colours over them (#1512).
+        // Both statues show the colours they share with their own body colours over them (#1512).
         if (isGolden)
         {
             TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenInitial));
             if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
             {
-                // Initialization overwrites both the collected and equipped items, even if
-                // this reduces capacity or equips normally incompatible beams.
+                // The loadout replaces both the collected and equipped items, even if this lowers a capacity or
+                // equips beams that are normally incompatible.
                 samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
                 samus.ReserveEnergy = samus.MaxReserveEnergy = GoldenTorizoCodeDefinitions.ReserveEnergy;
                 samus.Missiles = samus.MaxMissiles = GoldenTorizoCodeDefinitions.Missiles;

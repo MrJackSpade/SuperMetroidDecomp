@@ -10,7 +10,7 @@ public sealed class HopperEnemyState
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal HopperEnemyState(HopperAction action) => Action = action;
 
-    /// <summary>The current hopper AI step, advanced one setup stage per AI call.</summary>
+    /// <summary>The current hopper AI step, advanced one setup stage an update.</summary>
     public HopperAction Action { get; internal set; }
 
     /// <summary>

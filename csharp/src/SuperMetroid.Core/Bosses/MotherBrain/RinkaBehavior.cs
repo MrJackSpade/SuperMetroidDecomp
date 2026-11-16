@@ -69,10 +69,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
         place.SetSpeciesState(state);
 
-        // Both branches first clear the four lifecycle/collision bits. The special
-        // Mother Brain variant is always processed off-screen but never uses generic death
-        // respawn; ordinary room Rinkas retain the respawn property so their death explosion resurrects
-        // the enemy in its place in the room's listing from its population snapshot.
+        // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
+        // an ordinary room Rinka respawns: its death explosion brings it back in its place in the room's listing.
         place.Presence = place.Presence.Without(EnemyPresence.RespawnsIfKilled);
         place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
@@ -188,8 +186,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 state.Action = RinkaAction.Flying;
 
-                // Special and ordinary branches have different source masks in code,
-                // but both observable results make the Rinka tangible and set its processing property here.
+                // Every Rinka becomes touchable as it flies, and runs off-screen.
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
 

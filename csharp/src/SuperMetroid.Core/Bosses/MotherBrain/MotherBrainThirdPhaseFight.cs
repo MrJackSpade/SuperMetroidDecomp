@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
 internal sealed class MotherBrainThirdPhaseFight
 {
-    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
+    /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>The encounter the late fight runs, the one owner of the state these phases read and write.</summary>
@@ -31,8 +31,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles subtract
-    /// 256; Hyper Beam subtracts 266; the walking phase adds
-    /// 32 whenever it gets a standing AI call.
+    /// 256; Hyper Beam subtracts 266; the walking adds 32 on each update she spends standing.
     /// </summary>
     public MotherBrainWalkCredit Phase3WalkCounter
     {
@@ -60,9 +59,8 @@ internal sealed class MotherBrainThirdPhaseFight
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private void StepPhase3Walk(MotherBrainRandomSample randomNumberSeed)
     {
-        // The phase-three scheduler refuses to run the walking phase while the body animation advertises any
-        // nonzero pose. This makes each request edge-triggered: the requested walk runs to
-        // its standing cue before the scheduler is allowed to inspect its target again.
+        // The walking waits while her body shows any pose but standing, so each walk she asks for runs until it
+        // stands her again before the walking looks at its target again.
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return;
 
@@ -74,15 +72,15 @@ internal sealed class MotherBrainThirdPhaseFight
             case MotherBrainPhase3WalkingPhase.TryToInchForward:
                 if (Phase3WalkCounter.IsEmpty)
                 {
-                    // Zero credit does not merely pause. The retreat chooses a point fourteen
-                    // pixels left, starts the quick-retreat phase, and falls into it.
+                    // With no credit left she retreats: she picks a point fourteen pixels left and starts retreating
+                    // quickly in this same update.
                     Phase3TargetXPosition = _state.BodyPosition.X - 14;
                     Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
                     goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
                 }
 
-                // The addition and comparison are unsigned here. A wrapped counter can therefore spend
-                // more calls below 256; no integer widening or saturation belongs.
+                // Past the count's top the credit starts again from zero, and spends more updates below a whole
+                // step.
                 Phase3WalkCounter = Phase3WalkCounter.AddCredit(32);
                 if (Phase3WalkCounter.BelowStep)
                     return;
@@ -108,9 +106,8 @@ internal sealed class MotherBrainThirdPhaseFight
                 if (!quickRetreat.ReachedTarget)
                     return;
 
-                // Reaching the first target chooses another point fourteen pixels left but
-                // does not fall through to the slow request. That request starts only on the
-                // next standing AI call.
+                // Reaching the first target picks another point fourteen pixels left; the slow retreat to it starts
+                // on the next update she spends standing.
                 Phase3TargetXPosition = _state.BodyPosition.X - 14;
                 Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatSlowly;
                 return;
@@ -121,8 +118,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 if (!slowRetreat.ReachedTarget)
                     return;
 
-                // The inch-forward setup writes all three values: forty walk-credit, the inch-forward
-                // phase, and a one-pixel-ahead target used by later calls.
+                // She goes back to inching forward with a credit of 64 toward a point one pixel ahead.
                 SetPhase3WalkingToTryToInchForward(64);
                 return;
 
@@ -149,9 +145,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 return;
 
             case MotherBrainPhase3NeckPhase.Normal:
-                // The neck setup briefly writes lower index one and immediately overwrites it with
-                // two before anything can observe it. Preserve the observable
-                // result; the first write has no effect.
+                // The neck goes back to its ordinary bob.
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
@@ -166,8 +160,8 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
                 Phase3NeckRecoilTimer = 16;
 
-                // The neck step falls directly into its successor; the newly loaded sixteen is already
-                // fifteen when this single update returns.
+                // The recovery takes its first step in this same update, so its timer of sixteen already reads
+                // fifteen when the update ends.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:
@@ -177,8 +171,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
                 }
 
-                // A decrement of zero branches negative without storing -1, so the readable
-                // timer remains zero while the four-ring recovery animation plays.
+                // The timer stays at zero once it runs out, while the four-ring recovery animation plays.
                 _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;
@@ -194,7 +187,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
                 Phase3NeckRecoilTimer = 11;
 
-                // Setup also falls through, making the externally visible first timer 10.
+                // The recoil takes its first step in this same update, so its timer of 11 first reads 10.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
@@ -217,13 +210,12 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Runs the third phase recover make some distance body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunThirdPhaseRecoverMakeSomeDistance()
     {
-        // The recovery changes form before installing the setup wait. Its backward-walk
-        // request uses target X-14 and delay index two; the ordinary helper may
-        // legitimately reject it at the arena's hard left limit.
+        // The recovery changes her form before the wait to fight, and she walks back fourteen pixels quickly; at
+        // the arena's left limit she stays where she is.
         Encounter.Form = MotherBrainForm.ThirdPhase;
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
         Encounter.PhaseTimer.Count = 32;
@@ -235,20 +227,18 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Runs the third phase recover setup for fighting body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunThirdPhaseRecoverSetupForFighting()
     {
-        // The timer of 32 remains valid through zero and expires only when it wraps negative,
-        // yielding 33 setup calls after the one-frame recovery producer above.
+        // The timer of 32 runs out on its 33rd step, so the wait takes 33 updates after the one-update recovery.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
-            // The setup has no return after setting the three phases;
-            // execution falls directly into the main fighting phase on this same enemy AI call.
+            // The fight itself starts in this same update.
             return true;
         }
         return false;
@@ -256,13 +246,12 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Runs the third phase fighting main body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunThirdPhaseFightingMain(RainbowBeamAttackFrame frame)
     {
-        // The main fighting phase tests death before either the neck or the walking step. It installs the
-        // death explosion/fade sequence without executing that phase's property
-        // writes until the following body turn; no phase-two behavior leaks through.
+        // The fight checks for her death before the neck or the walking steps. Her death starts on the next update;
+        // nothing of the fight runs in between.
         if (Encounter.Head.Health == 0)
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.MoveToBackOfRoom;
@@ -272,9 +261,8 @@ internal sealed class MotherBrainThirdPhaseFight
         StepPhase3Neck();
         StepPhase3Walk(frame.RandomNumberSeed);
 
-        // The walking animation changes pose later in the enemy animation stage. The
-        // AI therefore still sees her standing pose on the call that requests a walk and may
-        // also select an attack, since it reads the pose after the walk step runs.
+        // Her walking animation changes her pose later in the update, so on the update she asks to walk she still
+        // stands and may also choose an attack.
         if (Encounter.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
             !frame.RandomNumberSeed.IsNegative)
             return false;
@@ -295,12 +283,12 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Runs the third phase fighting attack cooldown body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunThirdPhaseFightingAttackCooldown()
     {
-        // The attack cooldown returns to main only as its timer runs out. It
-        // does not fall through, so the neck and walking steps pause for all 65 calls.
+        // The attack's cooldown ends the update its timer runs out, and the fight resumes on the next, so the neck
+        // and the walking pause for all 65 updates.
         if (Encounter.PhaseTimer.StepRunsOut())
             Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
         return false;
@@ -308,7 +296,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Runs the body's current <see cref="MotherBrainPhase3FightPhase"/> phase. True when it moves to the next body phase and the game runs on
-    /// into it within the same call.
+    /// into it in the same update.
     /// </summary>
     internal bool Run(RainbowBeamAttackFrame frame) => Encounter.Phase3FightPhase switch
     {

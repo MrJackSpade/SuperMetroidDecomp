@@ -21,7 +21,7 @@ internal static class TorizoRandomizedProjectileDefinitions
         new(TorizoProjectileSegment.ChozoOrbMovingLeft, new(-27, -40),
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-256, -448));
 
-    /// <summary>Golden Torizo's rightward egg launch; the actor parameter's rightward flag selects it.</summary>
+    /// <summary>Golden Torizo's rightward egg launch, for an egg he lays moving right.</summary>
     internal static readonly TorizoRandomizedProjectileDefinition GoldenEggRight =
         new(TorizoProjectileSegment.EggBouncingRight, new(16, -1),
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(128, -384));

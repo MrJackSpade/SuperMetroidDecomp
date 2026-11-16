@@ -60,7 +60,7 @@ public sealed class InstalledScreenContent : IGameplayPresentationContent
     public AreaMapPresentation Maps { get; }
     /// <summary>The solid colour the pause, menu and world-map screens show where nothing is drawn (#1512).</summary>
     public MenuBackdrops Backdrops { get; }
-    /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
+    /// <summary>Pause selection-indicator artwork and presentation parameters; what is selected and owned is the game's, not the artwork's.</summary>
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }

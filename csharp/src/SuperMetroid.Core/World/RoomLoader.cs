@@ -57,7 +57,7 @@ internal sealed class RoomLoader
 
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
-    /// <summary>Installs escape-specific room behavior when entering the relevant room.</summary>
+    /// <summary>Sets up the escape's room effects when entering the relevant room.</summary>
     private readonly EscapeRoomEffects _escapeEffects;
     /// <summary>Restores the save slot's accumulated game time.</summary>
     private readonly GameTimeState _gameTime;

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Displayed swing-picture selection only, as installed (#1596); physical body placement remains compiled separately.</summary>
+/// <summary>Displayed swing-picture selection only, as installed (#1596); where Samus's body stands is the game's, not the pictures'.</summary>
 public sealed class InstalledGrappleSwingFrames
 {
     /// <summary>The installed picture each swing direction shows.</summary>

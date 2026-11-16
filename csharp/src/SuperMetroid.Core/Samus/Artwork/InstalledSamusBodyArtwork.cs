@@ -52,7 +52,7 @@ public sealed class InstalledSamusBodyArtwork
         ArmCannon = content.ArmCannon;
     }
 
-    /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
+    /// <summary>Signed pose art origin; changing it never changes where her shots start.</summary>
     /// <exception cref="InvalidDataException">The pose has no art origin.</exception>
     public int ArtOrigin(SamusPoseId pose) =>
         artOrigins.TryGetValue(pose, out int origin)

@@ -117,8 +117,9 @@ public sealed class SamusShinesparkState
     public ShinesparkCrashOrbitStage CrashOrbitStage { get; private set; }
 
     /// <summary>
-    /// Distance of the two orbiting copies from Samus in pixels, 0 through 16: zero at crash entry, raised by four per
-    /// expanding call until it reaches sixteen and lowered by four per contracting call until it reaches zero.
+    /// Distance of the two orbiting copies from Samus in pixels, 0 through 16: zero at crash entry, raised by four each
+    /// update the orbit expands until it reaches sixteen and lowered by four each update it contracts until it reaches
+    /// zero.
     /// </summary>
     public int CrashRadius { get; private set; }
 

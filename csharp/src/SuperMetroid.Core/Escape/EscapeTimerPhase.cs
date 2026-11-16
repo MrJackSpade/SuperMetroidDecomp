@@ -6,7 +6,7 @@ public enum EscapeTimerPhase
     /// <summary>Not running: an update leaves the timer unchanged and reports no expiry.</summary>
     Inactive,
     /// <summary>
-    /// A start was requested: the next update clears the timer, installs the requested countdown and enters
+    /// A start was requested: the next update clears the timer, begins the requested countdown and enters
     /// <see cref="InitialDelay"/>.
     /// </summary>
     Starting,

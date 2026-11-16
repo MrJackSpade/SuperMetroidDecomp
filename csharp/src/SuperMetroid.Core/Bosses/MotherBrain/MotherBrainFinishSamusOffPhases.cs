@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain finishing Samus off: standing up, admiring, and charging and firing the final beam until the Baby Metroid arrives.</summary>
 internal sealed class MotherBrainFinishSamusOffPhases
 {
-    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
+    /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>The encounter the late fight runs, the one owner of the state these phases read and write.</summary>
@@ -45,13 +45,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the second phase finish samus off body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame)
     {
         // The low-energy check asks whether a few more onion rings could put Samus at the encounter's intended
-        // low-energy floor. Equality counts as low and changes the body phase without falling into the stand-up
-        // step on this call.
+        // low-energy floor. Equality counts as low and changes the body phase; she stands up on the next update.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.StandUp;
@@ -59,8 +58,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         }
 
         // Above the floor, the hold-back chance does nothing. Every
-        // 32nd enemy frame that idle route may ask the posture helper to alternate
-        // between standing and leaning down. This is visible body animation, not a
+        // 32nd enemy frame that idle route may ask her to alternate between standing and leaning down. This is visible body animation, not a
         // direct pose assignment, so retain the separate animation-stage delay.
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffHoldsBack))
         {
@@ -85,11 +83,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the second phase finish samus off stand up body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffStandUp()
     {
-        // The standing helper reports her standing only if she already stood at call entry.
+        // She counts as standing only if she already stood as the update began.
         // Crouched/leaning poses request their matching stand animation and report her not
         // yet standing; walking/transition poses simply wait for their current animation.
         bool stoodUp = _state.MakeBodyStandUp();
@@ -104,7 +102,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the second phase finish samus off admire body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
@@ -120,7 +118,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the second phase finish samus off charge final beam body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
     {
@@ -154,7 +152,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the second phase finish samus off fire final beam body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
     {
@@ -172,7 +170,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the second phase final rainbow beam holding body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal static bool RunSecondPhaseFinalRainbowBeamHolding()
     {
@@ -184,7 +182,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>
     /// Runs the body's current <see cref="MotherBrainFinishOffPhase"/> phase. True when it moves to the next body phase and the game runs on
-    /// into it within the same call.
+    /// into it in the same update.
     /// </summary>
     internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.FinishOffPhase switch
     {

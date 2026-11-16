@@ -17,7 +17,7 @@ internal static class RidleySamusInteractionDefinitions
         Morphed
     }
 
-    /// <summary>Classifies each of the 28 Samus movement types by grab policy.</summary>
+    /// <summary>Classifies each of Samus's 26 movement types by grab policy.</summary>
     internal static readonly Dictionary<SamusMovementType, GrabPolicy> GrabPolicies = new()
     {
         [SamusMovementType.MorphBallGround] = GrabPolicy.Morphed,

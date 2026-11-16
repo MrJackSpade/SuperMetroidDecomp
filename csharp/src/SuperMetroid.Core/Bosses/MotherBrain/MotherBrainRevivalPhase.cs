@@ -3,7 +3,7 @@
 /// <summary>The phases of Mother Brain's revival (#2208): coming back to life and attacking the Baby Metroid until its last blow. Its values are arbitrary.</summary>
 public enum MotherBrainRevivalPhase
 {
-    /// <summary>Installs the 768-count revival wait and returns without decrementing it on this setup call.</summary>
+    /// <summary>Starts the 768-count revival wait, whose first step comes on the next update.</summary>
     InanimateGrey,
 
     /// <summary>When the wait runs out, re-enables breath/drool, clears the colour step counter, and starts the 224-count color-restoration delay.</summary>
@@ -12,10 +12,10 @@ public enum MotherBrainRevivalPhase
     /// <summary>Reverses the eight drained-grey colour steps when the timer runs out, then re-enables brain colour handling and falls into wake-up.</summary>
     TransitionFromGrey,
 
-    /// <summary>Waits for the posture helper to observe standing, then extends the neck and immediately begins a 16-count wake-up stretch.</summary>
+    /// <summary>Waits until she stands, then extends the neck and immediately begins a 16-count wake-up stretch.</summary>
     WakeUp,
 
-    /// <summary>Expires the short stretch delay, installs the phase-three stretching head animation, and seeds a 128-count walking delay.</summary>
+    /// <summary>Expires the short stretch delay, starts the phase-three stretching head animation, and seeds a 128-count walking delay.</summary>
     WakeUpStretch,
 
     /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based colours and prepares the neck.</summary>

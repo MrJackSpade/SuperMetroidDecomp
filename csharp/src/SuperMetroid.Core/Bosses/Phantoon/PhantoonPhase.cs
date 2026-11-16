@@ -10,7 +10,7 @@ public enum PhantoonPhase
     /// His body does nothing on its turn while his eye's opening or closing animation decides what comes next (#1870).
     /// </summary>
     WaitingOnEye,
-    /// <summary>Allocates the introductory circle of eight flames from the physical projectile pool.</summary>
+    /// <summary>Spawns the introductory circle of eight flames.</summary>
     SpawnStartingFlames,
     /// <summary>Waits before activating the introductory flame circle's spin.</summary>
     WaitBeforeActivatingStartingFlames,
@@ -62,7 +62,7 @@ public enum PhantoonPhase
     FinishFatalSwoop,
     /// <summary>Alternates death fade-in/fade-out cycles before the explosion phase.</summary>
     DyingFadeInOut,
-    /// <summary>Schedules physical death explosions and prepares the final distortion.</summary>
+    /// <summary>Schedules the death's explosions and prepares the final distortion.</summary>
     DyingExplosions,
     /// <summary>Initializes the final wave and pixelation death presentation.</summary>
     BeginFinalWavyDeath,

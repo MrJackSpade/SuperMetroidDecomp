@@ -27,7 +27,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
+    /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     internal MotherBrainLateFightState State { get; }
 
     /// <summary>Mother Brain's rainbow-beam attack: charging, firing, pinning and draining Samus, letting her fall and deciding what comes next.</summary>
@@ -91,8 +91,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Carries out the cross-enemy phase write. The Baby actor
-    /// installs the taken-aback step after it has reached the brain; Mother Brain executes that new
+    /// Carries out the cross-enemy phase write. The Baby moves Mother Brain on to her taken-aback step after it has
+    /// reached the brain; Mother Brain runs that new
     /// phase on her next enemy-AI turn rather than inside the Baby's current turn.
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()

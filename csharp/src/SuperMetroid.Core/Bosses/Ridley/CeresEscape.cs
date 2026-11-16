@@ -123,8 +123,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         int update = Floor.GetawayUpdate;
         Floor.GetawayUpdate = update + 1;
 
-        // The getaway requests the departure sound on its first update only. Tying the request to the
-        // update preserves the same one-shot behavior after saves/replays and pauses.
+        // The getaway requests the departure sound on its first update only.
         if (update == 0)
             _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
@@ -136,9 +135,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
         // The update after the curves' last ends the getaway.
         if (update == CeresRidleyGetawayCurve.Duration)
         {
-            // The getaway's end restores the ordinary view and clears all rotation and scroll values.
-            // Preserve that clean handoff explicitly so the renderer cannot accidentally
-            // keep sampling the rotating floor for the self-destruct text scene.
+            // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
+            // self-destruct warning shows over the room, not the turning floor.
             Floor.Finished = true;
             Floor.Active = false;
             Floor.Offset = Offset16<FloorPixels>.Zero;

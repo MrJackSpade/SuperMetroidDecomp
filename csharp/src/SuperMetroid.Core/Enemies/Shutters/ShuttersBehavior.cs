@@ -328,7 +328,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
     internal void ReactToShootableShutterBomb(EnemyBombContext c) =>
-        // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the physical bomb, then the
+        // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the bomb, then the
         // reaction only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
         ReactVerticalShutter(c.Enemy, c.Camera);
 
@@ -396,8 +396,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
     internal EnemyShotReaction ShootableShutterShotReaction => field ??= new()
     {
-        // The shot reaction goes directly to the shutter reaction instead of normal shot AI. The collision walker
-        // has nevertheless already marked the colliding projectile, including Super Missile quake side effects.
+        // The shot reaction goes directly to the shutter reaction instead of normal shot AI. The collision has
+        // nevertheless already marked the colliding projectile, including Super Missile quake side effects.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);

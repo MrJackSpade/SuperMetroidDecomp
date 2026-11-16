@@ -704,8 +704,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>
     /// Runs the private tail shared by Botwoon's contact, shot and
-    /// power-bomb reactions. All three reactions deliberately use a common damage helper
-    /// that skips the ordinary death animation: zero health is only a request to finish the
+    /// power-bomb reactions. All three take their damage without the ordinary death animation: zero health is only a
+    /// request to finish the
     /// current traversal. The head and thirteen body actors remain alive until the tail has
     /// crossed the next hole, exactly as the death tail requires.
     /// </summary>

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
 /// The action Beetom performs each frame. Setup actions intentionally remain separate states: in
-/// the game, selecting an action consumes one frame and installing that action consumes another before movement
+/// the game, choosing an action takes one frame and starting that action takes another before movement
 /// begins.
 /// Its values are arbitrary.
 /// </summary>

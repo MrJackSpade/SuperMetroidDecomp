@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// One of Draygon's occupants: his body (<see cref="DraygonBodyEntity"/>), eye (<see cref="DraygonEyeEntity"/>), tail
 /// (<see cref="DraygonTailEntity"/>) or arms (<see cref="DraygonArmsEntity"/>). Every part plays its animation through the
-/// encounter, answers his engine-owned hitboxes and may show its frames on his boss body layer; the parts other than the
+/// encounter, answers his hitboxes and may show its frames on his boss body layer; the parts other than the
 /// body take the shared reactions their definitions name.
 /// </summary>
 /// <param name="species">The Draygon species owner.</param>

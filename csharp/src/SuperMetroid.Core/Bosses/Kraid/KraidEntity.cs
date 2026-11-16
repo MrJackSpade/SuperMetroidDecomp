@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// One of Kraid's eight parts: his body (<see cref="KraidBodyEntity"/>), his arm or foot (<see cref="KraidLimbEntity"/>),
 /// a lint (<see cref="KraidLintEntity"/>) or a fingernail (<see cref="KraidNailEntity"/>). Each joins its own reference
-/// before it sets up, so his parts reach one another (#1877), and answers his engine-owned hitboxes.
+/// before it sets up, so his parts reach one another (#1877), and answers his hitboxes.
 /// </summary>
 /// <param name="species">The Kraid species owner.</param>
 /// <param name="place">The place the part occupies.</param>

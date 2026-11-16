@@ -60,8 +60,8 @@ internal sealed class TorizoCombat
             throw new InvalidDataException($"Golden Torizo has no response to normal-bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
         if (torizo.FlashTimer != 0)
             return;
-        // A bomb is neither Missile nor Super Missile, so the shot reaction takes its stun branch and arms the stun latch
-        // before common damage, whether or not the Super-catch latch is set; a locked animation goes to common damage alone.
+        // A bomb is neither Missile nor Super Missile, so it stuns him before the common damage, whether or not he has
+        // caught a Super Missile; while his animation is locked it does the common damage alone.
         if (!state.AnimationLocked)
             SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
         DamageByNormalBomb(torizo, state, c.Bomb);
@@ -213,8 +213,8 @@ internal sealed class TorizoCombat
             return true;
         }
 
-        // A caught Super bypasses family selection, but still reaches the stun write before common damage.
-        // Animation lock and the transitional hitbox reaction bypass that write instead.
+        // Once he has caught a Super Missile, any shot stuns him before the common damage, unless his animation is
+        // locked or it strikes his stand-up and sit-down frames.
         if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked &&
             TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
             SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
@@ -255,8 +255,8 @@ internal sealed class TorizoCombat
             }
             else
             {
-                // Beams and other common-damage families arm the high-health counterattack branch before entering
-                // normal shot AI.
+                // A beam or any other shot that is neither a Missile nor a Super Missile stuns him, arming his
+                // counterattack, before the common damage.
                 SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
             }
         }

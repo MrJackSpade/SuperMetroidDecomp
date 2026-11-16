@@ -22,7 +22,7 @@ public sealed class EscapeTimer
     public EscapeTimerPhase Phase { get; private set; }
 
     /// <summary>
-    /// Whether the timer is running: set when a start installs the countdown, and cleared by a new request and by every
+    /// Whether the timer is running: set when a start begins the countdown, and cleared by a new request and by every
     /// clear.
     /// </summary>
     public bool IsActive { get; private set; }
@@ -110,7 +110,7 @@ public sealed class EscapeTimer
         SelectPhase(EscapeTimerPhase.Starting);
     }
 
-    /// <summary>Clears the timer, installs the requested countdown, and enters the initial delay.</summary>
+    /// <summary>Clears the timer, begins the requested countdown, and enters the initial delay.</summary>
     private bool Start()
     {
         int duration = _pendingDuration;

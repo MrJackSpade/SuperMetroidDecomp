@@ -64,7 +64,7 @@ public sealed class SamusProjectile
 
     /// <summary>
     /// Whether the projectile has already struck something: enemy and enemy-projectile collision set it so later
-    /// collision walkers skip the projectile, and the projectile's own update then deletes or converts it.
+    /// collisions skip the projectile, and the projectile's own update then deletes or converts it.
     /// </summary>
     public bool IsSpent { get; internal set; }
 

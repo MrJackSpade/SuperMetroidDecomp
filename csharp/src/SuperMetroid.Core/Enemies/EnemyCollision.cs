@@ -323,7 +323,7 @@ internal sealed class EnemyCollision
                 if (reaction.AlwaysUsesCollisionPrelude || family is SamusProjectileFamily.Beam or
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
-                    // The collision walker marks the projectile's direction, not a
+                    // The collision marks the projectile's direction, not a
                     // terrain impact. Projectile frame behaviours consume that marker
                     // on the projectiles' next update; the damage below shows its own hit burst at the enemy.
                     // Super Missiles must retain their handler so it also clears their
@@ -920,7 +920,7 @@ internal sealed class EnemyCollision
             return true;
         }
 
-        // A species with engine-owned geometry answers for its own frames; null means none covers this frame.
+        // A species whose hitboxes the game defines answers for its own frames; null means none covers this frame.
         if (enemy.Entity is IEnemyFrameHitboxes owner && owner.FindHitboxReaction(target, out reaction) is { } owned)
             return owned;
 

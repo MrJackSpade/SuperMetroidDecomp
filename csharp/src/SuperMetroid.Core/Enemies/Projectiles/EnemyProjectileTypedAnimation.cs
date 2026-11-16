@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// (#1607), events, repeated phases and a hold. Each event goes to the behaviour bound to the projectile (#1760), which
 /// carries out its family's events as <see cref="IEnemyProjectileCues{TCue}"/>, or as
 /// <see cref="IEnemyProjectileBranchingCues{TSegment, TCue}"/> when its reaction continues the play elsewhere, as a
-/// conditional jump into another animation or a conditional replay of the cue's run does; the engine carries out the shared
+/// conditional change to another animation or a conditional replay of the cue's run does; the engine carries out the shared
 /// <see cref="EnemyProjectileCommonCue"/> events. Repeated phases count their plays in the playback (#2006).
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>

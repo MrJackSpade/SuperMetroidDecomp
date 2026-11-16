@@ -468,8 +468,8 @@ internal sealed class MotherBrainHead
             MotherBrainOnionRingDefinitions.Speed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        // The ring's initializer falls through into its attachment step, making the mouth position observable before
-        // the projectile scheduler performs the first of eight delayed attachment frames.
+        // The ring's setup pins it to the mouth in the same update, before the first of its eight delayed attachment
+        // frames.
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 

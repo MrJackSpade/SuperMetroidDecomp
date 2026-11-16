@@ -14,7 +14,7 @@ internal static class ProjectilePassThrough
         return true;
     };
 
-    /// <summary>Undoes the spent mark the bomb walker installed just before.</summary>
+    /// <summary>Undoes the spent mark the bomb's collision set just before.</summary>
     internal static readonly Action<EnemyBombContext> Bomb =
         c => c.Bomb.IsSpent = false;
 }

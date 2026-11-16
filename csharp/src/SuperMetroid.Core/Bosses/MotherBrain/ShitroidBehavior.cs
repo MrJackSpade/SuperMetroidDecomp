@@ -60,10 +60,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets the Shitroid up when the room spawns it.</summary>
     internal static void InitializeShitroid(RoomEnemyPlace place, int cameraX)
     {
-        // The processing property is the scheduler's animation-processing flag; another flag blocks plasma
-        // from piercing the actor. The game's name for the processing flag says it disables Samus
-        // collision, but the scheduler also consumes that same flag for animation, so
-        // the property enum retains the directly observed scheduler meaning.
+        // The Shitroid stops the Plasma Beam and animates.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.AnimationClock.Restart();
@@ -78,17 +75,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         if (dormant)
         {
-            // The intangible property removes the actor from ordinary interaction and the hide-drawing property suppresses
-            // drawing. Keep the former raw: although it is traditionally called "tangible", the
-            // collision walkers explicitly reject actors that have it.
+            // A dormant Shitroid neither touches Samus nor is drawn.
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             place.Presence = place.Presence.With(EnemyPresence.Hidden);
         }
         state.ReactsToSamus = false;
         place.SetSpeciesState(state);
-        // The entry's target colours are where the room's colours fade to; this runtime shows the completed fade: the
-        // Shitroid and its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses'
-        // own initializers show.
+        // The entry's colours are where the room's colours fade to, and they show from the start: the Shitroid and
+        // its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses' own setup
+        // shows.
         place.Shading = state.Shading;
     }
 
@@ -449,10 +444,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(
             samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + new Offset16<RoomPixels>(rightOfShake, -20));
 
-        // The drain step subtracts four without Varia and two with it. The game's
-        // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
-        // those branches to three/two loses one point on both paths and materially shifts
-        // the frame on which the Super Metroid forces Samus into drained crouching art.
+        // The drain takes four energy without Varia and two with it, leaving Samus at least one.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 4;
         samus.Health = damage >= samus.Health
             ? 1
@@ -601,8 +593,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             CoordinateAxis.Difference(samus.Position.X.Whole, 512) >= 0)
         {
-            // The push heading, a half turn less the source angle and then a half turn more, is simply the
-            // negated source angle. Magnitude 64 is added to the current 1/256-pixel velocity.
+            // The push heads along the negated angle toward Samus and adds 64/256 of a pixel an update to the
+            // velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole),
                 CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)));

@@ -103,7 +103,7 @@ internal static class EnemyMath
     /// fraction: the coarse half-wave (<see cref="Trigonometry.CoarseHalfWave"/>), 0 through 255, times the radius the
     /// short circle product uses, in 256ths of a pixel, reversed in the turn's second half as
     /// <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's motion; an enemy that only needs
-    /// pixels uses the helpers above.
+    /// pixels uses the sine distances above.
     /// </summary>
     internal static SignedSixteenSixteen CircleSine(
         TrigonometryAngle angle,

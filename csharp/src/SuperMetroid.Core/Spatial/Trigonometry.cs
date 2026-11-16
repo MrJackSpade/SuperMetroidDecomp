@@ -26,7 +26,7 @@ public static class Trigonometry
     }
 
     /// <summary>
-    /// The sine or cosine product: <paramref name="speed"/>, read unsigned as the game's multiply reads it, scaled by
+    /// The sine or cosine product: <paramref name="speed"/>, taken as a value 0 through 65535 as the game's multiply takes it, scaled by
     /// <paramref name="angle"/>'s signed 1/256-step sine (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
     /// A cosine is this product at the angle a quarter-turn on.
     /// </summary>
@@ -47,7 +47,7 @@ public static class Trigonometry
 
     /// <summary>The game's signed sine in 256ths of its peak over the whole turn.
     /// Unlike the coarse half-wave (<see cref="CoarseHalfWave"/>), peaks are +/-256.</summary>
-    /// <remarks>Keep this algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
+    /// <remarks>Keep this algorithm: sign(a)*floor(256*sin((a mod 128)*pi/128)),
     /// with positive sign for a &lt; 128, reproduces the game's values. Treat the
     /// quarter-turn magnitude as exactly 256; the coarse half-wave saturates it to 255.
     /// The game's negative cosine and full sine read these same values. The backend's scroll-wave shader (#1468) draws

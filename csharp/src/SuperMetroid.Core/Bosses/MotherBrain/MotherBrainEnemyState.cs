@@ -445,8 +445,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// Last Baby animation started on the Baby's enemy. That enemy's playback advances
-    /// independently, so this latch changes only when Baby AI explicitly invokes the
-    /// helper that starts its animation.
+    /// independently, so this latch changes only when the Baby's own behaviour starts a new animation.
     /// </summary>
     internal MotherBrainBabySegment BabyAppliedAnimation { get; set; }
 

@@ -7,12 +7,12 @@ public static class PhantoonDeathExplosionDefinitions
 {
     /// <summary>Thirteen explosions, each with a position, a type and a delay.</summary>
     public const int Count = 13;
-    /// <summary>Repeat from explosion five after the initial pass.</summary>
+    /// <summary>After the first pass, each pass starts again from the sixth explosion.</summary>
     public const int RepeatStart = 5;
     /// <summary>Finish after three trips through the end of the explosion list.</summary>
     public const int PassCount = 3;
 
-    /// <summary>Signed X/Y offsets, misc-dust explosion animation, and delay until the next request.</summary>
+    /// <summary>Each explosion's offset from Phantoon, its animation, and the delay until the next.</summary>
     internal static readonly PhantoonDeathExplosionDefinition[] Explosions =
     [
         new(new(0, 0), MiscDustAnimation.BigExplosion, 16),

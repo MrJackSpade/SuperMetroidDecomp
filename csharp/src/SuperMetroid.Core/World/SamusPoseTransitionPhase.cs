@@ -497,9 +497,8 @@ internal sealed class SamusPoseTransitionPhase
             case var (source, target)
                 when SamusPoseMetadata.IsDraygonGrabbedPose(source) &&
                      SamusPoseMetadata.IsDraygonGrabbedPose(target):
-                // Both sets of input transitions stay within one facing. The helper makes
-                // that invariant explicit and initializes the target's real
-                // animation.
+                // Both sets of input transitions stay within one facing; the change keeps it and starts the target's
+                // own animation.
                 SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus,
                     targetPose);
                 return true;
@@ -567,7 +566,7 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.TurningRightToLeftFallingPose) ||
                       (SamusPoseMetadata.IsLeftFacingFallingPose(source) &&
                        target == SamusPoseId.TurningLeftToRightFallingPose)):
-                // The generic jumping and falling turns are table outputs. The helper
+                // The generic jumping and falling turns are table outputs. The turn
                 // reads the source pose's shot direction, chooses the exact
                 // aimed aerial turn art when needed, folds momentum, and runs compact
                 // pose-expansion collision before committing the turn.
@@ -793,8 +792,7 @@ internal sealed class SamusPoseTransitionPhase
                       (SamusPoseMetadata.IsLeftFacingCrouchingPose(source) &&
                        target == SamusPoseId.NeutralJumpTransitionLeftPose)):
                 // The crouched aim poses use the ordinary neutral-jump transition
-                // art for every crouched aim direction. The helper preserves
-                // the crouching-turn poses' ten-pixel adjustment.
+                // art for every crouched aim direction, keeping the crouching-turn poses' ten-pixel adjustment.
                 SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus,
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Crouch jump requires active room level data."),
@@ -810,7 +808,7 @@ internal sealed class SamusPoseTransitionPhase
                 // Aim and Fire cancel both compact spin and wall-
                 // jump bodies through the same normal-jump initializer without
                 // restarting the jump arc. The wall-jump Shot transition, for example, maps Shot
-                // directly from the right wall jump to the right gun-extended normal jump. The shared helper performs
+                // directly from the right wall jump to the right gun-extended normal jump. The jump's start performs
                 // changed-pose collision for every radius expansion; a rejected
                 // body leaves the compact source pose installed.
                 SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(samus,
@@ -968,7 +966,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             // Spring Ball in air/falling (their own movement types) kill Samus's X speed on
             // lookup failure. After this frame's movement, the kill clears mode and base
-            // speed and falls through to its boost/extra-speed cancel.
+            // speed and goes on to its boost/extra-speed cancel.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
         else if (frame.PoseAtFrameStart is SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
@@ -986,7 +984,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
             // Decelerating rechecks the post-movement base speeds. A
-            // residue selects the decelerating mode; exact zero falls through to
+            // residue selects the decelerating mode; exact zero goes on to
             // the stop's accelerating mode and definition fallback on the next frame.
             samus.HorizontalSpeed.AccelerationMode =
                 samus.HorizontalSpeed.HasBaseSpeed ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;

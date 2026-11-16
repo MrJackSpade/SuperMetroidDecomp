@@ -591,10 +591,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             if (spike is null)
                 return null;
 
-            // Spawning copies the spike's definition before
-            // its initializer zeros velocities and captures the owner position. Reading
-            // the definition through the shared helper keeps its animation, frame, radii, damage and
-            // properties instead of a second hand copy here.
+            // Spawning copies the spike's definition, its animation, frame, radii, damage and properties, before its
+            // setup zeros velocities and captures the owner position.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,

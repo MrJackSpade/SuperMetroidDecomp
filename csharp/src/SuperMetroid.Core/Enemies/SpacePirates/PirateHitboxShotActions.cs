@@ -9,7 +9,7 @@ internal static class PirateHitboxShotActions
     /// <summary>
     /// Runs the common and Pirate-specific shot reactions of hitboxes on every Pirate but the gold Ninja
     /// (<see cref="SelectGoldNinjaHitboxShotAction"/>), which alone gives the two Ninja body reactions special meaning:
-    /// every other Pirate deliberately falls through to normal shot AI even when it shows one of the frames it shares
+    /// every other Pirate deliberately goes on to normal shot AI even when it shows one of the frames it shares
     /// with the Ninja.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(EnemyReaction? hitboxShot)

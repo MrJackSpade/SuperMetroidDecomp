@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct TorizoCueInputs
 {
-    /// <summary>Samus.</summary>
+    /// <summary>Samus, whom the Torizo's cues act on.</summary>
     public required SamusState Samus { get; init; }
 
-    /// <summary>Level.</summary>
+    /// <summary>The room's blocks, which the Torizo's cues meet.</summary>
     public required RoomLevelData Level { get; init; }
 
-    /// <summary>Controller input.</summary>
+    /// <summary>The player's held actions, which the Torizo's cues read.</summary>
     public required GameplayAction ControllerInput { get; init; }
 
     /// <summary>The frame counter, whose sum with Samus's halved X sets an attack choice's phase (<see cref="TorizoChoices.InFirstAttackPhase"/>).</summary>

@@ -13,7 +13,7 @@ internal static class EndingAnimalEscapeDefinitions
     internal const int Origin = 128;
     /// <summary>The pod adds 1/512 of a pixel to its Y each actor call.</summary>
     internal static SignedSixteenSixteen YFractionVelocity { get; } = SignedSixteenSixteen.FromParts(0, 128);
-    /// <summary>The pod advances one horizontal pixel per actor call.</summary>
+    /// <summary>The pod advances one horizontal pixel an update.</summary>
     internal const int XVelocity = 1;
     /// <summary>The pod deletes itself when its center reaches 272.</summary>
     internal const int DeleteX = 272;

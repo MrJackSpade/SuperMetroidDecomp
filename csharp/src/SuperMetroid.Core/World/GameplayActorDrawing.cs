@@ -241,8 +241,8 @@ internal sealed class GameplayActorDrawing
                 }
                 else if (grappleDrawing == SamusGrappleDrawing.Ordinary)
                 {
-                    // Samus's ordinary drawing advances/emits the ordinary charge flare before it
-                    // falls through to the shared drawing tail. The grapple's drawing never does this,
+                    // Samus's ordinary drawing advances/emits the ordinary charge flare before the rest of her
+                    // drawing. The grapple's drawing never does this,
                     // including its cancel/release fallback frames.
                     // The flare animates as a simulation phase, then shows what it advanced to.
                     ChargeFlareComponents flare = room.Projectiles.AdvanceChargeFlare(_player.Samus);

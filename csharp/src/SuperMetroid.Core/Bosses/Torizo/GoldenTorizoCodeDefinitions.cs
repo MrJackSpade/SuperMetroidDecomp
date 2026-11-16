@@ -2,14 +2,14 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Literal inventory writes of Golden Torizo's initialization code.</summary>
+/// <summary>The loadout Golden Torizo grants as he appears when the player holds his secret chord.</summary>
 internal static class GoldenTorizoCodeDefinitions
 {
-    /// <summary>The chord the code compares: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
+    /// <summary>The secret chord: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
     internal const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;
     /// <summary>Current and maximum energy, exactly 700 rather than 799.</summary>
     internal const int Energy = 700;
-    /// <summary>Current and maximum reserve energy; reserve mode is not written.</summary>
+    /// <summary>Current and maximum reserve energy; the reserve mode stays as it was.</summary>
     internal const int ReserveEnergy = 300;
     /// <summary>Current and maximum missiles.</summary>
     internal const int Missiles = 100;

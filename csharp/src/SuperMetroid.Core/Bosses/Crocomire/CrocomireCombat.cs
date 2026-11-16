@@ -408,9 +408,8 @@ internal sealed class CrocomireCombat
         if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
             return null;
 
-        // Physical body components and their hitbox lists are compiled
-        // independently of Crocomire's replaceable sprite/body-layer presentation.
-        // Preserve component/hitbox order: the first overlap wins.
+        // His body's hitboxes are the game's, whatever his installed pictures show; the first overlap wins, in the
+        // order of his components and their hitboxes.
         foreach (EnemyCollisionComponent component in
                  CrocomireBodyCollision.ComponentsAt(enemy.Frame))
         {

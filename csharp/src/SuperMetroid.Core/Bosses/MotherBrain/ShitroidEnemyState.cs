@@ -4,7 +4,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The state of the Shitroid, with its extended enemy state.</summary>
+/// <summary>The Shitroid's own state: its animation, motion, colours and what it does next.</summary>
 public sealed class ShitroidEnemyState
 {
     /// <summary>The Shitroid's animation and where it stands (#641, #1600).</summary>

@@ -79,10 +79,9 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
                 angle = RightFacingAimEnd;
         }
 
-        // The sine and cosine multiplies scale the speed by the game's signed sine of the angle in steps, the cosine
-        // being the sine a quarter turn on. Each multiply takes the speed by the sine's size,
-        // divides by 256, then reapplies the sign. Speed 1280 therefore remains a
-        // signed 1/256-pixel velocity whose magnitude never exceeds 1280.
+        // The speed is scaled by the game's sine and cosine of the aim, the cosine being the sine a quarter turn on:
+        // each takes the speed by the sine's size in 256ths and keeps the sine's direction, so neither part of the
+        // velocity ever exceeds the speed of 1280/256 of a pixel an update.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
             EnemyMath.SineSpeed(FireballSpeed, angle),
             EnemyMath.SineSpeed(FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
@@ -111,7 +110,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         projectile.State = new RidleyAfterburnChainState(afterburns);
     }
 
-    /// <summary>Selects the damage row from the loaded room's area.</summary>
+    /// <summary>Ridley's fireball and afterburn damage in the loaded room's area.</summary>
     private void ApplyRidleyProjectileAreaDamage(EnemyProjectile projectile) =>
         projectile.Damage = RidleyProjectileDamage.ForArea(_room.Area);
 
@@ -214,9 +213,8 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));
-        // The afterburns replace the animation; its clear-frame-behaviour cue stops motion.
-        // Velocity and contact properties remain unchanged. The final animation
-        // clears movement, draws five frames, then deletes; it never disables damage.
+        // The final animation's first cue stops the afterburn, which keeps its velocity and still hurts Samus: it
+        // shows five frames, then the afterburn is gone.
     }
 
     /// <summary>
@@ -242,7 +240,6 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    /// <param name="context">The projectile and what its pass hands every frame behaviour.</param>
     private protected override void Move(EnemyProjectileMotionContext context, RidleyFireballMotion motion)
     {
         EnemyProjectile projectile = context.Projectile;
@@ -252,15 +249,15 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
                 FlyFireball(projectile, context.Level);
                 break;
             case RidleyFireballMotion.HorizontalAfterburnFlying:
-                // The horizontal afterburn first uses the raw 1/256-pixel horizontal adder, not the room-collision
-                // helper. Only the perpendicular vertical move may end this afterburn.
+                // The horizontal afterburn moves sideways through the room's blocks; only its vertical move may meet
+                // the room and end it.
                 projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
                 if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Vertical))
                     BeginAfterburnFinalAnimation(projectile);
                 break;
             case RidleyFireballMotion.VerticalAfterburnFlying:
-                // The vertical afterburn is the transposed path: unrestricted vertical travel followed
-                // by a horizontal room-collision test.
+                // The vertical afterburn moves up or down through the room's blocks; only its sideways move may meet
+                // the room and end it.
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 if (EnemyProjectileEngine.MoveProjectileAxis(projectile, context.Level, axis: Axis.Horizontal))
                     BeginAfterburnFinalAnimation(projectile);

@@ -38,8 +38,8 @@ public static class SamusPostureMovement
             frameCounter,
             roomObjects);
 
-        // Performs this cleanup after both collision passes. It is not
-        // inferred from being stationary; these are literal observable writes.
+        // Performs this cleanup after both collision passes, whether or not she is stationary; each cleared value is
+        // observable.
         // Unlike collision teardown, this does not cancel the boost.
         // The later input fallback decides whether the retained stage ends.
         samus.HorizontalSpeed.ClearHorizontalVelocity();

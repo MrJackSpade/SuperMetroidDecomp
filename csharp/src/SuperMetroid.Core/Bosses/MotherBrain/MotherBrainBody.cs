@@ -132,8 +132,8 @@ internal sealed class MotherBrainBody
             }
         }
 
-        // The first phase always falls through to the encounter's custom rectangle walker,
-        // including the frame that arms fake death. This collision is not represented by
+        // The first phase always tests Samus against the encounter's own rectangles, including on the frame that
+        // arms fake death. This collision is not represented by
         // either enemy definition's ordinary radius and must stay in the body's own phases.
         ResolveMotherBrainSamusCollision(state, samus);
     }

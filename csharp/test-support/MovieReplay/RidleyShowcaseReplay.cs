@@ -28,6 +28,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -680,6 +681,16 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     RoomTerrainBlock actualTerrain = activeLevel.TerrainGrid[block];
                     if (actualTerrain != expectedTerrain)
                         mismatches.Add($"Room block {block}: native={expectedTerrain} port={actualTerrain}");
+                    if (expectedTerrain.Collision == RoomCollisionType.DoorBlock)
+                    {
+                        // A door block's byte is its place in the room's door list (#2090); the port's block holds the door
+                        // that place names as its exit, and no behaviour.
+                        DoorBlockExit expectedExit = RoomDoorListDefinitions.ByRoom[runtime.Room.LoadedRoom.Definition][
+                            RoomBlockBehaviorCodec.DoorLinkOf(memory[NativeSnapshotMemory.Bts + block])];
+                        if (activeLevel.Exits[block] != expectedExit)
+                            mismatches.Add($"Room door block {block}: native={expectedExit} port={activeLevel.Exits[block]}");
+                        continue;
+                    }
                     var expectedBehavior = RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + block]);
                     RoomBlockBehavior actualBehavior = activeLevel.BehaviorGrid[block];
                     if (actualBehavior != expectedBehavior)

@@ -48,6 +48,12 @@ internal interface IRoomObjects
     /// <summary>Applies room-object-driven room scroll grid changes.</summary>
     ScrollObjects Scrolls { get; }
 
+    /// <summary>
+    /// True when every one of the room's room-object places is held. A block contact whose reaction would take a place then
+    /// runs none of its setup, so even a block whose setup would stop Samus lets her pass.
+    /// </summary>
+    bool EveryPlaceHeld { get; }
+
     /// <summary>Releases the place.</summary>
     void DeleteObject(RoomObjectPlace place);
 }

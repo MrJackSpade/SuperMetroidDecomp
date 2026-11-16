@@ -239,6 +239,9 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     ScrollObjects IRoomObjects.Scrolls => Scrolls;
 
     /// <inheritdoc/>
+    bool IRoomObjects.EveryPlaceHeld => Places.IsFull;
+
+    /// <inheritdoc/>
     void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
 
     /// <inheritdoc/>

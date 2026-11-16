@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Quicksand reaction room objects and the allocation-full check their spawns depend on.</summary>
+/// <summary>Quicksand reaction room objects, each taking one of the room's room-object places.</summary>
 [RoomLifetime]
 internal sealed class QuicksandObjects
 {
@@ -15,9 +15,6 @@ internal sealed class QuicksandObjects
     {
         _places = places;
     }
-
-    /// <summary>True when every room-object place is held.</summary>
-    public bool IsAllocationFull => _places.IsFull;
 
     /// <summary>
     /// Allocates one transient sand-reaction room object at the sand <paramref name="block"/> and leaves its setup effects

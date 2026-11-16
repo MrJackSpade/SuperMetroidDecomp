@@ -33,11 +33,12 @@ public sealed class PlatformEnemyState
     /// <summary>The patrol direction: initialized from its spawn movement and changed by wall collisions or animation cues.</summary>
     public PlatformHorizontalMovement XMovement { get; internal set; }
 
-    /// <summary>Whether moving art has been installed for the current vertical phase.</summary>
-    public bool VerticallyMovingArtInstalled { get; internal set; }
-
-    /// <summary>Whether vertically-still art has been installed for the current vertical phase.</summary>
-    public bool VerticallyStillArtInstalled { get; internal set; }
+    /// <summary>
+    /// The art the platform last chose for its vertical movement, or none before its first choice (#2145). Choosing the same
+    /// art again starts nothing, even where a wall has since started the still art inside a moving phase, so that still
+    /// art stays until the platform rests; a first choice starts its art afresh.
+    /// </summary>
+    public PlatformVerticalArt? VerticalArt { get; internal set; }
 
     /// <summary>The inclusive cap on <see cref="YSpeedCurvePlace"/>: as many marks on as the spawn settings' vertical acceleration updates.</summary>
     public QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace { get; internal set; }

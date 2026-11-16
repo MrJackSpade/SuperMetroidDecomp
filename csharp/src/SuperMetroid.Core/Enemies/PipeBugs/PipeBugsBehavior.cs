@@ -61,8 +61,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpawnPosition = place.Position.Whole;
         state.EmergenceTopY = CoordinateAxis.Wrap(state.SpawnPosition.Y - BrinstarPipeBugEmergenceHeight);
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
-        state.InstalledAnimation = PipeBugAnimationChoices.Rising(IsStrong(place), HorizontalDirection.Left);
-        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(state.InstalledAnimation), AnimationPlace.StartOfAnimation);
+        state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
+            PipeBugAnimationChoices.Rising(IsStrong(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Whether the Brinstar Pipe Bug in <paramref name="place"/> is the strong Zebbo rather than the ordinary Zeb.</summary>
@@ -255,7 +255,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.ShootingWithSameFacing(state.InstalledAnimation));
+        // The bug shoots facing the way it rose: toward the side Samus was on as it emerged.
+        SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Shooting(
+            IsStrong(place), state.FliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
         state.Action = BrinstarPipeBugAction.FlyHorizontally;
     }
 
@@ -279,17 +281,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BrinstarPipeBugAction.RespawnDelay;
     }
 
-    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
+    /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
     internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemyPlace place,
         BrinstarPipeBugState state,
-        PipeBugSegment animation)
-    {
-        if (animation == state.InstalledAnimation)
-            return;
-        state.InstalledAnimation = animation;
-        state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(animation));
-    }
+        PipeBugSegment animation) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, PipeBugAnimations.StartingWith(animation));
 
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemyPlace place, NorfairPipeBugState state)

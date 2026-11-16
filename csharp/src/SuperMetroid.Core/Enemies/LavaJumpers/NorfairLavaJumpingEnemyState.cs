@@ -13,13 +13,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// </summary>
     public bool AnimationFinished { get; internal set; }
 
-    /// <summary>
-    /// The animation start remembers the last started animation so it does not restart one
-    /// which is already running; none since initialization.
-    /// </summary>
-    internal NorfairLavaJumperSegment? InstalledAnimation { get; set; }
-
-    /// <summary>Where the typed animation (#641) resumes.</summary>
+    /// <summary>Where the typed animation (#641) resumes; a start of the animation playing leaves it running (#2145).</summary>
     internal AnimationPlayback<NorfairLavaJumperSegment> Playback { get; set; }
 
     /// <summary>

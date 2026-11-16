@@ -50,12 +50,11 @@ internal static class ZoaAnimationDefinitionsVerification
             var place = NewZoaAnimationPlace();
             var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
             {
-                RequestedAnimation = selector,
-                InstalledAnimation = selector == ZoaSegment.FacingLeftShooting
+                Playback = new(ZoaAnimations.StartingWith(selector == ZoaSegment.FacingLeftShooting
                     ? ZoaSegment.FacingLeftRising
-                    : ZoaSegment.FacingLeftShooting,
+                    : ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation),
             };
-            ZoaBehavior.SetZoaAnimation(place, state);
+            ZoaBehavior.SetZoaAnimation(place, state, selector);
             AssertZoaAnimationHandoff(place, state, selector, $"Zoa {selector}");
         }
     }
@@ -101,17 +100,13 @@ internal static class ZoaAnimationDefinitionsVerification
     private static RoomEnemyPlace NewZoaAnimationPlace() =>
         new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
 
-    /// <summary>Checks requested and installed selectors, the started animation, and reset timers.</summary>
+    /// <summary>Checks the started animation and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         ZoaSegment expected,
         string context)
     {
-        AssertEqual(expected, state.RequestedAnimation,
-            $"{context} requested selector");
-        AssertEqual(expected, state.InstalledAnimation,
-            $"{context} installed selector");
         AssertEqual(new AnimationPlayback<ZoaSegment>(ZoaAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");

@@ -21,7 +21,4 @@ public sealed class RioEnemyState
 
     /// <summary>Handshake set by the animation-finished cue and consumed by main AI.</summary>
     public bool AnimationFinished { get; internal set; }
-
-    /// <summary>The last animation installed by a behavioural transition; none at room load.</summary>
-    internal RioSegment? InstalledAnimation { get; set; }
 }

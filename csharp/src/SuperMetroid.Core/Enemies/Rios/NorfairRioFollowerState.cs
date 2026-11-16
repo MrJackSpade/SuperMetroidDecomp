@@ -9,7 +9,4 @@ public sealed class NorfairRioFollowerState
 {
     /// <summary>The animation the follower plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NorfairRioSegment> Playback { get; set; }
-
-    /// <summary>The last animation started, which starting it again does not restart.</summary>
-    internal NorfairRioSegment InstalledAnimation { get; set; }
 }

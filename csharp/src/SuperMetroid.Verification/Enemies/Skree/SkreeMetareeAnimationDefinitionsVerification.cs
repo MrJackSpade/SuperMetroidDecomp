@@ -47,8 +47,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>
-    /// Starts every animation the AI starts from a different installed one and checks each slot's animation and timer
-    /// reset; asking for the installed animation again leaves it playing.
+    /// Starts every animation the AI starts from a different playing one and checks each slot's animation and timer
+    /// reset; asking for the playing animation again leaves it playing (#2145).
     /// </summary>
     private static void VerifyAllSkreeMetareeInstallHandoffs()
     {
@@ -56,9 +56,9 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         foreach (SkreeMetareeSegment animation in metareeAnimations)
         {
             var metareePlace = NewSkreeMetareeAnimationPlace();
-            var metareeState = new MetareeEnemyState(MetareeAction.Idling) { InstalledAnimation = Different(metareeAnimations, animation) };
+            var metareeState = new MetareeEnemyState(MetareeAction.Idling) { Playback = new(SkreeMetareeAnimations.StartingWith(Different(metareeAnimations, animation)), AnimationPlace.StartOfAnimation) };
             MetareeBehavior.StartMetareeAnimation(metareePlace, metareeState, animation);
-            AssertSkreeMetareeHandoff(metareePlace, metareeState.InstalledAnimation, animation, metareeState.Playback, $"Metaree {animation}");
+            AssertSkreeMetareeHandoff(metareePlace, animation, metareeState.Playback, $"Metaree {animation}");
 
             AnimationPlayback<SkreeMetareeSegment> playing = metareeState.Playback;
             MetareeBehavior.StartMetareeAnimation(metareePlace, metareeState, animation);
@@ -69,9 +69,9 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         foreach (SkreeMetareeSegment animation in skreeAnimations)
         {
             var skreePlace = NewSkreeMetareeAnimationPlace();
-            var skreeState = new SkreeEnemyState(SkreeAction.Idling) { InstalledAnimation = Different(skreeAnimations, animation) };
+            var skreeState = new SkreeEnemyState(SkreeAction.Idling) { Playback = new(SkreeMetareeAnimations.StartingWith(Different(skreeAnimations, animation)), AnimationPlace.StartOfAnimation) };
             SkreeBehavior.StartSkreeAnimation(skreePlace, skreeState, animation);
-            AssertSkreeMetareeHandoff(skreePlace, skreeState.InstalledAnimation, animation, skreeState.Playback, $"Skree {animation}");
+            AssertSkreeMetareeHandoff(skreePlace, animation, skreeState.Playback, $"Skree {animation}");
 
             AnimationPlayback<SkreeMetareeSegment> playing = skreeState.Playback;
             SkreeBehavior.StartSkreeAnimation(skreePlace, skreeState, animation);
@@ -95,11 +95,11 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         };
 
         MetareeBehavior.RunMetareeIdle(place, (state), samus);
-        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.MetareePreparingAttack, state.Playback, "live Metaree preparation");
+        AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.MetareePreparingAttack, state.Playback, "live Metaree preparation");
 
         state.AttackReady = true;
         enemies.MetareeBehavior.RunMetareePreparation(place, state);
-        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.MetareeDiving, state.Playback, "live Metaree dive");
+        AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.MetareeDiving, state.Playback, "live Metaree dive");
     }
 
     /// <summary>Drives a live Skree from idle through attack preparation into its diving animation.</summary>
@@ -118,11 +118,11 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         };
 
         enemies.SkreeBehavior.RunSkreeMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
+        AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
 
         state.AttackReady = true;
         enemies.SkreeBehavior.RunSkreeMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
+        AssertSkreeMetareeHandoff(place, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
     }
 
     /// <summary>Creates an enemy system that rejects reads from the two migrated animation selector tables.</summary>
@@ -137,19 +137,17 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static RoomEnemyPlace NewSkreeMetareeAnimationPlace() =>
         new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
 
-    /// <summary>One of <paramref name="animations"/> other than <paramref name="animation"/>, installed before each handoff.</summary>
+    /// <summary>One of <paramref name="animations"/> other than <paramref name="animation"/>, playing before each handoff.</summary>
     private static SkreeMetareeSegment Different(SkreeMetareeSegment[] animations, SkreeMetareeSegment animation) =>
         animations.First(candidate => candidate != animation);
 
-    /// <summary>Checks the installed animation and the freshly started animation plus both timer resets.</summary>
+    /// <summary>Checks the freshly started animation and its timer reset.</summary>
     private static void AssertSkreeMetareeHandoff(
         RoomEnemyPlace place,
-        SkreeMetareeSegment installed,
         SkreeMetareeSegment expected,
         AnimationPlayback<SkreeMetareeSegment> playback,
         string context)
     {
-        AssertEqual(expected, installed, $"{context} installed animation");
         AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expected), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
         AssertEqual(1, place.AnimationClock.Hold.RawValue, $"{context} instruction timer");

@@ -16,14 +16,11 @@ public sealed class ZoaEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>The animation the Zoa's behaviour asks for: rising toward Samus, then shooting with the same facing.</summary>
-    public ZoaSegment RequestedAnimation { get; internal set; }
-
     /// <summary>
-    /// The requested animation the Zoa last started, at first the left-facing shooting it rests in; asking for it again
-    /// leaves the playing animation running.
+    /// Whether the Zoa faces right: toward Samus as it wakes, rising and then shooting that way; at rest, and again once a
+    /// shot ends off screen, it faces left (#2145).
     /// </summary>
-    public ZoaSegment InstalledAnimation { get; internal set; }
+    public bool FacesRight { get; internal set; }
 
     /// <summary>
     /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen

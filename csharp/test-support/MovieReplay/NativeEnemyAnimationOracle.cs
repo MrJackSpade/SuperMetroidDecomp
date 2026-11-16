@@ -288,20 +288,32 @@ internal static class NativeEnemyAnimationOracle
     /// there, else the first in authored order that does, the animations started at counted entries after those starting
     /// at segments.
     /// </summary>
+    /// <param name="lists">Each segment's native list.</param>
+    /// <param name="entries">Each segment's native entry.</param>
+    /// <param name="startingAt">The typed animations, by the segment each starts at.</param>
+    /// <param name="nativePointer">The recorded native instruction pointer.</param>
+    /// <param name="countedStarts">The animations owners start at counted entries.</param>
+    /// <param name="playing">
+    /// The animation the recording's owner installed, where it keeps one beside the pointer (#2145): the pointer is placed in
+    /// that animation alone, since a later request for it must find it playing.
+    /// </param>
     /// <exception cref="InvalidDataException">No animation, or more than one native place, matches the pointer.</exception>
     internal static AnimationPlayback<TSegment> PlaybackAt<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
         NativeProgramEntry<TSegment>[] entries,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         ushort nativePointer,
-        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null)
+        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null,
+        Animation<TSegment>? playing = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
         Ensure.NotNull(entries);
         Ensure.NotNull(startingAt);
-        IReadOnlyList<NativeCountedStart<TSegment>> counted = countedStarts ?? [];
-        if (entries.Where(entry => entry.Entry == nativePointer && startingAt.ContainsKey(entry.Program)).Select(entry => (TSegment?)entry.Program).SingleOrDefault() is { } started)
+        IReadOnlyList<NativeCountedStart<TSegment>> counted = playing is null ? countedStarts ?? [] : [];
+        if (entries.Where(entry => entry.Entry == nativePointer && startingAt.TryGetValue(entry.Program, out Animation<TSegment>? at)
+                    && (playing is null || ReferenceEquals(at, playing)))
+                .Select(entry => (TSegment?)entry.Program).SingleOrDefault() is { } started)
             return new AnimationPlayback<TSegment>(startingAt[started], AnimationPlace.StartOfAnimation);
         if (counted.SingleOrDefault(start => start.Entry.Address == nativePointer) is { } countedStart)
             return new AnimationPlayback<TSegment>(countedStart.Entry.Animation, AnimationPlace.StartOfAnimation);
@@ -330,7 +342,10 @@ internal static class NativeEnemyAnimationOracle
         IEnumerable<TSegment> candidates = startingAt.ContainsKey(found.Segment)
             ? [found.Segment, .. Enum.GetValues<TSegment>().Where(startingAt.ContainsKey)]
             : Enum.GetValues<TSegment>().Where(startingAt.ContainsKey);
-        foreach (Animation<TSegment> animation in candidates.Select(candidate => startingAt[candidate]).Concat(counted.Select(start => start.Entry.Animation)))
+        IEnumerable<Animation<TSegment>> animations = playing is null
+            ? candidates.Select(candidate => startingAt[candidate]).Concat(counted.Select(start => start.Entry.Animation))
+            : [playing];
+        foreach (Animation<TSegment> animation in animations)
         {
             for (int index = 0; index < animation.Phases.Count; index++)
             {

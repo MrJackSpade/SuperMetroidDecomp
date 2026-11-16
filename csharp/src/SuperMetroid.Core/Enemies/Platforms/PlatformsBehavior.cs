@@ -63,8 +63,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
-        state.VerticallyMovingArtInstalled = false;
-        state.VerticallyStillArtInstalled = false;
+        state.VerticalArt = null;
         state.RestingY = CoordinateAxis.Wrap(place.Position.Y.Whole + 1);
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
@@ -251,33 +250,26 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YSpeedCurvePlace = state.MaximumYSpeedCurvePlace;
     }
 
-    /// <summary>Installs moving art once per phase and always clears the still-art flag, whichever art it installed.</summary>
+    /// <summary>Starts moving art once per moving phase, whatever art a wall has started since (#2145).</summary>
     private static void SetPlatformVerticallyMovingAnimation(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
-        if (!state.VerticallyMovingArtInstalled)
-        {
-            state.VerticallyMovingArtInstalled = true;
-            InstallPlatformVerticallyMovingForCurrentDirection(place, state);
-        }
-        // The direction cue runs after the already-installed branch target, so it executes even when
-        // no new animation was needed this frame.
-        state.VerticallyStillArtInstalled = false;
+        if (state.VerticalArt == PlatformVerticalArt.Moving)
+            return;
+        state.VerticalArt = PlatformVerticalArt.Moving;
+        InstallPlatformVerticallyMovingForCurrentDirection(place, state);
     }
 
-    /// <summary>Installs stationary art once per phase and always clears the moving-art flag.</summary>
+    /// <summary>Starts stationary art once per resting phase (#2145).</summary>
     private static void SetPlatformVerticallyStillAnimation(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
-        if (!state.VerticallyStillArtInstalled)
-        {
-            state.VerticallyStillArtInstalled = true;
-            InstallPlatformVerticallyStillForCurrentDirection(place, state);
-        }
-        // As in the moving helper, the opposite flag is always cleared, whichever art was installed.
-        state.VerticallyMovingArtInstalled = false;
+        if (state.VerticalArt == PlatformVerticalArt.Still)
+            return;
+        state.VerticalArt = PlatformVerticalArt.Still;
+        InstallPlatformVerticallyStillForCurrentDirection(place, state);
     }
 
     /// <summary>Selects the moving animation from suspensor identity and current horizontal direction.</summary>

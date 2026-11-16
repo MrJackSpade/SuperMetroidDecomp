@@ -7,11 +7,7 @@ internal static class ZoaAnimationChoices
     internal static ZoaSegment Rising(bool facingRight) =>
         facingRight ? ZoaSegment.FacingRightRising : ZoaSegment.FacingLeftRising;
 
-    /// <summary>The shooting animation with <paramref name="animation"/>'s facing.</summary>
-    internal static ZoaSegment ShootingWithSameFacing(ZoaSegment animation) => animation switch
-    {
-        ZoaSegment.FacingLeftRising or ZoaSegment.FacingLeftShooting => ZoaSegment.FacingLeftShooting,
-        ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting => ZoaSegment.FacingRightShooting,
-        _ => throw new ArgumentOutOfRangeException(nameof(animation), animation, $"Undefined {nameof(ZoaSegment)}."),
-    };
+    /// <summary>The shooting animation facing right or left.</summary>
+    internal static ZoaSegment Shooting(bool facingRight) =>
+        facingRight ? ZoaSegment.FacingRightShooting : ZoaSegment.FacingLeftShooting;
 }

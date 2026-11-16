@@ -42,12 +42,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new RioEnemyState(RioAction.WaitingForSamus)
         {
             AnimationFinished = false,
-            InstalledAnimation = null,
         };
         place.SetSpeciesState(state);
 
-        // The Rio's setup writes the animation directly rather than calling the animation starter. The installed animation must
-        // therefore remain none until the first behavioral transition starts a new animation.
+        // The Rio rests in its idle animation until its first swoop starts another.
         state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.Idle));
     }
 
@@ -210,16 +208,12 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Installs an animation only when it actually changes.</summary>
+    /// <summary>Starts an animation only when it differs from the one playing (#2145).</summary>
     private static void StartRioAnimation(
         RoomEnemyPlace place,
         RioEnemyState state,
         RioSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(RioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.StartingWith(segment));
 
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)

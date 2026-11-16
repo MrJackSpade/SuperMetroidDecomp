@@ -17,12 +17,6 @@ public abstract class MagdollitePartState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MagdolliteSegment> Playback { get; set; }
 
-    /// <summary>The animation last installed; null until a part's initializer installs its first.</summary>
-    internal MagdolliteSegment? InstalledAnimation { get; set; }
-
-    /// <summary>The animation the part's AI wants shown.</summary>
-    internal MagdolliteSegment DesiredAnimation { get; set; }
-
     /// <summary>
     /// Whether an animation is active, set and cleared by the head's and the overlay's animation cues to gate the head's
     /// transitions and the end of the overlay's throw.

@@ -11,14 +11,13 @@ internal sealed class MotherBrainEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
+
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainEncounterAccess(BossFrameResultBuilder frameResults, MotherBrainEncounter motherBrainEncounter)
+    internal MotherBrainEncounterAccess(BossFrameResultBuilder frameResults)
     {
         _frameResults = frameResults;
-        _motherBrainEncounter = motherBrainEncounter;
     }
 
     /// <summary>Requests one of Mother Brain's room mutations at a foreground room block for this pass.</summary>
@@ -39,25 +38,6 @@ internal sealed class MotherBrainEncounterAccess
         state.RainbowBeamSequence ??
         throw new InvalidDataException(
             "Mother Brain's brain needs the live rainbow beam and Baby sequence.");
-
-    /// <summary>Requires a body and head pair initialized in their enemy places.</summary>
-    internal MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemyPlace place)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
-            throw new InvalidDataException("A Mother Brain part has no shared encounter state.");
-        if (!ReferenceEquals(place, state.Body) && !ReferenceEquals(place, state.Head))
-            throw new InvalidDataException("A non-Mother-Brain place entered the Mother Brain behaviour.");
-        return state;
-    }
-
-    /// <summary>
-    /// Timers expire only once a decrement takes them below zero.
-    /// A zero timer therefore expires immediately, while a value N remains live for N ticks.
-    /// </summary>
-    internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
-    {
-        return --state.PhaseTimer < 0;
-    }
 
     /// <summary>Restarts the body enemy on <paramref name="segment"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyAnimation(MotherBrainEnemyState state, MotherBrainBodySegment segment)

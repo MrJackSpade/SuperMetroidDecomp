@@ -17,7 +17,7 @@ internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyPlace plac
     protected override void SetUp() => Species.Projectiles.InitializeKraidNail(Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidNailMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidNailMain(Place, Species.Parts.NailStateOf(Encounter, Place), frame.Level);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Place);

@@ -23,7 +23,7 @@ internal static class DefinitionIndexVerification
     /// <summary>Catalogs a runtime standing in Landing Site reaches nothing of: bosses, cinematics and the ending.</summary>
     private static readonly Type[] LandingSiteUnreachedCatalogs =
     [
-        typeof(KraidPhaseGroups), typeof(MotherBrainAnimations), typeof(PhantoonAnimations), typeof(DraygonAnimations),
+        typeof(KraidAnimations), typeof(MotherBrainAnimations), typeof(PhantoonAnimations), typeof(DraygonAnimations),
         typeof(EndingCreditsPhaseGroups), typeof(CeresDestructionPhaseGroups), typeof(ProjectileTrailPlacementDefinitions),
     ];
 

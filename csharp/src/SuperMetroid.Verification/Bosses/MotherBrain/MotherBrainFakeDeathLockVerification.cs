@@ -30,7 +30,7 @@ internal static class MotherBrainFakeDeathLockVerification
         samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
-        state.PhaseTimer = 0;
+        state.PhaseTimer.Count = 0;
         // The original's lock stores to the room's second cell: in Mother Brain's row of four screens, the second screen.
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "Mother Brain's room is one row of four screens");
@@ -45,7 +45,7 @@ internal static class MotherBrainFakeDeathLockVerification
                 $"the arena lock closes only the second screen, leaving screen {screen} as it was");
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
-        state.PhaseTimer = 0;
+        state.PhaseTimer.Count = 0;
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked,
             "command one restores the normal handlers");
@@ -66,14 +66,14 @@ internal static class MotherBrainFakeDeathLockVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain.");
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
-        state.PhaseTimer = 100;
+        state.PhaseTimer.Count = 100;
         state.TubeCollapseStep = MotherBrainTubeCollapseStep.Finished;
         state.FakeDeathExplosionIndex = 0;
 
         int[] expectedIndices = [7, 6];
         foreach (int expected in expectedIndices)
         {
-            state.FakeDeathExplosionTimer = 0;
+            state.FakeDeathExplosionTimer.Count = 0;
             runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray(state);
             AssertEqual(expected, state.FakeDeathExplosionIndex,
                 $"an expired explosion timer steps back to position {expected}");

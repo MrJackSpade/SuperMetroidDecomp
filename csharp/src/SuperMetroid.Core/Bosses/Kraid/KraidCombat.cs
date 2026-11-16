@@ -22,18 +22,15 @@ internal sealed class KraidCombat
     private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
-    private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, KraidParts parts, EnemyCollision collision, KraidEncounterAccess access)
+    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, KraidParts parts, EnemyCollision collision)
     {
         _projectiles = projectiles;
         _audio = audio;
         _effectActors = effectActors;
         _parts = parts;
         _collision = collision;
-        _access = access;
     }
 
     /// <summary>Runs the arm's or foot's reaction to a bomb its hitboxes select, before the check for an ignoring reaction.</summary>
@@ -86,9 +83,9 @@ internal sealed class KraidCombat
         // the arm launches Samus up and right.
         // Writes only the whole pixels of the displacement, so preserve both
         // fractions exactly as they were before contact.
-        _ = _access.RequireKraidState(context.Place);
+        KraidEnemyState state = KraidEntity.EncounterOf(context.Place);
         context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
-        _access.Part(_parts.BottomLint).Phase = KraidPhase.LintFire;
+        state.BottomLintState.Phase = KraidLintPhase.Fire;
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
     }
 
@@ -115,8 +112,7 @@ internal sealed class KraidCombat
     /// <summary>
     /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
-    private bool KraidSinkingSkipsProjectileCollision(RoomEnemyPlace body) =>
-        !KraidPhaseGroups.ShotsCollide.Contains(_access.Part(body).Phase);
+    private static bool KraidSinkingSkipsProjectileCollision(KraidEnemyState state) => !state.BodyState.ShotsCollide;
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
@@ -124,7 +120,7 @@ internal sealed class KraidCombat
     /// </summary>
     internal int ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (KraidSinkingSkipsProjectileCollision(body))
+        if (KraidSinkingSkipsProjectileCollision(state))
             return 0;
 
         int mouthHits = 0;
@@ -184,7 +180,7 @@ internal sealed class KraidCombat
             state.HurtFrameTimer = 2;
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
-            if (body.Health < 1 && IsFighting(state.BodyState.Phase))
+            if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
 
@@ -197,7 +193,7 @@ internal sealed class KraidCombat
     /// </summary>
     internal int ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (KraidSinkingSkipsProjectileCollision(body))
+        if (KraidSinkingSkipsProjectileCollision(state))
             return 0;
 
         state.MouthFlags &= ~KraidMouthFlags.Hit;
@@ -220,9 +216,10 @@ internal sealed class KraidCombat
             }
         }
 
-        if (bodyHits != 0 && state.BodyState.Phase == KraidPhase.MainloopThinking)
+        if (bodyHits != 0 && state.BodyState.Stage == KraidBodyStage.Fighting &&
+            state.BodyState.FightPhase == KraidFightPhase.FirstPhaseThinking)
         {
-            state.BodyState.Phase = KraidPhase.InitializeEyeGlow;
+            state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
             if ((state.MouthFlags & KraidMouthFlags.Hit) != KraidMouthFlags.None)
             {
                 state.MouthFlags |= KraidMouthFlags.ReopenArmed;
@@ -264,13 +261,10 @@ internal sealed class KraidCombat
         return CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom) < 0;
     }
 
-    /// <summary>Whether Kraid fights in <paramref name="phase"/>, his body's phase.</summary>
-    private static bool IsFighting(KraidPhase phase) => KraidPhaseGroups.Fighting.Contains(phase);
-
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
     private void BeginKraidDeath(KraidEnemyState state)
     {
-        state.BodyState.Phase = KraidPhase.DeathInitialize;
+        state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
         state.ClearMouthReactions();
         // The intangible property disables the ordinary touch list while the private death state owns body movement
         // and breakup effects. The fingernails are left out: they delete themselves once his health reads zero.
@@ -283,7 +277,7 @@ internal sealed class KraidCombat
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemyPlace body, KraidEnemyState state, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
-        if (!IsFighting(state.BodyState.Phase))
+        if (!state.BodyState.Fights)
             return;
         int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
         if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -

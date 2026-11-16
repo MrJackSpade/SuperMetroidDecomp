@@ -9,32 +9,45 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public sealed class KraidEnemyState
 {
+    /// <summary>Begins an encounter whose parts each hold it from their setup (#2218).</summary>
+    public KraidEnemyState()
+    {
+        BodyState = new(this);
+        ArmState = new(this);
+        TopLintState = new(this);
+        MiddleLintState = new(this);
+        BottomLintState = new(this);
+        FootState = new(this);
+        FirstNailState = new(this);
+        SecondNailState = new(this);
+    }
+
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();
 
     /// <summary>His body's own state. Like every part's, it remains owned by the room after the body is deleted.</summary>
-    internal KraidBodyState BodyState { get; } = new();
+    internal KraidBodyState BodyState { get; }
 
     /// <summary>His arm's own state.</summary>
-    internal KraidArmState ArmState { get; } = new();
+    internal KraidArmState ArmState { get; }
 
     /// <summary>His top lint's own state.</summary>
-    internal KraidLintState TopLintState { get; } = new();
+    internal KraidLintState TopLintState { get; }
 
     /// <summary>His middle lint's own state.</summary>
-    internal KraidLintState MiddleLintState { get; } = new();
+    internal KraidLintState MiddleLintState { get; }
 
     /// <summary>His bottom lint's own state.</summary>
-    internal KraidLintState BottomLintState { get; } = new();
+    internal KraidLintState BottomLintState { get; }
 
     /// <summary>His foot's own state.</summary>
-    internal KraidFootState FootState { get; } = new();
+    internal KraidFootState FootState { get; }
 
     /// <summary>His first fingernail's own state.</summary>
-    internal KraidNailState FirstNailState { get; } = new();
+    internal KraidNailState FirstNailState { get; }
 
     /// <summary>His second fingernail's own state.</summary>
-    internal KraidNailState SecondNailState { get; } = new();
+    internal KraidNailState SecondNailState { get; }
 
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }

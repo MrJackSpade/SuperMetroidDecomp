@@ -42,19 +42,31 @@ internal static class RetailKraidCaptureTests
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var boss = runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.Places.InUpdateOrder[0];
-        KraidPhase BodyPhase() =>
-            (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Phase;
+        // The body runs the phase of its stage, of the stage's own type (#2208).
+        Enum BodyPhase()
+        {
+            KraidBodyState state = body.SpeciesState<KraidPartState>() as KraidBodyState ?? throw new InvalidOperationException("Kraid's body has no body state.");
+            return state.Stage switch
+            {
+                KraidBodyStage.Rising => state.RisePhase,
+                KraidBodyStage.Fighting => state.FightPhase,
+                KraidBodyStage.Growing => state.GrowthPhase,
+                KraidBodyStage.Dying => state.DeathPhase,
+                _ => throw new InvalidOperationException($"Undefined {nameof(KraidBodyStage)} {state.Stage}."),
+            };
+        }
         // The death has played out once the background fade hands the body to either finished entry.
         static bool DeathFinished(KraidEnemyState kraid) =>
-            kraid.BodyState.Phase is KraidPhase.DeathFinishedWasAlive or KraidPhase.DeathFinishedWasDead;
-        var phases = new HashSet<KraidPhase>();
+            kraid.BodyState.Stage == KraidBodyStage.Dying &&
+            kraid.BodyState.DeathPhase is KraidDeathPhase.FinishedWasAlive or KraidDeathPhase.FinishedWasDead;
+        var phases = new HashSet<Enum>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
         for (int tick = 0; tick < 1200; tick++)
         {
             bool changed = phases.Add(BodyPhase());
             ownedBackground |= boss.ShowsBodyLayer;
-            bool mainLoop = BodyPhase() == KraidPhase.MainloopThinking;
+            bool mainLoop = BodyPhase() is KraidFightPhase.FirstPhaseThinking;
             if (changed || tick % 8 == 0 || mainLoop)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
@@ -74,7 +86,7 @@ internal static class RetailKraidCaptureTests
             int waiting = 0;
             // The attack enters with a roar timer before its first head frame selects a mouth
             // shape; until then no frame is displayed, or the closed mouth's has no shape.
-            while (!(BodyPhase() is KraidPhase.MainAttackWithMouthOpen or KraidPhase.MouthOpenReaction
+            while (!(BodyPhase() is KraidFightPhase.MainAttackWithMouthOpen or KraidFightPhase.MouthOpenReaction
                 && boss.DisplayedHeadFrame is { InvulnerableShape: not null }) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
@@ -82,12 +94,12 @@ internal static class RetailKraidCaptureTests
             runtime.StepFrame(0);
         }
         int growthSamples = 0;
-        var growthPhases = new HashSet<KraidPhase>();
+        var growthPhases = new HashSet<Enum>();
         completed = false;
         for (int tick = 0; tick < 1800; tick++)
         {
             bool changed = growthPhases.Add(BodyPhase());
-            bool finished = BodyPhase() == KraidPhase.SecondPhaseThinking;
+            bool finished = BodyPhase() is KraidFightPhase.SecondPhaseThinking;
             if (changed || tick % 4 == 0 || finished)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
@@ -104,7 +116,7 @@ internal static class RetailKraidCaptureTests
             throw new InvalidOperationException("Kraid growth missed camera/priority/second-phase handoff.");
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
         int deathWait = 0;
-        while (!(BodyPhase() is KraidPhase.MainAttackWithMouthOpen or KraidPhase.MouthOpenReaction
+        while (!(BodyPhase() is KraidFightPhase.MainAttackWithMouthOpen or KraidFightPhase.MouthOpenReaction
             && boss.DisplayedHeadFrame is not { InvulnerableShape: null }) && deathWait++ < 1400)
             runtime.StepFrame(0);
         if (deathWait >= 1400) throw new InvalidOperationException("Kraid death fixture never reached an open mouth.");
@@ -112,10 +124,10 @@ internal static class RetailKraidCaptureTests
         // still runs collision and initializes the real death coroutine.
         body.Health = 100;
         StrikeMouth(runtime, body, boss);
-        if (body.Health != 0 || BodyPhase() != KraidPhase.DeathInitialize)
+        if (body.Health != 0 || BodyPhase() is not KraidDeathPhase.Initialize)
             throw new InvalidOperationException("Kraid lethal hit did not start death.");
         int deathSamples = 0;
-        var deathPhases = new HashSet<KraidPhase>();
+        var deathPhases = new HashSet<Enum>();
         for (int tick = 0; tick < 1200; tick++)
         {
             bool changed = deathPhases.Add(BodyPhase());
@@ -130,9 +142,9 @@ internal static class RetailKraidCaptureTests
             if (DeathFinished(boss)) break;
             runtime.StepFrame(0);
         }
-        if (!DeathFinished(boss) || !deathPhases.Contains(KraidPhase.DeathWaitBeforeFadeIn) ||
-            !deathPhases.Contains(KraidPhase.DeathSink) ||
-            !deathPhases.Contains(KraidPhase.DeathFadeInBackground))
+        if (!DeathFinished(boss) || !deathPhases.Contains(KraidDeathPhase.WaitBeforeFadeIn) ||
+            !deathPhases.Contains(KraidDeathPhase.Sink) ||
+            !deathPhases.Contains(KraidDeathPhase.FadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
         RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, wait, fade and blank BG2 verified.");

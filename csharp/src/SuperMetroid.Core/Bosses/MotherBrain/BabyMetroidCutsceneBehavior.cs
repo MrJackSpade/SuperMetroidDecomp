@@ -72,6 +72,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
+        // The Baby holds the encounter that spawned it from its setup (#2218).
+        babyPlace.SetSpeciesState(state);
         _lifecycle.RunInitializationAi(babyPlace, EnemySpawnSurroundings.None);
 
         // Spawning leaves the Baby undrawn after its initializer when its hide-drawing property is set.
@@ -84,10 +86,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Creates the physical Baby only after the rainbow sequence exists and starts its first animation and fifteen nontransparent colors.</summary>
-    internal void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place)
+    internal static void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place)
     {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
-            "The cutscene Baby was initialized without Mother Brain's body and brain.");
+        MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
         if (state.RainbowBeamSequence is null)
         {
             throw new InvalidDataException(
@@ -102,17 +103,17 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyAppliedAnimation = baby.Animation;
         state.BabyPlayback = MotherBrainBabyAnimations.Starting(baby.Animation);
 
-        CopyBabyMetroidActorToPhysicalPlace(place, baby, _motherBrainEncounter.Colours);
+        CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
         place.AnimationClock.RestartAfter(baby.FrameHold);
 
         // The writer receives the Baby's fifteen colours after its first. The first, the transparent
         // one, is deliberately skipped, preserving the room's backdrop.
-        ShowBabyMetroidArrival();
+        ShowBabyMetroidArrival(state.Colours);
     }
 
     /// <summary>Lays the Baby's start colours, which leave the transparent colour untouched.</summary>
-    internal void ShowBabyMetroidArrival() =>
-        _motherBrainEncounter.Colours.ShowBabyArrived();
+    internal static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
+        Ensure.NotNull(colours).ShowBabyArrived();
 
     /// <summary>Advances the later Baby place, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
@@ -120,8 +121,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "The cutscene Baby lost Mother Brain's encounter state.");
+        MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
         BabyMetroidCutsceneState baby = state.BabyMetroid ??
             throw new InvalidOperationException("The physical Baby has no cutscene state.");
         if (!ReferenceEquals(place, state.BabyMetroidPlace))
@@ -176,8 +176,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         if (baby.Animation != state.BabyAppliedAnimation)
             SetBabyMetroidCutsceneAnimation(state, place, baby.Animation);
-        CopyBabyMetroidActorToPhysicalPlace(place, baby, _motherBrainEncounter.Colours);
-        ApplyBabyMetroidFrameEffects(step);
+        CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
+        ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
 
     /// <summary>Copies cutscene position, contact, processing, presence, shading and health state into the live enemy.</summary>
@@ -195,12 +195,13 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Applies one step's music, sounds, dust, fade and recovery-light requests to room systems.</summary>
-    internal void ApplyBabyMetroidFrameEffects(BabyMetroidCutsceneStepResult step)
+    internal void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
     {
+        Ensure.NotNull(colours);
         if (step.FatalBlowStarted)
         {
             _audio.QueueEnemySound(RoomSound.BabyMetroidDeath, priority: SoundRequestPriority.Normal);
-            _motherBrainEncounter.Colours.ShowLightsOut();
+            colours.ShowLightsOut();
             _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }
         if (step.SamusThemeStarted)
@@ -226,28 +227,28 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         }
 
         if (step.BabyFadeShade is int shade)
-            ShowBabyMetroidFade(shade);
+            ShowBabyMetroidFade(colours, shade);
 
         if (step.RecoveryLightsFrame is int lightsFrame)
-            LoadMotherBrainRecoveryLights(lightsFrame);
+            LoadMotherBrainRecoveryLights(colours, lightsFrame);
     }
 
     /// <summary>Shows room-light recovery frame <paramref name="frame"/> (0..6) from the installed room colours.</summary>
     /// <exception cref="InvalidDataException">The frame is not one of the seven authored images.</exception>
-    internal void LoadMotherBrainRecoveryLights(int frame)
+    internal static void LoadMotherBrainRecoveryLights(MotherBrainColours colours, int frame)
     {
         if ((uint)frame >= MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
-        _motherBrainEncounter.Colours.ShowLightsRecovering(frame);
+        Ensure.NotNull(colours).ShowLightsRecovering(frame);
     }
 
     /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>
-    internal void ShowBabyMetroidFade(int shade)
+    internal static void ShowBabyMetroidFade(MotherBrainColours colours, int shade)
     {
         if (shade is < 1 or > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new ArgumentOutOfRangeException(nameof(shade), shade, "The Baby's fade has six shades.");
-        _motherBrainEncounter.Colours.ShowBabyFade(shade);
+        Ensure.NotNull(colours).ShowBabyFade(shade);
     }
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
@@ -261,10 +262,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// timer would, and a newly shown frame raises the new-frame flag. A held pose rests: the timer
     /// wraps from zero and the last frame stays.
     /// </summary>
-    internal void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place)
+    internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place)
     {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
-            "The cutscene Baby's animation ran without Mother Brain's encounter state.");
+        MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBabySegment> playback = state.BabyPlayback;

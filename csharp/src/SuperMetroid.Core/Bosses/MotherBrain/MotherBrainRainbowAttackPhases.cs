@@ -38,7 +38,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     public int SoundQueueCount { get; internal set; }
 
     /// <summary>Rainbow-beam explosion timer.</summary>
-    public int ExplosionTimer { get; private set; }
+    public MotherBrainCountdown ExplosionTimer { get; } = new();
 
     /// <summary>Index of the offset pair the latest beam explosion used, cycling through the eight pairs.</summary>
     public int ExplosionIndex { get; private set; }
@@ -56,7 +56,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
         AngularWidth = NarrowestWidth;
         ExplosionIndex = 0;
-        ExplosionTimer = 0;
+        ExplosionTimer.Count = 0;
         SoundQueueCount = 6;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
@@ -86,7 +86,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowStartCharging;
-        _state.PhaseTimer = 256;
+        _state.PhaseTimer.Count = 256;
     }
 
     /// <summary>Requests the slow forward body animation until its target is reached.</summary>
@@ -142,13 +142,13 @@ internal sealed class MotherBrainRainbowAttackPhases
         _movement.RainbowBeamAngle = RotationAngle.HalfTurn - sourceAngle;
     }
 
-    /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown passes zero.</summary>
+    /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown runs out.</summary>
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
-        if (--ExplosionTimer >= 0)
+        if (ExplosionTimer.StepKeepsRunning())
             return null;
 
-        ExplosionTimer = 8;
+        ExplosionTimer.Count = 8;
         ExplosionIndex = (ExplosionIndex + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
         return new MotherBrainRainbowExplosionRequest(
             MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[ExplosionIndex]);
@@ -227,7 +227,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowStartCharging()
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
             _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck;
@@ -248,7 +248,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             _state.RetractHead();
             _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge;
-            _state.PhaseTimer = 256;
+            _state.PhaseTimer.Count = 256;
             return true;
         }
         return false;
@@ -260,7 +260,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForCharge(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             requests.ChargeSoundQueued = true; // The rainbow beam's charge sound.
             _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown;
@@ -281,7 +281,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast; // The Japanese and North American turn; the European release turns seven steps an update.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowStartFiring;
-        _state.PhaseTimer = 16; // The Japanese and North American value; the European release uses 12.
+        _state.PhaseTimer.Count = 16; // The Japanese and North American value; the European release uses 12.
         return true;
     }
 
@@ -295,7 +295,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         IncreaseWidthAndAim(samus);
         if (!frame.PowerBombActive)
         {
-            if (--_state.PhaseTimer < 0)
+            if (_state.PhaseTimer.StepRunsOut())
             {
                 // The step rereads the power-bomb flag here. The
                 // parameter is one stable sample of the flag for this AI call.
@@ -322,7 +322,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay;
-            _state.PhaseTimer = 0;
+            _state.PhaseTimer.Count = 0;
         }
         return false;
     }
@@ -340,8 +340,8 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
 
-        // The start-draining step decrements zero to -1; the below-zero check fails on this very call.
-        if (--_state.PhaseTimer < 0)
+        // The start-draining step's countdown of zero runs out on this very call.
+        if (_state.PhaseTimer.StepRunsOut())
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8);
             _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus;
@@ -358,7 +358,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // The drain start installs draining, seeds both its timer and the earthquake with 299, and falls
         // through into the draining phase in the same enemy-processing call.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus;
-        _state.PhaseTimer = 299;
+        _state.PhaseTimer.Count = 299;
         requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 299);
         return true;
     }
@@ -378,7 +378,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
         requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, frame.CameraCheckpoint);
 
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
             _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring;
         return false;
     }
@@ -447,7 +447,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // Neck positions are presentation/actor-animation state. This phase's movement-
         // relevant effect is the exact phase/timer handoff to the lower-head step.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction;
-        _state.PhaseTimer = 128;
+        _state.PhaseTimer.Count = 128;
         return false;
     }
 
@@ -457,7 +457,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowDecideNextAction(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             if (samus.Health >= 400)
             {

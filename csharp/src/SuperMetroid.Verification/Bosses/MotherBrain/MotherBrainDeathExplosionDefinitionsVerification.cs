@@ -29,12 +29,12 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
-            enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+            MotherBrainEnemyState motherBrain = enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()));
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],
                 SoundEffect: MotherBrainSoundDefinitions.Explosion);
-            enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(request);
+            enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(motherBrain, request);
 
             EnemyProjectile projectile =
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
@@ -47,7 +47,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 $"production Mother Brain death explosion X {parameter}");
             AssertEqual(0x0209, projectile.Position.Y.Whole,
                 $"production Mother Brain death explosion Y {parameter}");
-            AssertEqual(new Offset16<RoomPixels>(-7, 9), projectile.StateOf<MotherBrainFollowingExplosionState>().Offset,
+            AssertEqual(new Offset16<RoomPixels>(-7, 9), projectile.StateOf<MotherBrainBodyExplosionState>().Offset,
                 $"production Mother Brain death explosion offset {parameter}");
             // The place's velocity words hold the offset, which the place's next occupant inherits.
             AssertEqual(unchecked((ushort)-7), projectile.Velocity.X.RawValue,

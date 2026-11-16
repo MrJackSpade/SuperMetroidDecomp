@@ -66,7 +66,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
         _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance;
-        _state.PhaseTimer = 48;
+        _state.PhaseTimer.Count = 48;
         return true;
     }
 
@@ -77,7 +77,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
         requests.ColoursRequested = true;
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             // The regain-balance step contains an apparent missing store: it loads one and then
             // immediately reloads the neck-enable flag. Preserve that no-op rather
@@ -181,7 +181,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.Body.SetAnimation(MotherBrainBodySegment.CrouchFast);
             requests.BodyPostureRequested = true;
             _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
-            _state.PhaseTimer = 64;
+            _state.PhaseTimer.Count = 64;
         }
         return false;
     }
@@ -192,11 +192,11 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.GreyTransitionCounter = 0;
             _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey;
-            _state.PhaseTimer = 16;
+            _state.PhaseTimer.Count = 16;
             return true;
         }
         return false;
@@ -208,9 +208,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
-            _state.PhaseTimer = 16;
+            _state.PhaseTimer.Count = 16;
 
             // The body greys over eight steps, one each time the timer runs out; the ninth finishes the transition
             // without new colours.

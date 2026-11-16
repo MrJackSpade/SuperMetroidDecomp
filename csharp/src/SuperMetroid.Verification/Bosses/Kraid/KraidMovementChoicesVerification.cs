@@ -75,13 +75,11 @@ internal static class KraidMovementChoicesVerification
             return;
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var state = new KraidEnemyState();
         var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.Places.InUpdateOrder[5];
-        var part = new KraidFootState();
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidFootState part = state.FootState;
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };
@@ -101,7 +99,7 @@ internal static class KraidMovementChoicesVerification
                 bool right = unchecked((short)(expected.TargetX - raw)) >= 0;
                 AssertEqual(expected.TargetX, state.WalkTargetX, "Actual target includes fallback row");
                 AssertEqual(expected.ThinkTimer, part.ThinkTimer, "Actual thinking delay includes weighted final choice");
-                AssertEqual(KraidPhase.FootSecondPhaseWalking, state.FootState.Phase, "Native signed walking direction: the foot walks");
+                AssertEqual(KraidFootPhase.SecondPhaseWalking, state.FootState.Phase, "Native signed walking direction: the foot walks");
                 AssertEqual(right ? HorizontalDirection.Right : HorizontalDirection.Left, state.FootState.WalkDirection, "Native signed walking direction (#2165)");
                 AssertEqual(
                     new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward), AnimationPlace.StartOfAnimation),

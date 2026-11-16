@@ -32,9 +32,7 @@ internal static class KraidCeilingRockPositionsVerification
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var state = new KraidEnemyState();
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.VerificationServices().ReadRandom = () => 63;
         Action<RoomEnemyPlace, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthPhase;
         var requests = enemies.BossFrameResults.KraidObjects;
@@ -47,7 +45,7 @@ internal static class KraidCeilingRockPositionsVerification
             requests.Clear();
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.CeilingRock = index;
-            state.BodyState.Phase = KraidPhase.GrowBreakCeilingPlatforms;
+            state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
             step(body, state);
             ushort y = unchecked((ushort)(raw - 1));
             bool spawn = (y & 3) == 0;

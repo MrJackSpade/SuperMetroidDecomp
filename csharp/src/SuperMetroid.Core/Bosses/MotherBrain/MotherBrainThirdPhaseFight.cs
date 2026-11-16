@@ -224,7 +224,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // legitimately reject it at the arena's hard left limit.
         _state.Body.Form = MotherBrainForm.ThirdPhase;
         _state.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting;
-        _state.PhaseTimer = 32;
+        _state.PhaseTimer.Count = 32;
         requests.BodyWalkRequested = _state.RequestWalkBackward(
             CoordinateAxis.Wrap(_state.Body.Position.X - 14),
             animationDelay: 2).Requested;
@@ -239,7 +239,7 @@ internal sealed class MotherBrainThirdPhaseFight
     {
         // The timer of 32 remains valid through zero and expires only when it wraps negative,
         // yielding 33 setup calls after the one-frame recovery producer above.
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
         {
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
@@ -287,7 +287,7 @@ internal sealed class MotherBrainThirdPhaseFight
         }
 
         _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown;
-        _state.PhaseTimer = 64;
+        _state.PhaseTimer.Count = 64;
         return false;
     }
 
@@ -297,9 +297,9 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseFightingAttackCooldown()
     {
-        // The attack cooldown accepts timer zero and returns to main only after the timer passes zero. It
+        // The attack cooldown returns to main only as its timer runs out. It
         // does not fall through, so the neck and walking steps pause for all 65 calls.
-        if (--_state.PhaseTimer < 0)
+        if (_state.PhaseTimer.StepRunsOut())
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
         return false;
     }

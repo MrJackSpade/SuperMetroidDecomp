@@ -812,13 +812,11 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2KraidLintInitialization(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var state = new KraidEnemyState();
-        // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemyPlace, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
-        Action<RoomEnemyPlace, KraidPartState> align = enemies.KraidBehavior.Projectiles.AlignKraidPart;
+        Action<RoomEnemyPlace, KraidLintState> align = enemies.KraidBehavior.Projectiles.AlignKraidLint;
         var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
@@ -833,12 +831,13 @@ internal static class LookupStream2Verification
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
             AssertEqual(expected, lintState.PhaseTimer, "Actual post-growth timer write");
             AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
-            AssertEqual(KraidPhase.LintProduce, lintState.PhaseToResume, "Actual lint continuation");
+            // The lint's alignment names its own continuation, its production (#2208).
+            AssertEqual(KraidLintPhase.AlignToKraidBeforeProducing, lintState.Phase, "Actual lint alignment before production");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, lintState);
                 AssertEqual(remaining, lintState.PhaseTimer, "Actual per-part countdown");
-                AssertEqual((remaining == 0 ? KraidPhase.LintProduce : KraidPhase.AlignPartToKraid),
+                AssertEqual((remaining == 0 ? KraidLintPhase.Produce : KraidLintPhase.AlignToKraidBeforeProducing),
                     lintState.Phase, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }

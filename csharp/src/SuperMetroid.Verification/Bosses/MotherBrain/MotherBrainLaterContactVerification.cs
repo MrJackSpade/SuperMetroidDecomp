@@ -28,13 +28,13 @@ internal static class MotherBrainLaterContactVerification
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
-        enemies.MotherBrainEncounter.MotherBrain = state;
-        Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state);
+        Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = (body, samus, bombs) => enemies.MotherBrainBehavior.RunMotherBrainBodyMain(body, state, samus, bombs);
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
             state.Phase = MotherBrainBodyPhase.FakeDeathAscentContinuePausing;
-            state.PhaseTimer = contact == "post-dispatch position" ? 0 : 100;
+            state.PhaseTimer.Count = contact == "post-dispatch position" ? 0 : 100;
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
             samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;

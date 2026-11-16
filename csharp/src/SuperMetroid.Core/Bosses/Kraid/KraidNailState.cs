@@ -1,11 +1,21 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// One of Kraid's fingernails' own state beside the phase every part runs: its velocity and which spawn its last
-/// launch took, which its sibling reads.
+/// One of Kraid's fingernails' own state beside what every part holds: the phase it runs, its velocity and which spawn
+/// its last launch took, which its sibling reads.
 /// </summary>
 public sealed class KraidNailState : KraidPartState
 {
+    /// <summary>Makes a fingernail of <paramref name="kraid"/>'s encounter.</summary>
+    /// <param name="kraid">The encounter the fingernail is part of.</param>
+    internal KraidNailState(KraidEnemyState kraid)
+        : base(kraid)
+    {
+    }
+
+    /// <summary>The phase the fingernail runs; its setup has it wait before its first launch.</summary>
+    public KraidNailPhase Phase { get; internal set; }
+
     /// <summary>
     /// Gets whether this fingernail's last launch was the fixed-left spawn rather than the body-side one. A nail
     /// launches body-side whenever its sibling's last launch was fixed-left.

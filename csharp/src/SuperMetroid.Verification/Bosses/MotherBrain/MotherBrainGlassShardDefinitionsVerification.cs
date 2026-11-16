@@ -35,7 +35,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 enemies.VerificationServices().NextRandom = () => random.Dequeue();
                 // The glass breaks while her encounter is loaded; its shards draw in the colours it laid (#1512).
                 var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
-                enemies.MotherBrainEncounter.MotherBrain = motherBrain;
+                enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
                     RoomEnemyProjectileKind.MotherBrainGlassShard,
                     direction,

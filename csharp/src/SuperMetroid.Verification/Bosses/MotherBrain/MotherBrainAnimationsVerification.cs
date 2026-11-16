@@ -67,7 +67,7 @@ internal static class MotherBrainAnimationsVerification
         RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
         headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.Definition);
         var state = new MotherBrainEnemyState(bodyPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = headPlace };
-        enemies.MotherBrainEncounter.MotherBrain = state;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         return new NewMotherBrainResult(enemies, state);
     }
 
@@ -145,7 +145,7 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, program);
             for (int update = 0; update < 256; update++)
             {
-                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainPlaceAnimation(state.Body, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+                enemies.MotherBrainBehavior.Body.AdvanceMotherBrainPlaceAnimation(state.Body, state, RoomEnemyFrameFixtures.StandaloneSamus());
                 // Every move carries her body with her (#1949, #2031): her posture changes no longer move it across.
                 AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, state.BodyPlacedAt,
                     $"{program}: her body stays placed at her");
@@ -234,6 +234,8 @@ internal static class MotherBrainAnimationsVerification
         state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
         EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles[^1];
         FamilyProjectileStarts.Initialize(enemies, beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
+        // The charging beam holds the encounter that spawned it, as its spawn gives it (#2218).
+        beam.State = new MotherBrainProjectileState(state);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
         var native = new NativeEnemyProjectileListReader(HandBeamProgram, beam.FrameHold.RawValue);
         int spawns = 0;

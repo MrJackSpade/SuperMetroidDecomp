@@ -14,6 +14,8 @@ internal sealed record MotherBrainBehaviorDependencies
 
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
+    /// <summary>The room's enemy places, in which her head finds her body listed right before it (#2218).</summary>
+    public required EnemyPlaces Places { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

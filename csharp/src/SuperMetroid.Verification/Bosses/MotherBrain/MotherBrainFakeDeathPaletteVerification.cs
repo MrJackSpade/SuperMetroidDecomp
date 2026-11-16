@@ -32,7 +32,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                     ? MotherBrainBodyPhase.FakeDeathDescentFadeToGray
                     : MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray,
                 TubeCollapseStep = MotherBrainTubeCollapseStep.Finished,
-                FakeDeathExplosionTimer = 100,
+                FakeDeathExplosionTimer = { Count = 100 },
             };
             Action<MotherBrainEnemyState> step = toGrey
                 ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
@@ -47,18 +47,18 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     MotherBrainRainbowPaletteGeometry.FakeDeathColors,
                     MotherBrainColorDestinations.BrainColor);
-                state.PhaseTimer = 0;
+                state.PhaseTimer.Count = 0;
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
                 AssertEqual((ushort)(frame + 1), toGrey ? state.GreyFadeStep : state.GrayTransitionCounter,
                     "native grey fade cursor increments once per selected frame");
-                AssertEqual(toGrey ? 8 : 4, state.PhaseTimer,
+                AssertEqual(toGrey ? 8 : 4, state.PhaseTimer.Count,
                     "installed color frame preserves native function timer");
             }
 
             // The ninth selection is the native zero-terminator, not an editable color.
-            state.PhaseTimer = 0;
+            state.PhaseTimer.Count = 0;
             step(state);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(Shown(state, installed))),
                 "fake-death grey terminator leaves every CGRAM word unchanged");

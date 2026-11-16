@@ -10,6 +10,8 @@ internal sealed record MotherBrainHeadDependencies
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
+    /// <summary>The room's enemy places, in which the head finds her body listed right before it (#2218).</summary>
+    public required EnemyPlaces Places { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }

@@ -34,7 +34,7 @@ internal static class MotherBrainDeathExplosionStartVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
-        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
+        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, runtime.BombProjectiles);
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence
             ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence.");
 
@@ -47,7 +47,7 @@ internal static class MotherBrainDeathExplosionStartVerification
 
         // The door's dust continues the place and the interval the last death burst left.
         sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer;
-        sequence.State.PhaseTimer = 32;
+        sequence.State.PhaseTimer.Count = 32;
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);
         var frame = new RainbowBeamAttackFrame

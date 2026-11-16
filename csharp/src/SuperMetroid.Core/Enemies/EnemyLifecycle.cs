@@ -85,11 +85,22 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RunInitializationAi(place, surroundings);
 
     /// <inheritdoc/>
-    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemy(RoomEnemyPlacement population)
+    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemy(RoomEnemyPlacement population) => Spawn(population, static _ => { });
+
+    /// <inheritdoc/>
+    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
+        Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
+
+    /// <summary>
+    /// Installs <paramref name="population"/> in the first free place, gives it what <paramref name="joining"/> installs (nothing for a plain spawn),
+    /// runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
+    /// </summary>
+    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, Action<RoomEnemyPlace> joining)
     {
         if (_places.FindFreePlace() is not { } place)
             return null;
         InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
+        joining(place);
         RunInitializationAi(place, EnemySpawnSurroundings.None);
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)

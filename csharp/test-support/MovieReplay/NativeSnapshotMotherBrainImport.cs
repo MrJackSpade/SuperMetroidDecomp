@@ -39,7 +39,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.Phase = MotherBrainNativeWords.MotherBrainBodyPhases.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyPhase");
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
-        state.PhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
+        state.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
         state.RoomFlashFrame = flash == 0 ? null
             : MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame;
@@ -48,9 +48,9 @@ internal static class NativeSnapshotMotherBrainImport
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
         if (MotherBrainNativeListAddresses.NativeTubeCollapseSteps.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseStep collapse))
             state.TubeCollapseStep = collapse;
-        state.TubeCollapseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        state.TubeCollapseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
+        state.FakeDeathExplosionTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
         // copied her brain's colours there, in the corpse's (#1512).
@@ -217,7 +217,7 @@ internal static class NativeSnapshotMotherBrainImport
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
         sequence.State.Phase = phase;
-        sequence.State.PhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
+        sequence.State.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));

@@ -379,8 +379,8 @@ internal static class NativeSnapshotImport
                 draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
-            if (enemy.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
-                kraid.HeadPlayback = kraidHeadCursors.TryPlaybackAt(words.B);
+            if (enemy.SpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>() is SuperMetroid.Core.Bosses.Kraid.KraidBodyState kraidBody)
+                kraidBody.Kraid.HeadPlayback = kraidHeadCursors.TryPlaybackAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (enemy.PipeBugPlayback is not null)
                 enemy.PipeBugPlayback = pipeBugPointers.PlaybackAt(W(address + MovieDesyncMemory.EnemyAnimationScriptOffset));

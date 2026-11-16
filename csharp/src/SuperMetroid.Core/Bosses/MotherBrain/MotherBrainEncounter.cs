@@ -18,8 +18,15 @@ internal sealed class MotherBrainEncounter
     /// <summary>Binds the encounter's requests to the enemy audio queue.</summary>
     internal MotherBrainEncounter(EnemyAudioQueue audio) => _audio = audio;
 
-    /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
-    public MotherBrainEnemyState? MotherBrain { get; internal set; }
+    /// <summary>
+    /// The room's Mother Brain as the room's display and colours see it (#2177, #2218): begun as her body sets up and kept
+    /// for the room. No part reads it; each of her parts, the tubes and the Baby hold the encounter they joined.
+    /// </summary>
+    public MotherBrainEnemyState? MotherBrain { get; private set; }
+
+    /// <summary>Begins <paramref name="motherBrain"/>'s encounter as her body sets up, which the room's display sees from here.</summary>
+    /// <returns>The encounter begun.</returns>
+    internal MotherBrainEnemyState Begin(MotherBrainEnemyState motherBrain) => MotherBrain = Ensure.NotNull(motherBrain);
 
     /// <summary>
     /// The warning Zebes's escape shows over Mother Brain's room background (#1555): the glyphs her death's typewriter has
@@ -36,11 +43,6 @@ internal sealed class MotherBrainEncounter
     /// (#1539); none while she is not loaded or her rainbow beam sequence has not begun.
     /// </summary>
     internal CorpseRotRows? ShownCorpseRows => MotherBrain?.RainbowBeamSequence?.ThirdPhaseDeath.CorpseRotting.Shown;
-
-    /// <summary>The colours the loaded encounter has laid (#1512).</summary>
-    /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
-    internal MotherBrainColours Colours => (MotherBrain ?? throw new InvalidOperationException(
-        "Mother Brain's colours are laid while her encounter is loaded.")).Colours;
 
     /// <summary>
     /// Queues a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the cutscene,

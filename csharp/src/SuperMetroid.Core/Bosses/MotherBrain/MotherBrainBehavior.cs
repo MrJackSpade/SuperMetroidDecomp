@@ -78,14 +78,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = dependencies.Presentation.Surfaces;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
-        Access = new MotherBrainEncounterAccess(_frameResults, _motherBrainEncounter);
-        Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access  });
+        Access = new MotherBrainEncounterAccess(_frameResults);
+        Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access  });
         Body = new MotherBrainBody(new MotherBrainBodyDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , Presentation = _presentation });
         FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { FrameResults = _frameResults, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter);
         RainbowAndDeath = new MotherBrainRainbowAndDeath(new MotherBrainRainbowAndDeathDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
         Attacks = new MotherBrainAttacks(_room, RainbowAndDeath);
-        Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision, _motherBrainEncounter);
+        Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision);
     }
 
 
@@ -93,11 +93,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemyPlace body,
+        MotherBrainEnemyState state,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        MotherBrainEnemyState state = Access.RequireCompleteMotherBrainState(body);
-
+        _ = Ensure.NotNull(body);
         // The body main advances the independent room-colour animation before it
         // runs the body phase. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
@@ -238,23 +238,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Advances MotherBrainBody's typed animation.</summary>
-    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
-    {
-        Body.AdvanceMotherBrainPlaceAnimation(place, context.Samus);
-    }
-
-    /// <summary>Runs MotherBrainBody's main AI.</summary>
-    internal void RunMotherBrainBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        RunMotherBrainBodyMain(place, frame.Samus, frame.SharedProjectiles);
-    }
-
-    /// <summary>Runs MotherBrainHead's main AI.</summary>
-    internal void RunMotherBrainHeadMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Head.RunMotherBrainHeadMain(place, frame.Samus);
-    }
     /// <summary>Sequence of explosion positions used by the fake-death collapse.</summary>
     internal static readonly Position16<RoomPixels>[] MotherBrainFakeDeathExplosionPositions =
     [
@@ -279,7 +262,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The fake-death start installs the following countdown and falls through to it. The
                 // first observable value is therefore 63, not the installed value 64.
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
-                state.PhaseTimer = 64;
+                state.PhaseTimer.Count = 64;
                 RunMotherBrainPauseBeforeLock(state, samus);
                 return;
 
@@ -288,27 +271,27 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic:
-                if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+                if (!state.PhaseTimer.StepRunsOut())
                     return;
                 _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
                 _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
-                state.PhaseTimer = 12;
+                state.PhaseTimer.Count = 12;
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
-                if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+                if (!state.PhaseTimer.StepRunsOut())
                     return;
                 // Restoring Samus's control reinstalls the normal input and movement modes.
                 samus.Control.Unlock();
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash;
-                state.PhaseTimer = 8;
+                state.PhaseTimer.Count = 8;
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash:
-                if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+                if (!state.PhaseTimer.StepRunsOut())
                     return;
 
                 // The fake-death flash starts the looping room flash, drains the room's acid,
@@ -317,9 +300,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots;
-                state.TubeCollapseTimer = 0;
+                state.TubeCollapseTimer.Count = 0;
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
-                state.PhaseTimer = 0;
+                state.PhaseTimer.Count = 0;
                 state.GreyFadeStep = 0;
                 Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
@@ -480,7 +463,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Waits through the fake-death pause before control is locked for the next phase.</summary>
     private void RunMotherBrainPauseBeforeLock(MotherBrainEnemyState state, SamusState samus)
     {
-        if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
+        if (!state.PhaseTimer.StepRunsOut())
             return;
 
         // The arena lock keeps the first screen of the room's row of four and closes the second,
@@ -492,7 +475,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic;
-        state.PhaseTimer = 32;
+        state.PhaseTimer.Count = 32;
         RunMotherBrainFakeDeath(state, samus);
     }
 
@@ -592,7 +575,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 MotherBrainAttacks.PositionMotherBrainHeadSlowlyAndFireLaser(state);
                 return;
             case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
-                Attacks.FinishMotherBrainLaserAttack(state, samus);
+                Attacks.FinishMotherBrainLaserAttack(state, samus, sharedProjectiles);
                 return;
             case MotherBrainBodyPhase.SecondPhaseHandBeam:
                 MotherBrainAttacks.RunMotherBrainHandBeamAttack(state);

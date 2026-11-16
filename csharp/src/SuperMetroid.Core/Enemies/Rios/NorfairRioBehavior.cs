@@ -222,7 +222,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         NorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
+        state.Velocity = state.Velocity.WithY(RioLaunchDefinitions.ReturnYVelocity);
         StartNorfairRioAnimation(
             place,
             state,

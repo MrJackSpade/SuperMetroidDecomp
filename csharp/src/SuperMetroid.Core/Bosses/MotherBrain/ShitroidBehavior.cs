@@ -49,15 +49,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = places;
     }
 
-    /// <summary>The speed a spin-jumping Samus adds to the Shitroid's velocity along the negated bearing to her: a quarter pixel an update.</summary>
-    private static readonly SignedEightEight ContactPushSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
-
-    /// <summary>The acceleration of the Shitroid's approach to a latch, on each axis.</summary>
-    private static readonly SignedEightEight LatchAcceleration = SignedEightEight.FromPixels(2);
-
-    /// <summary>The fastest the Shitroid approaches a latch, on each axis, in either direction.</summary>
-    private static readonly SignedEightEight LatchMaximumSpeed = SignedEightEight.FromPixels(5);
-
     /// <summary>Queues one of the Baby Metroid's cries as it cries, after the update's earlier requests.</summary>
     private void RequestShitroidSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
@@ -101,12 +92,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Shading = state.Shading;
     }
 
-    /// <summary>
-    /// The health the Shitroid's main AI restores every update, kept exact (#1627): a hit later in the update takes its
-    /// damage from this count, and what remains is the health the rest of that update reads.
-    /// </summary>
-    private const int RestoredHealth = 32767;
-
     /// <summary>Runs the Shitroid's main AI for one update.</summary>
     /// <param name="place">The Shitroid's place.</param>
     /// <param name="samus">Samus, when the update has one.</param>
@@ -125,7 +110,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Shitroid's own shot response applies recoil but no health loss. The main AI
         // redundantly restores its health every processed frame, exactly as the game does.
-        place.Health = RestoredHealth;
+        place.Health = BossHealthDefinitions.RefilledFullHealth;
         RunShitroidState(place, state, samus, camera, sharedProjectiles);
         place.Position = place.Position.MovedBy(state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
@@ -397,7 +382,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace victim = RequireShitroidVictim(place);
         Position16<RoomPixels> latch = victim.Position.Whole + new Offset16<RoomPixels>(0, -32);
-        if (!AccelerateShitroidExactly(place, state, LatchAcceleration, latch))
+        if (!AccelerateShitroidExactly(place, state, ShitroidFlightDefinitions.LatchAcceleration, latch))
             return;
 
         state.Velocity = default;
@@ -615,8 +600,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every approach clamps the speed to five pixels an update and a hit's recoil adds less than one, so the step
         // stays far inside the velocity's range.
         SignedEightEight speed = delta >= 0
-            ? SignedEightEight.Max(-LatchMaximumSpeed, velocity - acceleration)
-            : SignedEightEight.Min(LatchMaximumSpeed, velocity + acceleration);
+            ? SignedEightEight.Max(-ShitroidFlightDefinitions.LatchMaximumSpeed, velocity - acceleration)
+            : SignedEightEight.Min(ShitroidFlightDefinitions.LatchMaximumSpeed, velocity + acceleration);
         int predicted = CoordinateAxis.Difference(current + speed.WholePixels, target);
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
         return new ShitroidAxisStep(crossed, crossed ? default : speed);
@@ -655,9 +640,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
             state.Velocity += new EightEightVector<RoomPixels>(
-                EnemyMath.SineSpeed(ContactPushSpeed, angle.ToTrigonometryAngle()),
+                EnemyMath.SineSpeed(ShitroidFlightDefinitions.ContactPushSpeed, angle.ToTrigonometryAngle()),
                 EnemyMath.SineSpeed(
-                    ContactPushSpeed,
+                    ShitroidFlightDefinitions.ContactPushSpeed,
                     (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
             return;
         }
@@ -667,7 +652,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (AccelerateShitroidExactly(
                 place,
                 state,
-                LatchAcceleration,
+                ShitroidFlightDefinitions.LatchAcceleration,
                 samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
             {
                 SetShitroidAnimation(place, ShitroidSegment.LatchedOn);

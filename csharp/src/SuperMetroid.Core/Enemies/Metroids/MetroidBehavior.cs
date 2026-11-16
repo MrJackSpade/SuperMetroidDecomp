@@ -366,10 +366,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int dropIndex = 0; dropIndex < MetroidBehaviorDefinitions.FrozenDeathDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
-            // Each axis adds a random 0 to 31 minus sixteen: -16..+15 pixels.
+            // Each drop lands up to sixteen pixels before and fifteen after the origin on each axis.
             var scatter = new Offset16<RoomPixels>(
-                EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
-                EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
+                EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring,
+                EnemyDropScatterDefinitions.VerticalScatter.Of(random) - EnemyDropScatterDefinitions.ScatterCentring);
             _deathsAndDrops.SpawnEnemyDropFromDefinition(origin + scatter, EnemyDefinitionId.Metroid);
         }
     }

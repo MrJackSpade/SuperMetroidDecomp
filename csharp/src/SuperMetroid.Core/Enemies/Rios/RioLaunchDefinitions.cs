@@ -57,4 +57,10 @@ public static class RioLaunchDefinitions
 
     /// <summary>How much a Lower Norfair Rio's vertical speed falls each update of its flight, an eighth of a pixel.</summary>
     internal static SignedEightEight LowerNorfairGravity { get; } = SignedEightEight.FromParts(0, 32);
+
+    /// <summary>
+    /// The vertical speed every Rio family starts back up to its perch at, a 256th of a pixel an update upward: a Rio as it
+    /// stops homing on Samus, a Norfair or Lower Norfair Rio as its dive ends.
+    /// </summary>
+    internal static SignedEightEight ReturnYVelocity { get; } = -SignedEightEight.FromParts(0, 1);
 }

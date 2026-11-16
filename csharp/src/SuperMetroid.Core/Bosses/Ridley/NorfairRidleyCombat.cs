@@ -279,7 +279,7 @@ internal sealed class NorfairRidleyCombat
             RidleyClawOverlapsSamus(place, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
             // Every acceleration clamps Ridley's speed to a few pixels an update, so it always has a magnitude.
-            state.Velocity = state.Velocity.WithY(-SignedEightEight.Max(GrabLiftMinimumSpeed, state.Velocity.Y.Magnitude()));
+            state.Velocity = state.Velocity.WithY(-SignedEightEight.Max(NorfairRidleyMotionDefinitions.GrabLiftMinimumSpeed, state.Velocity.Y.Magnitude()));
             state.TailAction = RidleyTailAction.Neutral;
             state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(place, state, samus);
@@ -287,7 +287,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         // The fall is clamped to six pixels an update, so adding the acceleration stays far inside the speed's range.
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Min(state.Velocity.Y + state.PogoDownwardAcceleration, PogoMaximumFallSpeed));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Min(state.Velocity.Y + state.PogoDownwardAcceleration, NorfairRidleyMotionDefinitions.PogoMaximumFallSpeed));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state, level))
             return;
@@ -602,20 +602,11 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyMovement.MoveNorfairRidleyToward(place, state, target, ReadRidleyHealthMovementDivisor(state));
     }
 
-    /// <summary>The sideways speed a pogo bounce starts from when Ridley has none: three quarters of a pixel an update.</summary>
-    private static readonly SignedEightEight PogoRestartSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
-
-    /// <summary>The least upward speed Ridley lifts a grabbed Samus with.</summary>
-    private static readonly SignedEightEight GrabLiftMinimumSpeed = SignedEightEight.FromPixels(2);
-
-    /// <summary>The fastest Ridley falls on a pogo bounce: six pixels an update.</summary>
-    private static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromPixels(6);
-
     /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
     internal void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, RidleyEnemyState state, SamusState samus)
     {
         if (state.Velocity.X.IsZero)
-            state.Velocity = state.Velocity.WithX(RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) < 128 ? PogoRestartSpeed : -PogoRestartSpeed);
+            state.Velocity = state.Velocity.WithX(RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) < 128 ? NorfairRidleyMotionDefinitions.PogoRestartSpeed : -NorfairRidleyMotionDefinitions.PogoRestartSpeed);
         bool negative = state.Velocity.X.IsNegative;
         bool reverse;
         if (CoordinateAxis.Difference(place.Position.X.Whole, state.MovementMinimum.X) < 0) reverse = negative;

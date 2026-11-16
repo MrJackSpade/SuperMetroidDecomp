@@ -221,7 +221,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemyPlace place,
         LowerNorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
+        state.Velocity = state.Velocity.WithY(RioLaunchDefinitions.ReturnYVelocity);
         StartLowerNorfairRioAnimation(
             place,
             state,

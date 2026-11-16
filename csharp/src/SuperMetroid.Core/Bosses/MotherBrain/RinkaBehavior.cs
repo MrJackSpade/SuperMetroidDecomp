@@ -37,12 +37,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Countdown before a newly fired Rinka aims at Samus.</summary>
-    private const int RinkaInitialDelay = 26;
-    /// <summary>Health restored to a special Rinka after its death delay.</summary>
-    private const int RinkaHealth = 10;
-    /// <summary>Flight speed in 1/256 pixels per update (1 + 32/256 pixels), resolved along its aim angle into flight velocity.</summary>
-    private static readonly SignedEightEight RinkaSpeed = SignedEightEight.FromParts(1, 32);
     /// <summary>
     /// The spawn points Mother Brain's three special Rinkas compete for; a Rinka whose own point is off screen or held
     /// moves to another and rewrites its spawn snapshot.
@@ -125,7 +119,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeRinkaLife(RoomEnemyPlace place, RinkaEnemyState state)
     {
         state.Action = RinkaAction.WatchForLeavingViewport;
-        state.DelayTimer = RinkaInitialDelay;
+        state.DelayTimer = RinkaLifeDefinitions.AimDelay;
         state.Velocity = default;
 
         if (IsSpecialRinka(place))
@@ -203,9 +197,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
-                    EnemyMath.SineSpeed(RinkaSpeed, velocityAngle),
+                    EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
                     EnemyMath.SineSpeed(
-                        RinkaSpeed,
+                        RinkaLifeDefinitions.Speed,
                         velocityAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
                 return;
 
@@ -218,7 +212,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             case RinkaAction.DeathRespawnDelay:
                 if (--state.DelayTimer >= 0)
                     return;
-                place.Health = RinkaHealth;
+                place.Health = RinkaLifeDefinitions.RespawnHealth;
                 ReinitializeRinka(place, state);
                 return;
 

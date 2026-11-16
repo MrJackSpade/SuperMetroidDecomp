@@ -59,4 +59,7 @@ internal static class BotwoonNavigationDefinitions
     /// second-to-last step, so it never takes the last one, as the game's backward walks do.
     /// </summary>
     internal const int BackwardStartStepsBeforeEnd = 2;
+
+    /// <summary>The farthest a hole's distance on either axis is measured for its bearing, in pixels.</summary>
+    internal const int HoleBearingReach = 255;
 }

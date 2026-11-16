@@ -23,9 +23,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue) =>
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
-    /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
-    private const int OwtchMaximumBurialDepth = OwtchEnemyState.OwtchMaximumBurialDepth;
-
     /// <summary>Initializes the Owtch.</summary>
     internal static void InitializeOwtch(RoomEnemyPlace place)
     {
@@ -46,8 +43,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         // sixteen-pixel depth sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
-            state.BurialDepth = OwtchMaximumBurialDepth;
-            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMaximumBurialDepth);
+            state.BurialDepth = OwtchMovementDefinitions.MaximumBurialDepth;
+            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
         }
     }
 
@@ -76,7 +73,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Sinking starts from zero, so the depth stays within one through sixteen and the game's signed
                 // comparison is an ordinary one.
                 state.BurialDepth++;
-                if (state.BurialDepth >= OwtchMaximumBurialDepth)
+                if (state.BurialDepth >= OwtchMovementDefinitions.MaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = place.SpawnSettings<OwtchSpawnSettings>().UndergroundWait;

@@ -78,14 +78,11 @@ internal sealed class MotherBrainProjectiles
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
     }
 
-    /// <summary>Carries out a turret cue, a turret's or its bullet's: the shared sheet, stopping, or deletion.</summary>
+    /// <summary>Carries out a turret cue, a turret's or its bullet's: stopping, or deletion.</summary>
     private static void RunTurretCue(EnemyProjectile projectile, MotherBrainTurretCue cue)
     {
         switch (cue)
         {
-            case MotherBrainTurretCue.DrawFromSharedSheet:
-                projectile.Graphics = SpriteGraphics.SharedStandard;
-                return;
             case MotherBrainTurretCue.StopMoving:
                 projectile.HoldStill();
                 return;
@@ -191,7 +188,7 @@ internal sealed class MotherBrainProjectiles
             }
         }
 
-        /// <summary>Carries out a turret cue: the shared sheet, stopping, or deletion.</summary>
+        /// <summary>Carries out a turret cue: stopping, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
 
         /// <summary>Carries out a glass cue: deletion.</summary>
@@ -234,9 +231,6 @@ internal sealed class MotherBrainProjectiles
             {
                 case MotherBrainEffectCue.SetRadius setRadius:
                     projectile.Radius = setRadius.Radius;
-                    break;
-                case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DrawFromSharedSheet }:
-                    projectile.Graphics = SpriteGraphics.SharedStandard;
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
                     // After its release starts its fall, the released drool drops twelve pixels before its first

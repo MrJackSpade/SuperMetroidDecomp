@@ -194,7 +194,7 @@ internal static class MotherBrainEffectBehaviorVerification
             for (int frame = 0; frame < 30; frame++)
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, ring.Graphics, "onion-ring impact clears its graphics to the common colours");
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, ring.ShownGraphics, "onion-ring impact draws its fire from the room's sheet in its standard colours");
             AssertEqual<Enum?>(null, ring.Motion, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");

@@ -105,7 +105,7 @@ internal static class EnemyProjectileMotionWords
         [0x9115] = CrocomireProjectileMotion.SpikeWallCollapsing,
         [0x9d56] = KraidRockMotion.Flying,
         [0x9d89] = KraidRockMotion.CeilingRockFalling,
-        [0x9da5] = KraidRockMotion.ShotRockRecolouring,
+        [0x9da5] = null,
         [0x9b29] = PhantoonFlameMotion.IntroWaiting,
         [0x9b41] = PhantoonFlameMotion.IntroOrbiting,
         [0x9981] = PhantoonFlameMotion.CasualFalling,

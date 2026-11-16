@@ -41,7 +41,6 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Shot] =
         [
-            Cue(new(K.DrawFromSharedSheet)),
             Show(EnemyProjectileFrameId.KagoBugSpark, 4),
             Show(EnemyProjectileFrameId.KagoBugFlareBall, 4),
             Show(EnemyProjectileFrameId.KagoBugFlareRingCored, 4),
@@ -62,7 +61,7 @@ internal static class KagoBugProjectileAnimations
         [P.Landed] = new([new(P.Landed, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Falling] = new([new(P.Falling, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.JumpStart] = new([new(P.JumpStart, 0, 4, 1)], AnimationEnd.Holds),
-        [P.Shot] = new([new(P.Shot, 0, 8, 1)], AnimationEnd.Holds),
+        [P.Shot] = new([new(P.Shot, 0, 7, 1)], AnimationEnd.Holds),
         [P.Waiting] = new([new(P.Waiting, 0, 1, 1)], AnimationEnd.Holds),
     };
 

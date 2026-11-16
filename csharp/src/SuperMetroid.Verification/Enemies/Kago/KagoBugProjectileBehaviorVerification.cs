@@ -67,6 +67,42 @@ internal static class KagoBugProjectileBehaviorVerification
         static HashSet<string> Pictures(SpawnedObjectSheet sheet) => [.. sheet.frames.Keys, .. sheet.empty];
     }
 
+    /// <summary>
+    /// #2260: a shot bug's burst frames are room pictures, drawn from the room's shared sheet in their standard colours,
+    /// while the bug keeps the Kago's graphics it was spawned with: no cue switches its graphics. The burst's pictures are on
+    /// the shared sheet of a set drawing the Kago and on no sheet of the Kago's own spawned objects.
+    /// </summary>
+    internal static void VerifyKagoBugBurstPictures()
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        enemies.VerificationServices().ReadRandom = () => 1;
+        AssertTrue(enemies.KagoBehavior.SpawnKagoBug(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())), "the real Kago producer allocates its bug");
+        EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KagoBug);
+        SpriteGraphics spawned = bug.Graphics;
+        bug.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));
+        EnemyProjectileFrameId[] burst = [.. KagoBugProjectileAnimations.Segments.Beats(KagoBugProjectileSegment.Shot).Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>()];
+        AssertEqual(5, burst.Length, "the shot bug's burst shows five frames");
+        var shown = new HashSet<EnemyProjectileFrameId>();
+        for (int update = 0; update < 20 && bug.IsActive; update++)
+        {
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(bug, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            if (!bug.IsActive || bug.Frame is not { } frame)
+                break;
+            shown.Add(frame);
+            AssertEqual(spawned, bug.Graphics, $"burst update {update}: the bug keeps the graphics its Kago spawned it with");
+            AssertEqual(SpriteGraphics.SharedStandard, bug.ShownGraphics, $"burst update {update}: {frame} draws from the room's sheet in its standard colours");
+        }
+        AssertTrue(shown.SetEquals(burst), "the burst shows each of its frames");
+        SpawnedObjectSheet shared = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Kago), SpawnedObjectOwner.Shared);
+        SpawnedObjectSheet kago = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Kago), SpawnedObjectOwner.Of(EnemyDefinitionId.Kago));
+        foreach (string picture in burst.Select(EnemySheetDefinitions.ProjectileFrameName))
+        {
+            AssertTrue(shared.frames.ContainsKey(picture), $"{picture} is on the shared sheet of a set drawing the Kago");
+            AssertTrue(!kago.frames.ContainsKey(picture) && !kago.empty.Contains(picture), $"{picture} is on no sheet of the Kago's own spawned objects");
+        }
+        Console.WriteLine("  Kago bug burst pictures: room pictures from the shared sheet, the bug's own graphics untouched.");
+    }
+
     /// <summary>Runs the bugs' program oracle and behavior suite.</summary>
     [VerificationCommand("--kago-bug-programs")]
     internal static int KagoBugProjectileProgramsCommand()
@@ -75,6 +111,7 @@ internal static class KagoBugProjectileBehaviorVerification
         Suite(nameof(KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations), () => KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations(rom));
         Suite(nameof(VerifyKagoBugProjectileBehavior), () => VerifyKagoBugProjectileBehavior(rom));
         Suite(nameof(VerifyKagoBugWaitingPicture), VerifyKagoBugWaitingPicture);
+        Suite(nameof(VerifyKagoBugBurstPictures), VerifyKagoBugBurstPictures);
         return 0;
     }
 }

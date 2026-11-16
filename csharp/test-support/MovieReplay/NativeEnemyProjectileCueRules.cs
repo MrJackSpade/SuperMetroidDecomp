@@ -22,7 +22,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </param>
 /// <param name="Omitted">
 /// Whether a family command has no event in the typed animations because it has no effect (#1870): an operand-less
-/// routine that returned at once. The oracle reads past it without a beat; null when the family omits none.
+/// routine that returned at once, or a switch to the room's graphics before frames that are room pictures, which carry their
+/// sheet and colours themselves (#2260). The oracle reads past it without a beat; null when the family omits none.
 /// </param>
 internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<ushort, int?> OperandBytes,

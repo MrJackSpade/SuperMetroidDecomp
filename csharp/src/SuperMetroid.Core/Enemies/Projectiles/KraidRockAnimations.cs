@@ -8,8 +8,7 @@ internal static class KraidRockAnimations
 {
     /// <summary>
     /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627: the game
-    /// shows it for the longest duration a frame can have and then rests on it); the spat rock's burst takes the burst's frame
-    /// behaviour, shows five four-update frames of the rock breaking apart, then deletes itself.
+    /// shows it for the longest duration a frame can have and then rests on it); the spat rock's burst stops its flight, shows five four-update frames of the rock breaking apart, then deletes itself.
     /// </summary>
     internal static AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments { get; } = new(
         new Dictionary<KraidRockSegment, Beat[]>
@@ -18,7 +17,7 @@ internal static class KraidRockAnimations
             [KraidRockSegment.RisingRightPose] = [new Beat.HeldFrame(EnemyProjectileFrameId.KraidRockSmall)],
             [KraidRockSegment.SpitRockShot] =
             [
-                new Beat.Event(KraidRockCue.DrawFromSharedSheetFromNextPass),
+                new Beat.Event(KraidRockCue.StopFlyingFromNextPass),
                 new Beat.Frame(EnemyProjectileFrameId.KraidRockSpark, 4),
                 new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareBall, 4),
                 new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRingCored, 4),

@@ -93,8 +93,8 @@ internal sealed class KraidProjectiles
     internal static EnemyProjectileBehavior SpitRock { get; } = new RockBehavior(() => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
 
     /// <summary>
-    /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, a shot spat
-    /// rock's switch to the shared colours, and the rock animations' cues.
+    /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, and the rock
+    /// animations' cues.
     /// </summary>
     private sealed class RockBehavior(Func<EnemyProjectileAnimation>? shot = null)
         : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions, shot), IEnemyProjectileCues<KraidRockCue>
@@ -119,22 +119,19 @@ internal sealed class KraidProjectiles
                 case KraidRockMotion.CeilingRockFalling:
                     DropKraidCeilingRock(context.Projectile, context.Level);
                     break;
-                case KraidRockMotion.ShotRockRecolouring:
-                    context.Projectile.Graphics = SpriteGraphics.SharedStandard;
-                    break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(KraidRockMotion)} {motion}.");
             }
         }
 
-        /// <summary>Carries out a rock animation's cue: drawing from the shared sheet from the next pass, or deletion.</summary>
+        /// <summary>Carries out a rock animation's cue: stopping its flight from the next pass, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, KraidRockCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
-                case KraidRockCue.DrawFromSharedSheetFromNextPass:
-                    projectile.StartMotion(KraidRockMotion.ShotRockRecolouring);
+                case KraidRockCue.StopFlyingFromNextPass:
+                    projectile.HoldStill();
                     return;
                 case KraidRockCue.Delete:
                     projectile.Delete();

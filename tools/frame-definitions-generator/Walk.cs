@@ -654,6 +654,10 @@ internal sealed class Walk
     /// <summary>Records an enum member <paramref name="unit"/>'s code names.</summary>
     private void Record(Unit unit, UnitScan scan, IFieldSymbol member, WalkContext context)
     {
+        // The room-picture catalog names frames the families' animations show, to say which sheet they draw from; it
+        // spawns nothing (#2260).
+        if (unit.Type.Name == ProjectileProgramFrames.RoomPictureCatalog)
+            return;
         INamedTypeSymbol type = member.ContainingType;
         if (SymbolEqualityComparer.Default.Equals(type, _model.EnemyFrameId))
         {

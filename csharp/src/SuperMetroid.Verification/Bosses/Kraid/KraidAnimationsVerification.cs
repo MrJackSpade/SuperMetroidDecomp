@@ -265,7 +265,7 @@ internal static class KraidAnimationsVerification
 
     /// <summary>
     /// The real rock producers start typed programs that match their native lists, and the spat rock's burst sets
-    /// its palette pre-instruction and deletes on the native updates.
+    /// its stopped flight, whose native palette pre-instruction moves nothing (#2260), and deletes on the native updates.
     /// </summary>
     internal static void VerifyKraidRockAnimations(CartridgeImportAddressSpace rom)
     {
@@ -298,7 +298,7 @@ internal static class KraidAnimationsVerification
             AssertEqual(program == KraidRockSegment.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }
 
-        Console.WriteLine("  Kraid rock programs: the poses and burst match bank $86 every update, with the palette pre-instruction and deletion.");
+        Console.WriteLine("  Kraid rock programs: the poses and burst match bank $86 every update, with the stopped flight and deletion.");
     }
 
     /// <summary>A Kraid body position and art for the real rock producers.</summary>

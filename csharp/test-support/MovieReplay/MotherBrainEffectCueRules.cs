@@ -21,7 +21,6 @@ internal static class MotherBrainEffectCueRules
         }),
         [NativeEnemyProjectileInstruction.XYRadiusInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetRadius>(2, (operands, cue, at) =>
             VerificationAssertions.AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii")),
-        [NativeEnemyProjectileInstruction.UsePalette0_Duplicate] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.DrawFromSharedSheet)),
         [NativeEnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.DropDrool)),
         [NativeEnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive] = NativeCueCommand<MotherBrainEffectCue>.Exactly(new MotherBrainEffectCue.Signal(MotherBrainEffectCueKind.EndSmallPurpleBreath)),
     };
@@ -29,5 +28,9 @@ internal static class MotherBrainEffectCueRules
     /// <summary>The oracle rules for Mother Brain's effect programs.</summary>
     internal static NativeEnemyProjectileCueRules<MotherBrainEffectCue> Rules { get; } = NativeCueCommand<MotherBrainEffectCue>.Rules(
         Commands, word => (NativeEnemyProjectileInstruction)word,
-        cue => cue is MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete });
+        cue => cue is MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }) with
+    {
+        // The onion ring's impact frames are room pictures that carry their sheet and colours (#2260): its palette switch has no event.
+        Omitted = word => (NativeEnemyProjectileInstruction)word == NativeEnemyProjectileInstruction.UsePalette0_Duplicate,
+    };
 }

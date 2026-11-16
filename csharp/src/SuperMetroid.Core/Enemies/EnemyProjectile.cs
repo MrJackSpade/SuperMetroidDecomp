@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -72,8 +73,16 @@ public sealed class EnemyProjectile
     /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
     internal EnemyProjectileBehavior? Behavior { get; set; }
-    /// <summary>Gets the sheet and shading the projectile draws with, as its spawner supplied them.</summary>
+    /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
+
+    /// <summary>
+    /// The sheet and shading the frame the projectile shows draws with (#2260): a room picture, such as the burst a destroyed
+    /// projectile shows, draws from the room's shared sheet in its standard colours; any other frame with
+    /// <see cref="Graphics"/>.
+    /// </summary>
+    public SpriteGraphics ShownGraphics => Frame is { } frame && EnemyProjectileRoomPictureDefinitions.RoomPictures.Contains(frame)
+        ? SpriteGraphics.SharedStandard : Graphics;
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Gets the contact damage from the projectile's definition, before Samus's suit reduction.</summary>

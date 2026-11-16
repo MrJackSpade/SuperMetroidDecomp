@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -979,7 +978,7 @@ internal sealed class RoomLoader
         SamusProjectileSystem.ShowBeamShade(_player.Colours, loadingSamus.EquippedBeams);
 
         // The destination's enemy projectile places start from what the outgoing room's left (RoomHandOver).
-        // Each enemy system gets its own compatibility services: the sweep, the Shaktool chain, the places and the effect-actor places start
+        // Each enemy system gets its own compatibility services: the sweep, the places and the effect-actor places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
         // colours above left. The fade step count, the boost cadence and the Yard kick's camera measure outlive the room
         // and are handed on.
@@ -992,7 +991,6 @@ internal sealed class RoomLoader
             EffectActorPlaces = new EffectActorPlaces(),
             FadeStepCount = _fadeStepCount,
             UnauthoredBoostCadence = _unauthoredBoostCadence,
-            KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>(),
             YardKickDistance = _yardKickDistance,
             FallingSparkFloorProbe = new FallingSparkFloorProbe(),
         };

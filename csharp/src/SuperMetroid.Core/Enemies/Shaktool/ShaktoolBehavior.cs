@@ -23,23 +23,16 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPlaces _places;
     /// <summary>The chain and neighbours each segment found when it was placed.</summary>
     private readonly EnemyPartLinks<ShaktoolChainPlaces> _chains = new();
-    /// <summary>The segment a hit last killed, whose remains the rest of its chain reads for the rest of that update.</summary>
-    private readonly KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState> _killedSegment;
     /// <summary>Runs common contact behavior for the segment hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>
-    /// Binds collision, projectile, and place owners for a room's Shaktool chain, and the room's record of the segment a
-    /// hit last killed.
-    /// </summary>
-    internal ShaktoolBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPlaces places, EnemyCollision collision,
-        KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState> killedSegment)
+    /// <summary>Binds collision, projectile, and place owners for a room's Shaktool chain.</summary>
+    internal ShaktoolBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPlaces places, EnemyCollision collision)
     {
         _terrain = terrain;
         _projectiles = projectiles;
         _places = places;
         _collision = collision;
-        _killedSegment = Ensure.NotNull(killedSegment);
     }
 
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy places.</summary>
@@ -322,7 +315,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Swaps two segment orbit angles after rotating each by half a turn.</summary>
-    private void SwapMirroredShaktoolAngles(RoomEnemyPlace left, RoomEnemyPlace right)
+    private static void SwapMirroredShaktoolAngles(RoomEnemyPlace left, RoomEnemyPlace right)
     {
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
         ShaktoolSegmentState rightState = RequireShaktoolState(right);
@@ -380,8 +373,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         IReadOnlyList<ShaktoolChainSegment> group = _chains.Of(anySegment).Chain;
         foreach (ShaktoolChainSegment segment in group)
         {
-            // Group helpers also run during the remainder of the lethal update, reaching the killed segment's remains.
-            if (segment.Place.SpeciesState<ShaktoolSegmentState>() is null && _killedSegment.RemainsAt(segment.Place) is null)
+            // Group helpers also run during the remainder of the lethal update, reaching the killed segment's cleared state.
+            if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
@@ -397,10 +390,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The state of the segment in <paramref name="place"/>: its own, or, for the segment a hit killed this update, the
-    /// emptied remains the rest of its chain reads in its place (<see cref="KilledShaktoolSegment{TPlace, TSegment}"/>).
+    /// emptied state the rest of its chain reads and writes among the states the kill cleared
+    /// (<see cref="RoomEnemyPlace.FoundOrClearedState{T}"/>, <see cref="RemovedEnemyLeftovers{TStates}"/>).
     /// </summary>
-    private ShaktoolSegmentState RequireShaktoolState(RoomEnemyPlace place) =>
-        place.SpeciesState<ShaktoolSegmentState>() ?? _killedSegment.RemainsAt(place) ?? throw new InvalidOperationException(
+    private static ShaktoolSegmentState RequireShaktoolState(RoomEnemyPlace place) =>
+        place.FoundOrClearedState<ShaktoolSegmentState>() ?? throw new InvalidOperationException(
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
@@ -453,7 +447,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (struckSegment.Health != 0)
             return;
-        _killedSegment.RecordKill(struckSegment);
         foreach (RoomEnemyPlace segment in ShaktoolDeathDeletesFirstListed.Deleted(_places.InUpdateOrder, ShaktoolSegmentCount))
         {
             segment.Contact = EnemyContact.None;

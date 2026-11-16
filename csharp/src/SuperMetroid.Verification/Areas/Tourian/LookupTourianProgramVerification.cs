@@ -10,6 +10,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.World;
 using Beat = SuperMetroid.Core.Animation.AnimationBeat<
     SuperMetroid.Core.Fx.Artwork.TourianStatueBlockPicture,
     SuperMetroid.Core.Areas.Tourian.TourianStatueBlockCue>;
@@ -117,17 +118,21 @@ internal static class LookupTourianProgramVerification
                 }
                 case AnimatedTileInstruction.GotoIfEventSet:
                     AssertEqual(operand, definition.GreyEvent.Number(), $"{at}: grey event");
-                    steps.Add(Cue(TourianStatueBlockCueKind.GoToIfGrey,
-                        Label(labels, Word(rom, instruction.Cursor + 4), at)));
+                    // Each native branch names the animation the statue's owner starts on that event (#2189).
+                    AssertEqual(TourianStatueSequence.AlreadyGreyAnimation, Label(labels, Word(rom, instruction.Cursor + 4), at),
+                        $"{at}: grey branch target");
+                    steps.Add(Cue(TourianStatueBlockCueKind.MayAlreadyBeGrey));
                     break;
                 case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                     AssertEqual(definition.BossArea, AreaNumberCodec.Decode(LittleEndianBytes.HighByte(operand), at), $"{at}: boss area");
                     AssertEqual(definition.DefeatedBosses, BossMaskCodec.Decode(LittleEndianBytes.LowByte(operand), at), $"{at}: boss bits");
-                    steps.Add(Cue(TourianStatueBlockCueKind.GoToIfBossDefeated,
-                        Label(labels, Word(rom, instruction.Cursor + 4), at)));
+                    AssertEqual(TourianStatueSequence.ReleaseAnimation, Label(labels, Word(rom, instruction.Cursor + 4), at),
+                        $"{at}: release branch target");
+                    steps.Add(Cue(TourianStatueBlockCueKind.MayBeReleased));
                     break;
                 case AnimatedTileInstruction.GotoIfTourianStatueBusy:
-                    steps.Add(Cue(TourianStatueBlockCueKind.GoToIfReleaseInProgress, Label(labels, operand, at)));
+                    AssertEqual(TourianStatueSequence.WaitingAnimation, Label(labels, operand, at), $"{at}: busy branch target");
+                    steps.Add(Cue(TourianStatueBlockCueKind.MayWaitItsTurn));
                     break;
                 case AnimatedTileInstruction.ClearThreePaletteColors:
                     AssertEqual(NativeColourIndexes[definition.ClearedShade] * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
@@ -252,9 +257,9 @@ internal static class LookupTourianProgramVerification
         return matches[0];
     }
 
-    /// <summary>An event beat of <paramref name="kind"/>, continuing at <paramref name="target"/> when it branches.</summary>
-    private static Beat Cue(TourianStatueBlockCueKind kind, TourianStatueBlockSegment target = default) =>
-        new Beat.Event(new TourianStatueBlockCue(kind, target));
+    /// <summary>An event beat of <paramref name="kind"/>.</summary>
+    private static Beat Cue(TourianStatueBlockCueKind kind) =>
+        new Beat.Event(new TourianStatueBlockCue(kind));
 
     /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>
     private static ushort Word(ISnesAddressSpace rom, int cursor) =>

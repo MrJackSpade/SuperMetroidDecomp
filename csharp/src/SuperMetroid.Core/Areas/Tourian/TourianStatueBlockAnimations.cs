@@ -19,7 +19,7 @@ internal static class TourianStatueBlockAnimations
             [P.Entry] =
             [
                 Cue(new(K.MarkAnimating)),
-                Cue(new(K.GoToIfGrey, Target: P.AlreadyGrey)),
+                Cue(new(K.MayAlreadyBeGrey)),
                 Show(F.OscillationFirst, firstFrameDuration),
             ],
             [P.Oscillate] =
@@ -28,12 +28,12 @@ internal static class TourianStatueBlockAnimations
                 Show(F.OscillationThird, 12),
                 Show(F.OscillationSecond, 12),
                 Show(F.OscillationFirst, 16),
-                Cue(new(K.GoToIfBossDefeated, Target: P.Release)),
+                Cue(new(K.MayBeReleased)),
                 Cue(new(K.ClearAnimating)),
             ],
             [P.Release] =
             [
-                Cue(new(K.GoToIfReleaseInProgress, Target: P.Oscillate)),
+                Cue(new(K.MayWaitItsTurn)),
                 Cue(new(K.ClaimRelease)),
                 Cue(new(K.BlackOutEyes)),
                 Show(F.OscillationSecond, 16),

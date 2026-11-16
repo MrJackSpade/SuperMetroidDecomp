@@ -44,15 +44,19 @@ internal static class CeresDoorNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, CeresDoorNativeListAddressesInstruction> Instructions = new()
     {
-        [0xf63e] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.GoToIfSamusDistant, "T"),
-        [0xf66a] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.GoToIfAreaBossAlive, "T"),
-        [0xf678] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.GoToIfRidleyNotEscaped, "T"),
-        [0xf68b] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeIntangible, ""),
-        [0xf695] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeTangible, ""),
-        [0xf69f] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.HandDrawingToRidley, ""),
-        [0xf6a6] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeInvisible, ""),
-        [0xf6b0] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeVisibleAndTakeDrawingBack, ""),
-        [0xf6b3] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.MakeVisible, ""),
-        [0xf6bd] = new CeresDoorNativeListAddressesInstruction(CeresDoorCueKind.PlayOpeningSound, ""),
+        [0xf63e] = new CeresDoorNativeListAddressesInstruction(
+        [
+            CeresDoorCueKind.RightDoorAppears, CeresDoorCueKind.LeftDoorAppears, CeresDoorCueKind.RightDoorStandsOpen,
+            CeresDoorCueKind.LeftDoorStandsOpen, CeresDoorCueKind.RightDoorStandsClosed, CeresDoorCueKind.LeftDoorStandsClosed,
+        ], "T"),
+        [0xf66a] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.RidleyRoomDoorWaits], "T"),
+        [0xf678] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.ElevatorRoomWallAppears], "T"),
+        [0xf68b] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeIntangible], ""),
+        [0xf695] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeTangible], ""),
+        [0xf69f] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.HandDrawingToRidley], ""),
+        [0xf6a6] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeInvisible], ""),
+        [0xf6b0] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeVisibleAndTakeDrawingBack], ""),
+        [0xf6b3] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeVisible], ""),
+        [0xf6bd] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.PlayOpeningSound], ""),
     };
 }

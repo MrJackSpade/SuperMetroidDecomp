@@ -1,14 +1,29 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>What a cue of the Ceres door's animations does: wait on Ceres Ridley, his escape or Samus's approach, show or hide the door, hand it to Ridley's scene, switch its collision with Samus, or queue its opening sound.</summary>
+/// <summary>
+/// What a cue of the Ceres door's animations signals (#2189): a door appearing, standing open or standing closed while it
+/// waits on Samus, the door of Ridley's room waiting on Ceres Ridley, the elevator room's wall waiting on his escape, or the
+/// door being shown or hidden, handed to Ridley's scene, switched in its collision with Samus or opening with its sound.
+/// Each owner, <see cref="CeresDoorBehavior"/>, starts the animation a waiting door's or wall's event means.
+/// </summary>
 internal enum CeresDoorCueKind
 {
-    /// <summary>Continues at the target while the area boss is alive.</summary>
-    GoToIfAreaBossAlive,
-    /// <summary>Continues at the target until Ceres Ridley has escaped.</summary>
-    GoToIfRidleyNotEscaped,
-    /// <summary>Continues at the target unless Samus is within 48 pixels on both axes.</summary>
-    GoToIfSamusDistant,
+    /// <summary>A right-facing door appears: unless Samus is near, its owner starts it standing closed.</summary>
+    RightDoorAppears,
+    /// <summary>A left-facing door appears: unless Samus is near, its owner starts it standing closed.</summary>
+    LeftDoorAppears,
+    /// <summary>A right-facing door stands open: once Samus is away, its owner starts it closing.</summary>
+    RightDoorStandsOpen,
+    /// <summary>A left-facing door stands open: once Samus is away, its owner starts it closing.</summary>
+    LeftDoorStandsOpen,
+    /// <summary>A right-facing door stands closed: while Samus is away, its owner starts it standing closed again.</summary>
+    RightDoorStandsClosed,
+    /// <summary>A left-facing door stands closed: while Samus is away, its owner starts it standing closed again.</summary>
+    LeftDoorStandsClosed,
+    /// <summary>The door of Ridley's room waits on him: while the area boss is alive, its owner starts the wait again.</summary>
+    RidleyRoomDoorWaits,
+    /// <summary>The elevator room's wall appears: until Ceres Ridley has escaped, its owner starts it as a left-facing door.</summary>
+    ElevatorRoomWallAppears,
     /// <summary>Marks the door drawn by Ridley's scene.</summary>
     HandDrawingToRidley,
     /// <summary>Stops colliding with Samus.</summary>

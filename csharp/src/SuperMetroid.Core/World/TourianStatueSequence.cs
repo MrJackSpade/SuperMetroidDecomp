@@ -209,27 +209,25 @@ public sealed class TourianStatueSequence
             }
         }
 
-        // Carries out one event with the statue's values; a branching event whose condition holds returns where the play continues.
+        // Carries out one event with the statue's values; an event whose condition holds returns the animation the statue starts.
         AnimationContinuation<TourianStatueBlockSegment>? RunCue(
             TourianStatueAnimationDefinition definition, TourianStatueBlockCue cue)
         {
             ITourianStatueActors statue = _enemies.TourianStatue;
-            var branch = new AnimationContinuation<TourianStatueBlockSegment>(
-                TourianStatueBlockAnimations.StartingWith(cue.Target), AnimationPlace.StartOfAnimation);
             switch (cue.Kind)
             {
                 case TourianStatueBlockCueKind.MarkAnimating:
                     statue.Animation.Animating |= definition.Statue;
                     return null;
-                case TourianStatueBlockCueKind.GoToIfGrey:
-                    return _system.HasEvent(definition.GreyEvent) ? branch : null;
-                case TourianStatueBlockCueKind.GoToIfBossDefeated:
-                    return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? branch : null;
+                case TourianStatueBlockCueKind.MayAlreadyBeGrey:
+                    return _system.HasEvent(definition.GreyEvent) ? Start(AlreadyGreyAnimation) : null;
+                case TourianStatueBlockCueKind.MayBeReleased:
+                    return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? Start(ReleaseAnimation) : null;
                 case TourianStatueBlockCueKind.ClearAnimating:
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;
-                case TourianStatueBlockCueKind.GoToIfReleaseInProgress:
-                    return statue.Animation.ReleaseInProgress ? branch : null;
+                case TourianStatueBlockCueKind.MayWaitItsTurn:
+                    return statue.Animation.ReleaseInProgress ? Start(WaitingAnimation) : null;
                 case TourianStatueBlockCueKind.ClaimRelease:
                     statue.Animation.ReleaseInProgress = true;
                     return null;
@@ -260,7 +258,19 @@ public sealed class TourianStatueSequence
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueBlockCueKind)} {cue.Kind}.");
             }
         }
+
+        static AnimationContinuation<TourianStatueBlockSegment> Start(TourianStatueBlockSegment animation) =>
+            new(TourianStatueBlockAnimations.StartingWith(animation), AnimationPlace.StartOfAnimation);
     }
+
+    /// <summary>The animation a statue that is already grey starts, finishing grey (#2189).</summary>
+    internal const TourianStatueBlockSegment AlreadyGreyAnimation = TourianStatueBlockSegment.AlreadyGrey;
+
+    /// <summary>The animation a statue whose area boss is dead starts, its release (#2189).</summary>
+    internal const TourianStatueBlockSegment ReleaseAnimation = TourianStatueBlockSegment.Release;
+
+    /// <summary>The animation a statue waiting its turn to be released starts, oscillating again (#2189).</summary>
+    internal const TourianStatueBlockSegment WaitingAnimation = TourianStatueBlockSegment.Oscillate;
 
     /// <summary>
     /// Runs the statues' descent for one update: once all four statues have released, the authored hold with its

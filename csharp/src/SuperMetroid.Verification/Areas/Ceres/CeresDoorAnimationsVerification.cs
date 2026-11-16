@@ -17,14 +17,31 @@ internal static class CeresDoorAnimationsVerification
             new NativeEnemyCueRules<CeresDoorCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                AssertTrue(instruction.Kinds.Contains(cue.Kind), $"{at}: cue {cue.Kind} is one the native instruction signals");
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'T' => NativeEnemyAnimationOracle.EntryOf(Entries, cue.Target),
+                    // Each native branch names the animation the door's owner starts on that event (#2189).
+                    'T' => NativeEnemyAnimationOracle.EntryOf(Entries, StartedAnimation(cue.Kind)),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             }), onlyRunOnInto: OnlyRunOnInto);
         Console.WriteLine($"  Ceres door animations: {Entries.Length} segments ({beats} beats) match bank $A6.");
     }
+
+    /// <summary>The animation <see cref="CeresDoorBehavior"/> starts on a waiting door's or wall's event.</summary>
+    private static CeresDoorSegment StartedAnimation(CeresDoorCueKind kind) => kind switch
+    {
+        CeresDoorCueKind.RightDoorAppears => CeresDoorBehavior.RightDoorClosedAnimation,
+        CeresDoorCueKind.LeftDoorAppears => CeresDoorBehavior.LeftDoorClosedAnimation,
+        CeresDoorCueKind.RightDoorStandsOpen => CeresDoorBehavior.RightDoorClosingAnimation,
+        CeresDoorCueKind.LeftDoorStandsOpen => CeresDoorBehavior.LeftDoorClosingAnimation,
+        CeresDoorCueKind.RightDoorStandsClosed => CeresDoorBehavior.RightDoorWaitingAnimation,
+        CeresDoorCueKind.LeftDoorStandsClosed => CeresDoorBehavior.LeftDoorWaitingAnimation,
+        CeresDoorCueKind.RidleyRoomDoorWaits => CeresDoorBehavior.RidleyRoomDoorWaitingAnimation,
+        CeresDoorCueKind.ElevatorRoomWallAppears => CeresDoorBehavior.ElevatorRoomWallDoorAnimation,
+        CeresDoorCueKind.HandDrawingToRidley or CeresDoorCueKind.MakeIntangible or CeresDoorCueKind.MakeInvisible or
+            CeresDoorCueKind.MakeTangible or CeresDoorCueKind.MakeVisible or CeresDoorCueKind.MakeVisibleAndTakeDrawingBack or
+            CeresDoorCueKind.PlayOpeningSound or _ => throw new InvalidOperationException($"Ceres door cue {kind} starts no animation."),
+    };
 }

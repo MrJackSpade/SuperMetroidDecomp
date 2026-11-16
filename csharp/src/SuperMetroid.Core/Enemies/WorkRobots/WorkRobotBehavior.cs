@@ -82,7 +82,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // room.
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.AnimationClock.RestartAfter(4);
+        place.AnimationClock.RestartAfter(WorkRobotMotionDefinitions.FirstStepDelay);
         state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation);
         state.Facing = HorizontalDirection.Left;
         state.LaserCooldown = WrappingCountdown.Start(0);
@@ -190,7 +190,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> walkingPosition = place.Position.Whole;
         place.Position = place.Position.WithWrappedWholeX(
             place.Position.X.Whole + step.LedgeProbeDirection * place.Radius.X * 2);
-        bool floorFound = _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
+        bool floorFound = _terrain.MoveEnemyVertically(level, place, WorkRobotMotionDefinitions.LedgeProbeDepth);
         place.Position = place.Position.WithWhole(walkingPosition);
         if (floorFound)
             return null;
@@ -241,7 +241,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
-            robot.Position.X.Whole < samus.Position.X.Whole ? 4 : -4, 0));
+            robot.Position.X.Whole < samus.Position.X.Whole ? WorkRobotMotionDefinitions.TouchPush : -WorkRobotMotionDefinitions.TouchPush, 0));
     }
 
     /// <summary>
@@ -369,8 +369,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
-                -SignedEightEight.FromParts(0, 128),
-            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => SignedEightEight.FromParts(0, 128),
+                -WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
             WorkRobotLaser.Horizontal => SignedEightEight.Zero,
             _ => throw new InvalidOperationException(
                 $"Undefined Work Robot laser definition {definition}."),

@@ -45,28 +45,28 @@ internal sealed class CrocomireSkeleton
     internal static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - 2);
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 480) < 0)
+        body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - CrocomireSkeletonDefinitions.RiverDrift);
+        if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireSkeletonDefinitions.BehindWallPosition.X) < 0)
         {
-            body.Position = body.Position.WithWhole(new(480, 54));
+            body.Position = body.Position.WithWhole(CrocomireSkeletonDefinitions.BehindWallPosition);
             state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
         }
         else
         {
-            body.Position = body.Position.WithWholeY(220);
+            body.Position = body.Position.WithWholeY(CrocomireSkeletonDefinitions.RiverY);
         }
     }
 
     /// <summary>Waits with the skeleton behind the wall before its rumble and picture-load sequence.</summary>
     internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState samus)
     {
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, 640) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireSkeletonDefinitions.WallApproachX) >= 0)
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle), MusicQueueDelay.Shortest);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.HiddenWallScreen, RoomScrollState.Closed);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.SkeletonWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.RightEdge);
         RoomEnemyPlace body = state.Body;
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
@@ -82,7 +82,7 @@ internal sealed class CrocomireSkeleton
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
         state.DamageReactionPending = false;
-        body.Radius = body.Radius.WithY(56);
+        body.Radius = body.Radius.WithY(CrocomireSkeletonDefinitions.BehindWallReachY);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -92,7 +92,7 @@ internal sealed class CrocomireSkeleton
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
         {
-            state.DeathPhaseDelay = 128;
+            state.DeathPhaseDelay = CrocomireSkeletonDefinitions.SpikedWallDuration;
             state.Colours.ShowWallSpikes();
             state.Body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
             if (state.Tongue is { } spikedTongue)
@@ -143,12 +143,12 @@ internal sealed class CrocomireSkeleton
         }
 
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWhole(new(480, 54));
-        death.SkeletonFallDelay = 80;
+        body.Position = body.Position.WithWhole(CrocomireSkeletonDefinitions.BehindWallPosition);
+        death.SkeletonFallDelay = CrocomireSkeletonDefinitions.FallDelay;
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(112, 11), CrocomireArenaMutation.ClearBridge);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.FightWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.BreakThroughBridgeBlock, CrocomireArenaMutation.ClearBridge);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFallsApart);
         // The skeleton draws in the common colours with its arm's laid over them (#1512).
@@ -166,9 +166,9 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 224) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, CrocomireSkeletonDefinitions.BreakOutEndX) < 0)
         {
-            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 128, maximumWhole: 2);
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.BreakOut);
             state.Body.Position = state.Body.Position.WithX(
                 state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
@@ -185,12 +185,12 @@ internal sealed class CrocomireSkeleton
     /// <summary>Moves the skeleton through its airborne arc after the wall break.</summary>
     internal void RunCrocomireSkeletonArc(CrocomireEnemyState state)
     {
-        state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 8, maximumWhole: 5);
+        state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.Arc);
         state.Body.Position = state.Body.Position.WithY(
             CrocomireBehavior.SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
         state.Body.Position = state.Body.Position.WithX(
             state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 576) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, CrocomireSkeletonDefinitions.ArcEndX) < 0)
             return;
 
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
@@ -205,24 +205,24 @@ internal sealed class CrocomireSkeleton
     {
         if (!state.SkeletonHasCollapsed)
         {
-            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 16, maximumWhole: 6);
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.Collapse);
             return;
         }
 
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
-        state.Body.Position += new Offset16<RoomPixels>(64, 21);
-        state.Body.Radius = new(40, 28);
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        state.Body.Position += CrocomireSkeletonDefinitions.CorpseOffset;
+        state.Body.Radius = CrocomireArenaDefinitions.CorpseRadius;
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.SkeletonWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
 
         // The death drops emit sixteen independent pickup projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
         // each actor advances RNG again while selecting its own drop from Crocomire's species definition.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Crocomire,
-            count: 16,
-            xBase: 576,
+            count: CrocomireSkeletonDefinitions.DropCount,
+            xBase: CrocomireSkeletonDefinitions.DropLeft,
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
-            yBase: 96,
+            yBase: CrocomireSkeletonDefinitions.DropTop,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
             samus: samus);
         state.DeathPhase = state.DeathPhase.Next();
@@ -233,7 +233,7 @@ internal sealed class CrocomireSkeleton
     {
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.ArenaScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -243,8 +243,8 @@ internal sealed class CrocomireSkeleton
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.BossRoomTension), MusicQueueDelay.Shortest);
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
-        _access.SpawnCrocomireDust(state, -16);
-        _access.SpawnCrocomireDust(state, 16);
+        _access.SpawnCrocomireDust(state, -CrocomireSkeletonDefinitions.DefeatDustOffset);
+        _access.SpawnCrocomireDust(state, CrocomireSkeletonDefinitions.DefeatDustOffset);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -269,18 +269,13 @@ internal sealed class CrocomireSkeleton
     /// </summary>
     private static SignedSixteenSixteen AccelerateCrocomireSkeleton(
         SignedSixteenSixteen velocity,
-        int accelerationTwoFiftySixths,
-        int maximumWhole)
-    {
-        SignedSixteenSixteen accelerated =
-            velocity + SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(accelerationTwoFiftySixths);
-        return accelerated.WithWholePixelsAtMost(maximumWhole);
-    }
+        CrocomireSkeletonAcceleration acceleration) =>
+        (velocity + acceleration.PerUpdate).WithWholePixelsAtMost(acceleration.MaximumWholePixels);
 
     /// <summary>
-    /// Spawns the wall's eight pieces, bottom piece first, and runs the spike-wall piece initializer on each. Each piece
-    /// carries its place in the wall, zero for the top piece, and stands at 56 + 16 times its place, so the spawn order
-    /// runs Y=168 up to 56. The melt empties the enemy projectiles just before, so every piece is spawned.
+    /// Spawns the wall's pieces, bottom piece first, and runs the spike-wall piece initializer on each. Each piece carries
+    /// its place in the wall, zero for the top piece, and stands that many spacings below the wall's top, so the spawn
+    /// order runs from the bottom piece up. The melt empties the enemy projectiles just before, so every piece is spawned.
     /// </summary>
     internal void SpawnCrocomireSpikeWallPieces()
     {
@@ -301,7 +296,8 @@ internal sealed class CrocomireSkeleton
                 graphics);
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece));
             int piece = CrocomireSpikeMotionDefinitions.PieceCount - 1 - count;
-            projectile.Position = projectile.Position.WithWhole(new(528, 56 + piece * 16));
+            projectile.Position = projectile.Position.WithWhole(CrocomireSkeletonDefinitions.SpikeWallTop
+                + new Offset16<RoomPixels>(0, piece * CrocomireSkeletonDefinitions.SpikeWallPieceSpacing));
             projectile.Velocity = EightEightVector<RoomPixels>.Zero;
             projectile.State = new CrocomireSpikeWallPieceState(piece);
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

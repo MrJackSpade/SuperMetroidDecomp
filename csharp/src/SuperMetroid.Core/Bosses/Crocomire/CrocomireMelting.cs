@@ -40,7 +40,7 @@ internal sealed class CrocomireMelting
             tongue.Processing = tongue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
             tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
             tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);
-            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));
+            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody)));
         }
 
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.First);
@@ -148,21 +148,21 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
         state.Body.Position = state.Body.Position.WithWholeX(
-            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0));
+            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(CrocomireMeltingDefinitions.ShakeHalfPeriod) ? CrocomireMeltingDefinitions.ShakeOffset : 0));
 
         EraseNextCrocomireMeltingColumn();
 
         // The melting's step places his tongue onto the body again.
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
-        int nextAdjustedY = death.DistortionSourceRow - 3;
-        if (death.DistortionSourceRow < 19)
+        int nextAdjustedY = death.DistortionSourceRow - CrocomireMeltingDefinitions.DistortionSourceClimb;
+        if (death.DistortionSourceRow < CrocomireMeltingDefinitions.DistortionSourceTop + CrocomireMeltingDefinitions.DistortionSourceClimb)
         {
             if (!death.DistortionStep.IsSlowerThan(CrocomireMeltingDefinitions.SteepestDistortionSlope))
             {
                 CompleteCrocomireMeltingDissolve(state);
                 return;
             }
-            nextAdjustedY = 16;
+            nextAdjustedY = CrocomireMeltingDefinitions.DistortionSourceTop;
         }
         death.DistortionSourceRow = nextAdjustedY;
         UnsignedSixteenSixteen steeper = death.DistortionStep + CrocomireMeltingDefinitions.DistortionSlopeGrowth;
@@ -206,7 +206,7 @@ internal sealed class CrocomireMelting
         CrocomireEnemyState state,
         CrocomireDeathState death)
     {
-        int firstLine = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0,
+        int firstLine = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - CrocomireMeltingDefinitions.BandAboveTongue, 0,
             CrocomireMeltingDefinitions.DistortionLines);
         int rows = death.LowestDistortionSourceRow - death.DistortionSourceRow;
         // The source row rises a whole row less the slope each line, so it first reaches the lowest row on the line after

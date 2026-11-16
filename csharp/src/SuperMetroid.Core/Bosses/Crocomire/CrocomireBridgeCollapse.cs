@@ -68,26 +68,28 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Runs the bridge effects of the bridge approach, staged at Crocomire X 1536, 1552 and 1568.
-    /// Each stage's dust lands one block ahead, and at 1584.
+    /// Runs the bridge effects of the bridge approach, in stages a block apart from the bridge's left edge
+    /// (<see cref="CrocomireBridgeCollapseDefinitions.ApproachStartX"/>): the first raises dust at the edge, the second
+    /// crumbles the bridge's first block and the third its next two, each raising dust at its own stage.
     /// </summary>
     private void HandleCrocomireBridgeApproach(RoomEnemyPlace body)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 1536) < 0)
+        int x = body.Position.X.Whole;
+        if (CoordinateAxis.Difference(x, ApproachStage(0)) < 0)
         {
-            death.BridgeDustAt1536Spawned = false;
-            death.BridgeBlockAt1568Crumbling = false;
-            death.BridgeBlocksAt1584Crumbling = false;
+            death.ApproachDustRaised = false;
+            death.FirstBridgeBlockCrumbling = false;
+            death.NextBridgeBlocksCrumbling = false;
             return;
         }
 
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 1552) < 0)
+        if (CoordinateAxis.Difference(x, ApproachStage(1)) < 0)
         {
-            if (!death.BridgeDustAt1536Spawned)
+            if (!death.ApproachDustRaised)
             {
-                death.BridgeDustAt1536Spawned = true;
-                _projectiles.SpawnDustOrExplosion(new(1536, 176), MiscDustAnimation.BigDustCloud);
+                death.ApproachDustRaised = true;
+                RaiseBridgeDust(ApproachStage(0));
             }
             return;
         }
@@ -95,62 +97,60 @@ internal sealed class CrocomireBridgeCollapse
         // One block deep crumbles the first bridge block. The flag
         // resets and the collapse step sit behind comparisons these ranges already passed
         // and never execute.
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 1568) < 0)
+        if (CoordinateAxis.Difference(x, ApproachStage(2)) < 0)
         {
-            if (!death.BridgeBlockAt1568Crumbling)
+            if (!death.FirstBridgeBlockCrumbling)
             {
-                death.BridgeBlockAt1568Crumbling = true;
-                _access.PublishCrocomireObject(
-                    new Position16<RoomBlocks>(97, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
-                _projectiles.SpawnDustOrExplosion(new(1568, 176), MiscDustAnimation.BigDustCloud);
+                death.FirstBridgeBlockCrumbling = true;
+                _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock, CrocomireArenaMutation.CrumbleBridgeBlock);
+                RaiseBridgeDust(ApproachStage(2));
             }
             return;
         }
 
         // Two blocks deep crumbles the next pair.
-        if (CoordinateAxis.Difference(body.Position.X.Whole, 1584) < 0 &&
-            !death.BridgeBlocksAt1584Crumbling)
+        if (CoordinateAxis.Difference(x, ApproachStage(3)) < 0 &&
+            !death.NextBridgeBlocksCrumbling)
         {
-            death.BridgeBlocksAt1584Crumbling = true;
-            _access.PublishCrocomireObject(
-                new Position16<RoomBlocks>(98, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
-            _access.PublishCrocomireObject(
-                new Position16<RoomBlocks>(99, 11), CrocomireArenaMutation.CrumbleBridgeBlock);
-            _projectiles.SpawnDustOrExplosion(new(1584, 176), MiscDustAnimation.BigDustCloud);
+            death.NextBridgeBlocksCrumbling = true;
+            _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(1, 0), CrocomireArenaMutation.CrumbleBridgeBlock);
+            _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(2, 0), CrocomireArenaMutation.CrumbleBridgeBlock);
+            RaiseBridgeDust(ApproachStage(3));
         }
     }
 
+    /// <summary>Where stage <paramref name="stage"/> of his approach onto the bridge begins, the first stage at the bridge's left edge.</summary>
+    private static int ApproachStage(int stage) =>
+        CrocomireBridgeCollapseDefinitions.ApproachStartX + stage * CrocomireBridgeCollapseDefinitions.ApproachStageWidth;
+
+    /// <summary>Raises a big dust cloud on the bridge at <paramref name="x"/>.</summary>
+    private void RaiseBridgeDust(int x) =>
+        _projectiles.SpawnDustOrExplosion(new(x, CrocomireBridgeCollapseDefinitions.DustY), MiscDustAnimation.BigDustCloud);
+
     /// <summary>
-    /// Clears all ten bridge blocks and bursts dust as the bridge collapses.
-    /// The ten room-object spawns exactly use
-    /// block X=97+i, block Y=11, and the bridge-block clearing for i=0..9. The
-    /// inclusive production loop preserves their ascending publication
-    /// order; the dust setup follows, not an eleventh clear.
-    /// The seven dust positions follow the
-    /// exact bounded rule X=1536+16*i for i=0..6; Y=176 at i=0 or 2
-    /// and 192 otherwise. The game places these one by one,
-    /// not as a table. All seven pairs and their
-    /// order match the authored ones; there is no eighth dust spawn.
+    /// Clears every bridge block, left to right, and bursts dust as the bridge collapses: the clears are published in that
+    /// order, then the dust, then the invisible wall behind Samus.
     /// </summary>
     private void PublishCrocomireBridgeCollapseObjects()
     {
-        for (int blockX = 97; blockX <= 106; blockX++)
+        for (int block = 0; block < CrocomireArenaDefinitions.BridgeBlockCount; block++)
             _access.PublishCrocomireObject(
-                new Position16<RoomBlocks>(CoordinateAxis.Wrap(blockX), 11), CrocomireArenaMutation.ClearBridgeBlock);
+                CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(block, 0), CrocomireArenaMutation.ClearBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
             _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
 
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.CreateInvisibleWall);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
     }
 
     /// <summary>
-    /// The seven unrolled dust spawns: puffs sixteen pixels apart along the bridge from
-    /// X 1536; the first and third rise sixteen pixels above the others' Y 192.
+    /// The collapse's dust puffs, a stage apart along the bridge from its left edge; the first and third rise to the
+    /// approach's dust row, the others lie on the lower row.
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
         (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
-            ? new Position16<RoomPixels>(1536 + 16 * puff, puff is 0 or 2 ? 176 : 192)
+            ? new Position16<RoomPixels>(ApproachStage(puff),
+                puff is 0 or 2 ? CrocomireBridgeCollapseDefinitions.DustY : CrocomireBridgeCollapseDefinitions.LowDustY)
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>
@@ -184,7 +184,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         if (--death.AcidSoundTimer != 0)
             return;
-        death.AcidSoundTimer = 32;
+        death.AcidSoundTimer = CrocomireBridgeCollapseDefinitions.AcidSoundInterval;
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.AcidBurn);
     }
 
@@ -208,10 +208,10 @@ internal sealed class CrocomireBridgeCollapse
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
         RoomEnemyPlace body = state.Body;
 
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, 280) >= 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, CrocomireBridgeCollapseDefinitions.SunkenY) >= 0)
         {
             state.DeathPhase = state.DeathPhase.Next();
-            state.DeathPhaseDelay = 48;
+            state.DeathPhaseDelay = CrocomireBridgeCollapseDefinitions.SubmergedPause;
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
             state.VerticalAcceleration = SignedEightEight.Zero;
             return;
@@ -241,7 +241,7 @@ internal sealed class CrocomireBridgeCollapse
     {
         _bodyLayer.LevelCrocomireMeltDistortion(state);
         RoomEnemyPlace body = state.Body;
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, CrocomireBridgeCollapseDefinitions.RisenY) < 0)
         {
             state.DeathPhase = state.DeathPhase.Next();
             return;
@@ -268,12 +268,14 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Selects the body melting animation for the rows still above the acid.</summary>
     internal static void SelectCrocomireRisingAnimation(CrocomireEnemyState state)
     {
+        // Each melt row lies a row's height above the next; the top row alone shows once he has sunk.
         int y = state.Body.Position.Y.Whole;
-        CrocomireBodySegment segment = y < 248
+        const int Sunken = CrocomireBridgeCollapseDefinitions.SunkenY, Row = CrocomireBridgeCollapseDefinitions.MeltRowHeight;
+        CrocomireBodySegment segment = y < Sunken - 2 * Row
             ? CrocomireBodySegment.MeltingTwoTopFourRows
-            : y < 264
+            : y < Sunken - Row
                 ? CrocomireBodySegment.MeltingTwoTopThreeRows
-                : y < 280
+                : y < Sunken
                     ? CrocomireBodySegment.MeltingTwoTopTwoRows
                     : CrocomireBodySegment.MeltingTwoTopRow;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, segment);
@@ -295,7 +297,7 @@ internal sealed class CrocomireBridgeCollapse
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
         if (state.Tongue is { } tongue)
             tongue.Presence = tongue.Presence.With(EnemyPresence.Deleted);
-        _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
+        _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
         _access.RequireCrocomireDeath().SkeletonBaringElapsed = 0;
     }
@@ -322,10 +324,10 @@ internal sealed class CrocomireBridgeCollapse
             graphics: default);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
-        projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
         // The fragment initializer reads RandomNumberSeed; it does not advance it.
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()) + 64));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()) + CrocomireBridgeFragmentDefinitions.SlowestFallTwoFiftySixths));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);
     }

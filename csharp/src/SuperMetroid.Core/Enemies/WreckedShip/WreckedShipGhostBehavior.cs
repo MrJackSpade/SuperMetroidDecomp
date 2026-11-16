@@ -257,7 +257,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Action = WreckedShipGhostAction.InitialInvisibleDelay;
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        state.PhaseTimer = WreckedShipGhostAppearanceDefinitions.VisibleDuration;
+        state.PhaseTimer = WreckedShipGhostAppearanceDefinitions.ReappearanceDelay;
     }
 
     /// <summary>

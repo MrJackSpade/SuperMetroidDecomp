@@ -8,4 +8,10 @@ internal static class GrowingShutterDefinitions
 
     /// <summary>How far inside its full-size end an intermediate section stops, in pixels.</summary>
     internal const int IntermediateInset = 7;
+
+    /// <summary>
+    /// The vertical radius each section gives the shutter, in pixels (#2182): the first section's alone, and each grown
+    /// section adds as much again.
+    /// </summary>
+    internal const int SectionRadius = 8;
 }

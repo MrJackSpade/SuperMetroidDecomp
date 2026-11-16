@@ -22,8 +22,8 @@ public sealed class WaverEnemyState
     /// <summary>Set by the spin animation's last cue after the four-frame spin completes.</summary>
     public bool SpinFinished { get; internal set; }
 
-    /// <summary>Advances the wave phase two steps (256ths of a turn), wrapping after a full turn.</summary>
-    internal void AdvanceWave() => Angle = Angle.TurnedBySteps(2);
+    /// <summary>Advances the wave phase by its step, wrapping after a full turn.</summary>
+    internal void AdvanceWave() => Angle = Angle.TurnedBySteps(WaverMotionDefinitions.WaveStep);
 
     /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>
     internal void ReflectWave() => Angle += RotationAngle.HalfTurn;

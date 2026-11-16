@@ -253,11 +253,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             ? EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 place,
-                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, 7))
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, YardMotionDefinitions.HidingProbeMargin))
             : EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(
                 level,
                 place,
-                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, 7));
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, YardMotionDefinitions.HidingProbeMargin));
         if (!stillAttached)
             DropYard(place, state);
     }
@@ -285,11 +285,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             ? _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
-                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, 1))
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, YardMotionDefinitions.CrawlProbeMargin))
             : _terrain.MoveEnemyVertically(
                 level,
                 place,
-                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, 1));
+                CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, YardMotionDefinitions.CrawlProbeMargin));
         place.Position -= turn.Lookahead;
 
         if (!surfaceCollision)
@@ -545,8 +545,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(place, state);
         // Only the whole pixels are stored; both fractions keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
-            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? -1 : 1,
-            -1));
+            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left
+                ? -YardMotionDefinitions.BeamLaunchWholeSpeed
+                : YardMotionDefinitions.BeamLaunchWholeSpeed,
+            -YardMotionDefinitions.BeamLaunchWholeSpeed));
     }
 
     /// <summary>Negates one raw 1/256-pixel crawl velocity, wrapping in its signed range.</summary>

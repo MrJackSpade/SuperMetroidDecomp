@@ -32,11 +32,15 @@ internal static class BotwoonWallMutationDefinitions
         new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Gone), CrumbleFrameDuration),
     ];
 
+    /// <summary>How long the crumble's setup holds it before the wall begins to fall, in updates (#2182).</summary>
+    internal const int CrumbleSetupHold = 64;
+
     /// <summary>
-    /// The crumble: its setup holds it for 64 updates before the wall begins to fall, then it crumbles the wall one row
-    /// at a time; <see cref="BotwoonWallCrumbleObject"/> opens the first two scroll cells as the first row starts.
+    /// The crumble: its setup holds it for <see cref="CrumbleSetupHold"/> updates before the wall begins to fall, then it
+    /// crumbles the wall one row at a time; <see cref="BotwoonWallCrumbleObject"/> opens the first two scroll cells as the
+    /// first row starts.
     /// </summary>
-    internal static TerrainChange Crumble { get; } = new(64,
+    internal static TerrainChange Crumble { get; } = new(CrumbleSetupHold,
     [
         .. CrumbleRow(Offset16<RoomBlocks>.Zero),
         .. Enumerable.Repeat(NextRow, CrumbleRows - 1).SelectMany(CrumbleRow),

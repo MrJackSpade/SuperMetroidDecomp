@@ -6,6 +6,9 @@ internal static class CrocomireSpikeMotionDefinitions
     /// <summary>The pieces the wall breaks into, the top piece first.</summary>
     internal const int PieceCount = 8;
 
+    /// <summary>The row a falling piece lands on and crumbles, inclusive (#2182).</summary>
+    internal const int LandingY = 168;
+
     /// <summary>
     /// How much each piece's sideways acceleration grows each update, in pixels per update per update, by its place from
     /// the top (#2181): a descending eight-step ramp of 544 65536ths, saturated at 4080. The peak is deliberately capped

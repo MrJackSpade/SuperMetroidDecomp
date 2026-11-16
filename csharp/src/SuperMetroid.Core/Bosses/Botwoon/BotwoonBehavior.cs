@@ -99,8 +99,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.PreviousInsideHole = true;
         state.InitialAction = true;
         state.TargetHole = BotwoonHole.Left;
-        state.HalfHealth = head.Health >> 1;
-        state.QuarterHealth = head.Health >> 2;
+        state.HalfHealth = head.Health / BotwoonFightDefinitions.FasterBelowShareOfHealth;
+        state.QuarterHealth = head.Health / BotwoonFightDefinitions.FastestBelowShareOfHealth;
         // The initializer makes the head intangible: it starts hidden in its hole, out of every collision pass.
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
 
@@ -712,7 +712,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             if (--state.SmallExplosionTimer < 0)
             {
                 state.SmallExplosionTimer = BotwoonDeathDefinitions.SmallExplosionInterval;
-                for (int explosion = 0; explosion < 2; explosion++)
+                for (int explosion = 0; explosion < BotwoonDeathDefinitions.SmallExplosionsPerBurst; explosion++)
                 {
                     _effectActors.SpawnRoomEffectActor(
                         new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + BotwoonDeathDefinitions.SmallExplosionLeft,
@@ -953,7 +953,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         BotwoonSegmentState falling = segment.StateOf<BotwoonSegmentState>();
         segment.Position = segment.Position.AdvanceY(falling.FallPlace.Speed.Positive);
-        if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
+        if (CoordinateAxis.Difference(segment.Position.Y.Whole, BotwoonFightDefinitions.FloorY) < 0)
         {
             // A place past the table's last row fails when its row is read, long before the place could grow large.
             falling.FallPlace += BotwoonDeathDefinitions.FallAcceleration;

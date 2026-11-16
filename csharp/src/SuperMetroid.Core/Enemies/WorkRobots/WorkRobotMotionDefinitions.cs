@@ -3,6 +3,14 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <summary>How a WorkRobot walks and how an unpowered one falls (#2156).</summary>
 internal static class WorkRobotMotionDefinitions
 {
+    /// <summary>How long a powered WorkRobot waits before its animation's first step, in updates (#2182).</summary>
+    internal const int FirstStepDelay = 4;
+
+    /// <summary>How far below its walk a WorkRobot's ledge probe looks for the floor, one pixel (#2182).</summary>
+    internal static SignedSixteenSixteen LedgeProbeDepth { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
+    /// <summary>How far a WorkRobot's touch pushes Samus away from it each update, in pixels (#2182).</summary>
+    internal const int TouchPush = 4;
 
     /// <summary>The speed an unpowered WorkRobot starts falling at, one pixel an update.</summary>
     internal static SignedSixteenSixteen FallStartSpeed { get; } = SignedSixteenSixteen.FromParts(1, 0);

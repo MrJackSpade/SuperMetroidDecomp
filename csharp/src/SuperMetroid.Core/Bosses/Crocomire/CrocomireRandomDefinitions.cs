@@ -36,6 +36,12 @@ internal static class CrocomireRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField SpikeWallDustSpread = new(0, 4);
 
+    /// <summary>The first sample of the half of the random range that raises a step toward the spike wall's dust on his left (#2182).</summary>
+    internal const int SpikeWallDustLeftFrom = 2048;
+
+    /// <summary>The first sample of the half of the random range that mirrors a foot dust puff to his other side (#2182).</summary>
+    internal const int FootDustMirroredFrom = 4096;
+
     /// <summary>A random foot dust puff's distance from the body, 0 through 31 pixels on either side: the sample modulo 32.</summary>
     internal static readonly RandomSampleField FootDustOffset = new(0, 5);
 

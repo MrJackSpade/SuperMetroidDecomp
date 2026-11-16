@@ -41,6 +41,9 @@ internal static class BotwoonDeathDefinitions
     /// <summary>The left edge of the strip the small wall explosions burst across.</summary>
     internal const int SmallExplosionLeft = 224;
 
+    /// <summary>The small wall explosions each burst of them sets off (#2182).</summary>
+    internal const int SmallExplosionsPerBurst = 2;
+
     /// <summary>How far above the wall sequence's frame, before its jitter, a wall explosion bursts.</summary>
     internal const int ExplosionRise = 8;
 

@@ -72,13 +72,13 @@ internal sealed class CrocomireFight
             place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
             state.DeathPhase = CrocomireDeathPhase.InertCorpse;
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
-            place.Position = place.Position.WithWhole(new(576, 144));
-            place.Radius = new(40, 28);
+            place.Position = place.Position.WithWhole(CrocomireArenaDefinitions.CorpsePosition);
+            place.Radius = CrocomireArenaDefinitions.CorpseRadius;
             foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.ArenaScreens)
                 _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
-            _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
-            _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
-            _access.PublishCrocomireObject(new Position16<RoomBlocks>(97, 11), CrocomireArenaMutation.ClearBridge);
+            _access.PublishCrocomireObject(CrocomireArenaDefinitions.FightWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
+            _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
+            _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock, CrocomireArenaMutation.ClearBridge);
             return;
         }
 
@@ -130,7 +130,7 @@ internal sealed class CrocomireFight
 
         _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
         samus.Position = samus.Position.WithWrappedWholeX(leftEdge);
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(-4, -1));
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(CrocomireFightDefinitions.WallPush);
     }
 
     /// <summary>
@@ -287,18 +287,20 @@ internal sealed class CrocomireFight
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
                 return null;
             case CrocomireBodyCueKind.ShakeScreen:
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 5);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), CrocomireFightDefinitions.StepShakeDuration);
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
                 return null;
 
             case CrocomireBodyCueKind.StepTowardSpikeWall:
-                if (MoveCrocomire(body, level, -4))
+                if (MoveCrocomire(body, level, CrocomireFightDefinitions.SpikeWallStep))
                 {
                     state.Phase = CrocomirePhase.BackingOffSpikeWall;
                     return CrocomireBodySegment.BackOffFromSpikeWall;
                 }
                 int random = _access.ReadCrocomireRandom();
-                int baseOffset = BossRandomRolls.InHalfFrom(random, threshold: 2048) ? -32 : 32;
+                int baseOffset = BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom)
+                    ? -CrocomireFightDefinitions.SpikeWallDustSide
+                    : CrocomireFightDefinitions.SpikeWallDustSide;
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
             default:
@@ -310,9 +312,9 @@ internal sealed class CrocomireFight
     /// <param name="sample">The random sample, 0 through 65535.</param>
     private static bool RollsProjectileAttack(int sample) => CrocomireRandomDefinitions.ProjectileAttack.IsTakenBy(sample);
 
-    /// <summary>Whether the body's left edge lies within 260 pixels right of the camera: the step-back moves' on-screen test.</summary>
+    /// <summary>Whether the body's left edge lies within the step back's reach right of the camera: the step-back moves' on-screen test.</summary>
     private static bool CrocomireBodyIsOnScreen(RoomEnemyPlace body, int cameraX) =>
-        CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
+        CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach, cameraX) < 0;
 
     /// <summary>
     /// Runs Crocomire's fight AI for the phase his fight is in. Each phase is entered as the animation it plays starts, so
@@ -326,7 +328,7 @@ internal sealed class CrocomireFight
         {
             case CrocomirePhase.Dormant:
                 if (CoordinateAxis.Distance(
-                        state.Body.Position.X.Whole, samus.Position.X.Whole) < 224)
+                        state.Body.Position.X.Whole, samus.Position.X.Whole) < CrocomireFightDefinitions.WakeDistance)
                 {
                     state.Phase = CrocomirePhase.WaitingForFirstDamage;
                     return CrocomireBodySegment.WaitForFirstSecondDamage;
@@ -453,7 +455,7 @@ internal sealed class CrocomireFight
     {
         int random = _access.ReadCrocomireRandom();
         int offset = CrocomireRandomDefinitions.FootDustOffset.Of(random);
-        if (BossRandomRolls.InHalfFrom(random, threshold: 4096))
+        if (BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.FootDustMirroredFrom))
             offset = -offset;
         _access.SpawnCrocomireDust(state, offset);
     }
@@ -471,8 +473,10 @@ internal sealed class CrocomireFight
             _combat.MouthShot,
             graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
-        projectile.Velocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole - 32), CoordinateAxis.Wrap(body.Position.Y.Whole - 16)));
+        projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
+        projectile.Position = projectile.Position.WithWhole(new(
+            CoordinateAxis.Wrap(body.Position.X.Whole + CrocomireFightDefinitions.SpitOffset.X),
+            CoordinateAxis.Wrap(body.Position.Y.Whole + CrocomireFightDefinitions.SpitOffset.Y)));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.State = new CrocomireProjectileState(shot);
     }

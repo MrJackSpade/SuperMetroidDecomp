@@ -38,4 +38,22 @@ internal static class CrocomireMeltingDefinitions
     /// them, and those below the screen are never shown.
     /// </summary>
     public const int DistortionLines = 256;
+
+    /// <summary>How far below his body his melting tongue is placed, in pixels (#2182).</summary>
+    internal const int TongueBelowBody = 16;
+
+    /// <summary>How far right his melting body shakes, in pixels, on every other half of the shake's count.</summary>
+    internal const int ShakeOffset = 4;
+
+    /// <summary>The updates each half of his melting body's shake lasts.</summary>
+    internal const int ShakeHalfPeriod = 2;
+
+    /// <summary>How many rows the distortion's source row climbs each update it stretches.</summary>
+    internal const int DistortionSourceClimb = 3;
+
+    /// <summary>The highest source row the distortion climbs to; a climb that would pass it starts over here, or ends the stretch once it is steepest.</summary>
+    internal const int DistortionSourceTop = 16;
+
+    /// <summary>How far above his tongue, in pixels, the melt's band starts.</summary>
+    internal const int BandAboveTongue = 72;
 }

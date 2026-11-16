@@ -14,4 +14,13 @@ internal static class YardMotionDefinitions
     /// or meeting a ceiling, bounces.
     /// </summary>
     internal const int LandingWholeSpeedLimit = 3;
+
+    /// <summary>How far past its next step a hiding Yard looks for the surface it holds, in pixels (#2182).</summary>
+    internal const int HidingProbeMargin = 7;
+
+    /// <summary>How far past its next step a crawling Yard's probe of its surface moves, in pixels (#2182).</summary>
+    internal const int CrawlProbeMargin = 1;
+
+    /// <summary>The whole pixels an update a shot sends a Yard sideways, the way Samus faces, and up (#2182).</summary>
+    internal const int BeamLaunchWholeSpeed = 1;
 }

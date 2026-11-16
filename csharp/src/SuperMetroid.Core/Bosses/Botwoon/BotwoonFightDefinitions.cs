@@ -27,6 +27,12 @@ internal static class BotwoonFightDefinitions
     /// <summary>The floor row his falling head and body segments land on as he dies.</summary>
     internal const int FloorY = 200;
 
+    /// <summary>Botwoon speeds up once his health falls below his starting health divided by this (#2182).</summary>
+    internal const int FasterBelowShareOfHealth = 2;
+
+    /// <summary>Botwoon speeds up again once his health falls below his starting health divided by this (#2182).</summary>
+    internal const int FastestBelowShareOfHealth = 4;
+
     /// <summary>
     /// How many of his head's last positions his head keeps, newest first: the oldest, this many updates back, chooses which
     /// way his head faces.

@@ -16,18 +16,17 @@ internal static class SkreeMetareeParticles
         context => Fly(context.Projectile, context.Camera));
 
     /// <summary>
-    /// Spawns the four particles of <paramref name="burst"/> into <paramref name="projectiles"/>, six pixels either side of
-    /// <paramref name="source"/>: the outer pair flies at 1.25 pixels outward and just over 3 up per update, the inner pair
-    /// at 0.375 outward and just over 4 up, in 1/256 pixels.
+    /// Spawns the four particles of <paramref name="burst"/> into <paramref name="projectiles"/> either side of
+    /// <paramref name="source"/>, the left pair mirroring the right pair's launch (<see cref="MetalParticleBurstDefinitions"/>).
     /// </summary>
     internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemyPlace source, MetalParticleBurst burst)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(burst);
-        SpawnParticle(projectiles, source, burst.OuterRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
-        SpawnParticle(projectiles, source, burst.InnerRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
-        SpawnParticle(projectiles, source, burst.OuterLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
-        SpawnParticle(projectiles, source, burst.InnerLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
+        SpawnParticle(projectiles, source, burst.OuterRight, burst.Look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity);
+        SpawnParticle(projectiles, source, burst.InnerRight, burst.Look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity);
+        SpawnParticle(projectiles, source, burst.OuterLeft, burst.Look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity.ReversedX());
+        SpawnParticle(projectiles, source, burst.InnerLeft, burst.Look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity.ReversedX());
     }
 
     /// <summary>Flies a particle under gravity, removing it once it leaves the view, whose right and bottom edges are already outside.</summary>

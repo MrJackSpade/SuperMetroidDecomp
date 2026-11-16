@@ -3,6 +3,18 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>How the ninja, walking and wall Space Pirates move, sense Samus and fire (#2156).</summary>
 internal static class SpacePirateMotionDefinitions
 {
+    /// <summary>A slow wall Space Pirate's jump: two steps an update, landing at steps 190 and 66 of the turn (#2182).</summary>
+    internal static WallSpacePirateJump SlowWallJump { get; } = new(RotationAngle.FromSteps(190), RotationAngle.FromSteps(66), 2);
+
+    /// <summary>A fast wall Space Pirate's jump: four steps an update, landing at steps 192 and 64 of the turn (#2182).</summary>
+    internal static WallSpacePirateJump FastWallJump { get; } = new(RotationAngle.FromSteps(192), RotationAngle.FromSteps(64), 4);
+
+    /// <summary>
+    /// How far into a block a wall Space Pirate standing against a wall must be, in pixels, for it to snap to the next
+    /// block's start rather than back to its eight-pixel boundary (#2182).
+    /// </summary>
+    internal const int WallSnapForwardFrom = 11;
+
     /// <summary>The speed a ninja's divekick jump and descent start at, six pixels an update.</summary>
     internal static SignedEightEight NinjaDiveStartSpeed { get; } = SignedEightEight.FromParts(6, 0);
 

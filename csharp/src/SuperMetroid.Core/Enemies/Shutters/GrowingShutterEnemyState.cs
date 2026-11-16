@@ -78,7 +78,10 @@ public sealed class GrowingShutterEnemyState
         }
     }
 
-    /// <summary>Selects the current growth section's stored origin row; level four has no next section.</summary>
+    /// <summary>Whether every section has grown (#2182): the shutter grows no further.</summary>
+    internal bool IsFullyGrown => GrowthLevel == SectionCount;
+
+    /// <summary>Selects the current growth section's stored origin row; a fully grown shutter has no next section.</summary>
     internal int OriginYForLevel() => GrowthLevel < SectionCount
         ? SectionOriginY(GrowthLevel)
         : throw new InvalidOperationException($"Growing shutter level {GrowthLevel} has no section origin.");

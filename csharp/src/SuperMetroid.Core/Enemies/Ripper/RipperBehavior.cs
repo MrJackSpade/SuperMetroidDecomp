@@ -45,8 +45,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speeds = new EnemyLinearSpeed(settings.Speed);
         LoadRipperVelocity(state, settings.Direction switch
         {
-            GrappleRipperStartDirection.Left => false,
-            GrappleRipperStartDirection.Right => true,
+            HorizontalDirection.Left => false,
+            HorizontalDirection.Right => true,
             _ => throw new InvalidOperationException($"GrappleRipper start direction {settings.Direction} is not a direction."),
         });
         SetRipperAnimation(

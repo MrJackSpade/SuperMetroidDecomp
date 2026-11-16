@@ -43,8 +43,11 @@ public sealed class NorfairPipeBugState
     /// <summary>The formation count, 88 through 120, at which the member departs: its role's (#1840).</summary>
     public int StaggerTarget { get; internal set; }
 
-    /// <summary>The stagger the member runs after rising, its role's (#1840), or null before its formation assigns one.</summary>
-    public NorfairPipeBugAction? PostRiseAction { get; internal set; }
+    /// <summary>
+    /// The stagger the member runs after rising, its role's (#1840), assigned with the role's target and offset as its
+    /// formation launches the rise.
+    /// </summary>
+    public NorfairPipeBugAction PostRiseAction { get; internal set; }
 
     /// <summary>How far, in pixels, the member's stagger moves it from where its rise ended: its role's (#2071).</summary>
     public int StaggerOffset { get; internal set; }

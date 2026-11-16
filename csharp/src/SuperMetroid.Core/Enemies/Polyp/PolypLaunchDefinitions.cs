@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// Fixed launch/cooldown mechanics selected by three independent RNG draws, how near Samus brings a launch and how its
 /// rock falls (#2156).
 /// </summary>
-public static class PolypLaunchDefinitions
+internal static class PolypLaunchDefinitions
 {
     /// <summary>The random number divided by two, modulo 8, selects the cooldown.</summary>
     internal static readonly RandomSampleField CooldownSelector = new(1, 3);

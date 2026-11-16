@@ -112,8 +112,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool has no motion " +
-                    $"{state.Motion?.ToString() ?? "none"}.");
+                    $"Shaktool has no motion {state.Motion}.");
         }
     }
 

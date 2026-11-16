@@ -4,21 +4,21 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// Fixed launch magnitudes for the three Rio families, each with its own behaviour, how near Samus brings each to dive
 /// and how its dive slows (#2156).
 /// </summary>
-public static class RioLaunchDefinitions
+internal static class RioLaunchDefinitions
 {
     /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>
-    public static SignedEightEight RioYVelocity { get; } = SignedEightEight.FromParts(5, 128);
+    internal static SignedEightEight RioYVelocity { get; } = SignedEightEight.FromParts(5, 128);
     /// <summary>Rio initial horizontal speed, one and a half pixels per update, toward the side its launch chooses.</summary>
-    public static SignedEightEight RioXVelocity { get; } = SignedEightEight.FromParts(1, 128);
+    internal static SignedEightEight RioXVelocity { get; } = SignedEightEight.FromParts(1, 128);
     /// <summary>Norfair Rio horizontal speed, one pixel per update.</summary>
-    public static SignedEightEight NorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
+    internal static SignedEightEight NorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
     /// <summary>Lower Norfair Rio initial downward velocity, seven pixels per update.</summary>
-    public static SignedEightEight LowerNorfairYVelocity { get; } = SignedEightEight.FromParts(7, 0);
+    internal static SignedEightEight LowerNorfairYVelocity { get; } = SignedEightEight.FromParts(7, 0);
     /// <summary>How far below a live Lower Norfair Rio its flames follow, in pixels.</summary>
     internal const int LowerNorfairFlameDrop = 12;
 
     /// <summary>Lower Norfair Rio horizontal speed, one pixel per update.</summary>
-    public static SignedEightEight LowerNorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
+    internal static SignedEightEight LowerNorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
 
     /// <summary>The faster of the Norfair Rio's two downward launch velocities, seven pixels per update, chosen when <see cref="SlowLaunchBit"/> is clear.</summary>
     internal static SignedEightEight NorfairFastYVelocity { get; } = SignedEightEight.FromParts(7, 0);

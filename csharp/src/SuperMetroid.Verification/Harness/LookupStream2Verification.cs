@@ -916,7 +916,7 @@ internal static class LookupStream2Verification
                 var state = enemies.NorfairPipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(roles[member].PostRiseAction, state.PostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action."),
+                AssertEqual(roles[member].PostRiseAction, state.PostRiseAction,
                     "Actual formation writes its role's stagger");
                 AssertEqual(roles[member].StaggerOffset, state.StaggerOffset, "Actual formation writes its role's stagger offset");
                 AssertEqual(NorfairPipeBugAction.Rise, state.Action, "Actual formation begins rising");

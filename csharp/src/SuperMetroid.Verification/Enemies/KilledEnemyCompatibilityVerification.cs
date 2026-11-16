@@ -50,7 +50,7 @@ internal static class KilledEnemyCompatibilityVerification
         AssertTrue(!ReferenceEquals(living, emptied), "the kill clears the segment");
         AssertEqual(RotationAngle.Zero, emptied.OrbitAngle, "the killed segment has no orbit");
         AssertEqual(RotationAngle.Zero, emptied.AngularVelocity, "the killed segment has no angular speed");
-        AssertEqual<ShaktoolSegmentMotion?>(null, emptied.Motion, "the killed segment has no motion");
+        AssertEqual(ShaktoolSegmentMotion.Idle, emptied.Motion, "the killed segment does not move itself");
         emptied.TargetAngle = RotationAngleConstants.FromRaw(0x4000);
         AssertTrue(ReferenceEquals(emptied, killedPlace.FoundOrClearedState<ShaktoolSegmentState>()),
             "the chain reads back what it wrote to the killed segment");

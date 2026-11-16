@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -7,12 +8,32 @@ namespace SuperMetroid.ReachabilityAudit.SolutionLoading;
 /// <summary>Loads and compiles every project listed in a .slnx solution, failing on any load or compile error.</summary>
 internal static class SolutionLoader
 {
+    /// <summary>The compile errors of each live compilation, found once.</summary>
+    private static readonly ConditionalWeakTable<Compilation, List<Diagnostic>> Errors = new();
+
     /// <summary>Loads every listed project once, reports workspace failures, and returns only error-free compilations.</summary>
     public static async Task<LoadedSolution> LoadAsync(string solutionPath)
     {
+        using MSBuildWorkspace workspace = await OpenAsync(solutionPath);
+        return await CompileAsync(workspace.CurrentSolution, RepositoryRoot(solutionPath));
+    }
+
+    /// <summary>The repository holding the solution: the directory above the solution's.</summary>
+    public static string RepositoryRoot(string solutionPath)
+    {
         string solutionDirectory = Path.GetDirectoryName(Path.GetFullPath(solutionPath)) ??
             throw new ArgumentException($"{solutionPath} has no containing directory.", nameof(solutionPath));
-        using var workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["Configuration"] = "Release" });
+        return Path.GetDirectoryName(solutionDirectory) ??
+            throw new InvalidOperationException($"{solutionDirectory} has no repository root above it.");
+    }
+
+    /// <summary>Opens every listed project once, in Release, failing on any workspace failure; nothing is compiled yet. The
+    /// caller disposes the workspace once it is done with its solution.</summary>
+    public static async Task<MSBuildWorkspace> OpenAsync(string solutionPath)
+    {
+        string solutionDirectory = Path.GetDirectoryName(Path.GetFullPath(solutionPath)) ??
+            throw new ArgumentException($"{solutionPath} has no containing directory.", nameof(solutionPath));
+        var workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["Configuration"] = "Release" });
         var failures = new List<string>();
         workspace.RegisterWorkspaceFailedHandler(e =>
         {
@@ -33,29 +54,39 @@ internal static class SolutionLoader
             await workspace.OpenProjectAsync(path);
         }
         if (failures.Count > 0)
+        {
+            workspace.Dispose();
             throw new InvalidOperationException("Workspace load failed:\n" + string.Join('\n', failures));
+        }
+        return workspace;
+    }
 
-        var compiled = new List<ProjectCompilation>();
-        var compileErrors = new List<string>();
-        foreach (var project in workspace.CurrentSolution.Projects)
+    /// <summary>
+    /// Compiles every project of an already loaded solution, on all processors, and returns the error-free compilations
+    /// in the solution's project order; any compile error in any project fails, listing every project's errors. The
+    /// asynchronous cleanup loads the solution once and hands each of its steps the solution as the previous steps left
+    /// it (tools/cleanup/README.md).
+    /// </summary>
+    public static async Task<LoadedSolution> CompileAsync(Solution solution, string repositoryRoot)
+    {
+        var projects = solution.Projects.ToList();
+        var compiled = await Task.WhenAll(projects.Select(project => Task.Run(async () =>
         {
             var compilation = await project.GetCompilationAsync()
                 ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
-            // Symbol binding is only trustworthy for code that compiles. Every project's errors are
-            // reported together, so one load shows everything that must be fixed.
-            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
-            if (errors.Count > 0)
-            {
-                compileErrors.AddRange(errors.Select(error => $"{project.Name}: {error}"));
-                continue;
-            }
-            compiled.Add(new ProjectCompilation(project, compilation));
-            Console.WriteLine($"Compiled {project.Name}");
-        }
+            // Symbol binding is only trustworthy for code that compiles. A project neither the cleanup's steps nor its
+            // references changed keeps its compilation, whose errors are known already.
+            var errors = Errors.GetValue(compilation, compiled =>
+                compiled.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList());
+            return (Compilation: new ProjectCompilation(project, compilation), Errors: errors);
+        })));
+        foreach (var result in compiled.Where(result => result.Errors.Count == 0))
+            Console.WriteLine($"Compiled {result.Compilation.Project.Name}");
+        // Every project's errors are reported together, so one load shows everything that must be fixed.
+        var compileErrors = compiled.SelectMany(result => result.Errors.Select(error => $"{result.Compilation.Project.Name}: {error}")).ToList();
         if (compileErrors.Count > 0)
             throw new InvalidOperationException(
                 $"{compileErrors.Count} compile errors:\n" + string.Join('\n', compileErrors.Distinct(StringComparer.Ordinal)));
-        return new LoadedSolution(Path.GetDirectoryName(solutionDirectory) ??
-            throw new InvalidOperationException($"{solutionDirectory} has no repository root above it."), compiled);
+        return new LoadedSolution(repositoryRoot, [.. compiled.Select(result => result.Compilation)]);
     }
 }

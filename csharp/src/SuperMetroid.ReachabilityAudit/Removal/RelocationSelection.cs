@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ReachabilityAudit.Declarations;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 using static SuperMetroid.ReachabilityAudit.Removal.RelocationSymbols;
 
 namespace SuperMetroid.ReachabilityAudit.Removal;
@@ -76,7 +77,7 @@ internal sealed class RelocationSelection
     {
         foreach (var (tree, compilation, _) in trees)
         {
-            var model = compilation.GetSemanticModel(tree);
+            var model = SemanticModels.Of(compilation, tree);
             foreach (var node in tree.GetRoot().DescendantNodes())
             {
                 if (node is ParameterSyntax || SymbolIdentity.Normalize(DeclarationCollector.DeclaredSymbol(model, node)) is not { } symbol

@@ -74,20 +74,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Strict horizontal distance required before aiming the projectile.</summary>
-    private const int EvirActivationDistance = 128;
-    /// <summary>Whole-pixel magnitude passed through the trig multipliers.</summary>
-    private const int EvirProjectileSpeed = 4;
-    /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
-    private const int EvirFarOffscreenDistance = 256;
-
-    /// <summary>The enemy-library sound the spit plays when it is launched or regenerates.</summary>
-    private static readonly SoundEffectId EvirSpitSound =
-        EnemySoundEffectDefinitions.EvirSpitSound;
-
-    /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
-    private const int RegenerationStartDistance = 8;
-
     /// <summary>Initializes an Evir's arms.</summary>
     internal void InitializeEvirArms(RoomEnemyPlace place)
     {
@@ -294,7 +280,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
                 state.Body.Position.X.Whole,
-                EvirActivationDistance))
+                EvirMotionDefinitions.SpitActivationDistance))
         {
             return;
         }
@@ -305,10 +291,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTrigonometryAngle();
         SignedSixteenSixteen x = EnemyMath.CircleCosine(
             transformedAngle,
-            EvirProjectileSpeed);
+            EvirMotionDefinitions.SpitSpeed);
         SignedSixteenSixteen y = EnemyMath.CircleNegativeSine(
             transformedAngle,
-            EvirProjectileSpeed);
+            EvirMotionDefinitions.SpitSpeed);
         state.ProjectileVelocity = new FixedVector<RoomPixels>(
             x,
             y);
@@ -336,7 +322,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirSpitState state,
         Position16<RoomPixels> camera)
     {
-        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirFarOffscreenDistance))
+        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirMotionDefinitions.SpitRegenerationMargin))
             return;
 
         if (state.Body.FrozenTimer != 0)
@@ -373,11 +359,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Animation cue: queues the spit sound.</summary>
-    private void QueueEvirSpitSound() => _audio.QueueEnemySound(EvirSpitSound, priority: SoundRequestPriority.Normal);
+    private void QueueEvirSpitSound() => _audio.QueueEnemySound(EnemySoundEffectDefinitions.EvirSpitSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private static void SetInitialEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -RegenerationStartDistance : RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -EvirMotionDefinitions.RegenerationStartDistance : EvirMotionDefinitions.RegenerationStartDistance, 0);
 
     /// <summary>Animation cue: advances the regeneration offset.</summary>
     private static void AdvanceEvirRegenerationOffset(EvirSpitState state) =>

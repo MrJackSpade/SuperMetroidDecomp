@@ -60,13 +60,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Enemy-library sound queued as the statue grabs Samus.</summary>
-    private static readonly SoundEffectId ChozoGrabsSamusSound =
-        EnemySoundEffectDefinitions.ChozoGrabsSamusSound;
-    /// <summary>Enemy-library sound queued by the walking statue's footsteps.</summary>
-    private static readonly SoundEffectId ChozoFootstepsSound =
-        EnemySoundEffectDefinitions.ChozoFootstepsSound;
-
     /// <summary>Initializes either shipped statue.</summary>
     internal void InitializeChozoStatue(RoomEnemyPlace statue)
     {
@@ -200,11 +193,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayGrabSound }:
-                _audio.QueueEnemySound(ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
                 return null;
 
             case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
-                _audio.QueueEnemySound(ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
                 return null;
 
             case ChozoStatueCue.Footstep footstep:
@@ -264,7 +257,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         int footstepOffsetX)
     {
         Position16<RoomPixels> probe = new(
-            CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28));
+            CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth));
         Position16<RoomBlocks> footstep = level.GridBlock(probe.ToRoomBlock());
         Position16<RoomBlocks> below = footstep + new Offset16<RoomBlocks>(0, 1);
         if (!level.Size.Contains(below) || level.GetCollisionBlock(below).CollisionType != RoomCollisionType.SpikeBlock)
@@ -287,7 +280,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileBehavior.Still,
             graphics: default);
         projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)));
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth)));
     }
 
     /// <summary>Restores Samus controls, closes and opens the room's screens behind her and queues the slope access's closing.</summary>

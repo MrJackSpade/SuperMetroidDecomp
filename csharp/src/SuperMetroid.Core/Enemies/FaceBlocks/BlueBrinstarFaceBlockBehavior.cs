@@ -37,9 +37,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         _places = places;
     }
 
-    /// <summary>The updates each frame of the face blocks' glow holds for.</summary>
-    private const int GlowFrameUpdates = 16;
-
     /// <summary>
     /// Whether a face block has started the room's glow, which it does once Samus has collected the Morph Ball. The room
     /// has one glow, not one per block.
@@ -71,7 +68,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // collects it starts the glow at once.
         if (HasCollectedMorphBall(samus))
             StartGlow(place);
-        _glowStepCountdown = GlowFrameUpdates;
+        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
 
         // Keeps only the facing its spawn names. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
@@ -113,7 +110,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         state.Activated = true;
 
         // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's frame.
-        _glowStepCountdown = GlowFrameUpdates;
+        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
     }
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
@@ -142,7 +139,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (--_glowStepCountdown != 0)
             return;
 
-        _glowStepCountdown = GlowFrameUpdates;
+        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
         _glowFrame = (_glowFrame + 1) % FaceBlockShades.GlowFrames;
         PictureShading glow = Glow;
         foreach (RoomEnemyPlace block in _places.InUpdateOrder)

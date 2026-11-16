@@ -12,15 +12,6 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ChootEntity(place, common);
 
-    /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
-    private const int ChootActivationDistance = 80;
-
-    /// <summary>
-    /// How far the ascent moves back along the quadratic speed curve each jumping update, two whole marks; the starting
-    /// place is found by moving on by the same step.
-    /// </summary>
-    private static readonly QuadraticSpeedCurvePlace ChootAscentStep = QuadraticSpeedCurvePlace.FromMarks(2);
-
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemyPlace place)
     {
@@ -74,7 +65,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootActivationDistance)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootMotionDefinitions.ActivationDistance)
             return;
 
         state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay;
@@ -99,7 +90,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(upwardDisplacement));
 
-        state.YSpeedCurvePlace -= ChootAscentStep;
+        state.YSpeedCurvePlace -= ChootMotionDefinitions.AscentStep;
         if (!state.YSpeedCurvePlace.IsNegative)
             return;
 
@@ -146,7 +137,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static QuadraticSpeedCurvePlace CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {
         FixedCoordinate accumulatedDistance = default;
-        for (QuadraticSpeedCurvePlace curvePlace = ChootAscentStep; curvePlace <= QuadraticSpeedCurvePlace.LastMark; curvePlace += ChootAscentStep)
+        for (QuadraticSpeedCurvePlace curvePlace = ChootMotionDefinitions.AscentStep; curvePlace <= QuadraticSpeedCurvePlace.LastMark; curvePlace += ChootMotionDefinitions.AscentStep)
         {
             accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Speed.Positive);
             if (accumulatedDistance.Whole >= jumpHeight)

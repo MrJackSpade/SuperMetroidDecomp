@@ -38,56 +38,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake = earthquake;
     }
 
-    /// <summary>Vertical distance within which Samus can wake a dormant Etecoon.</summary>
-    private const int EtecoonActivationYDistance = 128;
-    /// <summary>Strict proximity radius used before the initial Samus-facing pause.</summary>
-    private const int EtecoonNearbyDistance = 64;
-    /// <summary>Axis band used to choose cardinal rather than diagonal facing.</summary>
-    private const int EtecoonDirectionBand = 32;
-    /// <summary>Horizontal range that lets Samus trigger the long demonstration run.</summary>
-    private const int EtecoonLongRunTriggerDistance = 48;
-    /// <summary>Fixed-point lookahead distance for the right wall probe.</summary>
-    private static readonly SignedSixteenSixteen EtecoonRightWallProbe = SignedSixteenSixteen.FromWholePixels(32);
-    /// <summary>Room X where the left teaching route stops and begins hopping.</summary>
-    private const int EtecoonFirstTeachingX = 537;
-    /// <summary>Room X where the right teaching route begins a jump or return.</summary>
-    private const int EtecoonRunStartX = 600;
-    /// <summary>Room X where the long jump switches back to running art.</summary>
-    private const int EtecoonLongJumpMidpointX = 680;
-    /// <summary>Room X where the long route installs its landing jump.</summary>
-    private const int EtecoonLongJumpEndX = 840;
-    /// <summary>Last X that permits the alternate wait before another teaching jump.</summary>
-    private const int EtecoonLongRunMaximumX = 832;
-
-    /// <summary>Y speed for an ordinary Etecoon hop.</summary>
-    /// <remarks>These are the eight authored speeds. Keeping them named beside their consumers
-    /// avoids replacing authored fixed-point values with retuned ones.</remarks>
-    private static readonly SignedSixteenSixteen EtecoonJumpYVelocity = SignedSixteenSixteen.FromParts(-3, 0);
-    /// <summary>Y speed for the stronger long jump.</summary>
-    private static readonly SignedSixteenSixteen EtecoonLongJumpYVelocity = SignedSixteenSixteen.FromParts(-4, 0);
-    /// <summary>Y speed of the hop that lands the long route.</summary>
-    private static readonly SignedSixteenSixteen EtecoonLongJumpLandingYVelocity = SignedSixteenSixteen.FromParts(-1, 0);
-    /// <summary>X speed of rightward teaching runs.</summary>
-    private static readonly SignedSixteenSixteen EtecoonRightVelocity = SignedSixteenSixteen.FromParts(2, 0);
-    /// <summary>X speed of leftward teaching runs.</summary>
-    private static readonly SignedSixteenSixteen EtecoonLeftVelocity = SignedSixteenSixteen.FromParts(-2, 0);
-
-    /// <summary>Enemy-library sound queued when an Etecoon wakes near Samus.</summary>
-    private static readonly SoundEffectId EtecoonWakeSound =
-        EnemySoundEffectDefinitions.EtecoonWakeSound;
-    /// <summary>Enemy-library sound queued at an audible teaching hop.</summary>
-    private static readonly SoundEffectId EtecoonJumpSound =
-        EnemySoundEffectDefinitions.EtecoonJumpSound;
-    /// <summary>Enemy-library sound queued when an airborne Etecoon meets a wall.</summary>
-    private static readonly SoundEffectId EtecoonWallSound =
-        EnemySoundEffectDefinitions.EtecoonWallSound;
-
-    /// <summary>The room column from which on Samus hears the Etecoons' hops and wall jumps.</summary>
-    private const int EtecoonAudibleFromSamusX = 256;
-
     /// <summary>Whether Samus stands far enough into the room to hear the Etecoons' hops and wall jumps.</summary>
     private static bool SamusHearsEtecoon(SamusState samus) =>
-        !CoordinateAxis.Precedes(samus.Position.X.Whole, EtecoonAudibleFromSamusX);
+        !CoordinateAxis.Precedes(samus.Position.X.Whole, EtecoonRouteDefinitions.AudibleFromSamusX);
 
     /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemyPlace place)
@@ -207,11 +160,11 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!EtecoonIsWithinY(place, samus, EtecoonActivationYDistance))
+        if (!EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.ActivationYDistance))
             return;
 
         if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
-            _audio.QueueEnemySound(EtecoonWakeSound, priority: SoundRequestPriority.Essential);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
         state.AwaitingSamus = false;
@@ -227,11 +180,11 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
         StartEtecoonAnimation(place, state, EtecoonSegment.ContinueHoppingFacingLeft);
         state.Action = EtecoonAction.InitialJump;
         if (SamusHearsEtecoon(samus))
-            _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Finishes the initial hop and either faces nearby Samus or schedules another hop.</summary>
@@ -246,8 +199,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Velocity.Y.WholePixels >= 0)
         {
-            if (EtecoonIsWithinY(place, samus, EtecoonNearbyDistance) &&
-                EtecoonIsWithinX(place, samus, EtecoonNearbyDistance))
+            if (EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.NearbyDistance) &&
+                EtecoonIsWithinX(place, samus, EtecoonRouteDefinitions.NearbyDistance))
             {
                 if (!SamusIsToEtecoonsLeft(place, samus))
                 {
@@ -287,16 +240,16 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HeadingRight)
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.BeginRunningRight);
-            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
             state.Action = EtecoonAction.RunRightToWall;
         }
         else
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.BeginRunningLeft);
-            SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.LeftRunSpeed);
             state.Action = EtecoonAction.RunLeftToWall;
         }
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
     }
 
     /// <summary>Runs left until terrain collision, then reverses into the rightward teaching path.</summary>
@@ -308,7 +261,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonHorizontally(place, state, level))
             return;
 
-        SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
+        SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
         state.Action = EtecoonAction.RunRightToWall;
         StartEtecoonAnimation(place, state, EtecoonSegment.RunningRight);
         state.Head(side: HorizontalDirection.Right);
@@ -323,7 +276,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 place,
-                EtecoonRightWallProbe))
+                EtecoonMotionDefinitions.RightWallLookahead))
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
             state.Action = EtecoonAction.Airborne;
@@ -356,7 +309,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = EtecoonAction.WallPause;
             state.ActionTimer = EtecoonTimingDefinitions.WallPause;
             if (SamusHearsEtecoon(samus))
-                _audio.QueueEnemySound(EtecoonWallSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
 
@@ -371,7 +324,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 : EtecoonSegment.HoppingFacingRight);
         state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
         state.Action = EtecoonAction.RouteAfterLanding;
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
     }
 
     /// <summary>Clings to a wall, then launches in the stored opposite direction.</summary>
@@ -384,15 +337,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HeadingRight)
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.WallJumpRight);
-            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
         }
         else
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.WallJumpLeft);
-            SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.LeftRunSpeed);
         }
         state.Action = EtecoonAction.Airborne;
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
     }
 
     /// <summary>Takes the authored post-landing route.</summary>
@@ -403,18 +356,18 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
         switch (state.Route)
         {
             case EtecoonRoute.RunLeftToTeachingStart:
                 state.Action = EtecoonAction.MoveLeftToTeachingStart;
                 state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningLeft), AnimationPlace.StartOfAnimation);
-                SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
+                SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.LeftRunSpeed);
                 break;
             case EtecoonRoute.RunRightToTeachingStart:
                 state.Action = EtecoonAction.MoveRightToTeachingStart;
                 state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
-                SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
+                SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
                 break;
             case EtecoonRoute.TeachAtOnce:
                 state.Action = EtecoonAction.TeachingJump;
@@ -422,7 +375,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Playback = new(EtecoonAnimations.StartingWith(state.HeadingRight
                     ? EtecoonSegment.ContinueHoppingFacingLeft
                     : EtecoonSegment.ContinueHoppingFacingRight), AnimationPlace.StartOfAnimation);
-                SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
+                SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EtecoonRoute)} {state.Route}.");
@@ -437,7 +390,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonFirstTeachingX) >= 0)
+        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.FirstTeachingX) >= 0)
             return;
 
         state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
@@ -452,7 +405,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRunStartX) < 0)
+        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.RunStartX) < 0)
             return;
 
         state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
@@ -467,11 +420,11 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRunStartX) < 0)
+        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.RunStartX) < 0)
             return;
 
         state.Action = EtecoonAction.LongJump;
-        SetEtecoonVerticalVelocity(state, EtecoonLongJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.LongJumpSpeed);
         StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
     }
 
@@ -484,7 +437,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MoveEtecoonHorizontally(place, state, level);
         MoveEtecoonVertically(place, state, samus, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonLongJumpMidpointX) < 0)
+        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.LongJumpMidpointX) < 0)
             return;
 
         StartEtecoonAnimation(place, state, EtecoonSegment.RunningRight);
@@ -498,12 +451,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonLongJumpEndX) < 0)
+        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.LongJumpEndX) < 0)
             return;
 
         StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
         state.Action = EtecoonAction.LongJumpLanding;
-        SetEtecoonVerticalVelocity(state, EtecoonLongJumpLandingYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.LongJumpLandingSpeed);
     }
 
     /// <summary>Waits for floor contact after the long route, then resumes the teaching-hop pause.</summary>
@@ -538,7 +491,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
             state.Action = state.Route == EtecoonRoute.TeachAtOnce &&
-                CoordinateAxis.Difference(place.Position.X.Whole, EtecoonLongRunMaximumX) < 0
+                CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.LongRunMaximumX) < 0
                     ? EtecoonAction.WaitForSamusBeforeLongRun
                     : EtecoonAction.IdleBetweenTeachingJumps;
             return;
@@ -578,12 +531,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Action = EtecoonAction.RunRightToReturnJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
-            SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
         }
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
         place.AnimationClock.StepOnNextUpdate();
         if (SamusHearsEtecoon(samus))
-            _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the long run when Samus approaches; otherwise schedules another teaching hop.</summary>
@@ -596,19 +549,19 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        if (EtecoonIsWithinY(place, samus, EtecoonNearbyDistance) &&
-            EtecoonIsWithinX(place, samus, EtecoonLongRunTriggerDistance))
+        if (EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.NearbyDistance) &&
+            EtecoonIsWithinX(place, samus, EtecoonRouteDefinitions.LongRunTriggerDistance))
         {
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
             state.Action = EtecoonAction.RunRightToLongJump;
         }
         else
         {
-            SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+            SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);
             state.Action = EtecoonAction.TeachingJump;
             if (SamusHearsEtecoon(samus))
-                _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonJumpSound, priority: SoundRequestPriority.Normal);
         }
         place.AnimationClock.StepOnNextUpdate();
     }
@@ -620,7 +573,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRunStartX) < 0)
+        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.RunStartX) < 0)
             return;
 
         state.Action = EtecoonAction.ReturnJump;
@@ -638,9 +591,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonVertically(place, state, samus, level))
             return;
 
-        SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
+        SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.LeftRunSpeed);
         state.Action = EtecoonAction.RunLeftToWall;
-        SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
+        SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
         StartEtecoonAnimation(place, state, EtecoonSegment.RunningLeft);
     }
 
@@ -709,7 +662,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Whether the eight-way direction from the Etecoon to Samus points left: straight left, up-left or down-left.
-    /// Samus is straight left or right while she is within <see cref="EtecoonDirectionBand"/> vertically, and
+    /// Samus is straight left or right while she is within <see cref="EtecoonRouteDefinitions.DirectionBand"/> vertically, and
     /// otherwise straight above or below, which is not left, while she is within it horizontally.
     /// </summary>
     private static bool SamusIsToEtecoonsLeft(
@@ -718,7 +671,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
         int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole);
-        bool straightAboveOrBelow = Math.Abs(deltaY) >= EtecoonDirectionBand && Math.Abs(deltaX) < EtecoonDirectionBand;
+        bool straightAboveOrBelow = Math.Abs(deltaY) >= EtecoonRouteDefinitions.DirectionBand && Math.Abs(deltaX) < EtecoonRouteDefinitions.DirectionBand;
         return deltaX < 0 && !straightAboveOrBelow;
     }
 

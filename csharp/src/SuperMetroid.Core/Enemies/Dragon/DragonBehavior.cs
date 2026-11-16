@@ -54,16 +54,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Frames spent in each body rise or sink movement phase.</summary>
-    private const int DragonRiseOrSinkFrames = 48;
-    /// <summary>Fireballs requested by one attacking volley.</summary>
-    private const int DragonShotCount = 3;
-    /// <summary>Pause after attack completion before the body begins sinking.</summary>
-    private const int DragonWaitBeforeSinkFrames = 96;
-    /// <summary>Pause beneath the platform before the next rise attempt.</summary>
-    private const int DragonWaitBeforeRiseFrames = 128;
-
-
     /// <summary>Initializes a Dragon's wing: it begins on the left-facing wings animation and never runs body AI.</summary>
     internal void InitializeDragonWing(RoomEnemyPlace place)
     {
@@ -135,7 +125,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemyPlace wing = bodyState.Wing;
         DragonWingState wingState = wing.RequireSpeciesState<DragonWingState>();
-        bodyState.ActionTimer = DragonRiseOrSinkFrames;
+        bodyState.ActionTimer = DragonTimingDefinitions.RiseOrSinkCount;
         bodyState.Action = DragonAction.Rising;
 
         // The body turns to face Samus, and the idle body and its flapping wing each turn to that side.
@@ -150,7 +140,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--bodyState.ActionTimer < 0)
         {
-            bodyState.AttackCounter = DragonShotCount;
+            bodyState.AttackCounter = DragonTimingDefinitions.ShotsPerAttack;
             bodyState.Action = DragonAction.Attacking;
         }
 
@@ -180,7 +170,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--bodyState.AttackCounter != 0)
             return;
 
-        bodyState.ActionTimer = DragonWaitBeforeSinkFrames;
+        bodyState.ActionTimer = DragonTimingDefinitions.WaitBeforeSink;
         bodyState.Action = DragonAction.WaitToSink;
     }
 
@@ -192,7 +182,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--bodyState.ActionTimer != 0)
             return;
 
-        bodyState.ActionTimer = DragonRiseOrSinkFrames;
+        bodyState.ActionTimer = DragonTimingDefinitions.RiseOrSinkCount;
         bodyState.Action = DragonAction.Sinking;
         StartDragonIdle(body, bodyState);
     }
@@ -202,7 +192,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--bodyState.ActionTimer < 0)
         {
-            bodyState.ActionTimer = DragonWaitBeforeRiseFrames;
+            bodyState.ActionTimer = DragonTimingDefinitions.WaitBeforeRiseCount;
             bodyState.Action = DragonAction.WaitToRise;
         }
 

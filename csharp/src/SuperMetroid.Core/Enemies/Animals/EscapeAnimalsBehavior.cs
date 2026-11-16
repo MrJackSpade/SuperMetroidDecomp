@@ -38,13 +38,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
-    private const int EscapeAnimalLavaBranchY = 206;
-    /// <summary>The one whole pixel an exiting Etecoon probes downward each update, which settles it on the room's floor.</summary>
-    private static readonly SignedSixteenSixteen EscapeEtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
-    /// <summary>Signed 1/65536-pixel horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
-    private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);
-
     /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemyPlace place)
     {
@@ -103,7 +96,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case EscapeEtecoonAction.Escaping:
-                AddEscapeAnimalX(place, EscapeEtecoonUncollidedExitSpeed);
+                AddEscapeAnimalX(place, EscapeAnimalMotionDefinitions.EtecoonExitSpeed);
                 return;
 
             case EscapeEtecoonAction.AwaitingEscape:
@@ -145,7 +138,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The animal moves down by its gravity even after meeting a wall, whether or not it meets the floor: the
         // one-pixel move settles it on the room's floor.
-        _ = _terrain.MoveEnemyVertically(level, place, EscapeEtecoonGravity);
+        _ = _terrain.MoveEnemyVertically(level, place, EscapeAnimalMotionDefinitions.EtecoonGravity);
     }
 
     /// <summary>Runs an escaping Etecoon's or Dachora's typed animation where the shared enemy animation would.</summary>
@@ -234,11 +227,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
-    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent
+    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>, or absent
     /// from Samus's room.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
-        samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
+        samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalMotionDefinitions.LowAcidSurfaceY;
 
     /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
     private static void AddEscapeAnimalX(RoomEnemyPlace place, SignedSixteenSixteen displacement) =>

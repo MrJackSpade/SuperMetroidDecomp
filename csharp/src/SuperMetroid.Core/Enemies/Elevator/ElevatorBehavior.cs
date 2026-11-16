@@ -36,9 +36,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _audio = audio;
     }
 
-    /// <summary>Elevator travel advances one and a half pixels per enemy update.</summary>
-    private static readonly SignedSixteenSixteen ElevatorSpeed = SignedSixteenSixteen.FromParts(1, 32768);
-
     /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
     public ElevatorJourneyFlag ElevatorFlags
     {
@@ -222,12 +219,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         if (state.Direction is ElevatorTravelDirection.Up)
         {
             ElevatorTravelsUpward = true;
-            AddElevatorYVelocity(place, -ElevatorSpeed);
+            AddElevatorYVelocity(place, -ElevatorActorDefinitions.TravelSpeed);
         }
         else
         {
             ElevatorTravelsUpward = false;
-            AddElevatorYVelocity(place, ElevatorSpeed);
+            AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
         }
         PinSamusToElevator(place, samus);
     }
@@ -241,12 +238,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         bool stillReturning;
         if (state.Direction is ElevatorTravelDirection.Up)
         {
-            AddElevatorYVelocity(place, ElevatorSpeed);
+            AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole < state.RestingY;
         }
         else
         {
-            AddElevatorYVelocity(place, -ElevatorSpeed);
+            AddElevatorYVelocity(place, -ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole >= state.RestingY;
         }
 

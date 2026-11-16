@@ -14,11 +14,6 @@ public sealed class BoulderEnemyState
     public BoulderAction Action { get; internal set; }
 
     /// <summary>
-    /// The largest travel clock: its larger cap.
-    /// </summary>
-    internal static readonly QuadraticSpeedCurvePlace LargestTravelSpeedAccumulator = QuadraticSpeedCurvePlace.FromMarks(80);
-
-    /// <summary>
     /// The largest bounce clock: the place past the curve's last mark, which the curve rejects before another increment.
     /// </summary>
     internal static readonly QuadraticSpeedCurvePlace LargestBounceSpeedAccumulator = QuadraticSpeedCurvePlace.PastLastMark;
@@ -32,7 +27,7 @@ public sealed class BoulderEnemyState
     public QuadraticSpeedCurvePlace TravelSpeedAccumulator
     {
         get;
-        internal set => field = InRange(value, LargestTravelSpeedAccumulator);
+        internal set => field = InRange(value, BoulderMotionDefinitions.MaximumBouncingSpeed);
     }
 
     /// <summary>

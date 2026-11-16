@@ -205,7 +205,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, 1);
+        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -242,7 +242,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, 1);
+        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyVertically(level, place, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -343,7 +343,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Sets the next action but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, 1);
+        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -377,7 +377,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, 1);
+        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyVertically(level, place, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
@@ -417,7 +417,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             // A crawler placed without a crawl speed takes the default speed after its first landing.
             if (state.TakesDefaultSpeedOnLanding)
             {
-                state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.FromParts(0, 128), SignedEightEight.FromParts(0, 128));
+                state.Velocity = CrawlerMotionDefinitions.DefaultCrawlSpeed;
             }
             state.FallingYVelocity = SignedSixteenSixteen.Zero;
             state.ConsecutiveTurnCounter = 0;

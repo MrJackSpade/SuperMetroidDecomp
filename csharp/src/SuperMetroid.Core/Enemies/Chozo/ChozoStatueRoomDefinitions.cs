@@ -5,6 +5,12 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>The room blocks, block behaviours and heights the Chozo statues' hands, slopes and acid use.</summary>
 internal static class ChozoStatueRoomDefinitions
 {
+    /// <summary>
+    /// How far below the Wrecked Ship statue's middle, in pixels, its footsteps land: where a footstep probes the floor and
+    /// where its spike-footstep dust appears.
+    /// </summary>
+    public const int FootstepDepth = 28;
+
     /// <summary>The base height the Lower Norfair statue's lowered acid settles at, in room pixels.</summary>
     public const int LoweredAcidY = 722;
 

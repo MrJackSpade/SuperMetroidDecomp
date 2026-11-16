@@ -11,34 +11,34 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed record CrocomireBehaviorDependencies
 {
 
-    /// <summary>Room.</summary>
+    /// <summary>The room Crocomire fights in: its services, its random numbers and whether he is already defeated.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Terrain.</summary>
+    /// <summary>The room's terrain, which Crocomire's steps move him against.</summary>
     public required EnemyTerrain Terrain { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The enemy projectiles his attacks, the bridge's fragments, his dust and his smoke are.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which the bridge's collapse and the wall's break start.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
     /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
-    /// <summary>Frame context.</summary>
+    /// <summary>The enemy update's clocks, whose random enemy counter his combat reads.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemy touch, which his body and tongue deal Samus.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' drops, which his death scatters.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>The room camera's distance mode, which the fight requests.</summary>
     public required RoomCameraDistance CameraDistance { get; init; }
 
-    /// <summary>Room status.</summary>
+    /// <summary>The room's boss state, which his defeat completes.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
     /// <summary>Crocomire's state lookups, frame results and sound and music requests.</summary>

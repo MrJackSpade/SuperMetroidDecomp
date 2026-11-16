@@ -46,7 +46,7 @@ internal sealed class DraygonParts
         _shots = dependencies.Shots;
     }
 
-    /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
+    /// <summary>Draygon's state while the current room contains Draygon.</summary>
     public DraygonEnemyState? Draygon { get; internal set; }
 
     /// <summary>Sets Draygon's body up when the room spawns it.</summary>

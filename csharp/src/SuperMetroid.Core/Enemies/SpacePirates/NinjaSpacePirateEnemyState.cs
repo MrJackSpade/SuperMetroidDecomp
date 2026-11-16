@@ -50,8 +50,8 @@ public sealed class NinjaSpacePirateEnemyState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>
-    /// Changes <see cref="Speed"/> by <paramref name="delta"/>, wrapping past the fastest speed as the game's
-    /// speed does.
+    /// Changes <see cref="Speed"/> by <paramref name="delta"/>; a change past the fastest speed one way carries on from
+    /// the fastest speed the other way.
     /// </summary>
     internal void ChangeSpeed(SignedEightEight delta) => Speed += delta;
 }

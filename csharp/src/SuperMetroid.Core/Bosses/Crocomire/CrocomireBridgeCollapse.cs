@@ -92,9 +92,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        // One block deep crumbles the first bridge block. The flag
-        // resets and the collapse step sit behind comparisons these ranges already passed
-        // and never execute.
+        // One block deep crumbles the first bridge block.
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1568) < 0)
         {
             if (!death.BridgeBlockAt1568Crumbling)
@@ -121,16 +119,9 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Clears all ten bridge blocks and bursts dust as the bridge collapses.
-    /// The ten room-object spawns exactly use
-    /// block X=97+i, block Y=11, and the bridge-block clearing for i=0..9. The
-    /// inclusive production loop preserves their ascending publication
-    /// order; the dust setup follows, not an eleventh clear.
-    /// The seven dust positions follow the
-    /// exact bounded rule X=1536+16*i for i=0..6; Y=176 at i=0 or 2
-    /// and 192 otherwise. The game places these one by one,
-    /// not as a table. All seven pairs and their
-    /// order match the authored ones; there is no eighth dust spawn.
+    /// Collapses the bridge: clears its ten blocks from left to right, the blocks 97 through 106 of the row eleven blocks
+    /// down, then bursts the seven dust puffs along it (<see cref="CrocomireBridgeDustPosition"/>) and puts up the
+    /// invisible wall.
     /// </summary>
     private void PublishCrocomireBridgeCollapseObjects()
     {
@@ -145,7 +136,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// The seven unrolled dust spawns: puffs sixteen pixels apart along the bridge from
+    /// The seven dust puffs of the collapse: sixteen pixels apart along the bridge from
     /// X 1536; the first and third rise sixteen pixels above the others' Y 192.
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
@@ -308,8 +299,7 @@ internal sealed class CrocomireBridgeCollapse
         if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The fragment counts as launched even when no projectile place is free. The graphics argument the
-        // passes alongside it is immaterial: the definition initializer immediately replaces it.
+        // The fragment counts as launched even when no projectile place is free. Its colours are the wall's, set below.
         death.BridgeFragmentsSpawned = fragment + 1;
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -324,7 +314,7 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
-        // The fragment initializer reads RandomNumberSeed; it does not advance it.
+        // The fragment's fall speed reads the room's random number without drawing a new one.
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()) + 64));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);

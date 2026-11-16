@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The reactions of the Space Pirates's own that its frames' hitboxes name (#1759). Only the Space Pirates's handlers tell them apart; a
-/// definition names only the engine's shared reactions.
+/// The Space Pirates' own reactions, which their frames' hitboxes name (#1759). Only the Pirates' own responses tell them
+/// apart; a definition names only the engine's shared reactions.
 /// </summary>
 internal static class SpacePirateReactions
 {

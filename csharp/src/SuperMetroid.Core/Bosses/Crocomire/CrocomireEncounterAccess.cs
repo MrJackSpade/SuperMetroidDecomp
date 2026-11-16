@@ -31,7 +31,7 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>Crocomire's state while the current room contains Crocomire.</summary>
     public CrocomireEnemyState? Crocomire { get; internal set; }
 
-    /// <summary>Typed extended state used by Crocomire's bridge/melting/skeleton graph.</summary>
+    /// <summary>Crocomire's death while the current room contains Crocomire: the bridge's collapse, his melt and his skeleton.</summary>
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
 
     /// <summary>Queues one of Crocomire's sounds as Crocomire makes it, after the update's earlier requests.</summary>
@@ -58,7 +58,7 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>Requires the active death-sequence state before processing skeleton or wall cues.</summary>
     internal CrocomireDeathState RequireCrocomireDeath() =>
         CrocomireDeath ?? throw new InvalidOperationException(
-            "Crocomire death extension is not initialized for the current room.");
+            "Crocomire's death state is not initialized for the current room.");
 
     /// <summary>Queues a room-object block change for later room processing.</summary>
     internal void PublishCrocomireObject(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>

@@ -39,8 +39,8 @@ public sealed class GrowingShutterEnemyState
 
     /// <summary>
     /// The origin row of the section grown at <paramref name="level"/>, indexed by growth level: level 0 is the spawn row
-    /// and each later level is eight pixels further along the growth direction, wrapping at the room coordinate's sixteen
-    /// bits. A growing shutter only ever moves vertically, so a section's origin is a row in the shutter's own column.
+    /// and each later level is eight pixels further along the growth direction, wrapping around the room. A growing shutter
+    /// only ever moves vertically, so a section's origin is a row in the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>
     public int SectionOriginY(int level) => _sectionOriginYs[level];
@@ -65,7 +65,7 @@ public sealed class GrowingShutterEnemyState
 
     /// <summary>
     /// Places the four section origins from the shutter's spawn row <paramref name="spawnY"/>, each eight pixels further
-    /// along the growth direction, wrapping at the room coordinate's sixteen bits as the game's origins do.
+    /// along the growth direction, wrapping around the room.
     /// </summary>
     internal void PlaceSectionOrigins(int spawnY, bool growsUp)
     {

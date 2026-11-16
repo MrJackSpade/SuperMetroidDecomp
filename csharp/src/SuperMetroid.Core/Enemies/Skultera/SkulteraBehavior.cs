@@ -100,8 +100,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 horizontalDisplacement))
         {
             BeginSkulteraTurn(place, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
-            // Horizontal collision skips straight to the shared tail. Consequently
-            // CurrentYOffset remains the preceding frame's value and is copied below again.
+            // A wall turns the Skultera before it bobs: its vertical offset stays the previous update's.
             state.PreviousYOffset = state.CurrentYOffset;
             return;
         }
@@ -119,8 +118,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.AdvanceAngle();
         }
 
-        // Both successful movement and vertical collision retain the newly calculated
-        // offset. This prevents a failed vertical step from being retried after the turn.
+        // The new offset stands whether the vertical move succeeded or hit terrain, so a blocked step is not taken
+        // again after the turn.
         state.PreviousYOffset = state.CurrentYOffset;
     }
 

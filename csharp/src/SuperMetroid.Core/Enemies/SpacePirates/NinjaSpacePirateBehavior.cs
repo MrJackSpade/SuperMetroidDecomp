@@ -605,9 +605,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShot);
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
             throw new InvalidDataException("A Gold Ninja Space Pirate's normal-bomb reaction selected an action other than ignoring the bomb.");
-        // Both gold-Ninja component reactions compare the normal-bomb family against the Power Bomb family and return
-        // immediately. The extended collision walker has already marked the bomb, so this is an
-        // accepted physical overlap without damage, impact replacement, reflection, or the Lower-Norfair
-        // special-drop death tail.
+        // Both of the Gold Ninja's body reactions answer only a Power Bomb. The bomb's overlap with the Ninja's hitbox has
+        // already been counted, so the bomb touches it without damage, an impact, a reflection or the Gold Ninja's
+        // special-drop death.
     }
 }

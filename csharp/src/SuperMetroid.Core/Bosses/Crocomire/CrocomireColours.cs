@@ -21,10 +21,10 @@ internal sealed class CrocomireColours : IGameplayShadingSource
     /// <summary>Whether his body shows the white hurt flash.</summary>
     internal bool HurtFlash { get; private set; }
 
-    /// <summary>Whether his skeleton's arm colours are loaded.</summary>
+    /// <summary>Whether his sprites show his skeleton's arm colours.</summary>
     internal bool ShowsSkeletonArm { get; private set; }
 
-    /// <summary>Whether the wall spikes' colours are loaded.</summary>
+    /// <summary>Whether his sprites show the wall spikes' colours.</summary>
     internal bool ShowsWallSpikes { get; private set; }
 
     /// <summary>Shows his body's fight colours, or the white hurt flash when <paramref name="white"/>.</summary>
@@ -34,14 +34,14 @@ internal sealed class CrocomireColours : IGameplayShadingSource
         HurtFlash = white;
     }
 
-    /// <summary>Loads his skeleton's arm colours.</summary>
+    /// <summary>Shows his skeleton's arm colours on his sprites.</summary>
     internal void ShowSkeletonArm() => ShowsSkeletonArm = true;
 
-    /// <summary>Loads the wall spikes' colours.</summary>
+    /// <summary>Shows the wall spikes' colours on his sprites.</summary>
     internal void ShowWallSpikes() => ShowsWallSpikes = true;
 
     /// <summary>
-    /// <paramref name="drawn"/>, a sprite draw's own shading, with the colours his death has loaded laid over it: the
+    /// <paramref name="drawn"/>, a sprite draw's own shading, with the colours his death has shown laid over it: the
     /// skeleton's arm, then the spikes.
     /// </summary>
     internal PictureShading OverSprites(PictureShading drawn)

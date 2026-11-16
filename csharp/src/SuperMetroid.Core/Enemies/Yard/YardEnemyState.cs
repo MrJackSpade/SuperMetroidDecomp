@@ -22,7 +22,7 @@ public sealed class YardEnemyState
     /// </summary>
     public YardAirborneFacing AirborneFacingDirection { get; internal set; }
 
-    /// <summary>The hidden-shell animation for the current orientation; none, the empty-behaviour sentinel, suppresses the look-at hiding transition.</summary>
+    /// <summary>The animation the Yard hides in its shell with when Samus looks at it, for its current surface; none where it does not hide.</summary>
     internal YardSegment? HidingAnimation { get; set; }
 
     /// <summary>The missing-surface probes in a row that drop Yard.</summary>

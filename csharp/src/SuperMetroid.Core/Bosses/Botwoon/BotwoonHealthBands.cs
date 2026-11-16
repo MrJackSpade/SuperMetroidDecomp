@@ -11,10 +11,8 @@ internal static class BotwoonHealthBands
     /// thresholds, zero through seven.
     /// </summary>
     /// <remarks>
-    /// The threshold after i passed thresholds is 375 times (8 - i), for i from zero through seven. Botwoon's health
-    /// never exceeds its 3000 at spawn, so the
-    /// game's signed comparison of the difference is the plain comparison. Eight passed thresholds means Botwoon's health
-    /// bands are done, which the fight decides itself; there is no ninth threshold.
+    /// The threshold after i passed thresholds is 375 times (8 - i), for i from zero through seven. Eight passed
+    /// thresholds means Botwoon's health bands are done, which the fight decides itself; there is no ninth threshold.
     /// </remarks>
     public static bool ShouldAdvance(int bandsPassed, int health)
     {

@@ -62,11 +62,9 @@ internal static class PirateHitboxShotActions
     }
 
     /// <summary>
-    /// Runs a normal bomb through the same three component
-    /// reactions as the ordinary projectile path. Non-gold Pirates always jump to normal
-    /// Pirate shot handling. Gold Ninjas return from both body reactions because a
-    /// normal bomb's family sorts after the Power Bomb family; consequently bombs neither damage
-    /// nor reflect from either authored body region.
+    /// Chooses how a Pirate's hitbox, whichever of the Pirates' three shot reactions it names, reacts to a normal bomb: a
+    /// Gold Ninja's body answers only a Power Bomb, so it ignores the bomb, neither hurt nor reflecting it; every other
+    /// Pirate reacts to the bomb as to a shot.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
         RoomEnemyPlace enemy,

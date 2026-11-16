@@ -43,9 +43,8 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public int DeathTimer { get; internal set; }
     /// <summary>
-    /// Head-fall place along the quadratic speed table: each still-airborne update adds three quarters of a row, and
-    /// the whole rows select the fall speed. The fall reaches the floor before the speed table runs out, so it stays
-    /// well below row 95.
+    /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on three quarters of a mark,
+    /// and the whole marks choose the fall speed. The head reaches the floor before the curve ends, well below mark 95.
     /// </summary>
     public QuadraticSpeedCurvePlace DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>

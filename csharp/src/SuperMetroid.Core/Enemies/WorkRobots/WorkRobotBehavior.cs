@@ -128,10 +128,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, state.FallVelocity))
             return;
 
-        // Enemy animation processing will decrement the timer later in this same frame.
-        // Incrementing here cancels that tick, freezing the current art while airborne.
+        // The animation's own update counts this frame down later in the update, so extending it by one holds the
+        // robot's current frame while it falls.
         place.AnimationClock.Extend(1);
-        // A fraction past a whole pixel carries into the whole pixels, which wrap.
         state.FallVelocity += WorkRobotMotionDefinitions.Gravity;
     }
 

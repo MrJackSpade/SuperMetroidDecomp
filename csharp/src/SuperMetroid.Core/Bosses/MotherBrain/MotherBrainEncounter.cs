@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain encounter state shared across Tourian: the state extension, the end of
+/// Mother Brain encounter state shared across Tourian: Mother Brain's own state, the end of
 /// the tube effects the elevator observes, and the encounter's sound and music requests.
 /// </summary>
 [RoomLifetime]

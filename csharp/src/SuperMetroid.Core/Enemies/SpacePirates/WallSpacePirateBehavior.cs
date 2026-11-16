@@ -46,8 +46,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
-        // The Japanese and North American release measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
-        // one takes 32 four-step frames with adjusted endpoints.
+        // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
+        // frame for 32 frames, to endpoints two steps further round.
         state.RightJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 190 : 192);
         state.LeftJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
@@ -55,7 +55,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToWallGrid(place);
     }
 
-    /// <summary>Runs a wall Space Pirate's per-frame behaviour and its six actions.</summary>
+    /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>
     private static void RunWallSpacePirateMain(
         RoomEnemyPlace place,
         WallSpacePirateEnemyState state,

@@ -76,8 +76,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         // The initializer installs the hidden animation: the head starts hidden in its hole.
         state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden));
 
-        // A previously defeated Botwoon does not allocate body actors. The room loader
-        // installs the permanent open wall and opens both of its screens to the camera, aligned to their top.
+        // An already defeated Botwoon has no body segments. The room loader
+        // opens his wall for good and opens both of its screens to the camera, aligned to their top.
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             _frameResults.BotwoonWall = BotwoonWallMutation.Clear;
@@ -785,7 +785,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    /// <param name="context">The projectile and what its pass hands every motion.</param>
     private protected override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
     {
         switch (motion)

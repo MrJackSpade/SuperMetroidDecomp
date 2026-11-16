@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>The state of the Wrecked Ship ghost, with its extra values.</summary>
+/// <summary>The state of the Wrecked Ship ghost: its behaviour, its flicker and its bobbing.</summary>
 public sealed class WreckedShipGhostEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
@@ -33,8 +33,8 @@ public sealed class WreckedShipGhostEnemyState
     public int BobbingOriginY { get; internal set; }
 
     /// <summary>
-    /// The visible ghost's signed 1/65536-pixel vertical speed in pixels
-    /// per update, accelerating toward <see cref="BobbingOriginY"/> with the fraction's overflow and wraparound.
+    /// The visible ghost's vertical speed in 1/65536 pixels per update, accelerating toward
+    /// <see cref="BobbingOriginY"/>.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 

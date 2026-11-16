@@ -102,13 +102,9 @@ internal static class PhantoonWaveVerification
         var visibility = boss.BodyVisibility;
         boss.Translucent = true;
         boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
-        for (int i = 0; i < PhantoonBodyVisibilityEffect.SetupCalls; i++)
-        {
-            visibility.Step(boss);
-            AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "the effect's setup updates show the body as the room does");
-        }
         visibility.Step(boss);
-        AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility, "translucency takes priority over a cleared body");
+        AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility,
+            "the body shows what the boss asks from the effect's first update, translucency taking priority over a cleared body");
         visibility.LatchDisplay(pixelationBlockSize: 5);
         boss.PixelationBlockSize = 6;
         boss.Translucent = false;

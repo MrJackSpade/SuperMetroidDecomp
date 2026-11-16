@@ -126,7 +126,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         ILitTorizo torizo,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
-        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, Ensure.NotNull(torizo), glowingEnemy: null))
+        // The glow shows on the Torizo that lit it (#2240), as the gunship's shows on the gunship (#1783).
+        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, Ensure.NotNull(torizo), glowingEnemy: torizo))
             throw new InvalidOperationException($"Torizo belly glow {glow} could not start.");
     }
 

@@ -14,19 +14,19 @@ internal static class BombTorizoStatueFragmentDefinitions
     internal static readonly SignedEightEight Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
 
     /// <summary>
-    /// Each piece: the animation it plays, named for the order the crumble drops it in, and its place from the hand's block
+    /// Each piece: the animation it plays, named for the piece (#2240), and its place from the hand's block
     /// in room pixels, the centre of its sixteen-pixel cell.
     /// </summary>
     internal static IReadOnlyDictionary<BombTorizoStatueFragment, BombTorizoStatueFragmentDefinition> Fragments { get; } =
         new Dictionary<BombTorizoStatueFragment, BombTorizoStatueFragmentDefinition>
         {
-            [F.TopMiddle] = new(P.FirstStatueFragment, new(8, -8), InitialFallSpeed, Acceleration),
-            [F.TopRight] = new(P.SecondStatueFragment, new(24, -8), InitialFallSpeed, Acceleration),
-            [F.MiddleLeft] = new(P.ThirdStatueFragment, new(-8, 8), InitialFallSpeed, Acceleration),
-            [F.Centre] = new(P.FourthStatueFragment, new(8, 8), InitialFallSpeed, Acceleration),
-            [F.MiddleRight] = new(P.FifthStatueFragment, new(24, 8), InitialFallSpeed, Acceleration),
-            [F.BottomLeft] = new(P.SixthStatueFragment, new(-8, 24), InitialFallSpeed, Acceleration),
-            [F.BottomMiddle] = new(P.SeventhStatueFragment, new(8, 24), InitialFallSpeed, Acceleration),
-            [F.BottomRight] = new(P.EighthStatueFragment, new(24, 24), InitialFallSpeed, Acceleration),
+            [F.TopMiddle] = new(P.StatueFragmentTopMiddle, new(8, -8), InitialFallSpeed, Acceleration),
+            [F.TopRight] = new(P.StatueFragmentTopRight, new(24, -8), InitialFallSpeed, Acceleration),
+            [F.MiddleLeft] = new(P.StatueFragmentMiddleLeft, new(-8, 8), InitialFallSpeed, Acceleration),
+            [F.Centre] = new(P.StatueFragmentCentre, new(8, 8), InitialFallSpeed, Acceleration),
+            [F.MiddleRight] = new(P.StatueFragmentMiddleRight, new(24, 8), InitialFallSpeed, Acceleration),
+            [F.BottomLeft] = new(P.StatueFragmentBottomLeft, new(-8, 24), InitialFallSpeed, Acceleration),
+            [F.BottomMiddle] = new(P.StatueFragmentBottomMiddle, new(8, 24), InitialFallSpeed, Acceleration),
+            [F.BottomRight] = new(P.StatueFragmentBottomRight, new(24, 24), InitialFallSpeed, Acceleration),
         }.ToFrozenDictionary();
 }

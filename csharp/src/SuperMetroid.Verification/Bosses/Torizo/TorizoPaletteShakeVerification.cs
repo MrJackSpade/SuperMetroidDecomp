@@ -77,23 +77,23 @@ internal static class TorizoPaletteShakeVerification
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoColours>(saved);
         AssertEqual(state.Colours.Shading, restored.Shading, "Mid-fade save preserves the fade's step");
 
-        // A hurt colouring written mid-fade restarts the fade from it at the counter value it stands at (#1512).
+        // A hurt colouring written mid-fade restarts the fade from it at the counter value it stands at (#1512): at counter
+        // value two, one of the twelve parts left from there toward the normal colours (#2236).
         state.Colours.Show(new TorizoLook(TorizoLookKind.White));
         Execute(TorizoCueKind.AdvanceColourFade);
-        PictureShade fromWhite = TorizoShades.Fading(new TorizoLook(TorizoLookKind.White), new TorizoLook(TorizoLookKind.Normal), 2, 2);
+        PictureShadeFade fromWhite = new(PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))),
+            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), 1, 12);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(fromWhite), state.Colours.Shading,
             "The fade restarts from the hurt flash's white at the counter value it stands at");
 
-        // The import pre-colours each step: the black fade's last moving step and the normal fade's are their targets'.
+        // The import pre-colours each settled colouring over sprite rows one and two, and no fade partway.
         IReadOnlyList<SheetShade> shades = TorizoSheetShades.Of(InstalledFixtures.EnemyTiles.AuxiliaryColors
             ?? throw new InvalidOperationException("The installed enemy artwork holds the Torizos' colours."),
             InstalledFixtures.ImportMaps.RoomPaletteFx, ColourEffectId.BombTorizoBelly);
-        SheetShade toBlack = shades.Single(shade => shade.Shade == TorizoShades.Fading(new TorizoLook(TorizoLookKind.Normal), new TorizoLook(TorizoLookKind.Black), 1, 13));
-        AssertTrue(toBlack.Inks.SequenceEqual(Enumerable.Range(16, 32)), "The fades recolour only sprite rows one and two");
-        AssertTrue(toBlack.Colours.All(colour => colour == RgbColor.Black), "The black fade's last step is black");
-        SheetShade toNormal = shades.Single(shade => shade.Shade == TorizoShades.Fading(new TorizoLook(TorizoLookKind.Black), new TorizoLook(TorizoLookKind.Normal), 1, 13));
-        VerifyTorizoPaletteCatalogsAgainstRetailRom(toNormal, shades);
-        VerifyRestartedFadeAgainstRetailRom(shades.Single(shade => shade.Shade == fromWhite));
+        SheetShade black = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.Black)));
+        AssertTrue(black.Inks.SequenceEqual(Enumerable.Range(16, 32)), "The colourings recolour only sprite rows one and two");
+        AssertTrue(black.Colours.All(colour => colour == RgbColor.Black), "The black colouring is black");
+        VerifyTorizoPaletteCatalogsAgainstRetailRom(shades);
         VerifyTorizoSheetRows();
         VerifyBellyGlow(shades);
         Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
@@ -101,10 +101,11 @@ internal static class TorizoPaletteShakeVerification
         return 0;
     }
 
-    /// <summary>Compares the normal fade's last step and every imported Torizo colouring with bank $AA.</summary>
-    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SheetShade toNormal, IReadOnlyList<SheetShade> shades)
+    /// <summary>Compares every imported Torizo colouring with bank $AA.</summary>
+    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(IReadOnlyList<SheetShade> shades)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        SheetShade toNormal = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal)));
         SheetShade golden = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.Golden)));
         SheetShade shared = shades.Single(shade => shade.Shade == TorizoShades.Shared);
         SheetShade bombInitial = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.BombStatue)));
@@ -116,27 +117,6 @@ internal static class TorizoPaletteShakeVerification
             AssertEqual(rom.ReadCartridgeWord(0xaa8687 + i * 2), shared.Colours[i].ToWord(), $"Torizo shared orb/flame and statue-shading colour {i} matches cartridge");
             AssertEqual(rom.ReadCartridgeWord(0xaa86c7 + i * 2), bombInitial.Colours[i].ToWord(), $"Bomb Torizo initial body colour {i} matches cartridge");
             AssertEqual(rom.ReadCartridgeWord(0xaa8747 + i * 2), goldenInitial.Colours[i].ToWord(), $"Golden Torizo initial body colour {i} matches cartridge");
-        }
-    }
-
-    /// <summary>
-    /// Compares the import's colours of a fade restarted from white at counter value two with one step of the cartridge's
-    /// gradual colour change from white toward the normal colours bank $AA holds.
-    /// </summary>
-    private static void VerifyRestartedFadeAgainstRetailRom(SheetShade fromWhite)
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int i = 0; i < 32; i++)
-        {
-            ushort goal = rom.ReadCartridgeWord(0xaa8707 + i * 2);
-            int expected = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-            {
-                int to = goal >> shift & 31;
-                int moved = ((31 << 8) + Math.Sign(to - 31) * (Math.Abs(to - 31) * 256 / (TorizoShadeDefinitions.FadeDenominator - 2 + 1))) >> 8;
-                expected |= moved << shift;
-            }
-            AssertEqual((ushort)expected, fromWhite.Colours[i].ToWord(), $"Torizo fade restarted from white, colour {i}, takes one cartridge step");
         }
     }
 
@@ -158,10 +138,10 @@ internal static class TorizoPaletteShakeVerification
 
     /// <summary>
     /// Checks the Bomb Torizo's belly glow (#1512, #1597): the statue's colours show the shade of the glow's current record
-    /// over his own colouring, whatever colouring is written but his white flash, and a fade steps the glowing colours
-    /// from the record shown;
-    /// the import's record shades recolour the three colours the program's colour index names with the colours of bank
-    /// $8D's program, and its fade from a record takes the cartridge's step from those colours.
+    /// over his own colouring, whatever colouring is written but his white flash, and a fade moves the glowing colours
+    /// from the record shown (#2236); the import's record shades recolour the three colours the program's colour index names
+    /// with the colours of bank $8D's program, and its glowing colours in each colouring a fade runs toward are those
+    /// colours of the colouring.
     /// </summary>
     private static void VerifyBellyGlow(IReadOnlyList<SheetShade> shades)
     {
@@ -187,20 +167,19 @@ internal static class TorizoPaletteShakeVerification
         var counter = new SharedFadeStepCount();
         counter.Advance();
         colours.Step(counter);
-        PictureShade fading = TorizoShades.BellyFading(shown, new TorizoLook(TorizoLookKind.Black), 1, 1);
-        AssertEqual(fading, colours.Shading.Shades[^1], "The death fade steps the glowing colours from the record shown");
-        SheetShade faded = shades.Single(shade => shade.Shade == fading);
-        for (int colour = 0; colour < faded.Colours.Length; colour++)
-        {
-            ushort start = records[0].Colours[colour].ToWord();
-            int expected = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-            {
-                int from = start >> shift & 31;
-                expected |= ((from << 8) - from * 256 / TorizoShadeDefinitions.FadeDenominator) >> 8 << shift;
-            }
-            AssertEqual((ushort)expected, faded.Colours[colour].ToWord(), $"The glow's colour {colour} takes the cartridge's first step toward black");
-        }
+        var fading = new PictureShadeFade(PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, shown)),
+            PictureShading.Shaded(TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black))), 1, 13);
+        AssertEqual(fading, colours.Shading.Fades[^1], "The death fade moves the glowing colours from the record shown");
+        colours.ShowBellyGlow(new ColourEffectFrame(ColourEffectId.BombTorizoBelly, records[^1].Shade.Step));
+        AssertEqual(0, colours.Shading.Fades[^1].Progress, "The glow's next record shows unmoved until the fade's next step");
+        colours.ShowBellyGlow(shown);
+        SheetShade black = shades.Single(shade => shade.Shade == TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black)));
+        SheetShade normal = shades.Single(shade => shade.Shade == TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Normal)));
+        SheetShade normalBody = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal)));
+        AssertTrue(black.Inks.SequenceEqual([25, 26, 27]) && black.Colours.All(colour => colour == RgbColor.Black),
+            "The glowing colours in black are black");
+        AssertTrue(normal.Inks.SequenceEqual([25, 26, 27]) && normal.Colours.SequenceEqual(normalBody.Colours[9..12]),
+            "The glowing colours in the normal colouring are its tenth through twelfth colours");
         colours.Show(new TorizoLook(TorizoLookKind.White));
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))), colours.Shading,
             "The white hurt flash covers the glow");

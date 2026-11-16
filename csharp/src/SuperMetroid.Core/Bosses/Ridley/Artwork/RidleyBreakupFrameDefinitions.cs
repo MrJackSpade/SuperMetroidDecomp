@@ -8,6 +8,11 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// </summary>
 internal static class RidleyBreakupFrameDefinitions
 {
+    /// <summary>
+    /// The updates a fragment's animation clock holds its picture when it first shows, before the fragment rests on it for
+    /// good.
+    /// </summary>
+    internal const int PictureShowingUpdates = 1;
 
     /// <summary>The installed frame each <see cref="RidleyBreakupFrame"/> shows.</summary>
     internal static EnemyFrameTable<RidleyBreakupFrame> ShownFrames { get; } = new()

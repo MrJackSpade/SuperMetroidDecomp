@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
+/// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to each of them (#2240).</summary>
 [RoomLifetime]
 internal sealed class TorizoCombat
 {
@@ -22,67 +22,58 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Runs an already-colliding normal bomb through Torizo's hitbox
-    /// reactions. The frame-hitbox collision has already set
-    /// the bomb's explosion direction; this method owns only the species reaction and its common
-    /// no-death damage.
+    /// Runs an already-colliding normal bomb through Bomb Torizo's hitbox reactions (#2240). The frame-hitbox collision has
+    /// already set the bomb's explosion direction; this owns only the reaction and its common no-death damage. Bomb
+    /// Torizo's stand-up and sit-down frames take no bomb at all, and while its animation is locked it takes none either.
     /// </summary>
-    private void ResolveTorizoNormalBomb(
-        RoomEnemyPlace torizo,
-        SamusBomb bomb,
-        EnemyReaction? selectedShot)
+    internal void ReactToBombTorizoBomb(EnemyBombContext c)
     {
-        bool isBombTorizo = torizo.DefinitionId == EnemyDefinitionId.BombTorizo;
-        bool isGoldenTorizo = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
-        if (!isBombTorizo && !isGoldenTorizo)
-            throw new ArgumentException("A normal bomb's Torizo reaction requires a Torizo body.");
-
+        RoomEnemyPlace torizo = c.Enemy;
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
-        if (selectedShot == TorizoReactions.StandUpSitDownShot)
+        if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
+            return;
+        if (c.SelectedShot != TorizoReactions.Shot)
+            throw new InvalidDataException($"Bomb Torizo has no response to normal-bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+        // The reaction returns during the hurt flash, and rejects the bomb while the animation is locked.
+        if (torizo.FlashTimer != 0 || state.AnimationLocked)
+            return;
+        DamageByNormalBomb(torizo, state, c.Bomb);
+    }
+
+    /// <summary>
+    /// Runs an already-colliding normal bomb through Golden Torizo's hitbox reactions (#2240). Its stand-up and sit-down
+    /// frames take common damage outside the hurt flash while its animation is unlocked, without arming its counterattack;
+    /// its other frames take common damage outside the flash, a bomb first arming its stun while the animation is unlocked.
+    /// </summary>
+    internal void ReactToGoldenTorizoBomb(EnemyBombContext c)
+    {
+        RoomEnemyPlace torizo = c.Enemy;
+        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
+        if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
         {
-            // The transitional reaction is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
-            // a guarded path, which accepts common damage only outside the active flash and while
-            // while the body's animation is unlocked. This transitional reaction never arms the later
-            // counterattack flags or captures a projectile family.
-            if (isBombTorizo || torizo.FlashTimer != 0 || state.AnimationLocked)
+            if (torizo.FlashTimer != 0 || state.AnimationLocked)
                 return;
-
-            _collision.ApplyNormalBombDamage(torizo, bomb);
-            if (torizo.Health == 0)
-                BeginTorizoDeath(torizo, state);
+            DamageByNormalBomb(torizo, state, c.Bomb);
             return;
         }
-
-        bool validShotReaction = isBombTorizo
-            ? selectedShot == TorizoReactions.Shot
-            : (selectedShot == TorizoReactions.Shot || selectedShot == TorizoReactions.GoldenShot);
-        if (!validShotReaction)
-        {
-            throw new InvalidDataException(
-                $"Torizo has no response to normal-bomb reaction {selectedShot?.ToString() ?? "(unnamed)"}.");
-        }
-
-        // Both normal reactions return during the hurt flash. Bomb Torizo also uses its
-        // awakening guard as a hard rejection; Golden's nonzero guard deliberately falls
-        // through to common damage instead.
-        if (torizo.FlashTimer != 0 || isBombTorizo && state.AnimationLocked)
+        if (c.SelectedShot != TorizoReactions.Shot && c.SelectedShot != TorizoReactions.GoldenShot)
+            throw new InvalidDataException($"Golden Torizo has no response to normal-bomb reaction {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+        if (torizo.FlashTimer != 0)
             return;
-
-        if (isGoldenTorizo && !state.AnimationLocked)
-        {
-            // A bomb is neither Missile nor Super Missile, so Golden Torizo's shot reaction takes its stun branch and arms the
-            // stun latch before common damage, whether or not the Super-catch latch is set.
+        // A bomb is neither Missile nor Super Missile, so the shot reaction takes its stun branch and arms the stun latch
+        // before common damage, whether or not the Super-catch latch is set; a locked animation goes to common damage alone.
+        if (!state.AnimationLocked)
             SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
-        }
+        DamageByNormalBomb(torizo, state, c.Bomb);
+    }
 
+    /// <summary>Applies a normal bomb's common no-death damage to the Torizo, starting its death once its health is gone.</summary>
+    private void DamageByNormalBomb(RoomEnemyPlace torizo, TorizoEnemyState state, SamusBomb bomb)
+    {
         _collision.ApplyNormalBombDamage(torizo, bomb);
         if (torizo.Health == 0)
             BeginTorizoDeath(torizo, state);
     }
-
-    /// <summary>Restores the normal body colours on alternating Bomb Torizo hurt frames.</summary>
-    private static void RestoreTorizoNormalColours(RoomEnemyPlace torizo, TorizoEnemyState state) =>
-        TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
 
     /// <summary>Selects Golden Torizo's body and belly health band from its health, one band per 2048.</summary>
     private static void ShowGoldenTorizoHealthShade(RoomEnemyPlace torizo, TorizoEnemyState state, int health)
@@ -94,22 +85,26 @@ internal sealed class TorizoCombat
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
     }
 
-    /// <summary>Runs Bomb Torizo's custom hurt behaviour.</summary>
-    internal void ApplyTorizoHurt(RoomEnemyPlace torizo)
+    /// <summary>Runs Bomb Torizo's hurt behaviour (#2240): the low-health drool, then white or its own colours on alternating flash updates.</summary>
+    internal void ApplyBombTorizoHurt(RoomEnemyPlace torizo) =>
+        ApplyHurt(torizo, unflashed: state => TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal)));
+
+    /// <summary>Runs Golden Torizo's hurt behaviour (#2240): the low-health drool, then white or its health's colours on alternating flash updates.</summary>
+    internal void ApplyGoldenTorizoHurt(RoomEnemyPlace torizo) =>
+        ApplyHurt(torizo, unflashed: state => ShowGoldenTorizoHealthShade(torizo, state, torizo.Health));
+
+    /// <summary>
+    /// Runs a Torizo's hurt behaviour: the low-health drool, then on the flash's white updates white, and on the others the
+    /// colours <paramref name="unflashed"/> shows.
+    /// </summary>
+    private void ApplyHurt(RoomEnemyPlace torizo, Action<TorizoEnemyState> unflashed)
     {
-        _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
+        _body.MaybeSpawnLowHealthDrool(torizo);
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.FlashTimer))
-        {
-            if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
-                ShowGoldenTorizoHealthShade(torizo, state, torizo.Health);
-            else
-                RestoreTorizoNormalColours(torizo, state);
-        }
+            unflashed(state);
         else
-        {
             TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.White));
-        }
     }
 
     /// <summary>Enters the authored death list once and removes the dying statue from Samus collision.</summary>
@@ -130,17 +125,22 @@ internal sealed class TorizoCombat
     /// <summary>Latches <paramref name="flags"/>.</summary>
     internal static void SetBehavior(RoomEnemyPlace torizo, TorizoBehaviorFlags flags) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior |= flags;
 
-    /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox reaction.</summary>
-    internal void ReactToTorizoBomb(EnemyBombContext c) =>
-        ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShot);
+    /// <summary>Bomb Torizo's shot reaction (#2240): its hitbox reactions before impact, then common damage without its death.</summary>
+    internal EnemyShotReaction BombTorizoShotReaction => field ??= ShotReaction(ResolveBombTorizoShotBeforeImpact);
 
-    /// <summary>Validates extended hitbox reactions, handles catches, and defers death to Torizo's own sequence.</summary>
-    internal EnemyShotReaction TorizoShotReaction => field ??= new()
+    /// <summary>
+    /// Golden Torizo's shot reaction (#2240): its own catches, dodges and stuns before impact, then common damage without its
+    /// death. Its definition's own reaction and its body hitboxes' ordinary reaction both come here.
+    /// </summary>
+    internal EnemyShotReaction GoldenTorizoShotReaction => field ??= ShotReaction(ResolveGoldenTorizoShotBeforeImpact);
+
+    /// <summary>
+    /// A Torizo's shot reaction, resolving each hit first by <paramref name="beforeImpact"/>. Its stand-up and sit-down
+    /// frames' transitional reaction must stay distinguishable from the ordinary one, which the before-impact resolution
+    /// tells apart.
+    /// </summary>
+    private static EnemyShotReaction ShotReaction(EnemyShotStage beforeImpact) => new()
     {
-        // Golden's definition installs its own shot reaction, but its ordinary extended body hitboxes call the shared
-        // one, which hands Golden's area to Golden's own. Stand-up/sit-down frames deliberately use the transitional reaction instead. That
-        // reaction is a no-op for Crateria's Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
-        // must remain distinguishable below.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (!c.UsesFrameHitboxes || (c.HitboxShot != TorizoReactions.Shot && c.HitboxShot != TorizoReactions.StandUpSitDownShot))
@@ -150,7 +150,7 @@ internal sealed class TorizoCombat
             }
             return false;
         },
-        BeforeImpact = ResolveTorizoShotBeforeImpact,
+        BeforeImpact = beforeImpact,
         ExemptFromGenericDeath = true,
         // Both Torizos' shot reactions run the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
@@ -175,44 +175,51 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Handles flash/awakening guards and Golden Torizo missile catches before shared
-    /// shot damage; returns true when the hit was consumed by a special reaction.
+    /// Bomb Torizo's guards before shared shot damage (#2240): its stand-up and sit-down frames take no shot, nor does it
+    /// during its hurt flash or while its animation is locked; each such hit is consumed. Returns whether it was.
     /// </summary>
-    internal bool ResolveTorizoShotBeforeImpact(in EnemyShotContext c)
+    internal static bool ResolveBombTorizoShotBeforeImpact(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        bool isBombTorizo = enemy.DefinitionId == EnemyDefinitionId.BombTorizo;
-        bool isGoldenTorizo = !isBombTorizo;
         TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
-        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot)
+        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
         {
-            // The transitional reaction returns immediately in Crateria. In every other area it calls a guarded path, which admits common
-            // no-death shot damage only while the flash timer is zero and the body's animation is unlocked. Crucially it
-            // never enters Golden's shot reaction, so missiles are not caught, Supers are not reflected, and the
-            // counterattack flags are not armed through these transitional body rectangles.
-            if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
-            {
-                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                return true;
-            }
+            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            return true;
         }
-        if (enemy.FlashTimer != 0 || isBombTorizo && torizoState.AnimationLocked)
+        return false;
+    }
+
+    /// <summary>
+    /// Golden Torizo's guards and missile catches before shared shot damage (#2240); returns true when the hit was consumed
+    /// by a special reaction.
+    /// </summary>
+    internal static bool ResolveGoldenTorizoShotBeforeImpact(in EnemyShotContext c)
+    {
+        RoomEnemyPlace enemy = c.Enemy;
+        TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
+        // The stand-up and sit-down frames admit common no-death damage only while the flash timer is zero and the body's
+        // animation is unlocked, and never reach the catches: missiles are not caught, Supers are not reflected, and the
+        // counterattack is not armed through these transitional body rectangles.
+        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot && (enemy.FlashTimer != 0 || torizoState.AnimationLocked))
         {
-            // Both reactions return during a damage flash. Bomb Torizo also rejects shots while its awakening guard
-            // is set; Golden Torizo's nonzero guard instead routes through common damage below.
+            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            return true;
+        }
+        // The reaction returns during a damage flash; a locked animation instead routes through common damage below.
+        if (enemy.FlashTimer != 0)
+        {
             c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
         }
 
         // A caught Super bypasses family selection, but still reaches the stun write before common damage.
         // Animation lock and the transitional hitbox reaction bypass that write instead.
-        if (c.HitboxShot == TorizoReactions.Shot && isGoldenTorizo &&
-            !torizoState.AnimationLocked &&
+        if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked &&
             TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
             SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
 
-        if (c.HitboxShot == TorizoReactions.Shot &&
-            isGoldenTorizo && !torizoState.AnimationLocked &&
+        if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked &&
             !TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
         {
             if (c.Family == SamusProjectileFamily.Missile)
@@ -236,7 +243,7 @@ internal sealed class TorizoCombat
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
-                    enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
+                    enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.Posture(enemy).LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward

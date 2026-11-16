@@ -281,7 +281,7 @@ internal static class EnemySheetOwnFramesVerification
     {
         TorizoCue.Branch branch => [.. new[] { HorizontalDirection.Left, HorizontalDirection.Right }.SelectMany(direction =>
             new[] { HorizontalDirection.Left, HorizontalDirection.Right }.Select(foot =>
-                TorizoBranches.Target(branch.Kind, TorizoFacing.AfterStep(direction, foot))))],
+                TorizoBranches.Target(branch.Kind, TorizoPosture.AfterStep(direction, foot))))],
         TorizoCue.Interrupt interrupt => [interrupt.Animation],
         TorizoCue.Choice choice => [choice.Target, choice.Alternate],
         TorizoCue.LandIn landIn => [landIn.Landing],

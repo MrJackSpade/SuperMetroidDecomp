@@ -71,7 +71,7 @@ internal static class TorizoRestingLandingVerification
         leapingState.Motion = TorizoBodyMotion.Leaping;
         leapingState.Landing = TorizoAnimation.FacingLeftLanding;
         leapingState.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);
-        leapingState.JumpAcceleration = new(SignedEightEight.Zero, TorizoMotionDefinitions.LeapGravity);
+        leapingState.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
         updates = 0;
         while (leaping.Earthquake.RemainingFrames == 0)
         {

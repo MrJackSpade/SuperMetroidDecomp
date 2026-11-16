@@ -181,14 +181,14 @@ public enum RoomEnemyProjectileKind
     BotwoonSpit,
     /// <summary>Continuous drool from low-health Bomb Torizo.</summary>
     BombTorizoLowHealthDrool,
-    /// <summary>Bomb Torizo's initial drool actor.</summary>
-    BombTorizoInitialDrool,
+    /// <summary>Either Torizo's initial drool actor (#2240).</summary>
+    TorizoInitialDrool,
     /// <summary>The projectile actor for Bomb Torizo's explosive swipe.</summary>
     BombTorizoExplosiveSwipe,
     /// <summary>A low-health Bomb Torizo explosion.</summary>
     BombTorizoLowHealthExplosion,
-    /// <summary>An explosion during Bomb Torizo's death sequence.</summary>
-    BombTorizoDeathExplosion,
+    /// <summary>An explosion during either Torizo's death sequence (#2240).</summary>
+    TorizoDeathExplosion,
     /// <summary>A fragment effect from Bomb Torizo's breaking statue.</summary>
     BombTorizoStatueBreaking,
     /// <summary>A Chozo orb fired by Bomb Torizo.</summary>
@@ -200,9 +200,9 @@ public enum RoomEnemyProjectileKind
     /// <summary>Golden Torizo's sonic-boom projectile.</summary>
     GoldenTorizoSonicBoom,
     /// <summary>Dust from Torizo's right-foot landing.</summary>
-    BombTorizoRightFootDust,
+    TorizoRightFootDust,
     /// <summary>Dust from Torizo's left-foot landing.</summary>
-    BombTorizoLeftFootDust,
+    TorizoLeftFootDust,
     /// <summary>Golden Torizo's egg projectile.</summary>
     GoldenTorizoEgg,
     /// <summary>Golden Torizo's Super Missile projectile.</summary>

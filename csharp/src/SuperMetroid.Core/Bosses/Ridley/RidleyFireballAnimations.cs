@@ -13,7 +13,7 @@ internal static class RidleyFireballAnimations
 {
     /// <summary>
     /// Every fireball and afterburn segment's beats: the fireball stops, shows its two four-update launch poses and starts
-    /// flying between them, then loops four two-update flight poses. Each afterburn run stops moving, shows five five-update
+    /// flying between them, then runs on into its flight, four two-update poses (#2235). Each afterburn run stops moving, shows five five-update
     /// poses, raising the spawn of its next afterburns after the first, and deletes itself.
     /// </summary>
     internal static AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments { get; } = new(
@@ -25,6 +25,9 @@ internal static class RidleyFireballAnimations
             Show(EnemyProjectileFrameId.RidleyFireballTurned0, 4),
             Cue(C.BeginFlight),
             Show(EnemyProjectileFrameId.RidleyFireballTurned0Twin, 4),
+        ],
+        [P.FireballFlight] =
+        [
             Show(EnemyProjectileFrameId.RidleyFireballTurned0TwinB, 2),
             Show(EnemyProjectileFrameId.RidleyFireballTurned90, 2),
             Show(EnemyProjectileFrameId.RidleyFireballTurned180, 2),
@@ -76,13 +79,13 @@ internal static class RidleyFireballAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment: the launch runs on into the flight loop, and each afterburn run holds
+    /// The animation that starts at each segment: the launch runs on into the flight, which loops, and each afterburn run holds
     /// after its deletion.
     /// </summary>
     internal static IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt { get; } =
         new Dictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>>
         {
-            [P.Fireball] = new([new(P.Fireball, 0, 4, 1), new(P.Fireball, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
+            [P.Fireball] = new([Whole(P.Fireball), Whole(P.FireballFlight)], AnimationEnd.LoopsFrom(1)),
             [P.AfterburnFinal] = new([Whole(P.AfterburnFinal)], AnimationEnd.Holds),
             [P.HorizontalCenter] = new([Whole(P.HorizontalCenter)], AnimationEnd.Holds),
             [P.VerticalCenter] = new([Whole(P.VerticalCenter)], AnimationEnd.Holds),

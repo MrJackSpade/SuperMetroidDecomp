@@ -21,8 +21,8 @@ internal static class SporeSpawnCeilingObjectDrawDefinitions
     internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomBlockShape> Shapes = new()
     {
         [SporeSpawnCeilingDraw.Clear] = OpenedCeiling,
-        [SporeSpawnCeilingDraw.CrumbleFirst] = OpenedCeiling,
-        [SporeSpawnCeilingDraw.CrumbleSecond] = OpenedCeiling,
-        [SporeSpawnCeilingDraw.CrumbleThird] = OpenedCeiling,
+        [SporeSpawnCeilingDraw.CeilingCracked] = OpenedCeiling,
+        [SporeSpawnCeilingDraw.CeilingCrumbling] = OpenedCeiling,
+        [SporeSpawnCeilingDraw.CeilingCrumbled] = OpenedCeiling,
     };
 }

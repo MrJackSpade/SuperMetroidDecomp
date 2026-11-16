@@ -75,15 +75,15 @@ internal static class EncounterArtworkDrawingDefinitions
     /// face half blown away and its face blown away.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
-        new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
-            L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
+        new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+            L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
-        new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesLightingAgain4, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
+        new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
         };
@@ -94,11 +94,11 @@ internal static class EncounterArtworkDrawingDefinitions
     /// its eye beam's glow and its eyes lighting up after a stun.
     /// </summary>
     private static readonly EncounterArtworkDrawing GoldenTorizo =
-        new(ComposedEncounter.GoldenTorizo, [.. Golden(L.Awakening, L.EyesLightingUp1, L.EyesLightingUp2, L.EyesLightingUp3, L.EyesLightingUp4,
-            L.EyesLightingAgain1, L.EyesLightingAgain2, L.EyesLightingAgain3, L.EyesLightingAgain4,
-            L.ChestOpening1, L.ChestOpening2, L.ChestOpen, L.ChestHeldOpen, L.ChestClosing1, L.ChestClosing2, L.ChestClosed,
-            L.EyeBeamGlow1, L.EyeBeamGlow2, L.EyeBeamGlow3, L.EyeBeamGlow4,
-            L.EyesLightingAfterStun1, L.EyesLightingAfterStun2, L.EyesLightingAfterStun3, L.EyesLightingAfterStun4)])
+        new(ComposedEncounter.GoldenTorizo, [.. Golden(L.Awakening, L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+            L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain,
+            L.ChestParting, L.ChestHalfOpen, L.ChestOpen, L.ChestHeldOpen, L.ChestHalfClosed, L.ChestNearlyClosed, L.ChestClosed,
+            L.EyeBeamEyesDark, L.EyeBeamEyesGlowingFaintly, L.EyeBeamEyesGlowingBrightly, L.EyeBeamEyesGlowingFully,
+            L.StunnedEyesDark, L.StunnedEyesGlowingFaintly, L.StunnedEyesGlowingBrightly, L.StunnedEyesGlowingFully)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
             Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],

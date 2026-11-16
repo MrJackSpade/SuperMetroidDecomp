@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The enemies' colour effect glows and flashes over the species that show them (#1512).</summary>
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
-/// <param name="places">The room's enemy places: the Torizo whose belly glows, and the destroyable shutters that show the escape's shutter flash.</param>
+/// <param name="places">The room's enemy places: the destroyable shutters that show the escape's shutter flash.</param>
 internal sealed class EnemyColourEffectShows(
     TourianEntranceStatueBehavior statue,
     EnemyPlaces places) : IEnemyColourEffectShows
@@ -24,8 +24,8 @@ internal sealed class EnemyColourEffectShows(
         switch (colours)
         {
             case ColourEffectColours.TorizoBelly:
-                TorizoBehavior.ShowBellyGlow(places.InUpdateOrder, frame);
-                return;
+                // The belly glow keeps the Torizo whose fight start lit it and shows on it (#2240).
+                throw new InvalidOperationException("The Torizo belly glow shows on the Torizo that lit it, never through the room's enemies.");
             case ColourEffectColours.RidleyStatue:
             case ColourEffectColours.PhantoonStatue:
                 statue.ShowStatueGreyOut(colours, frame);

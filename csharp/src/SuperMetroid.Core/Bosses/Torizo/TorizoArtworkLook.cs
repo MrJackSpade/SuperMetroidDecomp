@@ -12,28 +12,28 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal enum TorizoArtworkLook
 {
     /// <summary>The first stage of the eyes lighting up as the statue wakes: the eyes still dark.</summary>
-    EyesLightingUp1,
+    EyesDark,
 
     /// <summary>The second stage of the eyes lighting up as the statue wakes: a faint glow.</summary>
-    EyesLightingUp2,
+    EyesGlowingFaintly,
 
     /// <summary>The third stage of the eyes lighting up as the statue wakes: a brighter glow.</summary>
-    EyesLightingUp3,
+    EyesGlowingBrightly,
 
     /// <summary>The fourth stage of the eyes lighting up as the statue wakes: the eyes glow fully.</summary>
-    EyesLightingUp4,
+    EyesGlowingFully,
 
     /// <summary>The eyes dark again as they flicker back on, before the statue stands.</summary>
-    EyesLightingAgain1,
+    EyesDarkAgain,
 
     /// <summary>The second stage of the eyes flickering back on: a faint glow.</summary>
-    EyesLightingAgain2,
+    EyesGlowingFaintlyAgain,
 
     /// <summary>The third stage of the eyes flickering back on: a brighter glow.</summary>
-    EyesLightingAgain3,
+    EyesGlowingBrightlyAgain,
 
     /// <summary>The fourth stage of the eyes flickering back on: the eyes glow fully, as the Torizo stands and fights.</summary>
-    EyesLightingAgain4,
+    EyesGlowingFullyAgain,
 
     /// <summary>Bomb Torizo's gut blown open, as it fights on at low health; its whole blow-up lands in one update.</summary>
     GutBlownUp,
@@ -48,10 +48,10 @@ internal enum TorizoArtworkLook
     Awakening,
 
     /// <summary>Golden Torizo's chest at its first stage of opening to release an egg, both its halves at once.</summary>
-    ChestOpening1,
+    ChestParting,
 
     /// <summary>Golden Torizo's chest at its second stage of opening.</summary>
-    ChestOpening2,
+    ChestHalfOpen,
 
     /// <summary>Golden Torizo's chest open, as it releases its eggs.</summary>
     ChestOpen,
@@ -60,35 +60,35 @@ internal enum TorizoArtworkLook
     ChestHeldOpen,
 
     /// <summary>Golden Torizo's chest at its first stage of closing.</summary>
-    ChestClosing1,
+    ChestHalfClosed,
 
     /// <summary>Golden Torizo's chest at its second stage of closing.</summary>
-    ChestClosing2,
+    ChestNearlyClosed,
 
     /// <summary>Golden Torizo's chest closed again.</summary>
     ChestClosed,
 
     /// <summary>Golden Torizo's eyes dark as its eye beam fires.</summary>
-    EyeBeamGlow1,
+    EyeBeamEyesDark,
 
     /// <summary>The second stage of Golden Torizo's eyes glowing as its eye beam fires.</summary>
-    EyeBeamGlow2,
+    EyeBeamEyesGlowingFaintly,
 
     /// <summary>The third stage of Golden Torizo's eyes glowing as its eye beam fires.</summary>
-    EyeBeamGlow3,
+    EyeBeamEyesGlowingBrightly,
 
     /// <summary>Golden Torizo's eyes glowing fully as its eye beam fires.</summary>
-    EyeBeamGlow4,
+    EyeBeamEyesGlowingFully,
 
     /// <summary>Golden Torizo's eyes dark as it recovers from a stun.</summary>
-    EyesLightingAfterStun1,
+    StunnedEyesDark,
 
     /// <summary>The second stage of Golden Torizo's eyes lighting up as it recovers from a stun.</summary>
-    EyesLightingAfterStun2,
+    StunnedEyesGlowingFaintly,
 
     /// <summary>The third stage of Golden Torizo's eyes lighting up as it recovers from a stun.</summary>
-    EyesLightingAfterStun3,
+    StunnedEyesGlowingBrightly,
 
     /// <summary>Golden Torizo's eyes glowing fully once it has recovered from a stun.</summary>
-    EyesLightingAfterStun4,
+    StunnedEyesGlowingFully,
 }

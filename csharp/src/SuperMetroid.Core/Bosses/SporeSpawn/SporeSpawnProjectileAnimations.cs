@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnProjectileAnimations
 {
     /// <summary>
-    /// Every projectile animation: the closed emitter's one pose; the emitter's release, which spawns a spore after its
-    /// second pose; the falling spore's three five-update poses and the stalk's one; and a shot spore's burst, which takes its
+    /// Every projectile animation: the closed emitter's pose, held (#2235); the emitter's release, which spawns a spore after its
+    /// second pose; the falling spore's three five-update poses and the stalk's pose, held; and a shot spore's burst, which takes its
     /// impact properties after its first pose, queues its killed sound after its fourth, then requests its drop and deletes
     /// itself.
     /// </summary>
@@ -22,7 +22,7 @@ internal static class SporeSpawnProjectileAnimations
     {
         [P.SpawnerClosed] =
         [
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosed, 1),
+            Hold(EnemyProjectileFrameId.SporeSpawnSpawnerClosed),
         ],
         [P.SpawnerRelease] =
         [
@@ -41,7 +41,7 @@ internal static class SporeSpawnProjectileAnimations
         ],
         [P.Stalk] =
         [
-            Show(EnemyProjectileFrameId.SporeSpawnStalk, 5),
+            Hold(EnemyProjectileFrameId.SporeSpawnStalk),
         ],
         [P.SporeShot] =
         [
@@ -77,6 +77,10 @@ internal static class SporeSpawnProjectileAnimations
 
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<SporeSpawnProjectileSegment> Whole(SporeSpawnProjectileSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>Shows <paramref name="frame"/> for good: a still picture (#2235).</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue> Hold(EnemyProjectileFrameId frame) =>
+        new AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SporeSpawnProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>

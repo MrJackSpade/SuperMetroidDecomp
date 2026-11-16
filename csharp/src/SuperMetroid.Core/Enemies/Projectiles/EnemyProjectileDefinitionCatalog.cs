@@ -173,13 +173,13 @@ internal static class EnemyProjectileDefinitionCatalog
             new(2, 2), 96, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.BombTorizoLowHealthDrool] = new(
             new(1, 2), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.BombTorizoInitialDrool] = new(
+        [RoomEnemyProjectileKind.TorizoInitialDrool] = new(
             new(1, 2), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.BombTorizoExplosiveSwipe] = new(
             new(16, 16), 10, EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.BombTorizoLowHealthExplosion] = new(
             new(4, 16), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.BombTorizoDeathExplosion] = new(
+        [RoomEnemyProjectileKind.TorizoDeathExplosion] = new(
             new(4, 16), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.BombTorizoStatueBreaking] = new(
             new(8, 8), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
@@ -191,9 +191,9 @@ internal static class EnemyProjectileDefinitionCatalog
             new(7, 7), 80, EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.BlocksShots, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.GoldenTorizoSonicBoom] = new(
             new(3, 20), 120, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.BombTorizoRightFootDust] = new(
+        [RoomEnemyProjectileKind.TorizoRightFootDust] = new(
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.BombTorizoLeftFootDust] = new(
+        [RoomEnemyProjectileKind.TorizoLeftFootDust] = new(
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.GoldenTorizoEgg] = new(
             new(7, 7), 100, EnemyProjectilePropertyFlags.HarmlessToSamus | EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),

@@ -15,15 +15,15 @@ public sealed class TorizoEnemyState
         IsGolden = isGolden;
     }
 
-    /// <summary>Which way Torizo faces, which leg is forward and whether it is turning around.</summary>
-    internal TorizoPostureFlags Posture { get; set; }
+    /// <summary>Which way Torizo faces, which foot leads and whether it is turning around (#2237).</summary>
+    internal TorizoPosture Posture { get; set; }
 
     /// <summary>The behaviour latches: a caught Super Missile, a stun, and Bomb Torizo's blown-up face and gut.</summary>
     internal TorizoBehaviorFlags Behavior { get; set; }
     /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
 
-    /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
+    /// <summary>His colours: the colouring shown, the fade his awakening or death runs toward it and his belly's glow (#2236).</summary>
     internal TorizoColours Colours { get; } = new();
 
     /// <summary>The body animation playing and where it stands in it (#1600).</summary>
@@ -98,10 +98,10 @@ public sealed class TorizoEnemyState
     internal bool FallsAtRestingSpeed { get; private set; }
 
     /// <summary>
-    /// Signed 1/256-pixel acceleration a jump adds to <see cref="Velocity"/> every frame until it lands. Only the Y axis is
-    /// meaningful; X stays zero, so adding the whole vector leaves the horizontal velocity unchanged.
+    /// Signed 1/256-pixel downward acceleration a jump adds to <see cref="Velocity"/>'s vertical speed every frame until it
+    /// lands (#2235): one axis, since a jump never changes its sideways speed.
     /// </summary>
-    public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }
+    public SignedEightEight JumpAcceleration { get; internal set; }
 
     /// <summary>The main phase the Torizo runs each frame; it starts settling under gravity as it wakes.</summary>
     public TorizoPhase Phase { get; internal set; } = TorizoPhase.Falling;

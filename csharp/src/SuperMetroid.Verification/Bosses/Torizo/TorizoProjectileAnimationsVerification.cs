@@ -136,8 +136,7 @@ internal static class TorizoProjectileAnimationsVerification
             var shown = Enum.GetValues<TorizoProjectileSegment>()
                 .Where(animation => TorizoProjectileAnimationsConstants.Family(animation) == family)
                 .SelectMany(animation => TorizoProjectileAnimations.Segments.Beats(animation))
-                .OfType<AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>.Frame>()
-                .Select(frame => frame.Shown).ToHashSet();
+                .Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>().ToHashSet();
             AssertTrue(shown.SetEquals(installed), $"the {family} animations show exactly the installed frames");
             ushort[] keys = [.. installed.Select(EnemyProjectileProgramFrameSources.Operand)];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");

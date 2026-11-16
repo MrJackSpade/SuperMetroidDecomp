@@ -24,26 +24,28 @@ internal static class TorizoOwnershipVerification
     /// <summary>Runs the belly glow, held Super Missile and eye-beam spark checks.</summary>
     internal static void VerifyTorizoOwnership()
     {
-        VerifyBellyGlowFindsTheRoomsTorizo();
+        VerifyBellyGlowShowsOnItsTorizo();
         VerifyHeldSuperMissileFollowsItsHolder();
         VerifyEyeBeamSparkWatchesItsOwner(explosionsEnabled: false);
         VerifyEyeBeamSparkWatchesItsOwner(explosionsEnabled: true);
         Console.WriteLine("Torizo ownership: the belly glow, the held Super Missile and the eye beam's spark find the Torizo that owns them.");
     }
 
-    /// <summary>The glow shows on the room's Torizo in whichever place it stands, and fails loudly in a room without one.</summary>
-    private static void VerifyBellyGlowFindsTheRoomsTorizo()
+    /// <summary>
+    /// The glow shows on the Torizo that lit it, in whichever place it stands (#2240), and never through the room's enemies.
+    /// </summary>
+    private static void VerifyBellyGlowShowsOnItsTorizo()
     {
         RoomEnemySystem enemies = NewEnemies();
         var frame = new ColourEffectFrame(ColourEffectId.BombTorizoBelly, 0);
-        AssertThrows<InvalidOperationException>(() => TorizoBehavior.ShowBellyGlow(enemies.Places.InUpdateOrder, frame),
-            "the belly glow shows on no Torizo in a room without one");
+        AssertThrows<InvalidOperationException>(() => enemies.ColourEffectShows.Show(ColourEffectColours.TorizoBelly, frame),
+            "the room's enemies show no belly glow");
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
-        TorizoBehavior.ShowBellyGlow(enemies.Places.InUpdateOrder, frame);
+        TorizoBehavior.ShowBellyGlow(torizo, frame);
         AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, frame), torizo.Shading.Shades[^1],
-            "the belly glow shows on the room's Torizo in the place it stands");
+            "the belly glow shows on the Torizo that lit it, in the place it stands");
     }
 
     /// <summary>A held Super Missile stays at the hand of the Golden Torizo that caught it as that Torizo moves and turns.</summary>
@@ -58,7 +60,7 @@ internal static class TorizoOwnershipVerification
         EnemyProjectile missile = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
         torizo.Position = torizo.Position.WithWhole(new(300, 350));
-        state.Posture = TorizoPostureFlags.FacingRight;
+        state.Posture = TorizoPosture.AfterStep(HorizontalDirection.Right, foot: HorizontalDirection.Right);
         enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new Position16<RoomPixels>(300, 350) + TorizoProjectilePlacementDefinitions.HeldSuperMissile, missile.Position.Whole,
             "the held Super Missile stays at the hand of the Golden Torizo that caught it");

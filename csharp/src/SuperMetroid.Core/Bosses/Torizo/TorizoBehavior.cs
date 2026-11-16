@@ -62,26 +62,14 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room effects the bosses request this update, where the fight's start asks for the belly's glow.</summary>
     private readonly BossFrameResultBuilder _frameResults;
 
-    /// <summary>Shows step <paramref name="step"/> of the Torizo's belly glow over the belly of the room's Torizo (#1512, #1597, #2030).</summary>
-    /// <param name="places">The room's enemy places, one of which holds the Torizo.</param>
+    /// <summary>Shows step <paramref name="step"/> of the belly glow <paramref name="torizo"/> lit over its belly (#1512, #1597, #2240).</summary>
+    /// <param name="torizo">The Torizo whose fight start lit the glow.</param>
     /// <param name="step">The glow's step.</param>
-    /// <exception cref="InvalidOperationException">The room holds no Torizo to glow, or more than one.</exception>
-    internal static void ShowBellyGlow(IReadOnlyList<RoomEnemyPlace> places, ColourEffectFrame step)
+    internal static void ShowBellyGlow(RoomEnemyPlace torizo, ColourEffectFrame step)
     {
-        RoomEnemyPlace? glowing = null;
-        foreach (RoomEnemyPlace place in Ensure.NotNull(places))
-        {
-            if (place.SpeciesState<TorizoEnemyState>() is null)
-                continue;
-            if (glowing is not null)
-                throw new InvalidOperationException("The Torizo belly glow shows a step while the room holds two Torizos.");
-            glowing = place;
-        }
-        if (glowing is null)
-            throw new InvalidOperationException("The Torizo belly glow shows a step while no Torizo is loaded.");
-        TorizoEnemyState state = glowing.RequireSpeciesState<TorizoEnemyState>();
+        TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         state.Colours.ShowBellyGlow(step);
-        glowing.Shading = state.Colours.Shading;
+        torizo.Shading = state.Colours.Shading;
     }
 
     /// <summary>Connects the Bomb and Golden Torizo behaviours to their room-scoped services.</summary>
@@ -117,7 +105,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoPhase.Falling:
-                Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
+                Body.MaybeSpawnLowHealthDrool(torizo);
                 Movement.ApplyTorizoGravity(torizo, state, level);
                 return;
 
@@ -150,7 +138,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoPhase.GoldenActive:
-                Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
+                Body.MaybeSpawnLowHealthDrool(torizo);
                 Movement.MoveBody(torizo, state, level);
                 return;
 
@@ -195,7 +183,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
-    private static void SetPosture(RoomEnemyPlace torizo, TorizoPostureFlags posture) =>
+    private static void SetPosture(RoomEnemyPlace torizo, TorizoPosture posture) =>
         torizo.RequireSpeciesState<TorizoEnemyState>().Posture = posture;
 
     /// <summary>Clears <paramref name="flags"/>.</summary>
@@ -364,36 +352,32 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion }:
-                Attacks.SpawnBombTorizoDeathExplosion(torizo);
+                Attacks.SpawnDeathExplosion(torizo);
                 torizo.FlashTimer = TorizoDeathDefinitions.DeathExplosionFlash;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLandingDust }:
-                Attacks.SpawnBombTorizoLandingDust(torizo, foot: HorizontalDirection.Right);
-                Attacks.SpawnBombTorizoLandingDust(torizo, foot: HorizontalDirection.Left);
+                Attacks.SpawnLandingDust(torizo, foot: HorizontalDirection.Right);
+                Attacks.SpawnLandingDust(torizo, foot: HorizontalDirection.Left);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLowHealthDrool }:
                 if (torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
-                    Body.SpawnBombTorizoInitialDrool(torizo);
+                    Body.SpawnInitialDrool(torizo);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
-                SetPosture(torizo, TorizoFacing.Posture(torizo) | TorizoPostureFlags.TurningAround);
+                SetPosture(torizo, TorizoFacing.Posture(torizo).TurningAround);
                 return null;
 
             case TorizoCue.Stepped stepped:
-                // The step replaces all three posture latches: the way it faces, and which leg leads.
-                SetPosture(torizo, TorizoFacing.AfterStep(stepped.Direction, stepped.Foot));
+                // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
+                SetPosture(torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
                 state.CountDecisionStep();
                 return null;
 
-            case TorizoCue.Posture { Kind: TorizoPostureKind.StandUp } posture:
-                ApplyTorizoPosture(torizo, posture.Displacement, move: TorizoPostureMove.StandUp);
-                return null;
-
-            case TorizoCue.Posture { Kind: TorizoPostureKind.SitDown } posture:
-                ApplyTorizoPosture(torizo, posture.Displacement, move: TorizoPostureMove.SitDown);
+            case TorizoCue.Posture posture:
+                ApplyTorizoPosture(torizo, posture.Displacement, posture.Kind);
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
@@ -594,8 +578,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyTorizoPosture(
         RoomEnemyPlace torizo,
         Offset16<RoomPixels> displacement,
-        TorizoPostureMove move) =>
-        torizo.Position += move == TorizoPostureMove.SitDown ? -displacement : displacement;
+        TorizoPostureKind kind) =>
+        torizo.Position += kind == TorizoPostureKind.SitDown ? -displacement : displacement;
 
     /// <summary>Queues the Torizo's music change as the Torizo makes it, after the update's earlier music requests.</summary>
     private void RequestTorizoMusic(MusicRequest request) =>

@@ -27,7 +27,7 @@ internal static class EncounterLooksVerification
         AssertEqual(EncounterLook.Loaded(EncounterArtwork.BombTorizo), looks.Current(EncounterArtwork.BombTorizo), "another encounter keeps its own look");
 
         // A Torizo's artwork look names its encounter look; the look shown last is the look shown.
-        EncounterLook eyes = TorizoArtworkLook.EyesLightingUp1.Of(EncounterArtwork.BombTorizo);
+        EncounterLook eyes = TorizoArtworkLook.EyesDark.Of(EncounterArtwork.BombTorizo);
         EncounterLook gut = TorizoArtworkLook.GutBlownUp.Of(EncounterArtwork.BombTorizo);
         looks.Show(eyes);
         looks.Show(gut);

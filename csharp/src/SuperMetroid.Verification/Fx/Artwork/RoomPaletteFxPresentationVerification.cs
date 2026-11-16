@@ -731,6 +731,12 @@ internal static class RoomPaletteFxPresentationVerification
 
         /// <inheritdoc/>
         public bool IsDefeated => false;
+
+        /// <summary>Shows nothing: the check reads each frame the glow shows from the colour effects themselves.</summary>
+        /// <param name="frame">The glow's frame.</param>
+        public void ShowGlow(ColourEffectFrame frame)
+        {
+        }
     }
 
     /// <summary>Runs one handler pass of <paramref name="fx"/> as <paramref name="shape"/>'s family plays: on a frontend screen or in gameplay.</summary>

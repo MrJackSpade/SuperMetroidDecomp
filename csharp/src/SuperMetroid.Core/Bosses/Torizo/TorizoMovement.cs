@@ -45,7 +45,7 @@ internal sealed class TorizoMovement
         var state = new TorizoEnemyState(isGolden)
         {
             // Every Torizo population entry starts it standing, with no behaviour latch set.
-            Posture = TorizoPostureFlags.None,
+            Posture = TorizoPosture.Initial,
             Behavior = TorizoBehaviorFlags.None,
         };
         torizo.SetSpeciesState(state);
@@ -68,7 +68,7 @@ internal sealed class TorizoMovement
         torizo.Radius = definition.Radius;
         torizo.AnimationClock.Restart();
         torizo.Shading = state.Colours.Shading;
-        torizo.Frame = EnemyFrameId.BombTorizoDormant;
+        torizo.Frame = definition.InitialFrame;
 
         state.Motion = null;
         state.Velocity = EightEightVector<RoomPixels>.Zero;
@@ -104,7 +104,7 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
+        _body.MaybeSpawnLowHealthDrool(torizo);
 
         // Two of its latches are the death sequence's. Before they are set,
         // health thresholds interrupt the current authored animation with the core/head bursts.
@@ -198,7 +198,7 @@ internal sealed class TorizoMovement
             return;
         }
 
-        state.Velocity += state.JumpAcceleration;
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + state.JumpAcceleration);
     }
 
     /// <summary>

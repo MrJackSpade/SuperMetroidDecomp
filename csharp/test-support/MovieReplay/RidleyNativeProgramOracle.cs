@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using static SuperMetroid.TestSupport.MovieReplay.RidleyNativeListAddresses;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -183,38 +184,32 @@ internal static class RidleyNativeProgramOracle
     }
 
     /// <summary>
-    /// Compares every breakup segment and animation with its six-byte native list: one frame and a sleep. A breakup
-    /// animation stands at the list entry before its frame and at its sleep after.
+    /// Compares every breakup picture with its six-byte native list (#2235): one frame and a sleep, so the fragment shows
+    /// the picture for good; the frame's duration only times a sleep that shows nothing else. A fragment stands at the list
+    /// entry before it shows its picture and at its sleep after.
     /// </summary>
     internal static void CompareBreakupLists(IImportCartridgeSource cartridge)
     {
         foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
         {
-            ushort entry = BreakupList(frame);
-            int address = (BodyBankNumber << 16) | entry;
-            IReadOnlyList<AnimationBeat<RidleyBreakupFrame, NoAnimationCue>> beats = RidleyBreakupAnimations.Segments.Beats(frame);
+            int address = (BodyBankNumber << 16) | BreakupList(frame);
             string at = $"Ridley breakup {frame}";
-            VerificationAssertions.AssertEqual(1, beats.Count, $"{at}: one frame");
-            var show = VerificationAssertions.AssertIs<AnimationBeat<RidleyBreakupFrame, NoAnimationCue>.Frame>(beats[0], $"{at}: frame");
-            VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address), show.Duration, $"{at}: duration");
-            VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(show.Shown), $"{at}: spritemap");
+            VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Frame, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address)), $"{at}: frame");
+            VerificationAssertions.AssertEqual(RidleyBreakupFrameDefinitions.PictureShowingUpdates, (int)cartridge.ReadCartridgeWord(address), $"{at}: frame duration");
+            VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(frame), $"{at}: spritemap");
             VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
-            Animation<RidleyBreakupFrame> animation = RidleyBreakupAnimations.StartingWith(frame);
-            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<RidleyBreakupFrame>(frame, 0, 1, 1)]) && animation.End == AnimationEnd.Holds,
-                $"{at}: the frame plays once and holds");
         }
     }
 
     /// <summary>
-    /// The native instruction pointer of a breakup fragment's <paramref name="playback"/>: its list entry before its frame,
-    /// and the sleep after the frame record once shown.
+    /// The native instruction pointer of breakup <paramref name="fragment"/>: its list entry before it shows its picture,
+    /// and the sleep after the frame record once it has.
     /// </summary>
-    internal static ushort BreakupPointer(AnimationPlayback<RidleyBreakupFrame> playback) =>
-        checked((ushort)(BreakupList(BreakupFrameOf(playback)) + (playback.Place.Beat <= 0 ? 0 : 4)));
-
-    /// <summary>The breakup frame <paramref name="playback"/> shows.</summary>
-    internal static RidleyBreakupFrame BreakupFrameOf(AnimationPlayback<RidleyBreakupFrame> playback) =>
-        playback.Animation.Phases[playback.Place.Phase].Segment;
+    internal static ushort BreakupPointer(RoomEnemyPlace fragment)
+    {
+        RidleyBreakupFrame picture = Ensure.NotNull(fragment).RequireSpeciesState<RidleyExplosionFragmentState>().Picture;
+        return checked((ushort)(BreakupList(picture) + (fragment.Frame == RidleyBreakupFrameDefinitions.ShownFrames.Of(picture) ? 4 : 0)));
+    }
 
     /// <summary>The native list of breakup <paramref name="frame"/>.</summary>
     internal static ushort BreakupList(RidleyBreakupFrame frame) => BreakupEntry(frame);
@@ -228,7 +223,9 @@ internal static class RidleyNativeProgramOracle
         NativeEnemyAnimationOracle.RequireAuthoredOrder(FireballListEntries);
         Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> lists =
             FireballEntries.ToDictionary(item => item.Program, item => ReadFireballList(cartridge, item.Program, item.Entry));
-        NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyFireballAnimations.StartingAt);
+        // The flight is the part of the fireball's list its goto loops back to, which the launch runs on into (#2235).
+        NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyFireballAnimations.StartingAt,
+            onlyRunOnInto: new HashSet<RidleyFireballSegment> { RidleyFireballSegment.FireballFlight });
         return lists;
     }
 

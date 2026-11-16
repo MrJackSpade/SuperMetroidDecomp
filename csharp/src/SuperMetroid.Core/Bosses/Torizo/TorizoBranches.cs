@@ -12,10 +12,10 @@ internal static class TorizoBranches
     /// <param name="kind">The decision.</param>
     /// <param name="posture">The posture the Torizo's last step left it in.</param>
     /// <exception cref="InvalidOperationException"><paramref name="kind"/> is no decision.</exception>
-    internal static TorizoAnimation Target(TorizoBranchKind kind, TorizoPostureFlags posture)
+    internal static TorizoAnimation Target(TorizoBranchKind kind, TorizoPosture posture)
     {
-        bool facingRight = posture.HasFlag(TorizoPostureFlags.FacingRight);
-        bool onRightFoot = TorizoFacing.SteppedOnRightFoot(posture);
+        bool facingRight = posture.Facing == HorizontalDirection.Right;
+        bool onRightFoot = posture.LeadingFoot == HorizontalDirection.Right;
         return kind switch
         {
             // A jump back lands on the foot it stepped on.

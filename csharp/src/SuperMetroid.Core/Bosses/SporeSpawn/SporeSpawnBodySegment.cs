@@ -17,8 +17,12 @@ internal enum SporeSpawnBodySegment
     CloseAndMove,
     /// <summary>The death sequence's setup.</summary>
     Death,
-    /// <summary>The dying explosions.</summary>
+    /// <summary>A dying explosion and the wait after it, ten times.</summary>
     DyingExplosions,
-    /// <summary>Hardening into the husk.</summary>
+    /// <summary>The dying head closes through its poses and starts to harden (#2235).</summary>
+    DeathClosing,
+    /// <summary>Hardening dust and the wait after it, ten times.</summary>
     Hardening,
+    /// <summary>The husk's colours fade in, step by step with more dust, then the death's drops (#2235).</summary>
+    DeathFade,
 }

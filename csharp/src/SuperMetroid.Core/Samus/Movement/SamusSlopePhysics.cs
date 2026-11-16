@@ -138,5 +138,4 @@ public static class SamusSlopePhysics
         block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         return true;
     }
-
 }

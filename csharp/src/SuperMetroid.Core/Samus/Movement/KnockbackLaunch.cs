@@ -10,9 +10,8 @@ public sealed record KnockbackLaunch
     public int KnockbackTimer { get; init; } = 5;
 
     /// <summary>
-    /// The launch a damage producer left pending on Samus: the direction its contact published and the hurt
-    /// countdown still running. Samus still stores the direction as zero for left and one for right; any other value is
-    /// corrupt state.
+    /// The launch a damage producer left pending on Samus: the direction its contact published, left or right, and the
+    /// hurt countdown still running.
     /// </summary>
     internal static KnockbackLaunch FromPendingHit(SamusState samus)
     {

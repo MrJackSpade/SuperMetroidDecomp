@@ -41,10 +41,9 @@ internal sealed class ProjectileAnimation
             ClearProjectile(shot);
             return true;
         }
-        SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
         shot.FrameHold = WrappingCountdown.Start(duration);
         shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
-        shot.Radius = gameplay.Radius;
+        shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
         shot.Playback = playback;
         return false;
     }

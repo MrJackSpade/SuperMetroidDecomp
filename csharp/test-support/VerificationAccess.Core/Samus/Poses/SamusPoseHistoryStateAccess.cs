@@ -10,12 +10,12 @@ internal static class SamusPoseHistoryStateAccess
     {
         /// <summary>
         /// Commits the two transitions that leave the history holding <paramref name="previousPose"/>,
-        /// <paramref name="previousMovement"/> and <paramref name="lastDifferentMovement"/>: the older records the last
-        /// different movement, the newer the previous pose and movement (<see cref="SamusPoseHistoryState.CommitTransition"/>).
+        /// <paramref name="previousMovement"/> and <paramref name="movementBeforePrevious"/>: the older records the movement
+        /// before the previous one, the newer the previous pose and movement (<see cref="SamusPoseHistoryState.CommitTransition"/>).
         /// </summary>
-        internal void Restore(SamusPoseId previousPose, SamusMovementType previousMovement, SamusMovementType lastDifferentMovement)
+        internal void Restore(SamusPoseId previousPose, SamusMovementType previousMovement, SamusMovementType movementBeforePrevious)
         {
-            self.CommitTransition(self.PreviousPose, lastDifferentMovement);
+            self.CommitTransition(self.PreviousPose, movementBeforePrevious);
             self.CommitTransition(previousPose, previousMovement);
         }
     }

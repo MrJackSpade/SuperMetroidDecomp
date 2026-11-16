@@ -12,18 +12,18 @@ internal static class SamusProjectilePlayback
     /// Plays <paramref name="playback"/> on to its next frame and returns it with its duration, leaving the
     /// playback past it; returns null when the animation ends, as the game's animation deletes the projectile.
     /// </summary>
-    internal static SamusProjectileFrame? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
+    internal static SamusProjectileFrameId? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
     {
         AnimationPlace place = playback.Place;
-        AnimationShown<SamusProjectileSegment, SamusProjectileFrame> shown =
+        AnimationShown<SamusProjectileSegment, SamusProjectileFrameId> shown =
             SamusProjectileAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, static _ => { });
         playback = playback with { Place = place };
         switch (shown)
         {
-            case AnimationShown<SamusProjectileSegment, SamusProjectileFrame>.Frame frame:
+            case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.Frame frame:
                 duration = frame.Duration;
                 return frame.Shown;
-            case AnimationShown<SamusProjectileSegment, SamusProjectileFrame>.Ended:
+            case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.Ended:
                 duration = 0;
                 return null;
             default:
@@ -69,22 +69,22 @@ internal static class SamusProjectilePlayback
         if (segment is not { } selected)
             return Extent16<RoomPixels>.Zero;
         AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
-        if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
+        if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame frame)
             throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
-        return SamusProjectileFrameDefinitions.Get(frame.Shown).Radius;
+        return SamusProjectileFrameDefinitions.Radius(frame.Shown);
     }
 
     /// <summary>
-    /// The animation frame of the picture a projectile whose animation stands at <paramref name="playback"/> shows: the
-    /// frame its animation last showed, or null before its animation has shown one.
+    /// The frame a projectile whose animation stands at <paramref name="playback"/> shows: the frame its animation last
+    /// showed, or null before its animation has shown one.
     /// </summary>
-    internal static int? ShownAnimationFrame(AnimationPlayback<SamusProjectileSegment> playback)
+    internal static SamusProjectileFrameId? ShownFrame(AnimationPlayback<SamusProjectileSegment> playback)
     {
         SamusProjectileSegmentBeat at = BeatOf(playback);
         if (at.Beat == 0)
             return null;
-        if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
+        if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame frame)
             throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that shows no frame.");
-        return SamusProjectileFrameDefinitions.Get(frame.Shown).AnimationFrame;
+        return frame.Shown;
     }
 }

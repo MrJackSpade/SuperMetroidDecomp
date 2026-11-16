@@ -186,7 +186,7 @@ internal static void VerifySamusRenderingSlice()
     samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);
     ushort radiusBeforeForwardSetup = samus.Kinematics.Radius.Y;
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
-    AssertEqual(SamusMovementType.SpinJumping, samus.PoseHistory.LastDifferentMovement,
+    AssertEqual(SamusMovementType.SpinJumping, samus.PoseHistory.MovementBeforePrevious,
         "forward setup shifts packed direction/movement metadata");
     AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "forward setup commits new pose");
     AssertEqual(SamusPoseMetadata.ReadMovementType(samus),

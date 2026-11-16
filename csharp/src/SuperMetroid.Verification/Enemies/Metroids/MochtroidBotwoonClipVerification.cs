@@ -132,7 +132,7 @@ internal static class MochtroidBotwoonClipVerification
                 AssertEqual(expected.LandingY, samus.Position.Y.Whole,
                     $"{expected.Case} frozen-Mochtroid landing Y");
                 AssertEqual<ISolidEnemy?>(mochtroid,
-                    samus.Kinematics.SolidEnemyContacts[SamusCollisionDirectionNativeWords.Directions.Word(SamusCollisionDirection.Down)],
+                    samus.Kinematics.SolidEnemyContact(SamusCollisionDirection.Down),
                     $"{expected.Case} landing collision owner");
             }
             if (frame == expected.StandFrame)

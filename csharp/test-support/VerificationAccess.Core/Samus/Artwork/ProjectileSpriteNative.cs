@@ -70,9 +70,9 @@ internal static class ProjectileSpriteNative
 
     /// <summary>The timed record stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No timed record is stored there.</exception>
-    internal static SamusProjectileFrame Frame(int address) =>
+    internal static SamusProjectileFrameId Frame(int address) =>
         SamusProjectileFrameOrder.Frames.Where(record => SamusProjectileProgramAddresses.RecordAddress(record) == address)
-            .Select(record => (SamusProjectileFrame?)record).SingleOrDefault()
+            .Select(record => (SamusProjectileFrameId?)record).SingleOrDefault()
             ?? throw new InvalidDataException($"No timed projectile record is stored at $93:{address:X4}.");
 
     /// <summary>Where <paramref name="sprite"/> sits in <paramref name="all"/>.</summary>

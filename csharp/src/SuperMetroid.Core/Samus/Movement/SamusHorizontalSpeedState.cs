@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The fixed-point horizontal speeds used by Samus's movement code.
 /// </summary>
 /// <remarks>
-/// This class is intentionally narrower than a general-purpose desktop physics body. Every
-/// property corresponds to one value of Samus's state, and every operation below preserves
+/// Every property corresponds to one value of Samus's state, and every operation below preserves
 /// the game's wrapping at 65536 and its comparisons. Room/enemy collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
@@ -429,7 +428,8 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingSuitShadeRestore(
-        SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+        SamusColours colours,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
         if (!SuitShadeRestoreRequested)
@@ -814,5 +814,4 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>The most whole pixels Samus's speed moves her in one update, either way.</summary>
     private const int LargestWholeDisplacement = 15;
-
 }

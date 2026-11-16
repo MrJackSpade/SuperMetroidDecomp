@@ -23,9 +23,10 @@ internal static class SamusOverreadFormat
     /// Chainsaw beam's colours, which are import data (#1693); revision twenty names each animation position's animation
     /// under <c>animation</c> (#1624); revision twenty-one names each animation program's successor under <c>animationSuccessors</c> (#1758);
     /// revision twenty-two holds named outcomes in place of the programs' layout: the cue-value steps by the frame's name, what
-    /// each reachable frame past an animation reads, and where each named place lands in every other animation (#2048).
+    /// each reachable frame past an animation reads, and where each named place lands in every other animation (#2048); revision twenty-three names the special attack animations
+    /// for the move (#2122).
     /// </summary>
-    internal const int Version = 22;
+    internal const int Version = 23;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

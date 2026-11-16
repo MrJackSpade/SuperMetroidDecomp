@@ -21,8 +21,7 @@ public static class ScreenGeometry
     /// top row shows each layer's row below the camera's top row, while a sprite is placed at its position less the
     /// camera's, from the camera's top row itself. The game keeps this one-row offset between the layers and the sprites
     /// so every sprite shows against the room exactly where the original shows it. The gameplay view publishes the row
-    /// each layer shows at the screen's top, so the offset is applied once, where the camera becomes the view. Verified
-    /// against #516's captured frames.
+    /// each layer shows at the screen's top, so the offset is applied once, where the camera becomes the view.
     /// </summary>
     public const int LayerRowsHiddenAboveScreen = 1;
 

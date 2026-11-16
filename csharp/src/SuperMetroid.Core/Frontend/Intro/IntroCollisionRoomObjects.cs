@@ -70,6 +70,9 @@ internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
     public IChozoStatueHand ChozoStatueHand => throw Reached(nameof(ChozoStatueHand));
 
     /// <inheritdoc/>
+    public bool EveryPlaceHeld => throw Reached(nameof(EveryPlaceHeld));
+
+    /// <inheritdoc/>
     public void DeleteObject(RoomObjectPlace place) => throw Reached(nameof(DeleteObject));
 
     /// <summary>The failure of a touch that reached <paramref name="family"/>, which the intro's rooms do not have.</summary>

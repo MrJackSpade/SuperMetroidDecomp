@@ -16,18 +16,24 @@ namespace SuperMetroid.Core.Samus;
 internal static class SamusRoomObjectFixtures
 {
     /// <summary>Room objects that fail at whichever family a check reaches.</summary>
-    internal static ISamusRoomObjects Uninstalled { get; } = new UninstalledSamusRoomObjects(quicksand: null);
+    internal static ISamusRoomObjects Uninstalled { get; } = new UninstalledSamusRoomObjects(places: null);
 
     /// <summary>
     /// Room objects whose quicksand reactions take places from a fresh room's forty, every other family failing where a
     /// check reaches it: for checks whose terrain holds sand, special or bomb blocks, which consult the room's places.
     /// </summary>
     internal static ISamusRoomObjects WithQuicksand() =>
-        new UninstalledSamusRoomObjects(new QuicksandObjects(new RoomObjectPlaceList(new RoomObjectPlaces())));
+        new UninstalledSamusRoomObjects(new RoomObjectPlaceList(new RoomObjectPlaces()));
 
-    /// <summary>A room with no room objects installed, or only its quicksand.</summary>
-    private sealed class UninstalledSamusRoomObjects(QuicksandObjects? quicksand) : ISamusRoomObjects
+    /// <summary>A room with no room objects installed, or only its places and the quicksand that takes them.</summary>
+    private sealed class UninstalledSamusRoomObjects(RoomObjectPlaceList? places) : ISamusRoomObjects
     {
+        /// <summary>The room's places, or null when the fixture has none.</summary>
+        private readonly RoomObjectPlaceList? _places = places;
+
+        /// <summary>The quicksand reactions taking <see cref="_places"/>, or null when the fixture has no places.</summary>
+        private readonly QuicksandObjects? _quicksand = places is null ? null : new QuicksandObjects(places);
+
         /// <inheritdoc/>
         public BlockReactionObjects BlockReactions => throw Missing(nameof(BlockReactions));
 
@@ -68,10 +74,13 @@ internal static class SamusRoomObjectFixtures
         public ProjectileTriggerObjects ProjectileTriggers => throw Missing(nameof(ProjectileTriggers));
 
         /// <inheritdoc/>
-        public QuicksandObjects Quicksand => quicksand ?? throw Missing(nameof(Quicksand));
+        public QuicksandObjects Quicksand => _quicksand ?? throw Missing(nameof(Quicksand));
 
         /// <inheritdoc/>
         public IChozoStatueHand ChozoStatueHand => throw Missing(nameof(ChozoStatueHand));
+
+        /// <inheritdoc/>
+        public bool EveryPlaceHeld => _places?.IsFull ?? throw Missing(nameof(EveryPlaceHeld));
 
         /// <inheritdoc/>
         public void DeleteObject(RoomObjectPlace place) => throw Missing(nameof(DeleteObject));

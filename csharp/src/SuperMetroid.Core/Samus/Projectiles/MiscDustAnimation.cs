@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The fourteen misc-dust and explosion animations a spawner of the dust-cloud-or-explosion enemy projectile asks for.
-/// Their values are arbitrary.
+/// Their values are arbitrary; they are declared in the order the animations are authored.
 /// </summary>
 public enum MiscDustAnimation
 {
@@ -24,6 +24,8 @@ public enum MiscDustAnimation
     EyeDoorSmokePuff,
     /// <summary>Smoke.</summary>
     Smoke,
+    /// <summary>Big explosion.</summary>
+    BigExplosion,
     /// <summary>Rock particles.</summary>
     RockParticles,
     /// <summary>Short big dust cloud.</summary>
@@ -32,6 +34,4 @@ public enum MiscDustAnimation
     BigDustCloud,
     /// <summary>Long Draygon breath bubbles.</summary>
     LongDraygonBreathBubbles,
-    /// <summary>Big explosion.</summary>
-    BigExplosion,
 }

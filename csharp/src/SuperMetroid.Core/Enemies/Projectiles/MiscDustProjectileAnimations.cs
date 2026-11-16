@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Animation;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Samus.Projectiles.MiscDustProjectileSegment;
+using P = SuperMetroid.Core.Samus.Projectiles.MiscDustAnimation;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class MiscDustProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MiscDustProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<MiscDustProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<MiscDustAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<MiscDustAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.ElbowChargeParticle] =
+        [P.MotherBrainElbowChargeParticle] =
         [
             Show(EnemyProjectileFrameId.MiscDustElbowChargeParticleFirst, 5),
             Show(EnemyProjectileFrameId.MiscDustElbowChargeParticleSecond, 4),
@@ -25,7 +25,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustElbowChargeParticleSixth, 3),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
-        [P.ElbowChargeEnergy] =
+        [P.MotherBrainElbowChargeEnergy] =
         [
             Show(EnemyProjectileFrameId.MiscDustElbowChargeEnergyFirst, 4),
             Show(EnemyProjectileFrameId.MiscDustElbowChargeEnergySecond, 3),
@@ -46,7 +46,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustSmallExplosionSixth, 6),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
-        [P.RainbowBeamExplosion] =
+        [P.MotherBrainRainbowBeamExplosion] =
         [
             Show(EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFirst, 3),
             Show(EnemyProjectileFrameId.MiscDustRainbowBeamExplosionSecond, 3),
@@ -55,7 +55,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFifth, 4),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
-        [P.DudShot] =
+        [P.DudShotTinyExplosion] =
         [
             Show(EnemyProjectileFrameId.MiscDustDudShotFirst, 4),
             Show(EnemyProjectileFrameId.MiscDustDudShotSecond, 4),
@@ -148,7 +148,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBigDustCloudEighth, 5),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
-        [P.DraygonBreathBubbles] =
+        [P.LongDraygonBreathBubbles] =
         [
             Show(EnemyProjectileFrameId.MiscDustDraygonBreathBubblesFirst, 8),
             Show(EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSecond, 8),
@@ -164,13 +164,13 @@ internal static class MiscDustProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MiscDustProjectileSegment, Animation<MiscDustProjectileSegment>> StartingAt { get; } = new Dictionary<MiscDustProjectileSegment, Animation<MiscDustProjectileSegment>>
+    internal static IReadOnlyDictionary<MiscDustAnimation, Animation<MiscDustAnimation>> StartingAt { get; } = new Dictionary<MiscDustAnimation, Animation<MiscDustAnimation>>
     {
-        [P.ElbowChargeParticle] = new([new(P.ElbowChargeParticle, 0, 7, 1)], AnimationEnd.Holds),
-        [P.ElbowChargeEnergy] = new([new(P.ElbowChargeEnergy, 0, 8, 1)], AnimationEnd.Holds),
+        [P.MotherBrainElbowChargeParticle] = new([new(P.MotherBrainElbowChargeParticle, 0, 7, 1)], AnimationEnd.Holds),
+        [P.MotherBrainElbowChargeEnergy] = new([new(P.MotherBrainElbowChargeEnergy, 0, 8, 1)], AnimationEnd.Holds),
         [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 7, 1)], AnimationEnd.Holds),
-        [P.RainbowBeamExplosion] = new([new(P.RainbowBeamExplosion, 0, 6, 1)], AnimationEnd.Holds),
-        [P.DudShot] = new([new(P.DudShot, 0, 7, 1)], AnimationEnd.Holds),
+        [P.MotherBrainRainbowBeamExplosion] = new([new(P.MotherBrainRainbowBeamExplosion, 0, 6, 1)], AnimationEnd.Holds),
+        [P.DudShotTinyExplosion] = new([new(P.DudShotTinyExplosion, 0, 7, 1)], AnimationEnd.Holds),
         [P.SmallDustCloud] = new([new(P.SmallDustCloud, 0, 6, 1)], AnimationEnd.Holds),
         [P.CorpseDustCloud] = new([new(P.CorpseDustCloud, 0, 5, 1)], AnimationEnd.Holds),
         [P.EyeDoorSmokePuff] = new([new(P.EyeDoorSmokePuff, 0, 5, 1)], AnimationEnd.Holds),
@@ -179,11 +179,15 @@ internal static class MiscDustProjectileAnimations
         [P.RockParticles] = new([new(P.RockParticles, 0, 17, 1)], AnimationEnd.Holds),
         [P.ShortBigDustCloud] = new([new(P.ShortBigDustCloud, 0, 5, 1)], AnimationEnd.Holds),
         [P.BigDustCloud] = new([new(P.BigDustCloud, 0, 9, 1)], AnimationEnd.Holds),
-        [P.DraygonBreathBubbles] = new([new(P.DraygonBreathBubbles, 0, 10, 1)], AnimationEnd.Holds),
+        [P.LongDraygonBreathBubbles] = new([new(P.LongDraygonBreathBubbles, 0, 10, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MiscDustProjectileSegment> StartingWith(MiscDustProjectileSegment segment) => StartingAt[segment];
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is not one of the fourteen animations.</exception>
+    internal static Animation<MiscDustAnimation> StartingWith(MiscDustAnimation segment) =>
+        StartingAt.TryGetValue(segment, out Animation<MiscDustAnimation>? animation)
+            ? animation
+            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined misc-dust animation.");
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

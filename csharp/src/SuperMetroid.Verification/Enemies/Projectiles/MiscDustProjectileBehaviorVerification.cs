@@ -36,9 +36,8 @@ internal static class MiscDustProjectileBehaviorVerification
             enemies.Projectiles.SpawnDustOrExplosion(new Position16<RoomPixels>(128, 96), animation);
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
-            MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
-            AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
-                $"misc-dust animation {animation} starts {program}");
+            AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == animation,
+                $"misc-dust animation {animation} starts");
 
             int calls = 0;
             while (dust.IsActive && calls < 40)
@@ -62,16 +61,15 @@ internal static class MiscDustProjectileBehaviorVerification
                 new SharedGameState(new SharedRandom()));
             EnemyProjectile smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
-            MiscDustProjectileSegment expected = MiscDustProjectiles.Animation(animation);
-            AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == expected,
-                $"Eye Door {puff} starts {expected}");
+            AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == animation,
+                $"Eye Door {puff} starts {animation}");
             int smokeCalls = 0;
             while (smoke.IsActive && smokeCalls < 40)
             {
                 RunForcedTicks(rom, smokeEnemies, smoke, samus, 1);
                 smokeCalls++;
             }
-            AssertTrue(!smoke.IsActive, $"Eye Door {puff} reaches delete through {expected}");
+            AssertTrue(!smoke.IsActive, $"Eye Door {puff} reaches delete through {animation}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the shared misc-dust or Mother Brain list bytes");

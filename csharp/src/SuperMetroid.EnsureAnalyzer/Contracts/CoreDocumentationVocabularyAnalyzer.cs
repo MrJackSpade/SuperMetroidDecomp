@@ -60,6 +60,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2113 adds, outside hardware owners, a controller button's letter used as the name of a gameplay action.
 /// #2133 adds to the review trail, in every type, relocation history: a ticket followed by what a thing was, a
 /// parenthetical telling what it was, and where a thing moved from.
+/// #2123 adds to the review trail, in every type, anything verified, and, outside hardware owners, the host's
+/// desktop, the original's assembly loops, branches and labels, and a value stored as a number for a meaning or cited
+/// as a literal number.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -89,11 +92,14 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// The program's own vocabulary in prose (#1558): its addresses, pointers, opcodes, the processor's registers (the noun;
     /// registering a handler is the game's own code), instruction lists and pre-instructions, PLMs, word widths and extension words, its assembly code (not Wrecked Ship's Assembly Line room), and numbered palettes and priorities.
+    /// #2123 adds the assembly's loops, branches, labels, versions and implementation and an ascending or descending
+    /// assembly; assembling a value from its parts stays English.
     /// </summary>
     private static readonly Regex ProgramProse = new(
         @"\b(Address|Pointer|Opcode|PLM)(s|es|ed|ing)?\b|\b(?:[AXY]|index|accumulator|status|processor|CPU|hardware|display|data|bank)\s+registers?\b|\bpre-?instructions?\b|\binstruction[-\s]+lists?\b" +
         @"|\b(?:eight|sixteen|8|16)-bit\b|\bextension\s+words?\b|\baccumulator\s+mode\b" +
-        @"|\bassembly\s+(?:code|language|listing|routine|source)s?\b|\bthe\s+(?:original\s+)?assembly\b(?!\s+line)" +
+        @"|\bassembly\s+(?:code|language|listing|routine|source|loop|branch|label|version|implementation)(?:s|es)?\b" +
+        @"|\bthe\s+(?:original\s+)?assembly\b(?!\s+line)|\b(?:ascending|descending)\s+assembly\b" +
         @"|\bpalette\s+(?:zero|one|two|three|four|five|six|seven|[0-7])\b|\bpriority\s+(?:zero|one|two|three|[0-3])\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -238,7 +244,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// the host as an actor (the host binds, persists or plays), possessive (the host's save slots), plural (the hosts'
     /// import format), its presentation and services (host frames, PCM, pixels, artwork, options, content, elapsed time,
     /// diagnostics, renderer, calls) and its ownership compounds (host-owned, host-installed, host-bound, host-supplied,
-    /// host-configured) are not read, nor is a ghost.
+    /// host-configured) are not read, nor is a ghost. #2123 adds the desktop in any form (the desktop runtime, a
+    /// desktop-held button, desktop composition): Core runs the same game whatever application runs it.
     /// </summary>
     private static readonly Regex HostProvenanceProse = new(
         @"\bhost[-\s]+(?:side|only|readable|visible|friendly|authored|facing)\b" +
@@ -247,7 +254,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|sprites?|animations?|readings?|physics|ordering|results?|no-ops?|errors?|loops?|vectors?|poses?|phases?" +
         @"|interactions?|signed|movement|gravity|jumps?|knockback|palettes?|handlers?|death|schedulers?|allocations?|bombs?" +
         @"|areas?|aiming|smoothing|floating-point)\b" +
-        @"|\bthis\s+(?:gameplay\s+)?host\b",
+        @"|\bthis\s+(?:gameplay\s+)?host\b|\bdesktops?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -611,7 +618,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// commit fixed it are the repository's history, not the game's. English stays legal: a ticket cited for the change it
     /// names (<c>(#1989)</c>), a thing pinned in the game (Samus pinned by the beam, the ring pinned to the mouth), a check
     /// the game itself makes, treating a value as another with no breakage told, an inventory alone, a frozen enemy, and a
-    /// decimal number.
+    /// decimal number. #2123 adds anything verified (the verified animations, a transition that is not verified, verified
+    /// against captured frames): what the game does is stated, not that the port's author verified it; a check the game or
+    /// the installation makes is checked.
     /// </summary>
     private static readonly Regex ReviewTrailProse = new(
         @"\breview\s+inventor(?:y|ies)\b" +
@@ -623,7 +632,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\bindependently\s+(?:re-?)?(?:review|check|verif|audit|confirm)\w*" +
         @"|#[0-9]+\s+(?:research|independently|review\w*|audit\w*|investigation)\b|\bissue\s+#[0-9]+" +
         @"|#[0-9]+\s*/\s*#[0-9]+" +
-        @"|\binvestigat\w*|\bproofs?\b" +
+        @"|\binvestigat\w*|\bproofs?\b|\bverified\b" +
         @"|\bpinned\s+(?:[\w'-]+\s+){0,2}?(?:sources?|data|references?|cartridge|retail|release|game|room\s+states?|values?)\b" +
         @"|(?<![\w.])v[0-9]+\.[0-9]+(?![\w.])" +
         @"|(?-i:(?<![\w.#-])(?=[0-9a-f]{0,39}[a-f])(?=[0-9a-f]{0,39}[0-9])[0-9a-f]{7,40}(?![\w-]))",
@@ -741,6 +750,17 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static readonly Regex DisplayEffectProse = new(
         @"\bfixed[-\s]+colou?rs?\b|(?-i:\bTM\b)|\bper[-\s]+(?:scan)?line\s+effects?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A value cited by the number the original stored or compared in prose (#2123), outside hardware owners: a value
+    /// stored as a number for a meaning (stores the direction as zero for left and one for right) and a literal number
+    /// (any value other than literal four, the literal five, the literal 190/66/2 branches). Core names the meaning: the
+    /// direction is left or right, a pose faces left. English stays legal: a count of what is stored (stores these as four
+    /// separate flags) and a literal alone.
+    /// </summary>
+    private static readonly Regex StoredValueProse = new(
+        @"\bstor(?:e|es|ed|ing)\b[^.;]*?\bas\s+" + NumberWord + @"\s+(?:for|when|if|meaning)\b|\bliteral\s+" + NumberWord + @"\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -971,6 +991,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ProgramStructureProse.Match(Markup.Replace(text, " ")) is { Success: true } programStructure ? programStructure.Value
             : DisplayEffectProse.Match(Markup.Replace(text, " ")) is { Success: true } displayEffect ? displayEffect.Value
             : ButtonLetterActionProse.Match(Markup.Replace(text, " ")) is { Success: true } buttonLetter ? buttonLetter.Value
+            : StoredValueProse.Match(Markup.Replace(text, " ")) is { Success: true } storedValue ? storedValue.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

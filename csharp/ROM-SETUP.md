@@ -968,10 +968,11 @@ picture store to change what a projectile shows. Damage, collision radii, trail 
 are not artwork.
 
 `game/projectiles/projectile-frame-bindings.json` selects which existing
-`sprite_XXXX` composition each of the 805 timed beam, missile, Super Missile and
-bomb instruction frames draws. Keep all `frame_XXXX` entries and select only sprite
-IDs the stock file names; duration, trail cadence, collision
-radii, damage and instruction flow remain compiled gameplay data. Edits are included
+composition (named by family and pose, such as `Wave.Right.Up1`) each of the 795 beam,
+missile, Super Missile and bomb frames draws, keyed by the frame's name (such as
+`WaveRightUp1`). Keep every frame entry and select only compositions the stock file
+names; duration, trail placement and cadence, collision radii, damage and animation
+flow remain compiled gameplay data. Edits are included
 in recorded content identity.
 `charge-flare-placement.json`, `grapple-flare-placement.json` and `grapple-swing-frames.json`
 in the same directory hold the charge flare's and the Grapple flare's signed visual offsets and the

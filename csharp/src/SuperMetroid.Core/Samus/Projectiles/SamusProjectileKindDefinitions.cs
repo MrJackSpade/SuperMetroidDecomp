@@ -35,7 +35,7 @@ internal static class SamusProjectileKindDefinitions
             [SamusProjectileKind.ChargedPlasmaIceWave] = new(P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpFacingRight, P.ChargedPlasmaWaveUpRight, P.ChargedPlasmaWaveRight, P.ChargedPlasmaWaveDownRight, P.ChargedPlasmaWaveUpFacingRight),
             [SamusProjectileKind.Missile] = new(P.MissileUpFacingRight, P.MissileUpRight, P.MissileRight, P.MissileDownRight, P.MissileDownFacingRight, P.MissileDownFacingRight, P.MissileDownLeft, P.MissileLeft, P.MissileUpLeft, P.MissileUpFacingRight),
             [SamusProjectileKind.SuperMissile] = new(P.SuperMissileUpFacingRight, P.SuperMissileUpRight, P.SuperMissileRight, P.SuperMissileDownRight, P.SuperMissileDownFacingRight, P.SuperMissileDownFacingRight, P.SuperMissileDownLeft, P.SuperMissileLeft, P.SuperMissileUpLeft, P.SuperMissileUpFacingRight),
-            [SamusProjectileKind.SpazerSBATrail] = new(P.SpazerSBATrailUpFacingRight),
+            [SamusProjectileKind.SpazerSpecialAttackTrail] = new(P.SpazerSpecialAttackTrailUpFacingRight),
             [SamusProjectileKind.ShinesparkEcho] = new(P.ShinesparkEchoUpFacingRight),
         };
 
@@ -49,8 +49,8 @@ internal static class SamusProjectileKindDefinitions
             [SamusProjectileKind.SuperMissileLink] = P.SuperMissileLink,
             [SamusProjectileKind.PowerBomb] = P.PowerBomb,
             [SamusProjectileKind.Bomb] = P.Bomb,
-            [SamusProjectileKind.PlasmaSBA] = P.PlasmaSBA,
-            [SamusProjectileKind.WaveSBA] = P.WaveSBA,
-            [SamusProjectileKind.SpazerSBA] = P.SpazerUpFacingRight,
+            [SamusProjectileKind.PlasmaSpecialAttack] = P.PlasmaSpecialAttack,
+            [SamusProjectileKind.WaveSpecialAttack] = P.WaveSpecialAttack,
+            [SamusProjectileKind.SpazerSpecialAttack] = P.SpazerUpFacingRight,
         };
 }

@@ -157,8 +157,7 @@ public sealed class PowerBombBlastTimeline
 
         // Every stage first chooses this frame's oval and only then
         // changes its radius or its oval stage's updates, or advances the stage. Record
-        // that input phase here so post-logic desktop composition sees the generated
-        // frame rather than the state prepared for the following one.
+        // that phase here so the drawn blast is this update's, not the state prepared for the following one.
         RenderedPhase = Phase;
 
         switch (Phase)

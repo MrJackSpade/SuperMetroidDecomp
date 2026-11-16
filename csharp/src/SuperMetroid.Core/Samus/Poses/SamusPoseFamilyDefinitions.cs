@@ -18,6 +18,16 @@ internal static class SamusPoseFamilyDefinitions
     ];
 
     /// <summary>
+    /// The two generic spin jumps, facing right and left, and the spins each becomes when Screw Attack or Space Jump is
+    /// equipped.
+    /// </summary>
+    internal static readonly Dictionary<SamusPoseId, SamusEquippedSpinPoses> EquippedSpinPoses = new()
+    {
+        [SamusPoseId.SpinJumpRightPose] = new(ScrewAttack: SamusPoseId.ScrewAttackRightPose, SpaceJump: SamusPoseId.SpaceJumpRightPose),
+        [SamusPoseId.SpinJumpLeftPose] = new(ScrewAttack: SamusPoseId.ScrewAttackLeftPose, SpaceJump: SamusPoseId.SpaceJumpLeftPose),
+    };
+
+    /// <summary>
     /// The poses an elevator arms under: the power-suit front view and the standing poses facing right or left, normal or
     /// aimed up, diagonally up or diagonally down. The Varia and Gravity front view does not arm it.
     /// </summary>

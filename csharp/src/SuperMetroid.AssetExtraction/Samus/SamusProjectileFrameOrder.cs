@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -8,8 +9,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusProjectileFrameOrder
 {
-    /// <summary>Every frame, animation by animation in segment order.</summary>
-    internal static IReadOnlyList<SamusProjectileFrame> Frames { get; } =
-        [.. Enum.GetValues<SamusProjectileSegment>().SelectMany(program =>
-            Enumerable.Range(0, SamusProjectileFrameDefinitions.ByAnimation[program].Length).Select(show => new SamusProjectileFrame(program, show)))];
+    /// <summary>Every frame, animation by animation in segment order, each animation's in the order it shows them.</summary>
+    internal static IReadOnlyList<SamusProjectileFrameId> Frames { get; } =
+        [.. Enum.GetValues<SamusProjectileSegment>().SelectMany(program => SamusProjectileAnimations.Segments.Beats(program)
+            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
+            .Select(show => show.Shown))];
 }

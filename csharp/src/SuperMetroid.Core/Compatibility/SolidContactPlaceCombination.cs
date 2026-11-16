@@ -21,17 +21,17 @@ public static class SolidContactPlaceCombination
     /// The place Samus's contacts combine to, or null when she met no solid enemy in any direction.
     /// </summary>
     /// <typeparam name="TPlace">An enemy place.</typeparam>
-    /// <param name="contactsByDirection">The enemy she met in each direction, or null where she met none.</param>
+    /// <param name="contacts">The enemies she met, one for each direction she met one in.</param>
     /// <param name="places">
     /// The room's enemy places in order, a power of two of them; a direction with no contact counts as every position bit
     /// set.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">The place count is not a positive power of two.</exception>
     /// <exception cref="ArgumentException">A contact is not one of <paramref name="places"/>.</exception>
-    public static TPlace? NamedPlace<TPlace>(IReadOnlyList<TPlace?> contactsByDirection, IReadOnlyList<TPlace> places)
+    public static TPlace? NamedPlace<TPlace>(IEnumerable<TPlace> contacts, IReadOnlyList<TPlace> places)
         where TPlace : class
     {
-        Ensure.NotNull(contactsByDirection);
+        Ensure.NotNull(contacts);
         Ensure.NotNull(places);
         int placeCount = places.Count;
         if (placeCount <= 0 || (placeCount & (placeCount - 1)) != 0)
@@ -39,10 +39,8 @@ public static class SolidContactPlaceCombination
 
         int combined = placeCount - 1;
         bool metAny = false;
-        foreach (TPlace? contact in contactsByDirection)
+        foreach (TPlace contact in contacts)
         {
-            if (contact is null)
-                continue;
             combined &= PositionOf(contact, places);
             metAny = true;
         }

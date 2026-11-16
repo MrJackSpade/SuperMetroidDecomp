@@ -87,7 +87,7 @@ internal static class ProjectileRadiiVerification
             0x93a12d, 0x93a135, 0x93a141, 0x93a149, 0x93a151, 0x93a15d, 0x93a165];
         foreach (int address in addresses)
         {
-            Extent16<RoomPixels> radius = SamusProjectileProgramsVerification.RecordAt((ushort)(address - 4)).Radius;
+            Extent16<RoomPixels> radius = SamusProjectileFrameDefinitions.Radius(SamusProjectileProgramsVerification.RecordAt((ushort)(address - 4)));
             AssertEqual(rom.ReadCartridgeByte(address), (byte)radius.X, "Native X radius");
             AssertEqual(rom.ReadCartridgeByte(address + 1), (byte)radius.Y, "Native Y radius");
         }
@@ -112,7 +112,7 @@ internal static class ProjectileRadiiVerification
             AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");
             AssertEqual(rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
             AssertEqual(rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
-            AssertEqual<int?>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), ProjectileTrails.GetTrailAnimationFrame(slot), "Trail frame unchanged");
+            AssertEqual<SamusProjectileFrameId?>(SamusProjectileProgramsVerification.RecordAt(pointer), ProjectileTrails.GetTrailFrame(slot), "Trail frame is the record's");
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
             // The bomb owner deliberately rejects zero-duration records. Keep that

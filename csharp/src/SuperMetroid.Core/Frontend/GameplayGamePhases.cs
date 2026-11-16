@@ -72,9 +72,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.PausingDarkening"/>.</summary>
     internal void RunPausingDarkening(ControllerButton controllerInput)
     {
-        // The pausing state continues running ordinary gameplay while the screen darkens.
-        // This matters for moving enemies/projectiles and is why pause cannot be
-        // represented as a desktop-only frozen bitmap.
+        // The pausing state keeps running ordinary gameplay while the screen darkens, so enemies and projectiles keep
+        // moving until the pause begins.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The finished fade moves on from what this update started: the pause preparation,

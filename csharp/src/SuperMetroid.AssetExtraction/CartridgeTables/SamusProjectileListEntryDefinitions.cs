@@ -147,11 +147,11 @@ internal static class SamusProjectileListEntryDefinitions
         [SamusProjectileSegment.BeamExplosion] = 0xa007,
         [SamusProjectileSegment.MissileExplosion] = 0xa039,
         [SamusProjectileSegment.BombExplosion] = 0xa06b,
-        [SamusProjectileSegment.PlasmaSBA] = 0xa095,
+        [SamusProjectileSegment.PlasmaSpecialAttack] = 0xa095,
         [SamusProjectileSegment.SuperMissileExplosion] = 0xa0c1,
         [SamusProjectileSegment.ShinesparkEchoUpFacingRight] = 0xa119,
-        [SamusProjectileSegment.SpazerSBATrailUpFacingRight] = 0xa13d,
-        [SamusProjectileSegment.SpazerSBATrailUpFacingRightLoop] = 0xa14d,
-        [SamusProjectileSegment.WaveSBA] = 0xa159,
+        [SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRight] = 0xa13d,
+        [SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRightLoop] = 0xa14d,
+        [SamusProjectileSegment.WaveSpecialAttack] = 0xa159,
     };
 }

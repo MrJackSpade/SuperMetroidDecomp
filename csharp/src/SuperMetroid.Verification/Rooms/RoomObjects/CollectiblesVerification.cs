@@ -877,14 +877,14 @@ internal static class CollectiblesVerification
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
             SamusMovementType initialMetadata = SamusPoseMetadata.ReadMovementType(samus);
-            AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "suit entry shifts prior metadata");
+            AssertEqual(SamusMovementType.SpinJumping, history.MovementBeforePrevious, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
             AssertEqual(initialMetadata, history.PreviousMovement, "suit entry commits front metadata");
             int frames = 0;
             var samusColours = new SamusColours();
             while (pickup.Stage != SamusSuitPickupStage.LightBeamShrinks && frames++ < 2000) pickup.Step(samus, samusColours);
             AssertEqual(SamusSuitPickupStage.LightBeamShrinks, pickup.Stage, "suit history fixture reaches reveal");
-            AssertEqual(initialMetadata, history.LastDifferentMovement, "suit reveal shifts initial metadata");
+            AssertEqual(initialMetadata, history.MovementBeforePrevious, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
             AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
                 history.PreviousMovement, "suit reveal commits suited metadata");

@@ -19,7 +19,8 @@ internal static class SamusPosturePoseTransitions
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
-    public static bool TryApplyDirectCrouchToStandingTransition(SamusState samus,
+    public static bool TryApplyDirectCrouchToStandingTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -64,7 +65,6 @@ internal static class SamusPosturePoseTransitions
         return true;
     }
 
-
     /// <summary>
     /// Applies the crouching table's neutral jump-transition entry through the ordering:
     /// enlarge radius 16 -> 19 with the larger-radius check, initialise normal-jumping movement, run the
@@ -79,7 +79,8 @@ internal static class SamusPosturePoseTransitions
     /// False when expansion is impossible. Simultaneous initial hits select ordinary stable
     /// crouch; rejection by a compensating opposite-side probe retains the source pose.
     /// </returns>
-    public static bool TryApplyCrouchJumpTransition(SamusState samus,
+    public static bool TryApplyCrouchJumpTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -118,9 +119,8 @@ internal static class SamusPosturePoseTransitions
 
         // The input phase owns the new radius next frame; collision correction and jump setup
         // below must not publish it during this frame's pose-commit stage.
-        // The normal-jumping jump transition performs this after pose
-        // initialization/collision but before the jump starts. It writes only current Y;
-        // the desktop state has no separately exposed previous Y position to mirror.
+        // The jump transition lowers Samus after pose initialization and collision but before the jump starts. It moves
+        // only her current position and records no previous position.
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, SamusPoseCollisionDefinitions.CrouchJumpLift);
 
@@ -129,7 +129,6 @@ internal static class SamusPosturePoseTransitions
         return true;
     }
 
-
     /// <summary>
     /// Applies the ordinary or aimed crouch-start/stand-start transition poses,
     /// including the posture change's bottom alignment and the larger-radius collision branch
@@ -137,10 +136,11 @@ internal static class SamusPosturePoseTransitions
     /// the unaimed and aimed crouching and standing transitions.
     /// </summary>
     /// <returns>
-    /// False only when simultaneous floor and ceiling collision leave no verified room to
+    /// False only when simultaneous floor and ceiling collision leave no room to
     /// expand from radius 16 to radius 21; the game then retains the crouching pose.
     /// </returns>
-    public static bool TryApplyPostureTransition(SamusState samus,
+    public static bool TryApplyPostureTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -248,7 +248,6 @@ internal static class SamusPosturePoseTransitions
         return true;
     }
 
-
     /// <summary>
     /// Applies the ordinary Morph-Ball entry and exit poses selected by the crouch and
     /// ball input transitions. This includes item gating, the posture change's bottom alignment,
@@ -261,7 +260,8 @@ internal static class SamusPosturePoseTransitions
     /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
     /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
     /// </remarks>
-    public static bool TryApplyMorphTransition(SamusState samus,
+    public static bool TryApplyMorphTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -372,7 +372,6 @@ internal static class SamusPosturePoseTransitions
         return true;
     }
 
-
     /// <summary>Shared bounce cancellation of the posture change.</summary>
     private static void CancelBounceForPostureTransition(SamusState samus)
     {
@@ -382,7 +381,6 @@ internal static class SamusPosturePoseTransitions
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
     }
-
 
     /// <summary>
     /// Applies a same-facing falling pose selected while the unmorph animation
@@ -396,7 +394,8 @@ internal static class SamusPosturePoseTransitions
     /// changed-pose initializer, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
     /// </remarks>
-    public static bool TryApplyUnmorphToFallingTransition(SamusState samus,
+    public static bool TryApplyUnmorphToFallingTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -439,13 +438,12 @@ internal static class SamusPosturePoseTransitions
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // InitializeAnimation resets only the target's animation. In particular, do not call
-        // start a jump or clear YDirection/YSpeed/YSubspeed: the input transition can occur
-        // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
+        // Only the target's animation restarts: the transition neither starts a jump nor clears Samus's vertical
+        // direction and speed, because it can occur halfway through a fall, as it does when leaving Parlor's Morph Ball
+        // tunnel.
         SamusPresentation.InitializeAnimation(samus);
         return true;
     }
-
 
     /// <summary>
     /// Installs a stable ordinary Morph-Ball pose while preserving the shared eight-frame
@@ -491,7 +489,6 @@ internal static class SamusPosturePoseTransitions
         }
     }
 
-
     /// <summary>
     /// Applies the winning solid-ceiling transition. Call after higher
     /// priority animation and hit interruptions, not from the collision scan.
@@ -501,7 +498,6 @@ internal static class SamusPosturePoseTransitions
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     }
-
 
     /// <summary>
     /// Resolves an ordinary Morph-Ball downward collision through the solid-vertical transition and
@@ -545,7 +541,6 @@ internal static class SamusPosturePoseTransitions
         samus.HorizontalSpeed.BaseSpeed = default;
         return true;
     }
-
 
     /// <summary>
     /// Resolves the Spring Ball bounce. Holding Jump immediately calls the same
@@ -600,7 +595,6 @@ internal static class SamusPosturePoseTransitions
         return true;
     }
 
-
     /// <summary>
     /// Applies the Spring Ball jump when grounded Spring Ball changes to the Spring Ball jump.
     /// Moving-ground poses first pass through the same table-selected target, but the
@@ -617,7 +611,6 @@ internal static class SamusPosturePoseTransitions
         samus.MorphBallBounceState = SamusBallBounceState.None;
         SamusAerialMovement.InitializeJump(samus);
     }
-
 
     /// <summary>
     /// Applies the walk-off transition after a bomb-jump frame moved down without a floor. Only the pose
@@ -637,7 +630,6 @@ internal static class SamusPosturePoseTransitions
             throw new InvalidOperationException(
                 $"Bomb-jump falling result for humanoid pose {samus.Pose} (airborne walk-off) is not translated.");
     }
-
 
     /// <summary>
     /// Applies the walk-off transition's morph-ball endpoint, retaining the rolling animation

@@ -95,7 +95,7 @@ internal static class SamusPoseInputRules
         _ => throw new InvalidOperationException($"Undefined {nameof(SamusPoseInputList)} {inputList}."),
     };
 
-    /// <summary>The input-transition list of <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: priority order.</summary>
+    /// <summary>The list with no transitions: no input changes the pose.</summary>
     private static SamusPoseInputMatch MatchNoInputTransitions()
     {
         return new(null, HasConditions: false);
@@ -161,7 +161,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the moving right normal input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchRunningRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -191,7 +190,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.StandingAimDiagonalDownRightPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the neutral jump transition right input list.</summary>
     private static SamusPoseInputMatch MatchJumpTransitionRight(GameplayAction held)
@@ -287,7 +285,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the damage boost left input list.</summary>
     private static SamusPoseInputMatch MatchDamageBoostLeft(GameplayAction held)
     {
@@ -344,7 +341,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the space jump right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchSpaceJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -377,7 +373,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the screw attack right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchScrewAttackRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -409,7 +404,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.ScrewAttackLeftPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the morph ball ground right input list.</summary>
     private static SamusPoseInputMatch MatchMorphBallGroundRight(GameplayAction held, GameplayAction newlyPressed)
@@ -467,14 +461,11 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
-
     /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchGlitchBallRight()
     {
         return new(null, HasConditions: false);
     }
-
 
     /// <summary>The priority order of the crouching right input list.</summary>
     private static SamusPoseInputMatch MatchCrouchingRight(GameplayAction held, GameplayAction newlyPressed)
@@ -569,7 +560,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the morph ball falling right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchMorphBallFallingRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -584,13 +574,11 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>: priority order; the input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/> is the same list mirrored.</summary>
     private static SamusPoseInputMatch MatchGlitchBallKnockbackRight()
     {
         return new(null, HasConditions: false);
     }
-
 
     /// <summary>The priority order of the moonwalk facing left input list.</summary>
     private static SamusPoseInputMatch MatchMoonwalkLeft(GameplayAction held, GameplayAction newlyPressed)
@@ -676,7 +664,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the spring ball falling right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchSpringBallFallingRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -688,7 +675,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.SpringBallFallingRightPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the spring ball jump right input list.</summary>
     private static SamusPoseInputMatch MatchSpringBallJumpRight(GameplayAction held, GameplayAction newlyPressed)
@@ -714,7 +700,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the unused compact airborne right input list.</summary>
     private static SamusPoseInputMatch MatchCompactAirborneRight(GameplayAction held)
     {
@@ -722,7 +707,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the unused compact airborne falling right input list.</summary>
     private static SamusPoseInputMatch MatchCompactAirborneFallingRight(GameplayAction held)
@@ -742,7 +726,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the wall jump right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchWallJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -760,7 +743,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.WallJumpRightPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the ran into wall right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchRanIntoWallRight(GameplayAction held, GameplayAction newlyPressed)
@@ -789,7 +771,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.MovingRightNormalPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the normal jump gun extended right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchNormalJumpGunExtendedRight(GameplayAction held)
@@ -836,7 +817,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the normal jump aim down right input list.</summary>
     private static SamusPoseInputMatch MatchNormalJumpAimDownRight(GameplayAction held, GameplayAction newlyPressed)
@@ -954,7 +934,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the turning right to left input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchTurningRightToLeft(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -966,7 +945,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.TurningRightToLeftPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the turning right to left aim up input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchTurningRightToLeftAimUp(GameplayAction held, GameplayAction newlyPressed)
@@ -980,7 +958,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the turning right to left aim diagonal down input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchTurningRightToLeftAimDiagonalDown(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -993,7 +970,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the shinespark windup right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchShinesparkWindupRight(GameplayAction held)
     {
@@ -1005,7 +981,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.ShinesparkHorizontalRightPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the falling aim down right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchFallingAimDownRight(GameplayAction held, GameplayAction newlyPressed)
@@ -1033,7 +1008,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the unused draygon held ball left input list.</summary>
     private static SamusPoseInputMatch MatchDraygonHeldBallLeft(GameplayAction newlyPressed)
     {
@@ -1041,7 +1015,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.DraygonHeldStandingUpLeftPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>The priority order of the draygon grabbed neutral right input list.</summary>
     private static SamusPoseInputMatch MatchDraygonGrabbedRight(GameplayAction held)
@@ -1125,7 +1098,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
     /// <summary>The priority order of the falling gun extended right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchFallingGunExtendedRight(GameplayAction held)
     {
@@ -1150,8 +1122,6 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-
-
     /// <summary>The priority order of the moonwalk turn jump right input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchMoonwalkTurnJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -1163,7 +1133,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.MoonwalkTurnJumpRightPose);
         return new(null, HasConditions: true);
     }
-
 
     /// <summary>
     /// The aimed-up and aimed-down moonwalk turn-jump input lists, in both directions: one priority order for an aimed
@@ -1179,6 +1148,4 @@ internal static class SamusPoseInputRules
             return Accept(aimedTurnJump);
         return new(null, HasConditions: true);
     }
-
-
 }

@@ -349,7 +349,7 @@ internal sealed class PhantoonCombat
 
             int healthBefore = body.Health;
             // Phantoon calls common normal-shot damage, including its charged-beam
-            // override. SBA particles retain that bit; reading only the uncharged
+            // override. Special attack particles retain that bit; reading only the uncharged
             // combination row made Wave Shield disappear without damaging the boss.
             EnemyCollision.NormalShotVulnerability vulnerability =
                 EnemyCollision.ReadNormalShotVulnerability(body, projectileType);

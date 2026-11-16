@@ -9,8 +9,12 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in order.</summary>
-    internal static void PrepareFrame(RoomLevelData level, SamusState samus,
-        AreaId area, bool areaBossDefeated, ISamusRoomObjects roomObjects)
+    internal static void PrepareFrame(
+        RoomLevelData level,
+        SamusState samus,
+        AreaId area,
+        bool areaBossDefeated,
+        ISamusRoomObjects roomObjects)
     {
         var body = samus.Kinematics;
         SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
@@ -138,8 +142,13 @@ public static class SamusInsideBlockReactions
     /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
     /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
     /// <param name="blockReactionDirection">The direction the reaction sees, or null for the scan's own.</param>
-    internal static SpecialAirCollisionOutcome ReactCollision(SamusCollisionContact contact,
-        SamusTerrain terrain, RoomCollisionBlock block, Axis axis, ref SignedSixteenSixteen displacement, out bool surfaceContact,
+    internal static SpecialAirCollisionOutcome ReactCollision(
+        SamusCollisionContact contact,
+        SamusTerrain terrain,
+        RoomCollisionBlock block,
+        Axis axis,
+        ref SignedSixteenSixteen displacement,
+        out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null)
     {
         RoomLevelData level = terrain.Level;

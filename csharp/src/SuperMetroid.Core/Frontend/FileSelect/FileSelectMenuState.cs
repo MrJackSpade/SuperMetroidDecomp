@@ -15,8 +15,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// helmet turn before loading.
 /// </summary>
 /// <remarks>
-/// This class deliberately models the game's menu steps and brightness transitions instead
-/// of replacing the screen with desktop widgets. Its pictures, starfield, text, colours,
+/// This class models the game's menu steps and brightness transitions. Its pictures, starfield, text, colours,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
 /// validity and displayed energy/time are read from the saves themselves
 /// rather than from separately authored metadata.

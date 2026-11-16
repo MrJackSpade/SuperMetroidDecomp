@@ -56,7 +56,10 @@ internal static class SamusAnimationDelays
     /// the animation reaches, the frame the import decoded for the frame the cue names in the later animation (#1535).
     /// </summary>
     /// <exception cref="InvalidDataException">The frame <paramref name="at"/> reads no step, or the read names no move to the target.</exception>
-    internal static SamusAnimationFrame Target(SamusPoseId pose, SamusAnimationFrame at, SamusAnimationTarget target,
+    internal static SamusAnimationFrame Target(
+        SamusPoseId pose,
+        SamusAnimationFrame at,
+        SamusAnimationTarget target,
         SamusFramesBeyondAnimation framesBeyondAnimation)
     {
         Ensure.NotNull(framesBeyondAnimation);
@@ -86,12 +89,18 @@ internal static class SamusAnimationDelays
     /// Whether <paramref name="frame"/> of <paramref name="pose"/>'s animation has reached <paramref name="place"/>: lies at
     /// it or after it, as the frame <paramref name="place"/> sets on the pose would (<see cref="Land"/>).
     /// </summary>
-    internal static bool HasReached(SamusPoseId pose, SamusAnimationFrame frame, SamusAnimationPlace place,
+    internal static bool HasReached(
+        SamusPoseId pose,
+        SamusAnimationFrame frame,
+        SamusAnimationPlace place,
         SamusFramesBeyondAnimation framesBeyondAnimation) =>
         frame >= Land(pose, place, framesBeyondAnimation);
 
     /// <summary>Whether <paramref name="frame"/> of <paramref name="pose"/>'s animation lies past <paramref name="place"/>.</summary>
-    internal static bool HasPassed(SamusPoseId pose, SamusAnimationFrame frame, SamusAnimationPlace place,
+    internal static bool HasPassed(
+        SamusPoseId pose,
+        SamusAnimationFrame frame,
+        SamusAnimationPlace place,
         SamusFramesBeyondAnimation framesBeyondAnimation) =>
         frame > Land(pose, place, framesBeyondAnimation);
 

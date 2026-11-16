@@ -708,8 +708,8 @@ internal sealed class RoomLoader
         // therefore begins in indirect G-Mode and cannot create a visible gate actor.
         _player.Samus.Xray.TransitionDirectGModeToIndirect();
 
-        // The desktop's opt-in error reporter resumes at the next frame boundary.
-        // Code cannot throw, but room construction can still reject an
+        // Play may resume at the next update after a failure. Code cannot throw, but room construction can still
+        // reject an
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // the door transition with no destination on the following frame.
@@ -765,9 +765,8 @@ internal sealed class RoomLoader
 
         // The door transition loads Samus's suit target colours after room/enemy colours have been
         // loaded and before the door fade captures the destination fade target. The source fade
-        // has already driven Samus's colours to black at this point. Omitting this shared
-        // reload therefore retained valid sprite and room pictures but rendered Samus as a solid
-        // black silhouette after every ordinary desktop door transition.
+        // has already driven Samus's colours to black at this point, so without this reload she would stay a black
+        // silhouette after every ordinary door transition.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.Samus.EquippedItems);
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update

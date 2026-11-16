@@ -132,7 +132,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash activation clears native hit immunity");
     AssertEqual(SamusPoseId.CrystalFlashRightPose, samus.Pose,
         "source direction selects right Crystal Flash pose");
-    AssertEqual(SamusMovementType.Standing, samus.PoseHistory.LastDifferentMovement, "Crystal Flash shifts previous metadata");
+    AssertEqual(SamusMovementType.Standing, samus.PoseHistory.MovementBeforePrevious, "Crystal Flash shifts previous metadata");
     AssertEqual(SamusPoseId.CrystalFlashRightPose, samus.PoseHistory.PreviousPose, "Crystal Flash commits right pose");
     AssertEqual(SamusMovementType.Special, samus.PoseHistory.PreviousMovement, "Crystal Flash commits right metadata");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
@@ -314,12 +314,12 @@ internal static void VerifySamusCrystalFlash()
         PowerBombs = 10,
     };
     SamusPoseMetadata.RefreshCollisionRadii(left);
-    left.PoseHistory.Restore(left.Pose, SamusMovementType.Standing, left.PoseHistory.LastDifferentMovement);
+    left.PoseHistory.Restore(left.Pose, SamusMovementType.Standing, left.PoseHistory.MovementBeforePrevious);
     AssertTrue(left.CrystalFlash.TryBegin(left, chord),
         "left-facing Crystal Flash begins");
     AssertEqual(SamusPoseId.CrystalFlashLeftPose, left.Pose,
         "source direction selects left Crystal Flash pose");
-    AssertEqual(SamusMovementType.Standing, left.PoseHistory.LastDifferentMovement, "left Crystal Flash shifts previous metadata");
+    AssertEqual(SamusMovementType.Standing, left.PoseHistory.MovementBeforePrevious, "left Crystal Flash shifts previous metadata");
     AssertEqual(SamusPoseId.CrystalFlashLeftPose, left.PoseHistory.PreviousPose, "Crystal Flash commits left pose");
     AssertEqual(SamusMovementType.Special, left.PoseHistory.PreviousMovement, "Crystal Flash commits left metadata");
 
@@ -494,7 +494,7 @@ internal static void VerifySamusXray()
         standing,
         GameplayAction.Left);
     AssertTrue(standing.Pose != xrayPoseBeforeTurn, "X-ray starts standing turn");
-    AssertEqual(SamusMovementType.Standing, standing.PoseHistory.LastDifferentMovement, "X-ray turn shifts previous metadata");
+    AssertEqual(SamusMovementType.Standing, standing.PoseHistory.MovementBeforePrevious, "X-ray turn shifts previous metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray turn publishes turning pose");
     AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.PreviousMovement, "X-ray turn publishes turning metadata");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.Pose, "X-ray right-to-left standing turn pose");
@@ -507,7 +507,7 @@ internal static void VerifySamusXray()
     AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(standing, 0);
     AssertTrue(SamusPoseNumbers.Number(standing.Pose) != 0x25, "X-ray completes standing turn");
-    AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.LastDifferentMovement, "X-ray completion shifts turning metadata");
+    AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.MovementBeforePrevious, "X-ray completion shifts turning metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(SamusMovementType.Standing, standing.PoseHistory.PreviousMovement, "X-ray completion publishes stable metadata");
     AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
@@ -560,7 +560,7 @@ internal static void VerifySamusXray()
     AssertEqual(SamusPoseId.FacingLeftNormalPose, crouched.Pose, "crouched-turn release triggers standing-left glitch");
     AssertEqual(21, crouched.Kinematics.Radius.Y, "stand-up glitch expands radius");
     AssertEqual(195, crouched.Position.Y.Whole, "stand-up glitch moves center up five pixels");
-    AssertEqual(SamusMovementType.TurningOnGround, crouched.PoseHistory.LastDifferentMovement, "X-ray release shifts turn metadata");
+    AssertEqual(SamusMovementType.TurningOnGround, crouched.PoseHistory.MovementBeforePrevious, "X-ray release shifts turn metadata");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, crouched.PoseHistory.PreviousPose, "X-ray release publishes standing pose");
     AssertEqual(SamusMovementType.Standing, crouched.PoseHistory.PreviousMovement, "X-ray release publishes standing metadata");
 
@@ -743,7 +743,7 @@ internal static void VerifySamusDeathSequence()
         cameraPosition: new(0x03e0, 0x0400));
     AssertEqual(SamusMovementType.Standing, deathSourceMovementType, "death source standing type");
     AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.Pose, "death selects right pose");
-    AssertEqual(SamusMovementType.Standing, samus.PoseHistory.LastDifferentMovement, "death shifts prior metadata");
+    AssertEqual(SamusMovementType.Standing, samus.PoseHistory.MovementBeforePrevious, "death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.PoseHistory.PreviousPose, "death commits right pose");
     AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
         samus.PoseHistory.PreviousMovement, "death commits right metadata");
@@ -812,11 +812,11 @@ internal static void VerifySamusDeathSequence()
     };
     SamusPoseMetadata.RefreshCollisionRadii(morphedLeft);
     SamusPresentation.InitializeAnimation(morphedLeft);
-    morphedLeft.PoseHistory.Restore(morphedLeft.Pose, SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.LastDifferentMovement);
+    morphedLeft.PoseHistory.Restore(morphedLeft.Pose, SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.MovementBeforePrevious);
     morphedLeft.DeathSequence.Begin(
         morphedLeft, cameraPosition: new(0, 0));
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.Pose, "left Morph death selects D8");
-    AssertEqual(SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.LastDifferentMovement, "left death shifts prior metadata");
+    AssertEqual(SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.MovementBeforePrevious, "left death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
     AssertEqual(SamusPoseMetadata.ReadMovementType(morphedLeft),
         morphedLeft.PoseHistory.PreviousMovement, "death commits left metadata");

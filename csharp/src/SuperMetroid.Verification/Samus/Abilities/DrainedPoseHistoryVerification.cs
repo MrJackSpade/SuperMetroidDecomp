@@ -29,16 +29,16 @@ internal static class DrainedPoseHistoryVerification
                 SamusPoseId previousPose = history.PreviousPose;
                 SamusMovementType previousMetadata = history.PreviousMovement;
                 command.Apply();
-                AssertEqual(previousMetadata, history.LastDifferentMovement, $"drain {command.Name} shifts metadata");
+                AssertEqual(previousMetadata, history.MovementBeforePrevious, $"drain {command.Name} shifts metadata");
                 AssertEqual(samus.Pose, history.PreviousPose, $"drain {command.Name} publishes current pose");
                 AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
                     history.PreviousMovement, $"drain {command.Name} publishes current metadata");
             }
-                SamusMovementType olderMetadata = history.LastDifferentMovement;
+                SamusMovementType olderMetadata = history.MovementBeforePrevious;
             SamusPoseId currentPose = history.PreviousPose;
             SamusMovementType currentMetadata = history.PreviousMovement;
             samus.Drained.EnableHyperBeam(samus);
-            AssertEqual(olderMetadata, history.LastDifferentMovement, "Hyper command retains older metadata");
+            AssertEqual(olderMetadata, history.MovementBeforePrevious, "Hyper command retains older metadata");
             AssertEqual(currentPose, history.PreviousPose, "Hyper command retains previous pose");
             AssertEqual(currentMetadata, history.PreviousMovement, "Hyper command retains previous metadata");
         }

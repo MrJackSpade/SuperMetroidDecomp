@@ -68,7 +68,7 @@ internal static class XrayControlsVerification
             AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");
             AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
                 samus.PoseHistory.PreviousMovement, "X-ray activation commits interrupted metadata");
-            AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentMovement,
+            AssertEqual(metadataBeforeActivation, samus.PoseHistory.MovementBeforePrevious,
                 "X-ray activation shifts prior metadata exactly once");
             AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is null,
                 "Run+Shoot does not allocate a beam on the activation frame");
@@ -77,7 +77,7 @@ internal static class XrayControlsVerification
                 runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
                 AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is null,
                     "active scanning does not fire ordinary beams");
-                AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentMovement,
+                AssertEqual(metadataBeforeActivation, samus.PoseHistory.MovementBeforePrevious,
                     "holding X-ray retains prior transition metadata");
             }
             AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "configured Run keeps scan fully expanded");

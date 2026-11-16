@@ -41,11 +41,10 @@ public static class SamusBlockCollision
         state.YSpeed = probe.YSpeed;
         state.YAcceleration = probe.YAcceleration;
 
-        // (and square-slope clipping) writes Samus's real X subposition
-        // even through the observational wall-jump probe entry point. The probe's accepted
-        // displacement is whole pixels on a block hit, so its final fraction
-        // retains that write. Keep the live integer X unchanged. Dropping this write
-        // let away movement accumulate fractional speed during the wall-check pose.
+        // A block hit (and square-slope clipping) writes Samus's real X subpixel even through the wall-jump probe. The
+        // probe's accepted displacement is whole pixels on a block hit, so its final subpixel keeps that write, and her
+        // whole X is unchanged; without it, movement away from the wall would gather fractional speed during the
+        // wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
             state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
 
@@ -62,7 +61,7 @@ public static class SamusBlockCollision
     /// Runs horizontal block collision, the position addition of a move
     /// without solid-enemy collision, and the subsequent non-square slope alignment.
     /// </summary>
-    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
     /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
@@ -253,7 +252,7 @@ public static class SamusBlockCollision
                         // Both special-block reactions spawn the room object and let Samus pass unless its setup stops her.
                         // A full pool returns without running setup, so even a block whose
                         // setup would normally reject contact falls through as air.
-                        if (terrain.RoomObjects.Quicksand.IsAllocationFull)
+                        if (terrain.RoomObjects.EveryPlaceHeld)
                             break;
                         // Runs the speed-block entries through the speed-block
                         // setup. A stage-four boost or directional shinespark clears
@@ -299,7 +298,7 @@ public static class SamusBlockCollision
                         // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // reports no collision, so this scan continues through the new air.
-                        if (terrain.RoomObjects.Quicksand.IsAllocationFull)
+                        if (terrain.RoomObjects.EveryPlaceHeld)
                             break;
                         if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
                         {
@@ -605,10 +604,9 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.SpecialBlock:
-                    // Spawning a room object lets Samus pass when the room has no place left for one
-                    // are occupied. No setup runs, so the unchanged special block is
-                    // treated as air for this collision probe.
-                    if (terrain.RoomObjects.Quicksand.IsAllocationFull)
+                    // When the room has no place left for the block's room object, no setup runs, so the
+                    // unchanged special block is treated as air for this collision probe.
+                    if (terrain.RoomObjects.EveryPlaceHeld)
                         break;
                     // Hand reactions change state but return unconditional collision:
                     // even an admitted morph contact is clipped by this same scan.
@@ -671,7 +669,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.BombableBlock:
                     // The vertical reaction shares the exact room-object
                     // setup and collision contract documented in the horizontal branch above.
-                    if (terrain.RoomObjects.Quicksand.IsAllocationFull)
+                    if (terrain.RoomObjects.EveryPlaceHeld)
                     {
                         // The full room-object pool prevents rejection setup from stopping
                         // Samus. Block collision therefore lets her pass and
@@ -740,8 +738,11 @@ public static class SamusBlockCollision
     /// <summary>
     /// Runs the shared bomb-block setup for non-solid cells without consuming its collision result.
     /// </summary>
-    private static void ActivateCollisionBombableAir(SamusTerrain terrain, RoomCollisionBlock block,
-        SamusState? owner, bool explicitAdmission)
+    private static void ActivateCollisionBombableAir(
+        SamusTerrain terrain,
+        RoomCollisionBlock block,
+        SamusState? owner,
+        bool explicitAdmission)
     {
         // The game's horizontal and vertical air reactions invoke the same setup as solid
         // bomb blocks, but ignores its collision result. A refused break, or one with no room left for its

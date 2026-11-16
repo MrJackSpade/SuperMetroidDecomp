@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -26,26 +28,32 @@ internal static class ProjectileTrailCoordinatesVerification
     private const int CartridgeHalfStart = 0x8000;
 
     /// <summary>
-    /// Compares every list's placements, every selector row and direction-table index, and every installed read past a
-    /// list's placements with the cartridge, then spawns real trails against the native CPU reads.
+    /// Compares every frame's placement in every list with the cartridge's placement at the frame's record's trail word,
+    /// every selector row and direction-table index with the cartridge, then spawns real trails from every frame each
+    /// trailing projectile can show against the native CPU reads (#2124).
     /// </summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
         Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
             list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
-        int records = 0;
         ushort[] orderedStarts = [.. starts.Values.Distinct().Order()];
-        foreach ((ProjectileTrailPlacementList list, ProjectileTrailPlacement[] placements) in ProjectileTrailPlacementDefinitions.PlacementsByList)
+        foreach ((ProjectileTrailPlacementList list, int count) in ProjectileTrailPlacementSources.OwnPlacementCounts)
         {
-            for (int frame = 0; frame < placements.Length; frame++, records++)
-                AssertEqual(NativePlacement(bus, starts[list] + frame * RecordByteCount), placements[frame],
-                    $"{list} placement {frame} matches the cartridge");
             // Each list holds only its own placements: none reaches where the next list begins (#1926).
             if (orderedStarts.FirstOrDefault(start => start > starts[list]) is var next && next != 0)
-                AssertTrue(starts[list] + placements.Length * RecordByteCount <= next,
-                    $"{list}'s placements end before the next list begins");
+                AssertTrue(starts[list] + count * RecordByteCount <= next, $"{list}'s placements end before the next list begins");
         }
-        AssertEqual(854, records, "The eighty lists hold 854 placements of their own");
+        AssertEqual(854, ProjectileTrailPlacementSources.OwnPlacementCounts.Values.Sum(), "The eighty lists hold 854 placements of their own");
+        int records = 0;
+        foreach ((ProjectileTrailPlacementList list, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement> placements) in
+            ProjectileTrailPlacementDefinitions.PlacementsByList)
+        foreach ((SamusProjectileFrameId frame, ProjectileTrailPlacement placement) in placements)
+        {
+            int trailWord = TrailWord(bus, frame);
+            AssertTrue(trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[list], $"{list} places {frame} from one of its own placements");
+            AssertEqual(NativePlacement(bus, starts[list] + trailWord * RecordByteCount), placement, $"{list} places {frame} where the cartridge does");
+            records++;
+        }
 
         Dictionary<ushort, ProjectileTrailPlacementList> lists = starts.ToDictionary(pair => pair.Value, pair => pair.Key);
         int selections = 0;
@@ -62,21 +70,8 @@ internal static class ProjectileTrailCoordinatesVerification
         }
         AssertEqual(480, selections, "Three selector tables of sixteen rows by the ten directions a shot is fired in");
 
-        // Every frame a shot's animation can show past a list's run of placements leaves no trail: what lies past a list is
-        // not part of the game's design (#1625).
-        int[] frameDomain = [.. SamusProjectileFrameOrder.Frames.Select(record => SamusProjectileFrameDefinitions.Get(record).AnimationFrame)
-            .Distinct()
-            .Order()];
-        int overruns = 0;
-        foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        foreach (int frame in frameDomain.Where(frame => frame >= ProjectileTrailPlacementDefinitions.PlacementsByList[list].Length))
-        {
-            AssertEqual(null, ProjectileTrailPlacements.Start(list, frame), $"{list} at frame {frame}, past its placements, places no trail");
-            overruns++;
-        }
-        AssertTrue(overruns > 0, "Some shot frames lie past a list's placements");
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus, lists));
-        Console.WriteLine($"Trail coordinates: {records} placements and {selections} selections match the cartridge; {overruns} frames past the placements place no trail.");
+        Console.WriteLine($"Trail coordinates: {records} frame placements and {selections} selections match the cartridge.");
     }
 
     /// <summary>The list the cartridge's selector row and direction entry name, or null where either names none.</summary>
@@ -97,37 +92,45 @@ internal static class ProjectileTrailCoordinatesVerification
         return new(new(Byte(0), Byte(1)), new(Byte(2), Byte(3)));
     }
 
-    /// <summary>Checks actual trail spawn positions for beam, missile, and reflected list-start cases at coordinate wraps.</summary>
+    /// <summary>
+    /// Checks actual trail spawn positions, at coordinate wraps, from every frame each trailing beam, missile and echo can show
+    /// in every direction, and the reflected list-start cases.
+    /// </summary>
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists)
     {
-        // For each animation frame, the list position just past the first record that installs it: a trail spawned there
-        // reads that frame.
-        var records = SamusProjectileFrameOrder.Frames.OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
-        var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(
-            SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
-                SamusProjectileFrameDefinitions.Get(record).AnimationFrame == frame)) +
-            SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var spawn = new Action<SamusProjectile>(system.Trails.SpawnTrail);
         int cases = 0;
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 36, 0x100, 0x200 })
+        foreach (SamusProjectileFrameId frame in ShownFrames(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type)))
         for (ushort direction = 0; direction < 10; direction++)
-        for (ushort frame = 0; frame < 22; frame++)
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
         {
             ushort offsets = DirectionList(bus, type, direction);
-            ushort y = unchecked((ushort)(offsets + frame * 4));
+            int trailWord = TrailWord(bus, frame);
+            ushort y = unchecked((ushort)(offsets + trailWord * 4));
             system.Reset();
             var shot = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
                 Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
-                Playback = afterFrame[frame],
+                Playback = SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(SamusProjectileProgramAddresses.RecordAddress(frame) +
+                    SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount))),
                 Position = new(new(origin, 0), new(origin, 0)),
             };
+            if (SamusProjectilePlayback.BeatOf(shot.Playback ?? throw new InvalidOperationException($"The position after {frame} names no playback.")).Beat == 0)
+            {
+                // The record ends its list, so the position after it is the next list's start: a trail spawned there has no
+                // frame to place it from, and leaves none (#1625).
+                spawn(shot);
+                AssertEqual(0, system.LiveTrails.Count, $"type ${type:X4} direction {direction} after {frame} at a list start draws no trail");
+                cases++;
+                continue;
+            }
+            AssertEqual<SamusProjectileFrameId?>(frame, ProjectileTrails.GetTrailFrame(shot), $"a shot past {frame}'s record shows it");
             spawn(shot);
-            if (!TrailSpawnDraws(lists, offsets, frame))
+            if (!TrailSpawnDraws(lists, offsets, trailWord))
             {
                 AssertEqual(0, system.LiveTrails.Count, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
                 cases++;
@@ -155,7 +158,7 @@ internal static class ProjectileTrailCoordinatesVerification
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;
         }
-        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions or leave no trail, and reflected list starts leave none.");
+        Console.WriteLine($"Trail spawn: {cases} beam/charged/special attack/missile direction/frame/origin cases preserve all four native positions or leave no trail, and reflected list starts leave none.");
     }
 
     /// <summary>The bank-$9B selector table <paramref name="type"/> reads its family from.</summary>
@@ -177,12 +180,49 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>
-    /// Whether a trail draws from frame <paramref name="frame"/> of the list at bank-$9B offset <paramref name="list"/>: the
-    /// direction entry names a placement list, and the frame lies within its own placements (#1318, #1625, #1926). Every
+    /// Whether a trail draws from trail word <paramref name="trailWord"/> of the list at bank-$9B offset <paramref name="list"/>:
+    /// the direction entry names a placement list, and the word lies within its own placements (#1318, #1625, #1926). Every
     /// shot that trails selects both programs within the selector tables (#1500).
     /// </summary>
-    private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, int frame) =>
-        lists.TryGetValue(list, out ProjectileTrailPlacementList named) && frame < ProjectileTrailPlacementDefinitions.PlacementsByList[named].Length;
+    private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, int trailWord) =>
+        lists.TryGetValue(list, out ProjectileTrailPlacementList named) && trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[named];
+
+    /// <summary>The trail word of the timed record that shows <paramref name="frame"/>: the placement it reads from its list.</summary>
+    private static int TrailWord(ISnesAddressSpace bus, SamusProjectileFrameId frame) => RomDataReader.ReadWordFixedBank(
+        CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(SamusProjectileProgramAddresses.RecordAddress(frame) + 6)));
+
+    /// <summary>
+    /// Every frame a projectile of <paramref name="type"/> can show, whatever its direction: the frames of every animation of
+    /// each kind it can play, its beam shot's and, charged, its special attack's, a missile's or Super Missile's and its link's,
+    /// and an echo's and the Spazer special attack's it trails from.
+    /// </summary>
+    private static HashSet<SamusProjectileFrameId> ShownFrames(SamusProjectileType type)
+    {
+        var kinds = new List<SamusProjectileKind>();
+        if (type.Echo is { } echo)
+        {
+            kinds.Add(SamusProjectileSelection.Echo(echo));
+            if (echo == SamusBeamEcho.SpazerComboTrail)
+                kinds.Add(SamusProjectileKind.SpazerSpecialAttack);
+        }
+        else if (type.Family == SamusProjectileFamily.Beam)
+        {
+            kinds.Add(SamusProjectileSelection.BeamShot(type.BeamCombination, type.IsChargedBeam));
+            if (type.IsChargedBeam && SamusProjectileSelection.SpecialAttack(type.BeamCombination) is { } attack)
+                kinds.Add(attack);
+        }
+        else
+        {
+            kinds.Add(SamusProjectileSelection.NonBeam(type.Family));
+            if (type.Family == SamusProjectileFamily.SuperMissile)
+                kinds.Add(SamusProjectileKind.SuperMissileLink);
+        }
+        return [.. kinds.SelectMany(SamusProjectileKinds.Animations)
+            .SelectMany(start => SamusProjectileAnimations.StartingWith(start).Phases.Select(phase => phase.Segment))
+            .SelectMany(segment => SamusProjectileAnimations.Segments.Beats(segment))
+            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
+            .Select(show => show.Shown)];
+    }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
     private static IEnumerable<ReflectableTrailTypesResult> ReflectableTrailTypes()

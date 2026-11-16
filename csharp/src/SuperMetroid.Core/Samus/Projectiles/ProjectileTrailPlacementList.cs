@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>A list of trail placements, read by the projectile's animation frame.</summary>
+/// <summary>A list of trail placements, read by the frame the projectile shows.</summary>
 internal enum ProjectileTrailPlacementList
 {
     /// <summary>Where <see cref="ProjectileTrailFamily.UnchargedDefault"/> trails start for every direction.</summary>
@@ -225,21 +225,21 @@ internal enum ProjectileTrailPlacementList
     /// <summary>Where <see cref="ProjectileTrailFamily.ChargedWaveIcePlasma"/> trails start for up-left travel.</summary>
     ChargedWaveIcePlasmaUpLeft,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SbaWaveSpazer"/> trails start for vertical travel.</summary>
-    SbaWaveSpazerVertical,
+    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for vertical travel.</summary>
+    SpecialAttackWaveSpazerVertical,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SbaWaveSpazer"/> trails start for up-right and down-left travel.</summary>
-    SbaWaveSpazerRisingDiagonal,
+    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for up-right and down-left travel.</summary>
+    SpecialAttackWaveSpazerRisingDiagonal,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SbaWaveSpazer"/> trails start for horizontal travel.</summary>
-    SbaWaveSpazerHorizontal,
+    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for horizontal travel.</summary>
+    SpecialAttackWaveSpazerHorizontal,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SbaWaveSpazer"/> trails start for down-right and up-left travel.</summary>
-    SbaWaveSpazerFallingDiagonal,
+    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for down-right and up-left travel.</summary>
+    SpecialAttackWaveSpazerFallingDiagonal,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SbaSpazer"/> trails start for every direction but straight down.</summary>
-    SbaSpazer,
+    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackSpazer"/> trails start for every direction but straight down.</summary>
+    SpecialAttackSpazer,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SbaSpazer"/> trails start for downward travel.</summary>
-    SbaSpazerDown,
+    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackSpazer"/> trails start for downward travel.</summary>
+    SpecialAttackSpazerDown,
 }

@@ -18,7 +18,6 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Half a 256-pixel screen: the camera's centre.</summary>
     private const int HalfScreen = 128;
 
-
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
     /// <param name="scrolls">Room-sized grid of directional scroll states.</param>
     public ScrollBoundaryCamera(RoomScrollGrid scrolls)
@@ -291,7 +290,7 @@ public sealed class ScrollBoundaryCamera
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
-        // The game returns if either half of the time-freeze flag is set. Keep this gate local to the two autoscrollers;
+        // Frozen time stops autoscrolling. Keep this gate local to the two autoscrollers;
         // the directional moved-Samus checks themselves have no freeze check.
         if (timeIsFrozen)
             return;

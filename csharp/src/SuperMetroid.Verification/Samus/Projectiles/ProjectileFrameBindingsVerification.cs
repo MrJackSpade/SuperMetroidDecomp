@@ -94,8 +94,8 @@ internal static class ProjectileFrameBindingsVerification
             .Concat(HitBurstSpriteDefinitions.All.Select(sprite => sprite.Name))
             .Where(name => name.Split('.').Any(segment => segment.All(char.IsAsciiDigit))).Distinct()];
         AssertTrue(numbered.Length == 0, $"compositions are named for their poses, not numbered: {string.Join(", ", numbered)}");
-        AssertEqual("Power.UpRight", document.Frames["PowerUpRight_0"], "the up-right Power beam binds the up-right Power pose");
-        AssertEqual("Wave.Right.Up1", document.Frames["WaveRight_1"], "the right-travelling Wave beam's first swing binds its first upward stage");
+        AssertEqual("Power.UpRight", document.Frames[nameof(SamusProjectileFrameId.PowerUpRight)], "the up-right Power beam binds the up-right Power pose");
+        AssertEqual("Wave.Right.Up1", document.Frames[nameof(SamusProjectileFrameId.WaveRightUp1)], "the right-travelling Wave beam's first swing binds its first upward stage");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");
@@ -105,7 +105,7 @@ internal static class ProjectileFrameBindingsVerification
         document.Frames[frameName] = "sprite_0000";
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");
-        Console.WriteLine("Projectile frame bindings: 805 frames, both handlers, installed bindings and malformed documents pass.");
+        Console.WriteLine("Projectile frame bindings: 795 frames, both handlers, installed bindings and malformed documents pass.");
     }
 
     /// <summary>Runs the projectile frame binding checks.</summary>

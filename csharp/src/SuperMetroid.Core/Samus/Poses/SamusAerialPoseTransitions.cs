@@ -38,7 +38,8 @@ internal static class SamusAerialPoseTransitions
     /// The wall-jump tables use this very same route for their diagonal-aim
     /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
-    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(SamusState samus,
+    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -112,7 +113,6 @@ internal static class SamusAerialPoseTransitions
         return true;
     }
 
-
     /// <summary>Applies a normal-jump or falling turn, selecting aim-preserving art through the aerial turn tables after the shared larger-pose collision pass.</summary>
     /// <param name="samus">The Samus this reads.</param>
     /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
@@ -124,7 +124,8 @@ internal static class SamusAerialPoseTransitions
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
-    public static bool TryApplyAerialTurn(SamusState samus,
+    public static bool TryApplyAerialTurn(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId genericTargetPose,
         int frameCounter,
@@ -209,7 +210,6 @@ internal static class SamusAerialPoseTransitions
         return true;
     }
 
-
     /// <summary>
     /// Applies the spin-jump initializer when spin/wall-jump input selects the opposite spin pose. A true
     /// direction reversal folds extra speed into base speed and selects <see cref="SamusAccelerationMode.Turning"/>, preserving
@@ -221,7 +221,7 @@ internal static class SamusAerialPoseTransitions
             (!SamusPoseMetadata.IsWallJumpPose(samus.Pose) && !SamusPoseMetadata.IsSpinJumpPose(samus.Pose)))
         {
             throw new InvalidOperationException(
-                $"Spin direction transition {samus.Pose} -> {targetPose} is not verified.");
+                $"Spin direction transition {samus.Pose} -> {targetPose} is not a spin turn the game makes.");
         }
 
         SamusFacingDirection oldDirection = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -230,9 +230,9 @@ internal static class SamusAerialPoseTransitions
         {
             SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
 
-            // Unlike the grounded/aerial turn initializers, the spin-jump initializer calls
-            // Cancels the speed boost immediately after folding the extra pair. Waiting
-            // for another movement frame would leave the running-momentum flag observably stale.
+            // Unlike the grounded and aerial turn initializers, the spin-jump initializer cancels the speed boost right
+            // after folding the extra speed in. Waiting for another movement frame would leave the running-momentum flag
+            // observably stale.
             samus.HorizontalSpeed.CancelRunningMomentum(oldDirection);
         }
 
@@ -252,7 +252,6 @@ internal static class SamusAerialPoseTransitions
         SamusPresentation.InitializeAnimation(samus, SamusAnimationFrame.AfterStart);
     }
 
-
     /// <summary>
     /// Applies the wall-jump check, the wall-jump trigger, and the jump launch after the block
     /// wall test succeeds. The launch values are read from the game's dry-air tables.
@@ -261,7 +260,8 @@ internal static class SamusAerialPoseTransitions
     /// <param name="level">The room's collision geometry the larger wall-jump pose is tested against.</param>
     /// <param name="frameCounter">The frame counter passed to the changed-pose collision resolver.</param>
     /// <param name="roomObjects">The room's room objects, receiving changed-pose block reactions.</param>
-    public static void ApplyWallJumpTrigger(SamusState samus,
+    public static void ApplyWallJumpTrigger(
+        SamusState samus,
         RoomLevelData level,
         int frameCounter,
         ISamusRoomObjects roomObjects)
@@ -288,9 +288,8 @@ internal static class SamusAerialPoseTransitions
         }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // Observes previous SamusMovementType.SpinJumping plus equipped Screw Attack and
-        // immediately reloads the normal suit shade before the wall jump starts. The desktop
-        // runtime performs shade writes later in the frame, so preserve that phase split.
+        // A wall jump from a Screw Attack spin asks for the normal suit shade back before the jump starts; the shade
+        // itself is applied later in the update.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
             samus.HorizontalSpeed.RequestSuitShadeRestore();
 
@@ -314,7 +313,6 @@ internal static class SamusAerialPoseTransitions
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
         SamusPresentation.InitializeAnimation(samus);
     }
-
 
     /// <summary>
     /// Applies the pose/launch half of the grapple wall jump after the grapple wall-grace probe
@@ -358,7 +356,6 @@ internal static class SamusAerialPoseTransitions
         SamusPresentation.InitializeAnimation(samus);
     }
 
-
     /// <summary>
     /// Commits the pose selected when the grapple beam drops Samus.
     /// The drop names its exact target pose and this method runs the shared
@@ -368,7 +365,8 @@ internal static class SamusAerialPoseTransitions
     /// True when the requested target fits; false when the game's pose-change collision retains
     /// the source or substitutes stable crouch.
     /// </returns>
-    public static bool ApplyGrappleDropTransition(SamusState samus,
+    public static bool ApplyGrappleDropTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -421,7 +419,6 @@ internal static class SamusAerialPoseTransitions
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
-
     /// <summary>
     /// Applies the early wall-jump rewind when an early spin frame finds the wall-jump chord.
     /// This does not launch Samus: it rewinds the ordinary spin sequence to frame ten
@@ -444,259 +441,17 @@ internal static class SamusAerialPoseTransitions
             : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame);
     }
 
-
     /// <summary>
     /// Applies the spin-jump initializer's equipment, liquid and start-sound selection
     /// to a generic spin-jump input-transition target.
     /// </summary>
     internal static SamusPoseId SelectEquippedSpinPose(SamusState samus, SamusPoseId genericPose, SpinPoseStart start = SpinPoseStart.FirstFrame)
     {
-        bool facingLeft = genericPose switch
-        {
-            SamusPoseId.SpinJumpRightPose => false,
-            SamusPoseId.SpinJumpLeftPose => true,
-            SamusPoseId.ForwardFacingPowerSuitPose or
-                SamusPoseId.ForwardFacingSuitedPose or
-                SamusPoseId.FacingRightNormalPose or
-                SamusPoseId.FacingLeftNormalPose or
-                SamusPoseId.MovingRightNormalPose or
-                SamusPoseId.MovingLeftNormalPose or
-                SamusPoseId.MovingRightGunExtendedPose or
-                SamusPoseId.MovingLeftGunExtendedPose or
-                SamusPoseId.CompactAirborneFallingRightPose or
-                SamusPoseId.CompactAirborneFallingLeftPose or
-                SamusPoseId.MoonwalkFacingLeftPose or
-                SamusPoseId.MoonwalkFacingRightPose or
-                SamusPoseId.MoonwalkAimUpLeftPose or
-                SamusPoseId.MoonwalkAimUpRightPose or
-                SamusPoseId.MoonwalkAimDownLeftPose or
-                SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
-                SamusPoseId.ShinesparkWindupRightPose or
-                SamusPoseId.ShinesparkWindupLeftPose or
-                SamusPoseId.ShinesparkHorizontalRightPose or
-                SamusPoseId.ShinesparkHorizontalLeftPose or
-                SamusPoseId.ShinesparkVerticalRightPose or
-                SamusPoseId.ShinesparkVerticalLeftPose or
-                SamusPoseId.ShinesparkDiagonalRightPose or
-                SamusPoseId.ShinesparkDiagonalLeftPose or
-                SamusPoseId.CrystalFlashRightPose or
-                SamusPoseId.CrystalFlashLeftPose or
-                SamusPoseId.XrayingStandingRightPose or
-                SamusPoseId.XrayingStandingLeftPose or
-                SamusPoseId.DeathSequenceRightPose or
-                SamusPoseId.DeathSequenceLeftPose or
-                SamusPoseId.XrayingCrouchingRightPose or
-                SamusPoseId.XrayingCrouchingLeftPose or
-                SamusPoseId.CompactMorphingRightPose or
-                SamusPoseId.DraygonHeldMorphingLeftPose or
-                SamusPoseId.CompactStandingUpRightPose or
-                SamusPoseId.DraygonHeldStandingUpLeftPose or
-                SamusPoseId.DraygonHeldBallLeftPose or
-                SamusPoseId.DrainedCrouchingRightPose or
-                SamusPoseId.DrainedCrouchingLeftPose or
-                SamusPoseId.DrainedStandingRightPose or
-                SamusPoseId.DrainedStandingLeftPose or
-                SamusPoseId.RanIntoWallRightPose or
-                SamusPoseId.RanIntoWallLeftPose or
-                SamusPoseId.RanIntoWallAimUpRightPose or
-                SamusPoseId.RanIntoWallAimUpLeftPose or
-                SamusPoseId.RanIntoWallAimDownRightPose or
-                SamusPoseId.RanIntoWallAimDownLeftPose or
-                SamusPoseId.TurningRightToLeftPose or
-                SamusPoseId.TurningLeftToRightPose or
-                SamusPoseId.SpaceJumpRightPose or
-                SamusPoseId.SpaceJumpLeftPose or
-                SamusPoseId.ScrewAttackRightPose or
-                SamusPoseId.ScrewAttackLeftPose or
-                SamusPoseId.TurningRightToLeftJumpPose or
-                SamusPoseId.TurningLeftToRightJumpPose or
-                SamusPoseId.WallJumpRightPose or
-                SamusPoseId.WallJumpLeftPose or
-                SamusPoseId.GrappleSwingRightPose or
-                SamusPoseId.GrappleSwingLeftPose or
-                SamusPoseId.GrappleStandingRightPose or
-                SamusPoseId.GrappleStandingLeftPose or
-                SamusPoseId.GrappleStandingDownRightPose or
-                SamusPoseId.GrappleStandingDownLeftPose or
-                SamusPoseId.GrappleCrouchingRightPose or
-                SamusPoseId.GrappleCrouchingLeftPose or
-                SamusPoseId.GrappleCrouchingDownRightPose or
-                SamusPoseId.GrappleCrouchingDownLeftPose or
-                SamusPoseId.GrappleWallContactLeftPose or
-                SamusPoseId.GrappleWallContactRightPose or
-                SamusPoseId.DraygonGrabbedNeutralLeftPose or
-                SamusPoseId.DraygonGrabbedAimUpLeftPose or
-                SamusPoseId.DraygonGrabbedFiringLeftPose or
-                SamusPoseId.DraygonGrabbedAimDownLeftPose or
-                SamusPoseId.DraygonGrabbedMovingLeftPose or
-                SamusPoseId.DraygonGrabbedNeutralRightPose or
-                SamusPoseId.DraygonGrabbedAimUpRightPose or
-                SamusPoseId.DraygonGrabbedFiringRightPose or
-                SamusPoseId.DraygonGrabbedAimDownRightPose or
-                SamusPoseId.DraygonGrabbedMovingRightPose or
-                SamusPoseId.DamageBoostLeftPose or
-                SamusPoseId.DamageBoostRightPose or
-                SamusPoseId.KnockbackRightPose or
-                SamusPoseId.KnockbackLeftPose or
-                SamusPoseId.TurningRightToLeftFallingPose or
-                SamusPoseId.TurningLeftToRightFallingPose or
-                SamusPoseId.TurningRightToLeftJumpAimUpPose or
-                SamusPoseId.TurningLeftToRightJumpAimUpPose or
-                SamusPoseId.TurningRightToLeftJumpAimDownPose or
-                SamusPoseId.TurningLeftToRightJumpAimDownPose or
-                SamusPoseId.TurningRightToLeftFallingAimUpPose or
-                SamusPoseId.TurningLeftToRightFallingAimUpPose or
-                SamusPoseId.TurningRightToLeftFallingAimDownPose or
-                SamusPoseId.TurningLeftToRightFallingAimDownPose or
-                SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or
-                SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or
-                SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or
-                SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or
-                SamusPoseId.MorphBallGroundRightPose or
-                SamusPoseId.MorphBallMovingRightPose or
-                SamusPoseId.MorphBallMovingLeftPose or
-                SamusPoseId.MorphBallFallingRightPose or
-                SamusPoseId.MorphBallFallingLeftPose or
-                SamusPoseId.GlitchBallKnockbackRightPose or
-                SamusPoseId.GlitchBallKnockbackLeftPose or
-                SamusPoseId.MorphingTransitionRightPose or
-                SamusPoseId.MorphingTransitionLeftPose or
-                SamusPoseId.UnmorphingTransitionRightPose or
-                SamusPoseId.UnmorphingTransitionLeftPose or
-                SamusPoseId.MorphBallGroundLeftPose or
-                SamusPoseId.SpringBallGroundRightPose or
-                SamusPoseId.SpringBallGroundLeftPose or
-                SamusPoseId.SpringBallMovingRightPose or
-                SamusPoseId.SpringBallMovingLeftPose or
-                SamusPoseId.SpringBallFallingRightPose or
-                SamusPoseId.SpringBallFallingLeftPose or
-                SamusPoseId.SpringBallJumpRightPose or
-                SamusPoseId.SpringBallJumpLeftPose or
-                SamusPoseId.FallingRightPose or
-                SamusPoseId.FallingLeftPose or
-                SamusPoseId.FallingGunExtendedRightPose or
-                SamusPoseId.FallingGunExtendedLeftPose or
-                SamusPoseId.StandingAimUpRightPose or
-                SamusPoseId.StandingAimUpLeftPose or
-                SamusPoseId.StandingAimDiagonalUpRightPose or
-                SamusPoseId.StandingAimDiagonalUpLeftPose or
-                SamusPoseId.StandingAimDiagonalDownRightPose or
-                SamusPoseId.StandingAimDiagonalDownLeftPose or
-                SamusPoseId.RunningAimUpRightPose or
-                SamusPoseId.RunningAimUpLeftPose or
-                SamusPoseId.RunningAimDiagonalUpRightPose or
-                SamusPoseId.RunningAimDiagonalUpLeftPose or
-                SamusPoseId.RunningAimDiagonalDownRightPose or
-                SamusPoseId.RunningAimDiagonalDownLeftPose or
-                SamusPoseId.NormalJumpGunExtendedRightPose or
-                SamusPoseId.NormalJumpGunExtendedLeftPose or
-                SamusPoseId.NormalJumpAimUpRightPose or
-                SamusPoseId.NormalJumpAimUpLeftPose or
-                SamusPoseId.NormalJumpAimDownRightPose or
-                SamusPoseId.NormalJumpAimDownLeftPose or
-                SamusPoseId.NormalJumpForwardRightPose or
-                SamusPoseId.NormalJumpForwardLeftPose or
-                SamusPoseId.NormalJumpTransitionAimUpRightPose or
-                SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
-                SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
-                SamusPoseId.NormalJumpAimDiagonalUpRightPose or
-                SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
-                SamusPoseId.NormalJumpAimDiagonalDownRightPose or
-                SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
-                SamusPoseId.FallingAimUpRightPose or
-                SamusPoseId.FallingAimUpLeftPose or
-                SamusPoseId.FallingAimDownRightPose or
-                SamusPoseId.FallingAimDownLeftPose or
-                SamusPoseId.FallingAimDiagonalUpRightPose or
-                SamusPoseId.FallingAimDiagonalUpLeftPose or
-                SamusPoseId.FallingAimDiagonalDownRightPose or
-                SamusPoseId.FallingAimDiagonalDownLeftPose or
-                SamusPoseId.CrouchingAimDiagonalUpRightPose or
-                SamusPoseId.CrouchingAimDiagonalUpLeftPose or
-                SamusPoseId.CrouchingAimDiagonalDownRightPose or
-                SamusPoseId.CrouchingAimDiagonalDownLeftPose or
-                SamusPoseId.CrouchingAimUpRightPose or
-                SamusPoseId.CrouchingAimUpLeftPose or
-                SamusPoseId.TurningRightToLeftCrouchingPose or
-                SamusPoseId.TurningLeftToRightCrouchingPose or
-                SamusPoseId.TurningRightToLeftAimUpPose or
-                SamusPoseId.TurningLeftToRightAimUpPose or
-                SamusPoseId.TurningRightToLeftAimDiagonalDownPose or
-                SamusPoseId.TurningLeftToRightAimDiagonalDownPose or
-                SamusPoseId.TurningRightToLeftAimDiagonalUpPose or
-                SamusPoseId.TurningLeftToRightAimDiagonalUpPose or
-                SamusPoseId.TurningRightToLeftCrouchingAimUpPose or
-                SamusPoseId.TurningLeftToRightCrouchingAimUpPose or
-                SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or
-                SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or
-                SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
-                SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
-                SamusPoseId.LandingAimUpRightPose or
-                SamusPoseId.LandingAimUpLeftPose or
-                SamusPoseId.LandingAimDiagonalUpRightPose or
-                SamusPoseId.LandingAimDiagonalUpLeftPose or
-                SamusPoseId.LandingAimDiagonalDownRightPose or
-                SamusPoseId.LandingAimDiagonalDownLeftPose or
-                SamusPoseId.FiringLandingRightPose or
-                SamusPoseId.FiringLandingLeftPose or
-                SamusPoseId.CrouchingTransitionAimUpRightPose or
-                SamusPoseId.CrouchingTransitionAimUpLeftPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or
-                SamusPoseId.StandingTransitionAimUpRightPose or
-                SamusPoseId.StandingTransitionAimUpLeftPose or
-                SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
-                SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
-                SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-                SamusPoseId.StandingTransitionAimDiagonalDownLeftPose or
-                SamusPoseId.CrouchingRightPose or
-                SamusPoseId.CrouchingLeftPose or
-                SamusPoseId.CrouchingTransitionRightPose or
-                SamusPoseId.CrouchingTransitionLeftPose or
-                SamusPoseId.StandingTransitionRightPose or
-                SamusPoseId.StandingTransitionLeftPose or
-                SamusPoseId.NeutralJumpTransitionRightPose or
-                SamusPoseId.NeutralJumpTransitionLeftPose or
-                SamusPoseId.NeutralJumpRightPose or
-                SamusPoseId.NeutralJumpLeftPose or
-                SamusPoseId.NormalLandingRightPose or
-                SamusPoseId.NormalLandingLeftPose or
-                SamusPoseId.SpinLandingRightPose or
-                SamusPoseId.SpinLandingLeftPose or
-                SamusPoseId.GlitchBallRightPose or
-                SamusPoseId.GlitchBallMorphingRightPose or
-                SamusPoseId.GlitchBallMorphingLeftPose or
-                SamusPoseId.InstantMorphingRightPose or
-                SamusPoseId.InstantMorphingLeftPose or
-                SamusPoseId.GlitchBallLeftPose or
-                SamusPoseId.CompactAirborneRightPose or
-                SamusPoseId.CompactAirborneLeftPose or
-                SamusPoseId.GrappleAirborneGunExtendedRightPose or
-                SamusPoseId.GrappleAirborneAimDownRightPose or
-                SamusPoseId.GrappleAirborneAimDiagonalDownRightPose or
-                SamusPoseId.DraygonGrabbingLeftPose => throw new ArgumentOutOfRangeException(
+        if (!SamusPoseFamilyDefinitions.EquippedSpinPoses.TryGetValue(genericPose, out SamusEquippedSpinPoses equipped))
+            throw new ArgumentOutOfRangeException(
                 nameof(genericPose),
                 genericPose,
-                "Equipment spin selection requires a generic spin-jump pose."),
-            SamusPoseId.TallStillRightPose or
-                SamusPoseId.ForwardStandingPose or
-                SamusPoseId.ForwardStillCrouchHeightPose => throw new ArgumentOutOfRangeException(
-                nameof(genericPose),
-                genericPose,
-                "Equipment spin selection requires a generic spin-jump pose."),
-            var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
-        };
+                "Equipment spin selection requires a generic spin-jump pose.");
 
         // Full submersion returns before either equipment substitution or the sound.
         // Gravity bypasses this test; water's disabled-physics option is handled by the
@@ -710,19 +465,18 @@ internal static class SamusAerialPoseTransitions
         {
             if (start != SpinPoseStart.SkipFirstFrame)
                 samus.AudioRequests.QueueSound(SamusSound.ScrewAttack, priority: SoundRequestPriority.Normal);
-            return facingLeft ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose;
+            return equipped.ScrewAttack;
         }
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump))
         {
             // Unlike ordinary/Screw Attack spins, the game also queues this on reversal.
             samus.AudioRequests.QueueSound(SamusSound.SpaceJump, priority: SoundRequestPriority.Normal);
-            return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
+            return equipped.SpaceJump;
         }
         if (start != SpinPoseStart.SkipFirstFrame && samus.Presentation.Mode != SamusPresentationMode.Cinematic)
             samus.AudioRequests.QueueSound(SamusSound.SpinJump, priority: SoundRequestPriority.Normal);
         return genericPose;
     }
-
 
     /// <summary>
     /// Applies the normal-jump pose initializer after a normal-jump
@@ -735,7 +489,8 @@ internal static class SamusAerialPoseTransitions
     /// aimed-up or diagonally-up normal jump.
     /// That delay is visible both to animation and to the 180-frame shade countdown.
     /// </remarks>
-    internal static bool TryBeginShinesparkWindup(SamusState samus,
+    internal static bool TryBeginShinesparkWindup(
+        SamusState samus,
         SamusPoseId targetPose,
         SamusMovementType previousMovementType)
     {
@@ -766,7 +521,6 @@ internal static class SamusAerialPoseTransitions
         return true;
     }
 
-
     /// <summary>
     /// Applies a shinespark windup's directional input-transition match and installs its exact special
     /// movement owner. No ordinary jump velocity or grounded momentum step runs.
@@ -782,14 +536,12 @@ internal static class SamusAerialPoseTransitions
         samus.Shinespark.BeginDirectionalLaunch(samus, targetPose);
     }
 
-
     /// <summary>
-    /// Applies the verified ordinary-input jump transitions selected from the game's
-    /// table, including the jump transition's jump start. Only explicitly verified
-    /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
-    /// interrupting any same-facing landing with a fresh Jump edge.
+    /// Applies the ordinary-input jump transitions the game's table selects, including the jump transition's jump start:
+    /// the routes with no equipment or aim, among them interrupting any same-facing landing with a fresh Jump press.
     /// </summary>
-    public static void ApplyOrdinaryJumpTransition(SamusState samus,
+    public static void ApplyOrdinaryJumpTransition(
+        SamusState samus,
         SamusPoseId targetPose,
         GameplayAction controllerNewInput = GameplayAction.None)
     {
@@ -870,14 +622,12 @@ internal static class SamusAerialPoseTransitions
         }
     }
 
-
     /// <summary>
     /// Runs the unconditional current-state epilogue clear that follows the
     /// HUD and projectile step. A shot refused by the cooldown or by Samus's shot count must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
     public static void DropPendingTransitionShot(SamusState samus) => samus.PendingTransitionShot = null;
-
 
     /// <summary>
     /// The normal-jumping pose initializer for a normal-jump pose already
@@ -886,20 +636,23 @@ internal static class SamusAerialPoseTransitions
     /// speed selects deceleration and a fresh Shoot press arms the transition shot.
     /// </summary>
     /// <returns>True when the initializer began a shinespark windup instead.</returns>
-    internal static bool InitializeInstalledNormalJumpPose(SamusState samus,
+    internal static bool InitializeInstalledNormalJumpPose(
+        SamusState samus,
         SamusMovementType previousMovementType,
         GameplayAction controllerNewInput)
     {
         if (TryBeginShinesparkWindup(samus, samus.Pose, previousMovementType))
             return true;
         InitializeOrdinaryAerialAcceleration(samus);
-        PublishNormalJumpPoseShotDirection(samus, controllerNewInput);
+        ArmNormalJumpTransitionShot(samus, controllerNewInput);
         return false;
     }
 
-
-    /// <summary>Publishes the normal jump's echo and sound bookkeeping after an accepted normal-jump pose initializer.</summary>
-    internal static void PublishNormalJumpPoseShotDirection(SamusState samus, GameplayAction controllerNewInput)
+    /// <summary>
+    /// Hands the next update's weapon firing a shot in the pose's direction when a fresh Shoot press accompanies an accepted
+    /// normal-jump pose.
+    /// </summary>
+    internal static void ArmNormalJumpTransitionShot(SamusState samus, GameplayAction controllerNewInput)
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
@@ -908,11 +661,10 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within <see cref="SamusMovementType.NormalJumping"/> or
-    /// <see cref="SamusMovementType.Falling"/> without replacing the live 1/65536-pixel velocities. The horizontal
-    /// gun-extended jumping and falling poses use this same initialization seam;
-    /// “aim” survives in the historical method name only because that was the first slice.
+    /// <see cref="SamusMovementType.Falling"/> without replacing the live 1/65536-pixel velocities: aiming, firing or
+    /// releasing forward, including the horizontal gun-extended jumping and falling poses.
     /// </summary>
-    public static void ApplyAerialAimTransition(SamusState samus, SamusPoseId targetPose)
+    public static void ApplySameFacingAerialTransition(SamusState samus, SamusPoseId targetPose)
     {
         if (SamusPoseMetadata.IsCompactAerialPose(samus.Pose) || SamusPoseMetadata.IsCompactAerialPose(targetPose))
         {
@@ -958,7 +710,6 @@ internal static class SamusAerialPoseTransitions
         SamusPresentation.InitializeAnimation(samus);
     }
 
-
     /// <summary>
     /// Applies same-facing transitions where either endpoint is a compact straight-down
     /// jumping or falling pose, preserving live velocity while reproducing pose-change collision.
@@ -969,7 +720,8 @@ internal static class SamusAerialPoseTransitions
     /// directions are blocked, the crouch selector selects ordinary crouch; if a compensating shift's
     /// second probe is blocked, the collision exit retains the source. Neither case installs the target.
     /// </remarks>
-    public static bool TryApplyCompactAerialTransition(SamusState samus,
+    public static bool TryApplyCompactAerialTransition(
+        SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
         int frameCounter,
@@ -989,7 +741,7 @@ internal static class SamusAerialPoseTransitions
             (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose) && !SamusPoseMetadata.IsCompactAerialPose(targetPose)))
         {
             // This is the exact precondition of the collision-aware compact-pose helper.
-            // Other aerial changes use ApplyAerialAimTransition or a movement-specific API.
+            // Other aerial changes use ApplySameFacingAerialTransition or a movement-specific API.
             throw new InvalidOperationException(
                 $"Compact aerial transition {samus.Pose} -> {targetPose} is not a same-family route.");
         }
@@ -1025,7 +777,6 @@ internal static class SamusAerialPoseTransitions
         SamusPresentation.InitializeAnimation(samus);
         return true;
     }
-
 
     /// <summary>
     /// Kills Samus's run speed on a falling input-lookup failure. Cancel the

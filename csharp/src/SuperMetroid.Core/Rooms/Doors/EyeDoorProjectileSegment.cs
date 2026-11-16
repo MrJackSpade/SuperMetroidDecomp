@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The eye door projectile's flight, impact and shot animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
-/// Generated from the verified authored scripts; see <see cref="EyeDoorProjectileAnimations"/>.
+/// Generated from the authored scripts; see <see cref="EyeDoorProjectileAnimations"/>.
 /// </summary>
 internal enum EyeDoorProjectileSegment
 {

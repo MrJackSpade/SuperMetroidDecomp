@@ -36,7 +36,6 @@ public static class SamusMovementDefinitions
     /// <summary>The pixels an update a departing speed echo closes on Samus's height until it reaches it.</summary>
     public const int SpeedEchoVerticalApproach = 2;
 
-
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {

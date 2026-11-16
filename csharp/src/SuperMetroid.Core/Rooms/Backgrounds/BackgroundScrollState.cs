@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <remarks>
 /// This reproduces how the game derives the background's position from the camera, and when each scroll follows its
 /// position: every unfrozen gameplay update, once at room entry, and at the steps a door's opening scroll recalculates
-/// them. Backgrounds render from level data and installed images through these scrolls (#1346). No desktop camera
-/// interpolation is hidden in this class. Every calculation below computes its two axes independently, so whole-value
+/// them. Backgrounds render from level data and installed images through these scrolls (#1346), with no camera
+/// interpolation. Every calculation below computes its two axes independently, so whole-value
 /// updates preserve its results.
 /// </remarks>
 public sealed class BackgroundScrollState

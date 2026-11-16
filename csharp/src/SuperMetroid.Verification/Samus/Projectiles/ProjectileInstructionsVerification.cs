@@ -101,20 +101,20 @@ internal static class ProjectileInstructionsVerification
         }
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
         var trailSlot = new SamusProjectile(0);
-        // A trail reads the animation frame of the record the shot last installed, the word just before the shot's next
-        // list position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625).
+        // A trail reads the frame of the record the shot last installed, the record just before the shot's next list
+        // position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625).
         foreach (ushort entry in entries)
         {
             AnimationPlayback<SamusProjectileSegment> playback = SamusProjectileProgramAddresses.PlaybackAt(entry)
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback.");
             trailSlot.Playback = playback;
-            int? expected = SamusProjectilePlayback.BeatOf(playback).Beat == 0
+            SamusProjectileFrameId? expected = SamusProjectilePlayback.BeatOf(playback).Beat == 0
                 ? null
-                : CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2));
+                : SamusProjectileProgramsVerification.RecordAt(unchecked((ushort)(entry - SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
                 trailSlot.FrameHold = WrappingCountdown.Start(timer);
-                AssertEqual(expected, ProjectileTrails.GetTrailAnimationFrame(trailSlot), "Trail owner reads the last installed record's frame regardless of timer");
+                AssertEqual(expected, ProjectileTrails.GetTrailFrame(trailSlot), "Trail owner reads the last installed record's frame regardless of timer");
                 AssertEqual(timer, trailSlot.FrameHold.RawValue, "Trail frame lookup leaves timer unchanged");
             }
         }
@@ -142,7 +142,7 @@ internal static class ProjectileInstructionsVerification
                         if (command == 0x8239) { pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); continue; }
                         AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
                         timer = command; sprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
-                        trail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 6)); pointer = unchecked((ushort)(pointer + 8)); break;
+                        trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
                 AssertEqual(deleted, system.Animation.AdvanceProjectileAnimation(slot), "Native delete/timed outcome");
@@ -154,7 +154,7 @@ internal static class ProjectileInstructionsVerification
                     AssertTrue(bomb.Type.IsNone, "Delete clears bomb occupancy");
                     break;
                 }
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, ProjectileTrails.GetTrailAnimationFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record.")), "Exact projectile frame matches ROM interpreter");
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, SamusProjectileProgramAddresses.RecordAddress(ProjectileTrails.GetTrailFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record."))), "Exact projectile frame matches ROM interpreter");
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }

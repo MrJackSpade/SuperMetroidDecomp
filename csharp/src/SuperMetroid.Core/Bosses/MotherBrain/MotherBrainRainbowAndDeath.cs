@@ -149,12 +149,12 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        MiscDustProjectileSegment segment = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
+        MiscDustAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
             _projectileAttacks.Projectile, graphics: default);
-        projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(animation));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         _projectileAttacks.Projectile.RunMotherBrainDeathExplosion(projectile);
@@ -177,7 +177,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Corner));
 
-    /// <summary>Runs one body-phase call through the shared verified sequence.</summary>
+    /// <summary>Runs one body-phase call through the shared sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
         SamusState samus,
@@ -359,7 +359,7 @@ internal sealed class MotherBrainRainbowAndDeath
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
             _projectileAttacks.Projectile,
             graphics: default);
-        projectile.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileSegment.RainbowBeamExplosion));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(MiscDustAnimation.MotherBrainRainbowBeamExplosion));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);

@@ -13,7 +13,7 @@ public static class SamusPostureDefinitions
 
     /// <summary>
     /// For <see cref="Poses.SamusPoseId.CrouchingTransitionRightPose"/> and
-    /// <see cref="Poses.SamusPoseId.CrouchingTransitionLeftPose"/>, and the literal five for aimed
+    /// <see cref="Poses.SamusPoseId.CrouchingTransitionLeftPose"/>, and the same five pixels for aimed
     /// crouching transitions. The posture change requests five pixels downward with the
     /// new radius 16 and clips that request through downward block collision.
     /// </summary>

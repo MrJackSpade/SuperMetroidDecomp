@@ -297,8 +297,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the moonwalk turn jumps, the six grounded turn frames selected only when Jump begins a
-    /// direction reversal from moonwalking. Odd/even descriptive names follow the
-    /// literal poses, while the predicates below group them by destination facing.
+    /// direction reversal from moonwalking. The predicates below group them by the facing they turn to.
     /// </summary>
     public static bool IsMoonwalkTurnJumpPose(SamusPoseId pose) => pose is
         SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpRightPose or
@@ -418,9 +417,8 @@ internal static class SamusPoseMetadata
         SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
 
     /// <summary>
-    /// True for admitted grounded turning poses that began facing right and turn left.
-    /// Their definition direction is already four (the destination facing), so preserving old
-    /// rightward momentum must use this grouping.
+    /// True for the grounded turning poses that began facing right and turn left. Each already faces left, the facing
+    /// it turns to, so preserving Samus's old rightward momentum must use this grouping.
     /// </summary>
     public static bool IsRightToLeftGroundTurnPose(SamusPoseId pose) => pose is
         SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningRightToLeftAimUpPose or
@@ -622,7 +620,8 @@ internal static class SamusPoseMetadata
 
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
     /// <remarks>The newly pressed actions feed the transition-shot test.</remarks>
-    public static bool TrySetupPublishedBombJump(SamusState samus,
+    public static bool TrySetupPublishedBombJump(
+        SamusState samus,
         RoomLevelData level,
         bool timeIsFrozen,
         int frameCounter,
@@ -653,8 +652,7 @@ internal static class SamusPoseMetadata
             case SamusMovementType.WallJumping:
             case SamusMovementType.RanIntoWall:
             case SamusMovementType.Grappling:
-                // Tests the pose-definition direction, not the descriptive pose
-                // number. Any value other than literal four follows the right-facing path.
+                // Tests the pose's facing, not its name: a pose that does not face left takes the right-facing path.
                 SamusPoseId sourcePose = samus.Pose;
                 SamusPoseId targetPose = ReadFacingDirection(samus) == SamusFacingDirection.Left
                     ? SamusPoseId.NormalJumpForwardLeftPose
@@ -800,10 +798,9 @@ internal static class SamusPoseMetadata
     /// <remarks>
     /// Deliberately share one set of input transitions among the neutral jump, the forward
     /// jump, and the non-compact aimed jump bodies. In particular, holding Jump after
-    /// releasing Right/Left turns the forward jump into the neutral jump. Both endpoints must therefore
-    /// participate in this classification. The previous target-only forward-jump check admitted
-    /// entering the forward body but rejected leaving it, even though both routes execute the
-    /// same pose/animation initializer and preserve live velocity.
+    /// releasing Right/Left turns the forward jump into the neutral jump. Both endpoints therefore take part in this
+    /// classification: entering and leaving the forward body run the same pose and animation initializer and keep the
+    /// live velocity.
     /// </remarks>
     public static bool IsSameFacingAerialAimFireOrForwardTransition(SamusPoseId source, SamusPoseId target)
     {

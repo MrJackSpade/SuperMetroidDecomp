@@ -31,14 +31,13 @@ internal static class MiscDustProjectileDefinitionsVerification
                 continue;
             }
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2));
-            MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
-            AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(program), $"misc-dust instruction selector {index}");
+            AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(animation), $"misc-dust instruction selector {index}");
 
             var enemies = CreateMiscDustEnemySystem();
             var spawn = new Action<Position16<RoomPixels>, MiscDustAnimation>(enemies.Projectiles.SpawnDustOrExplosion);
             spawn(new(0x1234, 0x5678), animation);
             EnemyProjectile roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
-            AssertTrue(roomSlot.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
+            AssertTrue(roomSlot.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == animation,
                 $"room-graphics misc-dust production selector {index}");
         }
         AssertEqual(16, unrequested, "misc-dust selectors no spawner asks for");
@@ -78,7 +77,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             Action<EnemyProjectile, MiscDustAnimation, MiscDustPlacementDefinition, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
             EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles[0];
             initialize(smoke, MiscDustAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.CorpseDustCloud },
+            AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
                 (random & nativeXMask))), smoke.Position.X.Whole,
@@ -93,7 +92,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         Action<Position16<RoomPixels>, MiscDustAnimation> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
         spawnRidley(new(0x1234, 0x5678), MiscDustAnimation.BigExplosion);
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
-                MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.BigExplosion },
+                MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.BigExplosion },
             "Ridley production dust starts the requested animation's program");
 
         var invalidRoom = CreateMiscDustEnemySystem();

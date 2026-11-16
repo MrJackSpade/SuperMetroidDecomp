@@ -59,7 +59,7 @@ internal static class SolidEnemyContactRecordsVerification
                 RoomEnemyPlace? met = place is { } ordinal ? places[ordinal] : null;
                 kinematics.RecordSolidEnemyCollision(ContactDirections[direction], met);
                 nativeWords[direction] = EnemySlotOffsets.WordOf(place);
-                if (!ReferenceEquals(met, kinematics.SolidEnemyContacts[direction]))
+                if (!ReferenceEquals(met, kinematics.SolidEnemyContact(ContactDirections[direction])))
                     throw new InvalidDataException($"{Describe(choice)}: direction {direction} does not hold the enemy recorded.");
             }
             foreach (RoomEnemyPlace enemy in places)
@@ -80,8 +80,8 @@ internal static class SolidEnemyContactRecordsVerification
         kinematics.ClearSolidEnemyCollisions();
         foreach (RoomEnemyPlace enemy in places)
             AssertTrue(!kinematics.DidCollideWithSolidEnemy(enemy), $"cleared records find no enemy, place {enemy.Ordinal}");
-        for (int direction = 0; direction < ContactDirections.Length; direction++)
-            AssertEqual<ISolidEnemy?>(null, kinematics.SolidEnemyContacts[direction], $"cleared records hold no enemy, direction {direction}");
+        foreach (SamusCollisionDirection direction in ContactDirections)
+            AssertEqual<ISolidEnemy?>(null, kinematics.SolidEnemyContact(direction), $"cleared records hold no enemy, direction {direction}");
     }
 
     /// <summary>
@@ -104,8 +104,8 @@ internal static class SolidEnemyContactRecordsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
         RoomEnemyPlace loaded = runtime.Enemies.Places.InUpdateOrder[10];
         AssertTrue(!ReferenceEquals(replaced, loaded), "the reloaded room's enemies are new places");
-        for (int direction = 0; direction < ContactDirections.Length; direction++)
-            AssertEqual<ISolidEnemy?>(null, samus.Kinematics.SolidEnemyContacts[direction], $"the room change forgets direction {direction}'s contact");
+        foreach (SamusCollisionDirection direction in ContactDirections)
+            AssertEqual<ISolidEnemy?>(null, samus.Kinematics.SolidEnemyContact(direction), $"the room change forgets direction {direction}'s contact");
         AssertTrue(!samus.Kinematics.DidCollideWithSolidEnemy(loaded), "the new room's enemy in the same place is not met");
         AssertEqual<ISolidEnemy?>(null, samus.Kinematics.TakeWallJumpLaunchShake(), "the room change withdraws the waiting launch shake");
     }

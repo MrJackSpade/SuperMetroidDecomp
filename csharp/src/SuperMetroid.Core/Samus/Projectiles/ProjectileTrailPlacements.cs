@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Finds where a projectile's trail starts: its placement list and the placement its animation frame reads.</summary>
+/// <summary>Finds where a projectile's trail starts: its placement list and the placement the list gives its frame.</summary>
 internal static class ProjectileTrailPlacements
 {
     /// <summary>
@@ -16,13 +16,11 @@ internal static class ProjectileTrailPlacements
             : null;
 
     /// <summary>
-    /// The placement a trail reads from <paramref name="list"/> at animation frame <paramref name="frame"/>, or null for a
-    /// frame past the list's placements, which leaves no trail: what lies past a list is not part of the game's design
-    /// (#1625).
+    /// The placement <paramref name="list"/> gives a trail from a shot showing <paramref name="frame"/>, or null for a frame
+    /// the list places no trail for, which leaves none: what lies past a list is not part of the game's design (#1625).
     /// </summary>
-    internal static ProjectileTrailPlacement? Start(ProjectileTrailPlacementList list, int frame)
-    {
-        ProjectileTrailPlacement[] placements = ProjectileTrailPlacementDefinitions.PlacementsByList[list];
-        return frame >= 0 && frame < placements.Length ? placements[frame] : null;
-    }
+    internal static ProjectileTrailPlacement? Start(ProjectileTrailPlacementList list, SamusProjectileFrameId frame) =>
+        ProjectileTrailPlacementDefinitions.PlacementsByList[list].TryGetValue(frame, out ProjectileTrailPlacement placement)
+            ? placement
+            : null;
 }

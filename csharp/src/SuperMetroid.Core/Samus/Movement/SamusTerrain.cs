@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct SamusTerrain
 {
-
-
     /// <summary>The room's collision level the scan probes.</summary>
     internal required RoomLevelData Level { get; init; }
 

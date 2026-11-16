@@ -328,6 +328,16 @@ renamed or moved it, and which module it lived in, are the repository's history.
 place to another (`the elevator moved from its arrival to its return`), a ticket cited for the change it names and a
 parenthetical of what a thing is stay English.
 
+#2123 adds to the review trail, read in every type, anything verified (`the verified animations`, `is not verified`,
+`verified against the captured frames`): Core states what the game does, and a check the game or the installation makes
+is checked. Outside hardware owners SME6454 also reads the desktop in any form (`the desktop runtime`, `a desktop-held
+button`), the original's assembly loops, branches, labels, versions and implementation and an ascending or descending
+assembly (`the ascending assembly loop`), a value stored as a number for a meaning (`stores the direction as zero for
+left`) and a literal number (`any value other than literal four`, `the literal 190/66/2 branches`); Core names the
+meaning (the direction is left or right, a pose faces left). Assembling a value from its parts, Wrecked Ship's Assembly
+Line, a count of what is stored (`stores these as four separate flags`), a literal alone and the unverified stay
+English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

@@ -189,7 +189,7 @@ internal static class GModeGateGlitchVerification
         var roomObjects = RoomObjectFixtures.Unbound();
 
         int contact = 0;
-        while (!roomObjects.Quicksand.IsAllocationFull)
+        while (!roomObjects.Places.IsFull)
         {
             contact++;
             int before = roomObjects.Places.ActiveCount;
@@ -478,7 +478,7 @@ internal static class GModeGateGlitchVerification
                     reaction: SpecialAirInsideReaction.QuicksandSurface),
                 $"G-Mode fixture allocates suspended PLM slot {slot}");
         }
-        AssertTrue(roomObjects.Quicksand.IsAllocationFull,
+        AssertTrue(roomObjects.Places.IsFull,
             "G-Mode fixture occupies all forty native PLM slots");
     }
 

@@ -11,7 +11,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

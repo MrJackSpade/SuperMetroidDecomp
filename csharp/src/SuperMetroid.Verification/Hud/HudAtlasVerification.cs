@@ -8,7 +8,6 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;

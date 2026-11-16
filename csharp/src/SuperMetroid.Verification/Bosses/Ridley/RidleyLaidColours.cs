@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;

@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;

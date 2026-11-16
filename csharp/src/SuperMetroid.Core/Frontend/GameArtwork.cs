@@ -13,7 +13,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;

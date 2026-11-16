@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;

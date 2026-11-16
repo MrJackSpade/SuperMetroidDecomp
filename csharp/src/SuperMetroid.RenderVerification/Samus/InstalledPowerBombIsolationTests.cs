@@ -4,7 +4,6 @@ using System.Reflection;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;

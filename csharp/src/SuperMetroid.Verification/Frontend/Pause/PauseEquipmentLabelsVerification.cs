@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerific
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 

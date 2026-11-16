@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.GameOver;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;

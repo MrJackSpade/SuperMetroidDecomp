@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 

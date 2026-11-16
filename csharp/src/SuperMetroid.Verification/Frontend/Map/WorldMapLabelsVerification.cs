@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.FrameRendering;

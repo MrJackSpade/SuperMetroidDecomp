@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Progression;
 

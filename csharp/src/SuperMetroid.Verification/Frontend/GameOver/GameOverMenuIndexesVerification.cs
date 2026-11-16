@@ -3,7 +3,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.GameOver;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
 

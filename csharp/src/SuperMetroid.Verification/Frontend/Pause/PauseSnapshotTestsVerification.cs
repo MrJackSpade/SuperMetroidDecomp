@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PausePaletteSoundVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;

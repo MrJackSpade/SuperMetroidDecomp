@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;

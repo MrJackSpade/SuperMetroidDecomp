@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using System.Collections.Immutable;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -589,7 +588,7 @@ internal static class LookupStream3Verification
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82f33f, 3),
         })
         {
-            IReadOnlyList<GameOptionsRow> rows = GameOptionsRow.OnPage(page);
+            IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
             AssertEqual(count, rows.Count, "native options cursor rows");
             foreach (GameOptionsRow row in rows)
                 AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row.Place * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row.Place * 4 + 2))),
@@ -644,7 +643,7 @@ internal static class LookupStream3Verification
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
                 Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-                IReadOnlyList<GameOptionsRow> rows = GameOptionsRow.OnPage(page);
+                IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
                 AssertEqual(cursors.Length, rows.Count, "options stock cursor rows");
                 foreach (GameOptionsRow row in rows)
                     AssertEqual(cursors[row.Place], presentation.Presentation.CursorPosition(row), "options stock cursor");
@@ -663,7 +662,7 @@ internal static class LookupStream3Verification
                     "options stock heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, SuperMetroid.Core.Input.ControllerButton.X), "options invalid action");
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRow.OnPage((GameOptionsPage)byte.MaxValue), "options invalid page");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRowConstants.OnPage((GameOptionsPage)byte.MaxValue), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {

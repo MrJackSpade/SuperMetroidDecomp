@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 using static SuperMetroid.Verification.Compatibility.ReplacedExpressionAssertions;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

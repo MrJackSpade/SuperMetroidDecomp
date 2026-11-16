@@ -5,7 +5,6 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="CeresRidleyBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "The composition seam for Ceres Ridley's three parts (flight, Baby scene, hits), each built from a different subset of these collaborators, with the shared body parts and the station's escape his AI hands his step to.")]
 [RoomLifetime]
 internal sealed record CeresRidleyBehaviorDependencies
 {

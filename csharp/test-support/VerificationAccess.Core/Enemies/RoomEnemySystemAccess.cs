@@ -414,7 +414,7 @@ internal static class RoomEnemySystemAccess
         {
             // Each body resolves its own contact with the encounter it holds (#2231).
             RoomEnemyPlace body = self.Places.InUpdateOrder.First(place => place.Entity is SuperMetroid.Core.Bosses.Ridley.RidleyEntity);
-            SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState ridley = SuperMetroid.Core.Bosses.Ridley.RidleyEntity.EncounterOf(body);
+            SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState ridley = SuperMetroid.Core.Bosses.Ridley.RidleyEntityConstants.EncounterOf(body);
             return self.RidleyBody.Contact.ResolveSamusContact(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
                 SuperMetroid.Core.Bosses.Ridley.RidleyTail.ResolveRidleyTailSamusContact(body, ridley, samus);
         }

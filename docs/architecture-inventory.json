@@ -53096,6 +53096,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresBaby",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresBaby.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresEncounter",
       "kind": "class",
       "scope": "product",
@@ -53107,6 +53120,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresEscape",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresEscape.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresEscapeDependencies",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresEscapeDependencies.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresEscapeReadying",
@@ -53135,6 +53174,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresEscapeStage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresGetawayChamberWallDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -53148,17 +53200,17 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyAfterburnDefinitions",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyAttachment",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyAfterburnDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyAttachment.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyAttackDefinitions",
@@ -53172,19 +53224,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyAxisMotion",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyAxisMotion.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScene",
@@ -53223,11 +53262,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehaviorDependencies.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters",
-      "flags": [
-        "wide-dependencies"
-      ],
-      "justified": true
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyEntity",
@@ -53240,78 +53275,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyEntity.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFade",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyEyeFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFadeDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyEyeFadeDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFadeDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/CeresRidleyEyeFadeDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFadeDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFadeDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/CeresRidleyEyeFadeDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyEyeFadeStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyEyeFadeStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyFlight",
@@ -53353,19 +53317,6 @@
       "disposition": "constructor-parameters"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetaway",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyGetaway.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve",
       "kind": "static class",
       "scope": "product",
@@ -53392,19 +53343,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayDependencies",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyGetawayDependencies.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayFrame",
       "kind": "record struct",
       "scope": "product",
@@ -53429,6 +53367,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyShadeDefinitions",
@@ -53460,17 +53411,17 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyWingDefinitions",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyState",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyWingDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyState.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresSelfDestructPhase",
@@ -53484,6 +53435,97 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresSelfDestructWarning",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresSelfDestructWarning.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresTurningFloor",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresTurningFloor.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.IRidleyBodyOwner",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/IRidleyBodyOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.IRidleyRevealEncounter\u003CTState\u003E",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/IRidleyRevealEncounter.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairArenaRevealProgress",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairArenaRevealProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyBehavior",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyBehavior.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyBehaviorDependencies",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyBehaviorDependencies.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyCombat",
@@ -53535,7 +53577,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyEntity.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyHealthBand",
@@ -53590,6 +53632,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyRevealDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -53614,6 +53669,48 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/NorfairRidleyRevealDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/NorfairRidleyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/RidleyAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyAfterburnDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyAfterburnDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -53684,30 +53781,30 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBehavior",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyAxisMotion",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBehavior.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyAxisMotion.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBehaviorDependencies",
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBody",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBehaviorDependencies.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBody.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodyAnimation",
@@ -53718,6 +53815,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBodyAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodyContact",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBodyContact.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -53801,6 +53911,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodyFadeProgress",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBodyFadeProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment",
       "kind": "enum",
       "scope": "product",
@@ -53822,19 +53945,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBreakup.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBreakupAnimations",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBreakupAnimations.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -53864,6 +53974,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBreakupSource",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBreakupSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyCadenceDefinitions",
@@ -54018,6 +54141,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyDrawing",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEncounter",
       "kind": "class",
       "scope": "product",
@@ -54031,14 +54167,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState",
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEnemyState.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEncounterState.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -54055,6 +54191,22 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEntityConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/RidleyEntityConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEntityFactory",
@@ -54161,6 +54313,90 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFade",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEyeFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEyeFadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/RidleyEyeFadeDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/RidleyEyeFadeDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeProgress",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEyeFadeProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEyeFadeStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEyeFadeStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFacedAnimation",
       "kind": "record struct",
       "scope": "product",
@@ -54185,19 +54421,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFadeIn",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFadeIn.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFightMode",
@@ -54308,6 +54531,45 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFlight",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFlight.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFlightDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFlightDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyFlightState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyFlightState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyGrabState",
@@ -54453,33 +54715,23 @@
         "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/RidleyNativeWords.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyParts",
-      "kind": "class",
-      "scope": "product",
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyPhaseAccess",
+      "kind": "static class",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyParts.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/RidleyPhaseAccess.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyPhase",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyPhase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyPogoDefinition",
@@ -54560,6 +54812,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyReveal",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyReveal.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyRevealPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyRevealPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleySamusInteractionDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -54584,6 +54862,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyShadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyShadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleySoundDefinitions",
@@ -54722,6 +55013,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyTailState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyTailState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyWallImpact",
       "kind": "enum",
       "scope": "product",
@@ -54759,6 +55063,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyWingDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyWingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.RoomBossEncounters",
@@ -55213,19 +55530,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnEmitterState.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEncounter",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnEncounter.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -56187,6 +56491,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoColourFadeProgress",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoColourFadeProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoColours",
       "kind": "class",
       "scope": "product",
@@ -56771,14 +57088,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoPostureFlags",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoPosture",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoPostureFlags.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoPosture.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -56792,19 +57109,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoPostureKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoPostureMove",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoPostureMove.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -57142,19 +57446,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoShadeDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoSharedSteps",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoSharedSteps.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -102210,19 +102501,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.InclusiveRange",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/InclusiveRange.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.IndependentFlagAttribute",

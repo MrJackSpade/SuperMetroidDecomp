@@ -18,7 +18,7 @@ internal static class ZebesDescentVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = AudioQueues.Standalone();
         var scene = CreateRetailDestructionFixture(audio);
-        int previousBottom = FrontendFrame.Height;
+        int previousBottom = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels;
         int visibleFrames = 0, slideFrames = 0;
         for (int frame = 0; frame < 2500 && !scene.Finished; frame++)
         {
@@ -26,7 +26,7 @@ internal static class ZebesDescentVerification
             if (scene.Phase != CeresDestructionPhase.SlideZebesSceneAway) continue;
             var pixels = scene.Render();
             int bottom = -1;
-            for (int y = 0; y < FrontendFrame.Height; y++)
+            for (int y = 0; y < SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels; y++)
             {
                 int planetPixels = 0;
                 for (int x = 0; x < SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels; x++)

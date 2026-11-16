@@ -55,7 +55,7 @@ internal static class CinematicScreenPublicationVerification
         {
             AssertEqual(new Offset16<ScreenPixels>(positions[index].X, positions[index].Y), raw.Draws[index].Origin,
                 $"raw object {index} is published where it is placed");
-            if (positions[index].Y < FrontendFrame.Height)
+            if (positions[index].Y < SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels)
                 AssertEqual(oam.GetEntry(index), raw.GetEntry(index), $"raw object {index} on the screen stands for the record its store writes");
         }
         Console.WriteLine("  Screen sprites: OBSEL size pairs match, and raw objects are published where they are placed and match OAM on the screen.");

@@ -247,7 +247,8 @@ internal sealed class RoomLoader
         // appearance before restoring ordinary input.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance,
+            timer: SavedGameAppearanceDefinitions.FirstFrameTimer);
         _player.IntroducedSamus.Room = room.Definition;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -1196,12 +1197,16 @@ internal sealed class RoomLoader
     /// to eight pixels past that block; any other stays.
     /// </summary>
     private static int NudgeOffScreenLeftEdge(int pixel) =>
-        RoomGridConversions.BlockRowWithinScreen(pixel) == 1 ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(pixel) + 8) : pixel;
+        RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeNearBlock
+            ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(pixel) + DoorOpeningScrollDefinitions.DoorwayNudgePixels)
+            : pixel;
 
     /// <summary>
     /// The doorway nudge's other edge: a room coordinate in its screen's fifteenth block moves to eight pixels before it;
     /// any other stays.
     /// </summary>
     private static int NudgeOffScreenRightEdge(int pixel) =>
-        RoomGridConversions.BlockRowWithinScreen(pixel) == 14 ? CoordinateAxis.Wrap(RoomGridConversions.BlockStart(pixel) - 8) : pixel;
+        RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeFarBlock
+            ? CoordinateAxis.Wrap(RoomGridConversions.BlockStart(pixel) - DoorOpeningScrollDefinitions.DoorwayNudgePixels)
+            : pixel;
 }

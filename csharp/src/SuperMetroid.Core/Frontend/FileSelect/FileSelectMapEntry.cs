@@ -35,7 +35,7 @@ public sealed class FileSelectMapEntry
     public int Top => FileSelectMapDefinitions.EntryWindowTop - revealSteps * FileSelectMapDefinitions.EntryWindowSpeed;
 
     /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
-    public int Bottom => FrontendFrame.Height - Top;
+    public int Bottom => ScreenGeometry.ScreenHeightPixels - Top;
 
     /// <summary>Advances the entry fade, setup coroutine, or centered reveal by one frontend update.</summary>
     public void Step()

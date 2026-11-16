@@ -17,8 +17,4 @@ public readonly record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,
     int FrameNumber,
-    AudioFrameEvents Audio)
-{
-    /// <summary>Visible non-overscan frame height in pixels: 224 rows.</summary>
-    public const int Height = ScreenGeometry.ScreenHeightPixels;
-}
+    AudioFrameEvents Audio);

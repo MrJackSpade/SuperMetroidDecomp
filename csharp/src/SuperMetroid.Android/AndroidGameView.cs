@@ -16,16 +16,16 @@ namespace SuperMetroid.Android;
 internal sealed class AndroidGameView : View
 {
     /// <summary>Reusable Android bitmap containing the latest software frame.</summary>
-    private readonly Bitmap bitmap = Bitmap.CreateBitmap(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, FrontendFrame.Height,
+    private readonly Bitmap bitmap = Bitmap.CreateBitmap(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels,
         Bitmap.Config.Argb8888 ?? throw new InvalidOperationException("Android has no ARGB_8888 bitmap configuration."));
     /// <summary>Nearest-neighbor paint preserving source game pixels.</summary>
     private readonly Paint pixels = new() { FilterBitmap = false, AntiAlias = false };
     /// <summary>Paint for diagnostic status and room text over the game viewport.</summary>
     private readonly Paint text = new() { Color = Color.White, TextSize = 24, AntiAlias = true };
     /// <summary>Reusable packed pixel buffer uploaded to the bitmap.</summary>
-    private readonly int[] argb = new int[SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height];
+    private readonly int[] argb = new int[SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels];
     /// <summary>Single-frame handoff that replaces stale presentation frames.</summary>
-    private readonly AndroidFrameMailbox frames = new(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height, new AndroidFrameHandoffTrace());
+    private readonly AndroidFrameMailbox frames = new(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels, new AndroidFrameHandoffTrace());
     /// <summary>Cached delegate used when the mailbox supplies a frame for upload.</summary>
     private readonly Action<RgbaPixel[]> uploadFrame;
     /// <summary>Current diagnostic status displayed inside the game viewport.</summary>
@@ -130,7 +130,7 @@ internal sealed class AndroidGameView : View
             RgbaPixel p = frame[i];
             argb[i] = AndroidPixelPacking.Argb(p);
         }
-        bitmap.SetPixels(argb, 0, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, 0, 0, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, FrontendFrame.Height);
+        bitmap.SetPixels(argb, 0, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, 0, 0, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels);
         Interlocked.Add(ref uploadTicks, Stopwatch.GetTimestamp() - uploadStart);
     }
 

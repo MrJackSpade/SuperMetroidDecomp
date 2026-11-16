@@ -14,6 +14,9 @@ internal static class SavedGameAppearanceDefinitions
     /// <summary>The loading glow Samus shows in the Gravity Suit, which takes precedence over the Varia Suit.</summary>
     public const ColourEffectId GravitySuitGlow = ColourEffectId.SamusLoadingGravitySuit;
 
+    /// <summary>The updates the load appearance's first frame shows before Samus's animation moves on.</summary>
+    public const int FirstFrameTimer = 3;
+
     /// <summary>Frames the saved-game appearance lasts before Samus takes ordinary input.</summary>
     public const int FrameCount = 360;
 }

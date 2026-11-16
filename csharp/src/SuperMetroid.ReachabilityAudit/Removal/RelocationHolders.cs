@@ -29,6 +29,8 @@ internal sealed class RelocationHolders
     private readonly Dictionary<string, string> chosen = new(StringComparer.Ordinal);
     /// <summary>The holder chosen for each owner and kind.</summary>
     private readonly Dictionary<string, RelocationHolder> resolved = new(StringComparer.Ordinal);
+    /// <summary>The full paths of the files the holders chosen in this run are written to.</summary>
+    private readonly HashSet<string> chosenPaths = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Finds the projects that compile the target directory.</summary>
     /// <exception cref="InvalidOperationException">No project compiles a file in the target directory.</exception>
@@ -41,7 +43,13 @@ internal sealed class RelocationHolders
             tree.FilePath.Length > 0 && Path.GetFullPath(tree.FilePath).StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))];
         if (targetProjects.Count == 0)
             throw new InvalidOperationException($"No project compiles a file in {targetDirectory}, so code moved there would compile nowhere.");
+        compiledOutsideTarget = new(() => projects.Except(targetProjects)
+            .SelectMany(project => project.Compilation.SyntaxTrees.Where(tree => tree.FilePath.Length > 0).Select(tree => Path.GetFullPath(tree.FilePath)))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase));
     }
+
+    /// <summary>The full paths of the files a project that does not compile the target compiles.</summary>
+    private readonly Lazy<HashSet<string>> compiledOutsideTarget;
 
     /// <summary>
     /// The relocation's holder step: the class each owner's moved members of each kind go into, chosen before any reference
@@ -108,12 +116,18 @@ internal sealed class RelocationHolders
         for (int suffix = 1; ; suffix++)
         {
             string name = suffix == 1 ? preferredName : preferredName + suffix.ToString(CultureInfo.InvariantCulture);
-            if (chosen.ContainsKey(ns + name))
+            if (chosen.ContainsKey(ns + name) || NamedElsewhere(ns, name))
                 continue;
             var declared = targetProjects.Select(project => project.Compilation.GetTypesByMetadataName(ns + name)).ToList();
             RelocationHolder holder;
             if (declared.All(types => types.IsEmpty))
-                holder = new RelocationHolder(name, Path.GetFullPath(Path.Combine(directory, name + ".cs")));
+            {
+                string path = Path.GetFullPath(Path.Combine(directory, name + ".cs"));
+                // A new class's file must be new too: writing into a file of that name merges into whatever class it holds.
+                if (File.Exists(path) || chosenPaths.Contains(path))
+                    continue;
+                holder = new RelocationHolder(name, path);
+            }
             else if (MergeTarget(declared, kind, abstractHolder, kind == RelocationHolderKind.Members && moved.Any(IsPartialMember)) is { } existing)
             {
                 string path = Path.GetFullPath(existing.DeclaringSyntaxReferences[0].SyntaxTree.FilePath);
@@ -123,6 +137,7 @@ internal sealed class RelocationHolders
             else
                 continue;
             chosen[ns + name] = request;
+            chosenPaths.Add(holder.Path);
             resolved[request] = holder;
             return holder;
         }
@@ -130,6 +145,32 @@ internal sealed class RelocationHolders
 
     /// <summary>The key of one owner's holder of one kind.</summary>
     private static string Request(string ownerKey, RelocationHolderKind kind) => $"{kind}:{ownerKey}";
+
+    /// <summary>
+    /// Whether a top-level type of this simple name lives in another namespace: in any loaded project's source, or among the
+    /// holders chosen in this run. A file importing both namespaces could no longer name either (CS0104): the 2026-11-15
+    /// cleanup of e4ce9514eb created <c>SuperMetroid.AssetExtraction.Cartridge.SnesBusLayoutConstants</c> beside
+    /// <c>SuperMetroid.Core.Hardware.SnesBusLayoutConstants</c>, and LibraryBackgroundProgramImporter, which imports both
+    /// namespaces, no longer compiled.
+    /// </summary>
+    private bool NamedElsewhere(string ns, string name) =>
+        chosen.Keys.Any(full => full != ns + name && SimpleName(full) == name) ||
+        projects.Any(project => project.Compilation.GetSymbolsWithName(name, SymbolFilter.Type).OfType<INamedTypeSymbol>()
+            .Any(type => type.ContainingType is null && FullName(type) != ns + name));
+
+    /// <summary>A top-level type's namespace-qualified name, as <see cref="Resolve"/> writes it.</summary>
+    private static string FullName(INamedTypeSymbol type) =>
+        (type.ContainingNamespace is { IsGlobalNamespace: false } containing ? containing.ToDisplayString() + "." : "") + type.Name;
+
+    /// <summary>The simple name of a namespace-qualified name.</summary>
+    private static string SimpleName(string full) => full[(full.LastIndexOf('.') + 1)..];
+
+    /// <summary>
+    /// Whether every project compiling the file at <paramref name="path"/> compiles the target too, so code in it sees
+    /// what moves there. Test-support shared through <c>.projitems</c> and the verification projects do; a shipped project
+    /// does not.
+    /// </summary>
+    public bool SeesTarget(string path) => !compiledOutsideTarget.Value.Contains(Path.GetFullPath(path));
 
     /// <summary>
     /// The class to merge into: one compatible class each target project declares itself, from one file that exactly the

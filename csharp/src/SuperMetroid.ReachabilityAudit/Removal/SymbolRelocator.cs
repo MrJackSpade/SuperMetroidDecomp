@@ -69,7 +69,7 @@ internal static class SymbolRelocator
             .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()).ToArray();
 
-        var selection = RelocationSelection.Select(trees, targets, identity);
+        var selection = RelocationSelection.Select(trees, targets, identity, shippedAssemblies);
         while (true)
         {
             var moves = new RelocationMoves(selection.Found, identity);

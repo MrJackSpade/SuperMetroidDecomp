@@ -257,10 +257,14 @@ internal sealed class ReferenceRewriter
             foreach (var self in root.DescendantNodes().OfType<ThisExpressionSyntax>())
                 if (EnclosingMove(tree, self) is { Placement: RelocationPlacement.ExtensionMember })
                     Edit(tree, self.Span, "self");
-            // Staying types no longer implement moved interfaces; their adapters do.
+            // Staying types that cannot see the target no longer implement moved interfaces; their adapters do. A type every
+            // project compiling it sees the target from keeps them: the 2026-11-15 cleanup of e4ce9514eb moved
+            // ISnesMutableMemory into test-support and took it off test-support's ISnesMemoryBus and the verification
+            // doubles implementing it, and every check reading work memory through them no longer compiled.
+            bool seesTarget = holders.SeesTarget(tree.FilePath);
             foreach (var baseList in root.DescendantNodes().OfType<BaseListSyntax>())
             {
-                if (InMovedSpan(tree, baseList.Span)) continue;
+                if (seesTarget || InMovedSpan(tree, baseList.Span)) continue;
                 var kept = baseList.Types.Where(t => SemanticModels.At(compilation, tree, t.Type).GetTypeInfo(t.Type).Type is not INamedTypeSymbol bt ||
                     identity.Key(bt.OriginalDefinition) is not { } baseKey || !moves.MovedInterfaceKeys.Contains(baseKey)).ToList();
                 if (kept.Count == baseList.Types.Count) continue;
@@ -270,6 +274,7 @@ internal sealed class ReferenceRewriter
             }
         }
 
+        PromoteSignatureTypes();
         // A field sharing its declaration with a promoted one shares its modifiers, so it becomes internal with it.
         widened.UnionWith(promotions);
         foreach (var field in promotions.OfType<IFieldSymbol>().ToList())
@@ -381,6 +386,53 @@ internal sealed class ReferenceRewriter
             Reached(symbol, [by]);
         }
     }
+
+    /// <summary>
+    /// Promotes, with each promoted member, the staying private or protected nested types its signature names (its type,
+    /// return type, parameter types and their type arguments and element types, and a promoted type's base types), and
+    /// their private or protected containers, until none is left: an internal member cannot expose a less accessible type
+    /// (CS0050-CS0061). The 2026-11-15 cleanup of e4ce9514eb made <c>DefinitionObjects.Declared</c> internal for moved
+    /// test code and left its type, the private record <c>Declarations</c>, private (CS0053).
+    /// </summary>
+    private void PromoteSignatureTypes()
+    {
+        var pending = new Queue<ISymbol>(promotions.Concat(setterPromotions));
+        while (pending.Count > 0)
+        {
+            var member = pending.Dequeue();
+            foreach (var type in SignatureTypes(member).SelectMany(Exposed).Distinct<INamedTypeSymbol>(Comparer).ToList())
+            {
+                if (Moved(type) || identity.Key(type) is null || type.DeclaredAccessibility is not
+                        (Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal))
+                    continue;
+                bool added = promotions.Add(type);
+                Reached(type, reachedBy[member]);
+                if (added)
+                    pending.Enqueue(type);
+            }
+        }
+    }
+
+    /// <summary>The types a member's signature names, or a type's base types.</summary>
+    private static IEnumerable<ITypeSymbol> SignatureTypes(ISymbol member) => member switch
+    {
+        IFieldSymbol field => [field.Type],
+        IPropertySymbol property => [property.Type, .. property.Parameters.Select(parameter => parameter.Type)],
+        IMethodSymbol method => [method.ReturnType, .. method.Parameters.Select(parameter => parameter.Type)],
+        IEventSymbol @event => [@event.Type],
+        INamedTypeSymbol type => (type.BaseType is { } baseType ? new ITypeSymbol[] { baseType } : []).Concat(type.Interfaces),
+        _ => [],
+    };
+
+    /// <summary>A named type a signature exposes, with its type arguments, element types and containing types.</summary>
+    private static IEnumerable<INamedTypeSymbol> Exposed(ITypeSymbol type) => type switch
+    {
+        IArrayTypeSymbol array => Exposed(array.ElementType),
+        IPointerTypeSymbol pointer => Exposed(pointer.PointedAtType),
+        INamedTypeSymbol named => Containers(named.OriginalDefinition).Prepend(named.OriginalDefinition)
+            .Concat(named.TypeArguments.SelectMany(Exposed)),
+        _ => [],
+    };
 
     /// <summary>Records that <paramref name="moves"/> reach a member that becomes internal for them.</summary>
     private void Reached(ISymbol symbol, IEnumerable<RelocationMove> moves)

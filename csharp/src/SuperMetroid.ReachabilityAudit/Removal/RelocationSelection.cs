@@ -39,10 +39,13 @@ internal sealed class RelocationSelection
     /// <param name="trees">Every repository tree, once.</param>
     /// <param name="targets">The keys of the declarations to move.</param>
     /// <param name="identity">Gives each declaration its key.</param>
-    public static RelocationSelection Select(IReadOnlyList<ProjectTree> trees, IReadOnlySet<string> targets, SymbolIdentity identity)
+    /// <param name="shippedAssemblies">The assemblies that ship to players, whose documentation cannot cite the target.</param>
+    public static RelocationSelection Select(IReadOnlyList<ProjectTree> trees, IReadOnlySet<string> targets, SymbolIdentity identity,
+        IReadOnlySet<string> shippedAssemblies)
     {
         var selection = new RelocationSelection();
         selection.Place(trees, targets, identity);
+        selection.KeepCitedByShippedDocumentation(trees, identity, shippedAssemblies);
         return selection;
     }
 
@@ -100,6 +103,12 @@ internal sealed class RelocationSelection
             }
         }
         KeepWhatStayingDeclarationsUse(identity, found, staying, manual);
+        ReportUnmatched(targets, identity);
+    }
+
+    /// <summary>Reports the keys matching no declaration.</summary>
+    private void ReportUnmatched(IReadOnlySet<string> targets, SymbolIdentity identity)
+    {
         // A key is matched when its declaration moves or stays; an operator's MANUAL line names it as C# writes it, not as
         // its key does, so the lines cannot tell which keys they cover.
         var placed = found.Select(m => identity.Key(m.Symbol)).Concat(staying.Select(s => identity.Key(s.Symbol)))
@@ -119,8 +128,6 @@ internal sealed class RelocationSelection
     private static void KeepWhatStayingDeclarationsUse(SymbolIdentity identity, List<RelocationMove> found, List<StayingDeclaration> staying,
         List<string> manual)
     {
-        bool Holds(RelocationMove move, ISymbol used) => identity.Key(move.Symbol) is { } key &&
-            (identity.Key(used) == key || (move.Symbol is INamedTypeSymbol && Containers(used).Any(type => identity.Key(type) == key)));
         bool MovesWithType(StayingDeclaration declaration) => found.Any(move => move.Symbol is INamedTypeSymbol &&
             move.Tree == declaration.Tree && move.Node.FullSpan.Contains(declaration.Node.Span));
         bool kept = true;
@@ -135,7 +142,7 @@ internal sealed class RelocationSelection
                 {
                     if (SymbolIdentity.Normalize(declaration.Model.GetSymbolInfo(use).Symbol) is not { } used)
                         continue;
-                    foreach (RelocationMove move in found.Where(move => Holds(move, used)).ToList())
+                    foreach (RelocationMove move in found.Where(move => Holds(identity, move, used)).ToList())
                     {
                         found.Remove(move);
                         manual.Add($"MANUAL {move.Symbol.Kind} {move.Symbol.ToDisplayString()} (kept in place: " +
@@ -145,6 +152,52 @@ internal sealed class RelocationSelection
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>Whether a move takes <paramref name="used"/> with it: it moves that symbol, or a type containing it.</summary>
+    private static bool Holds(SymbolIdentity identity, RelocationMove move, ISymbol used) => identity.Key(move.Symbol) is { } key &&
+        (identity.Key(used) == key || (move.Symbol is INamedTypeSymbol && Containers(used).Any(type => identity.Key(type) == key)));
+
+    /// <summary>
+    /// Keeps in place every moving declaration that documentation staying in a shipped assembly cites with a cref of no
+    /// label, and then whatever a declaration that now stays uses, until none is left. A shipped assembly cannot see the
+    /// target, so such a cref would become code text naming nothing: the 2026-11-15 cleanup of e4ce9514eb wrote
+    /// <c>&lt;c&gt;LastMark&lt;/c&gt;</c> into QuadraticSpeedCurvePlace's documentation, which SME6454 rejects in Core, and
+    /// elsewhere the sentence would describe code the assembly no longer has. Rewording the sentence is a choice the
+    /// MANUAL line leaves to a person. A labelled cref keeps its label as text and holds nothing back.
+    /// </summary>
+    private void KeepCitedByShippedDocumentation(IReadOnlyList<ProjectTree> trees, SymbolIdentity identity, IReadOnlySet<string> shippedAssemblies)
+    {
+        bool kept = true;
+        while (kept)
+        {
+            kept = false;
+            foreach (var (tree, compilation, assembly) in trees)
+            {
+                if (!shippedAssemblies.Contains(assembly))
+                    continue;
+                SemanticModel? model = null;
+                foreach (var element in tree.GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<XmlEmptyElementSyntax>())
+                {
+                    if (element.Attributes.OfType<XmlCrefAttributeSyntax>().FirstOrDefault() is not { } cref ||
+                        found.Any(move => move.Tree == tree && move.Node.FullSpan.Contains(element.Span)))
+                        continue;
+                    model ??= SemanticModels.Of(compilation, tree);
+                    if (SymbolIdentity.Normalize(model.GetSymbolInfo(cref.Cref).Symbol) is not { } cited)
+                        continue;
+                    foreach (RelocationMove move in found.Where(move => Holds(identity, move, cited)).ToList())
+                    {
+                        found.Remove(move);
+                        manual.Add($"MANUAL {move.Symbol.Kind} {move.Symbol.ToDisplayString()} (kept in place: shipped documentation cites " +
+                            $"it at {Location(identity, element)}, where the cref would become text naming nothing, {Location(identity, move.Node)})");
+                        staying.Add(new(move.Symbol, move.Node, move.Tree, move.Model));
+                        kept = true;
+                    }
+                }
+            }
+            if (kept)
+                KeepWhatStayingDeclarationsUse(identity, found, staying, manual);
         }
     }
 

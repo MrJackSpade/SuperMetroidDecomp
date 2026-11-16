@@ -265,10 +265,10 @@ internal sealed class BeamFiring
         SamusProjectile projectile = _pool.Occupy(place);
         projectile.Direction = aim;
         InitializePosition(samus, projectile);
-        projectile.TrailTimer = WrappingCountdown.Start(4);
+        projectile.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         projectile.PicturedBeams = projectile.Type.BeamCombination;
-        ProjectileInvincibilityTimer = 10;
+        ProjectileInvincibilityTimer = ProjectileTimingDefinitions.BeamInteractionImmunity;
         // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
         samus.ResumeChargingBeamSoundPending = false;
@@ -362,7 +362,7 @@ internal sealed class BeamFiring
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
-        ProjectileInvincibilityTimer = 10;
+        ProjectileInvincibilityTimer = ProjectileTimingDefinitions.BeamInteractionImmunity;
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
         samus.ResumeChargingBeamSoundPending = false;
 
@@ -444,12 +444,12 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
-        ProjectileInvincibilityTimer = 20;
+        ProjectileInvincibilityTimer = ProjectileTimingDefinitions.MissileInteractionImmunity;
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else
             samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-        projectile.TrailTimer = WrappingCountdown.Start(4);
+        projectile.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         projectile.MissileIgnition = SamusMissileIgnition.Pending;

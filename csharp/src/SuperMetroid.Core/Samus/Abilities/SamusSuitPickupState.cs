@@ -134,7 +134,7 @@ public sealed class SamusSuitPickupState
 
         // The game writes whole positions but leaves the fractions untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
-        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(cameraPosition.X + 120), CoordinateAxis.Wrap(cameraPosition.Y + 136)));
+        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(cameraPosition.X + SamusSuitPickupDefinitions.ScreenX), CoordinateAxis.Wrap(cameraPosition.Y + SamusSuitPickupDefinitions.ScreenY)));
         // The pickup stores the same position as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);

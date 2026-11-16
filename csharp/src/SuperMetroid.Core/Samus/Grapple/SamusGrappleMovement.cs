@@ -106,9 +106,6 @@ public static class SamusGrappleMovement
         grapple.Anchor = samus.Position.Whole + grapple.OriginOffset;
     }
 
-    /// <summary>How far the grapple wall-jump probe looks for a wall toward the side Samus faces, in pixels.</summary>
-    private const int WallJumpProbePixels = 16;
-
     /// <summary>
     /// Advances the extending grapple beam, including the enemy
     /// enemy pass which precedes the grapple beam's block collision.
@@ -491,7 +488,7 @@ public static class SamusGrappleMovement
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, block behaviour, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
-            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);
+            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -GrappleBeamDefinitions.WallGrab.WallJumpProbePixels : GrappleBeamDefinitions.WallGrab.WallJumpProbePixels, 0);
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
 
@@ -638,10 +635,10 @@ public static class SamusGrappleMovement
     private static int ClampPreviousAxis(int current, int previous)
     {
         int displacement = CoordinateAxis.Difference(current, previous);
-        if (displacement >= 13)
-            return CoordinateAxis.Wrap(current - 12);
-        if (displacement < -12)
-            return CoordinateAxis.Wrap(current + 12);
+        if (displacement > GrappleBeamDefinitions.Connection.MostSnapPreviousLag)
+            return CoordinateAxis.Wrap(current - GrappleBeamDefinitions.Connection.MostSnapPreviousLag);
+        if (displacement < -GrappleBeamDefinitions.Connection.MostSnapPreviousLag)
+            return CoordinateAxis.Wrap(current + GrappleBeamDefinitions.Connection.MostSnapPreviousLag);
         return previous;
     }
 
@@ -688,7 +685,7 @@ public static class SamusGrappleMovement
         }
 
         // Each extension link leads on in the room's reading order; one that leads outside the grid reads the edge-solid block.
-        for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
+        for (int extensionDepth = 0; extensionDepth <= GrappleBeamDefinitions.Blocks.LongestExtensionChain; extensionDepth++)
         {
             switch (block.CollisionType)
             {

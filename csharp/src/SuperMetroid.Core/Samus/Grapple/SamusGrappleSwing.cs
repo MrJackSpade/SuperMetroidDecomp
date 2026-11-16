@@ -471,7 +471,7 @@ public static class SamusGrappleSwing
             return true;
 
         // Each extension link leads on in the room's reading order; one that leads outside the grid reads the edge-solid block.
-        for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
+        for (int extensionDepth = 0; extensionDepth <= GrappleBeamDefinitions.Blocks.LongestExtensionChain; extensionDepth++)
         {
             switch (block.CollisionType)
             {

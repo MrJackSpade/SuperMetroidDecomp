@@ -87,7 +87,7 @@ internal sealed class BeamCombos
                 };
                 // The Spazer beam pair's trail countdown starts at zero and so runs its whole wrap before it would
                 // spawn a trail: only the trailing pair leaves trails until the attack falls.
-                if (kind != SamusComboKind.Plasma) shot.TrailTimer = WrappingCountdown.Start(kind == SamusComboKind.Spazer && !part.SpazerTrail ? 0 : 4);
+                if (kind != SamusComboKind.Plasma) shot.TrailTimer = WrappingCountdown.Start(kind == SamusComboKind.Spazer && !part.SpazerTrail ? 0 : ProjectileTimingDefinitions.TrailInterval);
                 shot.ComboAngle = kind is SamusComboKind.Ice or SamusComboKind.Plasma
                     ? part.OrbitStart
                     : default;
@@ -171,7 +171,7 @@ internal sealed class BeamCombos
         shot.TrailTimer = trailStep.Remaining;
         if (trailStep.IsZero)
         {
-            shot.TrailTimer = WrappingCountdown.Start(4);
+            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
             _trails.SpawnTrail(shot);
         }
         int distance = outward ? shot.ComboOrbitRadius : 32;
@@ -287,7 +287,7 @@ internal sealed class BeamCombos
         shot.TrailTimer = trailStep.Remaining;
         if (trailStep.IsZero)
         {
-            shot.TrailTimer = WrappingCountdown.Start(4);
+            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
             _trails.SpawnTrail(shot);
         }
         if (falling)
@@ -380,7 +380,7 @@ internal sealed class BeamCombos
         shot.Position = shot.Position.WithWrappedWholeX(shot.Position.X.Whole + (PartOf(shot).SpazerTrail ? -16 : 16));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.IsSpent = false;
-        shot.TrailTimer = WrappingCountdown.Start(4);
+        shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
         shot.Behavior = SamusShotBehaviors.SpazerSpecialAttackFalling;
         if (!PartOf(shot).SpazerTrail)
         {
@@ -413,7 +413,7 @@ internal sealed class BeamCombos
         shot.TrailTimer = trailStep.Remaining;
         if (trailStep.IsZero)
         {
-            shot.TrailTimer = WrappingCountdown.Start(4);
+            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
             _trails.SpawnTrail(shot);
         }
         shot.Velocity = shot.Velocity.WithX(AccelerateWaveAxis(shot.Velocity.X, CoordinateAxis.Difference(samus.Position.X.Whole, shot.Position.X.Whole)));

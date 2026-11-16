@@ -31,6 +31,10 @@ public static class SamusShadeDefinitions
         public const int SpeedBoosterSteps = 4;
         /// <summary>The Speed Booster step the cycle holds once reached: its list's last.</summary>
         public const int SpeedBoosterLastStep = SpeedBoosterSteps - 1;
+        /// <summary>The shading updates each active Speed Booster step shows for.</summary>
+        public const int SpeedBoosterStepUpdates = 4;
+        /// <summary>The shading updates before the active Speed Booster cycle's first step when the boost starts: it starts on the next.</summary>
+        public const int SpeedBoosterFirstStepWait = 1;
         /// <summary>The steps in each suit's stored-shine cycle list.</summary>
         public const int StoredShineSteps = 6;
         /// <summary>The steps in each suit's active-shinespark cycle list.</summary>

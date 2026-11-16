@@ -35,4 +35,37 @@ public static class ShinesparkDefinitions
     /// <see cref="CrashRadiusStep"/> pixels beyond it.
     /// </summary>
     public const int CrashOrbitStartRadius = 12;
+
+    /// <summary>The steps of a 256-step turn the crash's orbiting copies turn by on each orbiting update.</summary>
+    public const int CrashOrbitTurnSteps = 4;
+
+    /// <summary>The run speed the windup gives Samus, which the launch carries: eight pixels an update.</summary>
+    public static readonly UnsignedSixteenSixteen WindupRunSpeed = new(8, 0);
+
+    /// <summary>The fastest a horizontal or diagonal spark runs, in whole pixels an update; its fraction is dropped there.</summary>
+    public const int MostRunSpeed = 15;
+
+    /// <summary>The most whole pixels a vertical or diagonal spark rises in an update, its fraction kept; its speed keeps growing.</summary>
+    public const int MostRiseStep = 14;
+
+    /// <summary>
+    /// The most whole pixels a rising spark's move, outside forces included, carries Samus up toward terrain and enemies in
+    /// an update, its fraction kept.
+    /// </summary>
+    public const int MostRiseCollisionStep = 15;
+
+    /// <summary>The farthest, in pixels, the previous horizontal position may lag behind Samus after a spark's horizontal move.</summary>
+    public const int MostPreviousXLag = 15;
+
+    /// <summary>The farthest, in pixels, the previous vertical position may lie below Samus after a spark's vertical move.</summary>
+    public const int MostPreviousYLag = 14;
+
+    /// <summary>The hurt-flash count a moving spark holds, past the flash's colours and its damage sound.</summary>
+    public const int MovingSparkHurtFlashCount = 8;
+
+    /// <summary>Pixels a released crash echo's radius grows by on each update.</summary>
+    public const int EchoRadiusStep = 8;
+
+    /// <summary>How far right of or below the camera's corner a released echo may lie, in pixels, before it leaves the screen.</summary>
+    public const int EchoScreenReach = 256;
 }

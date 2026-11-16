@@ -233,7 +233,7 @@ public sealed class SamusDrainedState
         // not already have the drained pose's radius of 21 pixels.
         int sourceRadius = samus.Kinematics.Radius.Y;
         samus.Position = samus.Position.WithWrappedWholeY(
-            samus.Position.Y.Whole - (21 - sourceRadius));
+            samus.Position.Y.Whole - (SamusDrainedAnimationDefinitions.CrouchingYRadius - sourceRadius));
 
         // A left-facing pose chooses the left-facing record; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.
@@ -243,7 +243,7 @@ public sealed class SamusDrainedState
             : SamusPoseId.DrainedCrouchingRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special ||
-            samus.Kinematics.Radius.Y != 21)
+            samus.Kinematics.Radius.Y != SamusDrainedAnimationDefinitions.CrouchingYRadius)
             throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 
         // The new pose's animation frame is literally two. The animation is initialized here,
@@ -323,7 +323,7 @@ public sealed class SamusDrainedState
         SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: SamusAnimationFrame.Start,
-            timer: 16);
+            timer: SamusDrainedAnimationDefinitions.PutStandingTimer);
         Phase = DrainedSamusPhase.Standing;
         samus.CommitPoseHistory();
     }

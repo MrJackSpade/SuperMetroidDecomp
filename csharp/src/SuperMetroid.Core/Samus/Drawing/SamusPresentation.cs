@@ -142,7 +142,7 @@ internal sealed class SamusPresentation
         if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(samus.AnimationPose), swing))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned while Samus animates by pose {samus.AnimationPose}'s animation.");
         samus.AnimationFrame = swing.Resolve(picture.AnimationFrame);
-        samus.AnimationFrameTimer = WrappingCountdown.Start(15);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(SamusAnimationDelayDefinitions.GrappleSwingPictureHold);
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ internal sealed class SamusPresentation
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
         {
-            samus.AnimationFrameTimer = WrappingCountdown.Start(4);
+            samus.AnimationFrameTimer = WrappingCountdown.Start(SamusAnimationDelayDefinitions.NeutralJumpRiseExtension);
         }
 
         // A held frame (SamusAnimationHold) leaves its expired timer at zero. Its next decrement wraps to 65535, which

@@ -15,9 +15,6 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
-    /// <summary>Signed whole-pixel downward speed threshold during Ridley's shove.</summary>
-    private const int TerminalDownwardSpeed = 5;
-
     /// <summary>True while the shove holds Samus's movement.</summary>
     public bool IsActive { get; private set; }
 
@@ -94,7 +91,7 @@ public sealed class SamusCeresRidleyEjectionState
             PushDirection = screenX < ScreenGeometry.ScreenWidthPixels / 2
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
-            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
+            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed, 0);
 
             // Initializes only the shove's state on this call. The shove does not
             // perform the first collision/movement pass until the following frame.
@@ -135,7 +132,7 @@ public sealed class SamusCeresRidleyEjectionState
         // Accelerates only while the signed whole speed is below five. The
         // resulting 1/65536-pixel speed is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
-        if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
+        if (samus.Kinematics.YSpeed.Whole < SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }

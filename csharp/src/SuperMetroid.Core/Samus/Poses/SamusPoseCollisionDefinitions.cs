@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 internal static class SamusPoseCollisionDefinitions
 {
+    /// <summary>
+    /// The smallest vertical radius of a body that is not a ball, in pixels: a body that cannot grow into a larger pose
+    /// keeps its ball pose below it and crouches from it.
+    /// </summary>
+    internal const int SmallestUprightYRadius = 8;
+
     /// <summary>The vertical collision radius of each authored pose, in pixels; <see cref="SamusPoseCollisionRadii.ReadVerticalRadius"/> looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, int> VerticalRadii = new Dictionary<SamusPoseId, int>
     {

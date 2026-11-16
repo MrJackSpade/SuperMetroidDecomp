@@ -17,4 +17,19 @@ internal static class CrystalFlashDefinitions
 
     /// <summary>The updates the flash raises Samus for before it starts spending ammunition.</summary>
     public const int RaiseUpdates = 10;
+
+    /// <summary>The whole pixels the flash raises Samus by on each raising update; her sub-pixel position is kept.</summary>
+    public const int RaiseStep = 2;
+
+    /// <summary>
+    /// The updates the first picture of the glow, when the raise ends, and of the finish, when the last ammunition is
+    /// spent, shows for: the flash sets each picture directly rather than waiting for its animation to reach it.
+    /// </summary>
+    public const int PhasePictureHold = 3;
+
+    /// <summary>The colouring updates each bubble colour step shows for.</summary>
+    public const int BubbleStepUpdates = 5;
+
+    /// <summary>The colouring updates before the bubble's first colour step: it starts on the next.</summary>
+    public const int FirstBubbleStepWait = 1;
 }

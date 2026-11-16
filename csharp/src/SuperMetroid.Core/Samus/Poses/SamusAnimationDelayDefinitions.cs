@@ -15,6 +15,12 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>Samus's energy below which the standing and crouching breathing continues into its low-energy breathing.</summary>
     internal const int LowEnergyBreathingBelow = 30;
 
+    /// <summary>The updates each grapple swing picture shows for once the swing sets it from the rope's angle.</summary>
+    internal const int GrappleSwingPictureHold = 15;
+
+    /// <summary>The updates the neutral jump's rising picture is held for again each time it would end while Samus still rises.</summary>
+    internal const int NeutralJumpRiseExtension = 4;
+
     /// <summary>The animation <see cref="SamusPoseId.MovingRightNormalPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation RunningAnimation { get; } = new(
     [

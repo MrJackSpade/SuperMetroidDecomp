@@ -106,6 +106,8 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>The updates after a wall grab ends in which Jump still wall-jumps.</summary>
         public const int WallJumpWindowFrames = 30;
+        /// <summary>How far the grapple wall-jump probe looks for a wall toward the side Samus faces, in pixels.</summary>
+        public const int WallJumpProbePixels = 16;
     }
 
     /// <summary>How a connection takes up a long rope and how a released beam drops Samus.</summary>
@@ -117,6 +119,21 @@ public static class GrappleBeamDefinitions
         public const int LongRopeShortening = 24;
         /// <summary>The smallest vertical radius of a body that drops standing; a smaller body drops crouching.</summary>
         public const int StandingDropRadius = 17;
+        /// <summary>
+        /// The farthest, in pixels on each axis, the previous position may lag behind Samus after a connection snaps her
+        /// to an exact rope angle.
+        /// </summary>
+        public const int MostSnapPreviousLag = 12;
+    }
+
+    /// <summary>How the beam's block checks read the room.</summary>
+    public static class Blocks
+    {
+        /// <summary>
+        /// The extension links a grapple block check follows from the block it starts on; a longer chain is broken room
+        /// data, which the check reports.
+        /// </summary>
+        public const int LongestExtensionChain = 16;
     }
 
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>

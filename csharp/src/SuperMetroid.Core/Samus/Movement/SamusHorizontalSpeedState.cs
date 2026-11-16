@@ -213,7 +213,7 @@ public sealed class SamusHorizontalSpeedState
                 // Showing the colours remains drawing work, but their
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
-                CycleShadeTimer = 1;
+                CycleShadeTimer = SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait;
                 CycleShadeStep = 0;
                 SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
@@ -404,7 +404,7 @@ public sealed class SamusHorizontalSpeedState
         if (--CycleShadeTimer > 0)
             return shadeCopied;
 
-        CycleShadeTimer = 4;
+        CycleShadeTimer = SamusShadeDefinitions.FullBodyCycles.SpeedBoosterStepUpdates;
 
         SamusSpeedBoosterGlow.Apply(colours, SamusFullBodyCycleShades.ReadActiveSpeedBoosterShade(
             suit, CycleShadeStep));

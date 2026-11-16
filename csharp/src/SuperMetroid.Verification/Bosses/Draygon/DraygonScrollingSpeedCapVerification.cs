@@ -41,10 +41,10 @@ internal static class DraygonScrollingSpeedCapVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.ScrollCap.BeginFrame(checkpoint);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
-        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: true);
+        samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Right);
         var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]);
         state.Body.Position = state.Body.Position.WithWhole(body);
-        state.FacingRight = true;
+        state.Facing = HorizontalDirection.Right;
         enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
         return samus.PeekPreviousPosition(checkpoint);
     }

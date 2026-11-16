@@ -101,11 +101,11 @@ internal sealed class KraidCombat
     {
         // Super Missiles, Power Bombs and beam explosions take the big explosion, and every
         // other projectile the small one.
-        MiscDustAnimation animationIndex = projectileType.Family is SamusProjectileFamily.SuperMissile or
+        MiscDustAnimation explosion = projectileType.Family is SamusProjectileFamily.SuperMissile or
                 SamusProjectileFamily.PowerBomb or SamusProjectileFamily.BeamExplosion
             ? MiscDustAnimation.BigExplosion
             : MiscDustAnimation.DudShotTinyExplosion;
-        _projectiles.SpawnDustOrExplosion(position, animationIndex);
+        _projectiles.SpawnDustOrExplosion(position, explosion);
         _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Normal);
     }
 

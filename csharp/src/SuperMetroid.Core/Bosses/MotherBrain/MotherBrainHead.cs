@@ -315,8 +315,7 @@ internal sealed class MotherBrainHead
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
             {
-                SamusState target = samus;
-                AimMotherBrainOnionRingsAt(state, target.Position.Whole);
+                AimMotherBrainOnionRingsAt(state, samus.Position.Whole);
                 return null;
             }
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:

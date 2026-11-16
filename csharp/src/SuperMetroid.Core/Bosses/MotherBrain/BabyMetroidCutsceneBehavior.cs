@@ -132,7 +132,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
             throw new InvalidOperationException("The cutscene Baby lost the rainbow sequence.");
-        SamusState target = samus;
 
         place.ShakeTimer = 0;
         if (state.PendingBabyCryCount != 0 &&
@@ -145,7 +144,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.DrainCry);
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
-            target,
+            samus,
             sequence,
             state.Head.Position.Whole,
             cameraPosition: camera,
@@ -154,7 +153,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Both outcomes of healing Samus queue the energy sound after her energy rises.
         // Use the phase that ran, including its final full-health update.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
-            target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
+            samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 

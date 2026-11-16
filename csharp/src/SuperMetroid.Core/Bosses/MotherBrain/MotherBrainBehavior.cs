@@ -424,10 +424,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The arena lock keeps the first screen of the room's row of four and closes the second,
         // locking the arena to the first screen.
-        SamusState requiredSamus = samus;
         // The arena lock is the stationary lock: its input phase places
         // no bombs and fires nothing new while the arena drains.
-        requiredSamus.Control.LockStationary();
+        samus.Control.LockStationary();
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic;

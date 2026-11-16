@@ -189,9 +189,8 @@ internal sealed class MotherBrainBody
                 return;
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.FireHandBeam }:
             {
-                SamusState target = samus;
                 _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.HandBeam);
-                SpawnMotherBrainHandBeamCharging(state, target);
+                SpawnMotherBrainHandBeamCharging(state, samus);
                 return;
             }
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:

@@ -127,12 +127,12 @@ internal sealed class DraygonCombat
         samus.Grapple.Phase = GrapplePhase.Dropped;
         DraygonParts.StartDraygonAnimation(
             body,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightDying
                 : DraygonSegment.ArmsFacingLeftDying);
         DraygonParts.StartDraygonAnimation(
             state.Eye,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
         state.Eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;

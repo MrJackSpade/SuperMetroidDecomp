@@ -258,7 +258,7 @@ internal sealed class KraidRise
         // A rock on the left starts one pixel further from the body than its mirror on the right.
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
         if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
-            randomOffset = CoordinateAxis.AsSigned(-(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels));
+            randomOffset = -(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
         rock.Velocity = new(SignedEightEight.FromSixteenthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSixteenths.Of(random)), SignedEightEight.FromPixels(-5));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);

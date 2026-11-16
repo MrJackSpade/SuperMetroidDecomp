@@ -17,11 +17,11 @@ internal sealed class DraygonMovement
         _effectActors = effectActors;
     }
 
-    /// <summary>Moves Draygon right or left by the current swoop speed without losing its fraction.</summary>
-    internal static void MoveDraygonHorizontally(DraygonEnemyState state, bool rightward)
+    /// <summary>Moves Draygon toward <paramref name="direction"/> by the current swoop speed without losing its fraction.</summary>
+    internal static void MoveDraygonHorizontally(DraygonEnemyState state, HorizontalDirection direction)
     {
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithX(rightward
+        body.Position = body.Position.WithX(direction == HorizontalDirection.Right
             ? body.Position.X.MovedForward(state.SwoopVelocity)
             : body.Position.X.MovedBack(state.SwoopVelocity));
     }
@@ -48,10 +48,20 @@ internal sealed class DraygonMovement
     internal static UnsignedSixteenSixteen AngleMagnitude(TrigonometryAngle angle, int speed, RotationAngle phase) =>
         EnemyMath.UnsignedSineSpeed(angle.TurnedBy(phase.ToTrigonometryAngle()), speed);
 
-    /// <summary>Moves one axis of the body back or forward by a sine-derived distance.</summary>
-    internal static FixedCoordinate AddDraygonAngleMagnitude(
-        FixedCoordinate position,
-        UnsignedSixteenSixteen magnitude,
-        bool subtract) =>
-        subtract ? position.MovedBack(magnitude) : position.MovedForward(magnitude);
+    /// <summary>
+    /// Moves <paramref name="body"/> along <paramref name="angle"/> at <paramref name="speed"/> whole pixels an update,
+    /// across first and then down: each axis moves back where the angle's cosine or sine is negative, and forward
+    /// otherwise, keeping its fraction.
+    /// </summary>
+    internal static void MoveDraygonAtAngle(RoomEnemyPlace body, TrigonometryAngle angle, int speed)
+    {
+        UnsignedSixteenSixteen across = AngleMagnitude(angle, speed, RotationAngle.QuarterTurn);
+        UnsignedSixteenSixteen down = AngleMagnitude(angle, speed, RotationAngle.HalfTurn);
+        body.Position = body.Position.WithX(EnemyMath.CosineIsNegative(angle)
+            ? body.Position.X.MovedBack(across)
+            : body.Position.X.MovedForward(across));
+        body.Position = body.Position.WithY(EnemyMath.SineIsNegative(angle)
+            ? body.Position.Y.MovedBack(down)
+            : body.Position.Y.MovedForward(down));
+    }
 }

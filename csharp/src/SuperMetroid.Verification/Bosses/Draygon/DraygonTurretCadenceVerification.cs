@@ -52,7 +52,7 @@ internal static class DraygonTurretCadenceVerification
         SpawnGoopResult SpawnGoop()
         {
             runtime.System.SetRandomNumber(0x1234);
-            runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, false);
+            runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, HorizontalDirection.Left);
             EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
             AngledFlightState flight = goop.StateOf<AngledFlightState>();
@@ -70,7 +70,7 @@ internal static class DraygonTurretCadenceVerification
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.
         runtime.System.SetRandomNumber(0x1234);
-        runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, false);
+        runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, HorizontalDirection.Left);
         EnemyProjectile bombed = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;

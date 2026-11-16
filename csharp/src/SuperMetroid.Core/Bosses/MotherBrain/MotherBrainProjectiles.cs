@@ -878,7 +878,6 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile projectile,
         SamusState samus)
     {
-        SamusState target = samus;
-        projectile.Position = projectile.Position.WithWhole(target.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
+        projectile.Position = projectile.Position.WithWhole(samus.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
     }
 }

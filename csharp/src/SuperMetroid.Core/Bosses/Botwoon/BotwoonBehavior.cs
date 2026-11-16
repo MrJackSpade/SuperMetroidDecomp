@@ -108,9 +108,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
             SpawnBotwoonBodySegment(head, state, segmentIndex);
 
-        state.Phase = BotwoonPhase.InitialDelay;
-        state.Movement = BotwoonMovement.MoveTowardHole;
-        state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
         state.InitialDelayTimer = 256;
         var initialSpeed = BotwoonSpeeds.ForHealthPhase(0);
         state.Speed = initialSpeed.MovementSpeed;

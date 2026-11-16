@@ -12,17 +12,22 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public sealed class BotwoonEnemyState
 {
     /// <summary>
-    /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression.
+    /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression; the fight
+    /// starts in its opening delay.
     /// </summary>
-    public BotwoonPhase? Phase { get; internal set; }
-
-    /// <summary>The independent movement behaviour, choosing direct hole movement or an authored path.</summary>
-    public BotwoonMovement? Movement { get; internal set; }
+    public BotwoonPhase Phase { get; internal set; } = BotwoonPhase.InitialDelay;
 
     /// <summary>
-    /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown.
+    /// The independent movement behaviour, choosing direct hole movement or an authored path; he starts moving toward
+    /// his target hole.
     /// </summary>
-    public BotwoonHeadAction? HeadAction { get; internal set; }
+    public BotwoonMovement Movement { get; internal set; } = BotwoonMovement.MoveTowardHole;
+
+    /// <summary>
+    /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown; the
+    /// head starts animating from his movement.
+    /// </summary>
+    public BotwoonHeadAction HeadAction { get; internal set; } = BotwoonHeadAction.AnimateFromMovement;
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }

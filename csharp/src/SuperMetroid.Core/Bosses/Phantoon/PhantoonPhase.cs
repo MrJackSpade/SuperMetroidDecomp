@@ -6,6 +6,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public enum PhantoonPhase
 {
+    /// <summary>
+    /// His body does nothing on its turn while his eye's opening or closing animation decides what comes next (#1870).
+    /// </summary>
+    WaitingOnEye,
     /// <summary>Allocates the introductory circle of eight flames from the physical projectile pool.</summary>
     SpawnStartingFlames,
     /// <summary>Waits before activating the introductory flame circle's spin.</summary>

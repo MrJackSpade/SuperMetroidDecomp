@@ -272,6 +272,7 @@ internal sealed class KraidProjectiles
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
+            case KraidPhase.Resting:
             default:
                 throw new InvalidDataException(
                     $"Kraid fingernail has no behaviour for phase {_parts.NailStateOf(state, nail).Phase}.");
@@ -415,6 +416,7 @@ internal sealed class KraidProjectiles
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
+            case KraidPhase.Resting:
             default:
                 throw new InvalidDataException(
                     $"Kraid lint place {lint.Ordinal} has no behaviour for phase " +

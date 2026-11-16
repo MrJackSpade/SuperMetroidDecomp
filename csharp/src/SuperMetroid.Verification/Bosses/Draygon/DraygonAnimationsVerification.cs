@@ -181,7 +181,7 @@ internal static class DraygonAnimationsVerification
             Arms = enemies.Places.InUpdateOrder[3],
         };
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
-        var eyeState = new DraygonEyeState();
+        var eyeState = new DraygonEyeState(DraygonEyeAction.Inert);
         state.Eye.SetSpeciesState(eyeState);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);

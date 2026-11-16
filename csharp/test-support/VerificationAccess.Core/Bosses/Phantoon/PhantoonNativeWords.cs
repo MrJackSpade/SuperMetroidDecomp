@@ -24,6 +24,8 @@ internal static class PhantoonNativeWords
     /// <summary>The bank-$A7 routine word naming each <see cref="PhantoonPhase"/>.</summary>
     internal static readonly NativeWordIdentities<PhantoonPhase> Phases = new(new Dictionary<PhantoonPhase, ushort>
     {
+        // While his body waits on his eye its phase word names the bank's bare return (#1870).
+        [PhantoonPhase.WaitingOnEye] = 0xd4a8,
         [PhantoonPhase.SpawnStartingFlames] = 0xd4a9,
         [PhantoonPhase.WaitBeforeActivatingStartingFlames] = 0xd4ee,
         [PhantoonPhase.WaitForStartingFlamesToDisappear] = 0xd508,
@@ -56,9 +58,6 @@ internal static class PhantoonNativeWords
         [PhantoonPhase.AlmostDead] = 0xdad7,
         [PhantoonPhase.Dead] = 0xdb3d,
     });
-
-    /// <summary>The bank-$A7 return the body's phase word names while it runs no phase.</summary>
-    internal const ushort NoPhase = 0xd4a8;
 
     /// <summary>The tentacles' word E bit set once the swoop target turns back.</summary>
     internal const int SwoopReturningBit = 0x8000;

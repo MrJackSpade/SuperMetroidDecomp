@@ -15,8 +15,11 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
 
-    /// <summary>Current body phase.</summary>
-    public MotherBrainBodyPhase? Phase { get; internal set; }
+    /// <summary>
+    /// Current body phase. The sequence starts at the rainbow attack's charge, where the live fight's attack cycle begins
+    /// it.
+    /// </summary>
+    public MotherBrainBodyPhase Phase { get; internal set; } = MotherBrainBodyPhase.SecondPhaseRainbowStartCharging;
 
     /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
     public Position16<RoomPixels> BrainPosition { get; set; }

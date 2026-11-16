@@ -296,24 +296,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
         _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
 
-        // The game compares the whole and fraction parts separately, each by whether its difference
-        // from the cap's is negative; a fraction of half a pixel or more therefore also counts as below the cap.
-        SignedSixteenSixteen speed = state.Speed;
-        bool belowMaximum = speed.WholePixels < DachoraMaximumSpeed.WholePixels ||
-            WrappingCounter.IsBehind(speed.Fraction, DachoraMaximumSpeed.Fraction);
-        if (belowMaximum)
+        // Every run starts from rest and gains a sixteenth of a pixel an update, so its speed lands exactly on the cap and
+        // stays there.
+        if (state.Speed < DachoraMaximumSpeed)
         {
-            speed += DachoraAcceleration;
+            SignedSixteenSixteen speed = state.Speed + DachoraAcceleration;
             state.Speed = speed;
 
             // The game's speed-up jump lands at the matching pose in the faster clone of the
             // current six-pose run loop: every run plays one six-pose phase, so the animation keeps its place and timing.
             if ((speed.WholePixels is 4 or 8) && speed.Fraction == 0)
                 state.Playback = state.Playback with { Animation = DachoraAnimations.StartingWith(FasterDachoraRun(state.Playback.PlayingSegment)) };
-        }
-        else
-        {
-            state.Speed = DachoraMaximumSpeed;
         }
 
         return state.Speed;

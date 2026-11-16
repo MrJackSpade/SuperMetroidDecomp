@@ -56,6 +56,14 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     public static QuadraticSpeedCurvePlace operator -(QuadraticSpeedCurvePlace place, QuadraticSpeedCurvePlace step) =>
         new(checked(place.InTwoHundredFiftySixthsOfMark - step.InTwoHundredFiftySixthsOfMark));
 
+    /// <summary>
+    /// The place <paramref name="parts"/> times nearer the curve's start, a positive whole number, its 256ths of a mark
+    /// rounded down: the share of a place along the curve, for a place at or after the start.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place lies before the start or the parts are not positive.</exception>
+    public QuadraticSpeedCurvePlace DividedBy(int parts) =>
+        new(Ensure.AtLeastZero(InTwoHundredFiftySixthsOfMark) / Ensure.BetweenInclusive(1, int.MaxValue, parts));
+
     /// <summary>The earlier of two places.</summary>
     public static QuadraticSpeedCurvePlace Min(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) =>
         left <= right ? left : right;

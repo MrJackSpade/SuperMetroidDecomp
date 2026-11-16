@@ -79,8 +79,8 @@ internal static class FamilyTrigonometryVerification
                 displacement = -product - (SixteenSixteen.FractionOf(product) == 0 ? 1 : 0);
             return unchecked(initial + (uint)displacement);
         }
-        // Each origin and heading runs every speed class on one worker, with a Bull of its own: a move reads and writes
-        // only its own slot and state (#1677).
+        // Each origin and heading runs every speed a Bull flies at, 0 through 2880 256ths of a pixel an update (#2065), on one
+        // worker, with a Bull of its own: a move reads and writes only its own slot and state (#1677).
         uint[] bullOrigins = [0, 0xffffff37];
         ParallelSweep.For(0, bullOrigins.Length * 256, heading =>
         {
@@ -88,7 +88,7 @@ internal static class FamilyTrigonometryVerification
             int angle = heading % 256;
             var bull = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay);
-            foreach (int speed in boundaryWords)
+            for (int speed = 0; speed <= 2880; speed++)
             {
                 bull.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
                 bullState.Angle = new TrigonometryAngle(angle);
@@ -137,7 +137,7 @@ internal static class FamilyTrigonometryVerification
                     throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
             }
         });
-        Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");
+        Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed a Bull flies at, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");
     }
 
     /// <summary>Reads a retail trigonometry byte for the independent family-math reference arrays.</summary>

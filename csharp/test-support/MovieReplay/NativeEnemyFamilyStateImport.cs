@@ -351,7 +351,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             kiHunterWingRecord.Action = KiHuntersNativeWords.KiHunterWingActions.Decode(words.A, "recorded KiHunterWingAction");
             kiHunterWingRecord.DetachedSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(words.B);
-            kiHunterWingRecord.DetachedSpeedAccumulator = words.D;
             kiHunterWingRecord.WingArcAngle = RotationAngle.FromRaw(words.F);
         }
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
@@ -560,7 +559,7 @@ internal static class NativeEnemyFamilyStateImport
             hopperRecord.Action = HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
             hopperRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(words.B);
             hopperRecord.XVelocity = unchecked((short)words.C);
-            hopperRecord.YSpeedCurvePlaceDelta = words.D;
+            hopperRecord.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(words.D);
         }
         if (enemies.PlatformStates[index] is { } platform)
         {

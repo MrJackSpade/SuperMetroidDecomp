@@ -154,14 +154,13 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // Math rewrites both whole positions every frame and leaves
         // the fractions untouched. The jump ellipse is the jump span wide and
         // a quarter of it tall.
+        int span = slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
         slot.Position = slot.Position.WithWrappedWholeX(
             state.WallJumpArcCenter.X +
-            EnemyMath.CircleNegativeSinePixels(
-                state.WallJumpArcAngle.ToTrigonometryAngle(),
-                CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 1)));
+            EnemyMath.CircleNegativeSinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 2));
         slot.Position = slot.Position.WithWrappedWholeY(
             state.WallJumpArcCenter.Y -
-            EnemyMath.CircleCosinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 2)));
+            EnemyMath.CircleCosinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 4));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
@@ -247,8 +246,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         int span = slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
         int signedSpan = direction == HorizontalDirection.Right ? span : -span;
         int signedHalfSpan = direction == HorizontalDirection.Right
-            ? span >> 1
-            : -(span >> 1);
+            ? span / 2
+            : -(span / 2);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             CoordinateAxis.Wrap(slot.Position.X.Whole + signedHalfSpan),
             slot.Position.Y.Whole);

@@ -44,7 +44,7 @@ internal static class HopperHopArcVerification
                 Falling = falling,
                 XVelocity = 0,
                 YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
-                YSpeedCurvePlaceDelta = step,
+                YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step),
             };
             slot.SetSpeciesState(state);
 

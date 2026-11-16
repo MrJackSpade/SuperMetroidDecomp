@@ -457,9 +457,9 @@ internal sealed class EnemyCollision
         Ensure.NotNull(ordinaryProjectiles);
 
         int hitCount = 0;
-        for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _lifecycle.InteractiveEnemies.Count); ordinal++)
+        IReadOnlyList<RoomEnemyPlace> enemies = onlyEnemy is not null ? [onlyEnemy] : _lifecycle.InteractiveEnemies;
+        foreach (RoomEnemyPlace enemy in enemies)
         {
-            RoomEnemyPlace enemy = onlyEnemy ?? _lifecycle.InteractiveEnemies[ordinal];
             EnemyReaction? radiusShot = ShotReactionOf(enemy);
             bool usesCommonShot = radiusShot == EnemyReaction.NormalEnemyShot;
             bool usesIgnoringShot = radiusShot == EnemyReaction.Ignore;
@@ -825,9 +825,8 @@ internal sealed class EnemyCollision
         SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
         SamusProjectileFamily.Bomb => vulnerabilities.Ordnance.Bomb,
         SamusProjectileFamily.PowerBomb => vulnerabilities.Ordnance.PowerBomb,
-        SamusProjectileFamily.Beam or SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion =>
-            throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
-        _ => throw new InvalidDataException($"Projectile family {family} has no translated vulnerability field."),
+        SamusProjectileFamily.Beam or SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion or _ =>
+            throw new InvalidDataException($"Projectile family {family} has no response of its own."),
     };
 
     /// <summary>

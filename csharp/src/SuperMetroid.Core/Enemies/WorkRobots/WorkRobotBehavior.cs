@@ -221,9 +221,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace robot,
         Position16<RoomPixels> camera) =>
         CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
-        CoordinateAxis.AsSigned(camera.X + EnemyView.Extent - robot.Position.X.Whole) >= 0 &&
+        CoordinateAxis.AsSigned(camera.X + ScreenGeometry.ScreenWidthPixels - robot.Position.X.Whole) >= 0 &&
         CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
-        CoordinateAxis.AsSigned(camera.Y + EnemyView.PictureHeight - robot.Position.Y.Whole) >= 0;
+        CoordinateAxis.AsSigned(camera.Y + ScreenGeometry.ScreenHeightPixels - robot.Position.Y.Whole) >= 0;
 
     /// <summary>Uses the existing random number to reset cooldown and starts the firing animation when ready.</summary>
     private WorkRobotSegment? TryFireWorkRobotLaser(
@@ -398,10 +398,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // top edge is less than the picture's height from the room's top, even when a lower room row is on screen.
         bool horizontallyVisible =
             CoordinateAxis.AsSigned(robot.Position.X.Whole + robot.Radius.X - camera.X) >= 0 &&
-            CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - (EnemyView.Extent + 1), camera.X) < 0;
+            CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - (ScreenGeometry.ScreenWidthPixels + 1), camera.X) < 0;
         bool verticallyVisible =
             CoordinateAxis.AsSigned(robot.Position.Y.Whole + robot.Radius.Y - camera.Y) >= 0 &&
-            CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, EnemyView.PictureHeight) < 0;
+            CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, ScreenGeometry.ScreenHeightPixels) < 0;
         if (horizontallyVisible && verticallyVisible)
             _audio.QueueEnemySound(WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }

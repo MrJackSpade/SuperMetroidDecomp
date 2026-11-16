@@ -127,7 +127,7 @@ internal static class EnemyProjectileDefinitionsVerification
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
-            projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
+            projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusProjectile shot = shots.Shots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);

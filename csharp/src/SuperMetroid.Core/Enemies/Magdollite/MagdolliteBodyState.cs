@@ -28,6 +28,6 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     /// <summary>Whether the arm has finished growing, set by the arm at maximum or Samus-relative height and cleared by the overlay when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }
 
-    /// <summary>Whether the arm has not emerged: true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
-    public bool BodyWakeRequested { get; internal set; }
+    /// <summary>Whether the arm stays dormant below its origin: set when it is placed and when it lands, cleared by the head to start its rise.</summary>
+    public bool StaysDormant { get; internal set; }
 }

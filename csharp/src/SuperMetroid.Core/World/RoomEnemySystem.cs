@@ -645,7 +645,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, EffectActors = EffectActors, Room = Room, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, EffectActors = EffectActors, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);

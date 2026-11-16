@@ -132,7 +132,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState<MagdollitePartState>(state);
         state.OriginY = place.Position.Y.Whole;
         state.BodyReachedApex = false;
-        state.BodyWakeRequested = true;
+        state.StaysDormant = true;
         StartMagdolliteAnimation(place, state, MagdolliteRiseStage.Setup.Phase.BodyAnimation);
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
@@ -278,7 +278,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(head);
         state.HeadWaitsForBodyLanding = true;
-        PartState<MagdolliteBodyState>(body).BodyWakeRequested = false;
+        PartState<MagdolliteBodyState>(body).StaysDormant = false;
         state.Action = MagdolliteHeadAction.WaitingForBodyLanding;
     }
 
@@ -310,17 +310,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MagdolliteHeadAction.Waiting;
     }
 
-    /// <summary>Returns the hidden body to its origin and enters rising once the head clears its wake latch.</summary>
+    /// <summary>Returns the hidden body to its origin and enters rising once the head lets it leave dormancy.</summary>
     private static void RunMagdolliteBodyDormant(
         RoomEnemyPlace body,
         MagdolliteBodyState state)
     {
-        if (state.BodyWakeRequested)
+        if (state.StaysDormant)
             return;
 
         state.Action = MagdolliteBodyAction.Rising;
         state.RiseDisplacementY = 0;
-        state.BodyWakeRequested = false;
         state.BodyPhase = MagdolliteRiseStage.FirstPillar;
         body.Position = body.Position.WithWholeY(state.OriginY);
     }
@@ -374,7 +373,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.RiseDisplacementY >= 0)
         {
-            state.BodyWakeRequested = true;
+            state.StaysDormant = true;
             (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(body);
             PartState<MagdolliteHeadState>(head).HeadWaitsForBodyLanding = false;
             state.Action = MagdolliteBodyAction.Dormant;

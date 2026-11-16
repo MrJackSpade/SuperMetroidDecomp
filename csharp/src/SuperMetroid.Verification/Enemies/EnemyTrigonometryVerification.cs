@@ -678,8 +678,8 @@ internal static class EnemyTrigonometryVerification
         var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.CircleNegativeSinePixels(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleCosine(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleNegativeSine(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, phase));
-        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, phase));
+        var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, TrigonometryAngle.Wrapped(phase)));
+        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, TrigonometryAngle.Wrapped(phase)));
         var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)EnemyMath.UnsignedSineSpeed(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset), magnitude).RawValue));
 
         int ExpectedPixel(int angle, int radius)

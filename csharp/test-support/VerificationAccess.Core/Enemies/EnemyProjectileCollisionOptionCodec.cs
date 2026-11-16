@@ -6,7 +6,7 @@ internal static class EnemyProjectileCollisionOptionCodec
     /// <summary>The native word an option is stored as.</summary>
     internal static int ToNative(EnemyProjectileCollisionOption option) => option switch
     {
-        EnemyProjectileCollisionOption.RunShotList => 0,
+        EnemyProjectileCollisionOption.PlaysShotAnimation => 0,
         EnemyProjectileCollisionOption.IndestructibleDud => 1,
         EnemyProjectileCollisionOption.NoCollision => 2,
         _ => throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCollisionOption)} {option}."),

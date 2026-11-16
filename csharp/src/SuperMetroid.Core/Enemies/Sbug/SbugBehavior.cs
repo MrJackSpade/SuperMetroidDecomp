@@ -45,16 +45,16 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // The forward velocity uses the unsigned quarter-circle magnitudes and lets the shared helper apply signs later
         // from the initial angle. The side velocities instead use the signed short circle product.
         int speed = state.Speed;
-        RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.EighthTurn);
-        RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn);
+        RotationAngle leftAngle = state.InitialAngle - RotationAngle.EighthTurn;
+        RotationAngle rightAngle = state.InitialAngle + RotationAngle.EighthTurn;
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
             state.InitialAngle.ToTrigonometryAngle(),
             speed,
-            phase: EnemyTrigonometryAngleDefinitions.QuarterTurn);
+            phase: TrigonometryAngle.QuarterTurn);
         state.ForwardYVelocity = CalculateUnsignedSbugMagnitude(
             state.InitialAngle.ToTrigonometryAngle(),
             speed,
-            phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
+            phase: TrigonometryAngle.HalfTurn);
         CalculateSignedSbugVelocities(
             leftAngle.ToTrigonometryAngle(),
             speed,
@@ -304,8 +304,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // Moving the enemy by its angle and speeds applies signs to the unsigned magnitudes by
         // testing the initial angle independently for X and Y.
         TrigonometryAngle initialAngle = state.InitialAngle.ToTrigonometryAngle();
-        bool subtractX = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn).IsInSecondHalf;
-        bool subtractY = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn).IsInSecondHalf;
+        bool subtractX = (initialAngle + TrigonometryAngle.QuarterTurn).IsInSecondHalf;
+        bool subtractY = (initialAngle + TrigonometryAngle.HalfTurn).IsInSecondHalf;
         place.Position = place.Position.WithX(place.Position.X.MovedBy(ForwardDisplacement(state.ForwardXVelocity, subtractX)));
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
     }
@@ -337,8 +337,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static UnsignedSixteenSixteen CalculateUnsignedSbugMagnitude(
         TrigonometryAngle angle,
         int speed,
-        int phase) =>
-        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.TurnedBySteps(phase).StepsIntoHalfTurn));
+        TrigonometryAngle phase) =>
+        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave((angle + phase).StepsIntoHalfTurn));
 
     /// <summary>The side speeds along X and Y: the short circle products of the angle turned a quarter and a half turn on.</summary>
     private static void CalculateSignedSbugVelocities(
@@ -347,16 +347,16 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         out SignedSixteenSixteen xVelocity,
         out SignedSixteenSixteen yVelocity)
     {
-        xVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyTrigonometryAngleDefinitions.QuarterTurn);
-        yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
+        xVelocity = CalculateSignedSbugComponent(angle, speed, phase: TrigonometryAngle.QuarterTurn);
+        yVelocity = CalculateSignedSbugComponent(angle, speed, phase: TrigonometryAngle.HalfTurn);
     }
 
     /// <summary>
     /// The side speed along one axis: the short circle product (<see cref="ShortCircleProduct"/>) of the angle turned by
     /// <paramref name="phase"/> at the Sbug's speed, every authored one below five.
     /// </summary>
-    internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase) =>
-        EnemyMath.CircleSine(angle.TurnedBySteps(phase), speed);
+    internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, TrigonometryAngle phase) =>
+        EnemyMath.CircleSine(angle + phase, speed);
 
     /// <summary>Restarts the selected animation only when its facing animation differs from the one playing (#2145).</summary>
     private static void SetSbugFacing(

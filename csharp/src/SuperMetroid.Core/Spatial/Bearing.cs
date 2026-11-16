@@ -21,6 +21,18 @@ public readonly record struct Bearing
     /// <param name="units">The computed bearing, which may lie outside one turn.</param>
     public static Bearing Wrapped(int units) => new(unchecked((byte)units));
 
+    /// <summary>Up: no turn.</summary>
+    public static Bearing Up { get; } = new(0);
+
+    /// <summary>Right: a quarter turn clockwise from up.</summary>
+    public static Bearing Right { get; } = new(RotationAngle.StepsPerTurn / 4);
+
+    /// <summary>Down: a half turn from up.</summary>
+    public static Bearing Down { get; } = new(RotationAngle.StepsPerTurn / 2);
+
+    /// <summary>Left: three quarters of a turn clockwise from up.</summary>
+    public static Bearing Left { get; } = new(3 * RotationAngle.StepsPerTurn / 4);
+
     /// <summary>The same direction as a trigonometry angle, counted anticlockwise from right: a quarter turn minus the bearing.</summary>
     public TrigonometryAngle ToTrigonometryAngle() => TrigonometryAngle.Wrapped(TrigonometryAngle.QuarterTurn.RawValue - RawValue);
 

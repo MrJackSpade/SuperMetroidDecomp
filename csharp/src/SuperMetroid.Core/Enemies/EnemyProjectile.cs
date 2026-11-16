@@ -199,7 +199,7 @@ public sealed class EnemyProjectile
         RemainingAfterburns = 0;
         NextAfterburnKind = RoomEnemyProjectileKind.None;
         State = null;
-        CollisionOption = EnemyProjectileCollisionOption.RunShotList;
+        CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         KilledEnemy = default;
         DropDefinitionId = EnemyDefinitionId.None;
         DropChancesOverride = null;

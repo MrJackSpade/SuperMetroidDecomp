@@ -752,13 +752,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmLevel,
         EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmRaised,
         EnemyFrameId.TorizoFacingLeftLeftFootForwardFarArmOverhead,
-        EnemyFrameId.TorizoFacingRightSeated,
-        EnemyFrameId.TorizoFacingRightRisingFromSeat,
-        EnemyFrameId.TorizoFacingRightCrouched,
-        EnemyFrameId.TorizoFacingRightHalfRisen,
-        EnemyFrameId.TorizoFacingRightNearlyUpright,
-        EnemyFrameId.TorizoFacingRightUprightStepping,
-        EnemyFrameId.TorizoFacingRightUprightWideStance,
     ];
 
     /// <summary>The frames <c>Bosses/Torizo/TorizoBehavior.cs</c> shows for <c>GoldenTorizo</c>.</summary>

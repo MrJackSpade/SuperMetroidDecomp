@@ -7,7 +7,7 @@ internal static class KraidSoundDefinitions
     internal static SoundEffectId MiniKraidCry { get; } = EnemySound.FakeKraidCry;
 
     /// <summary>Mini-Kraid launches a body spike, requested only while its origin is on screen.</summary>
-    internal static SoundEffectId MiniKraidSpikeLaunch { get; } = EnemySound.AlcoonSpit;
+    internal static SoundEffectId MiniKraidSpikeLaunch { get; } = EnemySound.Whoosh;
 
     /// <summary>A spat rock leaves the mouth, or a rock rises from the floor.</summary>
     internal static SoundEffectId RockSpit { get; } = RoomSound.KraidEarthquake;

@@ -10,8 +10,11 @@ public sealed class ShitroidEnemyState
     /// <summary>The Shitroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<ShitroidSegment> Playback { get; set; } = ShitroidAnimations.Starting(default);
 
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal ShitroidEnemyState(ShitroidAction action) => Action = action;
+
     /// <summary>Gets the Shitroid's current action.</summary>
-    public ShitroidAction? Action { get; internal set; }
+    public ShitroidAction Action { get; internal set; }
 
     /// <summary>Signed 1/256-pixel velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

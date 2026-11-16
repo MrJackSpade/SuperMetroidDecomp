@@ -12,7 +12,7 @@ internal static class CeresFlightFrameCatalogVerification
     {
         // Independent native instruction operands in the published catalog order.
         int[] operands = [0xcda5, 0xce4d, 0xcc49, 0xcc51, 0xcc59, 0xcc5d];
-        string[] names = ["stars", "large-asteroid", "station-under-attack", "small-asteroid", "vortex-even", "vortex-odd"];
+        string[] names = ["stars", "large-asteroid", "station-under-attack", "small-asteroid", "vortex-first", "vortex-second"];
         var frames = CeresFlightSpriteDefinitions.Frames;
         AssertEqual(operands.Length, frames.Count, "flight catalog count");
         var enumerated = frames.ToArray();

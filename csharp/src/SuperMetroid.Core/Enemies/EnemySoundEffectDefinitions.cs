@@ -9,7 +9,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId AlcoonEmergeSound = EnemySound.LowThud;
 
     /// <summary>Enemy-library sound queued by each fireball cue.</summary>
-    internal static readonly SoundEffectId AlcoonFireSound = EnemySound.AlcoonSpit;
+    internal static readonly SoundEffectId AlcoonFireSound = EnemySound.Whoosh;
 
     /// <summary>Enemy-library cue replacing the impact cue when the boulder breaks into dust.</summary>
     internal static readonly SoundEffectId BoulderBreakSound = EnemySound.BoulderExplosion;

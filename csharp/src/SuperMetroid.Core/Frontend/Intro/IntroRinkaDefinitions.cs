@@ -34,6 +34,24 @@ internal static class IntroRinkaDefinitions
         new(new(232, 80), SignedSixteenSixteen.FromSixteenthsOfPixel(-8), IntroRinkaFlight.MissesSamus),
     ];
 
+    /// <summary>
+    /// How far right of a striking Rinka's place its edge lies: it strikes once that edge passes
+    /// <see cref="SamusStruckReach"/> left of Samus.
+    /// </summary>
+    public const int StrikingEdge = 8;
+
+    /// <summary>How far left of Samus a striking Rinka's edge must pass to strike her.</summary>
+    public const int SamusStruckReach = 5;
+
+    /// <summary>The updates of invincibility and knockback the strike gives Samus.</summary>
+    public const int StrikeKnockbackUpdates = 11;
+
+    /// <summary>The screen row above which a Rinka that misses Samus is deleted.</summary>
+    public const int MissTopY = 16;
+
+    /// <summary>The screen row from which a Rinka that misses Samus is deleted.</summary>
+    public const int MissBottomY = 208;
+
     /// <summary>How far every Rinka moves down each update: half a pixel.</summary>
     public static SignedSixteenSixteen DownwardDrift { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 }

@@ -24,7 +24,7 @@ internal static class WallSpacePirateAnimationsVerification
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
                     'V' => unchecked((ushort)(cue switch { WallSpacePirateCue.ClimbLeftWall climbLeftWall => climbLeftWall.ClimbPixels, WallSpacePirateCue.ClimbRightWall climbRightWall => climbRightWall.ClimbPixels, _ => throw new InvalidOperationException($"{at}: {cue} carries no ClimbPixels.") })),
-                    'E' => NamingWord(SpacePiratesNativeWords.WallSpacePirateActions.WordsByIdentity[AssertIs<WallSpacePirateCue.SetAction>(cue, $"{at}: cue").Action], operands[index]),
+                    'E' => NamingWord(SpacePiratesNativeWords.WallSpacePirateActions.WordsByIdentity[WallSpacePirateBehavior.ActionBegunBy(AssertIs<WallSpacePirateCue.Signal>(cue, $"{at}: cue").Kind)], operands[index]),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },

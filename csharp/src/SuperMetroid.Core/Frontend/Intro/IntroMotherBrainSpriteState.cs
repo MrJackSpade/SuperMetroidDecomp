@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
-    private readonly IntroDiscoverySprite actor =
+    private readonly CinematicActor actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
     /// <summary>Remaining colour alternations after a missile hit.</summary>
@@ -91,7 +91,7 @@ internal sealed class IntroMotherBrainSpriteState
         ApplyScreenShake(cinematicFrameCounter);
 
         explodingTimer++;
-        if (explodingTimer >= 128)
+        if (explodingTimer >= IntroMotherBrainDefinitions.ExplodingUpdates)
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
             // starts the cross-fade during this same cinematic-actor call.
@@ -130,9 +130,9 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
     public bool RecordMissileHit()
     {
-        hurtFlashTimer = 8;
+        hurtFlashTimer = IntroMotherBrainDefinitions.HurtFlashUpdates;
         HitCount++;
-        if (HitCount != 4)
+        if (HitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The
@@ -161,6 +161,8 @@ internal sealed class IntroMotherBrainSpriteState
         // at zero would produce 4/0 and shift the whole room down eight pixels.
         // The shake keeps the scroll within four pixels of the inherited eight, so it never passes the room's top (#1974).
         Background = Background.WithY(Background.Y +
-            (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? -4 : 4));
+            (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
+                ? -IntroMotherBrainDefinitions.RoomShakePixels
+                : IntroMotherBrainDefinitions.RoomShakePixels));
     }
 }

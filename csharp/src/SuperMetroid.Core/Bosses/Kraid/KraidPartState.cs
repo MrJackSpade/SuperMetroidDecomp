@@ -14,14 +14,14 @@ public abstract class KraidPartState
     internal AnimationPlayback<KraidPartSegment> Playback { get; set; } =
         new(KraidAnimations.StartingWith(KraidPartSegment.FootInitial), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Gets the phase a part resumes when its phase timer expires; null resumes no phase.</summary>
-    public KraidPhase? PhaseToResume { get; internal set; }
+    /// <summary>The phase a part resumes when its phase timer expires; a part that resumes none rests.</summary>
+    public KraidPhase PhaseToResume { get; internal set; } = KraidPhase.Resting;
 
     /// <summary>
-    /// The phase the part runs, or null while it runs none: a part that has stopped (the arm while rising, the foot
-    /// between its walks and once Kraid grows or dies) does nothing on its turn (#1870).
+    /// The phase the part runs. A part that has stopped (the arm while rising, the foot between its walks and once Kraid
+    /// grows or dies) rests, doing nothing on its turn (#1870); every part rests until it is given a phase.
     /// </summary>
-    public KraidPhase? Phase { get; internal set; }
+    public KraidPhase Phase { get; internal set; } = KraidPhase.Resting;
 
     /// <summary>The updates before the part's phase timer installs <see cref="PhaseToResume"/>.</summary>
     public int PhaseTimer { get; internal set; }

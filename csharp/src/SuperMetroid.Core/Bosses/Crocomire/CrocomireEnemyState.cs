@@ -72,8 +72,11 @@ public sealed class CrocomireEnemyState
     /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
     public bool DamageReactionPending { get; internal set; }
 
-    /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame; none in a defeated room (#1939).</summary>
-    public CrocomirePhase? Phase { get; internal set; }
+    /// <summary>
+    /// The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame (#1939). The
+    /// fight starts dormant; a defeated room's corpse never runs it.
+    /// </summary>
+    public CrocomirePhase Phase { get; internal set; } = CrocomirePhase.Dormant;
 
     /// <summary>
     /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per

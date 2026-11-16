@@ -21,10 +21,10 @@ public sealed class PhantoonEnemyState
     public RoomEnemyPlace Body { get; }
 
     /// <summary>
-    /// The encounter phase his body runs, or null while it runs none: while his eye's opening or closing animation
-    /// decides what comes next, the body does nothing on its turn (#1870).
+    /// The encounter phase his body runs; the encounter starts by spawning the flames that circle the room before he
+    /// appears.
     /// </summary>
-    public PhantoonPhase? Phase { get; internal set; }
+    public PhantoonPhase Phase { get; internal set; } = PhantoonPhase.SpawnStartingFlames;
 
     /// <summary>The updates before the current phase moves on.</summary>
     public int PhaseTimer { get; internal set; }

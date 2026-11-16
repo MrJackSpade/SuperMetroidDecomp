@@ -79,10 +79,10 @@ public enum CinematicSpritePose
     StationUnderAttack,
     /// <summary>A field of small asteroids drifting through space.</summary>
     SmallAsteroid,
-    /// <summary>The swirling purple vortex in space, on its first alternating frame.</summary>
-    VortexEven,
-    /// <summary>The swirling purple vortex in space, on its second alternating frame.</summary>
-    VortexOdd,
+    /// <summary>The swirling purple vortex in space, its first drawing, alternating with its second every update.</summary>
+    VortexFirst,
+    /// <summary>The swirling purple vortex in space, its second drawing, alternating with its first every update.</summary>
+    VortexSecond,
     /// <summary>Planet Zebes, as the gunship flies to it after Ceres.</summary>
     PlanetZebes,
     /// <summary>The PLANET ZEBES caption.</summary>

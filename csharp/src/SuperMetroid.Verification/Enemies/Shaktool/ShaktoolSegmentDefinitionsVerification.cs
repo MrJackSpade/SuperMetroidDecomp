@@ -25,7 +25,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {
-            ShaktoolSegmentDefinition definition = ShaktoolSegments.ForIndex(index);
+            ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.Segments[index];
             definitions[index] = definition;
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadef7 + index * 2)),
                 $"Shaktool segment {index} initialization subtrahend");
@@ -77,12 +77,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production reset callback {index}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolSegments.ForIndex(-1),
-            "negative Shaktool segment definition");
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolSegments.ForIndex(7),
-            "Shaktool segment definition past table");
         Console.WriteLine(
             "Shaktool segment definitions: 56 native words, all seven real initializers and the group callback reset pass with source tables forbidden.");
     }
@@ -115,12 +109,12 @@ internal static class ShaktoolSegmentDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
-            AssertEqual(ShaktoolNativeWords.DecodeMotion(word, "Shaktool segment callback"), ShaktoolSegments.ForIndex(index).Motion,
+            AssertEqual(ShaktoolNativeWords.DecodeMotion(word, "Shaktool segment callback"), ShaktoolSegmentDefinitions.Segments[index].Motion,
                 $"Shaktool callback selection {index}");
         }
     }
 
-    /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
+    /// <summary>Compares one seven-word native table, in chain order, with the chain's compiled definitions.</summary>
     private static void VerifyShaktoolDefinitionField(CartridgeImportAddressSpace rom,
         int nativeAddress, Func<ShaktoolSegmentDefinition, int> select, string label)
     {
@@ -128,12 +122,9 @@ internal static class ShaktoolSegmentDefinitionsVerification
         {
             int address = nativeAddress + 2 * index;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, select(ShaktoolSegments.ForIndex(index)),
+            AssertEqual(expected, select(ShaktoolSegmentDefinitions.Segments[index]),
                 $"Shaktool {label} original word {index}");
         }
-        foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => select(ShaktoolSegments.ForIndex(invalid)),
-                $"Shaktool {label} rejects {invalid}");
     }
 
 }

@@ -18,12 +18,12 @@ internal static class CeresReflectedStarPartsVerification
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");
-        var vortex = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x8fe7, 36, "vortex-even");
+        var vortex = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x8fe7, 36, "vortex-first");
         Check(original, vortex);
         void Check(SpriteVisualPart[] sourceVisual, SpriteVisualPart[] targetVisual)
         {
             var frames = CeresFlightSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
-            frames["stars"] = sourceVisual; frames["vortex-even"] = targetVisual;
+            frames["stars"] = sourceVisual; frames["vortex-first"] = targetVisual;
             using var json = new MemoryStream();
             CeresFlightSpritePresentation.Write(json, new() { Version = CeresFlightSpriteFormat.Version, Frames = frames });
             json.Position = 0;
@@ -36,7 +36,7 @@ internal static class CeresReflectedStarPartsVerification
                 else reference.DrawOffScreen(expectedOam, new(120, y), 0x0800);
                 expectedOam.FinalizeFrame();
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                CinematicSheetFixtures.Drawer(loaded).Draw(CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Even), actual, Offset16<ScreenPixels>.Wrapped(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects)); actual.FinalizeFrame();
+                CinematicSheetFixtures.Drawer(loaded).Draw(CeresFlightSpritePoses.VortexPose(CeresVortexFrame.First), actual, Offset16<ScreenPixels>.Wrapped(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects)); actual.FinalizeFrame();
                 AssertTrue(expectedOam.ImageEquals(actual)
                     && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader draws the stock vortex stars");
             }

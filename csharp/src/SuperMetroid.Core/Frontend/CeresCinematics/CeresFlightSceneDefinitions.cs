@@ -3,9 +3,30 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>The opening flight toward Ceres: its music and its colour effects.</summary>
+/// <summary>The opening flight toward Ceres: its music, colour effects, floor views, caption timing and fade.</summary>
 internal static class CeresFlightSceneDefinitions
 {
+    /// <summary>The front approach's starting horizontal floor scroll, in pixels.</summary>
+    internal const int FrontInitialBackgroundX = -72;
+    /// <summary>The front approach's starting vertical floor scroll, in pixels.</summary>
+    internal const int FrontInitialBackgroundY = -104;
+    /// <summary>The front approach's starting floor angle.</summary>
+    internal static RotationAngle FrontInitialAngle => RotationAngle.FromSteps(224);
+
+    /// <summary>The rear view's horizontal floor scroll, in pixels.</summary>
+    internal const int RearViewBackgroundX = -32;
+    /// <summary>The rear view's vertical floor scroll, in pixels.</summary>
+    internal const int RearViewBackgroundY = -128;
+    /// <summary>The rear view's floor angle.</summary>
+    internal static RotationAngle RearViewAngle => RotationAngle.FromSteps(32);
+
+    /// <summary>The updates between the SPACE COLONY caption's letters.</summary>
+    internal const int CaptionLetterDelay = 16;
+    /// <summary>The update the Japanese caption shows before the completed caption's hold.</summary>
+    internal const int JapaneseCaptionDelay = 1;
+    /// <summary>The completed caption's hold before the fade out.</summary>
+    internal const int CaptionHold = 128;
+
     /// <summary>The song that starts with the flight.</summary>
     internal const MusicTrack FlightSong = MusicTrack.CeresFlight;
     /// <summary>How long the flight's track waits on the music queue: fourteen passes.</summary>

@@ -24,17 +24,17 @@ internal static class EnemyDeathProjectileAnimations
         ],
         [P.BigExplosion] =
         [
-            Cue(new(K.SpawnSpriteWithin16, EffectActor: RoomEffectActorKind.SmallExplosion)),
-            Cue(new(K.SpawnSpriteWithin16, EffectActor: RoomEffectActorKind.Smoke)),
+            Cue(new(K.SpawnEffectActorWithin16, EffectActor: RoomEffectActorKind.SmallExplosion)),
+            Cue(new(K.SpawnEffectActorWithin16, EffectActor: RoomEffectActorKind.Smoke)),
             Show(EnemyProjectileFrameId.EnemyDeathBigExplosion, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),
         ],
         [P.MiniKraidExplosion] =
         [
-            Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.SmallExplosion)),
-            Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.Smoke)),
-            Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.DustCloud)),
+            Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.SmallExplosion)),
+            Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.Smoke)),
+            Cue(new(K.SpawnEffectActorWithin32, EffectActor: RoomEffectActorKind.DustCloud)),
             Show(EnemyProjectileFrameId.EnemyDeathMiniKraidExplosion, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),

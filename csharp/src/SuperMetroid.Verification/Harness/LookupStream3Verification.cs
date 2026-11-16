@@ -877,13 +877,8 @@ internal static class LookupStream3Verification
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.CollisionForSegment(segment)),
+            AssertEqual(collision, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolSegmentDefinitions.Segments[segment].CollisionAnimation),
                 "stream 3 native Shaktool collision program");
-        }
-        foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => ShaktoolAnimationChoices.CollisionForSegment(invalid),
-                "stream 3 invalid Shaktool collision segment");
         }
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
         Suite(nameof(VerifyStream3PickupAndFirefleaPrograms), () => VerifyStream3PickupAndFirefleaPrograms(rom));

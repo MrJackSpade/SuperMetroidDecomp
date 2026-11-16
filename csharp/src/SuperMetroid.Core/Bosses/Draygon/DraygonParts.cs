@@ -82,7 +82,7 @@ internal sealed class DraygonParts
         {
             case DraygonPart.Eye:
                 // Inert until the body publishes facing AI.
-                var eyeState = new DraygonEyeState { Action = DraygonEyeAction.Inert };
+                var eyeState = new DraygonEyeState(DraygonEyeAction.Inert);
                 part.SetSpeciesState(eyeState);
                 state.Eye = part;
                 state.StartAnimation(part, DraygonSegment.EyeFacingLeftIdle);
@@ -117,8 +117,7 @@ internal sealed class DraygonParts
         if (part.DefinitionId != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part step received another family.");
 
-        DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action
-            ?? throw new InvalidDataException("Draygon's eye has no action.");
+        DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action;
         switch (action)
         {
             case DraygonEyeAction.Inert:

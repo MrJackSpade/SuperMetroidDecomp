@@ -20,6 +20,12 @@ public static class EndingMotionDefinitions
     /// <summary>The zoom at which the side-cloud and top-and-bottom-cloud escapes begin fading out: one and a half floor pixels per screen pixel.</summary>
     public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
+    /// <summary>The side-cloud escape's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    public const int SideCloudEscapeZoomStep = 2;
+
+    /// <summary>The top-and-bottom-cloud escape's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    public const int TopAndBottomCloudEscapeZoomStep = 3;
+
     /// <summary>The zoom enabling the side clouds' motion in the side-cloud escape.</summary>
     public static FloorZoom CloudMotionStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(96);
 
@@ -40,6 +46,21 @@ public static class EndingMotionDefinitions
 
     /// <summary>The fly-to-camera zoom below which gunship colours are restored and the operation-success message begins.</summary>
     public static FloorZoom PlanetExitZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(32);
+
+    /// <summary>The space view's floor scroll as the gunship's emergence starts: horizontally, in pixels.</summary>
+    public const int PlanetEscapeFloorX = -72;
+
+    /// <summary>The space view's floor scroll as the gunship's emergence starts: vertically, in pixels.</summary>
+    public const int PlanetEscapeFloorY = -104;
+
+    /// <summary>The space view's floor angle as the gunship's emergence starts.</summary>
+    public static RotationAngle PlanetEscapeInitialAngle => RotationAngle.WrappedSteps(-112);
+
+    /// <summary>How far the fast emergence turns the floor each update, in steps: four steps clockwise.</summary>
+    public const int PlanetFastTurnSteps = -4;
+
+    /// <summary>How far the fly-to-camera turn toward the exit angle turns the floor on each of its updates, in steps.</summary>
+    public const int PlanetExitTurnSteps = 2;
 
     /// <summary>The fast emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
     public const int PlanetFastZoomStep = 8;

@@ -78,7 +78,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initializes the Ninja Space Pirate.</summary>
     internal static void InitializeNinjaSpacePirate(RoomEnemyPlace place)
     {
-        var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.FollowingAnimation);
+        var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
         place.SetSpeciesState(state);
 
         NinjaSpacePirateSpawnSettings settings = place.SpawnSettings<NinjaSpacePirateSpawnSettings>();
@@ -133,7 +133,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         switch (state.Action)
         {
-            case NinjaSpacePirateAction.FollowingAnimation:
+            case NinjaSpacePirateAction.StandingStill:
                 return;
             case NinjaSpacePirateAction.Initial:
                 RunNinjaPirateInitial(place, state, samus, samusProjectiles);
@@ -385,7 +385,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.Speed.IsZero)
             return;
 
-        state.Action = NinjaSpacePirateAction.FollowingAnimation;
+        state.Action = NinjaSpacePirateAction.StandingStill;
         place.Position = place.Position.WithWholeX(direction == HorizontalDirection.Right ? state.RightPostX : state.LeftPostX);
         StartNinjaPirateAnimation(
             place,
@@ -483,7 +483,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.LandFacingRight
                 : NinjaSpacePirateSegment.LandFacingLeft);
-        state.Action = NinjaSpacePirateAction.FollowingAnimation;
+        state.Action = NinjaSpacePirateAction.StandingStill;
     }
 
     /// <summary>Spawns a dust cloud on each side of the landing position.</summary>
@@ -545,6 +545,25 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             projectile.Delete();
     }
 
+    /// <summary>The action main AI runs for the move a cue of <paramref name="kind"/> begins.</summary>
+    internal static NinjaSpacePirateAction ActionBegunBy(NinjaSpacePirateCueKind kind) => kind switch
+    {
+        NinjaSpacePirateCueKind.StandStill => NinjaSpacePirateAction.StandingStill,
+        NinjaSpacePirateCueKind.WaitForSamus => NinjaSpacePirateAction.Initial,
+        NinjaSpacePirateCueKind.ChooseAttack => NinjaSpacePirateAction.Active,
+        NinjaSpacePirateCueKind.SpinJumpLeft => NinjaSpacePirateAction.SpinJumpLeftRising,
+        NinjaSpacePirateCueKind.SpinJumpRight => NinjaSpacePirateAction.SpinJumpRightRising,
+        NinjaSpacePirateCueKind.ReadyDivekick => NinjaSpacePirateAction.ReadyToDivekick,
+        NinjaSpacePirateCueKind.JumpToDivekickLeft => NinjaSpacePirateAction.DivekickLeftJump,
+        NinjaSpacePirateCueKind.JumpToDivekickRight => NinjaSpacePirateAction.DivekickRightJump,
+        NinjaSpacePirateCueKind.DiveLeft => NinjaSpacePirateAction.DivekickLeftDive,
+        NinjaSpacePirateCueKind.DiveRight => NinjaSpacePirateAction.DivekickRightDive,
+        NinjaSpacePirateCueKind.WalkBackToLeftPost => NinjaSpacePirateAction.DivekickLeftWalkToPost,
+        NinjaSpacePirateCueKind.WalkBackToRightPost => NinjaSpacePirateAction.DivekickRightWalkToPost,
+        NinjaSpacePirateCueKind.ResetSpeed or NinjaSpacePirateCueKind.StartActive or NinjaSpacePirateCueKind.StartDivekick or _ =>
+            throw new InvalidOperationException($"A ninja Space Pirate {kind} cue begins no move."),
+    };
+
     /// <summary>
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
@@ -554,9 +573,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
         {
-            case NinjaSpacePirateCue.SetAction setAction:
-                state.Action = setAction.Action;
-                return null;
             case NinjaSpacePirateCue.SetShading setShading:
                 place.Shading = setShading.Shading;
                 return null;
@@ -581,6 +597,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
                 InitializeNinjaPirateDive(state);
+                return null;
+            case NinjaSpacePirateCue.Signal begun:
+                // The animation does not jump to the move it begins: main AI runs it from the next update, as the
+                // animation runs on.
+                state.Action = ActionBegunBy(begun.Kind);
                 return null;
             default:
                 throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue} cue.");

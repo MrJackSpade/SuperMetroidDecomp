@@ -33,8 +33,8 @@ public enum EnemyDefinitionId
     MaridiaFly,
     /// <summary>A Multiviola, the fireball that bounces around Norfair's rooms.</summary>
     Multiviola,
-    /// <summary>The rocks a pool of lava throws up.</summary>
-    LavaRocks,
+    /// <summary>A Polyp, the pool of lava that throws up rocks.</summary>
+    Polyp,
     /// <summary>A Rinka, the ring of fire that flies at Samus in Tourian.</summary>
     Rinka,
     /// <summary>A Rio, the flyer that swoops down at Samus.</summary>
@@ -152,7 +152,7 @@ public enum EnemyDefinitionId
     /// <summary>A Hibashi, the pillar of flame that erupts from Norfair's floor.</summary>
     Hibashi,
     /// <summary>The Nuclear Waffle, which sweeps around its centre; the game's own name for it is Puromi.</summary>
-    Puromi,
+    NuclearWaffle,
     /// <summary>Mini Kraid, the small Kraid of Brinstar.</summary>
     MiniKraid,
     /// <summary>Ridley at Ceres station.</summary>

@@ -78,21 +78,21 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.AnimationClock.Restart();
 
-        var state = new ShitroidEnemyState
+        // A Shitroid entered with the camera left of the room's start lies dormant; any other waits for the camera.
+        bool dormant = CoordinateAxis.AsSigned(cameraX) < 0;
+        var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera)
         {
             Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
-            Action = ShitroidAction.WaitForCamera,
             Velocity = default,
             ColourDelay = 10,
         };
-        if (CoordinateAxis.AsSigned(cameraX) < 0)
+        if (dormant)
         {
             // The intangible property removes the actor from ordinary interaction and the hide-drawing property suppresses
             // drawing. Keep the former raw: although it is traditionally called "tangible", the
             // collision walkers explicitly reject actors that have it.
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             place.Presence = place.Presence.With(EnemyPresence.Hidden);
-            state.Action = ShitroidAction.Dormant;
         }
         state.ReactsToSamus = false;
         place.SetSpeciesState(state);
@@ -347,7 +347,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shitroid has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Shitroid has no behaviour for action {state.Action}.");
         }
     }
 

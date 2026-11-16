@@ -10,23 +10,17 @@ internal static class SpacePirateHitboxes
     internal static bool Find(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        foreach (EnemyCollisionComponent component in
-                 SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
+        Position16<RoomPixels> origin = enemy.Position.Whole;
+        foreach (EnemyCollisionHitbox hitbox in SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
-            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
-            for (int index = 0; index < hitboxes.Count; index++)
-            {
-                EnemyCollisionHitbox hitbox = hitboxes[index];
-                int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
-                int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
-                int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
-                int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
-                if (!probe.Overlaps(left, top, right, bottom))
-                    continue;
-                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-                return true;
-            }
+            int left = CoordinateAxis.Wrap(origin.X + hitbox.Left);
+            int top = CoordinateAxis.Wrap(origin.Y + hitbox.Top);
+            int right = CoordinateAxis.Wrap(origin.X + hitbox.Right);
+            int bottom = CoordinateAxis.Wrap(origin.Y + hitbox.Bottom);
+            if (!probe.Overlaps(left, top, right, bottom))
+                continue;
+            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
+            return true;
         }
         return false;
     }

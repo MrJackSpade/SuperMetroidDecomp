@@ -1,8 +1,29 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>The random choices of Botwoon's death: where its drops fall and where its wall explosions burst.</summary>
+/// <summary>The choices of Botwoon's death: where its drops fall and where and how often its wall explosions burst.</summary>
 internal static class BotwoonDeathDefinitions
 {
+    /// <summary>The left edge of the strip the death drops fall across.</summary>
+    internal const int DropLeft = 64;
+
+    /// <summary>The top of the band the death drops fall within.</summary>
+    internal const int DropTop = 128;
+
+    /// <summary>The left edge of the strip the large wall explosions burst across.</summary>
+    internal const int LargeExplosionLeft = 232;
+
+    /// <summary>The left edge of the strip the small wall explosions burst across.</summary>
+    internal const int SmallExplosionLeft = 224;
+
+    /// <summary>How far above the wall sequence's frame, before its jitter, a wall explosion bursts.</summary>
+    internal const int ExplosionRise = 8;
+
+    /// <summary>The updates between large wall explosions once they run.</summary>
+    internal const int LargeExplosionInterval = 12;
+
+    /// <summary>The updates between pairs of small wall explosions once they run.</summary>
+    internal const int SmallExplosionInterval = 4;
+
     /// <summary>A death drop's X across its 128-pixel strip from X 64: the sample modulo 128.</summary>
     internal static readonly RandomSampleField DropX = new(0, 7);
 

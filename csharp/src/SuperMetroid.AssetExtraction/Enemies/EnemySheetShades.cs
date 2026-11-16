@@ -389,7 +389,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
                 or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
                 or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
-                or EnemyDefinitionId.MaridiaFly or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
+                or EnemyDefinitionId.MaridiaFly or EnemyDefinitionId.Multiviola or EnemyDefinitionId.Polyp or EnemyDefinitionId.Rinka
                 or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
                 or EnemyDefinitionId.Choot or EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.JetRipper or EnemyDefinitionId.Ripper
                 or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
@@ -402,7 +402,7 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Yard or EnemyDefinitionId.OrangeZoomer or EnemyDefinitionId.Zeela
                 or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer or EnemyDefinitionId.Metroid
                 or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
-                or EnemyDefinitionId.Hibashi or EnemyDefinitionId.Puromi or EnemyDefinitionId.MiniKraid or EnemyDefinitionId.CeresSteam
+                or EnemyDefinitionId.Hibashi or EnemyDefinitionId.NuclearWaffle or EnemyDefinitionId.MiniKraid or EnemyDefinitionId.CeresSteam
                 or EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
                 or EnemyDefinitionId.PhantoonMouth or EnemyDefinitionId.Etecoon or EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile
                 or EnemyDefinitionId.MorphBallEye or EnemyDefinitionId.Fune or EnemyDefinitionId.Namihe or EnemyDefinitionId.YappingMaw

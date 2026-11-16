@@ -7,5 +7,5 @@ internal static class NinjaSpacePirateSoundDefinitions
     internal static readonly SoundEffectId Attack = EnemySound.ShotSpacePirate;
 
     /// <summary>The spin-jump whirl, played at the start of each spin loop.</summary>
-    internal static readonly SoundEffectId SpinJump = EnemySound.AlcoonSpit;
+    internal static readonly SoundEffectId SpinJump = EnemySound.Whoosh;
 }

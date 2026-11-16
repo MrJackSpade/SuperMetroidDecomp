@@ -18,7 +18,7 @@ internal sealed class EnemyFramePhase
     /// <summary>Receives Phantoon's body-layer placement before the next frame boundary latches the frame.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the held and newly pressed actions to the enemies.</summary>
-    private readonly GameplayActionInput _controller1;
+    private readonly GameplayActionInput _playerActions;
     /// <summary>Provides the active Samus turning-floor transform to the enemy frame.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Applies room effects requested by enemies after their AI pass.</summary>
@@ -39,7 +39,7 @@ internal sealed class EnemyFramePhase
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _controller1 = dependencies.PlayerActions;
+        _playerActions = dependencies.PlayerActions;
         _display = dependencies.Display;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _freeze = dependencies.Freeze;
@@ -87,7 +87,7 @@ internal sealed class EnemyFramePhase
             bool hyperBeamBefore = _player.Samus?.HyperBeamEnabled == true;
             if (processingList == EnemyProcessingList.Unprepared)
                 room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(_room.Camera.PixelPosition);
-            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.IntroducedSamus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LoadedLevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.IntroducedSamus, SamusColours = _player.Colours, NewlyPressedControllerInput = _playerActions.NewlyPressed, Level = _room.LoadedLevelData, ControllerInput = _playerActions.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.RoomObjects, room.FxOverlay, room.ColourEffects, room.Enemies);
             _enemyRoomEffects.StartEnemyGlow(result.Glow, room.ColourEffects);
             // The Baby's recovery equips the Hyper Beam and shows its beams' colours in the same enemy pass, as an item

@@ -14,10 +14,12 @@ public sealed class ZebetiteEnemyState
     internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
         IsSecondaryHalf = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half == ZebetiteHalf.Linked;
+        // A primary half first spawns its linked half, which itself waits out the door transition.
+        Action = IsSecondaryHalf ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
     }
 
     /// <summary>The action this half runs each update, independent of the other half's.</summary>
-    public ZebetiteAction? Action { get; internal set; }
+    public ZebetiteAction Action { get; internal set; }
 
     /// <summary>
     /// Barrier generation 0 through <see cref="PersistentProgress.ZebetiteCount"/>: how many Zebetites had been destroyed

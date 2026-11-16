@@ -74,7 +74,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
     internal void InitializeRinka(RoomEnemyPlace place)
     {
-        var state = new RinkaEnemyState();
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport);
         place.SetSpeciesState(state);
 
         // Both branches first clear the four lifecycle/collision bits. The special
@@ -225,7 +225,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rinka has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Rinka has no behaviour for action {state.Action}.");
         }
     }
 

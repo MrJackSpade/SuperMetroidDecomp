@@ -29,14 +29,16 @@ internal sealed class IntroCeresFlightState
     /// <summary>Optional edited rear-view actor positions.</summary>
     private CeresFlightActorPlacements? actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
-    private readonly IntroDiscoverySprite stars =
+    private readonly CinematicActor stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars, CeresFlightActorDefinitions.FrontStarsStart);
 
     /// <summary>The front stars' speed on each axis, which the background rush shares.</summary>
     private SignedEightEight starsVelocity = CeresFlightActorDefinitions.FrontStars.InitialVelocity;
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
-    private FixedVector<FloorPixels> background = new(SignedSixteenSixteen.FromWholePixels(-72), SignedSixteenSixteen.FromWholePixels(-104));
+    private FixedVector<FloorPixels> background = new(
+        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialBackgroundX),
+        SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialBackgroundY));
     /// <summary>
     /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
     /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
@@ -44,7 +46,7 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     private FloorZoom zoom = CeresFlightRenderDefinitions.FrontInitialZoom;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
-    private RotationAngle angle = RotationAngle.FromSteps(224);
+    private RotationAngle angle = CeresFlightSceneDefinitions.FrontInitialAngle;
     /// <summary>
     /// The screen's brightness: held black until music is ready, then fully lit, and lowered one level every other update
     /// in the final fade, stopping at black.
@@ -271,8 +273,9 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
-        background = new(SignedSixteenSixteen.FromWholePixels(-32), SignedSixteenSixteen.FromWholePixels(-128));
-        angle = RotationAngle.FromSteps(32);
+        background = new(SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewBackgroundX),
+            SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.RearViewBackgroundY));
+        angle = CeresFlightSceneDefinitions.RearViewAngle;
 
         // The actors spawn, update and draw in their spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply behaviour identity,
@@ -293,9 +296,9 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>
-    private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
+    private static CinematicActor CreateActor(CeresFlightActorDefinition definition, Offset16<ScreenPixels> start)
     {
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             start,
             CeresShades.Drawn(definition.Colouring),
             definition.Animation)
@@ -332,7 +335,7 @@ internal sealed class IntroCeresFlightState
         spaceColonyHoldStarted = false;
         JapaneseCaptionShown = false;
         CaptionLettersShown++;
-        spaceColonyTimer = 16;
+        spaceColonyTimer = CeresFlightSceneDefinitions.CaptionLetterDelay;
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 
@@ -345,7 +348,7 @@ internal sealed class IntroCeresFlightState
         if (CaptionLettersShown < SpaceColonyCaptionDefinitions.LetterCount)
         {
             CaptionLettersShown++;
-            spaceColonyTimer = 16;
+            spaceColonyTimer = CeresFlightSceneDefinitions.CaptionLetterDelay;
             return;
         }
 
@@ -354,16 +357,15 @@ internal sealed class IntroCeresFlightState
         if (japaneseText && !JapaneseCaptionShown)
         {
             JapaneseCaptionShown = true;
-            spaceColonyTimer = 1;
+            spaceColonyTimer = CeresFlightSceneDefinitions.JapaneseCaptionDelay;
             return;
         }
 
-        // The caption's final step holds the completed caption for 128 frames before
-        // the fade step installs the ordinary fade owner.
+        // The caption's final step holds the completed caption before the fade step installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {
             spaceColonyHoldStarted = true;
-            spaceColonyTimer = 128;
+            spaceColonyTimer = CeresFlightSceneDefinitions.CaptionHold;
             return;
         }
 
@@ -382,7 +384,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite animation.</summary>
     private void StepRearViewActors()
     {
-        foreach ((CeresRearViewActorRole role, IntroDiscoverySprite actor) in RearViewActors)
+        foreach ((CeresRearViewActorRole role, CinematicActor actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
             if (definition.WrapX)
@@ -394,7 +396,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Applies signed horizontal motion to an actor that travels no loop.</summary>
-    private static void AddSignedX(IntroDiscoverySprite actor, SignedSixteenSixteen delta)
+    private static void AddSignedX(CinematicActor actor, SignedSixteenSixteen delta)
     {
         actor.Position = actor.Position.WithX(actor.Position.X + delta);
     }

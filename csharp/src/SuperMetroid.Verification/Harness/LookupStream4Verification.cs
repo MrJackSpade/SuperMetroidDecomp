@@ -1562,15 +1562,17 @@ internal static class LookupStream4Verification
     {
 
         // The cartridge's tables list the burial Evirs from the last spawned to the first.
-        AssertEqual(6, DraygonBurialEvirs.InSpawnOrder.Count, "stream4 burial exact six Evirs");
+        AssertEqual(6, DraygonBurialEvirDefinitions.InSpawnOrder.Count, "stream4 burial exact six Evirs");
         for (int entry = 0; entry < 6; entry++)
         {
-            var actual = DraygonBurialEvirs.InSpawnOrder[5 - entry];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1af + 4 * entry)), actual.SubspeedMagnitude.X.Fraction, "stream4 burial radial X subspeed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c9 + 4 * entry)), actual.Initial.Y, "stream4 burial radial spawn Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), (ushort)actual.Angle.RawValue, "stream4 burial radial angle");
+            var actual = DraygonBurialEvirDefinitions.InSpawnOrder[5 - entry];
+            Position16<RoomPixels> start = Position16<RoomPixels>.Zero + actual.Start;
+            FixedVector<RoomPixels> drift = DraygonDeath.BurialDrift(actual);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1af + 4 * entry)), drift.X.Magnitude().Fraction, "stream4 burial radial X subspeed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), drift.Y.Magnitude().Fraction, "stream4 burial radial Y subspeed");
+            AssertEqual(new TrigonometryAngle(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry))), actual.Heading, "stream4 burial radial angle");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), start.X, "stream4 burial radial spawn X including negative wrap");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c9 + 4 * entry)), start.Y, "stream4 burial radial spawn Y");
         }
     }
 

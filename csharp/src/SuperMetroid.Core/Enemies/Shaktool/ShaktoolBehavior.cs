@@ -76,8 +76,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Shaktool's chain starts in enemy place {place.Ordinal - definition.OwnerPlaceDistance}; its death deletes the first seven places, " +
                 "where both retail Shaktool room states place it.");
         }
+        // The chain's places hold its segments in chain order, leading saw first.
+        RoomEnemyPlace[] chainPlaces = [owner, .. _places.ListedRunAfter(owner, ShaktoolSegmentCount - 1)];
         _chains.Place(place, new ShaktoolChainPlaces(
-            Chain: [owner, .. _places.ListedRunAfter(owner, ShaktoolSegmentCount - 1)],
+            Chain: [.. chainPlaces.Zip(ShaktoolSegmentDefinitions.Segments, (segment, definition) => new ShaktoolChainSegment(segment, definition))],
             Previous: _places.ListedBeforeOrNone(place, 1),
             Next: _places.ListedAfterOrNone(place, 1)));
         state.Motion = definition.Motion;
@@ -278,24 +280,23 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             : target + RotationAngle.QuarterTurn;
         SetShaktoolGroupTargetAngle(place, target);
 
-        RoomEnemyPlace[] group = GetShaktoolGroup(place);
-        for (int index = ShaktoolSegmentCount - 1; index >= 0; index--)
+        // From the trailing saw back to the leading one, each segment stops and plays its head bob.
+        foreach (ShaktoolChainSegment segment in GetShaktoolGroup(place).Reverse())
         {
-            RoomEnemyPlace segment = group[index];
-            ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
+            ShaktoolSegmentState segmentState = RequireShaktoolState(segment.Place);
             CalculateShaktoolAngularVelocity(segmentState);
             segmentState.Motion = ShaktoolSegmentMotion.Idle;
             segmentState.Playback = new(ShaktoolAnimations.StartingWith(
-                ShaktoolAnimationChoices.CollisionForSegment(index)), AnimationPlace.StartOfAnimation);
-            segment.AnimationClock.StepOnNextUpdate();
+                segment.Definition.CollisionAnimation), AnimationPlace.StartOfAnimation);
+            segment.Place.AnimationClock.StepOnNextUpdate();
         }
     }
 
     /// <summary>Runs the endpoint/angle reversal helper.</summary>
     private void ReverseShaktoolChainEndpoints(RoomEnemyPlace anySegment)
     {
-        RoomEnemyPlace[] group = GetShaktoolGroup(anySegment);
-        RoomEnemyPlace At(ShaktoolSegmentDefinition segment) => group[segment.OwnerPlaceDistance];
+        IReadOnlyList<ShaktoolChainSegment> group = GetShaktoolGroup(anySegment);
+        RoomEnemyPlace At(ShaktoolSegmentDefinition segment) => group.Single(link => link.Definition == segment).Place;
         ShaktoolSegmentState center = RequireShaktoolState(At(ShaktoolSegmentDefinitions.Head));
         center.OrientationReversed = !center.OrientationReversed;
 
@@ -311,9 +312,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         leadingSaw.Position = trailingSaw.Position;
         trailingSaw.Position = leadingSawPosition;
 
-        for (int index = 1; index < ShaktoolSegmentCount - 1; index++)
+        // Every segment between the two saws takes the swap's subpixels.
+        foreach (ShaktoolChainSegment segment in group)
         {
-            group[index].Position = group[index].Position.WithFractionX(ShaktoolOrbitDefinitions.SwapFraction).WithFractionY(ShaktoolOrbitDefinitions.SwapFraction);
+            if (segment.Definition == ShaktoolSegmentDefinitions.LeadingSaw || segment.Definition == ShaktoolSegmentDefinitions.TrailingSaw)
+                continue;
+            segment.Place.Position = segment.Place.Position.WithFractionX(ShaktoolOrbitDefinitions.SwapFraction).WithFractionY(ShaktoolOrbitDefinitions.SwapFraction);
         }
     }
 
@@ -342,20 +346,19 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs group synchronization.</summary>
     private void SynchronizeShaktoolOrbitTargets(RoomEnemyPlace anySegment, RotationAngle target)
     {
-        RoomEnemyPlace[] group = GetShaktoolGroup(anySegment);
-        for (int index = 0; index < ShaktoolSegmentCount; index++)
+        foreach (ShaktoolChainSegment segment in GetShaktoolGroup(anySegment))
         {
-            ShaktoolSegmentState state = RequireShaktoolState(group[index]);
+            ShaktoolSegmentState state = RequireShaktoolState(segment.Place);
             state.OrbitAngle = target;
-            state.AngularVelocity = ShaktoolSegments.ForIndex(index).AngularVelocity;
+            state.AngularVelocity = segment.Definition.AngularVelocity;
         }
     }
 
     /// <summary>Publishes a shared convergence target to all seven initialized segments.</summary>
     private void SetShaktoolGroupTargetAngle(RoomEnemyPlace anySegment, RotationAngle target)
     {
-        foreach (RoomEnemyPlace segment in GetShaktoolGroup(anySegment))
-            RequireShaktoolState(segment).TargetAngle = target;
+        foreach (ShaktoolChainSegment segment in GetShaktoolGroup(anySegment))
+            RequireShaktoolState(segment.Place).TargetAngle = target;
     }
 
     /// <summary>Writes the motion flags to the entire chain.</summary>
@@ -363,25 +366,25 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace anySegment,
         ShaktoolMotionFlags flags)
     {
-        foreach (RoomEnemyPlace segment in GetShaktoolGroup(anySegment))
-            RequireShaktoolState(segment).MotionFlags = flags;
+        foreach (ShaktoolChainSegment segment in GetShaktoolGroup(anySegment))
+            RequireShaktoolState(segment.Place).MotionFlags = flags;
     }
 
     /// <summary>The chain's leading saw, which the segment found when it was placed.</summary>
-    private RoomEnemyPlace OwnerPlace(RoomEnemyPlace segment) => _chains.Of(segment).Chain[0];
+    private RoomEnemyPlace OwnerPlace(RoomEnemyPlace segment) => _chains.Of(segment).Chain[0].Place;
 
     /// <summary>The seven segments of the chain a segment found when it was placed, each validated as initialized.</summary>
-    private RoomEnemyPlace[] GetShaktoolGroup(RoomEnemyPlace anySegment)
+    private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment)
     {
         _ = RequireShaktoolState(anySegment);
-        RoomEnemyPlace[] group = _chains.Of(anySegment).Chain;
-        for (int index = 0; index < group.Length; index++)
+        IReadOnlyList<ShaktoolChainSegment> group = _chains.Of(anySegment).Chain;
+        foreach (ShaktoolChainSegment segment in group)
         {
             // Group helpers also run during the remainder of the lethal update, reaching the killed segment's remains.
-            if (group[index].SpeciesState<ShaktoolSegmentState>() is null && _killedSegment.RemainsAt(group[index]) is null)
+            if (segment.Place.SpeciesState<ShaktoolSegmentState>() is null && _killedSegment.RemainsAt(segment.Place) is null)
             {
                 throw new InvalidDataException(
-                    $"Shaktool group rooted at place {group[0].Ordinal} is missing segment {index}.");
+                    $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
             }
         }
         return group;
@@ -419,12 +422,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShaktoolCueKind.ResumeMotion:
             {
-                RoomEnemyPlace[] group = GetShaktoolGroup(place);
-                for (int index = 0; index < ShaktoolSegmentCount; index++)
-                {
-                    RequireShaktoolState(group[index]).Motion =
-                        ShaktoolSegments.ForIndex(index).Motion;
-                }
+                foreach (ShaktoolChainSegment segment in GetShaktoolGroup(place))
+                    RequireShaktoolState(segment.Place).Motion = segment.Definition.Motion;
                 break;
             }
 

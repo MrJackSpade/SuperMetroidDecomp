@@ -273,7 +273,7 @@ internal static class LookupStream5Verification
                     AssertEqual(0, system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive), "No expiry spiral before selected duration");
                 }
             }
-            AssertEqual((PhantoonPhase?)null, state.Phase, "Selected duration stops moving phase");
+            AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Selected duration stops moving phase");
             AssertEqual(PhantoonPartSegment.EyeOpen, state.PlayingProgram(eye), "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
@@ -392,7 +392,7 @@ internal static class LookupStream5Verification
             }
             else
             {
-                AssertEqual((PhantoonPhase?)null, state.Phase, "Unhit expiration hands off to eye close");
+                AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Unhit expiration hands off to eye close");
                 AssertEqual(PhantoonPartSegment.InvulnerableBody, state.PlayingProgram(body), "Native invulnerable body handoff");
                 AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.PlayingProgram(eye), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");

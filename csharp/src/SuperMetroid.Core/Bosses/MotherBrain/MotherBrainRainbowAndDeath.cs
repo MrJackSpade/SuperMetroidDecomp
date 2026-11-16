@@ -251,7 +251,7 @@ internal sealed class MotherBrainRainbowAndDeath
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
-        state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body phase yet.");
+        state.Phase = sequence.State.Phase;
         state.PhaseTimer = sequence.State.PhaseTimer;
         state.NeckTurnPerUpdate = sequence.State.NeckTurnPerUpdate;
         state.NeckMovementEnabled = sequence.State.NeckMovementEnabled;

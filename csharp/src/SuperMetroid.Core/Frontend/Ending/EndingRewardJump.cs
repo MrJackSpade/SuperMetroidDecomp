@@ -29,9 +29,9 @@ internal sealed class EndingRewardJump
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
     /// <summary>Body actor whose vertical position controls the fall and landing.</summary>
-    private readonly IntroDiscoverySprite body;
+    private readonly CinematicActor body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
-    private readonly IntroDiscoverySprite? head;
+    private readonly CinematicActor? head;
     /// <summary>Whether the suited jump's head flies, as its animation starts it doing ahead of the body.</summary>
     private bool headFlying;
     /// <summary>How Samus's body moves: rising on her jump, falling back, or none before the jump and after landing.</summary>
@@ -104,7 +104,7 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>Applies gravity to shared velocity and moves an actor by it.</summary>
-    private void Move(IntroDiscoverySprite actor)
+    private void Move(CinematicActor actor)
     {
         Velocity += EndingRewardJumpDefinitions.Gravity;
         actor.Position = actor.Position.WithY(actor.Position.Y + Velocity);
@@ -119,10 +119,10 @@ internal sealed class EndingRewardJump
                 Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return;
             case CinematicSpriteCueKind.PrepareHead:
-                RequireHead().ScreenPlace = new(helmeted ? 118 : 120, 120);
+                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
                 return;
             case CinematicSpriteCueKind.LaunchHead:
-                RequireHead().ScreenPlace = new(helmeted ? 120 : 121, helmeted ? 114 : 116);
+                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
                 return;
             case ShootCue:
                 body.SetColouring(EndingShades.Drawn(ShootingColouring));
@@ -175,14 +175,14 @@ internal sealed class EndingRewardJump
 
 
     /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
-    private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
+    private CinematicActor RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
     /// <summary>Creates a jump actor from its catalogued initial position, colouring, and animations.</summary>
-    private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
+    private static CinematicActor Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
         EndingRewardActorInitializationDefinition initialization =
             EndingRewardActors.GetInitialization(authored.Initialization);
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
             authored.Animation);

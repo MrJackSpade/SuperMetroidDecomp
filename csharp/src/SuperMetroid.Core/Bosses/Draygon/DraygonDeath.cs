@@ -150,8 +150,8 @@ internal sealed class DraygonDeath
     {
         _effectActors.EndAll();
 
-        // Three left-facing Evirs on the right of the circle, then three right-facing ones on its left.
-        foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirs.InSpawnOrder)
+        // Three left-facing Evirs on the right of the arc, then three right-facing ones on its left.
+        foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirDefinitions.InSpawnOrder)
             SpawnDraygonDeathEvir(state, evir);
     }
 
@@ -163,13 +163,26 @@ internal sealed class DraygonDeath
     {
         Ensure.NotNull(state);
         RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
-            definition.Initial,
+            Position16<RoomPixels>.Zero + definition.Start,
             definition.Kind,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Evirs));
         state.BurialEvirs.Add(new DraygonBurialEvir(sprite, definition));
     }
 
-    /// <summary>Advances the six burial Evirs, in the order they spawned, by their definitions' velocities.</summary>
+    /// <summary>
+    /// How far a burial Evir drifts each update: just under a pixel back along its heading toward the arc's centre, each
+    /// axis's share of it the game's integer sine of the heading (<see cref="EnemyMath.AbsoluteCosineSpeed"/>,
+    /// <see cref="EnemyMath.AbsoluteSineSpeed"/>). An Evir left of the centre drifts right, and every one drifts down.
+    /// </summary>
+    internal static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir)
+    {
+        SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(evir.Heading, 1).AsDisplacement();
+        SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(evir.Heading, 1).AsDisplacement();
+        return new(EnemyMath.CosineIsNegative(evir.Heading) ? across : -across,
+            EnemyMath.SineIsNegative(evir.Heading) ? down : -down);
+    }
+
+    /// <summary>Drifts the six burial Evirs, in the order they spawned, by their definitions' headings.</summary>
     internal static void MoveDraygonDeathEvirs(DraygonEnemyState state)
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
@@ -180,10 +193,10 @@ internal sealed class DraygonDeath
                     RoomEffectActorKind.DraygonDeathEvirFacingRight))
             {
                 throw new InvalidDataException(
-                    $"Draygon burial movement expected the burial Evir at angle {evir.Definition.Angle} to be live.");
+                    $"Draygon burial movement expected the burial Evir that started at {evir.Definition.Start} to be live.");
             }
 
-            sprite.Position = sprite.Position.Advance(DraygonBurialEvirs.Velocity(evir.Definition));
+            sprite.Position = sprite.Position.Advance(BurialDrift(evir.Definition));
         }
     }
 

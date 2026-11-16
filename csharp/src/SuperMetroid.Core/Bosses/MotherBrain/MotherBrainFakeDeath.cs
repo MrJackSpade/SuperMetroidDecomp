@@ -277,12 +277,11 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
-        var state = new MotherBrainFallingTubeState
+        var state = new MotherBrainFallingTubeState(piece == MotherBrainTubePiece.Main
+            ? MotherBrainTubeAction.WaitingToFall
+            : MotherBrainTubeAction.NonMainTube)
         {
             Playback = MotherBrainTubeAnimations.Starting(piece),
-            Action = piece == MotherBrainTubePiece.Main
-                ? MotherBrainTubeAction.WaitingToFall
-                : MotherBrainTubeAction.NonMainTube,
             FloorY = tubeBody.Floor,
             FallDelay = settings.FallDelay,
         };
@@ -293,7 +292,7 @@ internal sealed class MotherBrainFakeDeath
     internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        switch (tubeState.Action ?? throw new InvalidDataException("A falling tube has no action."))
+        switch (tubeState.Action)
         {
             case MotherBrainTubeAction.NonMainTube:
                 FallMotherBrainSideTube(tube);

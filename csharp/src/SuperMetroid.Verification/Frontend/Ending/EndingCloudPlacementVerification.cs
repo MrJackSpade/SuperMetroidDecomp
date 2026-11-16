@@ -37,7 +37,7 @@ internal static class EndingCloudPlacementVerification
             EndingActorDefinitions.TopCloudEdge, EndingActorDefinitions.BottomCloudEdge,
             EndingActorDefinitions.BottomCloudPattern];
         var actors = definitions.Select((definition, index) => new EndingSprite(
-            new IntroDiscoverySprite(Offset16<ScreenPixels>.Wrapped(128, nativeY[index]), EndingShades.Drawn(definition.Colouring),
+            new CinematicActor(Offset16<ScreenPixels>.Wrapped(128, nativeY[index]), EndingShades.Drawn(definition.Colouring),
                 definition.Animation), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.CloudSprites);
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The

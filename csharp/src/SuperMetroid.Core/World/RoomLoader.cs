@@ -45,7 +45,7 @@ internal sealed class RoomLoader
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
-    private readonly GameplayActionInput _controller1;
+    private readonly GameplayActionInput _playerActions;
     /// <summary>Publishes the display setup for a newly active room.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Coordinates the door loader's transition steps.</summary>
@@ -117,7 +117,7 @@ internal sealed class RoomLoader
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _controller1 = dependencies.PlayerActions;
+        _playerActions = dependencies.PlayerActions;
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
         _enemySession = dependencies.EnemySession;
@@ -1020,7 +1020,7 @@ internal sealed class RoomLoader
         {
             Level = assets.LevelData,
             Samus = loadingSamus,
-            ControllerInput = _controller1.Current,
+            ControllerInput = _playerActions.Current,
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,

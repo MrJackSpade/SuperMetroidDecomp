@@ -11,6 +11,8 @@ internal static class KraidNativeWords
     /// <summary>The bank-$A7 routine word naming each <see cref="KraidPhase"/>: a part's record word A.</summary>
     internal static readonly NativeWordIdentities<KraidPhase> Phases = new(new Dictionary<KraidPhase, ushort>
     {
+        // A resting part's record word A names the bank's bare return (#1870).
+        [KraidPhase.Resting] = 0xba2d,
         [KraidPhase.GrowBreakCeilingPlatforms] = 0xac4d,
         [KraidPhase.GrowBringBodyInFront] = 0xad3a,
         [KraidPhase.GrowSettleParts] = 0xad61,
@@ -75,9 +77,6 @@ internal static class KraidNativeWords
         [0xc7c9] = 2,
         [0xc7ef] = 1,
     };
-
-    /// <summary>The bank-$A7 return a part's record word A names while the part runs no phase (#1870).</summary>
-    internal const ushort NoPhase = 0xba2d;
 
     /// <summary>The bank-$A7 hitbox record address naming each <see cref="KraidMouthHitbox"/>.</summary>
     internal static readonly NativeWordIdentities<KraidMouthHitbox> MouthHitboxes = new(new Dictionary<KraidMouthHitbox, ushort>

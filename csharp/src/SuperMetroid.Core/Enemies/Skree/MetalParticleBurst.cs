@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// The four particles a Skree or Metaree bursts into as it burrows or dies (#1435), one per direction. Each enemy names its
 /// own, so the debris it spawns is its own and draws from its own spawned-object sheet.
 /// </summary>
-/// <param name="DownRight">The outer particle flying right.</param>
-/// <param name="UpRight">The inner particle flying right.</param>
-/// <param name="DownLeft">The outer particle flying left.</param>
-/// <param name="UpLeft">The inner particle flying left.</param>
+/// <param name="OuterRight">The outer particle flying right.</param>
+/// <param name="InnerRight">The inner particle flying right.</param>
+/// <param name="OuterLeft">The outer particle flying left.</param>
+/// <param name="InnerLeft">The inner particle flying left.</param>
 /// <param name="Look">The enemy's own look, which the particles' animation shows.</param>
-internal sealed record MetalParticleBurst(RoomEnemyProjectileKind DownRight, RoomEnemyProjectileKind UpRight,
-    RoomEnemyProjectileKind DownLeft, RoomEnemyProjectileKind UpLeft, SkreeMetareeParticleSegment Look);
+internal sealed record MetalParticleBurst(RoomEnemyProjectileKind OuterRight, RoomEnemyProjectileKind InnerRight,
+    RoomEnemyProjectileKind OuterLeft, RoomEnemyProjectileKind InnerLeft, SkreeMetareeParticleSegment Look);

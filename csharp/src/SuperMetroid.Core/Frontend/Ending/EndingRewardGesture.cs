@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingRewardGesture
 {
     /// <summary>Reward actor set in spawn order, advanced before inactive actors are removed.</summary>
-    private readonly List<IntroDiscoverySprite> actors = [];
+    private readonly List<CinematicActor> actors = [];
     /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
     public bool JumpRequested { get; private set; }
 
@@ -25,7 +25,7 @@ internal sealed class EndingRewardGesture
     public void Step()
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
-        foreach (IntroDiscoverySprite actor in actors)
+        foreach (CinematicActor actor in actors)
             actor.Step(HandleCue);
         actors.RemoveAll(actor => !actor.IsActive);
     }
@@ -34,7 +34,7 @@ internal sealed class EndingRewardGesture
     public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
     {
         Ensure.NotNull(destination);
-        foreach (IntroDiscoverySprite actor in actors)
+        foreach (CinematicActor actor in actors)
             actor.Draw(destination, installedArt: installedArt);
     }
 
@@ -98,7 +98,7 @@ internal sealed class EndingRewardGesture
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
         EndingRewardActorInitializationDefinition initialization =
             EndingRewardActors.GetInitialization(authored.Initialization);
-        var actor = new IntroDiscoverySprite(
+        var actor = new CinematicActor(
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
             authored.Animation);

@@ -188,7 +188,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Mella:
             case EnemyDefinitionId.MaridiaFly:
             case EnemyDefinitionId.Multiviola:
-            case EnemyDefinitionId.LavaRocks:
+            case EnemyDefinitionId.Polyp:
             case EnemyDefinitionId.Rinka:
             case EnemyDefinitionId.Rio:
             case EnemyDefinitionId.Squeept:
@@ -242,7 +242,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.KzanTop:
             case EnemyDefinitionId.KzanBottom:
             case EnemyDefinitionId.Hibashi:
-            case EnemyDefinitionId.Puromi:
+            case EnemyDefinitionId.NuclearWaffle:
             case EnemyDefinitionId.MiniKraid:
             case EnemyDefinitionId.RidleyCeres:
             case EnemyDefinitionId.Ridley:

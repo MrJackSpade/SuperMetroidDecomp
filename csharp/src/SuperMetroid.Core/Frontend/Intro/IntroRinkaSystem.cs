@@ -20,7 +20,7 @@ internal sealed class IntroRinkaSystem
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
     internal readonly List<IntroRinka> rinkas = [];
     /// <summary>Invisible actor whose animation schedules the two spawn pairs.</summary>
-    private readonly IntroDiscoverySprite spawner;
+    private readonly CinematicActor spawner;
     /// <summary>Whether Mother Brain's explosions have started, after which the spawner's animation has no spawn left.</summary>
     private bool spawnsForbidden;
 
@@ -155,7 +155,7 @@ internal sealed class IntroRinkaSystem
         SamusState samus,
         bool motherBrainExploding)
     {
-        IntroDiscoverySprite sprite = rinka.Sprite;
+        CinematicActor sprite = rinka.Sprite;
         if (!rinka.IsMoving)
             return;
         switch (rinka.Flight)
@@ -163,17 +163,17 @@ internal sealed class IntroRinkaSystem
             case IntroRinkaFlight.StrikesSamus:
                 Drift(sprite, rinka.Drift);
 
-                // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
+                // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding step.
-                if (sprite.ScreenPlace.X + 8 < samus.Position.X.Whole - 5)
+                if (sprite.ScreenPlace.X + IntroRinkaDefinitions.StrikingEdge < samus.Position.X.Whole - IntroRinkaDefinitions.SamusStruckReach)
                 {
                     if (motherBrainExploding)
                         sprite.Delete();
                     return;
                 }
 
-                samus.InvincibilityTimer = WrappingCountdown.Start(11);
-                samus.KnockbackTimer = 11;
+                samus.InvincibilityTimer = WrappingCountdown.Start(IntroRinkaDefinitions.StrikeKnockbackUpdates);
+                samus.KnockbackTimer = IntroRinkaDefinitions.StrikeKnockbackUpdates;
                 samus.KnockbackXDirection = Samus.Movement.KnockbackHorizontalDirection.Right;
                 sprite.Delete();
                 return;
@@ -181,7 +181,7 @@ internal sealed class IntroRinkaSystem
             case IntroRinkaFlight.MissesSamus:
                 Drift(sprite, rinka.Drift);
                 int y = sprite.ScreenPlace.Y;
-                if (y < 16 || y >= 208 || motherBrainExploding)
+                if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
                     sprite.Delete();
                 return;
 
@@ -194,7 +194,7 @@ internal sealed class IntroRinkaSystem
     /// Moves the Rinka sideways by <paramref name="sideways"/> and down by half a pixel: every second update the half
     /// pixels add up to one more whole pixel.
     /// </summary>
-    private static void Drift(IntroDiscoverySprite rinka, SignedSixteenSixteen sideways)
+    private static void Drift(CinematicActor rinka, SignedSixteenSixteen sideways)
     {
         rinka.Position = rinka.Position.WithX(rinka.Position.X + sideways);
         rinka.Position = rinka.Position.WithY(rinka.Position.Y + IntroRinkaDefinitions.DownwardDrift);

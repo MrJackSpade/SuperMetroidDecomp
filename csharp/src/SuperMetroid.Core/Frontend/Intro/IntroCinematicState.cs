@@ -311,7 +311,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (fade.Brighten())
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
-                    timer = 60;
+                    timer = IntroCinematicDefinitions.Timing.FirstLineHold;
                 }
                 break;
 
@@ -320,7 +320,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
-                    timer = 200;
+                    timer = IntroCinematicDefinitions.Timing.CaptivityLineHold;
                 }
                 break;
 
@@ -343,7 +343,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (MusicQueueFinished())
                 {
                     Phase = IntroCinematicPhase.FourSecondHold;
-                    timer = 240;
+                    timer = IntroCinematicDefinitions.Timing.FourSecondHold;
                 }
                 break;
 
@@ -609,10 +609,10 @@ public sealed class IntroCinematicState : IFrontendScreen
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
+            Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
             SelectedHudItem = HudItem.Missile,
-            Missiles = 900,
-            MaxMissiles = 900,
+            Missiles = IntroCinematicDefinitions.Flashback.Missiles,
+            MaxMissiles = IntroCinematicDefinitions.Flashback.Missiles,
         };
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sound/landing effects.

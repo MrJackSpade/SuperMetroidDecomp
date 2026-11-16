@@ -325,8 +325,8 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 6),
         new(nameof(RoomEnemyPopulationDefinitions.Pillar),
         [
-            new(EnemyDefinitionId.Puromi, new(400, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
-            new(EnemyDefinitionId.Puromi, new(720, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
+            new(EnemyDefinitionId.NuclearWaffle, new(400, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
+            new(EnemyDefinitionId.NuclearWaffle, new(720, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new NuclearWaffleSpawnSettings(AngularSpeed: AngularSpeed.FromSteps(1), OrbitRadius: 64, Direction: NuclearWaffleSweepDirection.Forward, WaitTime: 32)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrocomireEscape),
         [
@@ -664,10 +664,10 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Fune, new(736, 376), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 128, LaunchSpeed: SignedEightEight.FromPixels(2))),
             new(EnemyDefinitionId.Fune, new(544, 296), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Right, CooldownTime: 128, LaunchSpeed: SignedEightEight.FromPixels(2))),
             new(EnemyDefinitionId.Fune, new(736, 216), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 128, LaunchSpeed: SignedEightEight.FromPixels(2))),
-            new(EnemyDefinitionId.LavaRocks, new(248, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.LavaRocks, new(128, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.LavaRocks, new(136, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.LavaRocks, new(264, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.Polyp, new(248, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.Polyp, new(128, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.Polyp, new(136, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.Polyp, new(264, 712), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
         ], 10),
         new(nameof(RoomEnemyPopulationDefinitions.UpperNorfairFarming),
         [

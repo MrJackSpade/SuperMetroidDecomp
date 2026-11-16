@@ -11,4 +11,12 @@ internal static class EndingRewardJumpDefinitions
     public const int FallStartY = -80;
     /// <summary>The body stops here before its landed animation begins.</summary>
     public const int LandingY = 136;
+    /// <summary>Where the helmeted head is placed as the jump readies it.</summary>
+    public static Offset16<ScreenPixels> HelmetedHeadReadied => new(118, 120);
+    /// <summary>Where the helmetless head is placed as the jump readies it.</summary>
+    public static Offset16<ScreenPixels> HelmetlessHeadReadied => new(120, 120);
+    /// <summary>Where the helmeted head is placed as it launches.</summary>
+    public static Offset16<ScreenPixels> HelmetedHeadLaunched => new(120, 114);
+    /// <summary>Where the helmetless head is placed as it launches.</summary>
+    public static Offset16<ScreenPixels> HelmetlessHeadLaunched => new(121, 116);
 }

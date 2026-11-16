@@ -11,6 +11,6 @@ internal static class MetareeParticleDefinitions
 {
     /// <summary>Metaree's four-particle burst.</summary>
     internal static MetalParticleBurst Burst { get; } = new(
-        RoomEnemyProjectileKind.MetareeParticleDownRight, RoomEnemyProjectileKind.MetareeParticleUpRight,
-        RoomEnemyProjectileKind.MetareeParticleDownLeft, RoomEnemyProjectileKind.MetareeParticleUpLeft, SkreeMetareeParticleSegment.Metaree);
+        RoomEnemyProjectileKind.MetareeParticleOuterRight, RoomEnemyProjectileKind.MetareeParticleInnerRight,
+        RoomEnemyProjectileKind.MetareeParticleOuterLeft, RoomEnemyProjectileKind.MetareeParticleInnerLeft, SkreeMetareeParticleSegment.Metaree);
 }

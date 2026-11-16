@@ -10,21 +10,18 @@ internal static class SpacePirateCollisionDefinitionsAccess
     /// <summary>Native views of the catalog.</summary>
     extension(SpacePirateCollisionDefinitions)
     {
-        /// <summary>Number of compiled Space Pirate collision component frames.</summary>
+        /// <summary>Number of compiled Space Pirate collision frames.</summary>
         internal static int FrameCount => SpacePirateCollisionDefinitions.Frames.Count();
-
-        /// <summary>Number of compiled Space Pirate hitbox lists.</summary>
-        internal static int ListCount => SpacePirateCollisionDefinitions.HitboxLists.Length;
 
         /// <summary>The <paramref name="index"/>th compiled frame, in native order, with its native address.</summary>
         internal static SpacePirateCollisionFrame Frame(int index)
         {
-            KeyValuePair<EnemyFrameId, EnemyCollisionComponent[]> frame = SpacePirateCollisionDefinitions.Frames.ElementAt(index);
+            KeyValuePair<EnemyFrameId, EnemyCollisionHitbox[]> frame = SpacePirateCollisionDefinitions.Frames.ElementAt(index);
             return new(EnemyFrameCartridgeLookupTooling.FrameHitboxWord(frame.Key), frame.Value);
         }
 
-        /// <summary>The components of the frame at native address <paramref name="pointer"/>.</summary>
-        internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort pointer) =>
+        /// <summary>The hitboxes of the frame at native address <paramref name="pointer"/>.</summary>
+        internal static ReadOnlySpan<EnemyCollisionHitbox> HitboxesAt(ushort pointer) =>
             pointer == CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame || RoomEnemyPlaceFrameAccess.Shows(SpacePiratesBank, pointer)
                 ? SpacePirateCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(SpacePiratesBank, pointer))
                 : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");

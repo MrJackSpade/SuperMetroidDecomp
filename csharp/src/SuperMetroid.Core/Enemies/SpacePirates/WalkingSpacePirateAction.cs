@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 public enum WalkingSpacePirateAction
 {
     /// <summary>
-    /// Stands while its animation moves and poses it: initialization, flinching, firing and looking around.
+    /// Stands still, its main AI idle, while its animation poses it: initialization, flinching, firing and looking around.
     /// </summary>
-    FollowingAnimation,
+    StandingStill,
 
     /// <summary>Walk left, fall when unsupported, and turn at a wall, ledge, or patrol post.</summary>
     WalkingLeft,

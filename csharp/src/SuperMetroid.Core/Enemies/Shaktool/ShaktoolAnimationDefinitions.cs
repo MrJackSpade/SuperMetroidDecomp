@@ -17,19 +17,4 @@ internal static class ShaktoolAnimationDefinitions
         [CompassDirection.Left] = ShaktoolSegment.HeadAimingLeft,
         [CompassDirection.UpLeft] = ShaktoolSegment.HeadAimingUpLeft,
     };
-
-    /// <summary>
-    /// Collision and dormant-attack behavior by body part: primary saw, rear arm, front arm,
-    /// head, front arm, rear arm, final saw.
-    /// </summary>
-    internal static readonly ShaktoolSegmentAnimationDefinition[] SegmentAnimations =
-    [
-        new(ShaktoolSegment.SawHandHeadBobPrimaryPiece),
-        new(ShaktoolSegment.ArmPieceHeadBobBack),
-        new(ShaktoolSegment.ArmPieceHeadBobFront),
-        new(ShaktoolSegment.HeadHeadBob),
-        new(ShaktoolSegment.ArmPieceHeadBobFront),
-        new(ShaktoolSegment.ArmPieceHeadBobBack),
-        new(ShaktoolSegment.SawHandHeadBobFinalPiece),
-    ];
 }

@@ -79,7 +79,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
         state.FlameRainRequested = false;
         body.SetSpeciesState(state);
-        state.Phase = PhantoonPhase.SpawnStartingFlames;
         ResetPhantoonMouthControls(Combat.Phantoon);
     }
 
@@ -140,7 +139,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        PhantoonPhase? phase = state.Phase;
+        PhantoonPhase phase = state.Phase;
 
         switch (phase)
         {
@@ -240,7 +239,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case PhantoonPhase.Dead:
                 Death.ActivateWreckedShipAfterPhantoon(body, state);
                 break;
-            case null:
+            case PhantoonPhase.WaitingOnEye:
                 break;
             default:
                 throw new InvalidDataException(

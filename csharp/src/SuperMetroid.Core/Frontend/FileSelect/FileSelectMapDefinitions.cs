@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public static class FileSelectMapDefinitions
 {
+    /// <summary>The width and height of one map square, in map pixels: each of a room's screens fills one square.</summary>
+    public const int MapSquarePixels = 8;
+
     /// <summary>The room view's frame drawn this many pixels lower, aligning it with the visible map viewport.</summary>
     public const int RoomFrameVerticalScroll = 24;
 

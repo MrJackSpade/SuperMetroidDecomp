@@ -11,7 +11,7 @@ internal static class SpacePiratesNativeWords
     /// <summary>The routine word naming each <see cref="NinjaSpacePirateAction"/>.</summary>
     internal static readonly NativeWordIdentities<NinjaSpacePirateAction> NinjaSpacePirateActions = new(new Dictionary<NinjaSpacePirateAction, ushort>
     {
-        [NinjaSpacePirateAction.FollowingAnimation] = 0x804b,
+        [NinjaSpacePirateAction.StandingStill] = 0x804b,
         [NinjaSpacePirateAction.Initial] = 0xf6a9,
         [NinjaSpacePirateAction.Active] = 0xf6e4,
         [NinjaSpacePirateAction.SpinJumpLeftRising] = 0xf817,
@@ -31,10 +31,10 @@ internal static class SpacePiratesNativeWords
     /// <remarks>The shared return stub and the pirate's own empty routine both hold it while its animation runs (#1837).</remarks>
     internal static readonly NativeWordIdentities<WalkingSpacePirateAction> WalkingSpacePirateActions = new(new Dictionary<ushort, WalkingSpacePirateAction>
     {
-        [0x804b] = WalkingSpacePirateAction.FollowingAnimation,
+        [0x804b] = WalkingSpacePirateAction.StandingStill,
         [0xfd44] = WalkingSpacePirateAction.WalkingLeft,
         [0xfdce] = WalkingSpacePirateAction.WalkingRight,
-        [0xfe4a] = WalkingSpacePirateAction.FollowingAnimation,
+        [0xfe4a] = WalkingSpacePirateAction.StandingStill,
     });
 
     /// <summary>The climb-direction word naming each <see cref="WallSpacePirateClimbDirection"/>.</summary>

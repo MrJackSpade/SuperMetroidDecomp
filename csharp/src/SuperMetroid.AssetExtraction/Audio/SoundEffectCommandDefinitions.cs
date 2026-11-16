@@ -140,7 +140,7 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.DachoraShinesparkEnd] = 0x3c,
         [EnemySound.DachoraStoredShinespark] = 0x3d,
         [EnemySound.ShotRipper] = 0x3e,
-        [EnemySound.AlcoonSpit] = 0x3f,
+        [EnemySound.Whoosh] = 0x3f,
         [EnemySound.BoulderBounce] = 0x42,
         [EnemySound.BoulderExplosion] = 0x43,
         [EnemySound.CeresTypewriter] = 0x45,

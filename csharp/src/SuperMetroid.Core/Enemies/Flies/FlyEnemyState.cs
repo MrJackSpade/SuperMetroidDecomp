@@ -32,8 +32,10 @@ public sealed class FlyEnemyState
     /// <summary>The current circling, attacking or retreating behaviour.</summary>
     public FlyAction Action { get; internal set; }
 
-    /// <summary>One circling update's phase advance, one way or the other, wrapping after a full turn.</summary>
-    /// <param name="clockwise">Whether the fly circles clockwise.</param>
-    internal void AdvanceCircle(bool clockwise) =>
-        Angle = Angle.TurnedBySteps(clockwise ? FlyMotionDefinitions.CircleTurnSteps : -FlyMotionDefinitions.CircleTurnSteps);
+    /// <summary>The way the fly circles (#2277): it starts clockwise and reverses after each full turn.</summary>
+    public RotationDirection Rotation { get; internal set; }
+
+    /// <summary>One circling update's phase advance the way the fly circles, wrapping after a full turn.</summary>
+    internal void AdvanceCircle() =>
+        Angle = Angle.TurnedBySteps(Rotation == RotationDirection.Clockwise ? FlyMotionDefinitions.CircleTurnSteps : -FlyMotionDefinitions.CircleTurnSteps);
 }

@@ -33,8 +33,8 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
 
     /// <inheritdoc/>
     internal override FuneNamiheSegment Animation => ShowsActiveAnimation
-        ? FacingRight ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
-        : FacingRight ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;
+        ? Facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
+        : Facing == HorizontalDirection.Right ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;
 
     /// <inheritdoc/>
     internal override void FinishSpit()

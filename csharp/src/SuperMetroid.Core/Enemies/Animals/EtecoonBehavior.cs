@@ -237,7 +237,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        if (state.HeadingRight)
+        if (state.Heading == HorizontalDirection.Right)
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.BeginRunningRight);
             SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
@@ -296,7 +296,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PauseEtecoonForEarthquake(place, state);
         if (MoveEtecoonHorizontally(place, state, level))
         {
-            if (state.HeadingRight)
+            if (state.Heading == HorizontalDirection.Right)
             {
                 StartEtecoonAnimation(place, state, EtecoonSegment.WallJumpLeftEligible);
                 state.Head(side: HorizontalDirection.Left);
@@ -319,7 +319,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEtecoonAnimation(
             place,
             state,
-            state.HeadingRight
+            state.Heading == HorizontalDirection.Right
                 ? EtecoonSegment.HoppingFacingLeft
                 : EtecoonSegment.HoppingFacingRight);
         state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
@@ -334,7 +334,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        if (state.HeadingRight)
+        if (state.Heading == HorizontalDirection.Right)
         {
             StartEtecoonAnimation(place, state, EtecoonSegment.WallJumpRight);
             SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
@@ -372,7 +372,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case EtecoonRoute.TeachAtOnce:
                 state.Action = EtecoonAction.TeachingJump;
                 // The landing hop faced away from the heading; the teaching hop continues it.
-                state.Playback = new(EtecoonAnimations.StartingWith(state.HeadingRight
+                state.Playback = new(EtecoonAnimations.StartingWith(state.Heading == HorizontalDirection.Right
                     ? EtecoonSegment.ContinueHoppingFacingLeft
                     : EtecoonSegment.ContinueHoppingFacingRight), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);

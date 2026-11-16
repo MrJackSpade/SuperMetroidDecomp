@@ -9,6 +9,6 @@ internal sealed class ElevatorJourneyState
     /// <summary>The elevator status, shared across the departure and destination room actors.</summary>
     internal ElevatorActorStatus Status { get; set; }
 
-    /// <summary>Whether the active elevator is travelling upward; otherwise it travels downward.</summary>
-    internal bool TravelsUpward { get; set; }
+    /// <summary>The way the active elevator travels (#2277).</summary>
+    internal ElevatorTravelDirection Travel { get; set; }
 }

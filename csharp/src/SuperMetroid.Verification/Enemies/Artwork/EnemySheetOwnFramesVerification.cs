@@ -131,8 +131,8 @@ internal static class EnemySheetOwnFramesVerification
         bool[] both = [false, true];
         return both.SelectMany(active => both.Select(right =>
             FuneNamiheBehavior.SelectFuneNamiheAnimation(definition == EnemyDefinitionId.Namihe
-                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { ShowsActiveAnimation = active, FacingRight = right }
-                : new FuneEnemyState(FuneAction.WaitForCooldown) { ShowsActiveAnimation = active, FacingRight = right })));
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { ShowsActiveAnimation = active, Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left }
+                : new FuneEnemyState(FuneAction.WaitForCooldown) { ShowsActiveAnimation = active, Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left })));
     }
 
     /// <summary>

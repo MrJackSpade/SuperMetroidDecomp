@@ -508,8 +508,15 @@ internal static class NativeEnemyFamilyStateImport
         {
             // The record holds the speed and its negation for walking left; the speed alone is the state.
             cacatacRecord.Speed = cacatacRecord.Speed.WithWholePixels(unchecked((short)words.A));
-            cacatacRecord.Direction = CacatacNativeWords.Directions.Decode(words.D, "recorded CacatacDirection");
-            cacatacRecord.Action = CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
+            // Every recorded direction but left patrols right, as the game's restore-patrol cue reads it (#2277).
+            HorizontalDirection cacatacPatrol = CacatacNativeWords.Directions.Decode(words.D, "recorded CacatacDirection") == CacatacDirection.Left
+                ? HorizontalDirection.Left
+                : HorizontalDirection.Right;
+            (CacatacAction cacatacAction, HorizontalDirection? cacatacPatrolling) = CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
+            if (cacatacPatrolling is { } patrolling && patrolling != cacatacPatrol)
+                throw new InvalidDataException($"Recorded Cacatac patrols {patrolling} but its direction word ${words.D:X4} names {cacatacPatrol}.");
+            cacatacRecord.PatrolDirection = cacatacPatrol;
+            cacatacRecord.Action = cacatacAction;
         }
         if (enemy.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
         {
@@ -651,7 +658,11 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.BeetomStates[index] is { } beetom)
         {
             beetom.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.B, short.MaxValue, "Beetom speed index"));
-            beetom.Action = BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
+            (BeetomAction beetomAction, HorizontalDirection? beetomHeading) = BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
+            beetom.Action = beetomAction;
+            // Only an action that goes one way names its heading (#2277).
+            if (beetomHeading is { } beetomGoes)
+                beetom.Heading = beetomGoes;
             beetom.ActionTimer = TrueDuration(words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
@@ -823,14 +834,18 @@ internal static class NativeEnemyFamilyStateImport
             fly.Angle = words.E % 2 == 0
                 ? RotationAngle.FromSteps(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
                 : throw new InvalidDataException($"Recorded fly phase ${words.E:X4} is odd.");
-            fly.Action = FliesNativeWords.FlyActions.Decode(words.F, "recorded FlyAction");
+            (FlyAction flyAction, RotationDirection? flyRotation) = FliesNativeWords.FlyActions.Decode(words.F, "recorded FlyAction");
+            fly.Action = flyAction;
+            // Only circling names the way it circles (#2277); a retreat starts circling clockwise again.
+            if (flyRotation is { } flyCircles)
+                fly.Rotation = flyCircles;
             // The word counts the dive up and its retreat down past zero; the port's retreat holds its true duration.
             fly.RetreatTimer = fly.Action == FlyAction.Retreat ? TrueDuration(words.A) : unchecked((short)words.A);
         }
         if (enemies.DragonStates[index] is { } dragon)
         {
             // Only the direction word's sign bit, the facing, is ever read.
-            dragon.FacingLeft = (words.A & 0x8000) != 0;
+            dragon.Facing = (words.A & 0x8000) != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
             dragon.Action = DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
             // The wait before sinking runs out at zero in the cartridge too; its other waits run past zero.
@@ -851,7 +866,7 @@ internal static class NativeEnemyFamilyStateImport
             if (namihe)
                 throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
             fune.ShowsActiveAnimation = active;
-            fune.FacingRight = right;
+            fune.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
         if (enemies.NamiheStates[index] is { } namiheState)
         {
@@ -863,7 +878,7 @@ internal static class NativeEnemyFamilyStateImport
             if (!namihe)
                 throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Fune.");
             namiheState.ShowsActiveAnimation = active;
-            namiheState.FacingRight = right;
+            namiheState.Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
         if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)

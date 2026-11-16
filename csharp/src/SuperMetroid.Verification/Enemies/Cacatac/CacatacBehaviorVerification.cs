@@ -30,14 +30,16 @@ internal static class CacatacBehaviorVerification
             state.Action = CacatacAction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Segments, loop, CacatacFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop)), $"Cacatac {orientation} idle loop");
-            AssertEqual(CacatacAction.MovingLeft, state.Action, $"Cacatac {orientation} idle restores patrol");
+            AssertEqual(CacatacAction.Patrolling, state.Action, $"Cacatac {orientation} idle restores patrol");
+            AssertEqual(HorizontalDirection.Left, state.PatrolDirection, $"Cacatac {orientation} idle patrols the way it was placed");
 
             (enemies, place, state) = Create(upsideUp);
             state.Action = CacatacAction.Stopped;
             CacatacBehavior.SetCacatacAnimation(place, state, upsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
             EnemyInstructionRunner.ShownFrames(place, 53);
             AssertEqual(loop, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment, $"Cacatac {orientation} attack returns to idle");
-            AssertEqual(CacatacAction.MovingLeft, state.Action, $"Cacatac {orientation} attack resumes patrol");
+            AssertEqual(CacatacAction.Patrolling, state.Action, $"Cacatac {orientation} attack resumes patrol");
+            AssertEqual(HorizontalDirection.Left, state.PatrolDirection, $"Cacatac {orientation} attack resumes its leftward patrol");
             AssertEqual<SoundEffectId?>(CacatacNativeValues.SpikeSound, enemies.Audio.LatestSound, $"Cacatac {orientation} attack plays the spike sound");
             CacatacSpikeDirection[] directions = upsideUp
                 ? [CacatacSpikeDirection.LeftFacingUp, CacatacSpikeDirection.UpLeft, CacatacSpikeDirection.Up, CacatacSpikeDirection.UpRight, CacatacSpikeDirection.RightFacingUp]
@@ -78,22 +80,22 @@ internal static class CacatacBehaviorVerification
         place.Position = place.Position.WithFractionX(checked(halfPixel));
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
         AssertEqual(new FixedCoordinate(7, 0), place.Position.X, "Cacatac leftward step borrows its fraction");
-        AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac keeps walking left of a limit that wrapped to the far right");
-        AssertEqual(CacatacAction.MovingLeft, state.Action, "Cacatac keeps its leftward patrol");
+        AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac keeps walking left of a limit that wrapped to the far right");
+        AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac keeps its leftward patrol");
 
         // One pixel right of the wrapped limit: the step lands half a pixel past it and turns.
         place.Position = place.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolX + 1)));
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
         AssertEqual(new FixedCoordinate(unchecked((ushort)(state.LeftPatrolX - 1)), checked(halfPixel)), place.Position.X,
             "Cacatac steps past its wrapped left limit");
-        AssertEqual(CacatacDirection.Right, state.Direction, "Cacatac turns right once past its wrapped left limit");
-        AssertEqual(CacatacAction.MovingRight, state.Action, "Cacatac patrols right after the turn");
+        AssertEqual(HorizontalDirection.Right, state.PatrolDirection, "Cacatac turns right once past its wrapped left limit");
+        AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols right after the turn");
 
         place.Position = place.Position.WithX(new FixedCoordinate(22, checked(halfPixel)));
         enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
         AssertEqual(new FixedCoordinate(24, 0), place.Position.X, "Cacatac rightward step carries its fraction into the whole X");
-        AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac turns left on reaching its right limit");
-        AssertEqual(CacatacAction.MovingLeft, state.Action, "Cacatac patrols left after the turn");
+        AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac turns left on reaching its right limit");
+        AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols left after the turn");
         Console.WriteLine("  Cacatac patrol: the 16.16 steps carry and borrow, and both turns follow the wrapped distance to the limit.");
 
         static ClockedEnemyAiFrame Frame() => new(

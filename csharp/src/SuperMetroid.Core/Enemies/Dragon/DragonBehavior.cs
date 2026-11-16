@@ -129,10 +129,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.Action = DragonAction.Rising;
 
         // The body turns to face Samus, and the idle body and its flapping wing each turn to that side.
-        bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
-        bodyState.FacingLeft = facingLeft;
+        bodyState.Facing = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0
+            ? HorizontalDirection.Left
+            : HorizontalDirection.Right;
         StartDragonIdle(body, bodyState);
-        StartDragonAnimation(wing, wingState, DragonPhases.Wings(facingLeft));
+        StartDragonAnimation(wing, wingState, DragonPhases.Wings(bodyState.Facing));
     }
 
     /// <summary>Rises out of the lava.</summary>
@@ -155,7 +156,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The attack faces the way the body turned before rising. The update after each fireball, the attack its spit
         // played out starts over: that restart is what spaces the three fireballs by a whole attack animation (#2145).
-        Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.FacingLeft));
+        Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
         bodyState.Playback = bodyState.PlaysAttack && bodyState.Playback.HasShownPhaseEnd && !bodyState.AnimationFinished
             ? EnemyAnimationPlayback.Start(body, attack)
             : EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack);
@@ -227,7 +228,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the body's idle pose for the side it faces unless it already plays it; the body no longer attacks (#2168).</summary>
     private static void StartDragonIdle(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.FacingLeft));
+        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.Facing));
         bodyState.PlaysAttack = false;
     }
 
@@ -293,10 +294,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             Fireball,
             SpriteGraphics.SpawnedBy(body));
         Offset16<RoomPixels> muzzle = DragonFireballDefinitions.MuzzleFacingRight;
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (bodyState.FacingLeft ? muzzle.MirroredX() : muzzle));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (bodyState.Facing == HorizontalDirection.Left ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithY(DragonFireballDefinitions.LaunchRise);
 
-        if (bodyState.FacingLeft)
+        if (bodyState.Facing == HorizontalDirection.Left)
         {
             projectile.Velocity = projectile.Velocity.WithX(-DragonFireballDefinitions.SidewaysSpeed);
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingLeft));

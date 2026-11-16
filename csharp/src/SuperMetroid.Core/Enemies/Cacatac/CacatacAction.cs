@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The behaviour Cacatac's main AI runs each frame. Initialization selects one of the first three by its authored
-/// direction (moving left, moving right, or stopped while an attack animation owns the actor); no other start is
-/// authored.
+/// The behaviour Cacatac's main AI runs each frame. Initialization selects patrolling, or stopped for a Cacatac placed
+/// to stop at first; no other start is authored.
 /// Its values are arbitrary.
 /// </summary>
 public enum CacatacAction
 {
-    /// <summary>Moves left at its patrol speed, turns right below the minimum X bound, then rolls for an attack.</summary>
-    MovingLeft,
-    /// <summary>Moves right at its patrol speed, turns left at or beyond the maximum X bound, then rolls for an attack.</summary>
-    MovingRight,
+    /// <summary>
+    /// Moves at its patrol speed the way <see cref="CacatacEnemyState.PatrolDirection"/> names (#2277), turning back past
+    /// the left bound or at or beyond the right bound, then rolls for an attack.
+    /// </summary>
+    Patrolling,
     /// <summary>Performs no patrol update while attack animation cues own the actor; also the initial action of a Cacatac placed with an initial stop.</summary>
     Stopped,
 }

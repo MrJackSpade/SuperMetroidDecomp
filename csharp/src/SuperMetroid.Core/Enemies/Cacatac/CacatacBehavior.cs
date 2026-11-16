@@ -61,17 +61,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Frame = EnemyFrameId.Empty;
 
         int spawnX = place.Position.X.Whole;
-        CacatacAction action = direction switch
-        {
-            CacatacDirection.Left => CacatacAction.MovingLeft,
-            CacatacDirection.Right => CacatacAction.MovingRight,
-            CacatacDirection.InitialStop => CacatacAction.Stopped,
-            _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
-        };
-        var state = new CacatacEnemyState(action)
+        if (!Enum.IsDefined(direction))
+            throw new InvalidOperationException($"Undefined Cacatac direction {direction}.");
+        // A Cacatac placed to stop at first stands still, then patrols right from its first idle step.
+        var state = new CacatacEnemyState(direction == CacatacDirection.InitialStop ? CacatacAction.Stopped : CacatacAction.Patrolling)
         {
             Speed = settings.Speed,
-            Direction = direction,
+            PatrolDirection = direction == CacatacDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right,
             RightPatrolX = CoordinateAxis.Wrap(spawnX + settings.TravelDistance),
             LeftPatrolX = CoordinateAxis.Wrap(spawnX - settings.TravelDistance),
             UpsideUp = upsideUp,
@@ -85,12 +81,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.Action)
         {
-            case CacatacAction.MovingLeft:
-                MoveCacatac(place, state, direction: HorizontalDirection.Left);
-                MaybeStartCacatacAttack(place, state);
-                return;
-            case CacatacAction.MovingRight:
-                MoveCacatac(place, state, direction: HorizontalDirection.Right);
+            case CacatacAction.Patrolling:
+                MoveCacatac(place, state);
                 MaybeStartCacatacAttack(place, state);
                 return;
             case CacatacAction.Stopped:
@@ -105,26 +97,20 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the Cacatac along its patrol by its speed, then the wrapped signed distance to the patrol limit decides the
     /// turn.
     /// </summary>
-    private static void MoveCacatac(
-        RoomEnemyPlace place,
-        CacatacEnemyState state,
-        HorizontalDirection direction)
+    private static void MoveCacatac(RoomEnemyPlace place, CacatacEnemyState state)
     {
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
+        bool right = state.PatrolDirection == HorizontalDirection.Right;
+        place.Position = place.Position.AdvanceX(right ? state.Speed : -state.Speed);
 
-        if (direction != HorizontalDirection.Right)
+        if (!right)
         {
-            if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.LeftPatrolX))
-                return;
-            state.Action = CacatacAction.MovingRight;
-            state.Direction = CacatacDirection.Right;
+            if (CoordinateAxis.Precedes(place.Position.X.Whole, state.LeftPatrolX))
+                state.PatrolDirection = HorizontalDirection.Right;
             return;
         }
 
-        if (CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPatrolX))
-            return;
-        state.Action = CacatacAction.MovingLeft;
-        state.Direction = CacatacDirection.Left;
+        if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPatrolX))
+            state.PatrolDirection = HorizontalDirection.Left;
     }
 
     /// <summary>The 3/256 random attack gate.</summary>
@@ -137,14 +123,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacAnimation(place, state, state.UpsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
     }
 
-    /// <summary>Animation cue: restore patrol from the stored direction.</summary>
-    private static void RestoreCacatacPatrol(CacatacEnemyState state)
-    {
-        // The game tests only for left, so a Cacatac placed to stop at first patrols right from its first idle step.
-        state.Action = state.Direction == CacatacDirection.Left
-            ? CacatacAction.MovingLeft
-            : CacatacAction.MovingRight;
-    }
+    /// <summary>Animation cue: restore patrol the way it last patrolled.</summary>
+    private static void RestoreCacatacPatrol(CacatacEnemyState state) => state.Action = CacatacAction.Patrolling;
 
     /// <summary>Animation cue: publish the spike sound.</summary>
     private void PlayCacatacSpikeSound() =>

@@ -68,7 +68,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             ShowsActiveAnimation = false,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
-            FacingRight = settings.Facing == HorizontalDirection.Right,
+            Facing = settings.Facing,
             LaunchSpeed = settings.LaunchSpeed,
         };
         place.SetSpeciesState(state);
@@ -83,7 +83,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ShowsActiveAnimation = false,
             YProximity = settings.YProximity,
-            FacingRight = settings.Facing == HorizontalDirection.Right,
+            Facing = settings.Facing,
             LaunchSpeed = settings.LaunchSpeed,
         };
         place.SetSpeciesState(state);

@@ -27,7 +27,7 @@ internal static class FuneNamiheCooldownVerification
         FuneEnemyState reached = Wait(CooldownTime - 1);
         AssertEqual(0, reached.CooldownTimer, "ending the wait resets the count");
         AssertEqual(FuneAction.Spitting, reached.Action, "a count reaching the cooldown time ends the wait");
-        AssertTrue(reached.ShowsActiveAnimation && !reached.FacingRight, "ending the wait selects the active animation for the same facing");
+        AssertTrue(reached.ShowsActiveAnimation && reached.Facing == HorizontalDirection.Left, "ending the wait selects the active animation for the same facing");
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
 
@@ -45,7 +45,7 @@ internal static class FuneNamiheCooldownVerification
         var state = new FuneEnemyState(FuneAction.WaitForCooldown)
         {
             ShowsActiveAnimation = false,
-            FacingRight = false,
+            Facing = HorizontalDirection.Left,
             CooldownTime = CooldownTime,
             CooldownTimer = count,
         };

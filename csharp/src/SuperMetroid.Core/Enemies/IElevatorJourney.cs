@@ -14,8 +14,8 @@ internal interface IElevatorJourney
     /// <summary>What has armed the elevator's pseudo-door.</summary>
     ElevatorJourneyFlag ElevatorFlags { get; }
 
-    /// <summary>Whether the elevator travels upward.</summary>
-    bool ElevatorTravelsUpward { get; }
+    /// <summary>The way the elevator travels.</summary>
+    ElevatorTravelDirection ElevatorTravel { get; }
 
     /// <summary>Whether the elevator, not Samus's own movement, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }

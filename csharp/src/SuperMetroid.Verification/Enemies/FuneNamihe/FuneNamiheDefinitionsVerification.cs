@@ -76,8 +76,8 @@ internal static class FuneNamiheDefinitionsVerification
             ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
             FuneNamiheEnemyState state = namihe
-                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { ShowsActiveAnimation = active, FacingRight = right }
-                : new FuneEnemyState(FuneAction.WaitForCooldown) { ShowsActiveAnimation = active, FacingRight = right };
+                ? new NamiheEnemyState(NamiheAction.WaitForSamus) { ShowsActiveAnimation = active, Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left }
+                : new FuneEnemyState(FuneAction.WaitForCooldown) { ShowsActiveAnimation = active, Facing = right ? HorizontalDirection.Right : HorizontalDirection.Left };
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheAnimation(state)),
                 "Fune/Namihe production species/activity/facing selection matches native pointer");
         }

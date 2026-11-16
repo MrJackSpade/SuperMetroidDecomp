@@ -25,12 +25,12 @@ internal static class DragonAnimationDefinitionsVerification
                 NativeEnemyAnimationOracle.EntryOf(DragonNativeListAddresses.Entries, selector),
                 $"Dragon animation selector {selector}");
         }
-        foreach (bool facingLeft in new[] { true, false })
+        foreach (HorizontalDirection facing in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
         {
-            int side = facingLeft ? 0 : 1;
-            AssertEqual(Selector(side), DragonPhases.Idle(facingLeft), $"Dragon idle facing left {facingLeft}");
-            AssertEqual(Selector(2 | side), DragonPhases.Wings(facingLeft), $"Dragon wings facing left {facingLeft}");
-            AssertEqual(Selector(4 | side), DragonPhases.Attacking(facingLeft), $"Dragon attack facing left {facingLeft}");
+            int side = facing == HorizontalDirection.Left ? 0 : 1;
+            AssertEqual(Selector(side), DragonPhases.Idle(facing), $"Dragon idle facing {facing}");
+            AssertEqual(Selector(2 | side), DragonPhases.Wings(facing), $"Dragon wings facing {facing}");
+            AssertEqual(Selector(4 | side), DragonPhases.Attacking(facing), $"Dragon attack facing {facing}");
         }
 
         Suite(nameof(VerifyAllDragonAnimationInstalls), () => VerifyAllDragonAnimationInstalls());
@@ -73,7 +73,7 @@ internal static class DragonAnimationDefinitionsVerification
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonSegment.AttackingFacingRight);
         var playedOut = new AnimationPlayback<DragonSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
         bodyState.Action = DragonAction.Attacking;
-        bodyState.FacingLeft = false;
+        bodyState.Facing = HorizontalDirection.Right;
         bodyState.AttackCounter = 3;
         bodyState.AnimationFinished = true;
         bodyState.Playback = playedOut;

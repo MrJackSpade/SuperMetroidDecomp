@@ -23,7 +23,7 @@ public sealed class BeetomEnemyState
     /// <param name="action">The action the Beetom starts in.</param>
     internal BeetomEnemyState(BeetomEnemyState? previous, BeetomAction action)
     {
-        FacingRight = previous?.FacingRight ?? false;
+        Facing = previous?.Facing ?? HorizontalDirection.Left;
         Action = action;
     }
 
@@ -56,8 +56,21 @@ public sealed class BeetomEnemyState
     public bool Falling { get; internal set; }
     /// <summary>Attachment latch set on first touch and cleared after escape or the common shot reaction; it prevents repeated attachment setup.</summary>
     public bool AttachedToSamus { get; internal set; }
-    /// <summary>Whether the Beetom faces right rather than left, inherited from the place's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
-    public bool FacingRight { get; internal set; }
+    /// <summary>The way the Beetom faces, inherited from the place's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
+    public HorizontalDirection Facing { get; internal set; }
+
+    /// <summary>
+    /// The way the current action goes, for an action that goes one way (#2277): the crawl's, hop's or lunge's direction, or
+    /// the side of Samus a drain holds. It is chosen as the action is, and need not be <see cref="Facing"/>.
+    /// </summary>
+    public HorizontalDirection Heading { get; internal set; }
+
+    /// <summary>Starts <paramref name="action"/> going toward <paramref name="heading"/>.</summary>
+    internal void Begin(BeetomAction action, HorizontalDirection heading)
+    {
+        Action = action;
+        Heading = heading;
+    }
 
     /// <summary>
     /// One rising update of an arc: moves the place back by <paramref name="marks"/> marks; once that would pass the

@@ -16,8 +16,8 @@ public sealed class DragonEnemyState : DragonPartState
     /// <summary>The body's cosmetic wing, which its room lists right after it, found when the body was placed.</summary>
     internal RoomEnemyPlace Wing { get; }
 
-    /// <summary>Whether the body last turned to face left, toward a Samus on its left; the fireball spawns on that side.</summary>
-    public bool FacingLeft { get; internal set; }
+    /// <summary>The way the body last turned to face, toward Samus (#2277); the fireball spawns on that side.</summary>
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
     /// The updates left in the body's wait, rise or sink, the one it ends on included: the step that takes it to zero ends

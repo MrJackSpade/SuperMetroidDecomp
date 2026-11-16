@@ -70,10 +70,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             StartGlow(place);
         _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
 
-        // Keeps only the facing its spawn names. This looks
-        // backwards until main AI is read: activation requires the Samus delta sign to be
-        // *different* from this marker.
-        state.FacesRight = place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right;
+        // Keeps only the facing its spawn names: main AI wakes the block only for Samus on that side.
+        state.Facing = place.SpawnSettings<FaceBlockSpawnSettings>().Facing;
         state.Activated = false;
     }
 
@@ -100,11 +98,11 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        bool samusToTheLeft = horizontalDelta < 0;
-        if (samusToTheLeft == state.FacesRight)
+        HorizontalDirection samusSide = horizontalDelta < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        if (samusSide != state.Facing)
             return;
 
-        state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(samusToTheLeft
+        state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(samusSide == HorizontalDirection.Left
             ? BlueBrinstarFaceBlockSegment.SamusLeft
             : BlueBrinstarFaceBlockSegment.SamusRight));
         state.Activated = true;

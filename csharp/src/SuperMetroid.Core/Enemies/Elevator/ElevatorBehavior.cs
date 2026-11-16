@@ -50,21 +50,21 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         internal set => _room.Session.Elevator.Status = value;
     }
 
-    /// <summary>Whether the active elevator is travelling upward; otherwise it travels downward.</summary>
-    public bool ElevatorTravelsUpward
+    /// <summary>The way the active elevator travels (#2277).</summary>
+    public ElevatorTravelDirection ElevatorTravel
     {
-        get => _room.Session.Elevator.TravelsUpward;
-        private set => _room.Session.Elevator.TravelsUpward = value;
+        get => _room.Session.Elevator.Travel;
+        private set => _room.Session.Elevator.Travel = value;
     }
 
     /// <summary>
     /// The elevator setup hands Samus's movement to the elevator on departure. On arrival,
     /// downward arrivals reinstall it, but upward arrivals retain the lock's no-op.
-    /// The test reads the upward travel direction.
+    /// The test reads the travel direction.
     /// </summary>
     public bool ElevatorRunsSamusMovement =>
         ElevatorStatus == ElevatorActorStatus.Departing ||
-        (ElevatorStatus != ElevatorActorStatus.Inactive && !ElevatorTravelsUpward);
+        (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == ElevatorTravelDirection.Down);
 
     /// <summary>The arriving elevator whose setup placed Samus; consumed by the door loader this update.</summary>
     private RoomEnemyPlace? _arrivalPlacement;
@@ -216,16 +216,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorEnemyState state,
         SamusState samus)
     {
-        if (state.Direction is ElevatorTravelDirection.Up)
-        {
-            ElevatorTravelsUpward = true;
-            AddElevatorYVelocity(place, -ElevatorActorDefinitions.TravelSpeed);
-        }
-        else
-        {
-            ElevatorTravelsUpward = false;
-            AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
-        }
+        ElevatorTravel = state.Direction;
+        AddElevatorYVelocity(place, state.Direction is ElevatorTravelDirection.Up
+            ? -ElevatorActorDefinitions.TravelSpeed
+            : ElevatorActorDefinitions.TravelSpeed);
         PinSamusToElevator(place, samus);
     }
 

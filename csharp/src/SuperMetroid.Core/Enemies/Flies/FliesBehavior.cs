@@ -26,9 +26,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemyPlace place)
     {
-        var state = new FlyEnemyState(FlyAction.ClockwiseCircle)
+        var state = new FlyEnemyState(FlyAction.Circling)
         {
             Angle = RotationAngle.Zero,
+            Rotation = RotationDirection.Clockwise,
         };
         place.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
@@ -45,11 +46,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         switch (state.Action)
         {
-            case FlyAction.ClockwiseCircle:
-                RunFlyCircle(place, state, samus, rotation: RotationDirection.Clockwise);
-                return;
-            case FlyAction.AntiClockwiseCircle:
-                RunFlyCircle(place, state, samus, rotation: RotationDirection.Counterclockwise);
+            case FlyAction.Circling:
+                RunFlyCircle(place, state, samus);
                 return;
             case FlyAction.AttackSamus:
                 RunFlyAttack(place, state);
@@ -59,7 +57,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (--state.RetreatTimer <= 0)
                 {
                     state.RetreatTimer = FlyMotionDefinitions.AttackCooldown;
-                    state.Action = FlyAction.ClockwiseCircle;
+                    state.Action = FlyAction.Circling;
+                    state.Rotation = RotationDirection.Clockwise;
                 }
                 return;
             default:
@@ -72,8 +71,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyCircle(
         RoomEnemyPlace place,
         FlyEnemyState state,
-        SamusState samus,
-        RotationDirection rotation)
+        SamusState samus)
     {
         if (state.RetreatTimer != 0)
         {
@@ -87,12 +85,12 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         MoveFlyAccordingToAngle(place, state);
-        state.AdvanceCircle(rotation == RotationDirection.Clockwise);
+        state.AdvanceCircle();
         if (state.Angle == RotationAngle.Zero)
         {
-            state.Action = rotation == RotationDirection.Clockwise
-                ? FlyAction.AntiClockwiseCircle
-                : FlyAction.ClockwiseCircle;
+            state.Rotation = state.Rotation == RotationDirection.Clockwise
+                ? RotationDirection.Counterclockwise
+                : RotationDirection.Clockwise;
         }
     }
 

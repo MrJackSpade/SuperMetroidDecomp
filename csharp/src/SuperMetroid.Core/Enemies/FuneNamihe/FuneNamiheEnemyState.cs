@@ -20,8 +20,8 @@ public abstract class FuneNamiheEnemyState
     /// <summary>Whether the spitting animation is selected rather than the idle one; waking selects it and the spit's finishing cue deselects it.</summary>
     public bool ShowsActiveAnimation { get; internal set; }
 
-    /// <summary>Whether the right-facing animations are selected, from its spawn facing.</summary>
-    public bool FacingRight { get; internal set; }
+    /// <summary>The way it faces, which selects its animations, from its spawn facing (#2277).</summary>
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>The speed, in pixels per update, at which its fireballs fly away from it, from its spawn settings.</summary>
     public SignedEightEight LaunchSpeed { get; internal set; }

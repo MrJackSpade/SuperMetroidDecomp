@@ -21,8 +21,8 @@ public sealed class NamiheEnemyState : FuneNamiheEnemyState
 
     /// <inheritdoc/>
     internal override FuneNamiheSegment Animation => ShowsActiveAnimation
-        ? FacingRight ? FuneNamiheSegment.NamiheActiveRight : FuneNamiheSegment.NamiheActiveLeft
-        : FacingRight ? FuneNamiheSegment.NamiheIdleRight : FuneNamiheSegment.NamiheIdleLeft;
+        ? Facing == HorizontalDirection.Right ? FuneNamiheSegment.NamiheActiveRight : FuneNamiheSegment.NamiheActiveLeft
+        : Facing == HorizontalDirection.Right ? FuneNamiheSegment.NamiheIdleRight : FuneNamiheSegment.NamiheIdleLeft;
 
     /// <inheritdoc/>
     internal override void FinishSpit()

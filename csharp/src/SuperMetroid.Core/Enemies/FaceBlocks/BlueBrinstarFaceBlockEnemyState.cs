@@ -14,8 +14,8 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     public bool Activated { get; internal set; }
 
     /// <summary>
-    /// Whether the face looks right, as its spawn setting's facing says. Activation needs Samus on the side opposite the one
-    /// this names, so a face looking right wakes for Samus to its left.
+    /// The way the face looks, as its spawn setting's facing says (#2277): it wakes only for Samus on the side it looks
+    /// toward.
     /// </summary>
-    public bool FacesRight { get; internal set; }
+    public HorizontalDirection Facing { get; internal set; }
 }

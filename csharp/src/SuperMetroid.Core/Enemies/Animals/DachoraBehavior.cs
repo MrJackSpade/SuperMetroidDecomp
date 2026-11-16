@@ -57,7 +57,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus)
         {
-            FacingRight = settings.Facing == HorizontalDirection.Right,
+            Facing = settings.Facing,
         };
         place.SetSpeciesState(state);
         PrepareDachoraPlace(place);
@@ -131,7 +131,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         StartDachoraAnimation(
             place,
             state,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DachoraSegment.BlinkRight
                 : DachoraSegment.BlinkLeft);
         state.Action = DachoraAction.BlinkingBeforeRun;
@@ -148,10 +148,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         StartDachoraAnimation(
             place,
             state,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DachoraSegment.RunningRight
                 : DachoraSegment.RunningLeft);
-        state.Action = state.FacingRight
+        state.Action = state.Facing == HorizontalDirection.Right
             ? DachoraAction.RunningRight
             : DachoraAction.RunningLeft;
         state.SetGlowCycle(frame: 0, ticks: 1);
@@ -177,7 +177,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         StartDachoraAnimation(place, state, DachoraSegment.RunningRight);
         state.Action = DachoraAction.RunningRight;
         state.SetGlowCycle(frame: 0, ticks: 1);
-        state.FacingRight = true;
+        state.Facing = HorizontalDirection.Right;
         state.Speed = SignedSixteenSixteen.Zero;
         ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
     }
@@ -194,7 +194,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraSpeedBoosterSoundStop, priority: SoundRequestPriority.Normal);
             StartDachoraAnimation(place, state, DachoraSegment.RunningLeft);
             state.Action = DachoraAction.RunningLeft;
-            state.FacingRight = false;
+            state.Facing = HorizontalDirection.Left;
             state.Speed = SignedSixteenSixteen.Zero;
             state.SetGlowCycle(frame: 0, ticks: 0);
             ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
@@ -281,7 +281,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraLaunchSound, priority: SoundRequestPriority.Normal);
 
-        DachoraSegment echoList = state.FacingRight
+        DachoraSegment echoList = state.Facing == HorizontalDirection.Right
             ? DachoraSegment.EchoRight
             : DachoraSegment.EchoLeft;
         foreach (RoomEnemyPlace echo in echoes)
@@ -311,16 +311,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Ceiling impact reverses Dachora's facing before the fall, a visible retail quirk.
-        if (!state.FacingRight)
-        {
-            StartDachoraAnimation(place, state, DachoraSegment.FallingRight);
-            state.FacingRight = true;
-        }
-        else
-        {
-            StartDachoraAnimation(place, state, DachoraSegment.FallingLeft);
-            state.FacingRight = false;
-        }
+        state.Facing = state.Facing.Reversed();
+        StartDachoraAnimation(place, state, state.Facing == HorizontalDirection.Right
+            ? DachoraSegment.FallingRight
+            : DachoraSegment.FallingLeft);
         state.Action = DachoraAction.Falling;
         state.Speed = SignedSixteenSixteen.Zero;
         state.SetGlowCycle(frame: 0, ticks: 0);
@@ -350,10 +344,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         StartDachoraAnimation(
             place,
             state,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DachoraSegment.RunningRight
                 : DachoraSegment.RunningLeft);
-        state.Action = state.FacingRight
+        state.Action = state.Facing == HorizontalDirection.Right
             ? DachoraAction.RunningRight
             : DachoraAction.RunningLeft;
         state.Speed = SignedSixteenSixteen.Zero;

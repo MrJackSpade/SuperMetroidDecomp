@@ -1,17 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The reach of Ridley's tail: each segment's extension limits and initial angle, and its swing limits by facing.</summary>
+/// <summary>The reach of Ridley's tail: its swing limits by facing and the directions a whip may not aim through his body.</summary>
 internal static class RidleyTailReach
 {
-    /// <summary>The longest segment <paramref name="segmentIndex"/> may extend while whipping, base through tip.</summary>
-    internal static SignedEightEight MaximumDistance(int segmentIndex) => Segment(RidleyTailDefinitions.MaximumDistances, segmentIndex);
-
-    /// <summary>The tail returns to its initialized rest geometry: base, five shaft links, then tip.</summary>
-    internal static SignedEightEight RestDistance(int segmentIndex) => Segment(RidleyTailDefinitions.RestDistances, segmentIndex);
-
-    /// <summary>The initial link angle of segment <paramref name="segmentIndex"/>, base through tip.</summary>
-    internal static RidleyTailAngle InitialAngle(int segmentIndex) => Segment(RidleyTailDefinitions.InitialAngles, segmentIndex);
-
     /// <summary>The tail's minimum clockwise angle for left/front/right facing.</summary>
     internal static RidleyTailAngle MinimumClockwise(RidleyFacing facing) => RidleyTailDefinitions.MinimumClockwiseAngles[facing];
 
@@ -24,8 +15,4 @@ internal static class RidleyTailReach
     /// </summary>
     internal static bool AimsThroughBody(TrigonometryAngle direction) =>
         direction >= RidleyTailDefinitions.ForbiddenForwardStart && direction < RidleyTailDefinitions.ForbiddenForwardEnd;
-
-    /// <summary>Reads one of the seven segments' values, rejecting a segment outside the tail.</summary>
-    private static T Segment<T>(T[] table, int segmentIndex) =>
-        (uint)segmentIndex < (uint)table.Length ? table[segmentIndex] : throw new ArgumentOutOfRangeException(nameof(segmentIndex));
 }

@@ -108,7 +108,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification is { } ridleyRuntime && ridleyRuntime.Enemies.Ridley() is { } ridley)
         {
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
-            string Port(int index) => $"{ridley.Tail.Segments[index].Position.X:X4}/{ridley.Tail.Segments[index].Position.Y:X4}";
+            string Port(int index) => $"{ridley.Tail.Links[index].Position.X:X4}/{ridley.Tail.Links[index].Position.Y:X4}";
             string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
             Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.PhaseName()} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.Tail.Action):X4} v={ridley.Flight.Velocity.X.RawValue:X4}/{ridley.Flight.Velocity.Y.RawValue:X4} getaway-frame={ridleyRuntime.Enemies.CeresEscape.Floor.FrameIndex}");
             // $7E:8026 holds the getaway frame as a byte offset into its word-sized tables: twice the frame.
@@ -178,16 +178,16 @@ internal static class MovieDesyncComparison
         Check("Camera Y fraction", runtime.Room.LoadedCamera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
         Check("Accepted NMI", checked((ushort)runtime.Clock.Counter), MovieDesyncMemory.NmiCounter);
         if (runtime.Enemies.Ridley() is { } ridley)
-            for (int index = 0; index < ridley.Tail.Segments.Length; index++)
+            for (int index = 0; index < ridley.Tail.Links.Count; index++)
             {
                 int tail = MovieDesyncMemory.RidleyTailSegments + index * MovieDesyncMemory.RidleyTailSegmentStride;
                 // Inactive records hold stale words the cartridge never reads.
                 bool nativeActive = (Word(memory, tail) & 0x8000) != 0;
-                if (nativeActive != ridley.Tail.Segments[index].Active)
-                    mismatches.Add($"Ridley tail {index} active: native={nativeActive} port={ridley.Tail.Segments[index].Active}");
-                if (!nativeActive && !ridley.Tail.Segments[index].Active) continue;
-                Check($"Ridley tail {index} X", ridley.Tail.Segments[index].Position.X, tail + MovieDesyncMemory.RidleyTailXOffset);
-                Check($"Ridley tail {index} Y", ridley.Tail.Segments[index].Position.Y, tail + MovieDesyncMemory.RidleyTailYOffset);
+                if (nativeActive != ridley.Tail.Links[index].Active)
+                    mismatches.Add($"Ridley tail {index} active: native={nativeActive} port={ridley.Tail.Links[index].Active}");
+                if (!nativeActive && !ridley.Tail.Links[index].Active) continue;
+                Check($"Ridley tail {index} X", ridley.Tail.Links[index].Position.X, tail + MovieDesyncMemory.RidleyTailXOffset);
+                Check($"Ridley tail {index} Y", ridley.Tail.Links[index].Position.Y, tail + MovieDesyncMemory.RidleyTailYOffset);
             }
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         if (projectiles.Count != MovieDesyncMemory.EnemyProjectileSlots)

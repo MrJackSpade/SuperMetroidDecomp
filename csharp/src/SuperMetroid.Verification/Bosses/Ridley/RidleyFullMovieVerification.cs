@@ -199,7 +199,7 @@ internal static class RidleyFullMovieVerification
             AssertEqual((ushort)0xffca, state.Flight.Velocity.X.RawValue, "native expiry skips X acceleration");
             AssertEqual((ushort)0xfecb, state.Flight.Velocity.Y.RawValue, "native expiry skips Y acceleration");
             AssertEqual(phase == NorfairRidleyPhase.CarryRise ? NorfairRidleyPhase.CarryRelease : NorfairRidleyPhase.SelectAttack, state.Phase, "native expiry selects next carry phase");
-            AssertEqual((ushort)(phase == NorfairRidleyPhase.CarryRise ? 8 : 16), state.Tail.IdealInterSegmentAngle, "native expiry changes ideal tail angle");
+            AssertEqual(phase == NorfairRidleyPhase.CarryRise ? 8 : 16, state.Tail.IdealLinkSpacing.Steps, "native expiry changes ideal tail angle");
             AssertEqual(SignedEightEight.FromParts(0, 240), state.Tail.ExtensionSpeed, "native expiry restores tail extension speed");
         }
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
@@ -460,7 +460,7 @@ internal static class RidleyFullMovieVerification
         var state = runtime.Enemies.NorfairRidley();
         var body = runtime.Enemies.Places.InUpdateOrder[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.PogoFall;
-        state.Tail.Segments[6].Position = new Position16<RoomPixels>(4, 118);
+        state.Tail.Tip.Position = new Position16<RoomPixels>(4, 118);
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
@@ -543,51 +543,50 @@ internal static class RidleyFullMovieVerification
         {
             Tail =
             {
-                IdealInterSegmentAngle = 16, AngleDelta = 2,
+                IdealLinkSpacing = RidleyTailTurn.OfSteps(16), SwingStep = RidleyTailTurn.OfSteps(2),
                 MinimumClockwiseAngle = RidleyTailAngle.StraightDown.TurnedClockwise(64), MaximumCounterClockwiseAngle = RidleyTailAngle.StraightDown.TurnedCounterclockwise(16),
                 ClockwiseWhipTarget = null,
                 CounterClockwiseWhipTarget = null,
             },
         };
-        // The check starts every segment blank rather than at the tail's initial layout.
-        for (int index = 0; index < state.Tail.Segments.Length; index++)
-            state.Tail.Segments[index] = new RidleyTailSegment();
-        var segment = state.Tail.Segments[0];
-        segment.Active = true; segment.StaggerAngle = 2;
+        // The check starts every link blank rather than at the tail's initial layout.
+        RidleyTailFixtures.BlankLinks(state.Tail);
+        var segment = state.Tail.Base;
+        segment.Active = true; segment.Stagger = RidleyTailTurn.OfSteps(2);
         segment.Offset = new Offset16<RoomPixels>(7, 11);
-        RidleyTail.TickRidleyTailSegment(state.Tail, 0);
-        AssertEqual(4, segment.StaggerAngle, "native stagger advances before returning");
+        RidleyTail.TickRidleyTailLink(state.Tail, segment);
+        AssertEqual<RidleyTailTurn?>(RidleyTailTurn.OfSteps(4), segment.Stagger, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
-        segment.StaggerAngle = null; segment.Angle = RidleyTailAngle.StraightDown;
-        segment.Clockwise = true; segment.Distance = SignedEightEight.FromParts(2, 0);
-        RidleyTail.TickRidleyTailSegment(state.Tail, 0);
+        segment.Stagger = null; segment.Angle = RidleyTailAngle.StraightDown;
+        segment.SwingDirection = RotationDirection.Clockwise; segment.Distance = SignedEightEight.FromParts(2, 0);
+        RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(2), segment.Angle, "a clockwise step short of the limit turns by the whole step");
         AssertEqual((short)-1, segment.Offset.X, "signed Mode 7 multiplication floors negative fraction");
         AssertEqual((short)1, segment.Offset.Y, "signed Mode 7 cosine product");
         state.Tail.ClockwiseWhipTarget = RidleyTailAngle.StraightDown;
         segment.Angle = RidleyTailAngle.StraightDown; segment.Offset = new Offset16<RoomPixels>(7, 11);
-        RidleyTail.TickRidleyTailSegment(state.Tail, 0);
+        RidleyTail.TickRidleyTailLink(state.Tail, segment);
         AssertTrue(!segment.Active, "root stops at whip target");
         AssertEqual((short)7, segment.Offset.X, "stop retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
-        var child = state.Tail.Segments[1];
+        var child = state.Tail.Shaft[0];
         segment.Active = true;
-        child.Active = true; child.StaggerAngle = null;
-        child.Angle = RidleyTailAngle.StraightDown; child.Clockwise = true; child.Distance = SignedEightEight.FromParts(8, 0);
-        RidleyTail.TickRidleyTailSegment(state.Tail, 1);
+        child.Active = true; child.Stagger = null;
+        child.Angle = RidleyTailAngle.StraightDown; child.SwingDirection = RotationDirection.Clockwise; child.Distance = SignedEightEight.FromParts(8, 0);
+        RidleyTail.TickRidleyTailLink(state.Tail, child);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(64), child.Angle, "blocked child clamps to native clockwise limit");
-        foreach (var part in state.Tail.Segments)
+        foreach (var part in state.Tail.Links)
         {
             part.Distance = SignedEightEight.FromParts(18, 0); part.TargetDistance = SignedEightEight.FromParts(12, 0);
             part.Angle = RidleyTailAngle.StraightDown.TurnedClockwise(8); part.Offset = new Offset16<RoomPixels>(-3, 13);
         }
         RidleyTail.MirrorRidleyTail(state.Tail);
         int[] restPixels = [2, 8, 8, 8, 8, 8, 5];
-        for (int i = 0; i < state.Tail.Segments.Length; i++)
+        for (int i = 0; i < state.Tail.Links.Count; i++)
         {
-            var part = state.Tail.Segments[i];
+            var part = state.Tail.Links[i];
             AssertEqual(SignedEightEight.FromParts(restPixels[i], 0), part.Distance, "native flip restores each authored rest distance");
             AssertEqual(RidleyTailAngle.StraightDown.TurnedCounterclockwise(8), part.Angle, "native flip reflects angle about straight down");
             AssertEqual<SignedEightEight?>(SignedEightEight.FromParts(12, 0), part.TargetDistance, "native flip preserves extension target");

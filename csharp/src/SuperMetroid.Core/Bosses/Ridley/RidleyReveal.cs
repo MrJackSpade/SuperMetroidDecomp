@@ -144,15 +144,15 @@ internal sealed class RidleyReveal
 
     /// <summary>
     /// Starts Ridley's take-off: his take-off animation, whose lift-off ends the reveal, with his wings primed, every tail
-    /// segment enabled and his tail in its neutral swing.
+    /// link enabled and his tail in its neutral swing.
     /// </summary>
     private static void TakeOff(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.TransitionToFlying);
         ridley.Flight.WingAnimationTimer = 8;
         ridley.Flight.WingAnimationTimerDelta = 8;
-        foreach (RidleyTailSegment segment in ridley.Tail.Segments)
-            segment.Active = true;
+        foreach (RidleyTailLink link in ridley.Tail.Links)
+            link.Active = true;
         ridley.Tail.Action = RidleyTailAction.Neutral;
         ridley.RevealPhase = RidleyRevealPhase.TakingOff;
     }

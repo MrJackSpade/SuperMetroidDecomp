@@ -230,14 +230,12 @@ internal sealed class NorfairRidleyDeath
         };
         fragment.SetSpeciesState(fragmentState);
 
-        // Tail fragments start from their tail segment; the body fragments start from the body.
-        if (RidleyExplosionDefinitions.TailSegment.TryGetValue(part, out int tailIndex))
+        // Tail fragments start from their tail link; the body fragments start from the body.
+        if (RidleyBreakup.TailLinkBecoming(part, state.Tail) is { } link)
         {
-            RidleyTailSegment tail = state.Tail.Segments[tailIndex];
-            fragment.Position = fragment.Position.WithWhole(tail.Position);
-            TrigonometryAngle tailTipDirection = tail.Angle.Direction.TurnedBy(state.Tail.Segments[5].Angle.Direction);
+            fragment.Position = fragment.Position.WithWhole(link.Position);
             fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(
-                RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, tailTipDirection)), AnimationPlace.StartOfAnimation);
+                RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, state.Tail.Tip.PointingDirection)), AnimationPlace.StartOfAnimation);
             return;
         }
 

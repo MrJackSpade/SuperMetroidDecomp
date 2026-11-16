@@ -105,8 +105,7 @@ internal static class RidleyPogoDefinitionsVerification
             reads = advances = 0;
             state.Phase = NorfairRidleyPhase.PogoMoveToHeight;
             state.PhaseTimer = 0;
-            for (int index = 0; index < 7; index++)
-                state.Tail.Segments[index] = new RidleyTailSegment();
+            RidleyTailFixtures.BlankLinks(state.Tail);
             attack(place, state, samus);
             AssertEqual(0, advances, "Native Ridley pogo start must not advance RNG");
             AssertEqual(2, reads, "Pogo velocity and pogo timer sample the same current word");

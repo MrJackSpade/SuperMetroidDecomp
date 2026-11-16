@@ -66,42 +66,41 @@ internal static class RidleyFlightTailVerification
         place.Position = place.Position.WithWhole(new(128, 128));
         // Ridley faces left, the side this fixture's native hip coordinates were taken from.
         state = new NorfairRidleyState { Phase = NorfairRidleyPhase.PogoMoveToHeight, PhaseTimer = 0, Flight = { FacingDirection = RidleyFacing.Left } };
-        for (int index = 0; index < 7; index++)
+        RidleyTailFixtures.BlankLinks(state.Tail);
+        foreach (RidleyTailLink link in state.Tail.Links)
         {
-            state.Tail.Segments[index] = new RidleyTailSegment
-            {
-                Active = true, StaggerAngle = null, Clockwise = false,
-                Angle = RidleyTailAngle.StraightDown.TurnedClockwise(16), Distance = RidleyTailReach.RestDistance(index),
-            };
+            link.Active = true;
+            link.Angle = RidleyTailAngle.StraightDown.TurnedClockwise(16);
+            link.Distance = link.RestDistance;
         }
         run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyTailAction.PointDown, state.Tail.Action, "pogo wait runs pointed-tail setup");
-        AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.Tail.Segments[0].Angle, "setup immediately advances tail by eight");
+        AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.Tail.Base.Angle, "setup immediately advances tail by eight");
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.Pogo, state.Tail.Action, "all pointed segments finish into normal pogo");
-        AssertTrue(state.Tail.Segments.All(segment => segment.Angle == RidleyTailAngle.StraightDown && !segment.Active), "pogo tail points down and stops");
+        AssertTrue(state.Tail.Links.All(segment => segment.Angle == RidleyTailAngle.StraightDown && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
         // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
-        AssertEqual((ushort)159, state.Tail.Segments[0].Position.X, "pointed root retains pre-stop native hip X");
-        AssertEqual((ushort)145, state.Tail.Segments[0].Position.Y, "pointed root retains pre-stop native hip Y");
+        AssertEqual((ushort)159, state.Tail.Base.Position.X, "pointed root retains pre-stop native hip X");
+        AssertEqual((ushort)145, state.Tail.Base.Position.Y, "pointed root retains pre-stop native hip Y");
         state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0));
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.StabSetup, state.Tail.Action, "descending normal pogo starts stab setup");
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.Stab, state.Tail.Action, "stab setup activates downward stab");
-        AssertTrue(state.Tail.Segments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
+        AssertTrue(state.Tail.Links.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
         state.Phase = NorfairRidleyPhase.PogoRise;
         run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "leaving pogo restores neutral tail");
-        AssertEqual(1, state.Tail.AngleDelta, "leaving pogo restores native delta");
+        AssertEqual(RidleyTailTurn.OfSteps(1), state.Tail.SwingStep, "leaving pogo restores native delta");
         // Samus's beams and missiles as each aim sees them; none fired until the check fires a missile.
         SamusProjectileSystem aimedProjectiles = InstalledFixtures.CreateProjectileSystem();
         Action<NorfairRidleyState, SamusState, int> aim = (state, samus, turnsBeyond) => RidleyTail.AimRidleyTailWhip(state, samus, aimedProjectiles, turnsBeyond);
         state.FightMode = RidleyFightMode.Fighting;
         state.Flight.FacingDirection = RidleyFacing.Left;
-        state.Tail.Segments[0].Position = new Position16<RoomPixels>(128, 128);
-        state.Tail.Segments[0].Angle = RidleyTailAngle.StraightDown;
-        state.Tail.Segments[6].Position = new Position16<RoomPixels>(128, 128);
+        state.Tail.Base.Position = new Position16<RoomPixels>(128, 128);
+        state.Tail.Base.Angle = RidleyTailAngle.StraightDown;
+        state.Tail.Tip.Position = new Position16<RoomPixels>(128, 128);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         RidleyTailAngle? samusTarget = state.Tail.ClockwiseWhipTarget;
@@ -122,8 +121,8 @@ internal static class RidleyFlightTailVerification
         enemies.VerificationServices().NextRandom = () => { advances++; return 0; };
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState> neutral = (ridley, state, samus) => enemies.RidleyTail.HandleRidleyNeutralTailControl(ridley, state, samus, aimedProjectiles);
         state.Tail.IdleWhipEnabled = true;
-        state.Tail.Segments[0].Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
-        foreach (var segment in state.Tail.Segments) segment.Active = true;
+        state.Tail.Base.Angle = RidleyTailAngle.StraightDown.TurnedByWholeTurns(16);
+        foreach (var segment in state.Tail.Links) segment.Active = true;
         state.Tail.ClockwiseWhipTarget = state.Tail.CounterClockwiseWhipTarget = null;
         neutral(place, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.Tail.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");

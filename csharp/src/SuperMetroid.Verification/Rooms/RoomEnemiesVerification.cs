@@ -904,7 +904,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // Native evidence (100% movie, source frame 3645): once the eye fade enables
     // composite animation, all seven inactive segments share the tail-root position
     // and stay there through the body fade until liftoff.
-    AssertEqual(1, state.Tail.Segments
+    AssertEqual(1, state.Tail.Links
             .Select(segment => new MotherBrainRinkaDoorSpawnExpected(segment.Position.X, segment.Position.Y))
             .Distinct()
             .Count(),
@@ -996,14 +996,14 @@ internal static void VerifyCeresRidleyRoomEntry()
     // `$A6:CC9A-$CCB9` aims a real seven-segment whip at Samus instead of merely moving
     // the body/wing composite. Start from the cartridge's all-active steady state so this
     // assertion isolates the missing request/target side effects reported in gameplay.
-    foreach (RidleyTailSegment segment in state.Tail.Segments)
+    foreach (RidleyTailLink segment in state.Tail.Links)
     {
         segment.Active = true;
-        segment.StaggerAngle = null;
-        segment.Clockwise = true;
+        segment.Stagger = null;
+        segment.SwingDirection = RotationDirection.Clockwise;
         segment.TargetDistance = null;
     }
-    state.Tail.Segments[0].Angle = RidleyTailAngle.StraightDown;
+    state.Tail.Base.Angle = RidleyTailAngle.StraightDown;
     state.Tail.ClockwiseWhipTarget = null;
     state.Tail.CounterClockwiseWhipTarget = null;
     state.Phase = CeresRidleyPhase.LungeSetup;
@@ -1013,9 +1013,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley enters lunge main");
     AssertTrue(state.Tail.ClockwiseWhipTarget is not null,
         "Ceres Ridley lunge installs cartridge tail-whip target");
-    AssertEqual(8, state.Tail.AngleDelta,
+    AssertEqual(RidleyTailTurn.OfSteps(8), state.Tail.SwingStep,
         "Ceres Ridley aimed whip uses eight-angle step");
-    AssertTrue(state.Tail.Segments.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
+    AssertTrue(state.Tail.Links.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
         "Ceres Ridley lunge extends articulated tail segments");
 
     var sharedProjectiles = CreateBombFixture();

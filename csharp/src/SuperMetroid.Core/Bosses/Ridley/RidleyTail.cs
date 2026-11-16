@@ -53,8 +53,8 @@ internal sealed class RidleyTail
             if (state.Tail.Action == RidleyTailAction.Neutral)
             {
                 HandleRidleyNeutralTailControl(place, state, samus, samusProjectiles);
-                for (int index = 0; index < state.Tail.Segments.Length; index++)
-                    TickRidleyTailSegment(state.Tail, index);
+                foreach (RidleyTailLink link in state.Tail.Links)
+                    TickRidleyTailLink(state.Tail, link);
             }
             else
                 TickRidleyPogoTail(place, state, samus);
@@ -62,23 +62,21 @@ internal sealed class RidleyTail
 
         // The tail composition always composes positions, but only the selected tail controller
         // updates offsets. With no tail action, and on the stagger and stop returns, the offsets stay.
-        RidleyTailSegment first = state.Tail.Segments[0];
+        RidleyTailLink tailBase = state.Tail.Base;
         Position16<RoomPixels> tailRoot = place.Position.Whole + new Offset16<RoomPixels>(0, 16);
-        first.Position = state.Flight.FacingDirection switch
+        tailBase.Position = state.Flight.FacingDirection switch
         {
-            RidleyFacing.Left => tailRoot + new Offset16<RoomPixels>(32, 0) + first.Offset,
-            RidleyFacing.Turning => (tailRoot + first.Offset).WithX(place.Position.X.Whole),
-            RidleyFacing.Right => tailRoot + new Offset16<RoomPixels>(-32, 0) + first.Offset,
+            RidleyFacing.Left => tailRoot + new Offset16<RoomPixels>(32, 0) + tailBase.Offset,
+            RidleyFacing.Turning => (tailRoot + tailBase.Offset).WithX(place.Position.X.Whole),
+            RidleyFacing.Right => tailRoot + new Offset16<RoomPixels>(-32, 0) + tailBase.Offset,
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(RidleyFacing)} {state.Flight.FacingDirection}."),
         };
 
-        for (int index = 1; index < state.Tail.Segments.Length; index++)
+        for (RidleyTailLink previous = tailBase; previous.Next is { } link; previous = link)
         {
-            RidleyTailSegment previous = state.Tail.Segments[index - 1];
-            RidleyTailSegment current = state.Tail.Segments[index];
-            Position16<RoomPixels> chained = previous.Position + current.Offset;
-            current.Position = state.Flight.FacingDirection == RidleyFacing.Turning
+            Position16<RoomPixels> chained = previous.Position + link.Offset;
+            link.Position = state.Flight.FacingDirection == RidleyFacing.Turning
                 ? chained.WithX(place.Position.X.Whole)
                 : chained;
         }
@@ -98,7 +96,7 @@ internal sealed class RidleyTail
         SamusState samus,
         SamusProjectileSystem samusProjectiles)
     {
-        bool allActive = state.Tail.Segments.All(segment => segment.Active);
+        bool allActive = state.Tail.Links.All(link => link.Active);
         if (allActive)
         {
             bool targetsIdle = state.Tail.ClockwiseWhipTarget is null && state.Tail.CounterClockwiseWhipTarget is null;
@@ -119,16 +117,17 @@ internal sealed class RidleyTail
             state.Tail.WhipRequested = false;
         }
 
-        if (state.Tail.Segments.Any(segment => segment.Active))
+        if (state.Tail.Links.Any(link => link.Active))
             return;
 
-        // Once a wave/whip has propagated through all seven parts, neutral AI starts the
-        // next wave at the base and retires both old targets. Samus's X half selects the
-        // exact one- or two-unit angular delta the neutral tail uses.
-        state.Tail.Segments[0].Active = true;
+        // Once a wave/whip has propagated through every link, neutral AI starts the next wave at the base and retires
+        // both old targets. Where Samus stands selects the slow or fast neutral swing.
+        state.Tail.Base.Active = true;
         state.Tail.ClockwiseWhipTarget = null;
         state.Tail.CounterClockwiseWhipTarget = null;
-        state.Tail.AngleDelta = samus.Position.X.Whole < 112 ? 1 : 2;
+        state.Tail.SwingStep = samus.Position.X.Whole < RidleyTailDefinitions.FastNeutralSwingFromX
+            ? RidleyTailDefinitions.SlowNeutralSwing
+            : RidleyTailDefinitions.FastNeutralSwing;
     }
 
     /// <summary>
@@ -153,9 +152,9 @@ internal sealed class RidleyTail
         if (state.Flight.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
             return;
 
-        RidleyTailSegment root = state.Tail.Segments[0];
+        RidleyTailLink root = state.Tail.Base;
         Position16<RoomPixels> aim = samus.Position.Whole + new Offset16<RoomPixels>(0, 24);
-        RidleyTailSegment tip = state.Tail.Segments[6];
+        RidleyTailLink tip = state.Tail.Tip;
         SamusProjectile? missile = RidleyTailMissileTarget.Target(
             samusProjectiles.Pool.ShotCount.Count,
             samusProjectiles.Shots,
@@ -178,7 +177,7 @@ internal sealed class RidleyTail
             if (target < root.Angle)
             {
                 state.Tail.ClockwiseWhipTarget = target;
-                state.Tail.AngleDelta = 8;
+                state.Tail.SwingStep = RidleyTailDefinitions.WhipSwing;
             }
         }
         else
@@ -191,190 +190,134 @@ internal sealed class RidleyTail
             if (target >= root.Angle)
             {
                 state.Tail.CounterClockwiseWhipTarget = target;
-                state.Tail.AngleDelta = 8;
+                state.Tail.SwingStep = RidleyTailDefinitions.WhipSwing;
             }
         }
     }
 
     /// <summary>
-    /// Advances one joint's stagger angle and active whip direction toward the shared target. In both directions a step
-    /// that lands exactly on the limit or target counts as reaching it.
+    /// Advances one link's stagger and swing toward the shared target. In both directions a step that lands exactly on
+    /// the limit or target counts as reaching it. A link that has swung its spacing starts the next link swinging its way.
     /// </summary>
-    internal static void TickRidleyTailSegment(RidleyTailState tail, int index)
+    internal static void TickRidleyTailLink(RidleyTailState tail, RidleyTailLink link)
     {
-        RidleyTailSegment segment = tail.Segments[index];
-        if (segment.Active)
+        if (link.Active)
         {
-            if (segment.StaggerAngle < tail.IdealInterSegmentAngle)
+            if (link.Stagger < tail.IdealLinkSpacing)
             {
-                segment.StaggerAngle += tail.AngleDelta;
+                link.Stagger += tail.SwingStep;
                 return;
             }
 
-            if (segment.StaggerAngle is not null)
+            if (link.Stagger is not null)
             {
-                segment.StaggerAngle = null;
-                if (index + 1 < tail.Segments.Length)
+                link.Stagger = null;
+                if (link.Next is { } next)
                 {
-                    tail.Segments[index + 1].Active = true;
-                    tail.Segments[index + 1].Clockwise = segment.Clockwise;
+                    next.Active = true;
+                    next.SwingDirection = link.SwingDirection;
                 }
             }
 
-            if (segment.Clockwise)
+            RotationDirection direction = link.SwingDirection;
+            RidleyTailAngle swung = link.Angle.Turned(direction, tail.SwingStep);
+            RidleyTailAngle limit = tail.SwingLimit(direction);
+            if (tail.WhipTarget(direction) is { } target)
             {
-                RidleyTailAngle next = segment.Angle.TurnedClockwise(tail.AngleDelta);
-                if (tail.ClockwiseWhipTarget is { } clockwiseTarget)
+                link.TargetDistance = RidleyTailDefinitions.WhipDistance;
+                if (swung.Reaches(target, direction))
                 {
-                    segment.TargetDistance = RidleyTailDefinitions.WhipDistance;
-                    if (next <= clockwiseTarget)
+                    // The leading link of the whip stops on its target; a link whose predecessor still swings turns
+                    // back from the limit instead.
+                    if (link.Previous is not { Active: true })
                     {
-                        if (index == 0 || !tail.Segments[index - 1].Active)
-                        {
-                            segment.Angle = clockwiseTarget;
-                            DeactivateRidleyTailSegment(segment);
-                            return;
-                        }
-                        segment.Clockwise = false;
-                        segment.Angle = tail.MinimumClockwiseAngle;
+                        link.Angle = target;
+                        DeactivateRidleyTailLink(link);
+                        return;
                     }
-                    else
-                    {
-                        segment.Angle = next;
-                    }
+                    link.SwingDirection = Reversed(direction);
+                    link.Angle = limit;
                 }
                 else
                 {
-                    if (next <= tail.MinimumClockwiseAngle)
-                    {
-                        segment.Clockwise = false;
-                        segment.Angle = tail.MinimumClockwiseAngle;
-                    }
-                    else
-                    {
-                        segment.Angle = next;
-                    }
+                    link.Angle = swung;
                 }
+            }
+            else if (swung.Reaches(limit, direction))
+            {
+                link.SwingDirection = Reversed(direction);
+                link.Angle = limit;
             }
             else
             {
-                RidleyTailAngle next = segment.Angle.TurnedCounterclockwise(tail.AngleDelta);
-                if (tail.CounterClockwiseWhipTarget is { } counterClockwiseTarget)
-                {
-                    segment.TargetDistance = RidleyTailDefinitions.WhipDistance;
-                    if (next >= counterClockwiseTarget)
-                    {
-                        if (index == 0 || !tail.Segments[index - 1].Active)
-                        {
-                            segment.Angle = counterClockwiseTarget;
-                            DeactivateRidleyTailSegment(segment);
-                            return;
-                        }
-                        segment.Clockwise = true;
-                        segment.Angle = tail.MaximumCounterClockwiseAngle;
-                    }
-                    else
-                    {
-                        segment.Angle = next;
-                    }
-                }
-                else
-                {
-                    if (next >= tail.MaximumCounterClockwiseAngle)
-                    {
-                        segment.Clockwise = true;
-                        segment.Angle = tail.MaximumCounterClockwiseAngle;
-                    }
-                    else
-                    {
-                        segment.Angle = next;
-                    }
-                }
+                link.Angle = swung;
             }
         }
 
-        UpdateRidleyTailSegmentOffset(tail, index);
+        UpdateRidleyTailLinkOffset(link);
     }
 
+    /// <summary>The other way round from <paramref name="direction"/>.</summary>
+    private static RotationDirection Reversed(RotationDirection direction) =>
+        direction == RotationDirection.Clockwise ? RotationDirection.Counterclockwise : RotationDirection.Clockwise;
+
     /// <summary>
-    /// Converts one segment's current polar angle/distance into the relative Cartesian
-    /// offset the tail composition consumes. This is deliberately independent of the segment's active
-    /// flag: inactive tail pieces keep their established pose rather than collapsing.
+    /// Converts one link's current polar angle/distance into the relative Cartesian offset the tail composition consumes.
+    /// This is deliberately independent of the link's active flag: inactive links keep their established pose rather
+    /// than collapsing.
     /// </summary>
-    private static void UpdateRidleyTailSegmentOffset(RidleyTailState tail, int index)
+    private static void UpdateRidleyTailLinkOffset(RidleyTailLink link)
     {
-        RidleyTailSegment segment = tail.Segments[index];
-        TrigonometryAngle angle = segment.Angle.Direction;
-        if (index != 0)
-            angle = angle.TurnedBy(tail.Segments[index - 1].Angle.Direction);
-        int distanceInPixels = segment.Distance.WholePixels;
-        // Each segment's offset is its rotated distance in whole pixels, rounded down:
+        TrigonometryAngle angle = link.PointingDirection;
+        int distanceInPixels = link.Distance.WholePixels;
+        // Each link's offset is its rotated distance in whole pixels, rounded down:
         // a negative fractional pixel rounds toward the more negative whole pixel.
-        segment.Offset = new Offset16<RoomPixels>(
+        link.Offset = new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn)))));
     }
 
-    /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>
-    private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
+    /// <summary>Ends a link's active whip and flips its swing for the next activation.</summary>
+    private static void DeactivateRidleyTailLink(RidleyTailLink link)
     {
-        segment.Active = false;
-        segment.StaggerAngle = 0;
-        segment.Clockwise = !segment.Clockwise;
+        link.Active = false;
+        link.Stagger = RidleyTailTurn.None;
+        link.SwingDirection = Reversed(link.SwingDirection);
     }
 
-    /// <summary>Runs the six extend/shrink steps.</summary>
+    /// <summary>
+    /// Extends each shaft link and the tip toward its target distance, up to its longest, or shrinks one longer than its
+    /// rest length back toward it. The base holds its length and takes no part.
+    /// </summary>
     internal static void UpdateRidleyTailDistances(RidleyTailState tail)
     {
-        for (int index = 1; index < tail.Segments.Length; index++)
+        foreach (RidleyTailLink link in tail.Links.Skip(1))
         {
-            RidleyTailSegment segment = tail.Segments[index];
-            if (segment.TargetDistance is { } target)
+            if (link.TargetDistance is { } target)
             {
-                if (target < segment.Distance)
-                    segment.TargetDistance = null;
-                // Every whip maximum is under 25 pixels, so the extended length stays far inside its range.
-                segment.Distance = SignedEightEight.Min(
-                    RidleyTailReach.MaximumDistance(index),
-                    segment.Distance + tail.ExtensionSpeed);
+                if (target < link.Distance)
+                    link.TargetDistance = null;
+                // Every link's longest is under 25 pixels, so the extended length stays far inside its range.
+                link.Distance = SignedEightEight.Min(link.LongestDistance, link.Distance + tail.ExtensionSpeed);
             }
-            else if (segment.Distance > RidleyTailReach.RestDistance(index))
+            else if (link.Distance > link.RestDistance)
             {
                 // Every rest length is at least two pixels, so a shrinking link never passes zero.
-                segment.Distance -= RidleyTailDefinitions.ShrinkStep;
+                link.Distance -= RidleyTailDefinitions.ShrinkStep;
             }
         }
-    }
-
-    /// <summary>Creates the seven-link tail at its cataloged rest lengths and sequential initial angles.</summary>
-    internal static RidleyTailSegment[] CreateInitialRidleyTailSegments()
-    {
-        // Each successive link begins one ideal angular separation beyond its predecessor.
-        // The chosen base/shaft/tip lengths remain required inputs in the tail catalog.
-        var segments = new RidleyTailSegment[7];
-        for (int index = 0; index < segments.Length; index++)
-        {
-            segments[index] = new RidleyTailSegment
-            {
-                Clockwise = true,
-                Distance = RidleyTailReach.RestDistance(index),
-                Angle = RidleyTailReach.InitialAngle(index),
-                StaggerAngle = 17,
-            };
-        }
-        return segments;
     }
 
     /// <summary>
     /// Randomly updates the tail's curliness: when the live random number falls in its roll's top outcome (sampled, not
-    /// advanced), the ideal inter-segment tail angle becomes its curliness roll plus eight, so 8..23.
+    /// advanced), the ideal link spacing becomes the least curly spacing plus the curliness roll, so eight through 23 steps.
     /// </summary>
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyTailState tail)
     {
         int random = _room.Random.Read();
         if (!RidleyRandomDefinitions.TailCurlinessChanges.IsTakenBy(random))
             return;
-        tail.IdealInterSegmentAngle = RidleyRandomDefinitions.TailCurliness.Of(random) + 8;
+        tail.IdealLinkSpacing = RidleyTailDefinitions.LeastCurlyLinkSpacing + RidleyTailTurn.OfSteps(RidleyRandomDefinitions.TailCurliness.Of(random));
     }
 
     /// <summary>Applies tail-tip contact damage after joint positions are solved, unless Ridley carries Samus or collision is disabled.</summary>
@@ -389,7 +332,7 @@ internal sealed class RidleyTail
             body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.MovementAnimationEnabled)
             return false;
-        RidleyTailSegment tip = state.Tail.Segments[^1];
+        RidleyTailLink tip = state.Tail.Tip;
         int dx = CoordinateAxis.Distance(samus.Position.X.Whole, tip.Position.X);
         int dy = CoordinateAxis.Distance(samus.Position.Y.Whole, tip.Position.Y);
         if (dx >= samus.Kinematics.Radius.X + 14 || dy >= samus.Kinematics.Radius.Y + 14)
@@ -398,44 +341,47 @@ internal sealed class RidleyTail
         return true;
     }
 
-    /// <summary>Probes the tip and four inner joints at their downward offsets for solid room blocks.</summary>
+    /// <summary>
+    /// Probes the tip and then the four shaft links nearest it, from the tip inward, at their downward offsets for solid
+    /// room blocks.
+    /// </summary>
     internal static bool RidleyTailTouchesTerrain(
         RidleyTailState tail,
         RoomLevelData level)
     {
-        // The tail's floor check samples the tip and the next four joints with the exact +16/+18 Y probes.
-        int tipIndex = tail.Segments.Length - 1;
-        for (int index = tipIndex; index >= 2; index--)
+        // The tail's floor check samples the tip 16 pixels below it and each shaft link 18 pixels below it.
+        if (ProbeTouchesTerrain(tail.Tip.Position + new Offset16<RoomPixels>(0, 16), level))
+            return true;
+        foreach (RidleyTailLink link in tail.Shaft.Reverse().Take(RidleyTailDefinitions.FloorProbingShaftLinks))
         {
-            RidleyTailSegment segment = tail.Segments[index];
-            Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, index == tipIndex ? 16 : 18);
-            if (RoomGridConversions.PixelToBlock(probe.X) >= level.Size.X || RoomGridConversions.PixelToBlock(probe.Y) >= level.Size.Y)
-                continue;
-            if (level.GetCollisionBlockAtPixel(probe).CollisionType != RoomCollisionType.Air)
+            if (ProbeTouchesTerrain(link.Position + new Offset16<RoomPixels>(0, 18), level))
                 return true;
         }
         return false;
     }
 
+    /// <summary>Whether <paramref name="probe"/> lies on a solid block inside the room; a probe outside the room touches nothing.</summary>
+    private static bool ProbeTouchesTerrain(Position16<RoomPixels> probe, RoomLevelData level) =>
+        RoomGridConversions.PixelToBlock(probe.X) < level.Size.X && RoomGridConversions.PixelToBlock(probe.Y) < level.Size.Y &&
+        level.GetCollisionBlockAtPixel(probe).CollisionType != RoomCollisionType.Air;
+
     /// <summary>
-    /// Mirrors the tail. A facing step restores the seven rest distances before
-    /// reflecting angles about straight down and setting clockwise movement. The offsets
-    /// remain untouched until the following tail controller update.
+    /// Mirrors the tail. A facing step restores every link's rest length before reflecting its angle about straight down
+    /// and setting it swinging clockwise. The offsets remain untouched until the following tail controller update.
     /// </summary>
     internal static void MirrorRidleyTail(RidleyTailState tail)
     {
-        for (int index = 0; index < tail.Segments.Length; index++)
+        foreach (RidleyTailLink link in tail.Links)
         {
-            RidleyTailSegment segment = tail.Segments[index];
-            segment.Distance = RidleyTailReach.RestDistance(index);
-            segment.Angle = segment.Angle.Mirrored();
-            segment.Clockwise = true;
+            link.Distance = link.RestDistance;
+            link.Angle = link.Angle.Mirrored();
+            link.SwingDirection = RotationDirection.Clockwise;
         }
     }
 
     /// <summary>
-    /// Resolves shots against the tail. Only the final two solved tail joints are live in retail code: a
-    /// radius-14 tip followed by a radius-10 inner segment. A hit is snapped to the joint,
+    /// Resolves shots against the tail. Only the tip and the inner joint block shots: a radius-14 tip followed by a
+    /// radius-10 inner joint. A hit is snapped to the joint,
     /// marked consumed, and replaced by the game's dust/dud actor; Ridley's health is
     /// never consulted because the tail is armor rather than another body hitbox.
     /// </summary>
@@ -448,7 +394,7 @@ internal sealed class RidleyTail
             return;
 
         if (TryBlockProjectileAtRidleyTailJoint(
-                tail.Segments[^1],
+                tail.Tip,
                 radius: 14,
                 projectiles))
         {
@@ -456,14 +402,14 @@ internal sealed class RidleyTail
         }
 
         _ = TryBlockProjectileAtRidleyTailJoint(
-            tail.Segments[^2],
+            tail.InnerJoint,
             radius: 10,
             projectiles);
     }
 
     /// <summary>Consumes the first colliding ordinary beam or missile at one armored joint and spawns its impact effect.</summary>
     private bool TryBlockProjectileAtRidleyTailJoint(
-        RidleyTailSegment joint,
+        RidleyTailLink joint,
         int radius,
         SamusProjectileSystem projectiles)
     {
@@ -513,14 +459,14 @@ internal sealed class RidleyTail
         state.Tail.MaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.Flight.FacingDirection);
         if (pointed)
         {
-            state.Tail.AngleDelta = action == RidleyTailAction.Stab ? 3 : 8;
+            state.Tail.SwingStep = action == RidleyTailAction.Stab ? RidleyTailDefinitions.StabSwing : RidleyTailDefinitions.WhipSwing;
             state.Tail.ClockwiseWhipTarget = state.Flight.FacingDirection == RidleyFacing.Left ? null : RidleyTailDefinitions.DownAngle;
             state.Tail.CounterClockwiseWhipTarget = state.Flight.FacingDirection == RidleyFacing.Left ? RidleyTailDefinitions.DownAngle : null;
         }
         HandleRidleyPogoTailControl(place, state, samus, action == RidleyTailAction.StabSetup);
-        for (int index = 0; index < state.Tail.Segments.Length; index++)
-            TickRidleyTailSegment(state.Tail, index);
-        if (pointed && !state.Tail.Segments.Any(segment => segment.Active))
+        foreach (RidleyTailLink link in state.Tail.Links)
+            TickRidleyTailLink(state.Tail, link);
+        if (pointed && !state.Tail.Links.Any(link => link.Active))
             state.Tail.Action = RidleyTailAction.Pogo;
         // The setup/stab wrappers overwrite the result of the shared pointed-tail step.
         if (action == RidleyTailAction.PogoSetup)
@@ -532,33 +478,31 @@ internal sealed class RidleyTail
     /// <summary>Triggers pogo whips from random/proximity gates and extends the tail downward as Ridley descends.</summary>
     private void HandleRidleyPogoTailControl(RoomEnemyPlace place, RidleyEncounterState state, SamusState samus, bool stabbing)
     {
-        if (state.Tail.Segments.All(segment => segment.Active) &&
+        if (state.Tail.Links.All(link => link.Active) &&
             (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()) ||
              CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < 128) &&
             state.Tail.ClockwiseWhipTarget is null && state.Tail.CounterClockwiseWhipTarget is null)
         {
             state.Tail.ClockwiseWhipTarget = RidleyTailDefinitions.PogoWhipAngle;
-            state.Tail.AngleDelta = 8;
+            state.Tail.SwingStep = RidleyTailDefinitions.WhipSwing;
             return;
         }
-        if (state.Tail.Segments.Any(segment => segment.Active)) return;
+        if (state.Tail.Links.Any(link => link.Active)) return;
         if (!state.Flight.Velocity.Y.IsNegative)
         {
             state.Tail.Action = stabbing ? RidleyTailAction.Stab : RidleyTailAction.StabSetup;
             if (stabbing)
             {
-                foreach (var segment in state.Tail.Segments)
+                foreach (RidleyTailLink link in state.Tail.Links)
                 {
-                    segment.TargetDistance = RidleyTailDefinitions.StabDistance;
-                    segment.Angle = RidleyTailDefinitions.DownAngle;
+                    link.TargetDistance = RidleyTailDefinitions.StabDistance;
+                    link.Angle = RidleyTailDefinitions.DownAngle;
                 }
-                state.Tail.Segments[0].Active = true;
+                state.Tail.Base.Active = true;
             }
         }
         state.Tail.ClockwiseWhipTarget = null;
         state.Tail.CounterClockwiseWhipTarget = null;
-        // The pogo tail's activation timer is initialized to zero and never assigned
-        // a nonzero value; both pogo tail setups therefore write zero here.
-        state.Tail.AngleDelta = 0;
+        state.Tail.SwingStep = RidleyTailDefinitions.PogoSwing;
     }
 }

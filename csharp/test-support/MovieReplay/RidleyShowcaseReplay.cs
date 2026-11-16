@@ -561,12 +561,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
-                Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.AngleDelta), NativeSnapshotMemory.RidleyTailAngleDelta);
+                Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.SwingStep.Steps), NativeSnapshotMemory.RidleyTailAngleDelta);
                 Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
                 Check("Ridley TailMaximumCounterClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MaximumCounterClockwiseAngle), NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
                 Check("Ridley TailWhipTargetClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.ClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
                 Check("Ridley TailWhipTargetCounterClockwiseAngle", RidleyTailNativeWords.WhipTarget(ridleyState.Tail.CounterClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
-                Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.Tail.IdealInterSegmentAngle), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
+                Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.Tail.IdealLinkSpacing.Steps), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
                 Check("Ridley HorizontalVelocity", ridleyState.Flight.Velocity.X.RawValue, NativeSnapshotMemory.RidleyHorizontalVelocity);
                 Check("Ridley VerticalVelocity", ridleyState.Flight.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
                 Check("Ridley FightMode", RidleyNativeWords.FightModes.Word(ridleyState.FightMode), NativeSnapshotMemory.RidleyFightMode);
@@ -587,17 +587,18 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.
-                    Check("Ridley tail tip X", ridleyState.Tail.Segments[6].Position.X, NativeSnapshotMemory.TailTipX);
-                    Check("Ridley tail tip Y", ridleyState.Tail.Segments[6].Position.Y, NativeSnapshotMemory.TailTipY);
-                    for (int tailIndex = 0; tailIndex < ridleyState.Tail.Segments.Length; tailIndex++)
+                    Check("Ridley tail tip X", ridleyState.Tail.Tip.Position.X, NativeSnapshotMemory.TailTipX);
+                    Check("Ridley tail tip Y", ridleyState.Tail.Tip.Position.Y, NativeSnapshotMemory.TailTipY);
+                    // The cartridge keeps the base, the five shaft links and the tip in seven records, base first.
+                    for (int tailIndex = 0; tailIndex < ridleyState.Tail.Links.Count; tailIndex++)
                     {
-                        var segment = ridleyState.Tail.Segments[tailIndex];
+                        var segment = ridleyState.Tail.Links[tailIndex];
                         int tailAddress = NativeSnapshotMemory.TailSegments + tailIndex * NativeSnapshotMemory.TailSegmentStride;
                         string tailOwner = $"Ridley tail {tailIndex}";
                         Check(tailOwner + " active", segment.Active ? NativeSnapshotMemory.TailSegmentActive : (ushort)0, tailAddress);
                         // A propagated stagger has no angle in the port (#1413); the cartridge stores -1 there.
-                        Check(tailOwner + " StaggerAngle", segment.StaggerAngle is { } stagger ? checked((ushort)stagger) : ushort.MaxValue, tailAddress + 2);
-                        Check(tailOwner + " MovementDirection", segment.Clockwise ? (ushort)0x8000 : (ushort)0, tailAddress + 4);
+                        Check(tailOwner + " StaggerAngle", segment.Stagger is { } stagger ? checked((ushort)stagger.Steps) : ushort.MaxValue, tailAddress + 2);
+                        Check(tailOwner + " MovementDirection", segment.SwingDirection == RotationDirection.Clockwise ? (ushort)0x8000 : (ushort)0, tailAddress + 4);
                         Check(tailOwner + " Distance", segment.Distance.RawValue, tailAddress + 6);
                         Check(tailOwner + " TargetDistance", RidleyTailNativeWords.TargetDistance(segment.TargetDistance), tailAddress + 8);
                         Check(tailOwner + " Angle", RidleyTailNativeWords.Angle(segment.Angle), tailAddress + 10);

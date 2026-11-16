@@ -210,7 +210,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 return;
 
             case NorfairRidleyPhase.WallSweepSetup:
-                state.Tail.IdealInterSegmentAngle = 11;
+                state.Tail.IdealLinkSpacing = RidleyTailDefinitions.WallSweepLinkSpacing;
                 state.Tail.ExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Phase = NorfairRidleyPhase.SweepToWallBehind;
                 state.PhaseTimer = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + 32;
@@ -265,7 +265,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             case NorfairRidleyPhase.CarryRise:
                 if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
                 {
-                    state.Tail.IdealInterSegmentAngle = RidleyTailDefinitions.CarryReleaseInterSegmentSpacing;
+                    state.Tail.IdealLinkSpacing = RidleyTailDefinitions.CarryReleaseLinkSpacing;
                     state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Phase = NorfairRidleyPhase.CarryRelease;
@@ -278,7 +278,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             case NorfairRidleyPhase.CarryRelease:
                 if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
                 {
-                    state.Tail.IdealInterSegmentAngle = RidleyTailDefinitions.IdealInterSegmentSpacing;
+                    state.Tail.IdealLinkSpacing = RidleyTailDefinitions.StandardLinkSpacing;
                     state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     state.Phase = NorfairRidleyPhase.SelectAttack;
                 }

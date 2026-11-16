@@ -16,10 +16,10 @@ internal static class RidleyNeutralTailVerification
         var unarmed = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            var state = new NorfairRidleyState { FightMode = RidleyFightMode.Fighting, GrabState = RidleyGrabState.Released, Flight = { ClawHeight = RidleyClawHeightPlaces.TableOrder[raw % 3] }, Tail = { Action = RidleyTailAction.Pogo, AngleDelta = (ushort)raw } };
+            var state = new NorfairRidleyState { FightMode = RidleyFightMode.Fighting, GrabState = RidleyGrabState.Released, Flight = { ClawHeight = RidleyClawHeightPlaces.TableOrder[raw % 3] }, Tail = { Action = RidleyTailAction.Pogo, SwingStep = RidleyTailTurn.OfSteps(raw) } };
             prepare(state, armed);
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Power Bomb sets neutral tail function");
-            AssertEqual(1, state.Tail.AngleDelta, "Power Bomb resets native tail angle delta");
+            AssertEqual(RidleyTailTurn.OfSteps(1), state.Tail.SwingStep, "Power Bomb resets native tail angle delta");
             AssertEqual(RidleyClawHeightPlaces.TableOrder[raw % 3], state.Flight.ClawHeight, "Power Bomb preserves animated foot displacement");
             AssertEqual(NorfairRidleyPhase.GrabApproach, state.Phase, "Power Bomb lunge handoff");
         }
@@ -28,10 +28,10 @@ internal static class RidleyNeutralTailVerification
         foreach (bool flag in new[] { false, true })
         {
             if (fight == RidleyFightMode.Fighting && grab == RidleyGrabState.Released && flag) continue;
-            var state = new NorfairRidleyState { FightMode = fight, GrabState = grab, Phase = NorfairRidleyPhase.Hover, Flight = { ClawHeight = RidleyClawHeight.LegsExtended }, Tail = { Action = RidleyTailAction.Pogo, AngleDelta = 8 } };
+            var state = new NorfairRidleyState { FightMode = fight, GrabState = grab, Phase = NorfairRidleyPhase.Hover, Flight = { ClawHeight = RidleyClawHeight.LegsExtended }, Tail = { Action = RidleyTailAction.Pogo, SwingStep = RidleyTailTurn.OfSteps(8) } };
             prepare(state, flag ? armed : unarmed);
             AssertEqual(RidleyTailAction.Pogo, state.Tail.Action, "Inactive reaction preserves tail function");
-            AssertEqual(8, state.Tail.AngleDelta, "Inactive reaction preserves angle delta");
+            AssertEqual(RidleyTailTurn.OfSteps(8), state.Tail.SwingStep, "Inactive reaction preserves angle delta");
             AssertEqual(RidleyClawHeight.LegsExtended, state.Flight.ClawHeight, "Inactive reaction preserves feet");
             AssertEqual(NorfairRidleyPhase.Hover, state.Phase, "Inactive reaction preserves phase");
         }

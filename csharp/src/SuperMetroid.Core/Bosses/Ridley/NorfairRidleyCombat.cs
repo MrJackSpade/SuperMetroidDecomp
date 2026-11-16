@@ -201,7 +201,7 @@ internal sealed class NorfairRidleyCombat
     internal static void BeginNorfairRidleyPogoAttack(NorfairRidleyState state)
     {
         state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
-        state.Tail.IdealInterSegmentAngle = 16;
+        state.Tail.IdealLinkSpacing = RidleyTailDefinitions.StandardLinkSpacing;
         state.Tail.Action = RidleyTailAction.Neutral;
         state.Phase = NorfairRidleyPhase.PogoMoveToSide;
     }
@@ -255,7 +255,7 @@ internal sealed class NorfairRidleyCombat
             // Every acceleration clamps Ridley's speed to a few pixels an update, so it always has a magnitude.
             state.Flight.Velocity = state.Flight.Velocity.WithY(-SignedEightEight.Max(NorfairRidleyMotionDefinitions.GrabLiftMinimumSpeed, state.Flight.Velocity.Y.Magnitude()));
             state.Tail.Action = RidleyTailAction.Neutral;
-            state.Tail.AngleDelta = 1;
+            state.Tail.SwingStep = RidleyTailDefinitions.SlowNeutralSwing;
             BeginNorfairRidleyGrab(place, state, samus);
             return;
         }
@@ -266,16 +266,16 @@ internal sealed class NorfairRidleyCombat
         if (!RidleyTail.RidleyTailTouchesTerrain(state.Tail, level))
             return;
 
-        RidleyTailSegment tip = state.Tail.Segments[6];
+        RidleyTailLink tip = state.Tail.Tip;
         _ridleyProjectiles.SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), MiscDustAnimation.SmallDustCloud);
         _audio.QueueEnemySound(EnemySound.Quake, priority: SoundRequestPriority.Normal);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground), 4);
         SetRidleyPogoHorizontalDirection(place, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
-        for (int index = 0; index < state.Tail.Segments.Length; index++)
+        foreach (RidleyTailLink link in state.Tail.Links)
         {
-            state.Tail.Segments[index].Distance = RidleyTailReach.RestDistance(index);
-            state.Tail.Segments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
+            link.Distance = link.RestDistance;
+            link.TargetDistance = RidleyTailDefinitions.BounceDistance;
         }
         state.Tail.Action = RidleyTailAction.Pogo;
         state.PogoBounceCount++;
@@ -296,7 +296,7 @@ internal sealed class NorfairRidleyCombat
         if (samus.Position.Y.Whole < 352 || NorfairRidleyMovement.TickRidleyPhaseTimer(state))
         {
             state.Tail.Action = RidleyTailAction.Neutral;
-            state.Tail.AngleDelta = 1;
+            state.Tail.SwingStep = RidleyTailDefinitions.SlowNeutralSwing;
             state.Phase = NorfairRidleyPhase.SelectAttack;
             return;
         }
@@ -501,7 +501,7 @@ internal sealed class NorfairRidleyCombat
 
         // The power-bomb lunge resets both tail controls before the lunge.
         state.Tail.Action = RidleyTailAction.Neutral;
-        state.Tail.AngleDelta = 1;
+        state.Tail.SwingStep = RidleyTailDefinitions.SlowNeutralSwing;
         state.Phase = NorfairRidleyPhase.GrabApproach;
     }
 

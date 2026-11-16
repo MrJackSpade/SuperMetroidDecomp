@@ -676,6 +676,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     {
         var starts = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var named = new HashSet<SyntaxNode>();
+        var constantReads = new Dictionary<IFieldSymbol, HashSet<IdentifierNameSyntax>>(SymbolEqualityComparer.Default);
         foreach (SyntaxNode handler in CueHandlers(cueType))
         {
             SemanticModel semantic = model.ModelOf(handler.SyntaxTree);
@@ -692,10 +693,20 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     continue;
                 foreach (IdentifierNameSyntax name in section.Statements.SelectMany(statement => statement.DescendantNodesAndSelf()).OfType<IdentifierNameSyntax>())
                 {
-                    if (semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol program || !SymbolEqualityComparer.Default.Equals(program.ContainingType, segmentType)
-                        || name.Ancestors().Any(node => IsTest(node, name)))
+                    if (name.Ancestors().Any(node => IsTest(node, name)) || semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol field)
+                        continue;
+                    // A constant naming a program is that program (#2167: Torizo's death explosion continues in DeathSmoke).
+                    IFieldSymbol? program = SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType) ? field
+                        : NamedProgram(field, segmentType) is { } constant ? constant.Program : null;
+                    if (program is null)
                         continue;
                     named.Add(name);
+                    if (!SymbolEqualityComparer.Default.Equals(field, program))
+                    {
+                        if (!constantReads.TryGetValue(field.OriginalDefinition, out HashSet<IdentifierNameSyntax>? reads))
+                            constantReads.Add(field.OriginalDefinition, reads = []);
+                        reads.Add(name);
+                    }
                     foreach (string cue in cues)
                     {
                         if (!starts.TryGetValue(cue, out HashSet<string>? programs))
@@ -705,7 +716,52 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 }
             }
         }
+        // A constant only these cases read names its program for them alone: its own initializer starts nothing elsewhere.
+        foreach ((IFieldSymbol constant, HashSet<IdentifierNameSyntax> reads) in constantReads)
+        {
+            if (References(constant).All(reads.Contains) && NamedProgram(constant, segmentType) is { } initializer)
+                named.Add(initializer.Name);
+        }
         return (starts, named);
+    }
+
+    /// <summary>
+    /// The program the constant <paramref name="constant"/> names, a member of <paramref name="segmentType"/> its initializer
+    /// names outright, with that name; null for any other field.
+    /// </summary>
+    private (IFieldSymbol Program, IdentifierNameSyntax Name)? NamedProgram(IFieldSymbol constant, INamedTypeSymbol segmentType)
+    {
+        if (constant is not { IsConst: true } || !SymbolEqualityComparer.Default.Equals(constant.Type, segmentType) || !model.IsSource(constant)
+            || constant.OriginalDefinition.DeclaringSyntaxReferences is not [var reference]
+            || reference.GetSyntax() is not VariableDeclaratorSyntax { Initializer.Value: var value })
+            return null;
+        IdentifierNameSyntax? name = value switch
+        {
+            IdentifierNameSyntax identifier => identifier,
+            MemberAccessExpressionSyntax { Name: IdentifierNameSyntax member } => member,
+            _ => null,
+        };
+        return name is not null && model.ModelOf(value.SyntaxTree).GetSymbolInfo(name).Symbol is IFieldSymbol program
+            && SymbolEqualityComparer.Default.Equals(program.ContainingType, segmentType)
+            ? (program, name)
+            : null;
+    }
+
+    /// <summary>Every name in Core reading <paramref name="field"/>.</summary>
+    private IEnumerable<IdentifierNameSyntax> References(IFieldSymbol field)
+    {
+        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        {
+            SemanticModel? semantic = null;
+            foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())
+            {
+                if (name.Identifier.Text != field.Name)
+                    continue;
+                semantic ??= model.ModelOf(tree);
+                if (SymbolEqualityComparer.Default.Equals(semantic.GetSymbolInfo(name).Symbol?.OriginalDefinition, field.OriginalDefinition))
+                    yield return name;
+            }
+        }
     }
 
     /// <summary>

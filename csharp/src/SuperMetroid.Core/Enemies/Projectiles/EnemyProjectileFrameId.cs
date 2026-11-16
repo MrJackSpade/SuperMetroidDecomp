@@ -1271,6 +1271,11 @@ public enum EnemyProjectileFrameId
     KiHunterAcidSpitRightSixth,
     /// <summary>The seventh frame of the Ki-Hunter acid spit right.</summary>
     KiHunterAcidSpitRightSeventh,
+    /// <summary>
+    /// The frame of a Kago bug waiting in its Kago before it is shot out: the still pose Kraid's resting rocks show, drawn
+    /// from the Kago's own sheet as a bug of its colour.
+    /// </summary>
+    KagoBugWaiting,
     /// <summary>The first frame of the Kago bug landed.</summary>
     KagoBugLandedFirst,
     /// <summary>The second frame of the Kago bug landed.</summary>

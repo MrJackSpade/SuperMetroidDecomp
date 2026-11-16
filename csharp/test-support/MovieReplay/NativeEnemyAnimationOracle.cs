@@ -121,15 +121,25 @@ internal static class NativeEnemyAnimationOracle
     /// Checks that every typed animation plays the phases the native lists' control flow plays from its first segment,
     /// and that no animation starts in a counted body other than those of <paramref name="startsWithClearedCounter"/>:
     /// counted lists an owner starts directly, with the counter its spawn cleared. The first play of such a list counts
-    /// that zero down, wrapping it, so the list plays once and then the longest count more times.
+    /// that zero down, wrapping it, so the list plays once and then the longest count more times. Each animation an owner
+    /// starts at a counted entry (<paramref name="countedStarts"/>, #2044) plays the phases the lists play from the segment
+    /// the entry runs on into, its first run counted as many times as the entry loads.
     /// </summary>
     internal static void CompareAnimations<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
-        IReadOnlySet<TSegment>? startsWithClearedCounter = null, IReadOnlySet<TSegment>? onlyRunOnInto = null)
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null, IReadOnlySet<TSegment>? onlyRunOnInto = null,
+        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
         Ensure.NotNull(startingAt);
+        foreach (NativeCountedStart<TSegment> counted in countedStarts ?? [])
+        {
+            (List<AnimationPhase<TSegment>> countedPhases, AnimationEnd countedEnd) = Linearize(lists, counted.Into, counted.Count);
+            VerificationAssertions.AssertTrue(counted.Entry.Animation.Phases.SequenceEqual(countedPhases),
+                $"{counted.Entry.Name}'s phases follow its native lists from its counted entry ${counted.Entry.Address:X4}");
+            VerificationAssertions.AssertEqual(countedEnd, counted.Entry.Animation.End, $"{counted.Entry.Name}'s end follows its native lists");
+        }
         HashSet<TSegment> bodies = [.. lists.Values.SelectMany(list => list.Controls)
             .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
         HashSet<TSegment> tails = CountDownTails(lists);
@@ -191,7 +201,8 @@ internal static class NativeEnemyAnimationOracle
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
         NativeProgramEntry<TSegment>[] entries,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
-        AnimationPlayback<TSegment> playback)
+        AnimationPlayback<TSegment> playback,
+        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
@@ -203,6 +214,9 @@ internal static class NativeEnemyAnimationOracle
         {
             if (place.Phase != 0)
                 throw new InvalidOperationException($"A {typeof(TSegment).Name} playback before phase {place.Phase} stands at no native place.");
+            // An animation an owner starts at a counted entry stands there before its first play (#2044).
+            if ((countedStarts ?? []).SingleOrDefault(counted => ReferenceEquals(counted.Entry.Animation, animation)) is { } countedStart)
+                return countedStart.Entry.Address;
             TSegment start = startingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key;
             return entries.Single(entry => EqualityComparer<TSegment>.Default.Equals(entry.Program, start)).Entry;
         }
@@ -216,23 +230,29 @@ internal static class NativeEnemyAnimationOracle
 
     /// <summary>
     /// The playback a recording's native instruction pointer <paramref name="nativePointer"/> stands for: before the
-    /// first play of the animation starting at a segment whose entry it is; otherwise the phase beat at the pointer, or
-    /// the end of a phase's play where the pointer rests on the control instruction after it, in the animation starting
-    /// at that phase's segment when one plays it there, else the first in authored order that does.
+    /// first play of the animation starting at a segment whose entry it is, or of the animation an owner starts at a
+    /// counted entry it is (#2044); otherwise the phase beat at the pointer, or the end of a phase's play where the pointer
+    /// rests on the control instruction after it, in the animation starting at that phase's segment when one plays it
+    /// there, else the first in authored order that does, the animations started at counted entries after those starting
+    /// at segments.
     /// </summary>
     /// <exception cref="InvalidDataException">No animation, or more than one native place, matches the pointer.</exception>
     internal static AnimationPlayback<TSegment> PlaybackAt<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists,
         NativeProgramEntry<TSegment>[] entries,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
-        ushort nativePointer)
+        ushort nativePointer,
+        IReadOnlyList<NativeCountedStart<TSegment>>? countedStarts = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(lists);
         Ensure.NotNull(entries);
         Ensure.NotNull(startingAt);
+        IReadOnlyList<NativeCountedStart<TSegment>> counted = countedStarts ?? [];
         if (entries.Where(entry => entry.Entry == nativePointer && startingAt.ContainsKey(entry.Program)).Select(entry => (TSegment?)entry.Program).SingleOrDefault() is { } started)
             return new AnimationPlayback<TSegment>(startingAt[started], AnimationPlace.StartOfAnimation);
+        if (counted.SingleOrDefault(start => start.Entry.Address == nativePointer) is { } countedStart)
+            return new AnimationPlayback<TSegment>(countedStart.Entry.Animation, AnimationPlace.StartOfAnimation);
         var beats = new List<NativeEnemySegmentPlace<TSegment>>();
         var ends = new List<NativeEnemySegmentPlace<TSegment>>();
         foreach (KeyValuePair<TSegment, NativeEnemyList<TSegment>> pair in lists)
@@ -258,9 +278,8 @@ internal static class NativeEnemyAnimationOracle
         IEnumerable<TSegment> candidates = startingAt.ContainsKey(found.Segment)
             ? [found.Segment, .. Enum.GetValues<TSegment>().Where(startingAt.ContainsKey)]
             : Enum.GetValues<TSegment>().Where(startingAt.ContainsKey);
-        foreach (TSegment candidate in candidates)
+        foreach (Animation<TSegment> animation in candidates.Select(candidate => startingAt[candidate]).Concat(counted.Select(start => start.Entry.Animation)))
         {
-            Animation<TSegment> animation = startingAt[candidate];
             for (int index = 0; index < animation.Phases.Count; index++)
             {
                 AnimationPhase<TSegment> phase = animation.Phases[index];
@@ -544,6 +563,26 @@ internal static class NativeEnemyAnimationOracle
                 ?? throw new InvalidDataException($"{at}: ${address:X4} is no segment's native entry.");
     }
 }
+
+/// <summary>
+/// An animation an owner starts at a native entry that is no segment's list (#2044): the entry only loads the loop counter
+/// and runs on into a segment's list, whose run the animation's first phase repeats that many times, as each n00b-tube
+/// shard's spawn starts its flight.
+/// </summary>
+/// <typeparam name="TSegment">The segment identity.</typeparam>
+/// <param name="Name">The owner's identity for the animation, for failure messages.</param>
+/// <param name="Animation">The animation.</param>
+/// <param name="Address">The native entry.</param>
+internal sealed record NativeCountedEntry<TSegment>(string Name, Animation<TSegment> Animation, ushort Address)
+    where TSegment : struct, Enum;
+
+/// <summary>A counted entry as its native list reads (#2044): the count it loads and the segment whose list it runs on into.</summary>
+/// <typeparam name="TSegment">The segment identity.</typeparam>
+/// <param name="Entry">The entry and the animation started there.</param>
+/// <param name="Count">The loop count the entry loads.</param>
+/// <param name="Into">The segment whose list the entry continues into.</param>
+internal sealed record NativeCountedStart<TSegment>(NativeCountedEntry<TSegment> Entry, int Count, TSegment Into)
+    where TSegment : struct, Enum;
 
 /// <summary>One enemy segment's native list (#1600): each beat's native address, and its control instructions.</summary>
 /// <typeparam name="TSegment">The segment identity.</typeparam>

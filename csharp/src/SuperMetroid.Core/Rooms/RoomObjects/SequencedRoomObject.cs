@@ -16,8 +16,8 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
     /// <summary>The sequence the object plays; one just placed plays none, so its first update ends it at once.</summary>
     private IReadOnlyList<TStep> _sequence = [];
 
-    /// <summary>How many of the sequence's steps have shown.</summary>
-    private int _stepsShown;
+    /// <summary>How many of the sequence's steps have shown: the step on show is the last of them.</summary>
+    internal int StepsShown { get; private set; }
 
     /// <summary>The updates left before the sequence's next step, or before it ends after its last step.</summary>
     internal int UpdatesBeforeNextStep { get; private set; } = 1;
@@ -66,7 +66,7 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
     private protected void EndOnNextUpdate()
     {
         _sequence = [];
-        _stepsShown = 0;
+        StepsShown = 0;
         Resting = false;
         UpdatesBeforeNextStep = 1;
     }
@@ -80,20 +80,20 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
         if (Ensure.NotNull(sequence).Count == 0)
             throw new InvalidOperationException("A room object's sequence shows at least one step.");
         _sequence = sequence;
-        _stepsShown = 0;
+        StepsShown = 0;
         Resting = false;
     }
 
     /// <summary>Shows the sequence's next step, or ends the sequence after its last step.</summary>
     private void Step(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (_stepsShown == _sequence.Count)
+        if (StepsShown == _sequence.Count)
         {
             SequenceEnded(place, context);
             return;
         }
-        TStep step = _sequence[_stepsShown];
-        _stepsShown++;
+        TStep step = _sequence[StepsShown];
+        StepsShown++;
         UpdatesBeforeNextStep = Ensure.BetweenInclusive(1, int.MaxValue, Show(step, place, context));
     }
 }

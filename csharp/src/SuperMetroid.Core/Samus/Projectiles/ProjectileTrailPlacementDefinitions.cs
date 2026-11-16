@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Where projectile trails start: the family each group gives a beam combination, the list each family gives a
 /// direction, and each list's placements by the frame the shot shows.
 /// </summary>
+[ArchitectureReview("large", "Data only: every trail list's placement for each frame a shot selecting that list can show, keyed by the frame (#2124), with the family and list choices; the trail spawner reads it as one table, and splitting it by family would only scatter the lists a shot's family and direction choose between.")]
 internal static class ProjectileTrailPlacementDefinitions
 {
     /// <summary>

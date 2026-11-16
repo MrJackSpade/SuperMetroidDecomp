@@ -72,6 +72,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// indexes and bugs.
 /// #2172 adds, outside hardware owners, the machine's 16.16 arithmetic named by its sixty-five-thousandths (a
 /// 1/65536-pixel addition, helper or form), paired additions, and running or calling a helper or controller.
+/// #2192 adds to the review trail, in every type, fix history told by an adverb of error, a fall-through, an earlier
+/// order or what an alternative would strand, and debug narration: a diagnostic's path, debug and non-debug, and the
+/// port's C# construction; and, outside hardware owners, the Japanese and North American release named with no
+/// difference stated, a speed row, a cited variable label, a sort order, a scroll table, colours loaded into a row, a
+/// state extension or extra values, and a literal write.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -929,6 +934,155 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The Japanese and North American release named for what the game does (#2192), outside hardware owners, where the
+    /// paragraph states no difference from the European release (The Japanese and North American release measures
+    /// angles in 256ths of a turn; the Japanese and North American release reloads the burrow duration). That release is
+    /// the game Core plays; naming it says nothing a statement of the behaviour does not, unless the paragraph says what
+    /// the European release does instead (see <see cref="ReleaseNarrationFinding"/>). English stays legal: a paragraph
+    /// that sets the two releases side by side (the Japanese and North American release takes 80; the European release
+    /// takes 99), across the lines of one comment too.
+    /// </summary>
+    private static readonly Regex ReleaseNarrationProse = new(
+        @"\bJapanese\s+and\s+North\s+American\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>The European release, whose naming in a paragraph states a difference from the other release.</summary>
+    private static readonly Regex EuropeanRelease = new(@"\bEuropean\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A speed named as a row of the original's speed table (#2192), outside hardware owners, spaced or hyphenated: a
+    /// speed row or a speed-table row (the population's linear speed row, whose speed row is read). Core names the speed
+    /// and the way it moves. English stays legal: a speed, a row of blocks and a speed table alone.
+    /// </summary>
+    private static readonly Regex SpeedRowProse = new(
+        @"\bspeed[-\s]+(?:table[-\s]+)?rows?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A variable label cited as code in a comment (#2192), outside hardware owners: a lower-case identifier set in
+    /// backticks (Testing only <c>`ranActorAi`</c> here, the family of <c>`shade`</c>). Core says what the value means in
+    /// the game, and cites its own members with <c>see cref</c> or <c>paramref</c>, which the compiler resolves. English
+    /// stays legal: an expression in backticks and a member's name (<c>`StepMovement`</c>).
+    /// </summary>
+    private static readonly Regex CitedVariableProse = new(@"`\s*[a-z_][A-Za-z0-9_]*\s*`", RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A value's place in the original's numbering told as its sort order (#2192), outside hardware owners: a thing that
+    /// sorts, sorted or sorting after, before, below or above another (a normal bomb's family sorts after the Power Bomb
+    /// family). Core says what the game does with the two: which reaction ignores which. English stays legal: a sort
+    /// alone and a list sorted by a named key.
+    /// </summary>
+    private static readonly Regex SortOrderProse = new(
+        @"\bsort(?:s|ed|ing)?\s+(?:after|before|below|above)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's per-line scroll table (#2192), outside hardware owners, spaced or hyphenated: a scroll table, a
+    /// background or room-specific scroll table (resets the background scroll table). Core names the distortion, the
+    /// wave or the camera's limits. English stays legal: a scroll, a scroll's cells and a per-line scroll.
+    /// </summary>
+    private static readonly Regex ScrollTableProse = new(
+        @"\bscroll[-\s]+tables?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Colours loaded into a row of the original's palette (#2192), outside hardware owners: loads, loaded or loading,
+    /// up to four words, into, in or to, and a row, with up to two words before it (which his fight loads into the
+    /// projectiles' row). Core says which colours a picture shows. English stays legal: loading a room, a file or a row
+    /// that no load puts colours into (a room loads, the first row of blocks).
+    /// </summary>
+    private static readonly Regex LoadedRowProse = new(
+        @"\bload(?:s|ed|ing)?\s+(?:[\w'-]+\s+){0,4}?(?:into|in|to)\s+(?:the\s+|its\s+|a\s+|his\s+|her\s+)?(?:[\w'-]+\s+){0,2}?rows?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// State told as the original's extension of an enemy's record (#2192), outside hardware owners, spaced or
+    /// hyphenated: a state, boss, encounter, death, enemy, species, family, typed or record extension (the shared state
+    /// extension, the typed encounter extension, Crocomire death extension), extended state and extra values (the ghost's
+    /// extra values). Core names the state for what it holds: the fight, the death, the encounter. English stays legal:
+    /// a block's extension, a neck's, tail's, leg's or rope's extension, and a value alone.
+    /// </summary>
+    private static readonly Regex StateExtensionProse = new(
+        @"\b(?:state|boss|encounter|death|enemy|species|family|typed|record)[-\s]+extensions?\b|\bextended[-\s]+states?\b" +
+        @"|\bextra\s+values?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A value told as a literal write (#2192), outside hardware owners: a literal write, store or assignment (these radii
+    /// are literal writes, preserve the literal write). Core says what the value is and why the game sets it. English
+    /// stays legal: a literal alone.
+    /// </summary>
+    private static readonly Regex LiteralWriteProse = new(
+        @"\bliteral\s+(?:writes?|stores?|assignments?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Fix history told by an adverb of error (#2192), part of the review trail and read in every Core type: incorrectly,
+    /// wrongly, erroneously or mistakenly (Testing it here incorrectly advanced the animation, Requiring a collision
+    /// wrongly skipped the check). Core states what the game does; what an earlier version of the port got wrong is the
+    /// repository's history. English stays legal: a correct, right or wrong thing the game shows (the wrong answer).
+    /// </summary>
+    private static readonly Regex ErrorAdverbProse = new(
+        @"\b(?:incorrectly|wrongly|erroneously|mistakenly)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Fix history told as a fall-through of code (#2192), part of the review trail and read in every Core type: falls,
+    /// falling or fall through, then ran, runs, made, left, caused, counted, skipped, let or reached (Falling through ran
+    /// Samus movement). Core states where the update ends. English stays legal: Samus or a block falling through a
+    /// platform, the floor or the room.
+    /// </summary>
+    private static readonly Regex FallThroughProse = new(
+        @"\bfall(?:s|ing)?\s+through\s+(?:ran|runs?|made|left|caused|counted|skipped|let|reached)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Fix history told by an order an earlier version chose (#2192), part of the review trail and read in every Core
+    /// type: a step done first, earlier, later, early, late, twice or again, then what it made, caused, let, left, broke,
+    /// lost or produced (publishing first made the minimum read two). Core states the order the game keeps. English
+    /// stays legal: an order alone (the HUD publishes first) and a consequence the game shows (the hit first makes the
+    /// enemy flash).
+    /// </summary>
+    private static readonly Regex EarlierOrderProse = new(
+        @"\b\w+ing\s+(?:it\s+|them\s+|this\s+|that\s+)?(?:first|earlier|later|early|late|twice|again)\s+" +
+        @"(?:made|caused|let|left|broke|lost|produced)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Fix history told by what an alternative would strand (#2192), part of the review trail and read in every Core type:
+    /// would, will, could or might strand, with otherwise between (omitting it would strand Metroid in custom hurt). Core
+    /// states what the game does. English stays legal: a stranded thing the game has (a stranded X-ray beam).
+    /// </summary>
+    private static readonly Regex StrandingProse = new(
+        @"\b(?:would|will|could|might)\s+(?:otherwise\s+)?strand\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A gameplay path told as a diagnostic's (#2192), read in every Core type: a diagnostic seam, load, step, use,
+    /// request, path, run, magnitude, value, room, entry or branch, with up to one word between (the old diagnostic seam,
+    /// direct diagnostic loads, its diagnostic pre-impact magnitude), a diagnostic of the room, frame, runtime or replay
+    /// (the room diagnostic), and a slash joining one (direct/diagnostic step use). Core is the game: every path it holds
+    /// is a gameplay path with a gameplay reason. English stays legal: a name, text or identity for diagnostics, which
+    /// describes an error message or a host's display.
+    /// </summary>
+    private static readonly Regex DiagnosticPathProse = new(
+        @"\bdiagnostic[-\s]+(?:[\w-]+\s+)?(?:seams?|loads?|steps?|uses?|requests?|paths?|runs?|magnitudes?|values?|rooms?" +
+        @"|entr(?:y|ies)|branch(?:es)?)\b|\b(?:room|frame|runtime|replay)\s+diagnostics?\b|/diagnostic\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Debug narration (#2192), read in every Core type: debug and non-debug as words (fresh debug sessions, debug
+    /// scripts, debug tools, a debug room, the non-debug branch, with debug enabled). Core is the game: it holds no path
+    /// for a debug session and narrates none; the debugger in any word form is <see cref="HardwareProse"/>'s. English
+    /// stays legal: a name that contains debug, which another rule reads.
+    /// </summary>
+    private static readonly Regex DebugProse = new(@"\b(?:non-?)?debug\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The port's narration of its C# construction (#2192), read in every Core type: C# then up to three words and a
+    /// constructor, class, code, port, type, method, implementation, version, record, struct, field, property or loop
+    /// (the C# room constructor, the C# class that happens to hold it). Core states what the game does, not how its code
+    /// is laid out against the original. English stays legal: C# alone.
+    /// </summary>
+    private static readonly Regex CSharpConstructProse = new(
+        @"(?<![\w#])C#\s+(?:[\w-]+\s+){0,3}?(?:constructors?|class(?:es)?|code|ports?|types?|methods?|implementations?" +
+        @"|versions?|records?|structs?|fields?|propert(?:y|ies)|loops?)\b",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A controller button's letter used as the name of a gameplay action in prose (#2113), outside hardware owners: a
     /// letter that is an action (A is Jump, X here is the configured Shoot action, X is the default shoot binding), an
     /// action that is a letter (Jump is A), a letter before an action's button, binding or action (the B run button) and a
@@ -1088,16 +1242,81 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 !trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
                 !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
                 continue;
-            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated);
+            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated, trivia);
         }
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
                 token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
-                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated);
+                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated, comment: null);
         }
     }
+
+    /// <summary>
+    /// The paragraph a comment belongs to: a line comment with the line comments directly above and below it, up to a
+    /// blank line or anything that is not a comment; any other comment alone.
+    /// </summary>
+    private static string CommentParagraph(SyntaxTrivia comment)
+    {
+        if (!comment.IsKind(SyntaxKind.SingleLineCommentTrivia))
+            return comment.ToFullString();
+        SyntaxTriviaList list = comment.Token.LeadingTrivia;
+        int index = list.IndexOf(comment);
+        if (index < 0)
+        {
+            list = comment.Token.TrailingTrivia;
+            index = list.IndexOf(comment);
+        }
+        int first = ParagraphEdge(list, index, step: -1);
+        int last = ParagraphEdge(list, index, step: 1);
+        return string.Join(" ", list
+            .Skip(first)
+            .Take(last - first + 1)
+            .Where(trivia => trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+            .Select(trivia => trivia.ToFullString()));
+    }
+
+    /// <summary>
+    /// The farthest line comment from <paramref name="index"/> in direction <paramref name="step"/> that joins its
+    /// paragraph: one reached over whitespace and single line ends, never a blank line.
+    /// </summary>
+    private static int ParagraphEdge(SyntaxTriviaList list, int index, int step)
+    {
+        int edge = index;
+        int lineEnds = 0;
+        for (int i = index + step; i >= 0 && i < list.Count; i += step)
+        {
+            SyntaxTrivia neighbour = list[i];
+            if (neighbour.IsKind(SyntaxKind.SingleLineCommentTrivia))
+            {
+                edge = i;
+                lineEnds = 0;
+            }
+            else if (neighbour.IsKind(SyntaxKind.EndOfLineTrivia))
+            {
+                lineEnds++;
+                if (lineEnds > 1)
+                    break;
+            }
+            else if (!neighbour.IsKind(SyntaxKind.WhitespaceTrivia))
+            {
+                break;
+            }
+        }
+        return edge;
+    }
+
+    /// <summary>
+    /// The Japanese and North American release <paramref name="text"/> names (<see cref="ReleaseNarrationProse"/>) when
+    /// its paragraph, the comment's (<see cref="CommentParagraph"/>) or the literal itself, names no European release;
+    /// null otherwise.
+    /// </summary>
+    private static string? ReleaseNarrationFinding(string text, SyntaxTrivia? comment) =>
+        ReleaseNarrationProse.Match(text) is { Success: true } release &&
+        !EuropeanRelease.IsMatch(comment is { } trivia ? CommentParagraph(trivia) : text)
+            ? release.Value
+            : null;
 
     /// <summary>
     /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), the
@@ -1106,10 +1325,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// (<see cref="ReimplementationProse"/>), in any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
-    /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>).
+    /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>), fix history or debug narration.
+    /// <paramref name="comment"/> is the comment the text is, whose paragraph says whether a release is set against the
+    /// other (<see cref="ReleaseNarrationFinding"/>); null for a string literal.
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
-        Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
+        Lazy<ImmutableHashSet<string>>? codeNames, bool generated, SyntaxTrivia? comment)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
@@ -1121,6 +1342,13 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : !generated && ReviewTrailProse.Match(text) is { Success: true } reviewTrail ? reviewTrail.Value
             : !generated && RelocationHistoryProse.Match(Markup.Replace(text, " ")) is { Success: true } relocation ? relocation.Value
             : !generated && ApprovalAndHistoryProse.Match(text) is { Success: true } approvalOrHistory ? approvalOrHistory.Value
+            : !generated && ErrorAdverbProse.Match(text) is { Success: true } errorAdverb ? errorAdverb.Value
+            : !generated && FallThroughProse.Match(text) is { Success: true } fallThrough ? fallThrough.Value
+            : !generated && EarlierOrderProse.Match(text) is { Success: true } earlierOrder ? earlierOrder.Value
+            : !generated && StrandingProse.Match(text) is { Success: true } stranding ? stranding.Value
+            : !generated && DiagnosticPathProse.Match(text) is { Success: true } diagnosticPath ? diagnosticPath.Value
+            : !generated && DebugProse.Match(text) is { Success: true } debug ? debug.Value
+            : !generated && CSharpConstructProse.Match(text) is { Success: true } cSharpConstruct ? cSharpConstruct.Value
             : IsInHardwareOwner(owner) ? null
             : CitedCheckProse.Match(text) is { Success: true } citedCheck ? citedCheck.Value
             : Address.Match(text) is { Success: true } address ? address.Value
@@ -1168,6 +1396,14 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SixteenSixteenArithmeticProse.Match(Markup.Replace(text, " ")) is { Success: true } sixteenSixteen ? sixteenSixteen.Value
             : PairedArithmeticProse.Match(Markup.Replace(text, " ")) is { Success: true } paired ? paired.Value
             : RoutineHelperProse.Match(Markup.Replace(text, " ")) is { Success: true } routineHelper ? routineHelper.Value
+            : ReleaseNarrationFinding(text, comment) is { } release ? release
+            : SpeedRowProse.Match(text) is { Success: true } speedRow ? speedRow.Value
+            : CitedVariableProse.Match(text) is { Success: true } citedVariable ? citedVariable.Value
+            : SortOrderProse.Match(text) is { Success: true } sortOrder ? sortOrder.Value
+            : ScrollTableProse.Match(text) is { Success: true } scrollTable ? scrollTable.Value
+            : LoadedRowProse.Match(Markup.Replace(text, " ")) is { Success: true } loadedRow ? loadedRow.Value
+            : StateExtensionProse.Match(text) is { Success: true } stateExtension ? stateExtension.Value
+            : LiteralWriteProse.Match(text) is { Success: true } literalWrite ? literalWrite.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

@@ -35,7 +35,7 @@ public sealed record ScreenGradient
             if (stops[stop].Line <= stops[stop - 1].Line)
                 throw new ArgumentException("A gradient's stops begin on successively lower lines.", nameof(stops));
         }
-        if (bottom <= stops[^1].Line || bottom > DisplayScreen.Height)
+        if (bottom <= stops[^1].Line || bottom > ScreenGeometry.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(bottom), bottom, "A gradient's band ends below its last stop and on the screen.");
         Stops = stops;
         Bottom = bottom;

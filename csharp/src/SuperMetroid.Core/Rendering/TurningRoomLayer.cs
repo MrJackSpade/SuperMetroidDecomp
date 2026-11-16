@@ -13,7 +13,7 @@ public sealed record TurningRoomLayer : DisplayLayer
     public FloorView Transform { get; }
     /// <summary>The turning floor's map the room shows (#1349); its pictures are the room tileset's.</summary>
     public AffineFloor Map { get; }
-    /// <summary>The screen lines at the top the floor leaves to the HUD, 0..224 in multiples of eight; zero leaves none.</summary>
+    /// <summary>The screen lines at the top the floor leaves to the HUD, from zero through the screen's height; zero leaves none.</summary>
     public int HudLines { get; }
     /// <summary>The optional band of background and sprites at the bottom of the screen; null lets the floor and sprites continue to the bottom.</summary>
     public TurningRoomLowerBand? Floor { get; }
@@ -23,20 +23,17 @@ public sealed record TurningRoomLayer : DisplayLayer
     /// <summary>Describes a room shown as a turning floor below the HUD's lines, with an optional bottom band.</summary>
     /// <param name="transform">How the floor appears on the screen.</param>
     /// <param name="map">The turning floor's map.</param>
-    /// <param name="hudLines">The lines the floor leaves to the HUD, from zero through 224 screen lines and a multiple of eight.</param>
+    /// <param name="hudLines">The lines the floor leaves to the HUD, from zero through the screen's height.</param>
     /// <param name="floor">The optional bottom band, copied; its first line must follow the HUD and be above the screen's bottom.</param>
     /// <exception cref="ArgumentOutOfRangeException">The HUD's lines, or the band's first line, are invalid.</exception>
     public TurningRoomLayer(FloorView transform, AffineFloor map,
         int hudLines, TurningRoomLowerBand? floor = null)
     {
-        if (hudLines < 0 || hudLines > ScreenGeometry.ScreenHeightPixels ||
-            hudLines % ScreenGeometry.BackgroundCellSizePixels != 0)
-            throw new ArgumentOutOfRangeException(nameof(hudLines));
-        if (floor is { } f && (f.FirstLine < hudLines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels))
+        HudLines = Ensure.BetweenInclusive(0, ScreenGeometry.ScreenHeightPixels, hudLines);
+        if (floor is { } f && (f.FirstLine < HudLines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels))
             throw new ArgumentOutOfRangeException(nameof(floor));
         Transform = transform;
         Map = Ensure.NotNull(map);
-        HudLines = hudLines;
         Floor = floor;
     }
 }

@@ -30,7 +30,7 @@ internal static class PowerBombAfterglowShapeVerification
         AssertEqual(PowerBombExplosionDefinitions.WhiteOvalRadii[^1], radius, "native final white profile");
         AssertEqual(255, radius, "the final white oval reaches the widest radius");
         ScreenWindow finalOval = ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(32, 208), new Extent16<ScreenPixels>(checked((ushort)radius),
-            checked((ushort)(radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts)))), DisplayScreen.HudHeight);
+            checked((ushort)(radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts)))), ScreenGeometry.GameplayHudHeightPixels);
         int checkedFrames = 0;
         while (explosion.IsActive)
         {

@@ -31,7 +31,7 @@ internal static class LookupLiquidWaveVerification
                 Surface: 100, Liquid: new RoomWater(LiquidTide.None, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), WaterOverlayWavePhase: phase,
                 WaterBackgroundWavePhase: phase, WaterSurfaceScreenY: 100);
             var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankFxOverlay());
-            for (int y = DisplayScreen.HudHeight; y < DisplayScreen.Height; y++)
+            for (int y = ScreenGeometry.GameplayHudHeightPixels; y < ScreenGeometry.ScreenHeightPixels; y++)
             {
                 int offset = y > 100 ? Water((y - 101 - phase + 16) % 16) : 0;
                 AssertEqual(unchecked((ushort)(baseScroll + offset)), ScrollShapeLines.Scroll((captured ?? throw new InvalidOperationException("Verification requires captured.")).Horizontal, y),
@@ -47,7 +47,7 @@ internal static class LookupLiquidWaveVerification
                 ushort[] heatScroll = ScrollShapeLines.GameplayScrolls(GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(heat, cameraY) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2VerticalScrolls(heat, cameraY)."));
                 for (int line = 0; line < bg2.Length; line++)
                 {
-                    int y = line + DisplayScreen.HudHeight;
+                    int y = line + ScreenGeometry.GameplayHudHeightPixels;
                     int waterOffset = y > 100 ? Water((phase + cameraPhase + y - 101) & 15) : 0;
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");

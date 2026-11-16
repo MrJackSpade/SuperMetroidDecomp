@@ -952,9 +952,9 @@ internal static void VerifyBg2ScreenLayout()
                     pagesInOneColumn: true),
             },
             // The sky's first gameplay line scrolls eight pixels; the rest keep BG2's own scroll (#1468).
-            new BackgroundLineScrolls { Horizontal = new ScrollBands(0, [new ScrollBand(DisplayScreen.HudHeight, 8), new ScrollBand(DisplayScreen.HudHeight + 1, 0)]) }));
+            new BackgroundLineScrolls { Horizontal = new ScrollBands(0, [new ScrollBand(ScreenGeometry.GameplayHudHeightPixels, 8), new ScrollBand(ScreenGeometry.GameplayHudHeightPixels + 1, 0)]) }));
     AssertEqual(new RgbaPixel(0, 0, 255),
-        gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
+        gameplayFrame[ScreenGeometry.GameplayHudHeightPixels * ScreenGeometry.ScreenWidthPixels],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
 
     // Kraid selects BG2SC=$43: a 64x64 map rooted at word $4000 instead of the normal
@@ -962,7 +962,7 @@ internal static void VerifyBg2ScreenLayout()
     // layout; accepting a 64x64 argument without using its base still leaves only Kraid's
     // ordinary OAM arm visible.
     const ushort kraidBg2BaseWord = 0x4000;
-    int firstGameplaySourceRow = DisplayScreen.HudHeight / 8;
+    int firstGameplaySourceRow = ScreenGeometry.GameplayHudHeightPixels / 8;
     gameplayVram.ExecuteWordTransfer(
         [0x0801],
         destinationWord: unchecked((ushort)(kraidBg2BaseWord + firstGameplaySourceRow * 32)),
@@ -979,7 +979,7 @@ internal static void VerifyBg2ScreenLayout()
                     new Extent16<BackgroundPixels>(512, 512)),
             }));
     AssertEqual(new RgbaPixel(255, 0, 0),
-        gameplayFrame[DisplayScreen.HudHeight * DisplayScreen.Width],
+        gameplayFrame[ScreenGeometry.GameplayHudHeightPixels * ScreenGeometry.ScreenWidthPixels],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");
 
     Console.WriteLine("  BG render: BGSC geometry agrees.");
@@ -1040,7 +1040,7 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(PowerBombRadius.FromWholePixels(52), explosion.Blast.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     ColourAddWindowLayer scaled = CaptureWindow();
-    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(4, 3)), DisplayScreen.HudHeight),
+    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(4, 3)), ScreenGeometry.GameplayHudHeightPixels),
         scaled.Window, "the first flash is an oval of the drawn radius");
     AssertEqual(new RgbColor(8, 16, 24), scaled.Colour, "the first flash adds the installed fixed colour");
 
@@ -1052,7 +1052,7 @@ internal static void VerifyPowerBombColorMathWindow()
         "first pre-scaled yellow frame is retained for composition");
     AssertEqual<int?>(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.YellowOvalRadii[0], explosion.Blast.RenderedOvalRadius,
         "first yellow frame selects the first yellow oval");
-    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(146, 109)), DisplayScreen.HudHeight),
+    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(146, 109)), ScreenGeometry.GameplayHudHeightPixels),
         CaptureWindow().Window, "the first yellow oval is centred on the blast");
     Console.WriteLine("  Power bomb: drawn-radius timing, the oval's size and its centre agree.");
 
@@ -1098,7 +1098,7 @@ internal static void VerifyScrollingSkyState()
     // own +0.C000: the shared fastest drift, a pixel and a quarter a frame, reaches pixel 1 after one frame.
     AssertEqual(1, sky.OffsetOf(ScrollingSkyBandDefinitions.Fastest), "the bands at rows 568 and 736 share the fastest drift");
     ScrollingSkyLayer layer = sky.Publish(new Position16<RoomPixels>(0, 0x02c0)) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-    AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), DisplayScreen.HudHeight), "the first gameplay line shows row 736's shared fastest drift");
+    AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), ScreenGeometry.GameplayHudHeightPixels), "the first gameplay line shows row 736's shared fastest drift");
 
     sky.ProcessFrame(camera: new Position16<RoomPixels>(0, 0x041f), timeIsFrozen: true);
     AssertEqual(false, sky.ShowsDrift, "a frozen frame shows the bands unshifted");

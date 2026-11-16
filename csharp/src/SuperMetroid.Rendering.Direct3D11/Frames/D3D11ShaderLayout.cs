@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>CPU/HLSL upload-layout identities; changes require matching shader and verification changes.</summary>
@@ -15,7 +17,7 @@ internal static class D3D11ShaderLayout
     /// <summary>The words of each visible line's row of shader parameters.</summary>
     internal const int ScanlineParameterWords = 4;
     /// <summary>The window block (<see cref="D3D11WindowPacking"/>, #1468) follows the row of each visible line.</summary>
-    internal const int WindowWordOffset = ScanlineParametersWordOffset + ScanlineParameterWords * Core.Rendering.DisplayScreen.Height;
+    internal const int WindowWordOffset = ScanlineParametersWordOffset + ScanlineParameterWords * ScreenGeometry.ScreenHeightPixels;
     /// <summary>The described line scrolls' slots and data rows (#1468, <see cref="D3D11LineScrolls"/>) follow the window block.</summary>
     internal const int LineScrollsWordOffset = WindowWordOffset + D3D11WindowPacking.Words;
     /// <summary>Embedded compute shader for solid color and brightness passes.</summary>

@@ -28,14 +28,14 @@ public sealed record ScreenWindow
     /// <param name="endLine">The screen line after the last one covered, at or below <paramref name="firstLine"/>.</param>
     /// <exception cref="ArgumentException">There are too many shapes, or one is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The band of lines is not within the screen.</exception>
-    public ScreenWindow(ReadOnlySpan<WindowShape> shapes, int firstLine = 0, int endLine = DisplayScreen.Height)
+    public ScreenWindow(ReadOnlySpan<WindowShape> shapes, int firstLine = 0, int endLine = ScreenGeometry.ScreenHeightPixels)
     {
         if (shapes.Length > MaximumShapes)
             throw new ArgumentException($"A screen window joins at most {MaximumShapes} shapes.", nameof(shapes));
         foreach (WindowShape shape in shapes)
             Ensure.NotNull(shape);
-        FirstLine = Ensure.BetweenInclusive(0, DisplayScreen.Height, firstLine);
-        EndLine = Ensure.BetweenInclusive(FirstLine, DisplayScreen.Height, endLine);
+        FirstLine = Ensure.BetweenInclusive(0, ScreenGeometry.ScreenHeightPixels, firstLine);
+        EndLine = Ensure.BetweenInclusive(FirstLine, ScreenGeometry.ScreenHeightPixels, endLine);
         this.shapes = shapes.ToArray();
     }
 
@@ -43,7 +43,7 @@ public sealed record ScreenWindow
     public static ScreenWindow Closed { get; } = new([]);
 
     /// <summary>One shape, limited to the screen lines from <paramref name="firstLine"/> up to <paramref name="endLine"/>.</summary>
-    public static ScreenWindow Of(WindowShape shape, int firstLine = 0, int endLine = DisplayScreen.Height) =>
+    public static ScreenWindow Of(WindowShape shape, int firstLine = 0, int endLine = ScreenGeometry.ScreenHeightPixels) =>
         new([shape], firstLine, endLine);
 
     /// <summary>Whether both windows join the same shapes, in the same order, over the same lines.</summary>

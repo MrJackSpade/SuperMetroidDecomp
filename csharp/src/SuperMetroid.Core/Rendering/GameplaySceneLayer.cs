@@ -49,7 +49,7 @@ public sealed record GameplaySceneLayer : DisplayLayer
         BackgroundLineScrolls backgroundLineScrolls = default, ImmutableArray<ShownBand> bands = default)
     {
         ImmutableArray<ShownBand> shown = bands.IsDefault ? [] : bands;
-        int below = DisplayScreen.HudHeight;
+        int below = ScreenGeometry.GameplayHudHeightPixels;
         foreach (ShownBand band in shown)
         {
             if (band.Lines.FirstLine < below || band.Lines.EndLine <= band.Lines.FirstLine)

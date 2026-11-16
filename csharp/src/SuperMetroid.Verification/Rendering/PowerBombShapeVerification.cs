@@ -76,7 +76,7 @@ internal static class PowerBombShapeVerification
                     ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
                 int tall = radius * 3 / 4;
                 ScreenWindow expected = tall == 0 ? ScreenWindow.Closed
-                    : ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(100, 120), new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)tall))), DisplayScreen.HudHeight);
+                    : ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(100, 120), new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)tall))), ScreenGeometry.GameplayHudHeightPixels);
                 AssertEqual(expected, layer.Window, $"Power Bomb {phase} oval of whole radius {radius}");
                 cases++;
             }
@@ -95,13 +95,13 @@ internal static class PowerBombShapeVerification
             RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
             int tall = radius * 3 / 4;
-            for (int y = 0; y < DisplayScreen.Height; y++)
-            for (int x = 0; x < DisplayScreen.Width; x++)
+            for (int y = 0; y < ScreenGeometry.ScreenHeightPixels; y++)
+            for (int x = 0; x < ScreenGeometry.ScreenWidthPixels; x++)
             {
                 double dx = (double)(x - centerX) / radius, dy = (double)(y - centerY) / tall;
                 double distance = dx * dx + dy * dy;
-                bool lit = drawn[y * DisplayScreen.Width + x].R != 0;
-                if (y < DisplayScreen.HudHeight || distance > 1.1)
+                bool lit = drawn[y * ScreenGeometry.ScreenWidthPixels + x].R != 0;
+                if (y < ScreenGeometry.GameplayHudHeightPixels || distance > 1.1)
                     AssertTrue(!lit, $"Power Bomb radius {radius} at {centerX},{centerY} leaves {x},{y} outside its oval or in the HUD unlit");
                 else if (distance < 0.9)
                     AssertTrue(lit, $"Power Bomb radius {radius} at {centerX},{centerY} lights {x},{y} inside its oval");

@@ -32,9 +32,9 @@ public sealed record LineColourSteps
     /// <exception cref="ArgumentOutOfRangeException">A value is out of range.</exception>
     public LineColourSteps(int firstLine, int linesPerStep, int steps, int shift)
     {
-        FirstLine = Ensure.BetweenInclusive(0, DisplayScreen.Height, firstLine);
-        LinesPerStep = Ensure.BetweenInclusive(1, DisplayScreen.Height, linesPerStep);
-        Steps = Ensure.BetweenInclusive(1, DisplayScreen.Height, steps);
+        FirstLine = Ensure.BetweenInclusive(0, ScreenGeometry.ScreenHeightPixels, firstLine);
+        LinesPerStep = Ensure.BetweenInclusive(1, ScreenGeometry.ScreenHeightPixels, linesPerStep);
+        Steps = Ensure.BetweenInclusive(1, ScreenGeometry.ScreenHeightPixels, steps);
         Shift = Ensure.BetweenInclusive(-Steps, Steps, shift);
     }
 }

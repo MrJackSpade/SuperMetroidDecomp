@@ -68,7 +68,7 @@ internal static class ColorWindowSmokeTests
         for (int step = 0; step < RotationAngle.StepsPerTurn; step++)
         {
             var aim = new TrigonometryAngle(step);
-            cones.Add(new WindowCone(Offset16<ScreenPixels>.Of(DisplayScreen.Width / 2, DisplayScreen.Height / 2),
+            cones.Add(new WindowCone(Offset16<ScreenPixels>.Of(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2),
                 aim - halfWidth, aim + halfWidth));
         }
         foreach (Offset16<ScreenPixels> apex in new[] { Offset16<ScreenPixels>.Of(short.MinValue, short.MinValue),
@@ -149,10 +149,10 @@ internal static class ColorWindowSmokeTests
             var frame = new DisplayPacket(0, new LayeredScene(dark,
                 new DisplayLayer[] { new ColourAddWindowLayer(ScreenWindow.Of(oval), lit) }, DisplayBrightness.Full));
             RgbaPixel[] drawn = renderer.RenderForReadback(frame);
-            for (int y = 0; y < DisplayScreen.Height; y++)
-            for (int x = 0; x < DisplayScreen.Width; x++)
+            for (int y = 0; y < ScreenGeometry.ScreenHeightPixels; y++)
+            for (int x = 0; x < ScreenGeometry.ScreenWidthPixels; x++)
             {
-                bool shown = drawn[y * DisplayScreen.Width + x].R != 0, covered = OvalCovers(oval, x, y);
+                bool shown = drawn[y * ScreenGeometry.ScreenWidthPixels + x].R != 0, covered = OvalCovers(oval, x, y);
                 if (shown != covered)
                     throw new InvalidOperationException($"{device.Kind}: {oval} {(shown ? "lights" : "leaves dark")} ({x},{y}), " +
                         $"which lies {(covered ? "within or on" : "outside")} its edge.");
@@ -171,10 +171,10 @@ internal static class ColorWindowSmokeTests
             RgbaPixel[] drawn = renderer.RenderForReadback(frame);
             ConeEdgeDirection[] firsts = [.. group.Select(cone => cone.FirstEdgeDirection)];
             ConeEdgeDirection[] seconds = [.. group.Select(cone => cone.SecondEdgeDirection)];
-            for (int y = 0; y < DisplayScreen.Height; y++)
-            for (int x = 0; x < DisplayScreen.Width; x++)
+            for (int y = 0; y < ScreenGeometry.ScreenHeightPixels; y++)
+            for (int x = 0; x < ScreenGeometry.ScreenWidthPixels; x++)
             {
-                RgbaPixel pixel = drawn[y * DisplayScreen.Width + x];
+                RgbaPixel pixel = drawn[y * ScreenGeometry.ScreenWidthPixels + x];
                 int shown = ShownMarks(pixel.R) | ShownMarks(pixel.G) << ConeMarksPerChannel
                     | ShownMarks(pixel.B) << 2 * ConeMarksPerChannel;
                 for (int index = 0; index < group.Count; index++)
@@ -228,7 +228,7 @@ internal static class ColorWindowSmokeTests
     /// <summary>The step, clockwise from straight up, nearest the way from <paramref name="apex"/> to the screen's middle.</summary>
     private static TrigonometryAngle TowardScreenMiddle(Offset16<ScreenPixels> apex)
     {
-        double turn = Math.Atan2(DisplayScreen.Width / 2 - apex.X, apex.Y - DisplayScreen.Height / 2) / (2 * Math.PI);
+        double turn = Math.Atan2(ScreenGeometry.ScreenWidthPixels / 2 - apex.X, apex.Y - ScreenGeometry.ScreenHeightPixels / 2) / (2 * Math.PI);
         return TrigonometryAngle.Wrapped((int)Math.Round(turn * RotationAngle.StepsPerTurn));
     }
 

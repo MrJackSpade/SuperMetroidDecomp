@@ -19,11 +19,11 @@ namespace SuperMetroid.Core.Rendering;
 public static class GameplayEffectCapture
 {
     /// <summary>The screen's width in pixels.</summary>
-    private const int Width = DisplayScreen.Width;
+    private const int Width = ScreenGeometry.ScreenWidthPixels;
     /// <summary>The screen's height in lines.</summary>
-    private const int Height = DisplayScreen.Height;
+    private const int Height = ScreenGeometry.ScreenHeightPixels;
     /// <summary>The lines the HUD fills at the top of the screen.</summary>
-    private const int HudHeight = DisplayScreen.HudHeight;
+    private const int HudHeight = ScreenGeometry.GameplayHudHeightPixels;
     /// <summary>The liquids' and the heat haze's amplitude: a sample of one moves a line one whole pixel, in 1/256 pixel.</summary>
     private static readonly int OnePixelPerSample = EightEight.FromWhole(1);
 

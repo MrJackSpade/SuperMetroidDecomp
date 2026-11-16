@@ -4,5 +4,5 @@
 internal static class ScreenLineBandConstants
 {
     /// <summary>Every line below the HUD: the gameplay area.</summary>
-    public static ScreenLineBand Gameplay { get; } = new(DisplayScreen.HudHeight, DisplayScreen.Height);
+    public static ScreenLineBand Gameplay { get; } = new(ScreenGeometry.GameplayHudHeightPixels, ScreenGeometry.ScreenHeightPixels);
 }

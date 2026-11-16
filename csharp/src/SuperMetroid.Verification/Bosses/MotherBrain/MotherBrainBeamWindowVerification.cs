@@ -42,13 +42,13 @@ internal static class MotherBrainBeamWindowVerification
             beam.Geometry, "the beam publishes the mouth's room position and both wrapped edges");
         // The beam's edges are measured from straight down: 32 and 96 reflect to the screen's 96 and 32, a cone from
         // up-right to down-right of the mouth, below the HUD (#1468).
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), DisplayScreen.HudHeight),
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), ScreenGeometry.GameplayHudHeightPixels),
             Cone(beam), "right beam is a cone from the mouth between its reflected edges");
         RgbaPixel[] drawn = Draw(Cone(beam));
         int[] upperApex = LitColumns(drawn, 99);
         AssertTrue(upperApex.Length != 0 && upperApex[0] is >= 114 and <= 116 && upperApex[^1] == 255,
             "the line above the mouth lights from beside the mouth to the screen's right edge");
-        AssertTrue(Enumerable.Range(0, DisplayScreen.HudHeight).All(line => LitColumns(drawn, line).Length == 0),
+        AssertTrue(Enumerable.Range(0, ScreenGeometry.GameplayHudHeightPixels).All(line => LitColumns(drawn, line).Length == 0),
             "rainbow beam misses the HUD");
         Step();
         AssertEqual(31, beam.Color, "first cycling frame reads entry zero");
@@ -86,14 +86,14 @@ internal static class MotherBrainBeamWindowVerification
             bool up = angle is 96 or 128 or 160;
             MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam aimed.");
             AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), TrigonometryAngle.HalfTurn - geometry.UpperEdge, TrigonometryAngle.HalfTurn - geometry.LowerEdge),
-                DisplayScreen.HudHeight), Cone(beam), $"quadrant {angle} reflects its edges into the cone's");
+                ScreenGeometry.GameplayHudHeightPixels), Cone(beam), $"quadrant {angle} reflects its edges into the cone's");
             AssertEqual(0, LitColumns(Draw(Cone(beam)), up ? 101 : 98).Length,
                 $"quadrant {angle} stays on its ray side of the mouth");
         }
         VerifyLeftwardCone(beam);
         beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
         AssertEqual(new Position16<RoomPixels>(370, 100), beam.Geometry?.Mouth, "the mouth stays where it lies in the room");
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), DisplayScreen.HudHeight),
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), ScreenGeometry.GameplayHudHeightPixels),
             Cone(beam, new(256, 0)), "a scrolled camera places the cone like the unscrolled head");
         Console.WriteLine("  Mother Brain beam: cones from the mouth in any direction, HUD exclusion, camera placement, color stride/reset and owned capture agree.");
     }
@@ -110,7 +110,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), new TrigonometryAngle(191), new TrigonometryAngle(193)), beam.Geometry,
             "a leftward aim publishes its own edges");
         AssertTrue(Cone(beam) != up, "a leftward aim does not keep the earlier cone");
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), TrigonometryAngle.Wrapped(128 - 193), TrigonometryAngle.Wrapped(128 - 191)), DisplayScreen.HudHeight),
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), TrigonometryAngle.Wrapped(128 - 193), TrigonometryAngle.Wrapped(128 - 191)), ScreenGeometry.GameplayHudHeightPixels),
             Cone(beam), "a leftward aim reflects its edges into the cone's");
         int[] mouthLine = LitColumns(Draw(Cone(beam)), 100);
         AssertTrue(mouthLine.Length != 0 && mouthLine[0] == 0 && mouthLine[^1] <= 116,
@@ -132,7 +132,7 @@ internal static class MotherBrainBeamWindowVerification
 
     /// <summary>The columns a drawn line lights.</summary>
     private static int[] LitColumns(RgbaPixel[] drawn, int line) =>
-        Enumerable.Range(0, DisplayScreen.Width).Where(x => drawn[line * DisplayScreen.Width + x].R != 0).ToArray();
+        Enumerable.Range(0, ScreenGeometry.ScreenWidthPixels).Where(x => drawn[line * ScreenGeometry.ScreenWidthPixels + x].R != 0).ToArray();
 
     /// <summary>Asserts that a simulation effect owner stores no per-scanline array.</summary>
     [ReflectionAudit("metadata shape is the subject: a simulation effect owner must hold no per-scanline register table")]

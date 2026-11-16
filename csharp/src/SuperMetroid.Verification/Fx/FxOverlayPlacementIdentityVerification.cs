@@ -48,7 +48,7 @@ internal static class FxOverlayPlacementIdentityVerification
     private const int RowPixels = 8;
 
     /// <summary>The lines below the HUD the overlay draws on.</summary>
-    private const int FirstLine = DisplayScreen.HudHeight;
+    private const int FirstLine = ScreenGeometry.GameplayHudHeightPixels;
 
     /// <summary>
     /// For water, lava, acid and the Tourian entrance statue's water at every surface line from 300 above the screen to 300
@@ -121,7 +121,7 @@ internal static class FxOverlayPlacementIdentityVerification
         Step(placedAbove, system, frames, new Position16<RoomPixels>(0, 0));
         RoomFxOverlayRenderSnapshot returned = (placedAbove.CaptureForDisplay() ?? throw new InvalidOperationException("Water publishes its effect."))
             with { LiquidSurfaceLine = null };
-        AssertTrue(Enumerable.Range(FirstLine, DisplayScreen.Height - FirstLine).All(y => OldRow(returned, pages.Pages, stepSurface: -1, cameraY: 0, y) is null),
+        AssertTrue(Enumerable.Range(FirstLine, ScreenGeometry.ScreenHeightPixels - FirstLine).All(y => OldRow(returned, pages.Pages, stepSurface: -1, cameraY: 0, y) is null),
             "the page geometry showed nothing of a liquid placed above the room");
         AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(returned, pages.Of(RoomFxType.Water).Artwork) is { Picture: null },
             "a liquid placed above the room publishes an overlay showing nothing");
@@ -160,14 +160,14 @@ internal static class FxOverlayPlacementIdentityVerification
             RgbaPixel[] body = Render(memory, new AtmosphereOverlay(new AtmosphereArtwork(liquid.Body), ScrollBands.Uniform(-bodyTop)), across);
             int mismatched = 0;
             string? first = null;
-            for (int y = FirstLine; y < DisplayScreen.Height; y++)
+            for (int y = FirstLine; y < ScreenGeometry.ScreenHeightPixels; y++)
             {
                 RgbaPixel[] expected = !overlay.ShowsSurface || y >= bodyTop ? body : y >= top ? strip : backdrop;
                 if (Line(actual, y).SequenceEqual(Line(expected, y)))
                     continue;
                 mismatched++;
                 int line = y;
-                int pixels = Enumerable.Range(0, DisplayScreen.Width).Count(x => actual[line * DisplayScreen.Width + x] != expected[line * DisplayScreen.Width + x]);
+                int pixels = Enumerable.Range(0, ScreenGeometry.ScreenWidthPixels).Count(x => actual[line * ScreenGeometry.ScreenWidthPixels + x] != expected[line * ScreenGeometry.ScreenWidthPixels + x]);
                 first ??= $"line {y} ({(ReferenceEquals(expected, body) ? "body" : ReferenceEquals(expected, strip) ? "strip" : "nothing")} expected, {pixels} pixels differ; "
                     + $"actual is {(Line(actual, y).SequenceEqual(Line(backdrop, y)) ? "nothing" : Line(actual, y).SequenceEqual(Line(strip, y)) ? "the strip" : Line(actual, y).SequenceEqual(Line(body, y)) ? "the body" : "none of them")})";
             }
@@ -180,7 +180,7 @@ internal static class FxOverlayPlacementIdentityVerification
     }
 
     /// <summary>Screen line <paramref name="y"/> of <paramref name="frame"/>.</summary>
-    private static ReadOnlySpan<RgbaPixel> Line(RgbaPixel[] frame, int y) => frame.AsSpan(y * DisplayScreen.Width, DisplayScreen.Width);
+    private static ReadOnlySpan<RgbaPixel> Line(RgbaPixel[] frame, int y) => frame.AsSpan(y * ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenWidthPixels);
 
     /// <summary>The frame the renderer draws of <paramref name="picture"/> alone, added below the HUD, scrolled across by <paramref name="across"/>.</summary>
     private static RgbaPixel[] Render(FramePaint memory, OverlayPicture picture, LineScroll across) =>
@@ -242,7 +242,7 @@ internal static class FxOverlayPlacementIdentityVerification
         AssertTrue(layer.FirstLine == FirstLine && layer.Operation == (snapshot.Blend ?? throw new InvalidOperationException($"{place}: no blend.")).Operation,
             $"{place}: the overlay blends from the line and by the operation it did");
         // Each message is built only for a failing line.
-        for (int y = FirstLine; y < DisplayScreen.Height; y++)
+        for (int y = FirstLine; y < ScreenGeometry.ScreenHeightPixels; y++)
         {
             ushort oldScroll = ScrollShapeLines.Scroll(oldAcross, y), newScroll = ScrollShapeLines.Scroll(layer.Horizontal, y);
             if (oldScroll != newScroll)
@@ -255,7 +255,7 @@ internal static class FxOverlayPlacementIdentityVerification
                     && transfer.AsSpan(oldRow / RowPixels * RowWords, RowWords).SequenceEqual(transfer.AsSpan(newRow / RowPixels * RowWords, RowWords))))
                 AssertTrue(false, $"{place}: line {y} shows transfer row {newRow}, which does not picture transfer row {oldRow}'s words and line");
         }
-        return DisplayScreen.Height - FirstLine;
+        return ScreenGeometry.ScreenHeightPixels - FirstLine;
     }
 
     /// <summary>
@@ -301,7 +301,7 @@ internal static class FxOverlayPlacementIdentityVerification
         return RoomFxTypes.UsesWater(fx.Type)
             ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform, EightEight.FromWhole(1),
                 SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, WaterWaveDefinitions.Waveform.Length),
-                Math.Clamp(belowSurface, FirstLine, DisplayScreen.Height), DisplayScreen.Height)
+                Math.Clamp(belowSurface, FirstLine, ScreenGeometry.ScreenHeightPixels), ScreenGeometry.ScreenHeightPixels)
             : ScrollBands.Uniform(fx.Scroll.X);
     }
 

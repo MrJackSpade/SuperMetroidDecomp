@@ -506,7 +506,7 @@ internal sealed class TorizoAttacks
                 facingRight: TorizoFacing.FacesRight(torizo)));
     }
 
-    /// <summary>Starts a Golden egg with the game's fixed 66-frame hatch timer and randomized launch speed.</summary>
+    /// <summary>Starts a Golden egg with the game's fixed hatch timer and randomized launch speed.</summary>
     internal void SpawnGoldenTorizoEgg(RoomEnemyPlace torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -719,13 +719,13 @@ internal sealed class TorizoAttacks
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TorizoMotionDefinitions.GoldenOrbGravity);
     }
 
-    /// <summary>Counts down the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity.</summary>
+    /// <summary>Steps the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity; it hatches as the timer runs out.</summary>
     internal static void BounceEgg(
         EnemyProjectile projectile,
         RoomLevelData level)
     {
         GoldenTorizoEggState egg = projectile.StateOf<GoldenTorizoEggState>();
-        if (--egg.HatchTimer < 0)
+        if (egg.HatchTimer.StepRunsOut())
         {
             // The rolling egg holds its picture until it hatches, showing the side it was laid facing.
             projectile.StartAnimation(new TorizoProjectileAnimation(egg.LaidFacingRight

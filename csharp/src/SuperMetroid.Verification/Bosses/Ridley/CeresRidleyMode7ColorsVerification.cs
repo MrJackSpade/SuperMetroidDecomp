@@ -55,12 +55,12 @@ internal static class CeresRidleyMode7ColorsVerification
         CeresEscape escape = enemies.CeresEscape;
         Action<FloorZoom> select = escape.ShowFloorZoom;
         var visited = new HashSet<int>();
-        for (int index = 0; index < 112; index++)
+        for (int index = 0; index < CeresRidleyGetawayCurve.Duration; index++)
         {
-            CeresRidleyGetawayFrame frame = CeresRidleyGetawayCurve.FromIndex(index);
-            int row = LittleEndianBytes.HighByte(frame.Zoom.TwoHundredFiftySixths);
+            FloorZoom zoom = CeresRidleyGetawayCurve.ZoomAt(index);
+            int row = LittleEndianBytes.HighByte(zoom.TwoHundredFiftySixths);
             visited.Add(row);
-            select(frame.Zoom);
+            select(zoom);
             // The colours the encounter shows are the import's shades of the installed colours, laid as the getaway laid them (#1512).
             RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, escape, original);
             for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)

@@ -49,7 +49,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.FrameIndex = 1;
+        escape.Floor.GetawayUpdate = 1;
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         escape.RunGetawayRoomMain(null, 0);

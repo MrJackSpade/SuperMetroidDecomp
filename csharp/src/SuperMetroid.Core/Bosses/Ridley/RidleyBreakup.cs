@@ -16,6 +16,10 @@ internal static class RidleyBreakup
             spawn(part);
     }
 
+    /// <summary>The link of <paramref name="tail"/> that becomes tail fragment <paramref name="part"/>, or null for a body fragment.</summary>
+    internal static RidleyTailLink? TailLinkBecoming(RidleyExplosionPart part, RidleyTailState tail) =>
+        tail.Links.Zip(TailLinkParts, (link, linkPart) => linkPart == part ? link : null).OfType<RidleyTailLink>().SingleOrDefault();
+
     /// <summary>
     /// Selects the tail pose the breakup initializer loads; the tip's comes from the direction it points, turned by the
     /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first

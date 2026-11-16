@@ -40,7 +40,7 @@ internal sealed class RidleyReveal
                 if (_doorPassage.IsUnderWay)
                     return;
                 ridley.RevealPhase = RidleyRevealPhase.InitialDelay;
-                ridley.PhaseTimer = encounter.InitialDelay;
+                ridley.PhaseTimer.Count = encounter.InitialDelay;
                 TickInitialDelay(ridley);
                 return;
 
@@ -57,10 +57,10 @@ internal sealed class RidleyReveal
                 return;
 
             case RidleyRevealPhase.WaitBeforeRoar:
-                if (--ridley.PhaseTimer < 0)
+                if (ridley.PhaseTimer.StepRunsOut())
                 {
                     RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.OpeningRoar);
-                    ridley.PhaseTimer = encounter.RoarHold;
+                    ridley.PhaseTimer.Count = encounter.RoarHold;
                     ridley.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
                 }
                 return;
@@ -82,34 +82,28 @@ internal sealed class RidleyReveal
     /// <summary>Advances the opening hold before Ridley's eye fade begins.</summary>
     private static void TickInitialDelay(RidleyEncounterState ridley)
     {
-        if (--ridley.PhaseTimer >= 0)
+        if (ridley.PhaseTimer.StepKeepsRunning())
             return;
 
         ridley.RevealPhase = RidleyRevealPhase.FadeInEyes;
-        ridley.PhaseTimer = 0;
     }
 
     /// <summary>
-    /// Advances Ridley's eye fade one step on each AI call, showing the step's eye shade, and starts his body fade once the
-    /// eyes have finished.
+    /// Advances Ridley's eye fade an update on each AI call: its sixteen shades, then its hold; once it has held, his body
+    /// fade starts.
     /// </summary>
     internal static void TickEyeFadeIn(RidleyEncounterState ridley)
     {
-        // The game's increment-and-test advances once per AI call for every reachable
-        // counter value, resetting that timer to zero immediately afterward.
-        if (++ridley.PhaseTimer == 0)
-            return;
-        ridley.PhaseTimer = 0;
-
-        RidleyEyeFadeStep fadeStep = RidleyEyeFade.Get(ridley.EyeFade.Step);
-        if (fadeStep.IsComplete)
+        if (ridley.EyeFade.IsComplete)
         {
             ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
             ridley.MovementAnimationEnabled = true;
             return;
         }
 
-        ridley.Colours.ShowEyeFade(fadeStep.Shade);
+        // Each of the fade's first updates shows its next, lighter shade; its hold keeps the last, his own eye colours.
+        if (ridley.EyeFade.NextShade is { } shade)
+            ridley.Colours.ShowEyeFade(shade);
         ridley.EyeFade = ridley.EyeFade.Next();
     }
 
@@ -119,9 +113,12 @@ internal sealed class RidleyReveal
     /// </summary>
     internal void TickBodyFadeIn(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
-        if (++ridley.PhaseTimer < 2)
+        // The first of each shade's two updates only waits.
+        if (!ridley.BodyFade.WaitedForShade)
+        {
+            ridley.BodyFade = ridley.BodyFade.Waited();
             return;
-        ridley.PhaseTimer = 0;
+        }
 
         // Each step of the body fade shows the next shade, from black to the full body colours.
         if (ridley.BodyFade.IsComplete)
@@ -135,7 +132,7 @@ internal sealed class RidleyReveal
         // five updates, then begins the opening-roar animation.
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         ridley.RevealPhase = RidleyRevealPhase.WaitBeforeRoar;
-        ridley.PhaseTimer = 4;
+        ridley.PhaseTimer.Count = 4;
         // The fade queues the battle music immediately after the final body shade. It
         // intentionally continues after Ridley retreats, so omitting this single publication
         // silences both scenes.
@@ -144,15 +141,15 @@ internal sealed class RidleyReveal
 
     /// <summary>
     /// Starts Ridley's take-off: his take-off animation, whose lift-off ends the reveal, with his wings primed, every tail
-    /// segment enabled and his tail in its neutral swing.
+    /// link enabled and his tail in its neutral swing.
     /// </summary>
     private static void TakeOff(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.TransitionToFlying);
         ridley.Flight.WingAnimationTimer = 8;
         ridley.Flight.WingAnimationTimerDelta = 8;
-        foreach (RidleyTailSegment segment in ridley.Tail.Segments)
-            segment.Active = true;
+        foreach (RidleyTailLink link in ridley.Tail.Links)
+            link.Active = true;
         ridley.Tail.Action = RidleyTailAction.Neutral;
         ridley.RevealPhase = RidleyRevealPhase.TakingOff;
     }

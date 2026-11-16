@@ -38,8 +38,9 @@ internal static class RidleyExplosionDefinitions
     ];
 
     /// <summary>
-    /// Each part's lifetime in frames: tail segments expire eight frames apart from the base, the body parts follow
-    /// the same eight-frame progression, and the torso expires last.
+    /// Each part's lifetime, the count its countdown (<see cref="BossCountdown"/>) is loaded with, so the fragment dies on
+    /// the update after that many: tail fragments die eight updates apart from the base, the body parts follow the same
+    /// eight-update progression, and the torso dies last.
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, int> Lifetimes = new Dictionary<RidleyExplosionPart, int>
     {
@@ -57,17 +58,13 @@ internal static class RidleyExplosionDefinitions
         [RidleyExplosionPart.Torso] = 128,
     }.ToFrozenDictionary();
 
-    /// <summary>The tail segment each tail fragment starts from.</summary>
-    internal static readonly FrozenDictionary<RidleyExplosionPart, int> TailSegment = new Dictionary<RidleyExplosionPart, int>
-    {
-        [RidleyExplosionPart.TailBaseSegment] = 0,
-        [RidleyExplosionPart.TailSecondSegment] = 1,
-        [RidleyExplosionPart.TailThirdSegment] = 2,
-        [RidleyExplosionPart.TailFourthSegment] = 3,
-        [RidleyExplosionPart.TailFifthSegment] = 4,
-        [RidleyExplosionPart.TailSixthSegment] = 5,
-        [RidleyExplosionPart.TailTip] = 6,
-    }.ToFrozenDictionary();
+    /// <summary>The tail fragment each link of the tail becomes, from the base to the tip (#2238).</summary>
+    internal static readonly IReadOnlyList<RidleyExplosionPart> TailLinkParts =
+    [
+        RidleyExplosionPart.TailBaseSegment, RidleyExplosionPart.TailSecondSegment, RidleyExplosionPart.TailThirdSegment,
+        RidleyExplosionPart.TailFourthSegment, RidleyExplosionPart.TailFifthSegment, RidleyExplosionPart.TailSixthSegment,
+        RidleyExplosionPart.TailTip,
+    ];
 
     /// <summary>The definition of <paramref name="part"/>.</summary>
     public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(Lifetimes[part]);

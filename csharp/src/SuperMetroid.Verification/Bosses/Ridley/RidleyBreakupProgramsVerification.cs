@@ -33,12 +33,11 @@ internal static class RidleyBreakupProgramsVerification
         var process = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
-        var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, PhaseTimer = 0 };
-        for (int index = 0; index < 7; index++)
-        {
-            state.Tail.Segments[index] = new RidleyTailSegment
-                { Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? 16 : 0), Position = new Position16<RoomPixels>(128, 128) };
-        }
+        var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, PhaseTimer = { Count = 0 } };
+        RidleyTailFixtures.BlankLinks(state.Tail);
+        foreach (RidleyTailLink link in state.Tail.Links)
+            link.Position = new Position16<RoomPixels>(128, 128);
+        state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(16);
         body.HoldRidley(state);
         death(body, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
@@ -85,7 +84,7 @@ internal static class RidleyBreakupProgramsVerification
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
         RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException("The spawned fragment has no state.");
-        expiringState.Lifetime = 0;
+        expiringState.Lifetime.Count = 0;
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         enemies.NorfairRidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring, RoomEnemyFrameFixtures.StandaloneSamus());

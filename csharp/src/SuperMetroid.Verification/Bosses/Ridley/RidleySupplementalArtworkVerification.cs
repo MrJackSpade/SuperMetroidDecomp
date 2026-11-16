@@ -90,16 +90,14 @@ internal static class RidleySupplementalArtworkVerification
         };
         if (tailDirection is { } direction)
         {
-            for (int index = 0; index < 7; index++)
+            RidleyTailFixtures.BlankLinks(state.Tail);
+            for (int index = 0; index < state.Tail.Links.Count; index++)
             {
-                state.Tail.Segments[index] = new RidleyTailSegment
-                {
-                    Position = new Position16<RoomPixels>(
-                        unchecked((ushort)(80 + index * 10)),
-                        unchecked((ushort)(120 + index * 3))),
-                    Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? direction << 4 : 0),
-                };
+                state.Tail.Links[index].Position = new Position16<RoomPixels>(
+                    unchecked((ushort)(80 + index * 10)),
+                    unchecked((ushort)(120 + index * 3)));
             }
+            state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(direction << 4);
         }
         place.HoldRidley(state);
         // A wing selection draws his wings alone, a tail direction his tail alone (#2229: the two parts of his drawing).

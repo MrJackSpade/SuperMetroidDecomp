@@ -1,136 +1,73 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Immutable Ceres getaway zoom and drift curves.</summary>
+/// <summary>Ceres Ridley's getaway: its zoom and drift curves, how it turns the floor and when it shoves Samus (#2247).</summary>
 public static class CeresRidleyGetawayDefinitions
 {
-    /// <summary>The floor's zoom as the getaway sets it up, before its first frame: eight floor pixels per screen pixel.</summary>
+    /// <summary>The floor's zoom as the getaway sets it up, before its first update: eight floor pixels per screen pixel.</summary>
     internal static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(8);
 
     /// <summary>The getaway floor's angle as it is set up: a 256th of a step past no turn.</summary>
     internal static RotationAngle InitialAngle { get; } = RotationAngle.FromSteps(0, 1);
 
-    /// <summary>How far the getaway turns its floor each frame: 48 256ths of a step.</summary>
+    /// <summary>How far the getaway turns its floor each update: 48 256ths of a step.</summary>
     internal static RotationAngle TurnPerFrame { get; } = RotationAngle.FromSteps(0, 48);
 
     /// <summary>
-    /// The getaway's zoom and drift at each step, then its terminal entry. Zoom holds,
-    /// shrinks in two ramps around two held steps, then shrinks to its floor; the drift rises, holds, then falls away
-    /// ever faster.
+    /// The update of the getaway on which Ridley's shove takes Samus's movement, so the turning boss image cannot overlap
+    /// her from the following update on.
     /// </summary>
-    internal static readonly CeresRidleyGetawayFrame[] Frames =
+    internal const int SamusShoveUpdate = 104;
+
+    /// <summary>The zoom curve's slow narrowing: sixteen 256ths of a floor pixel per screen pixel an update.</summary>
+    private static FloorZoomStep SlowNarrowing { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
+
+    /// <summary>The zoom curve's fast narrowing: 32 256ths of a floor pixel per screen pixel an update.</summary>
+    private static FloorZoomStep FastNarrowing { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
+
+    /// <summary>
+    /// The getaway's zoom, 112 updates: it holds eight floor pixels per screen pixel, then narrows slowly, then fast, with
+    /// two held updates between its fast ramps, to a last slow ramp that ends held at an eighth of a floor pixel.
+    /// </summary>
+    internal static IReadOnlyList<CeresRidleyGetawayZoomStretch> ZoomCurve { get; } =
     [
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2048), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2032), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2016), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(2000), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1984), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1968), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1952), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1936), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1920), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1904), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1888), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1872), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1856), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1840), new(-1, -1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1824), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1808), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1792), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1760), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1728), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1696), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1664), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1632), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1600), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1568), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1536), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1504), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1472), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1440), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1408), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1376), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1344), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1312), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1280), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1248), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1216), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1184), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1152), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1120), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1088), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1072), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(1024), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(992), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(960), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(928), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(896), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(864), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(832), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(800), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(768), new(-1, 0)),
-        new(FloorZoom.FromTwoHundredFiftySixths(736), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(704), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(672), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(640), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(608), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(576), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(560), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(512), new(0, 1)),
-        new(FloorZoom.FromTwoHundredFiftySixths(480), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(448), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(416), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(384), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(352), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(320), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(288), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(256), new(1, 2)),
-        new(FloorZoom.FromTwoHundredFiftySixths(240), new(2, 3)),
-        new(FloorZoom.FromTwoHundredFiftySixths(224), new(2, 4)),
-        new(FloorZoom.FromTwoHundredFiftySixths(208), new(3, 6)),
-        new(FloorZoom.FromTwoHundredFiftySixths(192), new(3, 8)),
-        new(FloorZoom.FromTwoHundredFiftySixths(176), new(4, 10)),
-        new(FloorZoom.FromTwoHundredFiftySixths(160), new(4, 12)),
-        new(FloorZoom.FromTwoHundredFiftySixths(144), new(5, 14)),
-        new(FloorZoom.FromTwoHundredFiftySixths(128), new(5, 16)),
-        new(FloorZoom.FromTwoHundredFiftySixths(112), new(8, 20)),
-        new(FloorZoom.FromTwoHundredFiftySixths(96), new(12, 24)),
-        new(FloorZoom.FromTwoHundredFiftySixths(80), new(16, 44)),
-        new(FloorZoom.FromTwoHundredFiftySixths(64), new(20, 48)),
-        new(FloorZoom.FromTwoHundredFiftySixths(48), new(32, 128)),
-        new(FloorZoom.FromTwoHundredFiftySixths(32), new(32, 256)),
-        new(FloorZoom.FromTwoHundredFiftySixths(32), new(32, 256)),
-        new(FloorZoom.FromTwoHundredFiftySixths(32), new(32, 256)),
-        CeresRidleyGetawayFrame.Finished,
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(2048), updates: 32),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(2032), SlowNarrowing, updates: 16),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(1760), FastNarrowing, updates: 22),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(1072), updates: 1),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(1024), FastNarrowing, updates: 15),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(560), updates: 1),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(512), FastNarrowing, updates: 9),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(240), SlowNarrowing, updates: 14),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(32), updates: 2),
+    ];
+
+    /// <summary>
+    /// The getaway's drift, 112 updates: its vertical drift eases from six pixels an update to none over its first 80
+    /// updates, then reverses and grows ever faster, while its horizontal drift holds at a pixel an update, then reverses
+    /// and grows with it.
+    /// </summary>
+    internal static IReadOnlyList<CeresRidleyGetawayDriftStretch> DriftCurve { get; } =
+    [
+        new(new(-1, -6), Updates: 12),
+        new(new(-1, -4), Updates: 10),
+        new(new(-1, -2), Updates: 7),
+        new(new(-1, -1), Updates: 16),
+        new(new(-1, 0), Updates: 35),
+        new(new(0, 1), Updates: 8),
+        new(new(1, 2), Updates: 8),
+        new(new(2, 3), Updates: 1),
+        new(new(2, 4), Updates: 1),
+        new(new(3, 6), Updates: 1),
+        new(new(3, 8), Updates: 1),
+        new(new(4, 10), Updates: 1),
+        new(new(4, 12), Updates: 1),
+        new(new(5, 14), Updates: 1),
+        new(new(5, 16), Updates: 1),
+        new(new(8, 20), Updates: 1),
+        new(new(12, 24), Updates: 1),
+        new(new(16, 44), Updates: 1),
+        new(new(20, 48), Updates: 1),
+        new(new(32, 128), Updates: 1),
+        new(new(32, 256), Updates: 3),
     ];
 }

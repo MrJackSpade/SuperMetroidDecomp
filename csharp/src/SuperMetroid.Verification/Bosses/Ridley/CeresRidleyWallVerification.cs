@@ -24,7 +24,7 @@ internal static class CeresRidleyWallVerification
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase = CeresRidleyPhase.LungeMain;
-        ridley.PhaseTimer = 100;
+        ridley.PhaseTimer.Count = 100;
         ridley.MovementAnimationEnabled = true;
         ridley.Flight.Velocity = ridley.Flight.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
@@ -45,7 +45,7 @@ internal static class CeresRidleyWallVerification
         // Stop further attack acceleration so this checks one impact's lifetime, not
         // repeated wall contacts refreshing its timer: the retreat's delay holds him still while it counts down.
         ridley.Phase = CeresRidleyPhase.RetreatDelay;
-        ridley.PhaseTimer = 64;
+        ridley.PhaseTimer.Count = 64;
         ridley.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
         for (int remaining = 10; remaining >= 0; remaining--)
         {

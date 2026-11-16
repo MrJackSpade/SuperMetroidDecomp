@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             Tick(installed, installedPlace, installedState);
             AssertEqual(nativeState.ArenaReveal, installedState.ArenaReveal,
                 $"Norfair Ridley reveal call {call} row/terminator position");
-            AssertEqual(nativeState.PhaseTimer, installedState.PhaseTimer,
+            AssertEqual(nativeState.PhaseTimer.Count, installedState.PhaseTimer.Count,
                 $"Norfair Ridley reveal call {call} three-call cadence");
             AssertEqual(nativeState.RevealPhase, installedState.RevealPhase,
                 $"Norfair Ridley reveal call {call} terminal function");
@@ -118,9 +118,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         // Applies one native reveal update, including the three-call timer and terminating pointer.
         void TickReference(SnesCgram cgram, NorfairRidleyState state)
         {
-            if (--state.PhaseTimer >= 0)
+            if (--state.PhaseTimer.Count >= 0)
                 return;
-            state.PhaseTimer = 2;
+            state.PhaseTimer.Count = 2;
             ushort pointer = ReadReferenceWord(0xa6a4eb + state.ArenaReveal.Step * 2);
             state.ArenaReveal = state.ArenaReveal.Next();
             if (pointer != 0)
@@ -149,7 +149,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             NorfairRidleyState state = enemy.NorfairRidley() ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
-            state.PhaseTimer = 0;
+            state.PhaseTimer.Count = 0;
             return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, place, state);
         }
 

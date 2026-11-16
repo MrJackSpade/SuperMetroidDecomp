@@ -809,42 +809,43 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
+        IReadOnlyList<RidleyTailLink> links = new RidleyTailState(damage: 0).Links;
         for (int link = 0; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailReach.RestDistance(link).RawValue, "Shared tail rest geometry preserves the native initial separation");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), links[link].RestDistance.RawValue, "Shared tail rest geometry preserves the native initial separation");
         for (int link = 1; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link).RawValue, "Native shrink threshold equals initialized rest geometry");
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), links[link].RestDistance.RawValue, "Native shrink threshold equals initialized rest geometry");
+        for (int link = 1; link < 7; link++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), links[link].LongestDistance.RawValue, "Each link's longest stretch matches the native extension clamp");
         Action<RidleyTailState> update = RidleyTail.UpdateRidleyTailDistances;
         foreach (int delta in new[] { -1, 0, 1 })
         {
             var state = new RidleyTailState(damage: 0);
             for (int link = 0; link < 7; link++)
             {
-                state.Segments[link].Distance = new SignedEightEight(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta);
-                state.Segments[link].TargetDistance = null;
+                state.Links[link].Distance = new SignedEightEight(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta);
+                state.Links[link].TargetDistance = null;
             }
             update(state);
             for (int link = 0; link < 7; link++)
             {
                 int before = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta;
                 ushort expected = (ushort)(before - (link != 0 && delta > 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf8b + (link - 1) * 0x36)) : 0));
-                AssertEqual(expected, state.Segments[link].Distance.RawValue, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
+                AssertEqual(expected, state.Links[link].Distance.RawValue, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
             }
         }
         var extending = new RidleyTailState(damage: 0) { ExtensionSpeed = SignedEightEight.FromParts(0, 240) };
         for (int link = 0; link < 7; link++)
         {
-            extending.Segments[link].Distance = new SignedEightEight(link == 0 ? 123 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1);
-            extending.Segments[link].TargetDistance = new SignedEightEight(1);
+            extending.Links[link].Distance = new SignedEightEight(link == 0 ? 123 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1);
+            extending.Links[link].TargetDistance = new SignedEightEight(1);
         }
         update(extending);
         for (int link = 1; link < 7; link++)
         {
-            AssertEqual<SignedEightEight?>(null, extending.Segments[link].TargetDistance, "Actual tail extension clears the passed target first");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.Segments[link].Distance.RawValue, "Actual tail still extends and clamps on the target-clearing frame");
+            AssertEqual<SignedEightEight?>(null, extending.Links[link].TargetDistance, "Actual tail extension clears the passed target first");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.Links[link].Distance.RawValue, "Actual tail still extends and clamps on the target-clearing frame");
         }
-        AssertEqual(123, extending.Segments[0].Distance.RawValue, "Tail base stays outside extension updates");
+        AssertEqual(123, extending.Base.Distance.RawValue, "Tail base stays outside extension updates");
         Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
     }
 
@@ -865,7 +866,7 @@ internal static class LookupStream4Verification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.FrameIndex = 1;
+        escape.Floor.GetawayUpdate = 1;
         Action<SamusState?, int> tick = escape.RunGetawayRoomMain;
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
@@ -1247,16 +1248,16 @@ internal static class LookupStream4Verification
     /// <summary>Checks Ridley tail angle selection data against native table values.</summary>
     private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
     {
-        Func<RidleyTailSegment[]> create = RidleyTail.CreateInitialRidleyTailSegments;
-        var segments = create();
-        AssertEqual(7, segments.Length, "Tail initialization retains seven links");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentSpacing, "Tail separation matches the native initializer immediate");
-        for (int index = 0; index < segments.Length; index++)
+        var tail = new RidleyTailState(damage: 0);
+        IReadOnlyList<RidleyTailLink> segments = tail.Links;
+        AssertEqual(5, tail.Shaft.Count, "Tail initialization makes five shaft links between the base and the tip");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), tail.IdealLinkSpacing.Steps, "Tail separation matches the native initializer immediate");
+        for (int index = 0; index < segments.Count; index++)
         {
             AssertEqual(RidleyTailNativeWords.AngleOf(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index))), segments[index].Angle, "Actual initialized link angle matches native progression");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance.RawValue, "Unresolved independent tail distance remains unchanged");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1, segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].SwingDirection == RotationDirection.Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
+            AssertEqual<RidleyTailTurn?>(RidleyTailTurn.OfSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1), segments[index].Stagger, "Initial stagger remains ideal separation plus one");
         }
         var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
         for (int direction = 0; direction < 16; direction++)
@@ -1278,8 +1279,6 @@ internal static class LookupStream4Verification
             "Calculated tail-tip source enumeration retains the complete ordered supplemental frame domain");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
-        foreach (int invalid in new[] { -1, 7 })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
     }
 
     /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
@@ -1295,9 +1294,9 @@ internal static class LookupStream4Verification
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {
                 var state = new RidleyTailState(damage: 0);
-                foreach (RidleyTailSegment segment in state.Segments)
+                foreach (RidleyTailLink segment in state.Links)
                     segment.Position = new Position16<RoomPixels>(256, 0);
-                state.Segments[segmentIndex].Position = new Position16<RoomPixels>(0, y);
+                state.Links[segmentIndex].Position = new Position16<RoomPixels>(0, y);
                 bool expected = false;
                 if (segmentIndex >= 2)
                 {
@@ -1958,7 +1957,7 @@ internal static class LookupStream4Verification
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
                 new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
-                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
+                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer.Count = 0;
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 // The hold before take-off runs the arena reveal; the reveal's end takes him off (#2229).
@@ -1967,7 +1966,7 @@ internal static class LookupStream4Verification
                     enemies.NorfairRidleyBehavior.Body.Reveal.Run(place, state, enemies.NorfairRidleyBehavior);
                     ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
-                    AssertEqual(2 - call % 3, state.PhaseTimer, "Actual three-call producer cadence preserved");
+                    AssertEqual(2 - call % 3, state.PhaseTimer.Count, "Actual three-call producer cadence preserved");
                     AssertEqual(call < 45 ? row + 1 : NorfairRidleyRevealDefinitions.RevealStepCount + 1, state.ArenaReveal.Step, "Actual row and terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
@@ -1978,7 +1977,7 @@ internal static class LookupStream4Verification
                 AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
                 AssertEqual(8, state.Flight.WingAnimationTimer, "Native wing timer handoff");
-                AssertTrue(state.Tail.Segments.All(segment => segment.Active), "Native tail activation handoff");
+                AssertTrue(state.Tail.Links.All(segment => segment.Active), "Native tail activation handoff");
             }
         }
         foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
@@ -2166,7 +2165,7 @@ internal static class LookupStream4Verification
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
             var state = new NorfairRidleyState();
             for (int index = 0; index < 7; index++)
-                state.Tail.Segments[index].Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index));
+                state.Tail.Links[index].Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index));
             // Each part joins the breakup of his encounter and his body as it spawns (#2231).
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             void Spawn() => enemies.NorfairRidleyBehavior.Death.SpawnNorfairRidleyBreakupActors(body, state);
@@ -2182,7 +2181,7 @@ internal static class LookupStream4Verification
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime, "Actual breakup preserves each unresolved native lifetime");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.Count, "Actual breakup preserves each unresolved native lifetime");
             }
             Spawn();
             AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");

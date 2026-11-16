@@ -108,7 +108,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(ridley.Position.X.Whole +
             (state.FacingDirection == RidleyFacing.Left ? -25 : 25)), CoordinateAxis.Wrap(ridley.Position.Y.Whole - 43)));
         projectile.Velocity = state.FireballVelocity;
-        projectile.RemainingAfterburns = afterburns;
+        projectile.State = new RidleyAfterburnChainState(afterburns);
     }
 
     /// <summary>Selects the damage row from the loaded room's area.</summary>
@@ -158,7 +158,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         center.Position = center.Position.WithWhole(position);
         // The afterburn centre's steps explicitly stop the center; allocation retains prior velocities.
         center.Velocity = EightEightVector<RoomPixels>.Zero;
-        center.RemainingAfterburns = remaining;
+        center.State = new RidleyAfterburnChainState(remaining);
     }
 
     /// <summary>Emits the left/right or up/down branches from an impact center.</summary>
@@ -176,7 +176,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         }
     }
 
-    /// <summary>Copies the impact position, damage, velocity, and remaining chain count into a directional branch.</summary>
+    /// <summary>Spawns a directional afterburn of <paramref name="kind"/> at <paramref name="source"/>, flying at <paramref name="velocity"/>, with the afterburns its source's chain has left.</summary>
     internal void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         RoomEnemyProjectileKind kind,
@@ -190,23 +190,23 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
-        afterburn.RemainingAfterburns = source.RemainingAfterburns;
-        afterburn.NextAfterburnKind = kind;
+        afterburn.State = new RidleyAfterburnChainState(source.StateOf<RidleyAfterburnChainState>().Remaining);
     }
 
     /// <summary>
-    /// Continues the chain: an afterburn with afterburns left spends one and spawns the next, which carries on with the
-    /// rest; one with none left ends the chain. A chain of <c>n</c> therefore spawns <c>n</c> more after each of the
-    /// centre's pair.
+    /// Continues the chain: an afterburn with afterburns left spends one and spawns the next, flying its own way at its own
+    /// speed, which carries on with the rest; one with none left ends the chain. A chain of <c>n</c> therefore spawns
+    /// <c>n</c> more after each of the centre's pair.
     /// </summary>
     internal void SpawnNextAfterburn(EnemyProjectile source)
     {
-        if (source.RemainingAfterburns == 0)
+        RidleyAfterburnChainState chain = source.StateOf<RidleyAfterburnChainState>();
+        if (chain.Remaining == 0)
             return;
-        source.RemainingAfterburns--;
+        chain.Remaining--;
         SpawnDirectionalAfterburn(
             source,
-            source.NextAfterburnKind,
+            source.Kind,
             source.Velocity);
     }
 
@@ -315,7 +315,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         if (horizontalCollision || verticalCollision)
         {
             Position16<RoomPixels> impact = projectile.Position.Whole;
-            int count = projectile.RemainingAfterburns;
+            int count = projectile.StateOf<RidleyAfterburnChainState>().Remaining;
             projectile.Delete();
             if (count != 0)
                 SpawnAfterburnCenter(horizontalCollision ? Axis.Vertical : Axis.Horizontal, impact, count);

@@ -880,7 +880,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(RidleyRevealPhase.InitialDelay, state.RevealPhase,
         "Ceres Ridley door-clear transition");
-    AssertEqual(511, state.PhaseTimer, "Ceres Ridley first delay decrement");
+    AssertEqual(511, state.PhaseTimer.Count, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
@@ -904,7 +904,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // Native evidence (100% movie, source frame 3645): once the eye fade enables
     // composite animation, all seven inactive segments share the tail-root position
     // and stay there through the body fade until liftoff.
-    AssertEqual(1, state.Tail.Segments
+    AssertEqual(1, state.Tail.Links
             .Select(segment => new MotherBrainRinkaDoorSpawnExpected(segment.Position.X, segment.Position.Y))
             .Distinct()
             .Count(),
@@ -914,7 +914,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(RidleyRevealPhase.WaitBeforeRoar, state.RevealPhase,
         "Ceres Ridley body fade completes");
-    AssertEqual(4, state.PhaseTimer, "Ceres Ridley pre-roar timer");
+    AssertEqual(4, state.PhaseTimer.Count, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Contact.HasAny(EnemyContact.IgnoresSamus),
@@ -996,14 +996,14 @@ internal static void VerifyCeresRidleyRoomEntry()
     // `$A6:CC9A-$CCB9` aims a real seven-segment whip at Samus instead of merely moving
     // the body/wing composite. Start from the cartridge's all-active steady state so this
     // assertion isolates the missing request/target side effects reported in gameplay.
-    foreach (RidleyTailSegment segment in state.Tail.Segments)
+    foreach (RidleyTailLink segment in state.Tail.Links)
     {
         segment.Active = true;
-        segment.StaggerAngle = null;
-        segment.Clockwise = true;
+        segment.Stagger = null;
+        segment.SwingDirection = RotationDirection.Clockwise;
         segment.TargetDistance = null;
     }
-    state.Tail.Segments[0].Angle = RidleyTailAngle.StraightDown;
+    state.Tail.Base.Angle = RidleyTailAngle.StraightDown;
     state.Tail.ClockwiseWhipTarget = null;
     state.Tail.CounterClockwiseWhipTarget = null;
     state.Phase = CeresRidleyPhase.LungeSetup;
@@ -1013,9 +1013,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley enters lunge main");
     AssertTrue(state.Tail.ClockwiseWhipTarget is not null,
         "Ceres Ridley lunge installs cartridge tail-whip target");
-    AssertEqual(8, state.Tail.AngleDelta,
+    AssertEqual(RidleyTailTurn.OfSteps(8), state.Tail.SwingStep,
         "Ceres Ridley aimed whip uses eight-angle step");
-    AssertTrue(state.Tail.Segments.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
+    AssertTrue(state.Tail.Links.Skip(1).Any(segment => segment.TargetDistance == SignedEightEight.FromParts(12, 0)),
         "Ceres Ridley lunge extends articulated tail segments");
 
     var sharedProjectiles = CreateBombFixture();
@@ -1132,10 +1132,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         if (curveIndex != 0)
             GetawayFrame();
-        var curve = CeresRidleyGetawayCurve.FromIndex(curveIndex);
-        expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
-        expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
-        AssertEqual(curve.Zoom, enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
+        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(curveIndex);
+        expectedX = unchecked((ushort)(expectedX - drift.X));
+        expectedY = unchecked((ushort)(expectedY + drift.Y));
+        AssertEqual(CeresRidleyGetawayCurve.ZoomAt(curveIndex), enemies.CeresEscape.Floor.Zoom, "Ceres real getaway zoom publication");
         AssertEqual(unchecked((short)expectedX), enemies.CeresEscape.Floor.Offset.X, "Ceres real getaway horizontal integration");
         AssertEqual(unchecked((short)expectedY), enemies.CeresEscape.Floor.Offset.Y, "Ceres real getaway vertical integration");
         AssertTrue(!enemies.CeresEscape.Floor.Finished, "Ceres getaway retains all 112 authored motion frames");

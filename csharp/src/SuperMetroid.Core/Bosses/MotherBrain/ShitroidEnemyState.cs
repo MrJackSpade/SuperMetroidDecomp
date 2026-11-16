@@ -39,7 +39,7 @@ public sealed class ShitroidEnemyState
     /// The wait of the current action that counts past zero: the entrance delay, the rises after feeding and after
     /// draining Samus, the pause after draining her, the flights beside her and the hold before her release (#2253).
     /// </summary>
-    public MotherBrainCountdown StateTimer { get; } = new();
+    public BossCountdown StateTimer { get; } = new();
 
     /// <summary>
     /// The updates left of the Shitroid's drain of the Sidehopper, zero or more: the drain finishes on the update it

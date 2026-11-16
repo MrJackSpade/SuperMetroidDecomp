@@ -36,24 +36,24 @@ internal sealed class RidleyDrawing
         DrawWings(sprites, place, ridley, camera);
     }
 
-    /// <summary>Draws Ridley's tail, its tip first and then segments five to the base.</summary>
+    /// <summary>Draws Ridley's tail, its tip first and then its links from the inner joint back to the base.</summary>
     /// <param name="sprites">The frame's sprites.</param>
     /// <param name="ridley">Ridley's encounter.</param>
     /// <param name="camera">The camera.</param>
     internal void DrawTail(SpriteFrameBuffer sprites, RidleyEncounterState ridley, Position16<RoomPixels> camera)
     {
-        RidleyTailSegment[] segments = ridley.Tail.Segments;
-        RidleyTailSegment tip = segments[^1];
-        // The tip's pose follows its direction turned by the link before it.
-        EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.At(
-            tip.Angle.Direction.TurnedBy(segments[^2].Angle.Direction));
+        RidleyTailLink tip = ridley.Tail.Tip;
+        // The tip's pose follows the direction it points in, turned by the link before it.
+        EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.At(tip.PointingDirection);
         DrawTailFrame(sprites, ridley.TailAndWingsShading, tip, tipFrame, camera);
 
-        // The tail draw walks back from segment five to the base after emitting the
+        // The tail draw walks back from the inner joint to the base after emitting the
         // tip. Earlier draws win equal-priority overlap, so reversing this visually
         // changes the curl even though every individual piece is otherwise correct.
-        for (int index = segments.Length - 2; index >= 0; index--)
-            DrawTailFrame(sprites, ridley.TailAndWingsShading, segments[index], RidleySupplementalVisualDefinitions.LinkFrames[index], camera);
+        IEnumerable<RidleyTailLinkPicture> links = ridley.Tail.Links.Zip(
+            RidleySupplementalVisualDefinitions.LinkFrames, (link, frame) => new RidleyTailLinkPicture(link, frame));
+        foreach (RidleyTailLinkPicture picture in links.Reverse())
+            DrawTailFrame(sprites, ridley.TailAndWingsShading, picture.Link, picture.Frame, camera);
     }
 
     /// <summary>Draws Ridley's wings at his body for the way he faces; turning toward the screen he shows none.</summary>
@@ -74,13 +74,13 @@ internal sealed class RidleyDrawing
             place.Position.Whole.RelativeToCamera(camera), ridley.TailAndWingsShading);
     }
 
-    /// <summary>Publishes one tail segment's frame at its screen position for the current camera.</summary>
+    /// <summary>Publishes one tail link's frame at its screen position for the current camera.</summary>
     private void DrawTailFrame(
         SpriteFrameBuffer sprites,
         PictureShading colouring,
-        RidleyTailSegment segment,
+        RidleyTailLink link,
         EnemyFrameId frame,
         Position16<RoomPixels> camera) =>
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyTail), frame,
-            segment.Position.RelativeToCamera(camera), colouring);
+            link.Position.RelativeToCamera(camera), colouring);
 }

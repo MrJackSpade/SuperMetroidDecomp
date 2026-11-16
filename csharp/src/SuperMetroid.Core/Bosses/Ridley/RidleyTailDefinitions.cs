@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Initial articulated-tail angular geometry from the tail's initialization.</summary>
+/// <summary>Ridley's tail as it is made, and the swings, spacings, reaches and extensions its controllers set (#2238).</summary>
 internal static class RidleyTailDefinitions
 {
     /// <summary>Tail initialization writes this bound independently of facing: sixteen steps clockwise of straight down.</summary>
@@ -8,8 +8,39 @@ internal static class RidleyTailDefinitions
     /// <summary>Tail initialization writes this bound before the live tail controller adjusts it: a quarter turn counterclockwise of straight down.</summary>
     internal static RidleyTailAngle InitialMaximumCounterClockwise { get; } = RidleyTailAngle.StraightDown.TurnedCounterclockwise(64);
 
-    /// <summary>The carry's release sets the ideal tail spacing while releasing Samus.</summary>
-    internal const int CarryReleaseInterSegmentSpacing = 8;
+    /// <summary>
+    /// The spacing the tail's links keep as it is made and through most of the fight: each link starts the next once it
+    /// has swung sixteen steps, and each link starts sixteen steps counterclockwise of the one before.
+    /// </summary>
+    internal static RidleyTailTurn StandardLinkSpacing { get; } = RidleyTailTurn.OfSteps(16);
+    /// <summary>The tighter spacing the wall sweep curls the tail with: eleven steps.</summary>
+    internal static RidleyTailTurn WallSweepLinkSpacing { get; } = RidleyTailTurn.OfSteps(11);
+    /// <summary>The spacing the carry's release sets while releasing Samus: eight steps.</summary>
+    internal static RidleyTailTurn CarryReleaseLinkSpacing { get; } = RidleyTailTurn.OfSteps(8);
+    /// <summary>The spacing Ceres Ridley's least curly tail keeps: eight steps, to which his curliness roll adds up to fifteen.</summary>
+    internal static RidleyTailTurn LeastCurlyLinkSpacing { get; } = RidleyTailTurn.OfSteps(8);
+    /// <summary>How far each link has already swung as the tail is made, toward starting the next: seventeen steps.</summary>
+    internal static RidleyTailTurn InitialStagger { get; } = RidleyTailTurn.OfSteps(17);
+
+    /// <summary>
+    /// The neutral tail's slow swing, a step an update: while Samus stands left of <see cref="FastNeutralSwingFromX"/>,
+    /// as the tail is made, and as the pogo, a grab and a Power Bomb's lunge give the tail back to its neutral swing.
+    /// </summary>
+    internal static RidleyTailTurn SlowNeutralSwing { get; } = RidleyTailTurn.OfSteps(1);
+    /// <summary>The neutral tail's fast swing, two steps an update, while Samus stands at or right of <see cref="FastNeutralSwingFromX"/>.</summary>
+    internal static RidleyTailTurn FastNeutralSwing { get; } = RidleyTailTurn.OfSteps(2);
+    /// <summary>The room X from which a new neutral wave swings fast.</summary>
+    internal const int FastNeutralSwingFromX = 112;
+    /// <summary>The swing of an aimed whip, and of the tail pointing down for the pogo: eight steps an update.</summary>
+    internal static RidleyTailTurn WhipSwing { get; } = RidleyTailTurn.OfSteps(8);
+    /// <summary>The swing of the downward stab, slower than its setup: three steps an update.</summary>
+    internal static RidleyTailTurn StabSwing { get; } = RidleyTailTurn.OfSteps(3);
+    /// <summary>
+    /// The pogo tail's swing as its controller sets it up: none. Its activation timer is made at zero and never
+    /// given another value, so both pogo tail setups write zero.
+    /// </summary>
+    internal static RidleyTailTurn PogoSwing => RidleyTailTurn.None;
+
     /// <summary>
     /// The tail's usual extension speed, fifteen sixteenths of a pixel an update: set at initialization and restored by
     /// the ground attack and on carry phase expiry.
@@ -23,7 +54,7 @@ internal static class RidleyTailDefinitions
     internal static RidleyTailAngle DownAngle { get; } = RidleyTailAngle.StraightDown;
     /// <summary>Pogo clockwise whip target: straight down a whole turn clockwise, so the whip swings the tail round once.</summary>
     internal static RidleyTailAngle PogoWhipAngle { get; } = RidleyTailAngle.StraightDown.TurnedByWholeTurns(-1);
-    /// <summary>The whip's extension request while a segment chases a whip target: twelve pixels.</summary>
+    /// <summary>The whip's extension request while a link chases a whip target: twelve pixels.</summary>
     internal static SignedEightEight WhipDistance { get; } = SignedEightEight.FromParts(12, 0);
     /// <summary>The first direction of the forward interval a whip may not aim through Ridley's body.</summary>
     internal static TrigonometryAngle ForbiddenForwardStart { get; } = new(24);
@@ -37,12 +68,9 @@ internal static class RidleyTailDefinitions
     /// <summary>The angle a right-facing (counterclockwise) whip target's direction is counted from: straight down, so the target lies in the turn that starts there.</summary>
     internal static RidleyTailAngle RightWhipTargetBase { get; } = RidleyTailAngle.StraightDown;
 
-    /// <summary>The longest each segment may extend while whipping, base through tip.</summary>
-    internal static readonly SignedEightEight[] MaximumDistances =
-    [
-        SignedEightEight.Zero, SignedEightEight.FromParts(24, 0), SignedEightEight.FromParts(24, 0), SignedEightEight.FromParts(22, 0),
-        SignedEightEight.FromParts(22, 0), SignedEightEight.FromParts(18, 0), SignedEightEight.FromParts(5, 0),
-    ];
+    /// <summary>How many shaft links, counted from the tip inward, the pogo's floor check probes after the tip.</summary>
+    internal const int FloorProbingShaftLinks = 4;
+
     /// <summary>Descending stab extension request: ten pixels.</summary>
     internal static SignedEightEight StabDistance { get; } = SignedEightEight.FromParts(10, 0);
     /// <summary>Bounce extension request: twelve pixels.</summary>
@@ -62,28 +90,24 @@ internal static class RidleyTailDefinitions
         [RidleyFacing.Right] = RidleyTailAngle.StraightDown.TurnedCounterclockwise(16),
     };
 
-    /// <summary>Tail initialization sets Ridley's ideal inter-segment tail angle to 16; the initial angles advance by that separation.</summary>
-    internal const int IdealInterSegmentSpacing = 16;
-    /// <summary>The initial base separation: two pixels. The length is an authored scalar.</summary>
-    private static readonly SignedEightEight BaseRestDistance = SignedEightEight.FromParts(2, 0);
-    /// <summary>The initial shaft separation and its shrink thresholds: eight pixels. The length is an authored scalar.</summary>
-    private static readonly SignedEightEight ShaftRestDistance = SignedEightEight.FromParts(8, 0);
-    /// <summary>The initial tip separation and its shrink threshold: five pixels. The length is an authored scalar.</summary>
-    private static readonly SignedEightEight TipRestDistance = SignedEightEight.FromParts(5, 0);
+    /// <summary>The base, two pixels from the hip, pointing straight down; it holds its length.</summary>
+    internal static RidleyTailLinkDefinition BaseLink { get; } =
+        new(SignedEightEight.FromParts(2, 0), SignedEightEight.FromParts(2, 0), RidleyTailAngle.StraightDown);
 
-    /// <summary>The tail returns to its initialized rest geometry: base, five shaft links, then tip.</summary>
-    internal static readonly SignedEightEight[] RestDistances =
-        [BaseRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, TipRestDistance];
-
-    /// <summary>The seven successive initial link angles, base through tip: straight down, then each one ideal separation further counterclockwise.</summary>
-    internal static readonly RidleyTailAngle[] InitialAngles =
+    /// <summary>
+    /// The five shaft links from the body out, each eight pixels from the link before and starting one standard spacing
+    /// further counterclockwise; the two nearest the body stretch to 24 pixels, the next two to 22 and the last to 18.
+    /// </summary>
+    internal static IReadOnlyList<RidleyTailLinkDefinition> ShaftLinks { get; } =
     [
-        RidleyTailAngle.StraightDown,
-        RidleyTailAngle.StraightDown.TurnedCounterclockwise(IdealInterSegmentSpacing),
-        RidleyTailAngle.StraightDown.TurnedCounterclockwise(2 * IdealInterSegmentSpacing),
-        RidleyTailAngle.StraightDown.TurnedCounterclockwise(3 * IdealInterSegmentSpacing),
-        RidleyTailAngle.StraightDown.TurnedCounterclockwise(4 * IdealInterSegmentSpacing),
-        RidleyTailAngle.StraightDown.TurnedCounterclockwise(5 * IdealInterSegmentSpacing),
-        RidleyTailAngle.StraightDown.TurnedCounterclockwise(6 * IdealInterSegmentSpacing),
+        new(SignedEightEight.FromParts(8, 0), SignedEightEight.FromParts(24, 0), RidleyTailAngle.StraightDown.TurnedCounterclockwise(16)),
+        new(SignedEightEight.FromParts(8, 0), SignedEightEight.FromParts(24, 0), RidleyTailAngle.StraightDown.TurnedCounterclockwise(32)),
+        new(SignedEightEight.FromParts(8, 0), SignedEightEight.FromParts(22, 0), RidleyTailAngle.StraightDown.TurnedCounterclockwise(48)),
+        new(SignedEightEight.FromParts(8, 0), SignedEightEight.FromParts(22, 0), RidleyTailAngle.StraightDown.TurnedCounterclockwise(64)),
+        new(SignedEightEight.FromParts(8, 0), SignedEightEight.FromParts(18, 0), RidleyTailAngle.StraightDown.TurnedCounterclockwise(80)),
     ];
+
+    /// <summary>The tip, five pixels from the last shaft link, starting one standard spacing further round; it never stretches.</summary>
+    internal static RidleyTailLinkDefinition TipLink { get; } =
+        new(SignedEightEight.FromParts(5, 0), SignedEightEight.FromParts(5, 0), RidleyTailAngle.StraightDown.TurnedCounterclockwise(96));
 }

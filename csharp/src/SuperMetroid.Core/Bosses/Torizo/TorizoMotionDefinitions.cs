@@ -146,8 +146,8 @@ internal static class TorizoMotionDefinitions
     internal static readonly SignedEightEight ThrownSuperMissileSpeed = SignedEightEight.FromPixels(4);
 
     /// <summary>
-    /// Golden Torizo's egg hatch timer, 66 updates for every egg: the egg's initializer meant to draw it at random but
-    /// reads a fixed value (#1945).
+    /// Golden Torizo's egg hatch timer, a countdown (<see cref="BossCountdown"/>) of 66 for every egg, so each egg rolls
+    /// 66 updates and hatches on the next: the egg's initializer meant to draw it at random but reads a fixed value (#1945).
     /// </summary>
     internal const int EggHatchTimer = 66;
 }

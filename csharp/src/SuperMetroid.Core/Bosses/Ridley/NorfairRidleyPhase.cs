@@ -10,7 +10,7 @@ public enum NorfairRidleyPhase
     EnterArena,
     /// <summary>Selects Ridley's next action from combat state.</summary>
     SelectAttack,
-    /// <summary>Starts the hover Ridley recovers from a missed lunge in, with its 128-update limit.</summary>
+    /// <summary>Starts the hover Ridley recovers from a missed lunge in, with its limit, a countdown of 128.</summary>
     HoverSetup,
     /// <summary>Hovers toward the point behind Ridley until he reaches it or the hover's time runs out.</summary>
     Hover,

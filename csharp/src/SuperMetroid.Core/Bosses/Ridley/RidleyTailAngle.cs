@@ -30,8 +30,25 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
     public RidleyTailAngle TurnedCounterclockwise(TrigonometryAngle direction) =>
         TurnedCounterclockwise(direction.ToAngle().Sector(RotationAngle.StepsPerTurn));
 
+    /// <summary>The angle turned <paramref name="turn"/> counterclockwise.</summary>
+    public RidleyTailAngle TurnedCounterclockwise(RidleyTailTurn turn) => TurnedCounterclockwise(turn.Steps);
+
     /// <summary>The angle turned <paramref name="steps"/> 256ths of a turn clockwise.</summary>
     public RidleyTailAngle TurnedClockwise(int steps) => new(StepsFromStraightDown - steps);
+
+    /// <summary>The angle turned <paramref name="turn"/> clockwise.</summary>
+    public RidleyTailAngle TurnedClockwise(RidleyTailTurn turn) => TurnedClockwise(turn.Steps);
+
+    /// <summary>The angle turned <paramref name="turn"/> the way <paramref name="direction"/> says.</summary>
+    public RidleyTailAngle Turned(RotationDirection direction, RidleyTailTurn turn) =>
+        direction == RotationDirection.Clockwise ? TurnedClockwise(turn) : TurnedCounterclockwise(turn);
+
+    /// <summary>
+    /// Whether a link swinging <paramref name="direction"/> at this angle has reached <paramref name="bound"/>: it lies at
+    /// or clockwise of the bound swinging clockwise, at or counterclockwise of it swinging counterclockwise.
+    /// </summary>
+    public bool Reaches(RidleyTailAngle bound, RotationDirection direction) =>
+        direction == RotationDirection.Clockwise ? this <= bound : this >= bound;
 
     /// <summary>The angle turned <paramref name="turns"/> whole turns counterclockwise, clockwise when negative: the same direction, ordered a turn further round.</summary>
     public RidleyTailAngle TurnedByWholeTurns(int turns) => new(StepsFromStraightDown + turns * RotationAngle.StepsPerTurn);

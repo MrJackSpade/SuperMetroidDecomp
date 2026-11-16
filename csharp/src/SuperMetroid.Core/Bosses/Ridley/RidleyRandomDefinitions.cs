@@ -9,13 +9,13 @@ internal static class RidleyRandomDefinitions
     /// <summary>Ceres Ridley's fireball target jitter, 0 through 7 pixels on the side its sample's sign picks: the sample modulo 8.</summary>
     internal static readonly RandomSampleField FireballJitter = new(0, 3);
 
-    /// <summary>Norfair Ridley's pogo attack time limit, 0 through 63 updates added to 128: the sample modulo 64.</summary>
+    /// <summary>Norfair Ridley's pogo attack time limit, a countdown of 128 plus 0 through 63: the sample modulo 64.</summary>
     internal static readonly RandomSampleField PogoTimer = new(0, 6);
 
     /// <summary>Which of the four pogo launches Norfair Ridley takes: the sample modulo 4.</summary>
     internal static readonly RandomSampleField PogoChoice = new(0, 2);
 
-    /// <summary>Norfair Ridley's wall sweep time limit, 0 through 31 updates added to 32: the sample modulo 32.</summary>
+    /// <summary>Norfair Ridley's wall sweep time limit, a countdown of 32 plus 0 through 31: the sample modulo 32.</summary>
     internal static readonly RandomSampleField WallSweepTimer = new(0, 5);
 
     /// <summary>Which of the eight attacks of its situation Norfair Ridley chooses: the sample modulo 8.</summary>

@@ -109,13 +109,9 @@ internal static class BossSpriteEntriesVerification
             MovementAnimationEnabled = true,
             Flight = { FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left },
         };
-        for (int index = 0; index < 7; index++)
-        {
-            ridley.Tail.Segments[index] = new SuperMetroid.Core.Bosses.Ridley.RidleyTailSegment
-            {
-                Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3))),
-            };
-        }
+        SuperMetroid.Verification.Bosses.Ridley.RidleyTailFixtures.BlankLinks(ridley.Tail);
+        for (int index = 0; index < ridley.Tail.Links.Count; index++)
+            ridley.Tail.Links[index].Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3)));
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         enemies.RidleyBody.Drawing.DrawTailAndWings(sprites, place, ridley, Position16<RoomPixels>.Zero);

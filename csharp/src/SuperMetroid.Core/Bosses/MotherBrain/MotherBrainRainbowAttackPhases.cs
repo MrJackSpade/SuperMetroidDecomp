@@ -41,7 +41,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     public int SoundAttemptsLeft { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>Rainbow-beam explosion timer.</summary>
-    public MotherBrainCountdown ExplosionTimer { get; } = new();
+    public BossCountdown ExplosionTimer { get; } = new();
 
     /// <summary>Index of the offset pair the latest beam explosion used, cycling through the eight pairs.</summary>
     public int ExplosionIndex { get; private set; }

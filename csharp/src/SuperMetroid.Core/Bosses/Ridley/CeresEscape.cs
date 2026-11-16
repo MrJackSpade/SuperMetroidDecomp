@@ -93,7 +93,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Stage = CeresEscapeStage.Getaway;
         Floor.Active = true;
         Floor.Finished = false;
-        Floor.FrameIndex = 0;
+        Floor.GetawayUpdate = 0;
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = new Offset16<FloorPixels>(-128, 32);
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
@@ -120,22 +120,21 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// </summary>
     private void TickGetawayFloor(SamusState? samus, int frameCounter)
     {
-        int frameIndex = Floor.FrameIndex;
-        Floor.FrameIndex = frameIndex + 1;
+        int update = Floor.GetawayUpdate;
+        Floor.GetawayUpdate = update + 1;
 
-        // The getaway requests the departure sound on its first frame only. Tying the request to the
-        // frame preserves the same one-shot behavior after saves/replays and pauses.
-        if (frameIndex == 0)
+        // The getaway requests the departure sound on its first update only. Tying the request to the
+        // update preserves the same one-shot behavior after saves/replays and pauses.
+        if (update == 0)
             _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
-        // At frame 104, Ridley's shove takes Samus's movement so the
-        // rotating boss image cannot overlap her from the following frame onward.
-        if (frameIndex == 104 && samus is not null)
+        // Ridley's shove takes Samus's movement so the rotating boss image cannot overlap her from the following update
+        // onward.
+        if (update == CeresRidleyGetawayDefinitions.SamusShoveUpdate && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
 
-        var frame = CeresRidleyGetawayCurve.FromIndex(frameIndex);
-        FloorZoom zoom = frame.Zoom;
-        if (frame.IsFinished)
+        // The update after the curves' last ends the getaway.
+        if (update == CeresRidleyGetawayCurve.Duration)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values.
             // Preserve that clean handoff explicitly so the renderer cannot accidentally
@@ -151,12 +150,13 @@ internal sealed class CeresEscape : IGameplayShadingSource
             return;
         }
 
+        FloorZoom zoom = CeresRidleyGetawayCurve.ZoomAt(update);
+        Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(update);
         Floor.Zoom = zoom;
-        // The getaway frame's velocity is added to the vertical offset and subtracted from the
-        // horizontal offset.
+        // The update's drift is added to the vertical offset and subtracted from the horizontal offset.
         Floor.Offset = Offset16<FloorPixels>.Wrapped(
-            Floor.Offset.X - frame.Velocity.X,
-            Floor.Offset.Y + frame.Velocity.Y);
+            Floor.Offset.X - drift.X,
+            Floor.Offset.Y + drift.Y);
 
         ShowFloorZoom(zoom);
         Floor.Angle += CeresRidleyGetawayDefinitions.TurnPerFrame;

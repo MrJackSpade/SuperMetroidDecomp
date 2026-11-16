@@ -40,5 +40,5 @@ public sealed class RinkaEnemyState
     /// <summary>
     /// The wait before the Rinka aims or, for a special Rinka, before it respawns: one of its two waits at a time (#2253).
     /// </summary>
-    public MotherBrainCountdown DelayTimer { get; } = new();
+    public BossCountdown DelayTimer { get; } = new();
 }

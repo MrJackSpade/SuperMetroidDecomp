@@ -42,16 +42,19 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
         Hits = new CeresRidleyHits(_ridleyEncounter);
     }
 
-    /// <summary>Ceres Ridley waits 512 updates once Samus's door has finished before his eyes fade.</summary>
+    /// <summary>
+    /// Ceres Ridley's wait once Samus's door has finished, before his eyes fade: a countdown of 512 (<see cref="BossCountdown"/>)
+    /// stepped first on the update the door finishes, so his eye fade begins on its 513th step.
+    /// </summary>
     public int InitialDelay => 512;
 
-    /// <summary>Ceres Ridley holds his roar 252 updates before he takes off.</summary>
+    /// <summary>Ceres Ridley's hold after his roar: a countdown of 252, so he takes off on its 253rd step.</summary>
     public int RoarHold => 252;
 
-    /// <summary>Counts his roar's hold down; he takes off once it passes zero.</summary>
+    /// <summary>Steps his roar's hold; he takes off as it runs out.</summary>
     /// <param name="place">Ridley's body.</param>
     /// <param name="ridley">His encounter.</param>
-    public bool TakesOff(RoomEnemyPlace place, CeresRidleyState ridley) => --Ensure.NotNull(ridley).PhaseTimer < 0;
+    public bool TakesOff(RoomEnemyPlace place, CeresRidleyState ridley) => Ensure.NotNull(ridley).PhaseTimer.StepRunsOut();
 
     /// <summary>
     /// Runs the Ceres step reached through the end of the battle. The
@@ -136,7 +139,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
             case CeresRidleyPhase.LungeSetup:
                 RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.CeresLunge);
                 state.Phase = CeresRidleyPhase.LungeMain;
-                state.PhaseTimer = 64;
+                state.PhaseTimer.Count = 64;
                 CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
                 return true;
 
@@ -146,7 +149,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
 
             case CeresRidleyPhase.SwoopSetup:
                 state.Phase = CeresRidleyPhase.SwoopMoveToPosition;
-                state.PhaseTimer = 10;
+                state.PhaseTimer.Count = 10;
                 state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
                 state.Tail.IdleWhipEnabled = false;
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
@@ -197,7 +200,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
             case CeresRidleyPhase.SwoopAscendingAimingUpFaster:
                 RidleyFlight.UpdateSwoopVelocity(state.Flight, turn: new RidleySwoopTurn(RotationAngle.FromSteps(3), RotationDirection.Clockwise), targetAngle: RotationAngle.Zero - RidleyFlight.SwoopClimbTarget,
                     targetSpeed: SignedEightEight.FromPixels(3));
-                if (--state.PhaseTimer < 0)
+                if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Phase = CeresRidleyPhase.Hovering;
                     state.HoverCounter = 0;
@@ -214,7 +217,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                 return true;
 
             case CeresRidleyPhase.WaitBeforeRetrievingBaby:
-                if (--state.PhaseTimer < 0)
+                if (state.PhaseTimer.StepRunsOut())
                 {
                     RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.RetrieveBabyMetroid);
                     state.Phase = CeresRidleyPhase.RetrieveBaby;

@@ -494,14 +494,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Stretches the head's collision height down to the tracking overlay (#1823): the head's vertical radius becomes
-    /// the distance from the overlay up to the head plus two pixels, and never less than eight, so the head's hitbox
+    /// the distance from the overlay up to the head plus its reach past the overlay, and never less than its smallest
+    /// radius, so the head's hitbox
     /// reaches the overlay as the arm grows beneath it.
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
-        int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + 2);
-        head.Radius = head.Radius.WithY(CoordinateAxis.Precedes(radius, 8) ? 8 : radius);
+        int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + MagdolliteMotionDefinitions.HeadReachPastOverlay);
+        int smallest = MagdolliteMotionDefinitions.SmallestHeadRadius;
+        head.Radius = head.Radius.WithY(CoordinateAxis.Precedes(radius, smallest) ? smallest : radius);
     }
 
     /// <summary>
@@ -806,9 +808,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             Lava,
             SpriteGraphics.SpawnedBy(source));
 
-        // The initializer copies both subpixels from the throwing overlay, starts two pixels below it, and throws the
+        // The initializer copies both subpixels from the throwing overlay, starts the lava's drop below it, and throws the
         // lava sideways in the overlay's facing.
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 2), source.Position.Y.Fraction));
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop), source.Position.Y.Fraction));
         projectile.Velocity = new(
             throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed,
             SignedEightEight.Zero);

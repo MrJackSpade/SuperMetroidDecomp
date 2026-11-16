@@ -52,7 +52,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case SkreeAction.Idling:
-                if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < 48)
+                if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
                 {
                     StartSkreeAnimation(slot, state, SkreeMetareeSegment.SkreePreparingAttack);
                     state.Action = SkreeAction.PreparingAttack;
@@ -92,10 +92,10 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The Japanese and North American release reloads 21 every airborne frame. It becomes the complete
-        // burrow lifetime only on the frame whose six-pixel downward probe collides.
-        state.BurrowTimer = 21;
-        if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(6)))
+        // The Japanese and North American release reloads the burrow duration every airborne frame. It becomes the
+        // complete burrow lifetime only on the frame whose downward probe of one dive step collides.
+        state.BurrowTimer = SkreeMotionDefinitions.BurrowDuration;
+        if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(SkreeMotionDefinitions.DiveStep)))
         {
             slot.AnimationClock.Restart();
             state.Action = SkreeAction.Burrowing;
@@ -104,7 +104,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 6);
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + SkreeMotionDefinitions.DiveStep);
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
             (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -1 : 1));
     }
@@ -118,7 +118,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.BurrowTimer == 8)
+        if (state.BurrowTimer == SkreeMotionDefinitions.DebrisBurstAt)
             SkreeMetareeParticles.SpawnBurst(_projectiles, slot, SkreeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }

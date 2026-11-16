@@ -206,7 +206,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
-        bool withinVerticalBand = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= -96;
+        bool withinVerticalBand = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= -YardMotionDefinitions.HidingReachAbove;
         SamusFacingDirection samusFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == SamusFacingDirection.Left
@@ -376,7 +376,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int next = state.TurnTransitionDisableCounter + 1;
-        if (next >= 16)
+        if (next >= YardMotionDefinitions.TurnSuppressionPasses)
         {
             state.TurnTransitionDisabled = false;
             return;
@@ -430,7 +430,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, slot, state.AirborneVelocity.Y))
         {
             int wholeY = state.AirborneVelocity.Y.WholePixels;
-            if (wholeY is >= 0 and < 3)
+            if (wholeY is >= 0 and < YardMotionDefinitions.LandingWholeSpeedLimit)
             {
                 LandYard(slot, state, samus);
                 return;

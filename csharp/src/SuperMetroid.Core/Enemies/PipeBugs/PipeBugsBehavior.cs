@@ -320,14 +320,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = PipeBugAction.BrinstarFlyHorizontally;
     }
 
-    /// <summary>Moves two pixels per frame, then restores the stored spawn position and starts an invisible respawn wait offscreen.</summary>
+    /// <summary>Moves its flight step each frame, then restores the stored spawn position and starts an invisible respawn wait offscreen.</summary>
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         BrinstarPipeBugState state,
         int cameraX)
     {
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
-            (state.FliesLeft ? -2 : 2));
+            (state.FliesLeft ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;

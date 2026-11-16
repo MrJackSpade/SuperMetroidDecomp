@@ -22,6 +22,9 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> a chasing Metroid plays: the sample modulo 8.</summary>
     internal static readonly RandomSampleField CrySlot = new(0, 3);
 
+    /// <summary>How close on each axis, in pixels and exclusive, a closing Metroid comes to its aim before it latches on.</summary>
+    internal const int LatchDistance = 8;
+
     /// <summary>How far above Samus's centre a Metroid aims, in pixels.</summary>
     internal const int AimAboveSamus = 8;
 

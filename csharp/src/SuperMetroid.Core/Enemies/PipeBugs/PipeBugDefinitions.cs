@@ -3,10 +3,13 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <summary>
 /// The Norfair Pipe Bug formation's roles (#1840). Each member departs when its formation count reaches its target,
 /// centred on the leader's 104, eight updates per place above or below it; the European release shifts the same targets
-/// down 32 updates.
+/// down 32 updates. Also the Brinstar Pipe Bug's flight speed (#2076).
 /// </summary>
 internal static class PipeBugDefinitions
 {
+    /// <summary>How far a Brinstar Pipe Bug flies sideways each update, in pixels.</summary>
+    internal const int BrinstarFlightStep = 2;
+
     /// <summary>The leader: it holds its height after rising and departs at 104.</summary>
     internal static readonly NorfairPipeBugRole LeaderRole = new(104, PipeBugAction.NorfairLeaderStagger);
 

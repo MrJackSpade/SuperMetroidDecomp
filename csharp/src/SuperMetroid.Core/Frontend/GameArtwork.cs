@@ -46,6 +46,9 @@ public sealed record GameArtwork
     /// <summary>Samus body pictures, suit colours and death colours.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
+    /// <summary>The frames Samus's body can show in each pose and the picture frame each draws.</summary>
+    public SuperMetroid.Core.Samus.Drawing.SamusShownFrames? SamusShownFrames { get; init; }
+
     /// <summary>The ending scenes' backdrops (#1544).</summary>
     public EndingBackdrops? EndingBackdrops { get; init; }
 
@@ -197,6 +200,7 @@ public sealed record GameArtwork
     {
         MapPresentation = Installed(MapPresentation),
         SamusBodyArt = Installed(SamusBodyArt),
+        SamusShownFrames = Installed(SamusShownFrames),
         RoomBlockSheets = Installed(RoomBlockSheets),
         RoomVisualLayouts = Installed(RoomVisualLayouts),
         RoomLevelStreams = Installed(RoomLevelStreams),
@@ -251,7 +255,7 @@ public sealed record GameArtwork
     /// <summary>The installed Samus artwork the opening cinematic's flashback Samus draws from (#2049).</summary>
     /// <exception cref="InvalidOperationException">A catalog Samus draws from is not installed.</exception>
     internal SamusArtworkBinding FlashbackSamusArtwork() =>
-        new(Installed(SamusBodyArt), Installed(SpriteSheets), Installed(GrappleFlarePlacement), Installed(GrappleSwingFrames));
+        new(Installed(SamusBodyArt), Installed(SamusShownFrames), Installed(SpriteSheets), Installed(GrappleFlarePlacement), Installed(GrappleSwingFrames));
 
     /// <summary>The installed catalog <paramref name="catalog"/>, which gameplay requires.</summary>
     /// <exception cref="InvalidOperationException">The catalog is not installed.</exception>

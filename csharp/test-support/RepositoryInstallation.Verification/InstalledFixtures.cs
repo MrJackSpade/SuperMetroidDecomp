@@ -56,9 +56,21 @@ internal static class InstalledFixtures
     /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     internal static SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices BossAndIntroOverreads => bossAndIntroOverreads.Value;
 
-    /// <summary>What the installation reads at a Samus animation frame past her pose's program, which every Samus takes.</summary>
-    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> FramesBeyondAnimation =>
+    /// <summary>
+    /// What the installation reads at a Samus animation frame that names no step of her pose's animation, and where its
+    /// named places land in other animations, which every Samus takes.
+    /// </summary>
+    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame,
+        SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> FramesBeyondAnimation =>
         SamusOverreads.FramesBeyondAnimation;
+
+    /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations, made once.</summary>
+    private static readonly Lazy<SamusShownFrameAnalysis> samusShownFrameAnalysis = Shared<SamusShownFrameAnalysis>("Samus shown frames", () =>
+        new SamusShownFrameAnalysis(SamusAnimationLayout.Read(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))))));
+
+    /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations.</summary>
+    internal static SamusShownFrameAnalysis SamusShownFrameAnalysis => samusShownFrameAnalysis.Value;
 
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = Shared<RoomAssetCatalogs>("room asset catalogs", () => new RoomAssetCatalogs(
@@ -388,7 +400,8 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding SamusArtwork(InstalledSamusBodyArtwork? body = null,
         SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtwork? armCannon = null)
     {
-        var binding = new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding(body ?? SamusBody.Gameplay, SpriteSheets,
+        var binding = new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding(body ?? SamusBody.Gameplay,
+            RepositoryInstallation.SamusBody.ShownFrames, SpriteSheets,
             Projectiles.Grapple.FlarePlacement, Projectiles.Grapple.SwingFrames);
         if (armCannon is not null)
             binding.ArmCannon = armCannon;

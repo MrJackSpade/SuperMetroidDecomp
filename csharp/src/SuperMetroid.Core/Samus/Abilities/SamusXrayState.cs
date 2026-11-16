@@ -365,7 +365,7 @@ public sealed class SamusXrayState
     /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
     /// </summary>
-    public int? StepMovement(SamusState samus)
+    internal SamusAnimationTarget? StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -374,17 +374,17 @@ public sealed class SamusXrayState
             return null;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        int frame = facingLeft
-            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? 4 :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? 3 :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? 2 :
-              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? 1 : 0
-            : Angle < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? 0 :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? 1 :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? 2 :
-              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? 3 : 4;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, new SamusAnimationTarget(SamusAnimationSegmentName.Main, frame), timer: 15);
-        return frame;
+        SamusAnimationTarget aim = facingLeft
+            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftDownBelow ? XrayScopeDefinitions.Aims.Down :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftLoweredBelow ? XrayScopeDefinitions.Aims.Lowered :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftLevelBelow ? XrayScopeDefinitions.Aims.Level :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftRaisedBelow ? XrayScopeDefinitions.Aims.Raised : XrayScopeDefinitions.Aims.Up
+            : Angle < XrayScopeDefinitions.AnimationAngles.RightRaisedFrom ? XrayScopeDefinitions.Aims.Up :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightLevelFrom ? XrayScopeDefinitions.Aims.Raised :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightLoweredFrom ? XrayScopeDefinitions.Aims.Level :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightDownFrom ? XrayScopeDefinitions.Aims.Lowered : XrayScopeDefinitions.Aims.Down;
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, aim, timer: 15);
+        return aim;
     }
 
     /// <summary>

@@ -17,7 +17,11 @@ internal static class SamusArtOriginRangeVerification
         const SamusPoseId high = SamusPoseId.MorphBallGroundRightPose, low = SamusPoseId.MorphBallGroundLeftPose;
         var artwork = new InstalledSamusBodyArtwork(new SamusBodyArtworkContent
         {
-            OriginRises = new Dictionary<SamusPoseId, IReadOnlyList<int?>> { [high] = [0], [low] = [0] },
+            OriginRises = new Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>>
+            {
+                [high] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationFrame.Start] = 0 },
+                [low] = new Dictionary<SamusAnimationFrame, int> { [SamusAnimationFrame.Start] = 0 },
+            },
             GraphicsYOffsets = new Dictionary<SamusPoseId, int> { [high] = 200, [low] = -200 },
             DeathSteps = installed.DeathSteps,
             ArmCannon = installed.ArmCannon,

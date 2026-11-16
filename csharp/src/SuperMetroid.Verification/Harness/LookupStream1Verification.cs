@@ -603,7 +603,7 @@ internal static class LookupStream1Verification
             }
             AssertTrue(!stock.Gameplay.TryOriginRise(pose, SamusAnimationNumbers.Frame(pose, 32), out _), "A frame past the drained table has no placement");
         }
-        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation);
+        SamusShownFrames shown = InstalledFixtures.SamusShownFrameAnalysis.Installed();
         int draws = 0;
         for (ushort frame = 0; frame < 32; frame++)
         {
@@ -676,7 +676,7 @@ internal static class LookupStream1Verification
                 "Each posture-transition frame installs the negated native offset its frame indexes");
             AssertTrue(!stock.Gameplay.TryOriginRise(pose, SamusAnimationNumbers.Frame(pose, 24 - row * 2), out _), "A posture frame past the table has no placement");
         }
-        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation);
+        SamusShownFrames shown = InstalledFixtures.SamusShownFrameAnalysis.Installed();
         for (int index = 0; index < 16; index++)
         {
             SamusPoseId landingPose = SamusPoseNumbering.FromNumber(0xa4 + index / 4);
@@ -1883,8 +1883,8 @@ internal static class LookupStream1Verification
         // The installation holds each pose's typed placement (#1638): the descriptor's own reading at every animation frame
         // the pose shows, which the drawing window holds and which is the pair of bytes the cartridge's cover draw reads for
         // that frame, and no displacement at any other frame; the installed document reads back as written.
-        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.FramesBeyondAnimation);
-        SamusArmCannonLayout installed = stock.Installed(InstalledFixtures.FramesBeyondAnimation);
+        SamusShownFrames shown = InstalledFixtures.SamusShownFrameAnalysis.Installed();
+        SamusArmCannonLayout installed = stock.Installed(InstalledFixtures.SamusShownFrameAnalysis.Installed());
         int installedFrames = 0;
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
@@ -1898,7 +1898,7 @@ internal static class LookupStream1Verification
             {
                 if (shown.TryPictureFrame(pose, SamusAnimationNumbers.Frame(pose, frame), out _))
                 {
-                    AssertTrue(decoded.Offsets.ContainsKey(frame), $"The drawing window holds the cannon displacement of {pose} at shown frame {frame}");
+                    AssertTrue(decoded.Offsets.ContainsKey(SamusAnimationNumbers.Frame(pose, frame)), $"The drawing window holds the cannon displacement of {pose} at shown frame {frame}");
                     AssertEqual(decoded.OffsetNumbered(pose, frame), placed.OffsetNumbered(pose, frame), $"Installed cannon displacement of {pose} at frame {frame}");
                     AssertEqual(Offset16<RoomPixels>.Of(unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (displacements + frame * 2))),
                             unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (displacements + frame * 2 + 1)))),

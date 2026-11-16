@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Colours;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -22,25 +23,43 @@ public static class XrayScopeDefinitions
         public const int FrameDelay = SamusShadeDefinitions.Visor.FrameDelay;
     }
 
-    /// <summary>Angle bands selecting the five standing/crouching X-ray animation frames.</summary>
+    /// <summary>
+    /// Angle bands selecting which of the X-ray pose's five aims (<see cref="Aims"/>) the standing and crouching scope shows:
+    /// a right-facing scope turns from up to down as its angle grows, a left-facing one as it shrinks.
+    /// </summary>
     public static class AnimationAngles
     {
-        /// <summary>Right-facing boundary between frames zero and one.</summary>
-        public static RotationAngle RightFrameOne { get; } = RotationAngle.FromSteps(25);
-        /// <summary>Right-facing boundary between frames one and two.</summary>
-        public static RotationAngle RightFrameTwo { get; } = RotationAngle.FromSteps(50);
-        /// <summary>Right-facing boundary between frames two and three.</summary>
-        public static RotationAngle RightFrameThree { get; } = RotationAngle.FromSteps(75);
-        /// <summary>Right-facing boundary between frames three and four.</summary>
-        public static RotationAngle RightFrameFour { get; } = RotationAngle.FromSteps(100);
-        /// <summary>Left-facing boundary between frames four and three.</summary>
-        public static RotationAngle LeftFrameFour { get; } = RotationAngle.FromSteps(153);
-        /// <summary>Left-facing boundary between frames three and two.</summary>
-        public static RotationAngle LeftFrameThree { get; } = RotationAngle.FromSteps(178);
-        /// <summary>Left-facing boundary between frames two and one.</summary>
-        public static RotationAngle LeftFrameTwo { get; } = RotationAngle.FromSteps(203);
-        /// <summary>Left-facing boundary between frames one and zero.</summary>
-        public static RotationAngle LeftFrameOne { get; } = RotationAngle.FromSteps(228);
+        /// <summary>The angle from which a right-facing scope aims raised rather than up.</summary>
+        public static RotationAngle RightRaisedFrom { get; } = RotationAngle.FromSteps(25);
+        /// <summary>The angle from which a right-facing scope aims level rather than raised.</summary>
+        public static RotationAngle RightLevelFrom { get; } = RotationAngle.FromSteps(50);
+        /// <summary>The angle from which a right-facing scope aims lowered rather than level.</summary>
+        public static RotationAngle RightLoweredFrom { get; } = RotationAngle.FromSteps(75);
+        /// <summary>The angle from which a right-facing scope aims down rather than lowered.</summary>
+        public static RotationAngle RightDownFrom { get; } = RotationAngle.FromSteps(100);
+        /// <summary>The angle below which a left-facing scope aims down rather than lowered.</summary>
+        public static RotationAngle LeftDownBelow { get; } = RotationAngle.FromSteps(153);
+        /// <summary>The angle below which a left-facing scope aims lowered rather than level.</summary>
+        public static RotationAngle LeftLoweredBelow { get; } = RotationAngle.FromSteps(178);
+        /// <summary>The angle below which a left-facing scope aims level rather than raised.</summary>
+        public static RotationAngle LeftLevelBelow { get; } = RotationAngle.FromSteps(203);
+        /// <summary>The angle below which a left-facing scope aims raised rather than up.</summary>
+        public static RotationAngle LeftRaisedBelow { get; } = RotationAngle.FromSteps(228);
+    }
+
+    /// <summary>The X-ray pose's five aims, from up to down: the frames of its animation the scope's angle selects.</summary>
+    internal static class Aims
+    {
+        /// <summary>The scope aimed up.</summary>
+        internal static SamusAnimationTarget Up { get; } = new(SamusAnimationSegmentName.Main, 0);
+        /// <summary>The scope aimed raised, between up and level.</summary>
+        internal static SamusAnimationTarget Raised { get; } = new(SamusAnimationSegmentName.Main, 1);
+        /// <summary>The scope aimed level, the aim its activation starts on.</summary>
+        internal static SamusAnimationTarget Level { get; } = new(SamusAnimationSegmentName.Main, 2);
+        /// <summary>The scope aimed lowered, between level and down.</summary>
+        internal static SamusAnimationTarget Lowered { get; } = new(SamusAnimationSegmentName.Main, 3);
+        /// <summary>The scope aimed down.</summary>
+        internal static SamusAnimationTarget Down { get; } = new(SamusAnimationSegmentName.Main, 4);
     }
 
     /// <summary>How the X-ray scope's cone widens.</summary>

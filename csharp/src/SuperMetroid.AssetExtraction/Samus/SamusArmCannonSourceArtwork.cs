@@ -69,11 +69,9 @@ public sealed class SamusArmCannonSourceArtwork
 
     /// <summary>
     /// The placements the installation holds (#1638): each pose's drawing order and directions, and its cover's displacement
-    /// at every animation frame the pose shows when her animation reads past its programs with <paramref name="framesBeyondAnimation"/>,
-    /// where the drawing window holds one.
+    /// at every animation frame the pose shows as <paramref name="shown"/> decided it, where the drawing window holds one.
     /// </summary>
-    internal SamusArmCannonLayout Installed(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation) =>
-        Descriptors.Installed(SamusShownFrames.Of(framesBeyondAnimation));
+    internal SamusArmCannonLayout Installed(SuperMetroid.Core.Samus.Drawing.SamusShownFrames shown) => Descriptors.Installed(shown);
 
     /// <summary>Parses the extracted arm-cannon document and validates descriptor, attribute, and tile-source geometry.</summary>
     internal static DescriptorTables LoadPlacement(Stream json)

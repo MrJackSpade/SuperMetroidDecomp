@@ -101,7 +101,7 @@ public sealed class SamusState
     internal SamusPoseId AnimationPose => AnimatedPose ?? Pose;
 
     /// <summary>Sets her animation frame to <paramref name="place"/>, as it lands in the animation she animates by (<see cref="SamusAnimationDelays.Land"/>).</summary>
-    internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(AnimationPose, place);
+    internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
 
     /// <summary>Moves her animation on to the frame after the one it is on, the animation laid out after hers included.</summary>
     internal void AdvanceAnimationFrame() => AnimationFrame = SamusAnimationDelays.Next(AnimationPose, AnimationFrame);
@@ -111,17 +111,21 @@ public sealed class SamusState
         AnimationFrame = SamusAnimationDelays.Target(AnimationPose, AnimationFrame, target, FramesBeyondAnimation);
 
     /// <summary>
-    /// Her animation frame read as a frame of <paramref name="pose"/>'s animation: the frame itself when the pose animates
-    /// by the animation she animates by, otherwise where the game's layout puts it (<see cref="SamusAnimationDelays.Land"/>).
+    /// Her animation frame read as a frame of <paramref name="pose"/>'s animation, which must be the animation she animates
+    /// by: every path that gives her a pose of another animation starts that animation before her body is drawn.
     /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="pose"/> animates by another animation than hers.</exception>
     internal SamusAnimationFrame AnimationFrameOf(SamusPoseId pose) =>
-        SamusAnimationDelays.Land(pose, new SamusAnimationPlace(SamusAnimationDelays.AnimationForPose(AnimationPose), AnimationFrame));
+        ReferenceEquals(SamusAnimationDelays.AnimationForPose(pose), SamusAnimationDelays.AnimationForPose(AnimationPose))
+            ? AnimationFrame
+            : throw new InvalidOperationException(
+                $"Samus's pose {pose} animates by another animation than the one of pose {AnimationPose}, whose frame {AnimationFrame} she is on.");
 
     /// <summary>Whether her animation has reached <paramref name="place"/>, as it lies in the animation she animates by.</summary>
-    internal bool AnimationHasReached(SamusAnimationPlace place) => SamusAnimationDelays.HasReached(AnimationPose, AnimationFrame, place);
+    internal bool AnimationHasReached(SamusAnimationPlace place) => SamusAnimationDelays.HasReached(AnimationPose, AnimationFrame, place, FramesBeyondAnimation);
 
     /// <summary>Whether her animation lies past <paramref name="place"/>, as it lies in the animation she animates by.</summary>
-    internal bool AnimationHasPassed(SamusAnimationPlace place) => SamusAnimationDelays.HasPassed(AnimationPose, AnimationFrame, place);
+    internal bool AnimationHasPassed(SamusAnimationPlace place) => SamusAnimationDelays.HasPassed(AnimationPose, AnimationFrame, place, FramesBeyondAnimation);
 
     /// <summary>Whether her animation is on <paramref name="frame"/> of the animation she animates by.</summary>
     internal bool AnimationIsAt(SamusAnimationTarget frame) =>
@@ -132,7 +136,7 @@ public sealed class SamusState
         $"{SamusAnimationDelays.AnimationForPose(AnimationPose).SegmentName(AnimationFrame)} frame {AnimationFrame.Frame}";
 
     /// <summary>Whether her animation is on <paramref name="place"/>, as it lands in the animation she animates by.</summary>
-    internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(AnimationPose, place);
+    internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
 
     /// <summary>
     /// The frame of the run's stride her animation is on, which the running cadence times (<see cref="SamusRunningCadences"/>):
@@ -511,7 +515,7 @@ public sealed class SamusState
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
+    internal FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
     /// <summary>
     /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
@@ -564,7 +568,7 @@ public sealed class SamusState
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
     /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
-    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation, UnauthoredBoostCadence unauthoredBoostCadence,
+    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation, UnauthoredBoostCadence unauthoredBoostCadence,
         SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge, SamusArtworkBinding artwork)
     {
         BeamCharge = Ensure.NotNull(beamCharge);

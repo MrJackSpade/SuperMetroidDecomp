@@ -12,8 +12,10 @@ public static class SamusArmCannonArtworkFormat
     /// its drawing order, the aim directions it shows and the cover's displacement at each animation frame the pose shows;
     /// the descriptors and the drawing window are import data (#1638). Revision eight installs a displacement at every
     /// animation frame each pose shows: the drawing window reaches the last displacement byte a shown frame reads (#1638).
+    /// Revision nine keys each displacement by its frame's name in the pose's animation rather than its place in the game's
+    /// layout of the animation (#2048).
     /// </summary>
-    public const int Version = 8;
+    public const int Version = 9;
     /// <summary>Installed layout JSON filename: each pose's typed cover placement, which the game binds (#1638).</summary>
     public const string JsonFileName = "samus-arm-cannon.json";
     /// <summary>

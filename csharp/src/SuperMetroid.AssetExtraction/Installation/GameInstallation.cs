@@ -312,6 +312,7 @@ public sealed record GameInstallation(string Root)
             MapPresentation = maps,
             IntroCinematicArt = LoadIntroCinematic(),
             SamusBodyArt = samusBody.Gameplay,
+            SamusShownFrames = samusBody.ShownFrames,
 
             EndingBackdrops = LoadEndingBackdrops(),
             RoomBlockSheets = LoadRoomBlockSheets(),

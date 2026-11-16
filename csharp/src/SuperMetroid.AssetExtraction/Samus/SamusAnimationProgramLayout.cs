@@ -19,6 +19,15 @@ internal static class SamusAnimationProgramLayout
     internal static SamusPoseId[] PosesWithRecords() =>
         [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord).OrderBy(SamusPoseNumbers.Number)];
 
+    /// <summary>The pose naming the program each pose with a record animates by: the program's lowest-numbered pose.</summary>
+    internal static Dictionary<SamusPoseId, SamusPoseId> NamingPoses()
+    {
+        SamusPoseId[] poses = PosesWithRecords();
+        Dictionary<SamusPoseAnimation, SamusPoseId> namedBy = poses.GroupBy(SamusAnimationDelays.AnimationForPose)
+            .ToDictionary(program => program.Key, program => program.First());
+        return poses.ToDictionary(pose => pose, pose => namedBy[SamusAnimationDelays.AnimationForPose(pose)]);
+    }
+
     /// <summary>Every program, in the order the cartridge lays them out.</summary>
     /// <exception cref="InvalidDataException">Two poses of one program start apart, or two programs start together.</exception>
     internal static LaidOutProgram[] Read(IImportCartridgeSource cartridge)

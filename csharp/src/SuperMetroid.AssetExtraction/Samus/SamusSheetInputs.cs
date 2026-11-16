@@ -4,10 +4,8 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Colours;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -24,11 +22,11 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="ArmCannonCover">The arm cannon's cover characters, bound to its installed placement.</param>
 /// <param name="ShadeSources">The colour tables her shades are pre-coloured from.</param>
-/// <param name="FramesBeyondAnimation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
+/// <param name="ShownFrames">The installed frames her body can show in each pose and the picture each draws, which decide the frames the body sheet pictures (#2048).</param>
 internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, ImportIntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, SamusArmCannonCoverCharacters ArmCannonCover, SamusShadeSources ShadeSources,
-    FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> FramesBeyondAnimation)
+    SuperMetroid.Core.Samus.Drawing.SamusShownFrames ShownFrames)
 {
     /// <summary>Loads the stock artwork and colour tables from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
@@ -45,7 +43,6 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
         // Her colour tables are the ones the map presentation was read with, edits included.
         ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         SamusMapColourTables tables = maps.SamusColours;
-        string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
         var sources = new SamusShadeSources(
             palettes.Starting,
             [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
@@ -71,7 +68,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             SamusDeathTileArtworkFiles.LoadForImport(samusBodyImportData),
             SamusArmCannonArtworkFiles.LoadCoverCharacters(body.Body.ArmCannon, samusBodyImportData),
             sources,
-            SamusOverreadFiles.LoadFramesBeyondAnimation(overreads));
+            SamusBodyArtworkFiles.Load(samusBody).ShownFrames);
     }
 
     /// <summary>The standard OBJ sheet extracted under <paramref name="content"/>, as a page, from its import data (#1636).</summary>

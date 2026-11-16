@@ -219,7 +219,7 @@ internal sealed class SuperMetroidRuntime
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
         {
-            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt,
+            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
             GrappleFlarePlacement = artwork.GrappleFlarePlacement, GrappleSwingFrames = artwork.GrappleSwingFrames,
             ProjectileFrameBindings = artwork.ProjectileFrameBindings, ChargeFlarePlacement = artwork.ChargeFlarePlacement,
             RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
@@ -293,6 +293,7 @@ internal sealed class SuperMetroidRuntime
 
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
+        Bind(a => a.SamusShownFrames, value => Artwork.SamusShownFrames = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);

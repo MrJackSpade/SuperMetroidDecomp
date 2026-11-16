@@ -322,7 +322,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (--timer <= 0)
                 {
                     // The next music requests wait on the music queue before the
-                    // documented four-second hold; the shortest delay is their slot.
+                    // documented four-second hold; they take the shortest delay.
                     audio.QueueMusic(MusicRequest.Stop);
                     audio.QueueMusic(
                         MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
@@ -361,7 +361,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
             case IntroCinematicPhase.WaitForPageOneMusicQueue:
                 // The scene song scheduled fourteen updates ahead is the longest request issued by
-                // page one's setup, so HasQueuedMusic becomes clear after fourteen update slots.
+                // page one's setup, so HasQueuedMusic becomes clear after fourteen updates.
                 if (MusicQueueFinished())
                 {
                     Narration.StartEnglishPageOne();
@@ -571,7 +571,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // The eight actors are allocated while the first actor is already being processed,
             // so their first cinematic sprite update occurs on the following frame. Hit count
-            // four is reached on the spawn frame, after the update passed their free slots.
+            // four is reached on the spawn frame, after the update passed their places.
             FlashbackMotherBrainExplosions?.Step(CrossfadeFinishing);
         }
 
@@ -991,7 +991,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
 
         // The intro uses the ordinary transition epilogue after movement, animation,
-        // and hurt interruption. Publish only the final accepted pose, once per slot;
+        // and hurt interruption. Publish only the final accepted pose, once per update;
         // an unchanged animation frame must not erase the preceding transition history.
         if (transitionAccepted)
             samus.CommitPoseHistory();

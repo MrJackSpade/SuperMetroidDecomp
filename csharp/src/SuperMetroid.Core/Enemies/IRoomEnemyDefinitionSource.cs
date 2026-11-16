@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Where a room's enemy definitions and Mother Brain's falling-tube placements come from.
-/// Gameplay binds <see cref="CompiledRoomEnemyDefinitions"/>; a constructed verifier room supplies its own entries.
+/// Gameplay binds <see cref="CompiledRoomEnemyDefinitions"/>.
 /// </summary>
 public interface IRoomEnemyDefinitionSource
 {

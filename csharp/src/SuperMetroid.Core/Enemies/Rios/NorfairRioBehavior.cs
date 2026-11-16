@@ -27,7 +27,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Captures the room RNG, terrain, and place table needed by Rio AI.</summary>
+    /// <summary>Captures the room RNG, terrain, and enemy places needed by Rio AI.</summary>
     internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)
     {
         _audio = audio;

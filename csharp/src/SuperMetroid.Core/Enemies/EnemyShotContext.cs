@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One Samus projectile overlapping one enemy in the ordinary shot pass.</summary>
 /// <param name="Enemy">The enemy whose shot reaction runs.</param>
-/// <param name="Projectile">The overlapping beam or missile slot.</param>
+/// <param name="Projectile">The overlapping beam or missile.</param>
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
 /// <param name="Samus">Samus.</param>
 /// <param name="ProjectileType">The incoming projectile type, sampled before any impact rewrites it.</param>

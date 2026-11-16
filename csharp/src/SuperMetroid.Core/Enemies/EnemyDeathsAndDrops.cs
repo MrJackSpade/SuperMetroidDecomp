@@ -141,9 +141,9 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Shared implementation of the twelve item-drop behaviours.
-    /// Each iteration advances RNG once for both coordinates; allocation
-    /// and drop selection then advance it independently inside the pickup. Both scatters read
+    /// The twelve item drops' shared behaviour.
+    /// Each pickup advances RNG once for both coordinates; spawning the pickup
+    /// and choosing its drop then advance it on their own inside the pickup. Both scatters read
     /// their fields from the one sample.
     /// </summary>
     internal void SpawnEnemyDropScatter(
@@ -261,8 +261,7 @@ internal sealed class EnemyDeathsAndDrops
         projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
         projectile.StartMotion(SingleMotion.Moving);
 
-        // Becoming a pickup clears the persists-on-contact property but retains the other definition bits. The typed
-        // representation stores the three collision flags separately from the low damage.
+        // Becoming a pickup clears the persists-on-contact property and keeps the projectile's other properties.
         projectile.PersistsOnSamusContact = false;
         return animation.Animation;
     }
@@ -389,8 +388,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Uses an explicit boss chance table, a saved enemy definition's, or none. A death explosion from a cleared enemy place
-    /// drops nothing: the drop-chance table indexed by the empty definition reads a value
-    /// the boot clears and the game never sets to anything but zero.
+    /// drops nothing.
     /// </summary>
     private EnemyDropChances? ResolveEnemyDropChances(EnemyProjectile projectile)
     {
@@ -427,8 +425,8 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
-        // The overlap test's subtract/borrow formulation is exactly strict radius-sum overlap for
-        // valid actor radii. Equality is not contact in either axis.
+        // The pickup touches Samus only while both axes' distances are strictly less than their
+        // radii's sum. Equality is not contact in either axis.
         if (AbsoluteWrappedDelta(samus.Position.X.Whole, projectile.Position.X.Whole) >=
                 samus.Kinematics.Radius.X + projectile.Radius.X ||
             AbsoluteWrappedDelta(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=

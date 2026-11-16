@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>Which EscapeAnimals occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which EscapeAnimals occupant an enemy place holds, one per definition the species installs.</summary>
 internal enum EscapeAnimalsPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.EtecoonEscape"/> occupant.</summary>

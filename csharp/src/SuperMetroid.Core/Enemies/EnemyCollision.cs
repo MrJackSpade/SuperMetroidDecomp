@@ -166,7 +166,7 @@ internal sealed class EnemyCollision
     /// Runs common normal-enemy shot AI for ordinary radius-based actors. One
     /// projectile may resolve per enemy per pass, matching the collision response's exit.
     /// </summary>
-    /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
+    /// <param name="projectiles">Samus's live beams and missiles, whose enemy collisions may consume, reflect, or transition them.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="roomArea">The area of the room the enemies are in, which decides how long a shot's freeze lasts.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions.</param>
@@ -220,7 +220,7 @@ internal sealed class EnemyCollision
                 if (!projectile.HasEnemyCollisionPayload)
                     continue;
 
-                // Bomb, power-bomb, and pseudo-screw actors share the projectile slot array,
+                // Bomb, power-bomb, and pseudo-screw actors share the projectiles' places,
                 // but ordinary enemy shot AI never treats them as beams or missiles.
                 // Yard and Metroid are the exceptions: their own responses treat
                 // bomb-family impacts as physical kicks or escapes.
@@ -325,7 +325,7 @@ internal sealed class EnemyCollision
                 {
                     // The collision walker marks the projectile's direction, not a
                     // terrain impact. Projectile frame behaviours consume that marker
-                    // on the next alpha pass; the damage below shows its own hit burst at the enemy.
+                    // on the projectiles' next update; the damage below shows its own hit burst at the enemy.
                     // Super Missiles must retain their handler so it also clears their
                     // collision links. Terrain conversion strands a live link that can
                     // damage the enemy again after its flash timer expires.
@@ -441,8 +441,8 @@ internal sealed class EnemyCollision
     /// outside the common branch; each joins it only with its own bomb-specific post-processing, rather than
     /// silently treating every reaction as the ordinary shot reaction.
     /// </remarks>
-    /// <param name="bombs">The bomb slots whose exploding bombs may hit.</param>
-    /// <param name="ordinaryProjectiles">Samus's beam and missile slots, which reactions read.</param>
+    /// <param name="bombs">Samus's bombs, whose exploding bombs may hit.</param>
+    /// <param name="ordinaryProjectiles">Samus's beams and missiles, which reactions read.</param>
     /// <param name="samus">Samus.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>

@@ -17,7 +17,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates rock projectile slots when a Polyp launches.</summary>
+    /// <summary>Spawns the rock projectiles a Polyp launches.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Binds the Polyp species to one room's enemies and projectile pool.</summary>
@@ -84,7 +84,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the three independent random-table selections.</summary>
+    /// <summary>Launches a rock with three independent random choices: its horizontal speed, its rise and the cooldown after it.</summary>
     private void ShootPolypRock(RoomEnemyPlace place, PolypEnemyState state)
     {
         SignedEightEight xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());

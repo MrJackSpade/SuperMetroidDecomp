@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The phases of Ridley's AI shared by both encounters. The state stores the member; its values are arbitrary, and
-/// verification's catalog relates each member to its source (#1413).
+/// The phases of Ridley's AI shared by both encounters. The state stores the member; its values are arbitrary.
 /// </summary>
 /// <remarks>
 /// Both encounters begin at <see cref="WaitForDoorTransition"/> and share the reveal through

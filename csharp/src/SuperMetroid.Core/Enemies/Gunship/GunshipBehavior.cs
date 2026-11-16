@@ -497,9 +497,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).RumbleFrame++;
         if (State(top).RumbleFrame == GunshipTakeoffDefinitions.RumbleStrengthensFrame)
         {
-            // The six calls happen after the frame counter reaches
-            // exactly 64. Descending projectile allocation means the last cloud, the outer left one, occupies the
-            // highest surviving place, matching the ordinary scheduler.
+            // The six clouds rise as the rumble strengthens. Each takes the highest projectile place still free, so
+            // the last cloud, the outer left one, takes the highest place the other five left.
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
                 GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
         }

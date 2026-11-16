@@ -37,7 +37,7 @@ public sealed class SamusKinematicsState
     internal SamusBodyAttack CollisionBodyAttack(SamusState? owner) =>
         ProbeBodyAttack ?? owner?.HorizontalSpeed.BodyAttack ?? SamusBodyAttack.None;
 
-    /// <summary>Constructs an ownerless kinematics fixture for block-only probes.</summary>
+    /// <summary>Constructs kinematics with no owner, for block collision that moves no Samus.</summary>
     public SamusKinematicsState()
     {
     }

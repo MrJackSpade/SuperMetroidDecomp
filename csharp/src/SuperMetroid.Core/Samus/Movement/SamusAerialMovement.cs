@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
 /// Samus's ordinary jump, spin-jump, wall-jump, aerial-turn, and falling movement, including
-/// their shared water/lava table selection.
+/// their shared choice of water or lava physics.
 /// </summary>
 /// <remarks>
 /// This deliberately retains the game's split 1/65536-pixel magnitudes and separate vertical
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// add to her is the shared extra displacement. Ordinary
 /// Dash and equipped Speed Booster momentum are retained through environment-selected
 /// jumps, including the equipped vertical bonus. Terrain and solid/frozen-enemy wall jumps
-/// plus all three liquid launch-table entries are distinct results.
+/// plus all three liquid launches are distinct results.
 /// </remarks>
 public static class SamusAerialMovement
 {

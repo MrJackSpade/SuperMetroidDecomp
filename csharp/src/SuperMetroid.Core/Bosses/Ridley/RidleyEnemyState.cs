@@ -6,7 +6,7 @@ using SuperMetroid.Core.Escape;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Named projection of Ridley's common enemy slot and his encounter's own values.
+/// Ridley's values as an enemy, by name, and his encounter's own values.
 /// Ceres-only Baby/rotating-getaway values and Norfair-only combat values intentionally coexist here:
 /// one initializer serves both encounters and only one Ridley can exist at a time.
 /// </summary>

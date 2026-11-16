@@ -143,7 +143,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // A wall collision reverses the horizontal direction and immediately installs the opposite
-        // vertically-still animation. The first step of that animation republishes the same index
+        // vertically-still animation. The first step of that animation shows the same frame again
         // when the animations run later in this enemy frame.
         state.XMovement = movingLeft
             ? PlatformHorizontalMovement.Right
@@ -216,8 +216,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int preHorizontalX)
     {
-        // The sinking step performs a comparison followed by a call that does nothing; it
-        // has no branch or side effect. Sinking therefore always continues to acceleration.
+        // Sinking always accelerates.
         IncrementAndClampPlatformYSpeed(state);
 
         // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
@@ -312,7 +311,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
     }
 
-    /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
+    /// <summary>Replaces a frozen Tripper's frame after common Bomb reaction using its movement direction.</summary>
     internal static EnemyBombReaction TripperBombReaction { get; } = new()
     {
         AfterCommon = c =>
@@ -338,7 +337,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
+    /// <summary>Applies Tripper's direction-specific frozen frame after a successful common shot freeze.</summary>
     /// <remarks>Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
     /// frame with its direction's frozen frame.</remarks>
     internal static EnemyShotReaction TripperShotReaction { get; } = new()

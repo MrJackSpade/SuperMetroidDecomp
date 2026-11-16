@@ -64,7 +64,7 @@ internal sealed class MotherBrainAscent
         state.PhaseTimer = 128;
 
         // The setup falls directly into the suspense wait; the freshly written timer is observed as
-        // 127 before another enemy slot can run.
+        // 127 before another enemy can run.
         PauseBeforeMotherBrainRises(state);
     }
 

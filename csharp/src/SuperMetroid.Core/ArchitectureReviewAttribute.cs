@@ -3,7 +3,7 @@ namespace SuperMetroid.Core;
 /// <summary>
 /// Justifies one architecture-audit finding on the type that carries it: <c>back-reference</c>, <c>context-bag</c>,
 /// <c>service-locator</c>, <c>large</c> or <c>wide-dependencies</c> (see <c>docs/architecture-audit.md</c>). The reason says why this one site
-/// is intrinsic (a framework callback that must reach its host, a test fixture that exists to carry services) or a
+/// is intrinsic (a framework callback that must reach its host, a type that exists only to carry services) or a
 /// false positive of the heuristic (a record of installed-artwork data counted as services). The audit requires a
 /// review per current finding and fails on a review whose finding is gone. A reason that would be equally true of
 /// many other sites is not a justification; the shape is fixed instead.

@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
-/// The room effect actor an owner spawns. Its values are arbitrary; verification's catalog names each kind's
-/// object number.
+/// The room effect actor an owner spawns. Its values are arbitrary.
 /// </summary>
 public enum RoomEffectActorKind
 {

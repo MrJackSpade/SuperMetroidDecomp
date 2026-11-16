@@ -329,7 +329,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        // The table contains three identical entries per side. The random retry is retained
+        // All three choices on each side are the same animation. The random retry is kept
         // because advancing the RNG until its low two bits are nonzero is observable
         // even though all three accepted values select the same animation.
         int choice;

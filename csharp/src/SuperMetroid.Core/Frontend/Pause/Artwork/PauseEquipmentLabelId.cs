@@ -31,6 +31,6 @@ public enum PauseEquipmentLabelId
     SpaceJump,
     /// <summary>SPEED BOOSTER.</summary>
     SpeedBooster,
-    /// <summary>HYPER, drawn in the Wave slot in place of the ordinary beam labels.</summary>
+    /// <summary>HYPER, drawn where the Wave label goes, in place of the ordinary beam labels.</summary>
     Hyper,
 }

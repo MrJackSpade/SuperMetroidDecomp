@@ -30,7 +30,7 @@ internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
             _ => throw new ArgumentOutOfRangeException(nameof(mutation), mutation, null),
         };
 
-        // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws
+        // Resolve the block through the level so a malformed room cannot install a wall whose later vertical draws
         // fall outside the room.
         Position16<RoomBlocks> block = level.GridBlock(Block);
         if (places.Spawn() is not { } place)

@@ -29,7 +29,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>
-    /// Binds the terrain and echo slots used by Dachora's AI behaviours; its glows are shades its draws name (#1512), so
+    /// Binds the terrain and the echoes' places used by Dachora's AI behaviours; its glows are shades its draws name (#1512), so
     /// it needs no colour artwork.
     /// </summary>
     internal DachoraBehavior(EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)

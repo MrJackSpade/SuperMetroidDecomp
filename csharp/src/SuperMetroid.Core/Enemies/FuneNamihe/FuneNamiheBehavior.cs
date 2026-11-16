@@ -27,7 +27,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the family AI to the room's enemy projectile slots.</summary>
+    /// <summary>Connects the family AI to the room's enemy projectiles.</summary>
     internal FuneNamiheBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;

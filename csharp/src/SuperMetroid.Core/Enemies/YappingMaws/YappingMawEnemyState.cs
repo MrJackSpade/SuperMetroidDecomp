@@ -44,7 +44,7 @@ public sealed class YappingMawEnemyState
     /// <summary>The bearing from the maw to Samus as it aims its bite.</summary>
     public Bearing AimAngle { get; internal set; }
 
-    /// <summary><see cref="AimAngle"/> in the table convention; rotates the curled link corrections.</summary>
+    /// <summary><see cref="AimAngle"/> as a rotation; rotates the curled link corrections.</summary>
     public RotationAngle CurlAngle { get; internal set; }
 
     /// <summary>Whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>

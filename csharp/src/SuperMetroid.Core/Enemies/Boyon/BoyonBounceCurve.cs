@@ -7,9 +7,8 @@ public static class BoyonBounceCurve
 {
     /// <summary>The curve is k(k+1)/2 at place k from the top, saturating at 255 beyond its authored samples.</summary>
     /// <remarks>
-    /// Each of the 23 authored samples equals k*(k+1)/2 for place k from 0 through 22, ending at 253. From the
-    /// twenty-fourth place down the bounce uses 255 before it multiplies, so no sample past the authored 23 ever reaches
-    /// it; this method gives the sample the bounce uses.
+    /// Each of the first 23 places has the sample k*(k+1)/2 for place k from 0 through 22, ending at 253. From the
+    /// twenty-fourth place down the sample is the saturated 255.
     /// </remarks>
     /// <param name="place">The place along the curve, never past the top.</param>
     public static int Sample(BoyonCurvePlace place) => place.EntryFromTop < StoredSampleCount

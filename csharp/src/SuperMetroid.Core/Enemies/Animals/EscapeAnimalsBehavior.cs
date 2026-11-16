@@ -81,9 +81,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Dachora's population already supplies both properties, but the initializer sets the animating property again.
-        // Expressing the idempotent write documents the initializer and keeps a
-        // synthetic/debug population faithful to retail initialization.
+        // Dachora's population already supplies both properties, and the initializer sets the animating property again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
@@ -129,9 +127,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EscapeEtecoonEnemyState state,
         RoomLevelData level)
     {
-        // The stored speed is signed and in 1/256 pixels; the slope-ignoring horizontal mover receives signed
-        // 1/65536-pixel speed, hence the exact scaling by 256. The event test is inside the collision
-        // branch in the retail game and must not turn an animal around in open space.
+        // The animal moves horizontally by its speed, ignoring slopes that are not square. The event test is made only
+        // when that move collides, so it never turns an animal around in open space.
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {

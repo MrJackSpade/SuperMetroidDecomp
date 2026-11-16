@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// overflow enter the whole-pixel position. The curved entrance
 /// also scales by the game's signed sine (<see cref="Trigonometry.MultiplySignedSine"/>). Keeping those details
 /// here is important: replacing them with visually similar interpolation changes the exact
-/// frame on which the Baby's collision rectangle reaches Mother Brain's brain slot.
+/// frame on which the Baby's collision rectangle reaches Mother Brain's brain.
 /// </remarks>
 public sealed class BabyMetroidCutsceneState
 {
@@ -68,7 +68,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
     /// <remarks>The Baby's enemy definition declares a width and height of 36, and enemy loading uses those
-    /// values directly as the slot's X and Y radii; nothing halves them.</remarks>
+    /// values directly as the Baby's X and Y radii; nothing halves them.</remarks>
     public const int XHitboxRadius = 36;
     /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
     public const int YHitboxRadius = 36;
@@ -83,7 +83,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>What the room's enemy passes run for the actor, after initialization starts its animation.</summary>
     public EnemyProcessing Processing { get; private set; }
 
-    /// <summary>Whether the actor is drawn and still occupies its slot.</summary>
+    /// <summary>Whether the actor is drawn and still holds its place.</summary>
     public EnemyPresence Presence { get; private set; }
 
     /// <summary>
@@ -570,7 +570,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.FinalCharge:
-                // The final target follows the brain enemy slot, 32 pixels above its
+                // The final target follows Mother Brain's brain, 32 pixels above its
                 // centre. Its divisor of four accelerates much more aggressively than the staging leg.
                 GraduallyAccelerateTowardsPoint(
                     head + new Offset16<RoomPixels>(0, -32),

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
-/// <summary>Which Shutters occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which Shutters occupant an enemy place holds, one per definition the species installs.</summary>
 internal enum ShuttersPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.Kamer"/> occupant.</summary>

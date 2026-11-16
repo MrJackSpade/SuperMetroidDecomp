@@ -13,7 +13,7 @@ internal sealed class EyeDoorBehavior
 {
     /// <summary>Provides the loaded room and random seed for smoke placement.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates eye-door projectile, sweat, and smoke slots.</summary>
+    /// <summary>Spawns the eye door's projectiles, sweat and smoke.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Binds eye-door effects to a room and its enemy projectile pool.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Which Ridley occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which Ridley occupant an enemy place holds, one per definition the species installs.</summary>
 internal enum RidleyPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.Ridley"/> occupant.</summary>

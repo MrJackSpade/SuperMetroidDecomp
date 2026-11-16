@@ -11,7 +11,7 @@ internal enum CrocomireProjectileMotion
     /// <summary>Flies Crocomire's shot until it strikes the room horizontally or vertically.</summary>
     ShotFlying,
 
-    /// <summary>Accelerates and drops each spike-wall piece by its own slot's rule.</summary>
+    /// <summary>Accelerates and drops each spike-wall piece by its own rule.</summary>
     SpikeWallCollapsing,
 
     /// <summary>Drops a crumbling bridge fragment under gravity until it strikes the room.</summary>

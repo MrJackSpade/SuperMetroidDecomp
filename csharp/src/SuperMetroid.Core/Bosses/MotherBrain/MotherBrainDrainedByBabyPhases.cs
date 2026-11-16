@@ -170,7 +170,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The brain slot independently advances the one-way neck raises. The body
+        // The brain enemy advances the one-way neck raises on its own. The body
         // clears drool once both indices reach zero, before waiting for its pose.
         if (_state.LowerNeckMovement == MotherBrainNeckMovement.None &&
             _state.UpperNeckMovement == MotherBrainNeckMovement.None)

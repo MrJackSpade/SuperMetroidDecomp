@@ -56,12 +56,6 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>
-    /// The health Ceres Ridley's main AI restores every update, kept exact (#1627): a hit later in the update takes its
-    /// damage from this count, and what remains is the health the rest of that update reads.
-    /// </summary>
-    private const int RestoredHealth = 32767;
-
-    /// <summary>
     /// Runs the Ceres step reached through the end of the battle. The
     /// reveal, liftoff, hover, two authored termination conditions, upward retreat,
     /// colour handoff, and <see cref="CeresEscapeStatus.RidleyEscaped"/> publication all keep the game's order.
@@ -76,7 +70,7 @@ internal sealed class CeresRidleyBehavior
         SamusProjectileSystem samusProjectiles)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(place);
-        place.Health = RestoredHealth;
+        place.Health = BossHealthDefinitions.RefilledFullHealth;
 
         // The colour selection runs after the boss step and before movement. None of the
         // step branches mutate the flash timer, so selecting the two

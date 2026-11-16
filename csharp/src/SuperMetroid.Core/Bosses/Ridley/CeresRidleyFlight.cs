@@ -153,15 +153,12 @@ internal sealed class CeresRidleyFlight
         state.HoverCounter = 0;
     }
 
-    /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position.</summary>
-    private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
-
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemyPlace place, RidleyEnemyState state)
     {
         // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
         SignedEightEight verticalVelocity = state.Velocity.Y;
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Max(FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Max(CeresRidleyFlightDefinitions.FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
             .AlongDirectionOf(verticalVelocity));
         AccelerateRidleyToward(place, state, new(place.Position.X.Whole, 88), 16);
 
@@ -265,9 +262,9 @@ internal sealed class CeresRidleyFlight
     {
         SignedEightEight speed = state.SwoopSpeed;
         if (speed < targetSpeed)
-            speed = SignedEightEight.Min(targetSpeed, speed + SwoopSpeedStep);
+            speed = SignedEightEight.Min(targetSpeed, speed + CeresRidleyFlightDefinitions.SwoopSpeedStep);
         else if (speed > targetSpeed)
-            speed = SignedEightEight.Max(targetSpeed, speed - SwoopSpeedStep);
+            speed = SignedEightEight.Max(targetSpeed, speed - CeresRidleyFlightDefinitions.SwoopSpeedStep);
         state.SwoopSpeed = speed;
 
         RotationAngle angle = turn.Turn(state.SwoopAngleAccumulator);
@@ -281,9 +278,6 @@ internal sealed class CeresRidleyFlight
         state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(speed, phase));
         state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(speed, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
-
-    /// <summary>How far the swoop speed moves toward its target each update: an eighth of a pixel an update.</summary>
-    private static readonly SignedEightEight SwoopSpeedStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)

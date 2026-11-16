@@ -25,9 +25,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue) =>
         SetOwtchMoving(state, cue.Direction == HorizontalDirection.Left ? OwtchBehaviorState.MovingLeft : OwtchBehaviorState.MovingRight);
 
-    /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
-    private const int OwtchMaximumBurialDepth = OwtchEnemyState.OwtchMaximumBurialDepth;
-
     /// <summary>Initializes the Owtch.</summary>
     internal static void InitializeOwtch(RoomEnemyPlace place)
     {
@@ -48,8 +45,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         // sixteen-pixel depth sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
-            state.BurialDepth = OwtchMaximumBurialDepth;
-            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMaximumBurialDepth);
+            state.BurialDepth = OwtchMovementDefinitions.MaximumBurialDepth;
+            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
         }
     }
 
@@ -75,10 +72,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case OwtchBehaviorState.Sinking:
                 place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
-                // Sinking starts from zero, so the depth stays within one through sixteen and the game's signed
-                // comparison is an ordinary one.
+                // Sinking starts from zero, so the depth stays within one through sixteen.
                 state.BurialDepth++;
-                if (state.BurialDepth >= OwtchMaximumBurialDepth)
+                if (state.BurialDepth >= OwtchMovementDefinitions.MaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = place.SpawnSettings<OwtchSpawnSettings>().UndergroundWait;
@@ -123,13 +119,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
     };
 
-    /// <summary>Moves the Owtch with the game's 1/65536-pixel additions.</summary>
+    /// <summary>Moves the Owtch along its patrol by its speed; reaching an end of the patrol turns it.</summary>
     private static void MoveOwtch(
         RoomEnemyPlace place,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
-        // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.
+        // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
         place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
 
         if (direction != HorizontalDirection.Right)

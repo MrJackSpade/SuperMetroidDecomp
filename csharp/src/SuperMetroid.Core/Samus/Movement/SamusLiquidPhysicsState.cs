@@ -300,8 +300,8 @@ public sealed class SamusLiquidPhysicsState
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         TrySpawnRunningFootsteps(samus, movementType, bossPresent);
 
-        // The animation's liquid steps call the bottom-boundary helper, whose occupied bottom
-        // pixel is Y + pose radius - 1. The exclusive collision boundary would
+        // The animation's liquid steps read Samus's occupied bottom pixel, Y + pose radius - 1.
+        // The exclusive collision boundary would
         // enter liquid one frame early and can prematurely cancel lava momentum.
         int bottom = samus.Kinematics.BottomPixel.Y;
         int top = samus.Kinematics.TopBoundary.Y;

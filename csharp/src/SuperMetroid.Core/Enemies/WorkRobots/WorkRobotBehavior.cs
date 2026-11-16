@@ -131,7 +131,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // Enemy animation processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
         place.AnimationClock.Extend(1);
-        // The fraction carries into the whole pixels, which wrap, as the game's paired additions do.
+        // A fraction past a whole pixel carries into the whole pixels, which wrap.
         state.FallVelocity += WorkRobotMotionDefinitions.Gravity;
     }
 

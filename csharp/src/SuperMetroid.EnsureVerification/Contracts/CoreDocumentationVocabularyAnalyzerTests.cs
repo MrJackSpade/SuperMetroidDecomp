@@ -864,5 +864,37 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A table alone, a speed table, an index alone, a bug that is not the original's and a hardware owner are English.
         Expect("class P { /// <summary>The drop-chance table; Samus's speed table; the frame's index; a bug in the pipe.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the retail bug reads the angle table's entries.</summary>\n[CompatibilityService(\"angle\")] class Angle { }");
+        // The machine's 16.16 arithmetic named by its sixty-five-thousandths, outside hardware owners and markup (#2172), in
+        // documentation, line comments and string literals, with up to two words before the arithmetic.
+        Expect("class P { /// <summary>Moves the Owtch with the game's 1/65536-pixel additions.</summary>\nint F => 0; }", "('1/65536-pixel additions')");
+        Expect("class P { /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>\nint F => 0; }",
+            "('1/65536-pixel collision helper')");
+        Expect("class P { // One 1/65536-pixel add: the fraction's overflow reaches the whole pixels.\n }", "('1/65536-pixel add')");
+        Expect("class P { // The stores produce delta/4 in signed 1/65536-pixel form.\n }", "('1/65536-pixel form')");
+        Expect("class P { /// <summary>Both are one 1/65536-pixel sum; floating point or the ordinary 1/65536-pixel movement helpers.</summary>\nint F => 0; }",
+            "('1/65536-pixel sum')");
+        Expect("class P { string Name => \"Moves the projectile in 1/65536-pixel space.\"; }", "('1/65536-pixel space')");
+        Expect("class P { // The 1/65536th constant is exactly -1.0\n }", "('1/65536th constant')");
+        // A unit of measure and a hardware owner are English.
+        Expect("class P { /// <summary>A speed in 1/65536 pixels; the signed 1/65536-pixel velocity; a 1/65536-pixel displacement into the slope move; its 1/65536-pixel position.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the game's 1/65536-pixel additions carry the fraction.</summary>\n[CompatibilityService(\"carry\")] class Carry { }");
+        // Paired arithmetic, outside hardware owners, spaced or hyphenated (#2172).
+        Expect("class P { // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.\n }", "('paired additions')");
+        Expect("class P { /// <summary>Its paired-subtraction step.</summary>\nint F => 0; }", "('paired-subtraction')");
+        Expect("class P { string Name => \"The paired adds wrapped.\"; }", "('paired adds')");
+        // Things the game pairs, an addition alone and a hardware owner are English.
+        Expect("class P { /// <summary>The paired doors open together; an addition to the count; the paired enemies.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the paired additions carry the fraction.</summary>\n[CompatibilityService(\"pair\")] class Pair { }");
+        // A routine run or called as a helper or controller, outside hardware owners and markup (#2172).
+        Expect("class P { /// <summary>Runs the linked-segment placement helper.</summary>\nint F => 0; }", "('Runs the linked-segment placement helper')");
+        Expect("class P { /// <summary>Runs the last segment's collision/reversal controller.</summary>\nint F => 0; }",
+            "('Runs the last segment's collision/reversal controller')");
+        Expect("class P { // Shared rainbow setup calls the previous-pose helper before lock.\n }", "('calls the previous-pose helper')");
+        Expect("class P { string Name => \"Both outcomes call the sound helper.\"; }", "('call the sound helper')");
+        Expect("class P { /// <summary>Runs the white-flash ramp and its flicker helper.</summary>\nint F => 0; }", "('Runs the white-flash ramp and its flicker helper')");
+        // The player's controller and its input, buttons or port, a helper or controller not run or called, a reference
+        // in markup and a hardware owner are English.
+        Expect("class P { /// <summary>Runs the controller input check; reads the player's controller; the helper text; calls the elevator; runs <see cref=\"Helper\"/>.</summary>\nint F => 0; int Helper => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: runs the placement helper.</summary>\n[CompatibilityService(\"helper\")] class Helper { }");
     }
 }

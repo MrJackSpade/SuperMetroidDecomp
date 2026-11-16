@@ -16,7 +16,7 @@ public sealed class RioEnemyState
     /// <summary>The behaviour that runs after the main AI's RNG advance.</summary>
     public RioAction Action { get; internal set; }
 
-    /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
+    /// <summary>The Rio's velocity in 256ths of a pixel an update, positive right and down.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Handshake set by the animation-finished cue and consumed by main AI.</summary>

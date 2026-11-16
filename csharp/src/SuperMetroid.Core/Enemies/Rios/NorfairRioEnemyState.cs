@@ -25,7 +25,7 @@ public sealed class NorfairRioEnemyState
     /// </summary>
     public int FollowerYOffset { get; internal set; }
 
-    /// <summary>Signed 1/256-pixel velocity; the horizontal component feeds the 1/65536-pixel collision helper.</summary>
+    /// <summary>The Norfair Rio's velocity in 256ths of a pixel an update, positive right and down.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour the parent runs.</summary>

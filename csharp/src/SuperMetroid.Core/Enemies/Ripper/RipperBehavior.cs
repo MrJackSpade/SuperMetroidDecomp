@@ -53,9 +53,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             place,
             state.XVelocity.WholePixels < 0 ? RipperSegment.GrappleRipperMovingLeft : RipperSegment.GrappleRipperMovingRight);
 
-        // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
-        // back to either endpoint. The one-frame fractional overshoot is and becomes
-        // visible again when the direction reverses on the next pass.
+        // Unlike a wall, a patrol bound does not move the Ripper back flush with it: the
+        // update that passes the bound keeps its overshoot, which shows again when the
+        // Ripper reverses on its next pass.
         state.MinimumXPosition = settings.MinimumX;
         state.MaximumXPosition = settings.MaximumX;
     }

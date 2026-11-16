@@ -54,9 +54,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         _audio = dependencies.Audio;
     }
 
-    /// <summary>Number of independent chance-table pickups requested when the wall crumbles.</summary>
-    private const int BotwoonSpecialDropCount = 16;
-
     /// <summary>Per-room movement, head-animation, body, and wall-collapse state.</summary>
     internal BotwoonEnemyState? BotwoonState { get; private set; }
 
@@ -69,20 +66,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         _head = Ensure.NotNull(head);
         BotwoonState = Ensure.NotNull(state);
     }
-
-    /// <summary>The value the pre-fall death count starts from once the tail completes its hole transition.</summary>
-    private const int BotwoonDeathDelayStart = 240;
-    /// <summary>The pre-fall death count at which the head starts falling.</summary>
-    private const int BotwoonDeathDelayEnd = 256;
-    /// <summary>
-    /// Fall acceleration the dying head and each falling body segment add each airborne update: three quarters of a
-    /// quadratic speed row.
-    /// </summary>
-    private static readonly QuadraticSpeedCurvePlace BotwoonDeathFallAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192);
-    /// <summary>Updates the wall-explosion phase lasts before the boss is removed.</summary>
-    private const int BotwoonWallExplosionDuration = 192;
-    /// <summary>Wall-explosion update from which the explosion timers run.</summary>
-    private const int BotwoonWallExplosionsBegin = 64;
 
     /// <summary>Sets Botwoon up when the room spawns it.</summary>
     internal void InitializeBotwoon(RoomEnemyPlace head)
@@ -140,7 +123,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             state.BodyDeathStarted = true;
             state.Phase = BotwoonPhase.DeathDelay;
-            state.DeathTimer = BotwoonDeathDelayStart;
+            state.DeathTimer = BotwoonDeathDefinitions.DeathDelayStart;
             state.PendingDeath = false;
             state.ExitTransitionComplete = false;
         }
@@ -166,7 +149,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
             case BotwoonPhase.DeathDelay:
                 state.DeathTimer++;
-                if (state.DeathTimer >= BotwoonDeathDelayEnd)
+                if (state.DeathTimer >= BotwoonDeathDefinitions.DeathDelayEnd)
                     state.Phase = BotwoonPhase.HeadFalling;
                 break;
 
@@ -326,14 +309,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
     /// <summary>
     /// Restricts target distance to the range the signed bearing supports, exactly as the game clamps it (#1627):
-    /// beyond <see cref="HoleBearingReach"/> pixels either way it reads as that reach, except that a distance of exactly
+    /// beyond <see cref="BotwoonNavigationDefinitions.HoleBearingReach"/> pixels either way it reads as that reach, except that a distance of exactly
     /// 256 pixels upward or leftward is kept as it is. The bearing toward his hole, and so his path, follows these values.
     /// </summary>
     private static int ClampBotwoonTargetDelta(int value) =>
-        value < -(HoleBearingReach + 1) ? -HoleBearingReach : value > HoleBearingReach ? HoleBearingReach : value;
-
-    /// <summary>The farthest a hole's distance on either axis is measured for its bearing, in pixels.</summary>
-    private const int HoleBearingReach = 255;
+        value < -(BotwoonNavigationDefinitions.HoleBearingReach + 1) ? -BotwoonNavigationDefinitions.HoleBearingReach : value > BotwoonNavigationDefinitions.HoleBearingReach ? BotwoonNavigationDefinitions.HoleBearingReach : value;
 
     /// <summary>
     /// Refreshes the health phase, then draws where the next walk from his hole leads, in the open or inside the wall,
@@ -663,7 +643,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         head.Position = head.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(head.Position.Y.Whole, BotwoonFightDefinitions.FloorY) < 0)
         {
-            state.DeathFallAccumulator += BotwoonDeathFallAcceleration;
+            state.DeathFallAccumulator += BotwoonDeathDefinitions.FallAcceleration;
             return;
         }
 
@@ -685,7 +665,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         // requests. Each position uses both halves of one RNG result: X is the sample modulo 128
         // and Y the sample divided by 256, modulo 64. Each pickup is materialized immediately as
         // a real pickup actor from the head definition's item chances.
-        for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
+        for (int dropIndex = 0; dropIndex < BotwoonDeathDefinitions.WallDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
             var position = new Position16<RoomPixels>(
@@ -704,7 +684,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Runs the 192-frame wall sequence, then records the boss's defeat and queues delayed music.</summary>
     private void RunBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        if (state.WallExplosionFrame >= BotwoonWallExplosionDuration)
+        if (state.WallExplosionFrame >= BotwoonDeathDefinitions.WallExplosionDuration)
         {
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
@@ -716,7 +696,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
         }
 
-        if (state.WallExplosionFrame >= BotwoonWallExplosionsBegin)
+        if (state.WallExplosionFrame >= BotwoonDeathDefinitions.WallExplosionsBegin)
         {
             if (--state.LargeExplosionTimer < 0)
             {
@@ -976,7 +956,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
             // A place past the table's last row fails when its row is read, long before the place could grow large.
-            falling.FallPlace += BotwoonDeathFallAcceleration;
+            falling.FallPlace += BotwoonDeathDefinitions.FallAcceleration;
             segment.FrameHold = WrappingCountdown.Start(0);
             ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
             return;

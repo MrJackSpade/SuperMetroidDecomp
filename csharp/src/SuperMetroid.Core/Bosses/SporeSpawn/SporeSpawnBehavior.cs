@@ -52,19 +52,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
-    /// <summary>Fixed horizontal arena center used for hardening and the death trajectory.</summary>
-    private const int SporeSpawnDeathCenterX = 128;
-    /// <summary>Fixed vertical arena center used for hardening and the death trajectory.</summary>
-    private const int SporeSpawnDeathCenterY = 624;
-    /// <summary>Horizontal sway amplitude in room pixels the descent leaves for the fight's first sway.</summary>
-    private const int SporeSpawnDescentMaximumXRadius = 48;
-    /// <summary>Sway amplitude in room pixels below which each closing widens the sway.</summary>
-    private const int SporeSpawnWidenedRadiusLimit = 40;
-    /// <summary>Room pixels each closing adds to a sway narrower than the limit.</summary>
-    private const int SporeSpawnRadiusWidening = 8;
-    /// <summary>Ceiling Y coordinate anchoring the four stalk projectiles.</summary>
-    private const int SporeSpawnCeilingY = 560;
-
     /// <summary>Queues a sound from the boss or one of its animations as it makes it, after the update's earlier requests.</summary>
     private void RequestSporeSpawnSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
@@ -133,7 +120,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation);
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 128);
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - SporeSpawnArenaDefinitions.FightStartRise);
 
         // A full sweep is a global activity override, not an enemy property.
         // Preserve that distinction so all room actors use the same scan.
@@ -181,13 +168,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnDeathCenterY) >= 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnArenaDefinitions.CentreY) >= 0)
         {
             state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.FightStarted), AnimationPlace.StartOfAnimation);
             body.AnimationClock.StepOnNextUpdate();
         }
 
-        state.MaximumXRadius = SporeSpawnDescentMaximumXRadius;
+        state.MaximumXRadius = SporeSpawnArenaDefinitions.DescentSwayRadius;
         state.AngleDelta = 1;
         state.Angle = RotationAngle.ThreeQuarterTurn;
     }
@@ -208,7 +195,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             state.MovementCenter.Y +
             EnemyMath.CircleNegativeSinePixels(
                 swayBehind.TurnedBy(swayBehind),
-                state.MaximumXRadius - 16));
+                state.MaximumXRadius - SporeSpawnArenaDefinitions.VerticalSwayNarrowing));
 
         // The phase advances by the signed delta and wraps around the turn.
         state.Angle = state.Angle.TurnedBySteps(state.AngleDelta);
@@ -218,7 +205,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetupSporeSpawnDeathVelocity(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         TrigonometryAngle direction = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTrigonometryAngle();
+            new(CoordinateAxis.Difference(SporeSpawnArenaDefinitions.CentreX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnArenaDefinitions.CentreY, body.Position.Y.Whole))).ToTrigonometryAngle();
         state.DeathAngle = direction.ToAngle();
         state.DeathVelocityMagnitude = new(
             EnemyMath.AbsoluteCosineSpeed(direction, 1).AsDisplacement(),
@@ -239,8 +226,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.AdvanceX(xDisplacement);
         body.Position = body.Position.AdvanceY(yDisplacement);
 
-        if (CoordinateAxis.Distance(body.Position.X.Whole, SporeSpawnDeathCenterX) < 8 &&
-            CoordinateAxis.Distance(body.Position.Y.Whole, SporeSpawnDeathCenterY) < 8)
+        if (CoordinateAxis.Distance(body.Position.X.Whole, SporeSpawnArenaDefinitions.CentreX) < SporeSpawnArenaDefinitions.DeathDriftSettleDistance &&
+            CoordinateAxis.Distance(body.Position.Y.Whole, SporeSpawnArenaDefinitions.CentreY) < SporeSpawnArenaDefinitions.DeathDriftSettleDistance)
         {
             state.Movement = SporeSpawnMovement.Idle;
         }
@@ -251,7 +238,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             _ = _effectActors.SpawnRoomEffectActor(
-                new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + 96, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + 480),
+                new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + SporeSpawnArenaDefinitions.IdleDustLeft, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + SporeSpawnArenaDefinitions.IdleDustTop),
                 RoomEffectActorKind.BigDustCloud,
                 graphics: default);
         }
@@ -263,15 +250,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body = state.Body;
         WriteSporeSpawnStalkAxis(
             state.StalkLinks,
-            firstPosition: SporeSpawnDeathCenterX,
+            firstPosition: SporeSpawnArenaDefinitions.CentreX,
             anchor: state.StalkAnchor.X,
             end: body.Position.X.Whole,
             axis: Axis.Horizontal);
         WriteSporeSpawnStalkAxis(
             state.StalkLinks,
-            firstPosition: SporeSpawnCeilingY,
+            firstPosition: SporeSpawnArenaDefinitions.CeilingY,
             anchor: state.StalkAnchor.Y,
-            end: CoordinateAxis.Wrap(body.Position.Y.Whole - 40),
+            end: CoordinateAxis.Wrap(body.Position.Y.Whole - SporeSpawnArenaDefinitions.StalkBodyGap),
             axis: Axis.Vertical);
     }
 
@@ -622,8 +609,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
-                if (state.MaximumXRadius < SporeSpawnWidenedRadiusLimit)
-                    state.MaximumXRadius += SporeSpawnRadiusWidening;
+                if (state.MaximumXRadius < SporeSpawnArenaDefinitions.WidenedSwayLimit)
+                    state.MaximumXRadius += SporeSpawnArenaDefinitions.SwayWidening;
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ClearDamagedFlag }:
                 state.Damaged = false;
@@ -636,7 +623,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed;
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.Harden }:
-                body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
+                body.Position = body.Position.WithWhole(new(SporeSpawnArenaDefinitions.CentreX, SporeSpawnArenaDefinitions.CentreY));
                 body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
                 body.Processing = body.Processing.With(EnemyProcessing.Animates);
                 return;

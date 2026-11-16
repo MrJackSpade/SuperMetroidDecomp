@@ -22,11 +22,8 @@ public sealed class OwtchEnemyState
     public int BurialDepth
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, OwtchMaximumBurialDepth, value);
+        internal set => field = Ensure.BetweenInclusive(0, OwtchMovementDefinitions.MaximumBurialDepth, value);
     }
-
-    /// <summary>The deepest an Owtch sinks before it goes underground.</summary>
-    internal const int OwtchMaximumBurialDepth = 16;
 
     /// <summary>
     /// Counts one rising pixel off the burial depth and reports whether it reached zero. An Owtch rises only out of a

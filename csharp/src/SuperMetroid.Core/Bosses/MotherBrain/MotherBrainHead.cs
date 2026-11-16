@@ -375,7 +375,7 @@ internal sealed class MotherBrainHead
     /// <summary>
     /// The shared onion-ring aim tail. Both target selectors subtract the same mouth offsets,
     /// take the angle from those offsets, rotate by a half turn, and clamp the launch arc to
-    /// <see cref="OnionRingLowestAim"/> through <see cref="OnionRingHighestAim"/>; only the source coordinate differs.
+    /// <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>; only the source coordinate differs.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,
@@ -389,28 +389,10 @@ internal sealed class MotherBrainHead
         // wraparound half, from three quarters of a turn round past zero, maps to the lowest aim; the opposite half maps
         // to the highest. Only the aims between them survive unchanged.
         state.OnionRingsTargetAngle =
-            angle >= OnionRingLowestAim && angle < OnionRingHighestAim ? angle
-            : angle >= OnionRingHighestAim && angle < OnionRingClampSplit ? OnionRingHighestAim
-            : OnionRingLowestAim;
+            angle >= MotherBrainOnionRingDefinitions.LowestAim && angle < MotherBrainOnionRingDefinitions.HighestAim ? angle
+            : angle >= MotherBrainOnionRingDefinitions.HighestAim && angle < MotherBrainOnionRingDefinitions.ClampSplit ? MotherBrainOnionRingDefinitions.HighestAim
+            : MotherBrainOnionRingDefinitions.LowestAim;
     }
-
-    /// <summary>The speed an onion ring flies at along its aim: four pixels and 80 256ths an update.</summary>
-    private static readonly SignedEightEight OnionRingSpeed = SignedEightEight.FromParts(4, 80);
-
-    /// <summary>The lowest aim an onion ring launches at: a sixteenth of a turn.</summary>
-    private static readonly TrigonometryAngle OnionRingLowestAim = new(16);
-
-    /// <summary>The highest aim an onion ring launches at: nine thirty-seconds of a turn.</summary>
-    private static readonly TrigonometryAngle OnionRingHighestAim = new(72);
-
-    /// <summary>Where the onion-ring aim clamp stops raising aims to the highest and starts lowering them to the lowest: three quarters of a turn.</summary>
-    private static readonly TrigonometryAngle OnionRingClampSplit = new(192);
-
-    /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
-    private static readonly SignedEightEight MotherBrainBombBounceSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(112);
-
-    /// <summary>Updates an onion ring stays at Mother Brain's mouth before it flies.</summary>
-    private const int MotherBrainOnionRingAttachDelay = 8;
 
     /// <summary>Runs the bomb's initializer.</summary>
     private void SpawnMotherBrainBomb(
@@ -431,7 +413,7 @@ internal sealed class MotherBrainHead
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
         bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
         bomb.Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224), SignedEightEight.FromPixels(1));
-        bomb.State = new MotherBrainBombState(MotherBrainBombBounceSpeed, afterburnCount);
+        bomb.State = new MotherBrainBombState(MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
         state.RecordBombSpawned();
     }
 
@@ -454,10 +436,10 @@ internal sealed class MotherBrainHead
             _projectileAttacks.OnionRing,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing));
-        ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
-        ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(OnionRingSpeed, angle));
+        ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingDefinitions.MouthDelay);
+        ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(MotherBrainOnionRingDefinitions.Speed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
-            OnionRingSpeed,
+            MotherBrainOnionRingDefinitions.Speed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         // The ring's initializer falls through into its attachment step, making the mouth position observable before

@@ -158,8 +158,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Action = PowampAction.InflatedRiseToTargetHeight;
-            // Exactly half a pixel per frame upward.
-            state.YVelocity = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+            state.YVelocity = PowampMotionDefinitions.RiseVelocity;
             state.Playback = StartPowampAnimation(body, PowampSegment.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
@@ -271,8 +270,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Action = PowampAction.DeflatedSinking;
-            // Exactly +1 pixel/frame.
-            state.YVelocity = SignedSixteenSixteen.FromParts(1, 0);
+            state.YVelocity = PowampMotionDefinitions.SinkVelocity;
         }
         AlignPowampBalloonY(body, balloon);
     }

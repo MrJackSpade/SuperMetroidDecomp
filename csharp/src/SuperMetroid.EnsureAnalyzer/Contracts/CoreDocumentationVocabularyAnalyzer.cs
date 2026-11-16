@@ -70,6 +70,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2152 adds, outside hardware owners, a slot as an enemy's, a projectile's or a bomb's place, a frame named as a map,
 /// a subtraction's borrow, the repository's verification, verifiers, fixtures and movies, and the original's tables,
 /// indexes and bugs.
+/// #2172 adds, outside hardware owners, the machine's 16.16 arithmetic named by its sixty-five-thousandths (a
+/// 1/65536-pixel addition, helper or form), paired additions, and running or calling a helper or controller.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -888,6 +890,45 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The machine's 16.16 arithmetic named by its sixty-five-thousandths in prose (#2172), outside hardware owners and
+    /// outside markup: a 1/65536-pixel (or 1/65536th) addition, add, sum, helper, form, space, constant or arithmetic, with
+    /// up to two words between (the game's 1/65536-pixel additions, one 1/65536-pixel add, the 1/65536-pixel collision
+    /// helper, the ordinary 1/65536-pixel movement helpers, in signed 1/65536-pixel form, in 1/65536-pixel space). The
+    /// original kept a position or speed as a whole word and a fraction word and added them as a pair; Core says what the
+    /// value does: the speed moves the position, a fraction past a whole pixel carries into the whole pixels, the whole
+    /// pixels wrap around the room. English stays legal: a unit of measure (a speed in 1/65536 pixels, a 1/65536-pixel
+    /// velocity, displacement or position).
+    /// </summary>
+    private static readonly Regex SixteenSixteenArithmeticProse = new(
+        @"(?<![\w/])1/65536(?:ths?)?(?:[-\s]pixels?)?(?:\s+[\w'-]+){0,2}?\s+" +
+        @"(?:helpers?|additions?|adds?|sums?|form|space|constants?|arithmetic)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Paired arithmetic in prose (#2172), outside hardware owners, spaced or hyphenated: paired additions, adds,
+    /// subtractions or sums (the game's paired additions), the original's add of a fraction word and then a whole word.
+    /// Core says what the value does: a fraction past a whole pixel carries into the whole pixels. English stays legal: a
+    /// pair of things the game pairs (paired doors, paired enemies) and an addition alone.
+    /// </summary>
+    private static readonly Regex PairedArithmeticProse = new(
+        @"\bpaired[-\s]+(?:additions?|adds?|subtractions?|sums?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A routine run or called as a helper or controller in prose (#2172), outside hardware owners and outside markup: run,
+    /// runs, running, ran, call, calls, calling or called, then an article, determiner or possessive, up to six words and a
+    /// helper or controller (Runs the linked-segment placement helper, runs the last segment's collision/reversal
+    /// controller, calls the previous-pose helper, call the sound helper). The original split an enemy's or Samus's step
+    /// into routines it called; Core says what the step does in the game: it places the segment, reverses the chain, takes
+    /// the previous pose. English stays legal: the player's controller and its input, buttons or port (runs the controller
+    /// input), a helper or controller named without running or calling it, and a test's helper outside Core.
+    /// </summary>
+    private static readonly Regex RoutineHelperProse = new(
+        @"\b(?:run|runs|running|ran|call|calls|calling|called)\s+(?:the|its|their|a|an|this|that|each|both)\s+" +
+        @"(?:[\w'/-]+\s+){0,6}?(?:helpers?|controllers?)\b(?![-\s]+(?:inputs?|buttons?|ports?)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A controller button's letter used as the name of a gameplay action in prose (#2113), outside hardware owners: a
     /// letter that is an action (A is Jump, X here is the configured Shoot action, X is the default shoot binding), an
     /// action that is a letter (Jump is A), a letter before an action's button, binding or action (the B run button) and a
@@ -1124,6 +1165,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ArithmeticBorrowProse.Match(Markup.Replace(text, " ")) is { Success: true } borrow ? borrow.Value
             : RepositoryCheckProse.Match(Markup.Replace(text, " ")) is { Success: true } repositoryCheck ? repositoryCheck.Value
             : TableNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } tableNarration ? tableNarration.Value
+            : SixteenSixteenArithmeticProse.Match(Markup.Replace(text, " ")) is { Success: true } sixteenSixteen ? sixteenSixteen.Value
+            : PairedArithmeticProse.Match(Markup.Replace(text, " ")) is { Success: true } paired ? paired.Value
+            : RoutineHelperProse.Match(Markup.Replace(text, " ")) is { Success: true } routineHelper ? routineHelper.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

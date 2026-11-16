@@ -322,8 +322,8 @@ internal sealed class MotherBrainAttacks
 
         state.Phase = MotherBrainBodyPhase.SecondPhaseBombStandUp;
 
-        // The wait falls directly into the stand-up, so a crouched body calls the helper twice on
-        // this frame. Both calls restart the same animation and timer, and the stand-up
+        // The wait falls directly into the stand-up, so a crouched body starts standing twice on
+        // this frame. Both starts restart the same animation and timer, and the stand-up
         // follows the wait in the same frame rather than a frame later.
         StandMotherBrainAfterBomb(state);
     }

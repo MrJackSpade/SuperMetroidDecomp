@@ -163,7 +163,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
-                        -SignedEightEight.FromParts(0, 1));
+                        RioLaunchDefinitions.ReturnYVelocity);
                     state.Action = RioAction.BouncingBackToPerch;
                     return;
                 }

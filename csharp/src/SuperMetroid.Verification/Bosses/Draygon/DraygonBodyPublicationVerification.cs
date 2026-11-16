@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -53,7 +52,7 @@ internal static class DraygonBodyPublicationVerification
             AssertEqual(GameplaySceneView.LayerPixelAtScreenTop(BossBodyPlacement.Shown(expected, runtime.Display.Latched.Scrolls.ForegroundPosition)
                 + runtime.Display.Latched.Scrolls.RoomShake.Background), drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
             // His body is drawn whole, on every gameplay line, rather than on a band of lines around him (#1873).
-            AssertEqual(ScreenLineBand.Gameplay,
+            AssertEqual(ScreenLineBandConstants.Gameplay,
                 new ScreenLineBand(drawn.View.BackgroundFirstLine, drawn.View.BackgroundEndLine), $"Draygon at {body} shows his body layer on every gameplay line");
             AssertTrue(drawn.View.ShownLayers.HasFlag(ScreenLayers.Background), $"Draygon at {body} shows his body layer");
         }

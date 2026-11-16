@@ -757,10 +757,10 @@ internal static class EnemyTrigonometryVerification
             tide.Liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                tide.TidePhase = RotationAngle.FromRaw(phase);
+                tide.TidePhase = RotationAngleConstants.FromRaw(phase);
                 tide.TideOffset = SignedSixteenSixteen.FromParts(0, 12345);
                 step();
-                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
+                short sample = Reference(RotationAngleConstants.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = option == LiquidTide.Small;
                 bool still = option == LiquidTide.None;
                 int scale = still ? 0 : small ? 8 : 32;

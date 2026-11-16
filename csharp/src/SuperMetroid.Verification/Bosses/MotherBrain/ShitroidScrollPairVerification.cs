@@ -7,9 +7,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
-
-using SuperMetroid.Verification.Harness;
-
 /// <summary>
 /// Checks the Shitroid's scroll changes in the Big Boy room (#1741): the screens it names by column and row are the cells
 /// the original stores to.

@@ -8,7 +8,6 @@ using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus;

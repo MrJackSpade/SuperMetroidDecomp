@@ -7,9 +7,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core.Compatibility;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

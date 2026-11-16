@@ -12,11 +12,6 @@ public sealed class SamusGrappleState
 
     /// <summary>The installed artwork the flare's placement, the swing's pictures and the rope draw from.</summary>
     internal SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding Artwork { get; }
-
-    /// <summary>The installed flare origins, or none before they are installed; never changes physical hand offsets.</summary>
-    public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? FlarePlacement => Artwork.GrappleFlarePlacement;
-    /// <summary>The installed swing pictures, or none before they are installed; never a collision/body offset source.</summary>
-    public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames? SwingFrames => Artwork.GrappleSwingFrames;
     /// <summary>Gets or sets the current grapple phase.</summary>
     public GrapplePhase Phase { get; set; }
     /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>

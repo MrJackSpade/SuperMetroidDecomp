@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 [RoomLifetime]
 internal sealed class OldTourianEscapeShaftWallBehavior
 {
-    /// <summary>Loaded-room dependency required before the wall controller can spawn its explosion.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy projectiles, which the wall's explosion spawns.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
@@ -20,7 +18,6 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     internal OldTourianEscapeShaftWallBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;
-        _room = room;
         _projectiles = projectiles;
     }
 

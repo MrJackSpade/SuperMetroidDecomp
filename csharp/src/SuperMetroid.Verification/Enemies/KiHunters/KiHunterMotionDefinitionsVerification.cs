@@ -38,7 +38,7 @@ internal static class KiHunterMotionDefinitionsVerification
             // high-byte indexes would leave the authored quadratic-speed records.
             QuadraticSpeedCurvePlace speed = QuadraticSpeedCurvePlace.FromMarks(1);
             ushort angle = unchecked((ushort)(raw + delta(speed, EnemySpeedSign.Negative)));
-            state.WingArcAngle = RotationAngle.FromRaw((ushort)raw);
+            state.WingArcAngle = RotationAngleConstants.FromRaw((ushort)raw);
             state.WingMovement = KiHunterWingMovement.Orbit;
             state.DetachedSpeedCurvePlace = speed;
             state.OrbitCenter = new Position16<RoomPixels>((ushort)raw, (ushort)(ushort.MaxValue - raw));

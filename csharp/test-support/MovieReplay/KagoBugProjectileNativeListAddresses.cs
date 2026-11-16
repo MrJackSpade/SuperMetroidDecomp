@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Enemies.Kago;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

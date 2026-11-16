@@ -11,15 +11,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PrePhantoonRoomBehavior
 {
-    /// <summary>Checks that the room is loaded before setup takes its projectile place.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Shared pool in which the setup holds its place.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Connects the room's rules to its loaded-room guard and projectile pool.</summary>
     internal PrePhantoonRoomBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
-        _room = room;
         _projectiles = projectiles;
     }
 

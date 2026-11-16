@@ -12,14 +12,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public sealed class EndingCloudSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled cloud compositions keyed by the poses that show them.</summary>
-    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Accepts the complete validated six-frame cloud set.</summary>
     private EndingCloudSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingCloudSpritePresentation), frames);
 
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingCloud;

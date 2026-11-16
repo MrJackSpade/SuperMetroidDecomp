@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

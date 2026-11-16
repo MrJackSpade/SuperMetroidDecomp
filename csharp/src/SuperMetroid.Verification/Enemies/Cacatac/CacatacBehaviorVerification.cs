@@ -71,7 +71,7 @@ internal static class CacatacBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
         CacatacBehavior.InitializeCacatac(slot);
         CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
-        AssertEqual((int)unchecked((ushort)(8 - 16)), state.LeftPatrolX, "Cacatac left limit wraps below the room's left edge");
+        AssertEqual(unchecked((ushort)(8 - 16)), state.LeftPatrolX, "Cacatac left limit wraps below the room's left edge");
         AssertEqual(24, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
 
         state.Speed = oneAndAHalfPixels;

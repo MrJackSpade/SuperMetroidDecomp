@@ -20,8 +20,6 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class SamusFramePhases
 {
-    /// <summary>Supplies Samus's installed death steps.</summary>
-    private readonly RuntimeArtwork _artwork;
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
     /// <summary>Supplies held and newly pressed controller bits to Samus's frame phases.</summary>
@@ -46,7 +44,7 @@ internal sealed class SamusFramePhases
     /// <summary>Binds the frame owners required to preserve Samus's input, movement and presentation ordering.</summary>
     internal SamusFramePhases(SamusFramePhasesDependencies dependencies)
     {
-        _artwork = dependencies.Artwork;
+        _ = dependencies.Artwork;
         _attractDemo = dependencies.AttractDemo;
         _playerActions = dependencies.PlayerActions;
         _freeze = dependencies.Freeze;

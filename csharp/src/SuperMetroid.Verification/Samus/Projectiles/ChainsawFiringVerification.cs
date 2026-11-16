@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -20,11 +19,10 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Focused cartridge-probe comparison for Chainsaw shot admission, collision, lifetime and door interference.</summary>

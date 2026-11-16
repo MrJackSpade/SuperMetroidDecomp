@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Compatibility;

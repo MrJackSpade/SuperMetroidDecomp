@@ -87,9 +87,9 @@ internal static class NativeSnapshotMotherBrainImport
             state.NeckJoints[joint] = new(W(record), W(record + 2));
             state.NeckJointDistances[joint] = W(record + 4);
         }
-        state.LowerNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
-        state.UpperNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
-        state.NeckTurnPerUpdate = RotationAngle.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
+        state.LowerNeckAngle = RotationAngleConstants.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
+        state.UpperNeckAngle = RotationAngleConstants.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
+        state.NeckTurnPerUpdate = RotationAngleConstants.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
         state.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         state.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
@@ -116,7 +116,7 @@ internal static class NativeSnapshotMotherBrainImport
         // The game reads only the low byte of each aim angle, the byte angle it stored.
         state.HandBeamNextAngle = new TrigonometryAngle(W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue);
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
-        state.RainbowBeamAngularWidth = RotationAngle.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
+        state.RainbowBeamAngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         if (RainbowSequencePhases.Contains(state.Phase))
             ImportNativeMotherBrainRainbowSequence(state, state.Phase, W);
     }
@@ -219,7 +219,7 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.PhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
-        sequence.RainbowAttack.AngularWidth = RotationAngle.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
+        sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
@@ -232,7 +232,7 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         state.Bursts.Interval = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction));
-        sequence.State.NeckTurnPerUpdate = RotationAngle.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
+        sequence.State.NeckTurnPerUpdate = RotationAngleConstants.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
         sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         sequence.State.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");

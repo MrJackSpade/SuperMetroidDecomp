@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.SamusNativeCodecs;
-using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.MovieReplay;
 using System.Globalization;
 using SuperMetroid.Core.Runtime;

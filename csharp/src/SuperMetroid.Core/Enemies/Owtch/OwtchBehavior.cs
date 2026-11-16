@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>

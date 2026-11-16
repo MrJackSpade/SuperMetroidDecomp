@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorObjectsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupEyeDoorLayoutsVerification;
 using SuperMetroid.Verification.Rooms.RoomObjects;
@@ -19,10 +18,9 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Doors;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks eye-door PLM programs, mirrored physical draws, and installed visuals.</summary>
 internal static class EyeDoorObjectDrawDefinitionsVerification

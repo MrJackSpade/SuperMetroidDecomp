@@ -4,9 +4,8 @@ using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.IntegrationVerification.Installation;
-using SuperMetroid.Core;
+
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free startup.</summary>

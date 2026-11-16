@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

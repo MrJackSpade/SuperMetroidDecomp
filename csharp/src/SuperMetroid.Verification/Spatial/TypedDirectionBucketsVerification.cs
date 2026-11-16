@@ -22,7 +22,7 @@ internal static class TypedDirectionBucketsVerification
 
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            RotationAngle angle = RotationAngle.FromRaw(raw);
+            RotationAngle angle = RotationAngleConstants.FromRaw(raw);
             // The replaced arithmetic: the quarter of the turn the angle's whole step lies in.
             int quarter = (raw >> 8) * 4 / 256;
             SpriteMirror expected = (quarter >= 2 ? SpriteMirror.Horizontal : SpriteMirror.None) |

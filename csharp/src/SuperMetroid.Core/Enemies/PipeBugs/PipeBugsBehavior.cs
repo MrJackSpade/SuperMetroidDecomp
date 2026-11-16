@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Compatibility;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 

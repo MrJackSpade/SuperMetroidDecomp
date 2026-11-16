@@ -13,7 +13,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Verification.Frontend.CeresCinematics;

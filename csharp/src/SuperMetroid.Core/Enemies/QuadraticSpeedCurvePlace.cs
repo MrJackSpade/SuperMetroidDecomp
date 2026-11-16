@@ -25,10 +25,7 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     /// <summary>The step of one whole mark, by which the whole-mark movers move along the curve each update.</summary>
     public static QuadraticSpeedCurvePlace OneMark => FromMarks(1);
 
-    /// <summary>The curve's last mark, the furthest place whose speed can be read.</summary>
-    public static QuadraticSpeedCurvePlace LastMark => FromMarks(QuadraticSpeedCurveDefinitions.MarkCount - 1);
-
-    /// <summary>The place one mark past <see cref="LastMark"/>, where the curve has no speed.</summary>
+    /// <summary>The place one mark past <c>LastMark</c>, where the curve has no speed.</summary>
     public static QuadraticSpeedCurvePlace PastLastMark => FromMarks(QuadraticSpeedCurveDefinitions.MarkCount);
 
     /// <summary>The place <paramref name="marks"/> whole marks along the curve, or the step of that many marks.</summary>

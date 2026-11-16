@@ -1,5 +1,3 @@
-using SuperMetroid.Verification.Harness;
-
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>

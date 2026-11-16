@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Saves;
 

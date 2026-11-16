@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.SamusNativeCodecs;
-using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -224,7 +223,7 @@ internal static class NativeSnapshotImport
         samus.KnockbackDirection = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction");
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
-        samus.EnergyFraction = SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth));
+        samus.EnergyFraction = SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFractionConstants.Holding(W(NativeSnapshotMemory.SubunitHealth));
         samus.SelectedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.SelectedHudItem));
         samus.ArmCannon.PreviousSelectedHudItem = samus.SelectedHudItem;
         samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
@@ -319,7 +318,7 @@ internal static class NativeSnapshotImport
             "snapshot import models the lava/acid HDMA objects of its room");
         runtime.RoomFxOverlay.MotionStart = SuperMetroid.Core.Compatibility.LiquidMotionStart.Begun;
         runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
-        runtime.RoomFxOverlay.TidePhase = RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase));
+        runtime.RoomFxOverlay.TidePhase = RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase));
         runtime.RoomFxOverlay.TideOffset = SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction));
         runtime.RoomFxOverlay.BaseY = (runtime.RoomFxOverlay.BaseY
             ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));

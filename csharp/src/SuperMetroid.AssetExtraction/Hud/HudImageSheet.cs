@@ -10,7 +10,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Hud;

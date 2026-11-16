@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -17,8 +16,6 @@ internal sealed class CeresFallingTiles
     /// <summary>A falling tile's downward acceleration per update, in 256ths of a pixel per update.</summary>
     private static readonly SignedEightEight Gravity = SignedEightEight.FromParts(0, 16);
 
-    /// <summary>The loaded room the tiles fall in.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The enemy sound queue a tile's fall sounds in.</summary>
@@ -27,7 +24,6 @@ internal sealed class CeresFallingTiles
     /// <summary>Binds the tiles to the loaded room, its enemy projectiles and the enemy sound queue.</summary>
     internal CeresFallingTiles(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
-        _room = room;
         _projectiles = projectiles;
         _audio = audio;
     }

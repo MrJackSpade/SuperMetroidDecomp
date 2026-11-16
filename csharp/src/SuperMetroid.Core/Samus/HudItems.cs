@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus;
 public static class HudItems
 {
     /// <summary>The selection ring, in the order the select button steps through it; X-ray wraps back to the beam.</summary>
-    private static readonly HudItem[] SelectionRing =
+    internal static readonly HudItem[] SelectionRing =
     [
         HudItem.Beam,
         HudItem.Missile,
@@ -13,9 +13,6 @@ public static class HudItems
         HudItem.Grapple,
         HudItem.XRay,
     ];
-
-    /// <summary>Every HUD item, in the order the select button steps through them.</summary>
-    public static IReadOnlyList<HudItem> All => SelectionRing;
 
     /// <summary>The next entry of the selection ring, wrapping after X-ray.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="item"/> is not on the ring.</exception>

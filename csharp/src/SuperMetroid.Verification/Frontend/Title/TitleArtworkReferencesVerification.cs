@@ -39,9 +39,9 @@ internal static class TitleArtworkReferencesVerification
         _ = Load(document);
         using (var stream = new MemoryStream()) TitleGraphicsCharacters.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
-            TitleSpriteDrawing.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
+            TitleSpriteDrawingConstants.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
         foreach (TitleCardFrame card in cards)
-            TitleSpriteDrawing.DrawCard(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), card.Typed, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
+            TitleSpriteDrawingConstants.DrawCard(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), card.Typed, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
 
         // An unchanged frame count must not disguise one missing selector. Test every
         // compiled selector independently; the old loader accepted each substitution.

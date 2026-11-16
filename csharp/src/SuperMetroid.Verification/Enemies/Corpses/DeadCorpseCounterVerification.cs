@@ -38,7 +38,7 @@ internal static class DeadCorpseCounterVerification
     internal static void VerifyDeadTourianPreRotDelay()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        _ = enemies.SlotTable.Slots[0];
         var state = new DeadTourianCorpseEnemyState(DeadTourianCorpseSpecies.Zoomer,
             new CorpseRotSchedule(DeadTourianCorpses.For(DeadTourianCorpseSpecies.Zoomer, 0).RowCount), DeadTourianCorpsePhase.PreRotDelay);
 

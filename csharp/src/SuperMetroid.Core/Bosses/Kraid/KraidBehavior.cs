@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;

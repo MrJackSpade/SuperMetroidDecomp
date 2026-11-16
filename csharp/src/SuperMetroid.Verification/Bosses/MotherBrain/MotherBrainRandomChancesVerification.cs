@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Compatibility.ReplacedExpressionAssertions;
 

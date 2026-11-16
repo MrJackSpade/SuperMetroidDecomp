@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification;
 using SuperMetroid.Verification.Rooms.RoomObjects;
@@ -14,11 +13,10 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses.Torizo;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks Bomb Torizo's hand PLM from inventory gating through debris, VRAM transfer, and deletion.</summary>
 internal static class BombTorizoHandVerification

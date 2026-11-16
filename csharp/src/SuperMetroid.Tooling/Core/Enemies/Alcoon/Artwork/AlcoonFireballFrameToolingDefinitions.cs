@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Alcoon;
 
 namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
 

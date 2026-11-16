@@ -38,12 +38,11 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.World;
 
 /// <summary>Projectile fixtures covering native shot production, flight, impact, artwork, and camera edges.</summary>
 internal static class SamusProjectilesVerification
@@ -523,7 +522,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         {
             AssertEqual(SamusBeamChargeGlowAction.OrdinaryWhite, paletteStep.Action,
                 $"ordinary charged glow call {call + 1} selects white branch");
-            AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, 3 - call), chargeProjectiles.Charge.ChargedShotGlow,
+            AssertEqual(ChargedShotGlowConstants.Of(ChargedShotGlowKind.ChargedShotFlash, 3 - call), chargeProjectiles.Charge.ChargedShotGlow,
                 $"ordinary charged glow call {call + 1} decrements before branch");
             AssertEqual(SamusShades.ChargedShotGlow, chargedGlowColours.Suit,
                 $"ordinary charged glow call {call + 1} shows the glow's shade, which leaves transparent color zero to the sheet");

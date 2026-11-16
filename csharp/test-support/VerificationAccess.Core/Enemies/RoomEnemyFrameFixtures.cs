@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;

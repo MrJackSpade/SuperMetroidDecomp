@@ -163,15 +163,6 @@ public sealed class FileSelectSourcePresentation
             yield return FileSelectParts.LetterFrame(slot);
     }
 
-    /// <summary>Reads and validates both extracted file-select documents.</summary>
-    /// <param name="extraction">The extraction's layout and artwork documents.</param>
-    /// <exception cref="InvalidDataException">Either document is invalid, or a patch placement escapes its page.</exception>
-    public static FileSelectSourcePresentation Load(FileSelectExtraction extraction)
-    {
-        Ensure.NotNull(extraction);
-        return Load(new MemoryStream(extraction.Layout, writable: false), new MemoryStream(extraction.Artwork, writable: false));
-    }
-
     /// <summary>
     /// Reads and validates the installed layout document and the import-data artwork document, compiling the layout, the
     /// tilemaps, patches, glyphs and sprite compositions.

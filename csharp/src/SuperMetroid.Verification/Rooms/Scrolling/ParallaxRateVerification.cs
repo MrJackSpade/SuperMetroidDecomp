@@ -30,7 +30,7 @@ internal static class ParallaxRateVerification
 
         AssertEqual(BackgroundAxisScroll.FollowsForeground, BackgroundScrollCodec.Decode(0, 0).Horizontal, "byte zero copies the foreground");
         AssertEqual(BackgroundAxisScroll.Fixed, BackgroundScrollCodec.Decode(1, 1).Horizontal, "byte one fixes the axis");
-        AssertEqual((int?)null, BackgroundAxisScroll.Fixed.BackgroundPositionFor(0x1234), "a fixed axis keeps the background where it is");
+        AssertEqual(null, BackgroundAxisScroll.Fixed.BackgroundPositionFor(0x1234), "a fixed axis keeps the background where it is");
         AssertEqual(0x1234, BackgroundAxisScroll.FollowsForeground.BackgroundPositionFor(0x1234), "a following axis copies the foreground");
         for (int mode = 2; mode <= byte.MaxValue; mode++)
         {

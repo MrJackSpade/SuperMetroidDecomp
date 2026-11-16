@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;

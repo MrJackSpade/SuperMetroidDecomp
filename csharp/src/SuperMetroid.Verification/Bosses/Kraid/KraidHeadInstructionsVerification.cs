@@ -134,8 +134,7 @@ internal static class KraidHeadInstructionsVerification
     }
 
     /// <summary>Guards compiled head-program bytes while observing Kraid's typed live-tilemap WRAM read.</summary>
-    internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
-        ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) : ISnesWritableAddressSpace, IImportCartridgeSource
     {
         /// <summary>Counts attempts to reread the compiled head stream.</summary>
         public int ForbiddenReadAttempts { get; private set; }

@@ -12,14 +12,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled phrase prefixes, digits, and colon keyed by the poses that show them.</summary>
-    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Retains the complete validated composition set independently of authoring arrays.</summary>
     private EndingCompletionTextSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
-
-    /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingCompletionTextSpritePresentation), frames);
 
     /// <inheritdoc/>
     CinematicSpriteFamily ICinematicSpriteFrames.Family => CinematicSpriteFamily.EndingCompletionText;

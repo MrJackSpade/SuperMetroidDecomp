@@ -45,7 +45,7 @@ internal static class PhantoonPositionVerification
             boundaryState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
             boundaryState.Round.EyeClosedTimer = timer;
             boundary.StepFrame(0);
-            AssertEqual(timer == 2 ? PhantoonPhase.MoveInFigureEightThenOpenEye : (PhantoonPhase?)null,
+            AssertEqual(timer == 2 ? PhantoonPhase.MoveInFigureEightThenOpenEye : null,
                 boundaryState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

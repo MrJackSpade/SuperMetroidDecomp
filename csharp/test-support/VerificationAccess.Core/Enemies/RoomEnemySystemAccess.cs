@@ -1,13 +1,11 @@
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Enemies;
 
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Alcoon;

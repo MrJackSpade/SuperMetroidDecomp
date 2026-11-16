@@ -59,6 +59,7 @@ using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -824,7 +825,7 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngle.FromRaw((ushort)angle));
+            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle));
             AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
@@ -921,7 +922,7 @@ internal static class LookupStream3Verification
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.FromNumber(rom.ReadCartridgeByte(0x9bc1c2 + angle)), swingFrames.Resolve(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.Nearest(new TrigonometryAngle((byte)angle))).DrawnFor, "stream 3 native calculated swing picture");
-        var fileSelect = FileSelectSourcePresentation.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom));
+        var fileSelect = FileSelectSourcePresentationConstants.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom));
         var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {
@@ -2475,7 +2476,7 @@ BranchesToSharedBody:true),
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var data = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
-        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectSourcePresentation.Load(data)));
+        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectSourcePresentationConstants.Load(data)));
         Console.WriteLine("File-select patches: native cells, zero stock fallback and actual placement pass.");
         return 0;
     }

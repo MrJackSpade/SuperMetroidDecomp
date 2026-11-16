@@ -170,8 +170,8 @@ internal static class CrocomireStateQuantitiesVerification
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
-        AssertEqual((int)acceleration, state.VerticalAcceleration.InTwoHundredFiftySixthsOfPixel, $"{at}: acceleration in 256ths");
-        AssertEqual((int)speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
+        AssertEqual(acceleration, state.VerticalAcceleration.InTwoHundredFiftySixthsOfPixel, $"{at}: acceleration in 256ths");
+        AssertEqual(speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
         AssertEqual(LittleEndianBytes.HighByte(subposition), state.VerticalSubpixel, $"{at}: subpixel");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }

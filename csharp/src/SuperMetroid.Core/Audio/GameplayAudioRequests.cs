@@ -22,10 +22,10 @@ internal sealed class GameplayAudioRequests
     private IGameplayAudioQueues? queues;
 
     /// <summary>The update's sound requests, in request order.</summary>
-    private readonly List<SoundRequest> soundRequests = [];
+    internal readonly List<SoundRequest> soundRequests = [];
 
     /// <summary>The update's music requests, in request order.</summary>
-    private readonly List<GameplayMusicRequest> musicRequests = [];
+    internal readonly List<GameplayMusicRequest> musicRequests = [];
 
     /// <summary>
     /// Sends every later request straight on into <paramref name="sessionQueues"/>, the queues of the session running the
@@ -39,12 +39,6 @@ internal sealed class GameplayAudioRequests
             throw new InvalidOperationException("The audio requests already reach a session's queues.");
         queues = sessionQueues;
     }
-
-    /// <summary>The update's sound requests, in the order the sound queues receive them.</summary>
-    internal IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
-
-    /// <summary>The update's music requests, in the order the music queue receives them.</summary>
-    internal IReadOnlyList<GameplayMusicRequest> MusicRequests => musicRequests;
 
     /// <summary>Begins an update: the previous update's requests, which their queues already hold, leave the record.</summary>
     internal void BeginUpdate()

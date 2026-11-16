@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Animation;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;

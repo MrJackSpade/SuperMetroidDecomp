@@ -25,11 +25,11 @@ internal static class ShaktoolOwnedStateVerification
         foreach ((bool reversed, CompassDirection expectedOrientation) in new[] { new VerifyShaktoolOwnedStateCase(false, CompassDirection.Down), new VerifyShaktoolOwnedStateCase(true, CompassDirection.Up) })
         {
             centerState.MotionFlags = 0;
-            centerState.OrbitAngle = RotationAngle.FromRaw(0xff80);
+            centerState.OrbitAngle = RotationAngleConstants.FromRaw(0xff80);
             centerState.AngularVelocity = RotationAngle.FromSteps(1);
             centerState.ResetOrientation();
             centerState.OrientationReversed = reversed;
-            states[4].OrbitAngle = RotationAngle.FromRaw(0x8080);
+            states[4].OrbitAngle = RotationAngleConstants.FromRaw(0x8080);
             enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter(center, centerState);
             AssertEqual((ushort)0x0080, centerState.OrbitAngle.RawValue, "the centre's orbit wraps through zero");
             AssertEqual(expectedOrientation, centerState.Orientation, $"reversed={reversed} selects the expected head orientation");

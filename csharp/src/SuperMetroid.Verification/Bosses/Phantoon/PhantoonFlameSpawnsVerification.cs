@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;

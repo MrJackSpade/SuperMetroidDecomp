@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -21,16 +20,13 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Clamps vertical climbing to room blocks before a collision reverses direction.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Shares laser spawning and hitbox-shot behavior with walking Pirates.</summary>
-    private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
-
     /// <summary>The owner of the shared Pirate contact reactions, which every Pirate family takes.</summary>
-    internal WalkingSpacePirateBehavior Walking => _walkingSpacePirateBehavior;
+    internal WalkingSpacePirateBehavior Walking { get; }
 
     /// <summary>Binds wall climbing, jump arcs, and family combat reactions to room services.</summary>
     internal WallSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
-        _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
+        Walking = walkingSpacePirateBehavior;
         _room = room;
         _terrain = terrain;
     }
@@ -39,19 +35,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private const int WallPirateSamusDetectionBand = 32;
     /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
-
-    /// <summary>Recognizes the four color variants that use wall-climbing Pirate AI.</summary>
-    internal static bool IsWallSpacePirateDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.PirateGreyWall or
-        EnemyDefinitionId.PirateGoldWall or
-        EnemyDefinitionId.PirateMagentaWall or
-        EnemyDefinitionId.PirateSilverWall;
-
-    /// <summary>Groups wall, walking, and Ninja Pirates that share ordinary Pirate combat reactions.</summary>
-    internal static bool IsOrdinarySpacePirateDefinition(EnemyDefinitionId definition) =>
-        IsWallSpacePirateDefinition(definition) ||
-        WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(definition) ||
-        NinjaSpacePirateBehavior.IsNinjaSpacePirateDefinition(definition);
 
     /// <summary>Initializes the wall Space Pirate.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
@@ -245,7 +228,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         HorizontalDirection direction)
     {
         int span = slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
-        int signedSpan = direction == HorizontalDirection.Right ? span : -span;
+        _ = direction == HorizontalDirection.Right ? span : -span;
         int signedHalfSpan = direction == HorizontalDirection.Right
             ? span >> 1
             : -(span >> 1);
@@ -262,8 +245,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         // The laser initializer queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
-        if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
-            _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
+        if (Walking.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
+            Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 
     /// <summary>
@@ -300,7 +283,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 state.Action = setAction.Action;
                 return null;
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
-                _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
+                Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:
                 throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue} cue.");

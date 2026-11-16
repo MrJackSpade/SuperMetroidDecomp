@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -72,7 +71,7 @@ internal static class RightFacingGateGlitchVerification
         AssertEqual(32, original.Size.X, "Pink Brinstar Hopper room width");
         AssertEqual(32, original.Size.Y, "Pink Brinstar Hopper room height");
         AssertEqual(new Position16<RoomBlocks>(17, 4), residentGate.Block, "Authored Pink Brinstar gate block");
-        AssertEqual((ushort)0x0002, shotBlock.RoomArgument,
+        AssertEqual(0x0002, shotBlock.RoomArgument,
             "Authored Pink Brinstar blue-right trigger table row");
 
         int gateX = residentGate.Block.X * 16;
@@ -232,7 +231,7 @@ internal static class RightFacingGateGlitchVerification
         AssertEqual(64, level.Size.X, "East Tunnel room width");
         AssertEqual(32, level.Size.Y, "East Tunnel room height");
         AssertEqual(new Position16<RoomBlocks>(22, 5), gate.Block, "Authored East Tunnel gate block");
-        AssertEqual((ushort)0x000a, shotBlock.RoomArgument,
+        AssertEqual(0x000a, shotBlock.RoomArgument,
             "Authored East Tunnel green-right trigger table row");
 
         SamusState samus = runtime.Player.IntroducedSamus;

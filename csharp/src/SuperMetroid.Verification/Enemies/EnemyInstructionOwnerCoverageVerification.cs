@@ -235,7 +235,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
     /// every Ceres door and wall shares, which the inventory labels as other data rather than as an enemy definition
     /// (#1999). A header no room places and no code spawns (<see cref="UnplacedEnemyHeaders"/>) is cartridge inventory
     /// with no species, and is not one. The inventory also names the header the cartridge leaves in a killed enemy's place
-    /// while it waits to respawn (<see cref="EnemyHeaderWords.AwaitingRespawnHeader"/>): the port holds that place as
+    /// while it waits to respawn (<see cref="EnemyHeaderWordsConstants.AwaitingRespawnHeader"/>): the port holds that place as
     /// awaiting respawn, with no enemy and no definition, so the audit recognises it as that placeholder and requires the
     /// inventory to name it. Every other header names a species or the audit fails.
     /// </summary>
@@ -253,7 +253,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 NumberStyles.AllowHexSpecifier,
                 CultureInfo.InvariantCulture))
             .ToHashSet();
-        AssertTrue(namedHeaders.Remove(EnemyHeaderWords.AwaitingRespawnHeader),
+        AssertTrue(namedHeaders.Remove(EnemyHeaderWordsConstants.AwaitingRespawnHeader),
             "the symbol inventory names the awaiting-respawn placeholder, which the audit holds as no enemy definition");
         IEnumerable<ushort> sharedHeaders = EnemyHeaderWords.SharedHeaders.Keys.Select(EnemyDefinitionIds.HeaderPointer);
         return namedHeaders
@@ -274,7 +274,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
     {
         EnemyDefinitionId[] sharing =
             [.. EnemyHeaderWords.SharedHeaders.Keys.Where(actor => EnemyDefinitionIds.HeaderPointer(actor) == header)];
-        return sharing.Length > 0 ? sharing : [EnemyDefinitionIds.FromHeaderPointer(header)];
+        return sharing.Length > 0 ? sharing : [EnemyDefinitionIdsConstants.FromHeaderPointer(header)];
     }
 
     /// <summary>Groups native population records from all retail room states by enemy definition.</summary>

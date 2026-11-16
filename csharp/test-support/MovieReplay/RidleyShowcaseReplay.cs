@@ -503,7 +503,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(actor.SlotIndex);
                 string owner = $"Enemy {actor.SlotIndex}";
                 Check(owner + " identity", actor.AwaitsRespawn
-                    ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.AwaitingRespawnHeader
+                    ? SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWordsConstants.AwaitingRespawnHeader
                     : SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), address);
                 if (actor.DefinitionId == EnemyDefinitionId.None || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);

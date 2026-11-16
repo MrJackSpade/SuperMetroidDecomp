@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

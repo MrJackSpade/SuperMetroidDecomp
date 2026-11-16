@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
 

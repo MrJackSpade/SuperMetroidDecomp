@@ -13,8 +13,6 @@ internal sealed class EnemyProcessingWindow
     private readonly EnemyFrameContext _frameContext;
     /// <summary>The species' work stepped at the start of the update, before enemy selection.</summary>
     private readonly IStepBeforeEnemySelection _stepBeforeSelection;
-    /// <summary>Room load guard for selection against a valid enemy population.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>The slots traversed, in slot order, while choosing active enemies.</summary>
     private readonly EnemySlotTable _slotTable;
 
@@ -27,7 +25,6 @@ internal sealed class EnemyProcessingWindow
     {
         _frameContext = frameContext;
         _stepBeforeSelection = stepBeforeSelection;
-        _room = room;
         _slotTable = slotTable;
     }
     /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in slot order.</summary>

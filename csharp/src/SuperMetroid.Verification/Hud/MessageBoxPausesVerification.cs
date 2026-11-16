@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -40,7 +39,7 @@ internal static class MessageBoxPausesVerification
     /// <summary>Checks an item box's pauses, then the accepted gunship save's through its completion notice.</summary>
     internal static void VerifyMessageBoxPauses()
     {
-        AssertEqual(BeforeOpening.Length + 1, MessageBoxPauses.UpdatesBeforeOpening,
+        AssertEqual(BeforeOpening.Length + 1, MessageBoxPausesConstants.UpdatesBeforeOpening,
             "the pause before opening counts the gameplay update that opened the box");
         GameplayMessageBoxState box = CreateGameplayMessageFixture();
 

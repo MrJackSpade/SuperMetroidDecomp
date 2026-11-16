@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.FuneNamihe;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 

@@ -158,7 +158,7 @@ internal static class LibraryBackgroundProgramImporter
     private sealed class ReferenceWorkMemory(ISnesAddressSpace cartridge) : ISnesMemoryBus, IImportCartridgeSource
     {
         /// <summary>Both work-RAM banks, bank $7E first.</summary>
-        private readonly byte[] _bytes = new byte[2 * SnesBusLayout.BankBytes];
+        private readonly byte[] _bytes = new byte[2 * SnesBusLayoutConstants.BankBytes];
 
         /// <summary>The cartridge source this staging sits beside.</summary>
         private readonly IImportCartridgeSource _cartridge = CartridgeImportSource.Require(cartridge);
@@ -177,9 +177,9 @@ internal static class LibraryBackgroundProgramImporter
         {
             int bank = SnesAddressMath.BankNumber(cpuAddress);
             int offset = SnesAddressMath.OffsetInBank(cpuAddress);
-            if ((uint)cpuAddress <= SnesBusLayout.MaximumAddress && SnesBusLayout.IsWorkRamBank(bank))
-                return (bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset;
-            if ((uint)cpuAddress <= SnesBusLayout.MaximumAddress && SnesBusLayout.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
+            if ((uint)cpuAddress <= SnesBusLayout.MaximumAddress && SnesBusLayoutConstants.IsWorkRamBank(bank))
+                return (bank - SnesBusLayoutConstants.FirstWorkRamBank) * SnesBusLayoutConstants.BankBytes + offset;
+            if ((uint)cpuAddress <= SnesBusLayout.MaximumAddress && SnesBusLayoutConstants.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
                 return offset;
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "Library-background staging is work RAM: bank $7E/$7F or a low-window system-bank mirror.");

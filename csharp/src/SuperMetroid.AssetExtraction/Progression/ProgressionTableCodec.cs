@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Progression;

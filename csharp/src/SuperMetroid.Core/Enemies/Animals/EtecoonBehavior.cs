@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;

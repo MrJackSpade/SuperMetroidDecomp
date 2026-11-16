@@ -1,6 +1,3 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
@@ -15,6 +12,7 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>

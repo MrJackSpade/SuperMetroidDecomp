@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredDoorStockVerification;
 using SuperMetroid.Verification.Rooms.RoomObjects;
@@ -16,10 +15,9 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Doors;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Retail and guarded-runtime checks for colored-door PLM programs, draw lists, and editable cap visuals.</summary>
 internal static class ColoredDoorObjectDrawDefinitionsVerification

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -24,8 +23,6 @@ internal sealed class RuntimeArtwork
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
     private readonly HudState _hud;
-    /// <summary>Receives Samus colour, grapple, and picture bindings.</summary>
-    private readonly SamusFrameState _player;
 
     /// <summary>
     /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
@@ -46,7 +43,7 @@ internal sealed class RuntimeArtwork
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
-        _player = dependencies.Player;
+        _ = dependencies.Player;
     }
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
     /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD sheet's pictures, so binding has no HUD artwork to show again.</remarks>

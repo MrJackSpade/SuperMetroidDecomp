@@ -21,7 +21,8 @@ internal static class KiHunterAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                },
+                cue => cue.Kind is KiHunterCueKind.ReturnToFlying));
         Console.WriteLine($"  Ki-Hunter animations: {Entries.Length} segments ({beats} beats) and {KiHunterAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

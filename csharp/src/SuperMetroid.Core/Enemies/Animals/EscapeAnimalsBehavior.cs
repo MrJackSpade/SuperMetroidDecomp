@@ -89,7 +89,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.Restart();
         slot.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
-            new(EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
+            new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs an escaping Etecoon's action.</summary>
@@ -170,7 +170,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         EscapeDachoraEnemyState dachora = slot.RequireSpeciesState<EscapeDachoraEnemyState>();
         AnimationPlayback<EscapeDachoraSegment> dachoraPlayback = dachora.Playback;
         EnemyAnimationPlayback.Play(slot, EscapeDachoraAnimations.Segments, ref dachoraPlayback,
-            cue => ApplyEscapeDachoraCue(slot, samus, cue) is { } target ? EscapeDachoraAnimations.BranchTargets[target] : null);
+            cue => ApplyEscapeDachoraCue(slot, samus, cue));
         dachora.Playback = dachoraPlayback;
     }
 
@@ -195,15 +195,15 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries out one cue of the Dachora's animation, returning the target a branch continues at, or null to run on.</summary>
-    private EscapeDachoraSegment? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState samus, EscapeDachoraCue cue)
+    /// <summary>Carries out one cue of the Dachora's animation, returning where a taken branch continues the play, or null to run on.</summary>
+    private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState samus, EscapeDachoraCue cue)
     {
         switch (cue.Kind)
         {
             case EscapeDachoraCueKind.GoToIfAcidHigh:
-                return IsAcidLow(samus) ? null : cue.Target;
+                return IsAcidLow(samus) ? null : cue.Then;
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
-                return HasCrittersEscaped() ? cue.Target : null;
+                return HasCrittersEscaped() ? cue.Then : null;
             case EscapeDachoraCueKind.MoveLeft:
                 slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole - EscapeDachoraPixelsPerCue);
                 return null;

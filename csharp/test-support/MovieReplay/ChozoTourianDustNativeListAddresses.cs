@@ -14,9 +14,11 @@ internal static class ChozoTourianDustNativeListAddresses
     internal static readonly NativeProgramEntry<ChozoTourianDustSegment>[] Entries =
     [
         new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.Footsteps, 0xaec4),
-        new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDust, 0xaf14),
-        new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDustLoop, 0xaf18),
+        new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDust, 0xaf18),
     ];
+
+    /// <summary>The native entry the descent dust starts at (#2061): it loads the puffs' count and runs on into the puff's list.</summary>
+    internal const ushort DescentDustStart = 0xaf14;
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:AEC4-AF35, which production must never read.</summary>
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xaec4, 0xaf36);
@@ -25,5 +27,6 @@ internal static class ChozoTourianDustNativeListAddresses
     internal static ushort Entry(ChozoTourianDustSegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Segments, ChozoTourianDustAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Segments, ChozoTourianDustAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules,
+        countedEntries: [new NativeCountedEntry<ChozoTourianDustSegment>("the descent dust", ChozoTourianDustAnimations.TourianDescentDust, DescentDustStart)]);
 }

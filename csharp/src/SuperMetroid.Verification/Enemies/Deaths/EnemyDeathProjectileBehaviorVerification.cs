@@ -29,7 +29,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             variant.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
             EnemyProjectile explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-            AssertEqual(EnemyDeathExplosions.Animation(animation), ProgramOf(explosion), $"death variant {animation} starts its program");
+            AssertEqual(EnemyDeathExplosions.Animation(animation), AnimationOf(explosion), $"death variant {animation} starts its program");
         }
 
         SamusState samus = CreateDropTestSamus();

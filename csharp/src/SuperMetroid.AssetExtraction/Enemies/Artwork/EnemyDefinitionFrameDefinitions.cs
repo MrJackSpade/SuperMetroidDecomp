@@ -986,7 +986,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.EtecoonHoppingFacingLeft,
         EnemyFrameId.EtecoonContinueHoppingFacingLeftFirst,
         EnemyFrameId.EtecoonContinueHoppingFacingLeftSecond,
-        EnemyFrameId.EtecoonHitCeilingFirst,
+        EnemyFrameId.EtecoonContinueHoppingFacingLeftThird,
         EnemyFrameId.EtecoonWallJumpLeftEligible,
         EnemyFrameId.EtecoonLookLeftAtSamusAndRunRight,
         EnemyFrameId.EtecoonBeginRunningRight,

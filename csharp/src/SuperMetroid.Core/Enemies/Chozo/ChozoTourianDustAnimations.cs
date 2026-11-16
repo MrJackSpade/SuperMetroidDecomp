@@ -26,9 +26,6 @@ internal static class ChozoTourianDustAnimations
         ],
         [P.TourianDescentDust] =
         [
-        ],
-        [P.TourianDescentDustLoop] =
-        [
             Cue(new EnemyProjectileCommonCue.Signal(CK.ReturnToOrigin)),
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
             Show(EnemyProjectileFrameId.ChozoTourianDustTourianDescentDustFirst, 2),
@@ -39,12 +36,17 @@ internal static class ChozoTourianDustAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>The animation that starts at each segment an owner can start or restart at: the footstep dust's.</summary>
     internal static IReadOnlyDictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>> StartingAt { get; } = new Dictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>>
     {
         [P.Footsteps] = new([new(P.Footsteps, 0, 6, 1)], AnimationEnd.Holds),
-        [P.TourianDescentDust] = new([new(P.TourianDescentDustLoop, 0, 6, 64), new(P.TourianDescentDustLoop, 6, 1, 1)], AnimationEnd.Holds),
     };
+
+    /// <summary>
+    /// The dust the Tourian statue raises as it sinks (#2061): sixty-four puffs scattered about its origin, then deleted.
+    /// </summary>
+    internal static Animation<ChozoTourianDustSegment> TourianDescentDust { get; } =
+        new([new(P.TourianDescentDust, 0, 6, 64), new(P.TourianDescentDust, 6, 1, 1)], AnimationEnd.Holds);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoTourianDustSegment> StartingWith(ChozoTourianDustSegment segment) => StartingAt[segment];

@@ -16,18 +16,20 @@ internal static class EscapeDachoraNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<EscapeDachoraSegment>[] Entries =
     [
-        new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundLowTide, 0xe964),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundLowTideLeft, 0xe968),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundLowTideRight, 0xe99c),
-        new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundHighTide, 0xe9d0),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundHighTideLeft, 0xe9d4),
-        new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundHighTideLeftLoop, 0xe9fc),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundHighTideRight, 0xea04),
-        new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningAroundHighTideRightLoop, 0xea2c),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningForEscape, 0xea34),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningForEscapeAccelerating, 0xea38),
         new NativeProgramEntry<EscapeDachoraSegment>(EscapeDachoraSegment.RunningForEscapeMaximumSpeed, 0xea80),
     ];
+
+    /// <summary>The native entry the low-tide laps start at (#2061): it loads the laps' count and runs on into the laps to the left.</summary>
+    internal const ushort LowTideLapsStart = 0xe964;
+
+    /// <summary>The native entry the high-tide laps start at (#2061): it loads the laps' count and runs on into the laps to the left.</summary>
+    internal const ushort HighTideLapsStart = 0xe9d0;
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, EscapeDachoraNativeListAddressesInstruction> Instructions = new()

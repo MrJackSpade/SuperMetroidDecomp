@@ -58,6 +58,28 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
                 programs.Add(member.Name);
                 continue;
             }
+            // An animation an owner starts by its own name is that program (#2061), as the Tourian statue's descent dust.
+            if (IsNamedAnimation(symbol, programType))
+            {
+                programs.Add(symbol!.Name);
+                continue;
+            }
+            // The animation a family's own table holds at a program, or a lookup of that table at its argument, is the program
+            // it is looked up at (#2061): StartingAt[segment], StartingWith(segment).
+            ExpressionSyntax? lookedUpAt = choice switch
+            {
+                ElementAccessExpressionSyntax { ArgumentList.Arguments: [var at] } access when IsProgramTable(semantic.GetSymbolInfo(access.Expression).Symbol, programType) => at.Expression,
+                InvocationExpressionSyntax { ArgumentList.Arguments: var arguments } when symbol is IMethodSymbol lookup && LookupParameter(lookup, programType) is { } index
+                    && index < arguments.Count => arguments[index].Expression,
+                _ => null,
+            };
+            if (lookedUpAt is not null)
+            {
+                if (Traced(programType, lookedUpAt, semantic, visiting) is not { } atPrograms)
+                    return null;
+                programs.UnionWith(atPrograms);
+                continue;
+            }
             (ISymbol Source, IReadOnlyList<ExpressionSyntax> Values, SemanticModel Semantic)? values = choice switch
             {
                 InvocationExpressionSyntax when symbol is IMethodSymbol method && Returned(method) is { } returned => (method.OriginalDefinition, returned.Values, returned.Semantic),
@@ -90,6 +112,42 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
             programs.UnionWith(traced);
         }
         return programs;
+    }
+
+    /// <summary>Whether <paramref name="symbol"/> is a static property or field holding one animation over <paramref name="programType"/>.</summary>
+    private static bool IsNamedAnimation(ISymbol? symbol, INamedTypeSymbol programType) =>
+        (symbol switch
+        {
+            IPropertySymbol { IsStatic: true } property => property.Type,
+            IFieldSymbol { IsStatic: true } field => field.Type,
+            _ => null,
+        }) is INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] } && SymbolEqualityComparer.Default.Equals(played, programType);
+
+    /// <summary>Whether <paramref name="table"/> is a static dictionary from <paramref name="programType"/> to animations over it.</summary>
+    private static bool IsProgramTable(ISymbol? table, INamedTypeSymbol programType) =>
+        (table switch
+        {
+            IPropertySymbol { IsStatic: true } property => property.Type,
+            IFieldSymbol { IsStatic: true } field => field.Type,
+            _ => null,
+        }) is INamedTypeSymbol { TypeArguments: [var key, INamedTypeSymbol { Name: "Animation", TypeArguments: [var played] }] }
+        && SymbolEqualityComparer.Default.Equals(key, programType) && SymbolEqualityComparer.Default.Equals(played, programType);
+
+    /// <summary>
+    /// The parameter <paramref name="method"/> looks a family's program table up at, when its body is only that lookup
+    /// (<c>StartingWith(segment) => StartingAt[segment]</c>); null for any other method.
+    /// </summary>
+    private int? LookupParameter(IMethodSymbol method, INamedTypeSymbol programType)
+    {
+        if (!model.IsSource(method) || method.OriginalDefinition.DeclaringSyntaxReferences is not [var reference]
+            || reference.GetSyntax() is not MethodDeclarationSyntax { ExpressionBody.Expression: ElementAccessExpressionSyntax { ArgumentList.Arguments: [var at] } access } declaration)
+            return null;
+        SemanticModel semantic = model.ModelOf(declaration.SyntaxTree);
+        return IsProgramTable(semantic.GetSymbolInfo(access.Expression).Symbol, programType)
+            && semantic.GetSymbolInfo(at.Expression).Symbol is IParameterSymbol { Ordinal: var ordinal } parameter
+            && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, method.OriginalDefinition)
+            ? ordinal
+            : null;
     }
 
     /// <summary>The programs any of <paramref name="values"/> can be; null when one of them may be any.</summary>

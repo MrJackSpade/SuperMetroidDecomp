@@ -45,6 +45,11 @@ internal static class NativeEnemyAnimationOracle
     /// Where an owner's branch into each count-down tail continues the play (<see cref="CompareCountDownContinuations"/>);
     /// required when the family's lists have one.
     /// </param>
+    /// <param name="countedEntries">
+    /// The animations the family's owners start at native entries that only load the counter (#2044, #2061), compared from
+    /// those entries.
+    /// </param>
+    /// <param name="onlyRunOnInto">The segments no owner starts, which animations only run on into (#1948, #2061).</param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         byte bank,
@@ -53,16 +58,61 @@ internal static class NativeEnemyAnimationOracle
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         Func<TFrame, ushort> spritemap,
         NativeEnemyCueRules<TEvent> rules,
-        IReadOnlyDictionary<TSegment, AnimationContinuation<TSegment>>? countDownContinuations = null)
+        IReadOnlyDictionary<TSegment, AnimationContinuation<TSegment>>? countDownContinuations = null,
+        IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null,
+        IReadOnlySet<TSegment>? onlyRunOnInto = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
         Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, bank, entries, segments, spritemap, rules);
-        CompareAnimations(lists, startingAt);
+        CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto,
+            countedStarts: CountedStarts(cartridge, bank, entries, countedEntries ?? [], rules));
         CompareCountDownContinuations(lists, startingAt, countDownContinuations ?? new Dictionary<TSegment, AnimationContinuation<TSegment>>());
         return lists.Values.Sum(list => list.BeatAddresses.Length);
     }
+
+    /// <summary>
+    /// Reads each counted entry's native list (#2044, #2061): it must hold no beat, only the counter load, and continue into a
+    /// segment's list, by running on into it or by a goto.
+    /// </summary>
+    /// <exception cref="InvalidDataException">An entry's list holds a beat or anything but one counter load and its continuation.</exception>
+    internal static IReadOnlyList<NativeCountedStart<TSegment>> CountedStarts<TSegment, TEvent>(
+        IImportCartridgeSource cartridge,
+        byte bank,
+        NativeProgramEntry<TSegment>[] entries,
+        IReadOnlyList<NativeCountedEntry<TSegment>> countedEntries,
+        NativeEnemyCueRules<TEvent> rules)
+        where TSegment : struct, Enum
+        where TEvent : notnull
+    {
+        Ensure.NotNull(entries);
+        Ensure.NotNull(countedEntries);
+        Ensure.NotNull(rules);
+        return [.. countedEntries.Select(counted =>
+        {
+            NativeEnemyList<TSegment> read = ReadBeatless(cartridge, bank, entries, rules, counted.Name, counted.Address);
+            if (read is not { Controls: [{ Kind: NativeEnemyControlKind.SetCounter, Count: { } count },
+                    { Kind: NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.Goto, Target: { } into }] })
+                throw new InvalidDataException($"{counted.Name}'s native entry ${counted.Address:X4} does not only load the counter and continue into a segment's list.");
+            return new NativeCountedStart<TSegment>(counted, count, into);
+        })];
+    }
+
+    /// <summary>
+    /// The segment whose list the native entry at <paramref name="address"/> leads into (#2061): an entry holding no beat
+    /// and no counter load, only instructions the port omits, before it runs on into, or goes to, a segment's list. An owner
+    /// that starts the entry starts that segment's animation, as a crawler's surface selector starts its crawl.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The entry holds a beat, loads the counter, or ends without continuing into a segment's list.</exception>
+    internal static TSegment LeadsInto<TSegment, TEvent>(
+        IImportCartridgeSource cartridge, byte bank, NativeProgramEntry<TSegment>[] entries, NativeEnemyCueRules<TEvent> rules, ushort address)
+        where TSegment : struct, Enum
+        where TEvent : notnull =>
+        ReadBeatless(cartridge, bank, entries, rules, $"lead-in ${address:X4}", address) is
+            { Controls: [{ Kind: NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.Goto, Target: { } into }] }
+            ? into
+            : throw new InvalidDataException($"The native entry ${address:X4} does not only lead into a segment's list.");
 
     /// <summary>
     /// Reads every segment's native list, comparing its beats with the segment's as <see cref="CompareAll"/> does: each
@@ -88,7 +138,7 @@ internal static class NativeEnemyAnimationOracle
         var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
         foreach (NativeProgramEntry<TSegment> entry in entries)
         {
-            NativeEnemyList<TSegment> list = Read(cartridge, bank, entries, segments, spritemap, rules, entry.Program, entry.Entry);
+            NativeEnemyList<TSegment> list = Read(cartridge, bank, entries, segments.Beats(entry.Program), spritemap, rules, entry.Program.ToString(), entry.Entry);
             if (!lists.TryGetValue(entry.Program, out NativeEnemyList<TSegment>? first))
             {
                 lists.Add(entry.Program, list);
@@ -441,26 +491,48 @@ internal static class NativeEnemyAnimationOracle
         }
     }
 
-    /// <summary>Reads one segment's native list, comparing its beats with the segment's.</summary>
+    /// <summary>
+    /// Reads the native list at <paramref name="address"/>, which must hold no beat (#2044, #2061): an entry that only loads
+    /// the counter or runs instructions the port omits before it continues into a segment's list.
+    /// </summary>
+    private static NativeEnemyList<TSegment> ReadBeatless<TSegment, TEvent>(
+        IImportCartridgeSource cartridge, byte bank, NativeProgramEntry<TSegment>[] entries, NativeEnemyCueRules<TEvent> rules, string name, ushort address)
+        where TSegment : struct, Enum
+        where TEvent : notnull =>
+        Read<TSegment, ushort, TEvent>(cartridge, bank, entries, [], _ => throw new InvalidDataException($"{name} at ${address:X4} shows no frame."),
+            rules, name, address);
+
+    /// <summary>
+    /// Reads one native list, comparing its beats with <paramref name="beats"/>. A goto into a list that starts no segment
+    /// (one the cartridge shares or lays out between segments, #2061) continues the reading there: the typed segment holds
+    /// what that list holds as its own.
+    /// </summary>
     private static NativeEnemyList<TSegment> Read<TSegment, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, byte bank, NativeProgramEntry<TSegment>[] entries, AnimationSegments<TSegment, TFrame, TEvent> segments,
-        Func<TFrame, ushort> spritemap, NativeEnemyCueRules<TEvent> rules, TSegment segment, ushort entry)
+        IImportCartridgeSource cartridge, byte bank, NativeProgramEntry<TSegment>[] entries, IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats,
+        Func<TFrame, ushort> spritemap, NativeEnemyCueRules<TEvent> rules, string segment, ushort entry)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted) = rules;
-        IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats = segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
+        var continuedAt = new HashSet<ushort>();
+        // The last goto the reading followed into a list no segment starts, and the beats read before it: reaching a
+        // segment's list with no beat read since is that goto's continuation, its own list's start included.
+        (ushort Address, int Beats)? followedGoto = null;
         ushort cursor = entry;
         while (true)
         {
             string at = $"{segment} at ${bank:X2}:{cursor:X4}";
             int beat = addresses.Count;
-            if (cursor != entry && entries.Where(item => item.Entry == cursor).Select(item => (TSegment?)item.Program).SingleOrDefault() is { } following)
+            bool viaGoto = followedGoto is { } followed && followed.Beats == beat;
+            if ((cursor != entry || viaGoto)
+                && entries.Where(item => item.Entry == cursor).Select(item => (TSegment?)item.Program).SingleOrDefault() is { } following)
             {
-                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor));
+                controls.Add(viaGoto
+                    ? new(NativeEnemyControlKind.Goto, beat, following, null, followedGoto!.Value.Address)
+                    : new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor));
                 return Finish();
             }
             int address = (int)new SnesAddress(bank, cursor);
@@ -532,6 +604,15 @@ internal static class NativeEnemyAnimationOracle
                     controls.Add(new(NativeEnemyControlKind.Stop, beat, null, null, cursor));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.GoTo:
+                    if (!entries.Any(item => item.Entry == operand))
+                    {
+                        // A list no segment starts continues this one: read on there, once.
+                        if (!continuedAt.Add(operand))
+                            throw new InvalidDataException($"{at}: the goto to ${operand:X4} returns to a list this one already continued in.");
+                        followedGoto = followedGoto is { } chained && chained.Beats == beat ? chained : (cursor, beat);
+                        cursor = operand;
+                        continue;
+                    }
                     controls.Add(new(NativeEnemyControlKind.Goto, beat, SegmentAt(operand, at), null, cursor));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
@@ -543,7 +624,9 @@ internal static class NativeEnemyAnimationOracle
                     TSegment repeated = SegmentAt(operand, at);
                     // A list may open with the count-down of the list that ran on into it (#1600): a branch into it
                     // counts that list's plays on from where the counter stands.
-                    VerificationAssertions.AssertTrue(EqualityComparer<TSegment>.Default.Equals(segment, repeated) || (beat == 0 && controls.Count == 0),
+                    VerificationAssertions.AssertTrue(operand == entry
+                            || entries.Any(item => item.Entry == entry && EqualityComparer<TSegment>.Default.Equals(item.Program, repeated))
+                            || (beat == 0 && controls.Count == 0),
                         $"{at}: a counted repeat replays its own list, or, opening a list, another");
                     controls.Add(new(NativeEnemyControlKind.Repeat, beat, repeated, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));

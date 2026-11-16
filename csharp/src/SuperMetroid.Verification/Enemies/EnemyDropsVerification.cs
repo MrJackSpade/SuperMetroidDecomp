@@ -404,7 +404,7 @@ internal static class EnemyDropsVerification
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
             EnemyDeathExplosions.Animation(EnemyDeathExplosion.Small),
-            ProgramOf(explosion),
+            AnimationOf(explosion),
             "a Fireflea health above four starts the small explosion");
         AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with the cleared word's common colours");

@@ -134,7 +134,8 @@ internal sealed record PartFrameConfiguration(
             {
                 ["Sciser"] = CrawlerFamily("Sciser"),
                 ["Zero"] = CrawlerFamily("Zero"),
-                ["Viola"] = CrawlerFamily("Viola"),
+                // The Viola crawls the same on every surface (#2061).
+                ["Viola"] = ["ViolaNormal"],
                 ["Zeela"] = CrawlerFamily("Shared"),
                 ["Sova"] = CrawlerFamily("Shared"),
                 ["Zoomer"] = CrawlerFamily("Shared"),

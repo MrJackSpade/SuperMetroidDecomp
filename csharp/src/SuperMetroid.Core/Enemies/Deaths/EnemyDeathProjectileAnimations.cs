@@ -24,9 +24,6 @@ internal static class EnemyDeathProjectileAnimations
         ],
         [P.BigExplosion] =
         [
-        ],
-        [P.BigExplosionLoop] =
-        [
             Cue(new(K.SpawnSpriteWithin16, EffectActor: RoomEffectActorKind.SmallExplosion)),
             Cue(new(K.SpawnSpriteWithin16, EffectActor: RoomEffectActorKind.Smoke)),
             Show(EnemyProjectileFrameId.EnemyDeathBigExplosion, 8),
@@ -34,9 +31,6 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.BecomePickup)),
         ],
         [P.MiniKraidExplosion] =
-        [
-        ],
-        [P.MiniKraidExplosionLoop] =
         [
             Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.SmallExplosion)),
             Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.Smoke)),
@@ -125,8 +119,6 @@ internal static class EnemyDeathProjectileAnimations
     internal static IReadOnlyDictionary<EnemyDeathProjectileSegment, Animation<EnemyDeathProjectileSegment>> StartingAt { get; } = new Dictionary<EnemyDeathProjectileSegment, Animation<EnemyDeathProjectileSegment>>
     {
         [P.RespawnTail] = new([new(P.RespawnTail, 0, 3, 1)], AnimationEnd.Holds),
-        [P.BigExplosion] = new([new(P.BigExplosionLoop, 0, 4, 5), new(P.BigExplosionLoop, 4, 1, 1)], AnimationEnd.Holds),
-        [P.MiniKraidExplosion] = new([new(P.MiniKraidExplosionLoop, 0, 5, 16), new(P.MiniKraidExplosionLoop, 5, 1, 1)], AnimationEnd.Holds),
         [P.NormalExplosion] = new([new(P.NormalExplosion, 0, 8, 1)], AnimationEnd.Holds),
         [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 8, 1)], AnimationEnd.Holds),
         [P.SmallEnergy] = new([new(P.SmallEnergy, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -139,6 +131,20 @@ internal static class EnemyDeathProjectileAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EnemyDeathProjectileSegment> StartingWith(EnemyDeathProjectileSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// The animation each death explosion starts (#2061): the big explosion's five bursts and Mini-Kraid's sixteen, each
+    /// scattering its sprites, before it becomes the drop; the other explosions' animations start at their segments.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyDeathExplosion, Animation<EnemyDeathProjectileSegment>> Explosions { get; } =
+        new Dictionary<EnemyDeathExplosion, Animation<EnemyDeathProjectileSegment>>
+        {
+            [EnemyDeathExplosion.Small] = StartingAt[P.SmallExplosion],
+            [EnemyDeathExplosion.SamusContact] = StartingAt[P.KilledBySamusContact],
+            [EnemyDeathExplosion.Normal] = StartingAt[P.NormalExplosion],
+            [EnemyDeathExplosion.MiniKraid] = new([new(P.MiniKraidExplosion, 0, 5, 16), new(P.MiniKraidExplosion, 5, 1, 1)], AnimationEnd.Holds),
+            [EnemyDeathExplosion.Big] = new([new(P.BigExplosion, 0, 4, 5), new(P.BigExplosion, 4, 1, 1)], AnimationEnd.Holds),
+        };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>.Frame(frame, duration);

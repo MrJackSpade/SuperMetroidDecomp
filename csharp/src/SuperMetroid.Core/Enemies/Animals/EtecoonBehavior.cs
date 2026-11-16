@@ -216,7 +216,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
             _audio.QueueEnemySound(EtecoonWakeSound, priority: SoundRequestPriority.Essential);
-        StartEtecoonAnimation(slot, state, EtecoonSegment.Flexing);
+        state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
         state.AwaitingSamus = false;
         state.ActionTimer = WrappingCountdown.Start(256);
     }
@@ -276,7 +277,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         slot.AnimationClock.HoldFor(3);
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.HitCeiling), AnimationPlace.StartOfAnimation);
+        state.Playback = EtecoonAnimations.LeftHopFromCrest;
     }
 
     /// <summary>Waits 32 updates before running to the left or right wall, whichever way it was heading.</summary>
@@ -549,7 +550,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
         slot.AnimationClock.HoldFor(3);
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.HitCeiling), AnimationPlace.StartOfAnimation);
+        state.Playback = EtecoonAnimations.LeftHopFromCrest;
     }
 
     /// <summary>Counts teaching hops and takes the return run after four on nonlooping routes.</summary>

@@ -2212,8 +2212,8 @@ public enum EnemyFrameId
     EtecoonContinueHoppingFacingLeftFirst,
     /// <summary>Etecoon: continue hopping facing left, second frame.</summary>
     EtecoonContinueHoppingFacingLeftSecond,
-    /// <summary>Etecoon: hit ceiling, first frame.</summary>
-    EtecoonHitCeilingFirst,
+    /// <summary>Etecoon: continue hopping facing left, third frame: the crest of the hop, which a ceiling hit enters at.</summary>
+    EtecoonContinueHoppingFacingLeftThird,
     /// <summary>Etecoon: wall jump left eligible.</summary>
     EtecoonWallJumpLeftEligible,
     /// <summary>Etecoon: look left at Samus and run right.</summary>

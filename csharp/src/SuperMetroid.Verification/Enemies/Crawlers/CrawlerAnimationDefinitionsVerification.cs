@@ -34,9 +34,10 @@ internal static class CrawlerAnimationDefinitionsVerification
         foreach ((CrawlerAnimationFamily family, int address) in initialTables)
         for (int orientation = 0; orientation < 4; orientation++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.AnimationFor(
-                    family, orientations[orientation])),
+            // The selector's entry leads into the crawl's list (#2061).
+            AssertEqual(CrawlerSurfaceAnimations.AnimationFor(family, orientations[orientation]),
+                NativeEnemyAnimationOracle.LeadsInto(CartridgeImportSource.Require(rom), CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
+                    CrawlerAnimationsVerification.Rules, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2))),
                 $"crawler initial selector {family}/{orientation}");
         }
 
@@ -46,9 +47,9 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 4; orientation++)
         {
             CrawlerAnimationFamily family = SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.FamilyAt(column * 2);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.AnimationFor(
-                    family, orientations[orientation])),
+            AssertEqual(CrawlerSurfaceAnimations.AnimationFor(family, orientations[orientation]),
+                NativeEnemyAnimationOracle.LeadsInto(CartridgeImportSource.Require(rom), CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
+                    CrawlerAnimationsVerification.Rules, CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2))),
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }
 

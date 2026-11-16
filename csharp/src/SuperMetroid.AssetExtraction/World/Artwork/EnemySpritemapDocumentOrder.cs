@@ -1114,7 +1114,7 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.EtecoonHoppingFacingLeft,
         EnemyFrameId.EtecoonContinueHoppingFacingLeftFirst,
         EnemyFrameId.EtecoonContinueHoppingFacingLeftSecond,
-        EnemyFrameId.EtecoonHitCeilingFirst,
+        EnemyFrameId.EtecoonContinueHoppingFacingLeftThird,
         EnemyFrameId.EtecoonWallJumpLeftEligible,
         EnemyFrameId.EtecoonLookLeftAtSamusAndRunRight,
         EnemyFrameId.EtecoonBeginRunningRight,

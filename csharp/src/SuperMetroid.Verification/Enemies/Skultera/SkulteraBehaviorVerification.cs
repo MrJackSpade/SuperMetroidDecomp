@@ -21,8 +21,8 @@ internal static class SkulteraBehaviorVerification
     {
         foreach ((bool startsLeft, SkulteraSegment swim, SkulteraSegment loop, SkulteraSegment turn) in new[]
                  {
-                     new VerifySkulteraBehaviorCase(true, SkulteraSegment.SwimmingLeft, SkulteraSegment.SwimmingLeftLoop, SkulteraSegment.TurningRight),
-                     new VerifySkulteraBehaviorCase(false, SkulteraSegment.SwimmingRight, SkulteraSegment.SwimmingRightLoop, SkulteraSegment.TurningLeft),
+                     new VerifySkulteraBehaviorCase(true, SkulteraSegment.SwimmingLeft, SkulteraSegment.SwimmingLeft, SkulteraSegment.TurningRight),
+                     new VerifySkulteraBehaviorCase(false, SkulteraSegment.SwimmingRight, SkulteraSegment.SwimmingRight, SkulteraSegment.TurningLeft),
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);

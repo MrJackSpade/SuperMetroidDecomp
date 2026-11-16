@@ -9,44 +9,63 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.Animals;
 
 /// <summary>
-/// #1290, #1600: the escaping Dachora's typed animations, each segment matched to its native bank-$B3 list, each
-/// animation to the lists' control flow, and each branch into a lap's count-down to the end of a counted lap.
+/// #1290, #1600, #2061: the escaping Dachora's typed animations, each segment matched to its native bank-$B3 list, each
+/// animation to the lists' control flow from where it starts, and each branch cue's continuation to the native place its
+/// target names.
 /// </summary>
 internal static class EscapeDachoraAnimationsVerification
 {
-    /// <summary>Every segment matches its native list, every animation its lists' control flow, and every branch its target.</summary>
+    /// <summary>
+    /// The laps the Dachora's spawn starts, each at the native entry that loads its count (#2061): the low tide's and the
+    /// high tide's, which the high-tide branches continue in.
+    /// </summary>
+    private static IReadOnlyList<NativeCountedEntry<EscapeDachoraSegment>> CountedLaps { get; } =
+    [
+        new NativeCountedEntry<EscapeDachoraSegment>("the low-tide laps", EscapeDachoraAnimations.RunningAroundLowTide, LowTideLapsStart),
+        new NativeCountedEntry<EscapeDachoraSegment>("the high-tide laps", EscapeDachoraAnimations.RunningAroundHighTide, HighTideLapsStart),
+    ];
+
+    /// <summary>How the Dachora's lists are read: each owner instruction becomes its cue, a branch's target read back below.</summary>
+    private static NativeEnemyCueRules<EscapeDachoraCue> Rules(List<(ushort Target, AnimationContinuation<EscapeDachoraSegment> Then, string At)> branches) => new(
+        word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+        (word, operands, cue, at) =>
+        {
+            var instruction = Instructions[word];
+            AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+            AssertEqual(instruction.Operands.Length, operands.Length, $"{at}: operands");
+            for (int index = 0; index < operands.Length; index++)
+            {
+                if (instruction.Operands[index] != 'T')
+                    throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}.");
+                branches.Add((operands[index], cue.Then ?? throw new InvalidDataException($"{at}: a branch cue names no continuation."), at));
+            }
+        });
+
+    /// <summary>
+    /// Every segment matches its native list, every animation its lists' control flow, and every branch cue's continuation
+    /// stands where its native target points: the start of the run for the escape, or the end of a counted lap of the high
+    /// tide, counting on the plays left (#2061).
+    /// </summary>
     internal static void VerifyEscapeDachoraAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        var branches = new List<(ushort Target, AnimationContinuation<EscapeDachoraSegment> Then, string At)>();
+        int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries,
             EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt, EscapeDachoraFrameToolingDefinitions.Spritemap,
-            new NativeEnemyCueRules<EscapeDachoraCue>(
-                word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
-                (word, operands, cue, at) =>
-                {
-                    var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    for (int index = 0; index < operands.Length; index++)
-                        AssertEqual(operands[index], instruction.Operands[index] switch
-                    {
-                        'T' => NativeEnemyAnimationOracle.EntryOf(Entries, cue.Target),
-                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                    }, $"{at}: operand {index}");
-                }),
-            EscapeDachoraAnimations.BranchTargets);
-        foreach (EscapeDachoraSegment target in EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundLowTideLeft)
-            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundLowTideRight))
-            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundHighTideLeft))
-            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundHighTideRight))
-            .OfType<AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Event>()
-            .Where(raised => raised.Raised.Kind is EscapeDachoraCueKind.GoToIfAcidHigh or EscapeDachoraCueKind.GoToIfCrittersEscaped)
-            .Select(raised => raised.Raised.Target))
+            Rules(branches), countedEntries: CountedLaps);
+        Dictionary<EscapeDachoraSegment, NativeEnemyList<EscapeDachoraSegment>> lists = NativeEnemyAnimationOracle.Lists(cartridge, Bank, Entries,
+            EscapeDachoraAnimations.Segments, EscapeDachoraFrameToolingDefinitions.Spritemap, Rules([]));
+        IReadOnlyList<NativeCountedStart<EscapeDachoraSegment>> counted = NativeEnemyAnimationOracle.CountedStarts(cartridge, Bank, Entries, CountedLaps, Rules([]));
+        AssertEqual(6, branches.Count, "every branch cue of the laps is read");
+        foreach ((ushort target, AnimationContinuation<EscapeDachoraSegment> then, string at) in branches)
         {
-            AssertTrue(EscapeDachoraAnimations.BranchTargets.ContainsKey(target), $"branch target {target} continues the play");
-            if (EscapeDachoraAnimations.StartingAt.TryGetValue(target, out var started))
-                AssertEqual(new AnimationContinuation<EscapeDachoraSegment>(started, AnimationPlace.StartOfAnimation), EscapeDachoraAnimations.BranchTargets[target],
-                    $"a branch to {target} starts its animation");
+            AssertEqual(target, NativeEnemyAnimationOracle.PointerOf(lists, Entries, EscapeDachoraAnimations.StartingAt,
+                new AnimationPlayback<EscapeDachoraSegment>(then.Animation, then.Place), counted), $"{at}: the branch continues where its native target points");
+            bool countsDown = then.Place.Beat != AnimationPlace.NotEntered
+                && then.Animation.Phases[then.Place.Phase] is { IsRepeated: true } phase && then.Place.Beat == phase.BeatCount;
+            AssertEqual(countsDown, then.CountsOn, $"{at}: a branch into a lap's count-down counts on the plays left, and only it does");
         }
-        Console.WriteLine($"  escape Dachora animations: {Entries.Length} segments ({beats} beats) and {EscapeDachoraAnimations.StartingAt.Count} animations match bank $B3.");
+        Console.WriteLine($"  escape Dachora animations: {Entries.Length} segments ({beats} beats), {EscapeDachoraAnimations.StartingAt.Count + CountedLaps.Count} animations and {branches.Count} branches match bank $B3.");
     }
 
     /// <summary>
@@ -58,7 +77,7 @@ internal static class EscapeDachoraAnimationsVerification
     {
         for (int risesDuringLap = 1; risesDuringLap <= 5; risesDuringLap++)
         {
-            Animation<EscapeDachoraSegment> animation = EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningAroundLowTide);
+            Animation<EscapeDachoraSegment> animation = EscapeDachoraAnimations.RunningAroundLowTide;
             AnimationPlace place = AnimationPlace.StartOfAnimation;
             int lowTideLaps = 0;
             int highTideLeftFrames = 0;
@@ -71,7 +90,7 @@ internal static class EscapeDachoraAnimationsVerification
                         if (cue.Kind != EscapeDachoraCueKind.GoToIfAcidHigh)
                             return null;
                         lowTideLaps++;
-                        return lowTideLaps == risesDuringLap ? EscapeDachoraAnimations.BranchTargets[cue.Target] : null;
+                        return lowTideLaps == risesDuringLap ? cue.Then : null;
                     });
                 AnimationShown<EscapeDachoraSegment, EnemyFrameId>.Frame frame = AssertIs<AnimationShown<EscapeDachoraSegment, EnemyFrameId>.Frame>(shown,
                     $"rising during lap {risesDuringLap}, step {step} shows a frame");

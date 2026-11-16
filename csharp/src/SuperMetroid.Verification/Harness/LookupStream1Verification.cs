@@ -145,9 +145,9 @@ internal static class LookupStream1Verification
             var slot = enemies.SlotTable.Slots[0];
             // The typed programs (#641) replacing the native lists at $B3:E964, $B3:E9D0 and $B3:EA34.
             EscapeDachoraEnemyState state = enemies.EscapeDachoraStates[0] ?? throw new InvalidOperationException("The Dachora fixture has no state.");
-            state.Playback = new(EscapeDachoraAnimations.StartingWith(program == 0 ? EscapeDachoraSegment.RunningAroundLowTide
-                : program == 1 ? EscapeDachoraSegment.RunningAroundHighTide : EscapeDachoraSegment.RunningForEscape), AnimationPlace.StartOfAnimation);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            state.Playback = new(program == 0 ? EscapeDachoraAnimations.RunningAroundLowTide
+                : program == 1 ? EscapeDachoraAnimations.RunningAroundHighTide : EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningForEscape), AnimationPlace.StartOfAnimation);
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int records = program == 2 ? 19 : 60, expectedX = slot.Position.X.Whole, calls = 0;
             for (int record = 0; record < records; record++)
             {
@@ -234,7 +234,7 @@ internal static class LookupStream1Verification
                 PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>());
             slot.AnimationClock.StepOnNextUpdate();
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -293,7 +293,7 @@ internal static class LookupStream1Verification
             {
                 Playback = new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             });
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);

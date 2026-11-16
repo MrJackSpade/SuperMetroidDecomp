@@ -21,7 +21,8 @@ internal static class PlatformAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                }),
+            onlyRunOnInto: new HashSet<PlatformSegment> { PlatformSegment.SuspensorPlatformLoop, PlatformSegment.TripperMovingLeftLoop, PlatformSegment.TripperMovingRightLoop, PlatformSegment.TripperStillMovingLeftLoop, PlatformSegment.TripperStillMovingRightLoop });
         Console.WriteLine($"  Tripper or Kamer animations: {Entries.Length} segments ({beats} beats) and {PlatformAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

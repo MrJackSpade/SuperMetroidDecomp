@@ -193,7 +193,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ShotReactionDisabled)
             return;
 
-        state.Playback = EnemyAnimationPlayback.Start(bull, BullAnimations.StartingWith(BullSegment.Shot));
+        state.Playback = EnemyAnimationPlayback.Start(bull, BullAnimations.Shot);
         state.Angle = BullMotion.ShotAngle(projectileDirection);
         state.Acceleration = ShotKickAcceleration;
         state.Speed = ShotKickSpeed;

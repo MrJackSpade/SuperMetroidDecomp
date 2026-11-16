@@ -1117,7 +1117,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.EtecoonHoppingFacingLeft] = new(0xa7, 0xef6b),
         [EnemyFrameId.EtecoonContinueHoppingFacingLeftFirst] = new(0xa7, 0xef90),
         [EnemyFrameId.EtecoonContinueHoppingFacingLeftSecond] = new(0xa7, 0xefb5),
-        [EnemyFrameId.EtecoonHitCeilingFirst] = new(0xa7, 0xefda),
+        [EnemyFrameId.EtecoonContinueHoppingFacingLeftThird] = new(0xa7, 0xefda),
         [EnemyFrameId.EtecoonWallJumpLeftEligible] = new(0xa7, 0xf06e),
         [EnemyFrameId.EtecoonLookLeftAtSamusAndRunRight] = new(0xa7, 0xf1e5),
         [EnemyFrameId.EtecoonBeginRunningRight] = new(0xa7, 0xf1c0),

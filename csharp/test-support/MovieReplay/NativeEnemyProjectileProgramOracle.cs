@@ -288,6 +288,7 @@ internal static class NativeEnemyProjectileProgramOracle
     {
         var addresses = new List<ushort>();
         var controls = new List<NativeProjectileControl>();
+        var continuedAt = new HashSet<ushort>();
         ushort cursor = entry;
         AnimationBeat<TFrame, TEvent> Next(string what)
         {
@@ -348,7 +349,16 @@ internal static class NativeEnemyProjectileProgramOracle
             }
             if (instruction == NativeEnemyProjectileInstruction.GotoY)
             {
-                controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, ListAt(isList, operand, at), null, cursor));
+                if (!isList(operand))
+                {
+                    // A goto into a list no segment starts, as the cartridge's shared deletion (#2061), continues this
+                    // list there: the typed segment holds that list's beats as its own. It is read on once.
+                    if (!continuedAt.Add(operand))
+                        throw new InvalidDataException($"{at}: the goto to $86:{operand:X4} returns to a list this one already continued in.");
+                    cursor = operand;
+                    continue;
+                }
+                controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, operand, null, cursor));
                 break;
             }
             if (instruction == NativeEnemyProjectileInstruction.TimerInY)

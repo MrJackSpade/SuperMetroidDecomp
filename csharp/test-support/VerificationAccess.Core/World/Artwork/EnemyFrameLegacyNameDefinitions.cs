@@ -1581,7 +1581,7 @@ internal static class EnemyFrameLegacyNameDefinitions
         [EnemyFrameId.EtecoonHoppingFacingLeft] = "etecoon_10",
         [EnemyFrameId.EtecoonContinueHoppingFacingLeftFirst] = "etecoon_11",
         [EnemyFrameId.EtecoonContinueHoppingFacingLeftSecond] = "etecoon_12",
-        [EnemyFrameId.EtecoonHitCeilingFirst] = "etecoon_13",
+        [EnemyFrameId.EtecoonContinueHoppingFacingLeftThird] = "etecoon_13",
         [EnemyFrameId.EtecoonWallJumpLeftEligible] = "etecoon_14",
         [EnemyFrameId.EtecoonLookLeftAtSamusAndRunRight] = "etecoon_15",
         [EnemyFrameId.EtecoonBeginRunningRight] = "etecoon_16",

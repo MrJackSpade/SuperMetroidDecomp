@@ -50,7 +50,6 @@ internal static class AlcoonAnimations
             Cue(new(K.FireDownward)),
             Show(EnemyFrameId.AlcoonFireLeftFourth, 40),
             Cue(new(K.StartWalking)),
-            Show(EnemyFrameId.AlcoonFireLeftFourth, 1),
         ],
         [P.AirborneLeftLookingUp] =
         [
@@ -95,7 +94,6 @@ internal static class AlcoonAnimations
             Cue(new(K.FireDownward)),
             Show(EnemyFrameId.AlcoonFireRightFourth, 40),
             Cue(new(K.StartWalking)),
-            Show(EnemyFrameId.AlcoonFireRightFourth, 1),
         ],
         [P.AirborneRightLookingUp] =
         [
@@ -107,17 +105,20 @@ internal static class AlcoonAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. A fire animation ends at its
+    /// start-walking cue, which always continues at the walk for the Alcoon's facing (#2061).
+    /// </summary>
     internal static IReadOnlyDictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
         [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.WalkingLeftLoop] = new([new(P.WalkingLeftLoop, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireLeft] = new([new(P.FireLeft, 0, 20, 1), new(P.AirborneLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FireLeft] = new([new(P.FireLeft, 0, 19, 1)], AnimationEnd.Holds),
         [P.AirborneLeftLookingUp] = new([new(P.AirborneLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.AirborneLeftLookingForward] = new([new(P.AirborneLeftLookingForward, 0, 1, 1)], AnimationEnd.Holds),
         [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.WalkingRightLoop] = new([new(P.WalkingRightLoop, 0, 7, 1), new(P.WalkingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireRight] = new([new(P.FireRight, 0, 20, 1), new(P.AirborneRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FireRight] = new([new(P.FireRight, 0, 19, 1)], AnimationEnd.Holds),
         [P.AirborneRightLookingUp] = new([new(P.AirborneRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.AirborneRightLookingForward] = new([new(P.AirborneRightLookingForward, 0, 1, 1)], AnimationEnd.Holds),
     };

@@ -128,10 +128,10 @@ internal static class RidleySheetShades
             shades.Add(new SheetShade(RidleyShades.BodyFade(shown),
                 [.. Enumerable.Range(ShadowRow + 1, body.Length), .. Enumerable.Range(OwnRow + 1, body.Length)], [.. body, .. body]));
         }
-        for (int band = 0; band < CeresRidleyColorFormat.HealthBandCount; band++)
+        for (int row = 0; row < CeresRidleyColorFormat.HealthBandCount; row++)
         {
-            int shown = band;
-            shades.Add(SheetShade.Run(RidleyShades.Health(shown), OwnRow + 1,
+            int shown = row;
+            shades.Add(SheetShade.Run(RidleyShades.Health(RidleyHealthShadeDefinitions.LeastHurtFirst[shown]), OwnRow + 1,
                 Colours(CeresRidleyColorFormat.HealthColorCount, colour => ceres.ResolveHealth(shown, colour))));
         }
         foreach (CeresBabyShade baby in Enum.GetValues<CeresBabyShade>())

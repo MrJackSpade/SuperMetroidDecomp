@@ -6,14 +6,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public static class CeresRidleyShadeDefinitions
 {
-    /// <summary>The health band Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
-    public const int HealthMidBand = 0;
-    /// <summary>
-    /// The health band Ceres Ridley shows from his seventieth accepted hit on: the game omits the branch after its
-    /// ninety-hit comparison, so the middle band is never shown in Ceres.
-    /// </summary>
-    public const int HealthLateBand = 2;
-
     /// <summary>The getaway's zoom steps, selected by the whole part of the getaway zoom (zero to eight).</summary>
     public const int GetawayZoomStepCount = 9;
 }

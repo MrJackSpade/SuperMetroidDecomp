@@ -32,7 +32,7 @@ public sealed class SporeSpawnColorCatalog
         RgbColor[][] deathBackground)
     {
         this.spores = new InstalledColourRows(spores, SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn spores");
-        this.health = new InstalledColourRows(health, SporeSpawnColorDefinitions.HealthStageCount,
+        this.health = new InstalledColourRows(health, SporeSpawnColorFormat.HealthFrameCount,
             SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn health");
         this.deathSprite = new InstalledColourRows(deathSprite, SporeSpawnColorFormat.DeathSpriteFrameCount,
             SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn death sprite");

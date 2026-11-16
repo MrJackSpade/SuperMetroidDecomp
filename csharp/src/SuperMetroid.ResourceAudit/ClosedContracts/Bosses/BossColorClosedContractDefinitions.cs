@@ -14,7 +14,7 @@ internal static class BossColorClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork.SporeSpawnColorCatalog", "spore-spawn-v1-complete-scene-palettes",
             ["ResolveSpore", "ResolveHealth"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Bosses/SporeSpawn/Artwork/SporeSpawnColorCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnColorDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Bosses/SporeSpawn/Artwork/SporeSpawnColorFormat.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledColourRows.cs")]),
         new("SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalog", "phantoon-v1-complete-color-targets",
             ["ResolveHealth", "ResolveFadeOut", "ResolvePowerOn"],

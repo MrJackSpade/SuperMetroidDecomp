@@ -1070,13 +1070,13 @@ internal static void VerifyScrollingSkyState()
         ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLand),
         "$8F:C116 selects land scrolling sky");
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLandZebesTimebombSet),
+        ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions),
         "$8F:C120 selects land scrolling sky before quake work");
     AssertTrue(
         !ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyOcean),
         "$8F:C11B ocean wrapper is not silently treated as land sky");
 
-    AssertEqual(ScrollingSky.Land, ScrollingSkyState.SkyOf(RoomMainBehavior.ScrollingSkyLandZebesTimebombSet),
+    AssertEqual(ScrollingSky.Land, ScrollingSkyState.SkyOf(RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions),
         "land sky mains read the land chunk table");
     AssertEqual(ScrollingSky.Ocean, ScrollingSkyState.SkyOf(RoomMainBehavior.ScrollingSkyOcean),
         "the ocean main reads the ocean chunk table");

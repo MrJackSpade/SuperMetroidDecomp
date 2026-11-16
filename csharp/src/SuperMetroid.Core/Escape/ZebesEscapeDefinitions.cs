@@ -87,10 +87,10 @@ public static class ZebesEscapeDefinitions
     /// </summary>
     public static IReadOnlySet<RoomMainBehavior> ExplosionRoomMains { get; } = new HashSet<RoomMainBehavior>
     {
-        RoomMainBehavior.ScrollingSkyLandZebesTimebombSet,
-        RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions,
+        RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions,
+        RoomMainBehavior.ShakeScreenWithRandomExplosions,
         RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal,
         RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
-        RoomMainBehavior.GenerateRandomExplosionEveryFourthFrame,
+        RoomMainBehavior.RandomExplosionEveryFourthUpdate,
     };
 }

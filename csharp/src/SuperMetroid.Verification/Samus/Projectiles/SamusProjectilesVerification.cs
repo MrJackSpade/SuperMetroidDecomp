@@ -1300,7 +1300,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(5, openingDoor.HitCounter,
         "red door retains exact five-missile threshold");
     AssertTrue(residentDoorSystem.HasOpenedDoorBit(residentDoorArgument),
-        "opening instruction persists room-argument door bit");
+        "opening instruction records the placed door opened for good");
     AssertTrue(!residentDoorObjects.TryNotifyColoredDoorHit(new(5, 3), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "opening door no longer runs projectile pre-instruction");
 

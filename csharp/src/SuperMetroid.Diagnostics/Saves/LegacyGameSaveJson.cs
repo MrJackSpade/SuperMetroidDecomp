@@ -17,7 +17,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// selection and reserve-tank mode as numbers, which become their names, and two settings the game never reads; schema
 /// seven (#1691) kept the count of item set-ups, which nothing in the game reads; schema eight (#1723) named the
 /// checkpoint and used stations by their numbers in each area's station list, which become the stations' names; schema
-/// nine (#1778) could list the item no item occupies, which is not carried.
+/// nine (#1778) could list the item no item occupies, which is not carried; schema ten (#2103) named item locations and
+/// doors after the disassembly's abbreviated room labels, which become the rooms' spelled-out names.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -55,7 +56,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through nine to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through ten to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -82,6 +83,8 @@ public static class LegacyGameSaveJson
             UpgradeSchemaEight(root);
         if (sourceSchemaVersion <= SchemaNine)
             UpgradeSchemaNine(root);
+        if (sourceSchemaVersion <= SchemaTen)
+            UpgradeSchemaTen(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -94,6 +97,76 @@ public static class LegacyGameSaveJson
 
     /// <summary>The last schema that could list the item no item occupies.</summary>
     private const int SchemaNine = 9;
+
+    /// <summary>The last schema that named item locations and doors after the disassembly's abbreviated room labels.</summary>
+    private const int SchemaTen = 10;
+
+    /// <summary>The item locations schemas six through ten named after an abbreviated room label, by that name.</summary>
+    private static readonly Dictionary<string, string> SchemaTenItemLocationNames = new(StringComparer.Ordinal)
+    {
+        ["BlueBrinstarETankExposedMissileTank"] = nameof(ItemLocationDefinitions.BlueBrinstarEnergyTankExposedMissileTank),
+        ["BlueBrinstarETankShotBlockEnergyTank"] = nameof(ItemLocationDefinitions.BlueBrinstarEnergyTankShotBlockEnergyTank),
+        ["BotwoonETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.BotwoonEnergyTankExposedEnergyTank),
+        ["EtecoonETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.EtecoonEnergyTankExposedEnergyTank),
+        ["GauntletETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.GauntletEnergyTankExposedEnergyTank),
+        ["HiJumpETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.HiJumpEnergyTankExposedEnergyTank),
+        ["HiJumpETankExposedMissileTank"] = nameof(ItemLocationDefinitions.HiJumpEnergyTankExposedMissileTank),
+        ["HopperETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.HopperEnergyTankExposedEnergyTank),
+        ["LNEscapePowerBombsExposedPowerBombTank"] = nameof(ItemLocationDefinitions.LowerNorfairEscapePowerBombsExposedPowerBombTank),
+        ["LNFirefleaExposedEnergyTank"] = nameof(ItemLocationDefinitions.LowerNorfairFirefleaExposedEnergyTank),
+        ["LNSpringBallMazeExposedMissileTank"] = nameof(ItemLocationDefinitions.LowerNorfairSpringBallMazeExposedMissileTank),
+        ["PostCrocJumpExposedMissileTank"] = nameof(ItemLocationDefinitions.PostCrocomireJumpExposedMissileTank),
+        ["PostCrocMissileExposedMissileTank"] = nameof(ItemLocationDefinitions.PostCrocomireMissileExposedMissileTank),
+        ["PostCrocPowerBombsExposedPowerBombTank"] = nameof(ItemLocationDefinitions.PostCrocomirePowerBombsExposedPowerBombTank),
+        ["RidleyETankShotBlockEnergyTank"] = nameof(ItemLocationDefinitions.RidleyEnergyTankShotBlockEnergyTank),
+        ["WSEastSuperWhenAreaBossDeadExposedSuperMissileTank"] = nameof(ItemLocationDefinitions.WreckedShipEastSuperWhenAreaBossDeadExposedSuperMissileTank),
+        ["WSWestSuperWhenAreaBossDeadExposedSuperMissileTank"] = nameof(ItemLocationDefinitions.WreckedShipWestSuperWhenAreaBossDeadExposedSuperMissileTank),
+        ["WarehouseETankShotBlockEnergyTank"] = nameof(ItemLocationDefinitions.WarehouseEnergyTankShotBlockEnergyTank),
+        ["WaterwayETankExposedEnergyTank"] = nameof(ItemLocationDefinitions.WaterwayEnergyTankExposedEnergyTank),
+        ["WreckedShipETankWhenAreaBossDeadExposedEnergyTank"] = nameof(ItemLocationDefinitions.WreckedShipEnergyTankWhenAreaBossDeadExposedEnergyTank),
+    };
+
+    /// <summary>The doors schemas six through ten named after an abbreviated room label, by that name.</summary>
+    private static readonly Dictionary<string, string> SchemaTenDoorNames = new(StringComparer.Ordinal)
+    {
+        ["EtecoonETankGreenDoorFacingRight"] = nameof(LockedDoorDefinitions.EtecoonEnergyTankGreenDoorFacingRight),
+        ["HiJumpETankGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.HiJumpEnergyTankGreyDoorFacingLeft),
+        ["LNFarmingEyeDoorFacingRight"] = nameof(LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight),
+        ["MaridiaElevRedDoorFacingLeft"] = nameof(LockedDoorDefinitions.MaridiaElevatorRedDoorFacingLeft),
+        ["PostCrocFarmingRedDoorFacingRight"] = nameof(LockedDoorDefinitions.PostCrocomireFarmingRedDoorFacingRight),
+        ["PostCrocShaftRedDoorFacingLeft"] = nameof(LockedDoorDefinitions.PostCrocomireShaftRedDoorFacingLeft),
+        ["RedBinstarElevYellowDoorFacingDown"] = nameof(LockedDoorDefinitions.RedBrinstarElevatorYellowDoorFacingDown),
+        ["WarehouseETankGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.WarehouseEnergyTankGreyDoorFacingLeft),
+    };
+
+    /// <summary>
+    /// Schema ten to eleven (#2103): schemas six through ten named the item locations and doors of some rooms after the
+    /// disassembly's abbreviated room labels (<c>LN</c>, <c>ETank</c>, <c>Elev</c> and the misspelt <c>RedBinstarElev</c>
+    /// among them); each becomes its room's spelled-out name, and every other name is kept as it was.
+    /// </summary>
+    private static void UpgradeSchemaTen(JsonObject root)
+    {
+        foreach ((JsonObject progression, int index) in Progressions(root))
+        {
+            progression["collectedItems"] = RenamedPlacements(progression, "collectedItems", index, SchemaTenItemLocationNames);
+            progression["openedDoors"] = RenamedPlacements(progression, "openedDoors", index, SchemaTenDoorNames);
+        }
+    }
+
+    /// <summary>A slot's list of placement names, each renamed when <paramref name="renamed"/> lists it, in its order.</summary>
+    private static JsonArray RenamedPlacements(JsonObject progression, string list, int slot, Dictionary<string, string> renamed)
+    {
+        JsonArray names = progression[list] as JsonArray ??
+            throw new InvalidDataException($"slots[{slot}].progression.{list} is required");
+        var current = new JsonArray();
+        foreach (JsonNode? entry in names)
+        {
+            string name = entry is JsonValue value && value.TryGetValue(out string? text) ? text
+                : throw new InvalidDataException($"slots[{slot}].progression.{list} lists an entry that is not a string");
+            current.Add(renamed.TryGetValue(name, out string? spelledOut) ? spelledOut : name);
+        }
+        return current;
+    }
 
     /// <summary>The name schemas one through nine wrote for the equipment bit no item records.</summary>
     private const string UnassignedItemName = "unassignedItem";

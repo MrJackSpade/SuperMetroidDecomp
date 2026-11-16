@@ -62,7 +62,7 @@ internal static class LibraryBackgroundSourceDefinitions
         [0xe183] = LibraryBackgroundProgramDefinitions.WreckedShipPanelsVents,
         [0xe19e] = LibraryBackgroundProgramDefinitions.WreckedShipPanelsVentsHorizontal,
         [0xe1b9] = LibraryBackgroundProgramDefinitions.WreckedShipPanelsVentsVertical,
-        [0xe1d4] = LibraryBackgroundProgramDefinitions.CeresElev,
+        [0xe1d4] = LibraryBackgroundProgramDefinitions.CeresElevator,
         [0xe248] = LibraryBackgroundProgramDefinitions.MaridiaBrownWall,
         [0xe25a] = LibraryBackgroundProgramDefinitions.MaridiaGreenWall,
         [0xe3e8] = LibraryBackgroundProgramDefinitions.TourianMechanicalRoom,

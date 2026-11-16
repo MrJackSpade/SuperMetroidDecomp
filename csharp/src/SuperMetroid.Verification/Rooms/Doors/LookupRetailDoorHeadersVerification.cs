@@ -95,7 +95,7 @@ internal static class LookupRetailDoorHeadersVerification
         foreach (ushort pointer in EnumerateRetailDoorPointers())
         {
             DoorDefinition door = DoorDefinitions.Get(pointer);
-            AssertEqual(door.Setup == DoorSetupDefinitions.CeresElevShowsTurningFloor, door.EntersCeresElevatorShaft,
+            AssertEqual(door.Setup == DoorSetupDefinitions.CeresElevatorShowsTurningFloor, door.EntersCeresElevatorShaft,
                 "Door setup selection preserves the Ceres elevator shaft consumer predicate");
         }
     }

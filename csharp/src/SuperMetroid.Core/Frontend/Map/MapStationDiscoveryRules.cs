@@ -22,7 +22,7 @@ public static class MapStationDiscoveryRules
         new(nameof(RoomDefinitions.RedTowerRefill), AreaId.Brinstar, new(32, 19)),
         new(nameof(RoomDefinitions.KraidRefill), AreaId.Brinstar, new(54, 19)),
         new(nameof(RoomDefinitions.UpperNorfairRefill), AreaId.Norfair, new(20, 10)),
-        new(nameof(RoomDefinitions.GTEnergyRefill), AreaId.Norfair, new(21, 16)),
+        new(nameof(RoomDefinitions.GoldenTorizoEnergyRefill), AreaId.Norfair, new(21, 16)),
         new(nameof(RoomDefinitions.MaridiaEnergyRefill), AreaId.Maridia, new(42, 7)),
         new(nameof(RoomDefinitions.TourianRecharge), AreaId.Tourian, new(11, 17)),
     ];

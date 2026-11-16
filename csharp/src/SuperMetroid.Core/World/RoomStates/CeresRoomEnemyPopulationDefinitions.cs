@@ -9,7 +9,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
     /// <summary>The Ceres rooms' lists.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
-        new(nameof(RoomEnemyPopulationDefinitions.CeresElevDefault),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresElevatorDefault),
         [
             new(EnemyDefinitionId.CeresElevatorDoor, new(232, 631), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.CeresDoor, new(224, 639), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Facing: HorizontalDirection.Left)),
@@ -39,7 +39,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.RidleyCeres, new(186, 171), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.CeresRidleyRoomDoor, new(16, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.CeresElevWhenAreaBossDead),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresElevatorWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresElevatorDoor, new(232, 631), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.CeresElevatorRoomWall, new(224, 639), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),

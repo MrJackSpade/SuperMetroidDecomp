@@ -3,8 +3,8 @@
 /// <summary>The Brinstar rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class BrinstarDoorDefinitions
 {
-    /// <summary>The door from the Green Brinstar Main Shaft room to the Green Brinstar Elev room.</summary>
-    public static DoorDefinition GreenBrinstarMainShaftToGreenBrinstarElev { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToGreenBrinstarElev));
+    /// <summary>The door from the Green Brinstar Main Shaft room to the Green Brinstar Elevator room.</summary>
+    public static DoorDefinition GreenBrinstarMainShaftToGreenBrinstarElevator { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToGreenBrinstarElevator));
 
     /// <summary>The door from the Green Brinstar Main Shaft room to the Brinstar Pre Map room.</summary>
     public static DoorDefinition GreenBrinstarMainShaftToBrinstarPreMap { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToBrinstarPreMap));
@@ -24,8 +24,8 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door at the foot of the Green Brinstar Main Shaft room that leads to its own right side.</summary>
     public static DoorDefinition GreenBrinstarMainShaftToItsRightSide { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToItsRightSide));
 
-    /// <summary>The door from the Green Brinstar Main Shaft room to the Etecoon E Tank room.</summary>
-    public static DoorDefinition GreenBrinstarMainShaftToEtecoonETank { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToEtecoonETank));
+    /// <summary>The door from the Green Brinstar Main Shaft room to the Etecoon Energy Tank room.</summary>
+    public static DoorDefinition GreenBrinstarMainShaftToEtecoonEnergyTank { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToEtecoonEnergyTank));
 
     /// <summary>The door at the foot of the Green Brinstar Main Shaft room that leads to its own left side.</summary>
     public static DoorDefinition GreenBrinstarMainShaftToItsLeftSide { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftToItsLeftSide));
@@ -93,8 +93,8 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Big Pink room to the Pink Brinstar Power Bombs room, arriving at its upper doorway.</summary>
     public static DoorDefinition BigPinkToPinkBrinstarPowerBombsUpper { get; } = DoorDefinitions.Find(nameof(BigPinkToPinkBrinstarPowerBombsUpper));
 
-    /// <summary>The door from the Big Pink room to the Waterway E Tank room.</summary>
-    public static DoorDefinition BigPinkToWaterwayETank { get; } = DoorDefinitions.Find(nameof(BigPinkToWaterwayETank));
+    /// <summary>The door from the Big Pink room to the Waterway Energy Tank room.</summary>
+    public static DoorDefinition BigPinkToWaterwayEnergyTank { get; } = DoorDefinitions.Find(nameof(BigPinkToWaterwayEnergyTank));
 
     /// <summary>The door from the Big Pink room to the Pink Brinstar Hoppers room.</summary>
     public static DoorDefinition BigPinkToPinkBrinstarHoppers { get; } = DoorDefinitions.Find(nameof(BigPinkToPinkBrinstarHoppers));
@@ -135,23 +135,23 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Morph Ball room to the Construction Zone room.</summary>
     public static DoorDefinition MorphBallToConstructionZone { get; } = DoorDefinitions.Find(nameof(MorphBallToConstructionZone));
 
-    /// <summary>The door from the Morph Ball room to the Elev To Blue Brinstar room.</summary>
-    public static DoorDefinition MorphBallToElevToBlueBrinstar { get; } = DoorDefinitions.Find(nameof(MorphBallToElevToBlueBrinstar));
+    /// <summary>The door from the Morph Ball room to the Elevator To Blue Brinstar room.</summary>
+    public static DoorDefinition MorphBallToElevatorToBlueBrinstar { get; } = DoorDefinitions.Find(nameof(MorphBallToElevatorToBlueBrinstar));
 
     /// <summary>The door from the Construction Zone room to the Morph Ball room.</summary>
     public static DoorDefinition ConstructionZoneToMorphBall { get; } = DoorDefinitions.Find(nameof(ConstructionZoneToMorphBall));
 
-    /// <summary>The door from the Construction Zone room to the Blue Brinstar E Tank room.</summary>
-    public static DoorDefinition ConstructionZoneToBlueBrinstarETank { get; } = DoorDefinitions.Find(nameof(ConstructionZoneToBlueBrinstarETank));
+    /// <summary>The door from the Construction Zone room to the Blue Brinstar Energy Tank room.</summary>
+    public static DoorDefinition ConstructionZoneToBlueBrinstarEnergyTank { get; } = DoorDefinitions.Find(nameof(ConstructionZoneToBlueBrinstarEnergyTank));
 
     /// <summary>The door from the Construction Zone room to the First Missile room.</summary>
     public static DoorDefinition ConstructionZoneToFirstMissile { get; } = DoorDefinitions.Find(nameof(ConstructionZoneToFirstMissile));
 
-    /// <summary>The door from the Blue Brinstar E Tank room to the Construction Zone room.</summary>
-    public static DoorDefinition BlueBrinstarETankToConstructionZone { get; } = DoorDefinitions.Find(nameof(BlueBrinstarETankToConstructionZone));
+    /// <summary>The door from the Blue Brinstar Energy Tank room to the Construction Zone room.</summary>
+    public static DoorDefinition BlueBrinstarEnergyTankToConstructionZone { get; } = DoorDefinitions.Find(nameof(BlueBrinstarEnergyTankToConstructionZone));
 
-    /// <summary>The door from the Blue Brinstar E Tank room to the Blue Brinstar Boulders room.</summary>
-    public static DoorDefinition BlueBrinstarETankToBlueBrinstarBoulders { get; } = DoorDefinitions.Find(nameof(BlueBrinstarETankToBlueBrinstarBoulders));
+    /// <summary>The door from the Blue Brinstar Energy Tank room to the Blue Brinstar Boulders room.</summary>
+    public static DoorDefinition BlueBrinstarEnergyTankToBlueBrinstarBoulders { get; } = DoorDefinitions.Find(nameof(BlueBrinstarEnergyTankToBlueBrinstarBoulders));
 
     /// <summary>The door from the Noob Bridge room to the Green Hill Zone room.</summary>
     public static DoorDefinition NoobBridgeToGreenHillZone { get; } = DoorDefinitions.Find(nameof(NoobBridgeToGreenHillZone));
@@ -162,23 +162,23 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Green Brinstar Beetoms room to the Green Brinstar Main Shaft room.</summary>
     public static DoorDefinition GreenBrinstarBeetomsToGreenBrinstarMainShaft { get; } = DoorDefinitions.Find(nameof(GreenBrinstarBeetomsToGreenBrinstarMainShaft));
 
-    /// <summary>The door from the Green Brinstar Beetoms room to the Etecoon E Tank room.</summary>
-    public static DoorDefinition GreenBrinstarBeetomsToEtecoonETank { get; } = DoorDefinitions.Find(nameof(GreenBrinstarBeetomsToEtecoonETank));
+    /// <summary>The door from the Green Brinstar Beetoms room to the Etecoon Energy Tank room.</summary>
+    public static DoorDefinition GreenBrinstarBeetomsToEtecoonEnergyTank { get; } = DoorDefinitions.Find(nameof(GreenBrinstarBeetomsToEtecoonEnergyTank));
 
-    /// <summary>The door from the Etecoon E Tank room to the Green Brinstar Beetoms room.</summary>
-    public static DoorDefinition EtecoonETankToGreenBrinstarBeetoms { get; } = DoorDefinitions.Find(nameof(EtecoonETankToGreenBrinstarBeetoms));
+    /// <summary>The door from the Etecoon Energy Tank room to the Green Brinstar Beetoms room.</summary>
+    public static DoorDefinition EtecoonEnergyTankToGreenBrinstarBeetoms { get; } = DoorDefinitions.Find(nameof(EtecoonEnergyTankToGreenBrinstarBeetoms));
 
-    /// <summary>The door from the Etecoon E Tank room to the Etecoon Super room.</summary>
-    public static DoorDefinition EtecoonETankToEtecoonSuper { get; } = DoorDefinitions.Find(nameof(EtecoonETankToEtecoonSuper));
+    /// <summary>The door from the Etecoon Energy Tank room to the Etecoon Super room.</summary>
+    public static DoorDefinition EtecoonEnergyTankToEtecoonSuper { get; } = DoorDefinitions.Find(nameof(EtecoonEnergyTankToEtecoonSuper));
 
-    /// <summary>The door from the Etecoon E Tank room to the Green Brinstar Main Shaft room.</summary>
-    public static DoorDefinition EtecoonETankToGreenBrinstarMainShaft { get; } = DoorDefinitions.Find(nameof(EtecoonETankToGreenBrinstarMainShaft));
+    /// <summary>The door from the Etecoon Energy Tank room to the Green Brinstar Main Shaft room.</summary>
+    public static DoorDefinition EtecoonEnergyTankToGreenBrinstarMainShaft { get; } = DoorDefinitions.Find(nameof(EtecoonEnergyTankToGreenBrinstarMainShaft));
 
-    /// <summary>The door from the Etecoon E Tank room to the Etecoon Save room.</summary>
-    public static DoorDefinition EtecoonETankToEtecoonSave { get; } = DoorDefinitions.Find(nameof(EtecoonETankToEtecoonSave));
+    /// <summary>The door from the Etecoon Energy Tank room to the Etecoon Save room.</summary>
+    public static DoorDefinition EtecoonEnergyTankToEtecoonSave { get; } = DoorDefinitions.Find(nameof(EtecoonEnergyTankToEtecoonSave));
 
-    /// <summary>The door from the Etecoon Super room to the Etecoon E Tank room.</summary>
-    public static DoorDefinition EtecoonSuperToEtecoonETank { get; } = DoorDefinitions.Find(nameof(EtecoonSuperToEtecoonETank));
+    /// <summary>The door from the Etecoon Super room to the Etecoon Energy Tank room.</summary>
+    public static DoorDefinition EtecoonSuperToEtecoonEnergyTank { get; } = DoorDefinitions.Find(nameof(EtecoonSuperToEtecoonEnergyTank));
 
     /// <summary>The door from the Dachora Energy Refill room to the Dachora room.</summary>
     public static DoorDefinition DachoraEnergyRefillToDachora { get; } = DoorDefinitions.Find(nameof(DachoraEnergyRefillToDachora));
@@ -189,11 +189,11 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Spore Spawn Farming room to the Big Pink room.</summary>
     public static DoorDefinition SporeSpawnFarmingToBigPink { get; } = DoorDefinitions.Find(nameof(SporeSpawnFarmingToBigPink));
 
-    /// <summary>The door from the Waterway E Tank room to the Big Pink room.</summary>
-    public static DoorDefinition WaterwayETankToBigPink { get; } = DoorDefinitions.Find(nameof(WaterwayETankToBigPink));
+    /// <summary>The door from the Waterway Energy Tank room to the Big Pink room.</summary>
+    public static DoorDefinition WaterwayEnergyTankToBigPink { get; } = DoorDefinitions.Find(nameof(WaterwayEnergyTankToBigPink));
 
-    /// <summary>The door from the Waterway E Tank room to the Kraid Refill room.</summary>
-    public static DoorDefinition WaterwayETankToKraidRefill { get; } = DoorDefinitions.Find(nameof(WaterwayETankToKraidRefill));
+    /// <summary>The door from the Waterway Energy Tank room to the Kraid Refill room.</summary>
+    public static DoorDefinition WaterwayEnergyTankToKraidRefill { get; } = DoorDefinitions.Find(nameof(WaterwayEnergyTankToKraidRefill));
 
     /// <summary>The door from the First Missile room to the Construction Zone room.</summary>
     public static DoorDefinition FirstMissileToConstructionZone { get; } = DoorDefinitions.Find(nameof(FirstMissileToConstructionZone));
@@ -201,17 +201,17 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Pink Brinstar Hoppers room to the Big Pink room.</summary>
     public static DoorDefinition PinkBrinstarHoppersToBigPink { get; } = DoorDefinitions.Find(nameof(PinkBrinstarHoppersToBigPink));
 
-    /// <summary>The door from the Pink Brinstar Hoppers room to the Hopper E Tank room.</summary>
-    public static DoorDefinition PinkBrinstarHoppersToHopperETank { get; } = DoorDefinitions.Find(nameof(PinkBrinstarHoppersToHopperETank));
+    /// <summary>The door from the Pink Brinstar Hoppers room to the Hopper Energy Tank room.</summary>
+    public static DoorDefinition PinkBrinstarHoppersToHopperEnergyTank { get; } = DoorDefinitions.Find(nameof(PinkBrinstarHoppersToHopperEnergyTank));
 
-    /// <summary>The door from the Hopper E Tank room to the Pink Brinstar Hoppers room.</summary>
-    public static DoorDefinition HopperETankToPinkBrinstarHoppers { get; } = DoorDefinitions.Find(nameof(HopperETankToPinkBrinstarHoppers));
+    /// <summary>The door from the Hopper Energy Tank room to the Pink Brinstar Hoppers room.</summary>
+    public static DoorDefinition HopperEnergyTankToPinkBrinstarHoppers { get; } = DoorDefinitions.Find(nameof(HopperEnergyTankToPinkBrinstarHoppers));
 
     /// <summary>The door from the Big Pink Save Room room to the Big Pink room.</summary>
     public static DoorDefinition BigPinkSaveRoomToBigPink { get; } = DoorDefinitions.Find(nameof(BigPinkSaveRoomToBigPink));
 
-    /// <summary>The door from the Blue Brinstar Boulders room to the Blue Brinstar E Tank room.</summary>
-    public static DoorDefinition BlueBrinstarBouldersToBlueBrinstarETank { get; } = DoorDefinitions.Find(nameof(BlueBrinstarBouldersToBlueBrinstarETank));
+    /// <summary>The door from the Blue Brinstar Boulders room to the Blue Brinstar Energy Tank room.</summary>
+    public static DoorDefinition BlueBrinstarBouldersToBlueBrinstarEnergyTank { get; } = DoorDefinitions.Find(nameof(BlueBrinstarBouldersToBlueBrinstarEnergyTank));
 
     /// <summary>The door from the Blue Brinstar Boulders room to the Billy Mays room.</summary>
     public static DoorDefinition BlueBrinstarBouldersToBillyMays { get; } = DoorDefinitions.Find(nameof(BlueBrinstarBouldersToBillyMays));
@@ -222,8 +222,8 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Green Brinstar Save room to the Green Brinstar Main Shaft room.</summary>
     public static DoorDefinition GreenBrinstarSaveToGreenBrinstarMainShaft { get; } = DoorDefinitions.Find(nameof(GreenBrinstarSaveToGreenBrinstarMainShaft));
 
-    /// <summary>The door from the Etecoon Save room to the Etecoon E Tank room.</summary>
-    public static DoorDefinition EtecoonSaveToEtecoonETank { get; } = DoorDefinitions.Find(nameof(EtecoonSaveToEtecoonETank));
+    /// <summary>The door from the Etecoon Save room to the Etecoon Energy Tank room.</summary>
+    public static DoorDefinition EtecoonSaveToEtecoonEnergyTank { get; } = DoorDefinitions.Find(nameof(EtecoonSaveToEtecoonEnergyTank));
 
     /// <summary>The door from the Red Tower room to the Hellway room.</summary>
     public static DoorDefinition RedTowerToHellway { get; } = DoorDefinitions.Find(nameof(RedTowerToHellway));
@@ -264,8 +264,8 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Caterpillar room to the Hellway room.</summary>
     public static DoorDefinition CaterpillarToHellway { get; } = DoorDefinitions.Find(nameof(CaterpillarToHellway));
 
-    /// <summary>The door from the Caterpillar room to the Red Binstar Elev room.</summary>
-    public static DoorDefinition CaterpillarToRedBinstarElev { get; } = DoorDefinitions.Find(nameof(CaterpillarToRedBinstarElev));
+    /// <summary>The door from the Caterpillar room to the Red Brinstar Elevator room.</summary>
+    public static DoorDefinition CaterpillarToRedBrinstarElevator { get; } = DoorDefinitions.Find(nameof(CaterpillarToRedBrinstarElevator));
 
     /// <summary>The door from the Caterpillar room to the Red Fish room.</summary>
     public static DoorDefinition CaterpillarToRedFish { get; } = DoorDefinitions.Find(nameof(CaterpillarToRedFish));
@@ -300,14 +300,14 @@ public static class BrinstarDoorDefinitions
     /// <summary>The door from the Warehouse Zeela room to the Warehouse Entrance room.</summary>
     public static DoorDefinition WarehouseZeelaToWarehouseEntrance { get; } = DoorDefinitions.Find(nameof(WarehouseZeelaToWarehouseEntrance));
 
-    /// <summary>The door from the Warehouse Zeela room to the Warehouse E Tank room.</summary>
-    public static DoorDefinition WarehouseZeelaToWarehouseETank { get; } = DoorDefinitions.Find(nameof(WarehouseZeelaToWarehouseETank));
+    /// <summary>The door from the Warehouse Zeela room to the Warehouse Energy Tank room.</summary>
+    public static DoorDefinition WarehouseZeelaToWarehouseEnergyTank { get; } = DoorDefinitions.Find(nameof(WarehouseZeelaToWarehouseEnergyTank));
 
     /// <summary>The door from the Warehouse Zeela room to the Warehouse Kihunter room.</summary>
     public static DoorDefinition WarehouseZeelaToWarehouseKihunter { get; } = DoorDefinitions.Find(nameof(WarehouseZeelaToWarehouseKihunter));
 
-    /// <summary>The door from the Warehouse E Tank room to the Warehouse Zeela room.</summary>
-    public static DoorDefinition WarehouseETankToWarehouseZeela { get; } = DoorDefinitions.Find(nameof(WarehouseETankToWarehouseZeela));
+    /// <summary>The door from the Warehouse Energy Tank room to the Warehouse Zeela room.</summary>
+    public static DoorDefinition WarehouseEnergyTankToWarehouseZeela { get; } = DoorDefinitions.Find(nameof(WarehouseEnergyTankToWarehouseZeela));
 
     /// <summary>The door from the Warehouse Kihunter room to the Warehouse Zeela room.</summary>
     public static DoorDefinition WarehouseKihunterToWarehouseZeela { get; } = DoorDefinitions.Find(nameof(WarehouseKihunterToWarehouseZeela));

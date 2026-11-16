@@ -10,7 +10,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBathWhenAreaBossDead), [
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETankWhenAreaBossDead), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEnergyTankWhenAreaBossDead), [
             new(EnemyDefinitionId.SuspensorPlatform),
             new(EnemyDefinitionId.Skultera),
         ]),
@@ -36,7 +36,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipMapWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuperDefault), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipWestSuperDefault), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeathDefault), [
         ]),
@@ -54,7 +54,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PhantoonWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipETankDefault), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEnergyTankDefault), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GravitySuitDefault), [
         ]),
@@ -79,7 +79,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipSaveWhenAreaBossDead), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSWestSuperWhenAreaBossDead), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipWestSuperWhenAreaBossDead), [
             new(EnemyDefinitionId.Spark),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.AtticDefault), [
@@ -87,7 +87,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuperDefault), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEastSuperDefault), [
             new(EnemyDefinitionId.Coven),
             new(EnemyDefinitionId.Atomic),
             new(EnemyDefinitionId.Sbug),
@@ -103,7 +103,7 @@ internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyDeathWhenAreaBossDead), [
             new(EnemyDefinitionId.KzanTop),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WSEastSuperWhenAreaBossDead), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.WreckedShipEastSuperWhenAreaBossDead), [
             new(EnemyDefinitionId.WorkRobot),
             new(EnemyDefinitionId.Bull),
             new(EnemyDefinitionId.Spark),

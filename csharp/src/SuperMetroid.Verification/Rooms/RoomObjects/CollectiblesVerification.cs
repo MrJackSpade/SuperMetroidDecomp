@@ -101,7 +101,7 @@ internal static class CollectiblesVerification
             fixture.RoomObjects.Step(fixture.Level);
 
             AssertTrue(fixture.System.HasCollectedItemBit(location),
-                $"{kind} marks its physical item bit");
+                $"{kind} records its item location collected");
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count,
                 $"{kind} publishes exactly one acquisition");
             AssertEqual(kind, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents[0].Kind,
@@ -150,7 +150,7 @@ internal static class CollectiblesVerification
 
         // A Chozo orb accepts projectile contact, performs its authored burst, then becomes
         // the same visible/touchable item. Acquisition must retain the triggering physical
-        // location rather than confusing the projectile type with an item bit.
+        // location rather than confusing the projectile type with an item location.
         CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
         orb.RoomObjects.Step(orb.Level);
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());

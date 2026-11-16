@@ -22,7 +22,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrabShaft), [
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MaridiaElev), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.MaridiaElevator), [
             new(EnemyDefinitionId.Ripper),
             new(EnemyDefinitionId.Owtch),
         ]),
@@ -33,7 +33,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ThePrecious), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BotwoonETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BotwoonEnergyTank), [
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Zoa),
@@ -91,7 +91,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrabTunnel), [
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.NWestMaridiaBug), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.NorthwestMaridiaBug), [
             new(EnemyDefinitionId.Owtch),
             new(EnemyDefinitionId.MaridiaFly),
         ]),
@@ -151,7 +151,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Springball), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BelowBotwoonETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BelowBotwoonEnergyTank), [
             new(EnemyDefinitionId.Zoa),
             new(EnemyDefinitionId.Owtch),
         ]),

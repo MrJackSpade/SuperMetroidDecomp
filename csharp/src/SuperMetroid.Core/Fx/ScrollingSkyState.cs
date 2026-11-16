@@ -34,7 +34,7 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
     /// </summary>
     public static bool IsLandRoomMain(RoomMainBehavior main) =>
         main is RoomMainBehavior.ScrollingSkyLand or
-            RoomMainBehavior.ScrollingSkyLandZebesTimebombSet;
+            RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions;
 
     /// <summary>Identifies the scrolling-sky room mains; spawning the bands is a separate decision.</summary>
     public static bool IsScrollingSkyRoomMain(RoomMainBehavior main) =>

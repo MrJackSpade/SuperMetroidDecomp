@@ -11,7 +11,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Gamet),
             new(EnemyDefinitionId.Puyo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocShaft), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocomireShaft), [
             new(EnemyDefinitionId.Viola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MetalPirates), [
@@ -47,9 +47,9 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.PirateGoldWalking),
             new(EnemyDefinitionId.Viola),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairElev), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairElevator), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LNSave), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.UpperNorfairRefill), [
         ]),
@@ -59,19 +59,19 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.DessgeegaLarge),
             new(EnemyDefinitionId.Multiviola),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GTEnergyRefill), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.GoldenTorizoEnergyRefill), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Ridley), [
             new(EnemyDefinitionId.Ridley),
             new(EnemyDefinitionId.RidleyBreakupPiece),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocPowerBombs), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocomirePowerBombs), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeam), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.HiJumpBoots), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocSave), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocomireSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FrogSpeedway), [
             new(EnemyDefinitionId.Beetom),
@@ -81,7 +81,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Sova),
             new(EnemyDefinitionId.Dragon),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocFarming), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocomireFarming), [
             new(EnemyDefinitionId.Gamet),
             new(EnemyDefinitionId.GrappleRipper),
             new(EnemyDefinitionId.SuspensorPlatform),
@@ -114,7 +114,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Zebbo),
             new(EnemyDefinitionId.Holtz),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LNFireflea), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairFireflea), [
             new(EnemyDefinitionId.Fireflea),
             new(EnemyDefinitionId.Boulder),
             new(EnemyDefinitionId.Fune),
@@ -133,14 +133,14 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Dragon),
             new(EnemyDefinitionId.Geruta),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LNSpringBallMaze), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairSpringBallMaze), [
             new(EnemyDefinitionId.Alcoon),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LNEscapePowerBombs), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairEscapePowerBombs), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PurpleShaft), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RidleyETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.RidleyEnergyTank), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ScrewAttack), [
         ]),
@@ -161,7 +161,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Dragon),
             new(EnemyDefinitionId.Gamet),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocJump), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocomireJump), [
             new(EnemyDefinitionId.Mella),
             new(EnemyDefinitionId.GrappleRipper),
             new(EnemyDefinitionId.SuspensorPlatform),
@@ -187,7 +187,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BubbleMountainSave), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.HiJumpETank), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.HiJumpEnergyTank), [
             new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BubbleMountain), [
@@ -203,7 +203,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Boyon),
             new(EnemyDefinitionId.JetRipper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocMissile), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocomireMissile), [
             new(EnemyDefinitionId.Metaree),
             new(EnemyDefinitionId.Gamet),
         ]),
@@ -232,7 +232,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpeedBooster), [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LNFarming), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairFarming), [
             new(EnemyDefinitionId.Viola),
             new(EnemyDefinitionId.Zebbo),
         ]),
@@ -262,7 +262,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.Crocomire), [
             new(EnemyDefinitionId.Crocomire),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LNElevSave), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairElevatorSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Volcano), [
             new(EnemyDefinitionId.Fune),

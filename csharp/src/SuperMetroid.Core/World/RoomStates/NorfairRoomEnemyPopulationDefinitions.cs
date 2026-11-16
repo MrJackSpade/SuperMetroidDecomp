@@ -45,7 +45,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Puyo, new(572, 423), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0)),
             new(EnemyDefinitionId.Puyo, new(624, 417), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0)),
         ], 6),
-        new(nameof(RoomEnemyPopulationDefinitions.PostCrocShaft),
+        new(nameof(RoomEnemyPopulationDefinitions.PostCrocomireShaft),
         [
             new(EnemyDefinitionId.Viola, new(119, 840), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
             new(EnemyDefinitionId.Viola, new(96, 936), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
@@ -128,11 +128,11 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Viola, new(120, 567), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128))),
             new(EnemyDefinitionId.Viola, new(136, 567), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128))),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairElev),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairElevator),
         [
             new(EnemyDefinitionId.Elevator, new(128, 160), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.LNSave),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairSave),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.UpperNorfairRefill),
@@ -156,14 +156,14 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Multiviola, new(856, 568), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(240), Speed: 6)),
             new(EnemyDefinitionId.Multiviola, new(971, 532), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(72), Speed: 5)),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.GTEnergyRefill),
+        new(nameof(RoomEnemyPopulationDefinitions.GoldenTorizoEnergyRefill),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Ridley),
         [
             new(EnemyDefinitionId.Ridley, new(48, 65520), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.PostCrocPowerBombs),
+        new(nameof(RoomEnemyPopulationDefinitions.PostCrocomirePowerBombs),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.IceBeam),
@@ -172,7 +172,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.HiJumpBoots),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.PostCrocSave),
+        new(nameof(RoomEnemyPopulationDefinitions.PostCrocomireSave),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.FrogSpeedway),
@@ -204,7 +204,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Squeept, new(360, 240), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Leader)),
             new(EnemyDefinitionId.Squeept, new(360, 240), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new EnemyFollowerSpawnSettings(Role: EnemyFollowerRole.Follower)),
         ], 11),
-        new(nameof(RoomEnemyPopulationDefinitions.PostCrocFarming),
+        new(nameof(RoomEnemyPopulationDefinitions.PostCrocomireFarming),
         [
             new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugSpawnSettings(TriggerWidth: 48, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(48))),
             new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugSpawnSettings(TriggerWidth: 0, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(48))),
@@ -284,7 +284,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zebbo, new(384, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
             new(EnemyDefinitionId.Zebbo, new(576, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         ], 9),
-        new(nameof(RoomEnemyPopulationDefinitions.LNFireflea),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairFireflea),
         [
             new(EnemyDefinitionId.Fune, new(496, 720), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: 1, LaunchSpeed: SignedEightEight.FromPixels(2))),
             new(EnemyDefinitionId.Fune, new(272, 488), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneSpawnSettings(Facing: HorizontalDirection.Right, CooldownTime: 1, LaunchSpeed: SignedEightEight.FromPixels(2))),
@@ -343,7 +343,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Dragon, new(128, 488), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
             new(EnemyDefinitionId.Dragon, new(128, 488), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Wing)),
         ], 6),
-        new(nameof(RoomEnemyPopulationDefinitions.LNSpringBallMaze),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairSpringBallMaze),
         [
             new(EnemyDefinitionId.Alcoon, new(256, 512), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Alcoon, new(337, 512), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -351,13 +351,13 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Alcoon, new(408, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Alcoon, new(1019, 1225), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.LNEscapePowerBombs),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairEscapePowerBombs),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.PurpleShaft),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.RidleyETank),
+        new(nameof(RoomEnemyPopulationDefinitions.RidleyEnergyTank),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.ScrewAttack),
@@ -413,7 +413,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Dragon, new(440, 760), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
             new(EnemyDefinitionId.Dragon, new(440, 760), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Wing)),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.PostCrocJump),
+        new(nameof(RoomEnemyPopulationDefinitions.PostCrocomireJump),
         [
             new(EnemyDefinitionId.Mella, new(1475, 595), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Mella, new(1433, 616), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -478,7 +478,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.BubbleMountainSave),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.HiJumpETank),
+        new(nameof(RoomEnemyPopulationDefinitions.HiJumpEnergyTank),
         [
             new(EnemyDefinitionId.Sova, new(375, 181), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(320))),
         ], 1),
@@ -506,7 +506,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Boyon, new(216, 217), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 80, TriggerDistance: 64)),
             new(EnemyDefinitionId.JetRipper, new(344, 168), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), Direction: HorizontalDirection.Left)),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.PostCrocMissile),
+        new(nameof(RoomEnemyPopulationDefinitions.PostCrocomireMissile),
         [
             new(EnemyDefinitionId.Metaree, new(280, 56), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Metaree, new(248, 64), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -570,7 +570,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.SpeedBooster),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.LNFarming),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairFarming),
         [
             new(EnemyDefinitionId.Viola, new(552, 136), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
             new(EnemyDefinitionId.Viola, new(568, 216), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new ViolaSpawnSettings(BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192))),
@@ -653,7 +653,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Crocomire, new(1152, 120), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
             new(EnemyDefinitionId.CrocomireTongue, new(1152, 120), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.LNElevSave),
+        new(nameof(RoomEnemyPopulationDefinitions.LowerNorfairElevatorSave),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Volcano),

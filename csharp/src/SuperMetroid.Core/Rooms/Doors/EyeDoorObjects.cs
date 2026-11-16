@@ -43,7 +43,7 @@ internal sealed class EyeDoorObjects
         RoomLevelData level,
         RoomObjectPlace place,
         RoomObjectKind placed,
-        DoorBitArgument? door)
+        LockedDoorArgument? door)
     {
         Ensure.NotNull(place);
         (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(placed, out EyeDoorPart part)

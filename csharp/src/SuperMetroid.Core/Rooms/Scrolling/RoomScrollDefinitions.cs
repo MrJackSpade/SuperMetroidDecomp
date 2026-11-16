@@ -36,7 +36,7 @@ public static class RoomScrollDefinitions
             Open, Closed, Closed, Open, Closed, Open, Open, Open, Open, Closed,
             Open, Closed, Top, Open, Open, Top, Open, Open, Top, Open,
         ]),
-        new(nameof(CrateriaPowerBomb),
+        new(nameof(CrateriaPowerBombs),
         [
             Top, Top, Open, Closed, Open, Open, Top, Top, Open, Open,
             Closed, Open, Open, Open, Open, Open, Open, Open, Open, Open,
@@ -60,7 +60,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Open, Open, Open, Open, Open, Open, Open, Closed, Closed,
         ]),
-        new(nameof(ForgottenHighwayElev),
+        new(nameof(ForgottenHighwayElevator),
         [
             Top, Closed, Open, Open, Open, Closed, Open, Closed, Open, Open,
             Open, Open, Closed, Open, Open, Open, Open, Open, Open, Open,
@@ -84,7 +84,7 @@ public static class RoomScrollDefinitions
             Closed, Closed, Closed, Closed, Open, Open, Closed, Closed, Open, Open,
             Open, Open, Open, Open, Open, Closed, Open, Open, Open, Open,
         ]),
-        new(nameof(RedBinstarElev),
+        new(nameof(RedBrinstarElevator),
         [
             Top, Closed, Open, Open, Open, Closed, Open, Open, Open, Top,
             Open, Open, Closed, Open, Open, Open, Open, Top, Open, Open,
@@ -92,7 +92,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Closed, Closed, Closed, Closed, Open, Open, Open,
             Open, Open, Open, Open, Open, Open, Open, Top, Top, Top,
         ]),
-        new(nameof(GauntletETank),
+        new(nameof(GauntletEnergyTank),
         [
             Top, Top, Top, Top, Closed, Top, Open, Top, Open, Open,
             Closed, Open, Open, Top, Top, Open, Open, Closed, Open, Open,
@@ -116,7 +116,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Open, Open, Open, Open, Closed, Closed, Closed, Open, Closed,
         ]),
-        new(nameof(ElevToBlueBrinstar),
+        new(nameof(ElevatorToBlueBrinstar),
         [
             Top, Closed, Open, Open, Open, Closed, Open, Open, Top, Top,
             Open, Open, Closed, Open, Open, Open, Open, Open, Open, Open,
@@ -124,7 +124,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Closed, Closed, Closed, Closed, Closed, Closed, Open, Open, Open,
         ]),
-        new(nameof(GreenBrinstarElev),
+        new(nameof(GreenBrinstarElevator),
         [
             Top, Closed, Open, Open, Open, Closed, Open, Open, Open, Top,
             Open, Open, Closed, Open, Open, Open, Open, Open, Open, Open,
@@ -252,7 +252,7 @@ public static class RoomScrollDefinitions
             Closed, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Closed, Closed, Closed, Closed, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(BlueBrinstarETank),
+        new(nameof(BlueBrinstarEnergyTank),
         [
             Closed, Closed, Open, Closed, Closed, Closed, Top, Top, Top, Open,
             Open, Open, Open, Top, Open, Open, Open, Top, Open, Open,
@@ -268,7 +268,7 @@ public static class RoomScrollDefinitions
             Closed, Closed, Closed, Closed, Open, Open, Open, Open, Open, Open,
             Open, Open, Open, Open, Open, Open, Open, Open, Top, Top,
         ]),
-        new(nameof(EtecoonETank),
+        new(nameof(EtecoonEnergyTank),
         [
             Top, Top, Closed, Closed, Closed, Closed, Closed, Top, Top, Top,
             Top, Open, Open, Top, Open, Top, Open, Open, Top, Open,
@@ -292,7 +292,7 @@ public static class RoomScrollDefinitions
             Open, Open, Closed, Closed, Closed, Closed, Open, Open, Open, Open,
             Open, Open, Open, Open, Open, Open, Closed, Top, Top, Top,
         ]),
-        new(nameof(WaterwayETank),
+        new(nameof(WaterwayEnergyTank),
         [
             Closed, Top, Top, Top, Top, Top, Top, Closed, Top, Open,
             Open, Top, Open, Open, Top, Top, Open, Open, Closed, Open,
@@ -444,7 +444,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Closed, Open, Open, Closed, Closed, Closed,
             Closed, Open, Open, Closed, Closed, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(HiJumpETank),
+        new(nameof(HiJumpEnergyTank),
         [
             Closed, Top, Closed, Closed, Closed, Open, Open, Open, Open, Closed,
             Open, Open, Open, Open, Open, Open, Open, Closed, Open, Open,
@@ -452,7 +452,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Open, Open, Open, Open, Open, Open, Closed, Closed, Open,
         ]),
-        new(nameof(PostCrocFarming),
+        new(nameof(PostCrocomireFarming),
         [
             Open, Open, Open, Open, Open, Open, Open, Open, Top, Top,
             Open, Open, Closed, Open, Open, Open, Open, Open, Open, Open,
@@ -460,7 +460,7 @@ public static class RoomScrollDefinitions
             Closed, Closed, Closed, Closed, Closed, Closed, Closed, Open, Open, Closed,
             Closed, Open, Open, Open, Open, Open, Open, Open, Open, Top,
         ]),
-        new(nameof(PostCrocShaft),
+        new(nameof(PostCrocomireShaft),
         [
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Top, Open, Open, Closed, Open, Open, Open, Open, Open, Open,
@@ -468,7 +468,7 @@ public static class RoomScrollDefinitions
             Open, Open, Closed, Closed, Closed, Closed, Closed, Closed, Open, Open,
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(PostCrocJump),
+        new(nameof(PostCrocomireJump),
         [
             Open, Open, Open, Open, Open, Closed, Closed, Closed, Open, Open,
             Open, Open, Open, Closed, Closed, Closed, Top, Top, Top, Top,
@@ -548,7 +548,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Closed, Closed, Closed, Closed, Closed,
             Closed, Open, Open, Open, Open, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(LowerNorfairElev),
+        new(nameof(LowerNorfairElevator),
         [
             Top, Closed, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Open, Closed, Open, Open, Open, Open, Open, Open, Open,
@@ -588,7 +588,7 @@ public static class RoomScrollDefinitions
             Closed, Closed, Closed, Closed, Closed, Closed, Open, Open, Closed, Closed,
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(LNElevSave),
+        new(nameof(LowerNorfairElevatorSave),
         [
             Top, Open, Open, Open, Open, Open, Open, Open, Open, Closed,
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
@@ -652,7 +652,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Open, Open, Closed, Closed,
             Closed, Closed, Closed, Closed, Open, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(LNSpringBallMaze),
+        new(nameof(LowerNorfairSpringBallMaze),
         [
             Open, Closed, Closed, Closed, Closed, Top, Top, Closed, Closed, Closed,
             Top, Top, Open, Top, Open, Closed, Open, Top, Closed, Open,
@@ -684,7 +684,7 @@ public static class RoomScrollDefinitions
             Open, Closed, Open, Open, Open, Open, Open, Open, Open, Open,
             Closed, Closed, Open, Open, Open, Open, Open, Open, Top, Top,
         ]),
-        new(nameof(LNFireflea),
+        new(nameof(LowerNorfairFireflea),
         [
             Closed, Open, Closed, Closed, Open, Closed, Closed, Open, Closed, Closed,
             Top, Closed, Closed, Closed, Closed, Closed, Top, Top, Open, Top,
@@ -748,7 +748,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Closed, Closed, Closed, Closed,
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(WSWestSuper),
+        new(nameof(WreckedShipWestSuper),
         [
             Top, Open, Open, Open, Open, Open, Top, Open, Open, Closed,
             Open, Open, Open, Open, Top, Open, Open, Open, Open, Open,
@@ -756,7 +756,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Closed, Closed, Closed, Closed, Open,
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Closed,
         ]),
-        new(nameof(WSEastSuper),
+        new(nameof(WreckedShipEastSuper),
         [
             Top, Top, Top, Closed, Open, Top, Open, Open, Open, Open,
             Open, Top, Top, Open, Open, Closed, Open, Open, Open, Open,
@@ -844,7 +844,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Closed, Open, Open, Closed, Closed,
             Closed, Closed, Open, Open, Closed, Closed, Open, Open, Open, Open,
         ]),
-        new(nameof(NWestMaridiaBug),
+        new(nameof(NorthwestMaridiaBug),
         [
             Open, Closed, Closed, Closed, Top, Closed, Top, Top, Open, Top,
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Closed,
@@ -908,7 +908,7 @@ public static class RoomScrollDefinitions
             Open, Open, Closed, Open, Open, Open, Closed, Closed, Closed, Closed,
             Open, Open, Closed, Closed, Open, Open, Open, Open, Open, Open,
         ]),
-        new(nameof(MaridiaElev),
+        new(nameof(MaridiaElevator),
         [
             Open, Open, Open, Open, Open, Top, Open, Open, Open, Open,
             Open, Open, Open, Open, Closed, Open, Open, Open, Open, Open,
@@ -1020,7 +1020,7 @@ public static class RoomScrollDefinitions
             Closed, Open, Open, Closed, Closed, Closed, Closed, Open, Open, Closed,
             Closed, Open, Open, Open, Open, Top, Top, Top, Top, Open,
         ]),
-        new(nameof(BelowBotwoonETank),
+        new(nameof(BelowBotwoonEnergyTank),
         [
             Top, Top, Top, Top, Open, Open, Open, Open, Open, Open,
             Open, Open, Closed, Open, Open, Open, Open, Open, Open, Open,
@@ -1052,7 +1052,7 @@ public static class RoomScrollDefinitions
             Open, Open, Open, Open, Open, Open, Open, Closed, Open, Open,
             Closed, Closed, Closed, Closed, Open, Open, Closed, Closed, Open, Open,
         ]),
-        new(nameof(BotwoonETank),
+        new(nameof(BotwoonEnergyTank),
         [
             Open, Open, Open, Open, Open, Open, Open, Open, Open, Open,
             Open, Top, Top, Open, Open, Closed, Open, Open, Open, Open,
@@ -1311,29 +1311,29 @@ public static class RoomScrollDefinitions
     /// <summary>The Parlor room's screen scroll layout.</summary>
     public static RoomScrollDefinition Parlor { get; } = Find(nameof(Parlor));
     /// <summary>The Crateria Power Bomb room's screen scroll layout.</summary>
-    public static RoomScrollDefinition CrateriaPowerBomb { get; } = Find(nameof(CrateriaPowerBomb));
+    public static RoomScrollDefinition CrateriaPowerBombs { get; } = Find(nameof(CrateriaPowerBombs));
     /// <summary>The West Ocean room's screen scroll layout.</summary>
     public static RoomScrollDefinition WestOcean { get; } = Find(nameof(WestOcean));
     /// <summary>The Crateria Kihunter room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
     /// <summary>The Forgotten Highway Elevator room's screen scroll layout.</summary>
-    public static RoomScrollDefinition ForgottenHighwayElev { get; } = Find(nameof(ForgottenHighwayElev));
+    public static RoomScrollDefinition ForgottenHighwayElevator { get; } = Find(nameof(ForgottenHighwayElevator));
     /// <summary>The East Ocean room's screen scroll layout.</summary>
     public static RoomScrollDefinition EastOcean { get; } = Find(nameof(EastOcean));
     /// <summary>The Forgotten Highway Elbow room's screen scroll layout.</summary>
     public static RoomScrollDefinition ForgottenHighwayElbow { get; } = Find(nameof(ForgottenHighwayElbow));
     /// <summary>The Red Brinstar Elevator room's screen scroll layout.</summary>
-    public static RoomScrollDefinition RedBinstarElev { get; } = Find(nameof(RedBinstarElev));
+    public static RoomScrollDefinition RedBrinstarElevator { get; } = Find(nameof(RedBrinstarElevator));
     /// <summary>The Gauntlet Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
+    public static RoomScrollDefinition GauntletEnergyTank { get; } = Find(nameof(GauntletEnergyTank));
     /// <summary>The Climb room's screen scroll layout.</summary>
     public static RoomScrollDefinition Climb { get; } = Find(nameof(Climb));
     /// <summary>The Pit room's screen scroll layout.</summary>
     public static RoomScrollDefinition Pit { get; } = Find(nameof(Pit));
     /// <summary>The Elevator to Blue Brinstar room's screen scroll layout.</summary>
-    public static RoomScrollDefinition ElevToBlueBrinstar { get; } = Find(nameof(ElevToBlueBrinstar));
+    public static RoomScrollDefinition ElevatorToBlueBrinstar { get; } = Find(nameof(ElevatorToBlueBrinstar));
     /// <summary>The Green Brinstar Elevator room's screen scroll layout.</summary>
-    public static RoomScrollDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
+    public static RoomScrollDefinition GreenBrinstarElevator { get; } = Find(nameof(GreenBrinstarElevator));
     /// <summary>The Green Pirates Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenPiratesShaft { get; } = Find(nameof(GreenPiratesShaft));
     /// <summary>The Crateria Super room's screen scroll layout.</summary>
@@ -1365,17 +1365,17 @@ public static class RoomScrollDefinitions
     /// <summary>The Construction Zone room's screen scroll layout.</summary>
     public static RoomScrollDefinition ConstructionZone { get; } = Find(nameof(ConstructionZone));
     /// <summary>The Blue Brinstar Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BlueBrinstarETank { get; } = Find(nameof(BlueBrinstarETank));
+    public static RoomScrollDefinition BlueBrinstarEnergyTank { get; } = Find(nameof(BlueBrinstarEnergyTank));
     /// <summary>The Green Brinstar Beetoms room's screen scroll layout.</summary>
     public static RoomScrollDefinition GreenBrinstarBeetoms { get; } = Find(nameof(GreenBrinstarBeetoms));
     /// <summary>The Etecoon Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition EtecoonETank { get; } = Find(nameof(EtecoonETank));
+    public static RoomScrollDefinition EtecoonEnergyTank { get; } = Find(nameof(EtecoonEnergyTank));
     /// <summary>The Etecoon Super room's screen scroll layout.</summary>
     public static RoomScrollDefinition EtecoonSuper { get; } = Find(nameof(EtecoonSuper));
     /// <summary>The Spore Spawn Farming room's screen scroll layout.</summary>
     public static RoomScrollDefinition SporeSpawnFarming { get; } = Find(nameof(SporeSpawnFarming));
     /// <summary>The Waterway Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
+    public static RoomScrollDefinition WaterwayEnergyTank { get; } = Find(nameof(WaterwayEnergyTank));
     /// <summary>The Red Tower room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedTower { get; } = Find(nameof(RedTower));
     /// <summary>The Red Brinstar Firefleas room's screen scroll layout.</summary>
@@ -1413,13 +1413,13 @@ public static class RoomScrollDefinitions
     /// <summary>The Crocomire Escape room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrocomireEscape { get; } = Find(nameof(CrocomireEscape));
     /// <summary>The Hi-Jump Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition HiJumpETank { get; } = Find(nameof(HiJumpETank));
+    public static RoomScrollDefinition HiJumpEnergyTank { get; } = Find(nameof(HiJumpEnergyTank));
     /// <summary>The Post-Crocomire Farming room's screen scroll layout.</summary>
-    public static RoomScrollDefinition PostCrocFarming { get; } = Find(nameof(PostCrocFarming));
+    public static RoomScrollDefinition PostCrocomireFarming { get; } = Find(nameof(PostCrocomireFarming));
     /// <summary>The Post-Crocomire Shaft room's screen scroll layout.</summary>
-    public static RoomScrollDefinition PostCrocShaft { get; } = Find(nameof(PostCrocShaft));
+    public static RoomScrollDefinition PostCrocomireShaft { get; } = Find(nameof(PostCrocomireShaft));
     /// <summary>The Post-Crocomire Jump room's screen scroll layout.</summary>
-    public static RoomScrollDefinition PostCrocJump { get; } = Find(nameof(PostCrocJump));
+    public static RoomScrollDefinition PostCrocomireJump { get; } = Find(nameof(PostCrocomireJump));
     /// <summary>The Grapple Tutorial 2 room's screen scroll layout.</summary>
     public static RoomScrollDefinition GrappleTutorial2 { get; } = Find(nameof(GrappleTutorial2));
     /// <summary>The Grapple Beam room's screen scroll layout.</summary>
@@ -1439,7 +1439,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Purple Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition PurpleShaft { get; } = Find(nameof(PurpleShaft));
     /// <summary>The Lower Norfair Elevator room's screen scroll layout.</summary>
-    public static RoomScrollDefinition LowerNorfairElev { get; } = Find(nameof(LowerNorfairElev));
+    public static RoomScrollDefinition LowerNorfairElevator { get; } = Find(nameof(LowerNorfairElevator));
     /// <summary>The Upper Norfair Farming room's screen scroll layout.</summary>
     public static RoomScrollDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
     /// <summary>The Bat Cave room's screen scroll layout.</summary>
@@ -1449,7 +1449,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Red Pirate Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedPirateShaft { get; } = Find(nameof(RedPirateShaft));
     /// <summary>The Lower Norfair Elevator Save room's screen scroll layout.</summary>
-    public static RoomScrollDefinition LNElevSave { get; } = Find(nameof(LNElevSave));
+    public static RoomScrollDefinition LowerNorfairElevatorSave { get; } = Find(nameof(LowerNorfairElevatorSave));
     /// <summary>The Acid Statue room's screen scroll layout.</summary>
     public static RoomScrollDefinition AcidStatue { get; } = Find(nameof(AcidStatue));
     /// <summary>The Main Hall room's screen scroll layout.</summary>
@@ -1465,7 +1465,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Worst Room in the Game's screen scroll layout.</summary>
     public static RoomScrollDefinition WorstRoomInTheGame { get; } = Find(nameof(WorstRoomInTheGame));
     /// <summary>The Lower Norfair Spring Ball Maze room's screen scroll layout.</summary>
-    public static RoomScrollDefinition LNSpringBallMaze { get; } = Find(nameof(LNSpringBallMaze));
+    public static RoomScrollDefinition LowerNorfairSpringBallMaze { get; } = Find(nameof(LowerNorfairSpringBallMaze));
     /// <summary>The Red Kihunter Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition RedKihunterShaft { get; } = Find(nameof(RedKihunterShaft));
     /// <summary>The Wasteland room's screen scroll layout.</summary>
@@ -1473,7 +1473,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Three Musketeers room's screen scroll layout.</summary>
     public static RoomScrollDefinition ThreeMusketeers { get; } = Find(nameof(ThreeMusketeers));
     /// <summary>The Lower Norfair Fireflea room's screen scroll layout.</summary>
-    public static RoomScrollDefinition LNFireflea { get; } = Find(nameof(LNFireflea));
+    public static RoomScrollDefinition LowerNorfairFireflea { get; } = Find(nameof(LowerNorfairFireflea));
     /// <summary>The Bowling Alley room's screen scroll layout.</summary>
     public static RoomScrollDefinition BowlingAlley { get; } = Find(nameof(BowlingAlley));
     /// <summary>The Attic room's screen scroll layout.</summary>
@@ -1489,9 +1489,9 @@ public static class RoomScrollDefinitions
     /// <summary>The Sponge Bath room's screen scroll layout.</summary>
     public static RoomScrollDefinition SpongeBath { get; } = Find(nameof(SpongeBath));
     /// <summary>The Wrecked Ship West Super room's screen scroll layout.</summary>
-    public static RoomScrollDefinition WSWestSuper { get; } = Find(nameof(WSWestSuper));
+    public static RoomScrollDefinition WreckedShipWestSuper { get; } = Find(nameof(WreckedShipWestSuper));
     /// <summary>The Wrecked Ship East Super room's screen scroll layout.</summary>
-    public static RoomScrollDefinition WSEastSuper { get; } = Find(nameof(WSEastSuper));
+    public static RoomScrollDefinition WreckedShipEastSuper { get; } = Find(nameof(WreckedShipEastSuper));
     /// <summary>The Glass Tunnel room's screen scroll layout.</summary>
     public static RoomScrollDefinition GlassTunnel { get; } = Find(nameof(GlassTunnel));
     /// <summary>The West Tunnel room's screen scroll layout.</summary>
@@ -1513,7 +1513,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Watering Hole room's screen scroll layout.</summary>
     public static RoomScrollDefinition WateringHole { get; } = Find(nameof(WateringHole));
     /// <summary>The Northwest Maridia Bug room's screen scroll layout.</summary>
-    public static RoomScrollDefinition NWestMaridiaBug { get; } = Find(nameof(NWestMaridiaBug));
+    public static RoomScrollDefinition NorthwestMaridiaBug { get; } = Find(nameof(NorthwestMaridiaBug));
     /// <summary>The Crab Shaft room's screen scroll layout.</summary>
     public static RoomScrollDefinition CrabShaft { get; } = Find(nameof(CrabShaft));
     /// <summary>The Pseudo Plasma Spark room's screen scroll layout.</summary>
@@ -1529,7 +1529,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Thread the Needle room's screen scroll layout.</summary>
     public static RoomScrollDefinition ThreadTheNeedle { get; } = Find(nameof(ThreadTheNeedle));
     /// <summary>The Maridia Elevator room's screen scroll layout.</summary>
-    public static RoomScrollDefinition MaridiaElev { get; } = Find(nameof(MaridiaElev));
+    public static RoomScrollDefinition MaridiaElevator { get; } = Find(nameof(MaridiaElevator));
     /// <summary>The Plasma Spark room's screen scroll layout.</summary>
     public static RoomScrollDefinition PlasmaSpark { get; } = Find(nameof(PlasmaSpark));
     /// <summary>The Kassiuz room's screen scroll layout.</summary>
@@ -1557,7 +1557,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Springball room's screen scroll layout.</summary>
     public static RoomScrollDefinition Springball { get; } = Find(nameof(Springball));
     /// <summary>The Below Botwoon Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BelowBotwoonETank { get; } = Find(nameof(BelowBotwoonETank));
+    public static RoomScrollDefinition BelowBotwoonEnergyTank { get; } = Find(nameof(BelowBotwoonEnergyTank));
     /// <summary>The Colosseum room's screen scroll layout.</summary>
     public static RoomScrollDefinition Colosseum { get; } = Find(nameof(Colosseum));
     /// <summary>The Aqueduct Save room's screen scroll layout.</summary>
@@ -1565,7 +1565,7 @@ public static class RoomScrollDefinitions
     /// <summary>The Precious room's screen scroll layout.</summary>
     public static RoomScrollDefinition ThePrecious { get; } = Find(nameof(ThePrecious));
     /// <summary>The Botwoon Energy Tank room's screen scroll layout.</summary>
-    public static RoomScrollDefinition BotwoonETank { get; } = Find(nameof(BotwoonETank));
+    public static RoomScrollDefinition BotwoonEnergyTank { get; } = Find(nameof(BotwoonEnergyTank));
     /// <summary>The Plasma Beach Quicksand room's screen scroll layout.</summary>
     public static RoomScrollDefinition PlasmaBeachQuicksand { get; } = Find(nameof(PlasmaBeachQuicksand));
     /// <summary>The Botwoon Quicksand room's screen scroll layout.</summary>

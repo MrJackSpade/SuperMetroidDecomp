@@ -1,20 +1,19 @@
-﻿using SuperMetroid.Core.Areas.Maridia;
-using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.WreckedShip;
 
-/// <summary>The Wrecked Ship entrance treadmill and the Maridia elevatube: their spawns and the belt row a treadmill runs.</summary>
+/// <summary>The Wrecked Ship entrance treadmills: their spawns and the belt row a treadmill runs.</summary>
 internal sealed class WreckedShipTreadmillObjects
 {
-    /// <summary>The room's room objects, which the treadmill and the elevatube join.</summary>
+    /// <summary>The room's room objects, which the treadmill joins.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>What the treadmill's row shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Attaches treadmill and elevatube spawning to the room's room-object pool and installed pictures.</summary>
+    /// <summary>Attaches treadmill spawning to the room's room-object pool and installed pictures.</summary>
     internal WreckedShipTreadmillObjects(RoomObjectPlaceList places, IRoomObjectDrawing drawing)
     {
         _places = places;
@@ -49,24 +48,6 @@ internal sealed class WreckedShipTreadmillObjects
         var idle = new RoomTerrainBlock(_drawing.SetupBlock(RoomObjectSetupBlock.TreadmillIdle), WreckedShipTreadmillBlockDefinitions.IdleCollision);
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
             level.SetTerrain(origin + new Offset16<RoomBlocks>(offset, 0), idle);
-        return true;
-    }
-
-    /// <summary>
-    /// Spawns the effectively invisible elevatube object at (1,0): it waits sixteen updates, plays the elevatube sound
-    /// and leaves the room.
-    /// </summary>
-    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
-    public bool TrySpawnMaridiaElevatube(RoomLevelData level)
-    {
-        Ensure.NotNull(level);
-        Position16<RoomBlocks> block = level.GridBlock(MaridiaElevatubeDefinitions.RoomObjectBlock);
-
-        if (_places.Spawn() is not { } place)
-            return false;
-
-        place.Block = block;
-        place.Become(new MaridiaElevatubeObject());
         return true;
     }
 

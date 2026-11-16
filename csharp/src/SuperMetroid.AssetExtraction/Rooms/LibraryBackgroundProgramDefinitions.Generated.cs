@@ -392,8 +392,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The CeresElev library-background program.</summary>
-    public static LibraryBackgroundProgram CeresElev { get; } = new(LibraryBackgroundDefinitions.CeresElev, [
+    /// <summary>The CeresElevator library-background program.</summary>
+    public static LibraryBackgroundProgram CeresElevator { get; } = new(LibraryBackgroundDefinitions.CeresElevator, [
         new(LibraryBackgroundCommand.ClearBg2, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
@@ -524,7 +524,7 @@ public static partial class LibraryBackgroundProgramDefinitions
         WreckedShipPanelsVents,
         WreckedShipPanelsVentsHorizontal,
         WreckedShipPanelsVentsVertical,
-        CeresElev,
+        CeresElevator,
         MaridiaBrownWall,
         MaridiaGreenWall,
         TourianMechanicalRoom,

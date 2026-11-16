@@ -166,7 +166,7 @@ internal sealed class DoorTransitionRunner
 
         // The door setup ignores whether the spawn found a free place when all forty are
         // held. Retaining the bool-returning allocator preserves that edge.
-        _ = roomObjects.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
+        _ = roomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room)

@@ -3,11 +3,11 @@
 /// <summary>The Ceres rooms' doors, each named for the room it leads from and the room it leads to.</summary>
 public static class CeresDoorDefinitions
 {
-    /// <summary>The door from the Ceres Elev room to the Falling Tile room.</summary>
-    public static DoorDefinition CeresElevToFallingTile { get; } = DoorDefinitions.Find(nameof(CeresElevToFallingTile));
+    /// <summary>The door from the Ceres Elevator room to the Falling Tile room.</summary>
+    public static DoorDefinition CeresElevatorToFallingTile { get; } = DoorDefinitions.Find(nameof(CeresElevatorToFallingTile));
 
-    /// <summary>The door from the Falling Tile room to the Ceres Elev room.</summary>
-    public static DoorDefinition FallingTileToCeresElev { get; } = DoorDefinitions.Find(nameof(FallingTileToCeresElev));
+    /// <summary>The door from the Falling Tile room to the Ceres Elevator room.</summary>
+    public static DoorDefinition FallingTileToCeresElevator { get; } = DoorDefinitions.Find(nameof(FallingTileToCeresElevator));
 
     /// <summary>The door from the Falling Tile room to the Magnet Stairs room.</summary>
     public static DoorDefinition FallingTileToMagnetStairs { get; } = DoorDefinitions.Find(nameof(FallingTileToMagnetStairs));

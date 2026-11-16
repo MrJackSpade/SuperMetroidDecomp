@@ -19,24 +19,24 @@ public static class RoomDefinitions
         new(nameof(WestOcean), AreaId.Crateria, new(38, 1), new(8, 6), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(BowlingAlleyPath), AreaId.Crateria, new(41, 3), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrateriaKihunter), AreaId.Crateria, new(33, 5), new(3, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(ForgottenHighwayElev), AreaId.Crateria, new(52, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(ForgottenHighwayElevator), AreaId.Crateria, new(52, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(EastOcean), AreaId.Crateria, new(49, 1), new(7, 6), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ForgottenHighwayKagos), AreaId.Crateria, new(56, 5), new(1, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrabMaze), AreaId.Crateria, new(53, 9), new(4, 2), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ForgottenHighwayElbow), AreaId.Crateria, new(52, 10), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrateriaTube), AreaId.Crateria, new(32, 5), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Moat), AreaId.Crateria, new(36, 5), new(2, 2), 144, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(RedBinstarElev), AreaId.Crateria, new(34, 8), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(GauntletETank), AreaId.Crateria, new(12, 3), new(6, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(RedBrinstarElevator), AreaId.Crateria, new(34, 8), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(GauntletEnergyTank), AreaId.Crateria, new(12, 3), new(6, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PreBowling), AreaId.Crateria, new(43, 3), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Climb), AreaId.Crateria, new(18, 10), new(3, 9), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Pit), AreaId.Crateria, new(20, 18), new(3, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(ElevToBlueBrinstar), AreaId.Crateria, new(23, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(ElevatorToBlueBrinstar), AreaId.Crateria, new(23, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(BombTorizo), AreaId.Crateria, new(25, 7), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Flyway), AreaId.Crateria, new(22, 7), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PreMapFlyway), AreaId.Crateria, new(20, 8), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Terminator), AreaId.Crateria, new(12, 5), new(6, 3), 160, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(GreenBrinstarElev), AreaId.Crateria, new(6, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(GreenBrinstarElevator), AreaId.Crateria, new(6, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(LowerMushrooms), AreaId.Crateria, new(7, 9), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrateriaMap), AreaId.Crateria, new(23, 8), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GreenPiratesShaft), AreaId.Crateria, new(11, 3), new(1, 7), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -59,17 +59,17 @@ public static class RoomDefinitions
         new(nameof(GreenHillZone), AreaId.Brinstar, new(19, 11), new(8, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MorphBall), AreaId.Brinstar, new(21, 9), new(8, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ConstructionZone), AreaId.Brinstar, new(29, 11), new(1, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(BlueBrinstarETank), AreaId.Brinstar, new(30, 9), new(3, 3), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(BlueBrinstarEnergyTank), AreaId.Brinstar, new(30, 9), new(3, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(NoobBridge), AreaId.Brinstar, new(27, 14), new(6, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GreenBrinstarBeetoms), AreaId.Brinstar, new(8, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(EtecoonETank), AreaId.Brinstar, new(6, 11), new(5, 2), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(EtecoonEnergyTank), AreaId.Brinstar, new(6, 11), new(5, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(EtecoonSuper), AreaId.Brinstar, new(5, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(DachoraEnergyRefill), AreaId.Brinstar, new(9, 13), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(SporeSpawnFarming), AreaId.Brinstar, new(20, 10), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(WaterwayETank), AreaId.Brinstar, new(8, 14), new(7, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(WaterwayEnergyTank), AreaId.Brinstar, new(8, 14), new(7, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(FirstMissile), AreaId.Brinstar, new(28, 12), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PinkBrinstarHoppers), AreaId.Brinstar, new(19, 8), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(HopperETank), AreaId.Brinstar, new(21, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(HopperEnergyTank), AreaId.Brinstar, new(21, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(BigPinkSaveRoom), AreaId.Brinstar, new(15, 5), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(BlueBrinstarBoulders), AreaId.Brinstar, new(30, 9), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(BillyMays), AreaId.Brinstar, new(29, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -86,7 +86,7 @@ public static class RoomDefinitions
         new(nameof(BelowSpazer), AreaId.Brinstar, new(36, 18), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Spazer), AreaId.Brinstar, new(38, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WarehouseZeela), AreaId.Brinstar, new(44, 19), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(WarehouseETank), AreaId.Brinstar, new(43, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(WarehouseEnergyTank), AreaId.Brinstar, new(43, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WarehouseKihunter), AreaId.Brinstar, new(45, 19), new(4, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MiniKraid), AreaId.Brinstar, new(47, 20), new(6, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(KraidEyeDoor), AreaId.Brinstar, new(53, 19), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -112,14 +112,14 @@ public static class RoomDefinitions
         new(nameof(Crocomire), AreaId.Norfair, new(12, 11), new(8, 1), 112, 160, RoomDoorTransitionStyle.ObjectsOnly),
         new(nameof(HiJumpBoots), AreaId.Norfair, new(7, 7), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrocomireEscape), AreaId.Norfair, new(11, 7), new(4, 2), 144, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(HiJumpETank), AreaId.Norfair, new(8, 6), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(PostCrocFarming), AreaId.Norfair, new(10, 11), new(2, 2), 144, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(PostCrocSave), AreaId.Norfair, new(12, 12), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(PostCrocPowerBombs), AreaId.Norfair, new(9, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(PostCrocShaft), AreaId.Norfair, new(10, 13), new(1, 5), 144, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(PostCrocMissile), AreaId.Norfair, new(11, 16), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(HiJumpEnergyTank), AreaId.Norfair, new(8, 6), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(PostCrocomireFarming), AreaId.Norfair, new(10, 11), new(2, 2), 144, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(PostCrocomireSave), AreaId.Norfair, new(12, 12), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(PostCrocomirePowerBombs), AreaId.Norfair, new(9, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(PostCrocomireShaft), AreaId.Norfair, new(10, 13), new(1, 5), 144, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(PostCrocomireMissile), AreaId.Norfair, new(11, 16), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GrappleTutorial3), AreaId.Norfair, new(7, 13), new(3, 2), 144, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(PostCrocJump), AreaId.Norfair, new(4, 16), new(8, 3), 144, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(PostCrocomireJump), AreaId.Norfair, new(4, 16), new(8, 3), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GrappleTutorial2), AreaId.Norfair, new(6, 13), new(1, 3), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GrappleTutorial1), AreaId.Norfair, new(4, 15), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GrappleBeam), AreaId.Norfair, new(3, 15), new(1, 4), 144, 160, RoomDoorTransitionStyle.Standard),
@@ -137,7 +137,7 @@ public static class RoomDefinitions
         new(nameof(MagdolliteTunnel), AreaId.Norfair, new(23, 9), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PurpleShaft), AreaId.Norfair, new(22, 7), new(1, 3), 160, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(LavaDive), AreaId.Norfair, new(22, 11), new(4, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LowerNorfairElev), AreaId.Norfair, new(21, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairElevator), AreaId.Norfair, new(21, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(UpperNorfairFarming), AreaId.Norfair, new(20, 6), new(2, 2), 160, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(RisingTide), AreaId.Norfair, new(17, 5), new(5, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(AcidSnakesTunnel), AreaId.Norfair, new(16, 10), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -151,30 +151,30 @@ public static class RoomDefinitions
         new(nameof(RedPirateShaft), AreaId.Norfair, new(19, 7), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(FrogSave), AreaId.Norfair, new(11, 6), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrocomireSave), AreaId.Norfair, new(16, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LNElevSave), AreaId.Norfair, new(20, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairElevatorSave), AreaId.Norfair, new(20, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(AcidStatue), AreaId.Norfair, new(15, 14), new(3, 3), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MainHall), AreaId.Norfair, new(17, 12), new(8, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GoldenTorizo), AreaId.Norfair, new(18, 16), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(FastRipper), AreaId.Norfair, new(21, 15), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(GTEnergyRefill), AreaId.Norfair, new(21, 16), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(GoldenTorizoEnergyRefill), AreaId.Norfair, new(21, 16), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Ridley), AreaId.Norfair, new(23, 17), new(1, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LNFarming), AreaId.Norfair, new(24, 17), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairFarming), AreaId.Norfair, new(24, 17), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(FastPillarsSetup), AreaId.Norfair, new(25, 13), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MickeyMouse), AreaId.Norfair, new(26, 10), new(4, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Pillar), AreaId.Norfair, new(26, 15), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Plowerhouse), AreaId.Norfair, new(27, 17), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WorstRoomInTheGame), AreaId.Norfair, new(30, 10), new(1, 6), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Amphitheatre), AreaId.Norfair, new(31, 10), new(4, 5), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LNSpringBallMaze), AreaId.Norfair, new(33, 6), new(5, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LNEscapePowerBombs), AreaId.Norfair, new(37, 7), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairSpringBallMaze), AreaId.Norfair, new(33, 6), new(5, 2), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairEscapePowerBombs), AreaId.Norfair, new(37, 7), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(RedKihunterShaft), AreaId.Norfair, new(35, 10), new(3, 5), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Wasteland), AreaId.Norfair, new(32, 15), new(6, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MetalPirates), AreaId.Norfair, new(30, 17), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ThreeMusketeers), AreaId.Norfair, new(29, 4), new(4, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(RidleyETank), AreaId.Norfair, new(22, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(RidleyEnergyTank), AreaId.Norfair, new(22, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ScrewAttack), AreaId.Norfair, new(20, 15), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LNFireflea), AreaId.Norfair, new(35, 7), new(3, 6), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(LNSave), AreaId.Norfair, new(36, 13), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairFireflea), AreaId.Norfair, new(35, 7), new(3, 6), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(LowerNorfairSave), AreaId.Norfair, new(36, 13), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(BowlingAlley), AreaId.WreckedShip, new(10, 12), new(6, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WreckedShipEntrance), AreaId.WreckedShip, new(12, 15), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Attic), AreaId.WreckedShip, new(12, 11), new(7, 1), 0, 0, RoomDoorTransitionStyle.Standard),
@@ -182,13 +182,13 @@ public static class RoomDefinitions
         new(nameof(WreckedShipMainShaft), AreaId.WreckedShip, new(12, 12), new(6, 8), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(SpikyDeath), AreaId.WreckedShip, new(19, 16), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ElectricDeath), AreaId.WreckedShip, new(21, 14), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(WreckedShipETank), AreaId.WreckedShip, new(18, 14), new(3, 2), 144, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(WreckedShipEnergyTank), AreaId.WreckedShip, new(18, 14), new(3, 2), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Basement), AreaId.WreckedShip, new(14, 20), new(5, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WreckedShipMap), AreaId.WreckedShip, new(13, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Phantoon), AreaId.WreckedShip, new(19, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(SpongeBath), AreaId.WreckedShip, new(17, 16), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(WSWestSuper), AreaId.WreckedShip, new(15, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(WSEastSuper), AreaId.WreckedShip, new(18, 18), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(WreckedShipWestSuper), AreaId.WreckedShip, new(15, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(WreckedShipEastSuper), AreaId.WreckedShip, new(18, 18), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GravitySuit), AreaId.WreckedShip, new(10, 14), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WreckedShipSave), AreaId.WreckedShip, new(17, 15), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GlassTunnelSave), AreaId.Maridia, new(12, 20), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -202,7 +202,7 @@ public static class RoomDefinitions
         new(nameof(MtEverest), AreaId.Maridia, new(12, 10), new(6, 4), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(RedFish), AreaId.Maridia, new(12, 8), new(3, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(WateringHole), AreaId.Maridia, new(12, 5), new(2, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(NWestMaridiaBug), AreaId.Maridia, new(14, 5), new(4, 2), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(NorthwestMaridiaBug), AreaId.Maridia, new(14, 5), new(4, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrabShaft), AreaId.Maridia, new(18, 8), new(2, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PseudoPlasmaSpark), AreaId.Maridia, new(18, 5), new(4, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CrabHole), AreaId.Maridia, new(16, 17), new(1, 2), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -210,7 +210,7 @@ public static class RoomDefinitions
         new(nameof(PlasmaTutorial), AreaId.Maridia, new(26, 1), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Plasma), AreaId.Maridia, new(27, 1), new(2, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ThreadTheNeedle), AreaId.Maridia, new(27, 6), new(7, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(MaridiaElev), AreaId.Maridia, new(34, 1), new(1, 6), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(MaridiaElevator), AreaId.Maridia, new(34, 1), new(1, 6), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PlasmaSpark), AreaId.Maridia, new(22, 3), new(4, 6), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Kassiuz), AreaId.Maridia, new(25, 1), new(1, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MaridiaMap), AreaId.Maridia, new(17, 18), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -230,11 +230,11 @@ public static class RoomDefinitions
         new(nameof(Pants), AreaId.Maridia, new(26, 14), new(2, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(EastPants), AreaId.Maridia, new(27, 15), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Springball), AreaId.Maridia, new(32, 16), new(2, 2), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(BelowBotwoonETank), AreaId.Maridia, new(26, 11), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(BelowBotwoonEnergyTank), AreaId.Maridia, new(26, 11), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Colosseum), AreaId.Maridia, new(34, 7), new(7, 2), 144, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(AqueductSave), AreaId.Maridia, new(19, 12), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(ThePrecious), AreaId.Maridia, new(41, 8), new(2, 3), 144, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(BotwoonETank), AreaId.Maridia, new(26, 9), new(7, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(BotwoonEnergyTank), AreaId.Maridia, new(26, 9), new(7, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(DraygonSave), AreaId.Maridia, new(41, 7), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MaridiaMissileRefill), AreaId.Maridia, new(38, 9), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(PlasmaBeachQuicksand), AreaId.Maridia, new(26, 7), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -266,7 +266,7 @@ public static class RoomDefinitions
         new(nameof(TourianEscape3), AreaId.Tourian, new(12, 20), new(6, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(TourianEscape4), AreaId.Tourian, new(18, 17), new(3, 6), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(UpperTourianSave), AreaId.Tourian, new(21, 13), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(CeresElev), AreaId.Ceres, new(12, 14), new(1, 3), 112, 160, RoomDoorTransitionStyle.ObjectsOnly),
+        new(nameof(CeresElevator), AreaId.Ceres, new(12, 14), new(1, 3), 112, 160, RoomDoorTransitionStyle.ObjectsOnly),
         new(nameof(FallingTile), AreaId.Ceres, new(13, 16), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MagnetStairs), AreaId.Ceres, new(15, 16), new(1, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(DeadScientist), AreaId.Ceres, new(16, 17), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -297,7 +297,7 @@ public static class RoomDefinitions
     /// <summary>The Crateria Kihunter room.</summary>
     public static RoomDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
     /// <summary>The Forgotten Highway Elevator room.</summary>
-    public static RoomDefinition ForgottenHighwayElev { get; } = Find(nameof(ForgottenHighwayElev));
+    public static RoomDefinition ForgottenHighwayElevator { get; } = Find(nameof(ForgottenHighwayElevator));
     /// <summary>The East Ocean room.</summary>
     public static RoomDefinition EastOcean { get; } = Find(nameof(EastOcean));
     /// <summary>The Forgotten Highway Kagos room.</summary>
@@ -311,9 +311,9 @@ public static class RoomDefinitions
     /// <summary>The Moat room.</summary>
     public static RoomDefinition Moat { get; } = Find(nameof(Moat));
     /// <summary>The Red Brinstar Elevator room.</summary>
-    public static RoomDefinition RedBinstarElev { get; } = Find(nameof(RedBinstarElev));
+    public static RoomDefinition RedBrinstarElevator { get; } = Find(nameof(RedBrinstarElevator));
     /// <summary>The Gauntlet Energy Tank room.</summary>
-    public static RoomDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
+    public static RoomDefinition GauntletEnergyTank { get; } = Find(nameof(GauntletEnergyTank));
     /// <summary>The Pre Bowling room.</summary>
     public static RoomDefinition PreBowling { get; } = Find(nameof(PreBowling));
     /// <summary>The Climb room.</summary>
@@ -321,7 +321,7 @@ public static class RoomDefinitions
     /// <summary>The Pit room.</summary>
     public static RoomDefinition Pit { get; } = Find(nameof(Pit));
     /// <summary>The Elevator to Blue Brinstar room.</summary>
-    public static RoomDefinition ElevToBlueBrinstar { get; } = Find(nameof(ElevToBlueBrinstar));
+    public static RoomDefinition ElevatorToBlueBrinstar { get; } = Find(nameof(ElevatorToBlueBrinstar));
     /// <summary>The Bomb Torizo room.</summary>
     public static RoomDefinition BombTorizo { get; } = Find(nameof(BombTorizo));
     /// <summary>The Flyway room.</summary>
@@ -331,7 +331,7 @@ public static class RoomDefinitions
     /// <summary>The Terminator room.</summary>
     public static RoomDefinition Terminator { get; } = Find(nameof(Terminator));
     /// <summary>The Green Brinstar Elevator room.</summary>
-    public static RoomDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
+    public static RoomDefinition GreenBrinstarElevator { get; } = Find(nameof(GreenBrinstarElevator));
     /// <summary>The Lower Mushrooms room.</summary>
     public static RoomDefinition LowerMushrooms { get; } = Find(nameof(LowerMushrooms));
     /// <summary>The Crateria Map room.</summary>
@@ -377,13 +377,13 @@ public static class RoomDefinitions
     /// <summary>The Construction Zone room.</summary>
     public static RoomDefinition ConstructionZone { get; } = Find(nameof(ConstructionZone));
     /// <summary>The Blue Brinstar Energy Tank room.</summary>
-    public static RoomDefinition BlueBrinstarETank { get; } = Find(nameof(BlueBrinstarETank));
+    public static RoomDefinition BlueBrinstarEnergyTank { get; } = Find(nameof(BlueBrinstarEnergyTank));
     /// <summary>The Noob Bridge room.</summary>
     public static RoomDefinition NoobBridge { get; } = Find(nameof(NoobBridge));
     /// <summary>The Green Brinstar Beetoms room.</summary>
     public static RoomDefinition GreenBrinstarBeetoms { get; } = Find(nameof(GreenBrinstarBeetoms));
     /// <summary>The Etecoon Energy Tank room.</summary>
-    public static RoomDefinition EtecoonETank { get; } = Find(nameof(EtecoonETank));
+    public static RoomDefinition EtecoonEnergyTank { get; } = Find(nameof(EtecoonEnergyTank));
     /// <summary>The Etecoon Super room.</summary>
     public static RoomDefinition EtecoonSuper { get; } = Find(nameof(EtecoonSuper));
     /// <summary>The Dachora Energy Refill room.</summary>
@@ -391,13 +391,13 @@ public static class RoomDefinitions
     /// <summary>The Spore Spawn Farming room.</summary>
     public static RoomDefinition SporeSpawnFarming { get; } = Find(nameof(SporeSpawnFarming));
     /// <summary>The Waterway Energy Tank room.</summary>
-    public static RoomDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
+    public static RoomDefinition WaterwayEnergyTank { get; } = Find(nameof(WaterwayEnergyTank));
     /// <summary>The First Missile room.</summary>
     public static RoomDefinition FirstMissile { get; } = Find(nameof(FirstMissile));
     /// <summary>The Pink Brinstar Hoppers room.</summary>
     public static RoomDefinition PinkBrinstarHoppers { get; } = Find(nameof(PinkBrinstarHoppers));
     /// <summary>The Hopper Energy Tank room.</summary>
-    public static RoomDefinition HopperETank { get; } = Find(nameof(HopperETank));
+    public static RoomDefinition HopperEnergyTank { get; } = Find(nameof(HopperEnergyTank));
     /// <summary>The Big Pink Save Room.</summary>
     public static RoomDefinition BigPinkSaveRoom { get; } = Find(nameof(BigPinkSaveRoom));
     /// <summary>The Blue Brinstar Boulders room.</summary>
@@ -431,7 +431,7 @@ public static class RoomDefinitions
     /// <summary>The Warehouse Zeela room.</summary>
     public static RoomDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
     /// <summary>The Warehouse Energy Tank room.</summary>
-    public static RoomDefinition WarehouseETank { get; } = Find(nameof(WarehouseETank));
+    public static RoomDefinition WarehouseEnergyTank { get; } = Find(nameof(WarehouseEnergyTank));
     /// <summary>The Warehouse Kihunter room.</summary>
     public static RoomDefinition WarehouseKihunter { get; } = Find(nameof(WarehouseKihunter));
     /// <summary>The Mini Kraid room.</summary>
@@ -483,21 +483,21 @@ public static class RoomDefinitions
     /// <summary>The Crocomire Escape room.</summary>
     public static RoomDefinition CrocomireEscape { get; } = Find(nameof(CrocomireEscape));
     /// <summary>The Hi-Jump Energy Tank room.</summary>
-    public static RoomDefinition HiJumpETank { get; } = Find(nameof(HiJumpETank));
+    public static RoomDefinition HiJumpEnergyTank { get; } = Find(nameof(HiJumpEnergyTank));
     /// <summary>The Post-Crocomire Farming room.</summary>
-    public static RoomDefinition PostCrocFarming { get; } = Find(nameof(PostCrocFarming));
+    public static RoomDefinition PostCrocomireFarming { get; } = Find(nameof(PostCrocomireFarming));
     /// <summary>The Post-Crocomire Save room.</summary>
-    public static RoomDefinition PostCrocSave { get; } = Find(nameof(PostCrocSave));
+    public static RoomDefinition PostCrocomireSave { get; } = Find(nameof(PostCrocomireSave));
     /// <summary>The Post-Crocomire Power Bombs room.</summary>
-    public static RoomDefinition PostCrocPowerBombs { get; } = Find(nameof(PostCrocPowerBombs));
+    public static RoomDefinition PostCrocomirePowerBombs { get; } = Find(nameof(PostCrocomirePowerBombs));
     /// <summary>The Post-Crocomire Shaft room.</summary>
-    public static RoomDefinition PostCrocShaft { get; } = Find(nameof(PostCrocShaft));
+    public static RoomDefinition PostCrocomireShaft { get; } = Find(nameof(PostCrocomireShaft));
     /// <summary>The Post-Crocomire Missile room.</summary>
-    public static RoomDefinition PostCrocMissile { get; } = Find(nameof(PostCrocMissile));
+    public static RoomDefinition PostCrocomireMissile { get; } = Find(nameof(PostCrocomireMissile));
     /// <summary>The Grapple Tutorial 3 room.</summary>
     public static RoomDefinition GrappleTutorial3 { get; } = Find(nameof(GrappleTutorial3));
     /// <summary>The Post-Crocomire Jump room.</summary>
-    public static RoomDefinition PostCrocJump { get; } = Find(nameof(PostCrocJump));
+    public static RoomDefinition PostCrocomireJump { get; } = Find(nameof(PostCrocomireJump));
     /// <summary>The Grapple Tutorial 2 room.</summary>
     public static RoomDefinition GrappleTutorial2 { get; } = Find(nameof(GrappleTutorial2));
     /// <summary>The Grapple Tutorial 1 room.</summary>
@@ -533,7 +533,7 @@ public static class RoomDefinitions
     /// <summary>The Lava Dive room.</summary>
     public static RoomDefinition LavaDive { get; } = Find(nameof(LavaDive));
     /// <summary>The Lower Norfair Elevator room.</summary>
-    public static RoomDefinition LowerNorfairElev { get; } = Find(nameof(LowerNorfairElev));
+    public static RoomDefinition LowerNorfairElevator { get; } = Find(nameof(LowerNorfairElevator));
     /// <summary>The Upper Norfair Farming room.</summary>
     public static RoomDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
     /// <summary>The Rising Tide room.</summary>
@@ -561,7 +561,7 @@ public static class RoomDefinitions
     /// <summary>The Crocomire Save room.</summary>
     public static RoomDefinition CrocomireSave { get; } = Find(nameof(CrocomireSave));
     /// <summary>The Lower Norfair Elevator Save room.</summary>
-    public static RoomDefinition LNElevSave { get; } = Find(nameof(LNElevSave));
+    public static RoomDefinition LowerNorfairElevatorSave { get; } = Find(nameof(LowerNorfairElevatorSave));
     /// <summary>The Acid Statue room.</summary>
     public static RoomDefinition AcidStatue { get; } = Find(nameof(AcidStatue));
     /// <summary>The Main Hall room.</summary>
@@ -571,11 +571,11 @@ public static class RoomDefinitions
     /// <summary>The Fast Ripper room.</summary>
     public static RoomDefinition FastRipper { get; } = Find(nameof(FastRipper));
     /// <summary>The Golden Torizo Energy Refill room.</summary>
-    public static RoomDefinition GTEnergyRefill { get; } = Find(nameof(GTEnergyRefill));
+    public static RoomDefinition GoldenTorizoEnergyRefill { get; } = Find(nameof(GoldenTorizoEnergyRefill));
     /// <summary>The Ridley room.</summary>
     public static RoomDefinition Ridley { get; } = Find(nameof(Ridley));
     /// <summary>The Lower Norfair Farming room.</summary>
-    public static RoomDefinition LNFarming { get; } = Find(nameof(LNFarming));
+    public static RoomDefinition LowerNorfairFarming { get; } = Find(nameof(LowerNorfairFarming));
     /// <summary>The Fast Pillars Setup room.</summary>
     public static RoomDefinition FastPillarsSetup { get; } = Find(nameof(FastPillarsSetup));
     /// <summary>The Mickey Mouse room.</summary>
@@ -589,9 +589,9 @@ public static class RoomDefinitions
     /// <summary>The Amphitheatre room.</summary>
     public static RoomDefinition Amphitheatre { get; } = Find(nameof(Amphitheatre));
     /// <summary>The Lower Norfair Spring Ball Maze room.</summary>
-    public static RoomDefinition LNSpringBallMaze { get; } = Find(nameof(LNSpringBallMaze));
+    public static RoomDefinition LowerNorfairSpringBallMaze { get; } = Find(nameof(LowerNorfairSpringBallMaze));
     /// <summary>The Lower Norfair Escape Power Bombs room.</summary>
-    public static RoomDefinition LNEscapePowerBombs { get; } = Find(nameof(LNEscapePowerBombs));
+    public static RoomDefinition LowerNorfairEscapePowerBombs { get; } = Find(nameof(LowerNorfairEscapePowerBombs));
     /// <summary>The Red Kihunter Shaft room.</summary>
     public static RoomDefinition RedKihunterShaft { get; } = Find(nameof(RedKihunterShaft));
     /// <summary>The Wasteland room.</summary>
@@ -601,13 +601,13 @@ public static class RoomDefinitions
     /// <summary>The Three Musketeers room.</summary>
     public static RoomDefinition ThreeMusketeers { get; } = Find(nameof(ThreeMusketeers));
     /// <summary>The Ridley Energy Tank room.</summary>
-    public static RoomDefinition RidleyETank { get; } = Find(nameof(RidleyETank));
+    public static RoomDefinition RidleyEnergyTank { get; } = Find(nameof(RidleyEnergyTank));
     /// <summary>The Screw Attack room.</summary>
     public static RoomDefinition ScrewAttack { get; } = Find(nameof(ScrewAttack));
     /// <summary>The Lower Norfair Fireflea room.</summary>
-    public static RoomDefinition LNFireflea { get; } = Find(nameof(LNFireflea));
+    public static RoomDefinition LowerNorfairFireflea { get; } = Find(nameof(LowerNorfairFireflea));
     /// <summary>The Lower Norfair Save room.</summary>
-    public static RoomDefinition LNSave { get; } = Find(nameof(LNSave));
+    public static RoomDefinition LowerNorfairSave { get; } = Find(nameof(LowerNorfairSave));
     /// <summary>The Bowling Alley room.</summary>
     public static RoomDefinition BowlingAlley { get; } = Find(nameof(BowlingAlley));
     /// <summary>The Wrecked Ship Entrance room.</summary>
@@ -623,7 +623,7 @@ public static class RoomDefinitions
     /// <summary>The Electric Death room.</summary>
     public static RoomDefinition ElectricDeath { get; } = Find(nameof(ElectricDeath));
     /// <summary>The Wrecked Ship Energy Tank room.</summary>
-    public static RoomDefinition WreckedShipETank { get; } = Find(nameof(WreckedShipETank));
+    public static RoomDefinition WreckedShipEnergyTank { get; } = Find(nameof(WreckedShipEnergyTank));
     /// <summary>The Basement room.</summary>
     public static RoomDefinition Basement { get; } = Find(nameof(Basement));
     /// <summary>The Wrecked Ship Map room.</summary>
@@ -633,9 +633,9 @@ public static class RoomDefinitions
     /// <summary>The Sponge Bath room.</summary>
     public static RoomDefinition SpongeBath { get; } = Find(nameof(SpongeBath));
     /// <summary>The Wrecked Ship West Super room.</summary>
-    public static RoomDefinition WSWestSuper { get; } = Find(nameof(WSWestSuper));
+    public static RoomDefinition WreckedShipWestSuper { get; } = Find(nameof(WreckedShipWestSuper));
     /// <summary>The Wrecked Ship East Super room.</summary>
-    public static RoomDefinition WSEastSuper { get; } = Find(nameof(WSEastSuper));
+    public static RoomDefinition WreckedShipEastSuper { get; } = Find(nameof(WreckedShipEastSuper));
     /// <summary>The Gravity Suit room.</summary>
     public static RoomDefinition GravitySuit { get; } = Find(nameof(GravitySuit));
     /// <summary>The Wrecked Ship Save room.</summary>
@@ -663,7 +663,7 @@ public static class RoomDefinitions
     /// <summary>The Watering Hole room.</summary>
     public static RoomDefinition WateringHole { get; } = Find(nameof(WateringHole));
     /// <summary>The Northwest Maridia Bug room.</summary>
-    public static RoomDefinition NWestMaridiaBug { get; } = Find(nameof(NWestMaridiaBug));
+    public static RoomDefinition NorthwestMaridiaBug { get; } = Find(nameof(NorthwestMaridiaBug));
     /// <summary>The Crab Shaft room.</summary>
     public static RoomDefinition CrabShaft { get; } = Find(nameof(CrabShaft));
     /// <summary>The Pseudo Plasma Spark room.</summary>
@@ -679,7 +679,7 @@ public static class RoomDefinitions
     /// <summary>The Thread the Needle room.</summary>
     public static RoomDefinition ThreadTheNeedle { get; } = Find(nameof(ThreadTheNeedle));
     /// <summary>The Maridia Elevator room.</summary>
-    public static RoomDefinition MaridiaElev { get; } = Find(nameof(MaridiaElev));
+    public static RoomDefinition MaridiaElevator { get; } = Find(nameof(MaridiaElevator));
     /// <summary>The Plasma Spark room.</summary>
     public static RoomDefinition PlasmaSpark { get; } = Find(nameof(PlasmaSpark));
     /// <summary>The Kassiuz room.</summary>
@@ -719,7 +719,7 @@ public static class RoomDefinitions
     /// <summary>The Springball room.</summary>
     public static RoomDefinition Springball { get; } = Find(nameof(Springball));
     /// <summary>The Below Botwoon Energy Tank room.</summary>
-    public static RoomDefinition BelowBotwoonETank { get; } = Find(nameof(BelowBotwoonETank));
+    public static RoomDefinition BelowBotwoonEnergyTank { get; } = Find(nameof(BelowBotwoonEnergyTank));
     /// <summary>The Colosseum room.</summary>
     public static RoomDefinition Colosseum { get; } = Find(nameof(Colosseum));
     /// <summary>The Aqueduct Save room.</summary>
@@ -727,7 +727,7 @@ public static class RoomDefinitions
     /// <summary>The Precious room.</summary>
     public static RoomDefinition ThePrecious { get; } = Find(nameof(ThePrecious));
     /// <summary>The Botwoon Energy Tank room.</summary>
-    public static RoomDefinition BotwoonETank { get; } = Find(nameof(BotwoonETank));
+    public static RoomDefinition BotwoonEnergyTank { get; } = Find(nameof(BotwoonEnergyTank));
     /// <summary>The Draygon Save room.</summary>
     public static RoomDefinition DraygonSave { get; } = Find(nameof(DraygonSave));
     /// <summary>The Maridia Missile Refill room.</summary>
@@ -791,7 +791,7 @@ public static class RoomDefinitions
     /// <summary>The Upper Tourian Save room.</summary>
     public static RoomDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
     /// <summary>The Ceres Elevator room.</summary>
-    public static RoomDefinition CeresElev { get; } = Find(nameof(CeresElev));
+    public static RoomDefinition CeresElevator { get; } = Find(nameof(CeresElevator));
     /// <summary>The Falling Tile room.</summary>
     public static RoomDefinition FallingTile { get; } = Find(nameof(FallingTile));
     /// <summary>The Magnet Stairs room.</summary>

@@ -1041,8 +1041,8 @@ internal sealed class RoomLoader
         // requests here—the first point matching the game's completed room teardown—
         // so the closed actor survives into the initial viewport.
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, enemies);
-        // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
-        if (room.State.SetupBehavior == RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile)
+        // The pre-Phantoon room's setup holds its projectile place in the pool that Enemies.Load has just cleared.
+        if (room.State.SetupBehavior == RoomSetupBehavior.HoldPrePhantoonProjectilePlace)
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomColourEffects, enemies);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).

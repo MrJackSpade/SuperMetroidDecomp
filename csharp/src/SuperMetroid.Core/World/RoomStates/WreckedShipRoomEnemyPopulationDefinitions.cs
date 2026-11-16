@@ -22,7 +22,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Bull, new(240, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1791))),
         ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETankWhenAreaBossDead),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEnergyTankWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Skultera, new(173, 374), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Skultera, new(576, 300), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
@@ -124,7 +124,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.WreckedShipMapWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WSWestSuperDefault),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipWestSuperDefault),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.SpikyDeathDefault),
@@ -151,7 +151,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.PhantoonWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETankDefault),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEnergyTankDefault),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.GravitySuitDefault),
@@ -249,7 +249,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.WreckedShipSaveWhenAreaBossDead),
         [
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WSWestSuperWhenAreaBossDead),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipWestSuperWhenAreaBossDead),
         [
             new(EnemyDefinitionId.Spark, new(154, 58), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 48)),
             new(EnemyDefinitionId.Spark, new(52, 59), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 32)),
@@ -289,7 +289,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Atomic, new(1232, 126), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
             new(EnemyDefinitionId.Atomic, new(1072, 126), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRight, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
         ], 10),
-        new(nameof(RoomEnemyPopulationDefinitions.WSEastSuperDefault),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEastSuperDefault),
         [
             new(EnemyDefinitionId.Coven, new(136, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Sbug, new(847, 154), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(194), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
@@ -357,7 +357,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.KzanTop, new(432, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 20, FallDistance: 104)),
             new(EnemyDefinitionId.KzanBottom, new(432, 104), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WSEastSuperWhenAreaBossDead),
+        new(nameof(RoomEnemyPopulationDefinitions.WreckedShipEastSuperWhenAreaBossDead),
         [
             new(EnemyDefinitionId.WorkRobot, new(376, 128), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
             new(EnemyDefinitionId.WorkRobot, new(704, 128), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),

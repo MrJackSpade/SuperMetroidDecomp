@@ -515,7 +515,7 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     internal static void VerifyMode7TilePictures()
     {
-        RoomDefinition room = RoomDefinitions.CeresElev;
+        RoomDefinition room = RoomDefinitions.CeresElevator;
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         AffineFloor shown = runtime.Display.Latched.Rooms?.Floor ?? throw new InvalidOperationException($"{room.Name} shows no floor.");

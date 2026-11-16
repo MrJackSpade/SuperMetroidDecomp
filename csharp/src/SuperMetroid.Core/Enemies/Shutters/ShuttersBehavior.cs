@@ -424,10 +424,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Definition {slot.DefinitionId} does not use vertical-shutter initialization.");
         }
 
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
+        ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
+        var state = new VerticalShutterEnemyState(InitialAction(settings.TriggerMode));
         slot.SetSpeciesState(state);
 
-        ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
@@ -471,11 +471,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        // The initial action calls through its parameter table during this very AI
-        // call; it does not spend a frame setting the selected wait action.
-        // Keep Initial live until activation writes the moving action, as the game does.
-        switch (state.Action == VerticalShutterAction.Initial
-            ? SelectInitialVerticalShutterAction(state) : state.Action)
+        switch (state.Action)
         {
             case VerticalShutterAction.WaitForTimer:
                 state.ActionTimer = state.ActionTimer.Decrement().Remaining;
@@ -519,7 +515,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunVerticalShutterStopped(slot, state, camera, end: VerticalDirection.Down);
                 break;
 
-            case VerticalShutterAction.Initial:
             default:
                 throw new InvalidDataException(
                     $"Vertical shutter has no behaviour for action {state.Action}.");
@@ -534,18 +529,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Selects the vertical population's timer, proximity, activation, or idle initial action.</summary>
-    internal static VerticalShutterAction SelectInitialVerticalShutterAction(VerticalShutterEnemyState state)
+    /// <summary>
+    /// The action a vertical shutter whose trigger is <paramref name="triggerMode"/> starts in: waiting for its timer or for
+    /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
+    /// initialization installs it once and the first update already runs it.
+    /// </summary>
+    internal static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => triggerMode switch
     {
-        return state.TriggerMode switch
-        {
-            ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
-            ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
-            ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
-            _ => throw new InvalidDataException($"Vertical shutter trigger mode {state.TriggerMode} is invalid."),
-        };
-    }
+        ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
+        ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
+        ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
+        ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.Still,
+        _ => throw new InvalidDataException($"Vertical shutter trigger mode {triggerMode} is invalid."),
+    };
 
     /// <summary>Starts movement in the primary vertical direction and queues on-screen audio.</summary>
     private void ActivateVerticalShutter(

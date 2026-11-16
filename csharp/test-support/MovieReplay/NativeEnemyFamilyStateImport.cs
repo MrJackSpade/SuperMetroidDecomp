@@ -439,7 +439,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
         {
-            verticalShutterRecord.Action = ShuttersNativeWords.VerticalShutterActions.Decode(words.A, "recorded VerticalShutterAction");
+            verticalShutterRecord.Action = ShuttersNativeWords.DecodeVerticalShutterAction(words.A, verticalShutterRecord.TriggerMode);
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
             verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);

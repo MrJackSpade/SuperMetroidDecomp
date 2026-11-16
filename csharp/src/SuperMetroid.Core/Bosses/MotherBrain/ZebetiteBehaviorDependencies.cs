@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
@@ -15,9 +14,6 @@ internal sealed record ZebetiteBehaviorDependencies
 
     /// <summary>The room the Zebetites is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
-
-    /// <summary>The enemy projectiles the Zebetites fires and spawns.</summary>
-    public required EnemyProjectileEngine Projectiles { get; init; }
 
     /// <summary>The room's earthquake, which the Zebetites starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }

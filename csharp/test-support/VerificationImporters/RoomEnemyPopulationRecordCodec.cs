@@ -20,7 +20,7 @@ internal static class RoomEnemyPopulationRecordCodec
         bool extraIsSettings = EnemySpawnSettingsCodec.TakesExtraPropertySettings(enemy);
         var words = new PopulationWords(initialization, EnemyPropertyWordCodec.SpeciesBitsOf(properties),
             extraIsSettings ? extraProperties : 0, parameter1, parameter2);
-        EnemySpawnSettings settings = EnemySpawnSettingsCodec.Decode(enemy, words);
+        EnemySpawnSettings settings = EnemySpawnSettingsCodec.Decode(enemy, words, new Position16<RoomPixels>(checked((ushort)x), checked((ushort)y)));
         if (words.SpeciesPropertyBits != 0 && EnemySpawnSettingsCodec.Encode(settings).SpeciesPropertyBits == 0)
             throw new InvalidDataException($"Enemy {enemy}'s property word ${properties:X4} holds species bits its settings do not take.");
         EnemyPropertyState state = EnemyPropertyWordCodec.DecodeWithSpeciesBits(properties, extraIsSettings ? 0 : extraProperties);

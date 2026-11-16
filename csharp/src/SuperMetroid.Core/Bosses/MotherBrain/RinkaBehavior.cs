@@ -25,7 +25,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Allocates Rinka dust and death explosion projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Installs the ordinary Rinka's respawn placeholder after death.</summary>
+    /// <summary>Removes a dying Rinka in its death explosion, which an ordinary Rinka respawns from.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Connects Rinka AI to collision, frame context, and death effects.</summary>
@@ -39,7 +39,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The spawn points Mother Brain's three special Rinkas compete for; a Rinka whose own point is off screen or held
-    /// moves to another and rewrites its spawn snapshot.
+    /// moves to another, which becomes its spawn point.
     /// </summary>
     private readonly RinkaSpawnReservations _spawnReservations = new();
     /// <summary>Causes special Rinkas to be removed instead of launched or respawned.</summary>
@@ -67,7 +67,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
     internal void InitializeRinka(RoomEnemyPlace place)
     {
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport);
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
         place.SetSpeciesState(state);
 
         // Both branches first clear the four lifecycle/collision bits. The special
@@ -108,10 +108,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsSpecialRinka(place))
             ReserveSpecialRinkaSpawn(place, state);
 
-        // The population entry is separate and survives clearing the common
-        // actor. Special spawn selection deliberately mutates that snapshot; ordinary
-        // Rinkas continue to return to their original population coordinate.
-        place.Position = place.Position.WithWhole(new(place.Spawn.Population.Position.X, place.Spawn.Population.Position.Y));
+        // A special Rinka returns to its spawn point, the one it last reserved; an ordinary Rinka to its own placement.
+        place.Position = place.Position.WithWhole(state.SpawnPoint is { } point
+            ? RinkaSpawnReservations.Centre(point)
+            : place.Spawn.Population.Position);
         InitializeRinkaLife(place, state);
     }
 
@@ -306,25 +306,20 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reserves a special Rinka's spawn point against the current camera, moving the Rinka and its spawn snapshot to the
-    /// point when it cannot keep its own.
+    /// Reserves a special Rinka's spawn point against the current camera, moving the Rinka to the point it reserves, which
+    /// becomes its spawn point when it cannot keep its own.
     /// </summary>
     private void ReserveSpecialRinkaSpawn(RoomEnemyPlace place, RinkaEnemyState state)
     {
-        // Every point being held is a real failure path: the Rinka keeps its place and whatever point it held.
-        if (_spawnReservations.Reserve(place.Spawn.Population.Position, _rinkaCamera) is not { } reservation)
+        RinkaSpawnPoint own = state.SpawnPoint ?? throw new InvalidOperationException(
+            $"Special Rinka {place.Ordinal} has no spawn point to reserve.");
+        // Every point being held is a real failure path: the Rinka keeps its place and its spawn point.
+        if (_spawnReservations.Reserve(own, _rinkaCamera) is not { } reserved)
             return;
 
-        if (reservation.MovesTo is { } centre)
-        {
-            RoomEnemyPlacement rewrittenPopulation = place.Spawn.Population with
-            {
-                Position = centre,
-            };
-            place.Spawn = place.Spawn with { Population = rewrittenPopulation };
-            place.Position = place.Position.WithWhole(centre);
-        }
-        state.HeldSpawnPoint = reservation.Reserved;
+        state.SpawnPoint = reserved;
+        state.HeldSpawnPoint = reserved;
+        place.Position = place.Position.WithWhole(RinkaSpawnReservations.Centre(reserved));
     }
 
     /// <summary>Releases the spawn point a special Rinka holds, if it holds one.</summary>
@@ -352,7 +347,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
-    private static bool IsSpecialRinka(RoomEnemyPlace place) => place.Spawn.Population.SpawnSettingsOf<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint;
+    private static bool IsSpecialRinka(RoomEnemyPlace place) => place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null;
 
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
     internal EnemyBombReaction RinkaBombReaction => field ??= new()
@@ -419,37 +414,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnDustOrExplosion(position, RinkaDustAnimationIndex);
 
-    /// <summary>Runs a Rinka's death animation.</summary>
+    /// <summary>
+    /// Removes a dying Rinka in its small death explosion: an ordinary Rinka respawns from its population entry when the
+    /// explosion ends, and a terminated special Rinka, which does not respawn, is gone.
+    /// </summary>
     internal void RunRinkaDeathAnimation(RoomEnemyPlace place)
     {
         _deathsAndDrops.RecordKill(place);
-        bool respawns = place.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
-        RoomEnemySpawnSnapshot survivingSpawnSnapshot = place.Spawn;
-
-        // The death explosion draws from the room's shared sheet in its standard colours. When every place is held,
-        // the spawn is lost, and with it both the effect and the only future respawn cue.
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is not null)
-        {
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                projectile,
-                RoomEnemyProjectileKind.EnemyDeathExplosion,
-                _deathsAndDrops.DeathProjectiles,
-                graphics: default);
-            projectile.Position = projectile.Position.WithWhole(place.Position.Whole);
-            projectile.DropDefinitionId = place.DefinitionId;
-            projectile.KilledEnemy = KilledEnemy.Of(place, respawns);
-            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallExplosion));
-        }
-
-        place.Clear();
-
-        // Clearing the enemy leaves its spawn data in place, which the respawn cue rebuilds
-        // the Rinka from; a special Rinka that does not respawn keeps it as every cleared enemy does.
-        place.Spawn = survivingSpawnSnapshot;
-        if (respawns)
-        {
-            place.AwaitRespawn();
-        }
+        _deathsAndDrops.RemoveKilledEnemy(place, EnemyDeathExplosion.Small, respawns: place.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
     }
 }

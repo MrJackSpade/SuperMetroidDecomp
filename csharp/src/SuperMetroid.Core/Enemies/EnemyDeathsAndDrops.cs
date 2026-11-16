@@ -90,8 +90,23 @@ internal sealed class EnemyDeathsAndDrops
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiStates == EnemyAiStates.Grappled)
             samus.Grapple.Phase = GrapplePhase.Dropped;
-        bool respawns = enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
-        RoomEnemySpawnSnapshot survivingSpawn = enemy.Spawn;
+        RemoveKilledEnemy(enemy, deathAnimation, respawns: enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
+        _roomStatus.RecordKill();
+    }
+
+    /// <summary>
+    /// Removes a killed enemy from its place, the one removal every death runs (#2256): its death explosion starts where
+    /// it stood, naming the enemy and whether it respawns, and the place is emptied. The enemy's population entry survives
+    /// the kill (<see cref="RoomEnemyPlace.Clear"/>); a respawning enemy's place stays taken until the explosion's respawn
+    /// cue rebuilds the enemy from that entry. When every projectile place is held the explosion is lost, and with it the
+    /// enemy's drop and its only respawn cue.
+    /// </summary>
+    /// <param name="enemy">The killed enemy.</param>
+    /// <param name="deathAnimation">The explosion it dies in.</param>
+    /// <param name="respawns">Whether the explosion's respawn cue rebuilds the enemy.</param>
+    internal void RemoveKilledEnemy(RoomEnemyPlace enemy, EnemyDeathExplosion deathAnimation, bool respawns)
+    {
+        Ensure.NotNull(enemy);
         EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile();
         if (explosion is not null)
         {
@@ -107,14 +122,8 @@ internal sealed class EnemyDeathsAndDrops
         }
 
         enemy.Clear();
-        enemy.Spawn = survivingSpawn;
         if (respawns)
-        {
-            // The place stays taken until the explosion's respawn cue rebuilds the enemy from its
-            // population entry.
             enemy.AwaitRespawn();
-        }
-        _roomStatus.RecordKill();
     }
 
     /// <summary>Chooses the definition's death explosion, raising the smaller ones for Super Missile kills.</summary>

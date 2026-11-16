@@ -158,7 +158,10 @@ public sealed class RoomEnemyPlace : ISolidEnemy
         Entity = null;
         OccupantStates = new();
     }
-    /// <summary>The population entry the occupant was spawned from, kept unchanged while its live state moves on.</summary>
+    /// <summary>
+    /// The population entry the occupant was spawned from, kept unchanged while its live state moves on and after it is
+    /// killed; only populating the place replaces it.
+    /// </summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
 
     /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
@@ -244,14 +247,15 @@ public sealed class RoomEnemyPlace : ISolidEnemy
 
     /// <summary>
     /// Empties the place when its occupant is killed: its identity, its species states and the place's live values. The
-    /// kill clears what the occupant leaves, so the enemies that read the place find no species state there.
+    /// kill clears what the occupant leaves, so the enemies that read the place find no species state there. The
+    /// population entry the occupant was spawned from survives the kill (<see cref="Spawn"/>): a respawn rebuilds the
+    /// enemy from it (#2256).
     /// </summary>
     internal void Clear()
     {
         _leftovers.Killed();
         Vacate();
         Definition = default;
-        Spawn = default;
         Position = FixedPosition<RoomPixels>.Zero;
         Radius = Extent16<RoomPixels>.Zero;
         Contact = EnemyContact.None;

@@ -63,8 +63,36 @@ internal static class EnemySpawnSettingsCodec
 {
     /// <summary>The settings the words give an <paramref name="enemy"/>; a species its entry tells nothing gets <see cref="EnemySpawnSettings.None"/>.</summary>
     /// <exception cref="InvalidDataException">A word holds a setting the species cannot start with.</exception>
+    /// <exception cref="ArgumentException">The enemy is a Rinka, whose settings also need its placement.</exception>
     public static EnemySpawnSettings Decode(EnemyDefinitionId enemy, PopulationWords words) =>
-        Decoders.TryGetValue(enemy, out Func<PopulationWords, EnemySpawnSettings>? decode) ? decode(words) : EnemySpawnSettings.None;
+        enemy == EnemyDefinitionId.Rinka
+            ? throw new ArgumentException("A Rinka's settings are resolved from its placement as well as its words.", nameof(enemy))
+            : Decoders.TryGetValue(enemy, out Func<PopulationWords, EnemySpawnSettings>? decode) ? decode(words) : EnemySpawnSettings.None;
+
+    /// <summary>
+    /// The settings the words give an <paramref name="enemy"/> placed at <paramref name="position"/>: a Rinka whose first
+    /// parameter is set is one of Mother Brain's room-wide Rinkas, and its shared spawn point is the point whose centre it
+    /// is placed at (#2256); every other species reads its words alone.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// A word holds a setting the species cannot start with, or a room-wide Rinka is placed at none of the spawn points.
+    /// </exception>
+    public static EnemySpawnSettings Decode(EnemyDefinitionId enemy, PopulationWords words, Position16<RoomPixels> position) =>
+        enemy == EnemyDefinitionId.Rinka ? DecodeRinka(words, position) : Decode(enemy, words);
+
+    /// <summary>A Rinka's settings: its own placement, or the shared spawn point whose centre places a room-wide Rinka.</summary>
+    /// <exception cref="InvalidDataException">A room-wide Rinka is placed at none of the spawn points.</exception>
+    private static RinkaSpawnSettings DecodeRinka(PopulationWords words, Position16<RoomPixels> position)
+    {
+        if ((words.Parameter1 & 65535) == 0)
+            return new RinkaSpawnSettings(SharedSpawnPoint: null);
+        foreach (RinkaSpawnPointDefinition point in RinkaSpawnPointDefinitions.SearchOrder)
+        {
+            if (point.Centre == position)
+                return new RinkaSpawnSettings(point.Point);
+        }
+        throw new InvalidDataException($"A room-wide Rinka is placed at {position}, the centre of none of Mother Brain's room's spawn points.");
+    }
 
     /// <summary>The species whose entries tell them settings, each with its packing.</summary>
     private static readonly Dictionary<EnemyDefinitionId, Func<PopulationWords, EnemySpawnSettings>> Decoders = new()
@@ -74,7 +102,6 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.CeresSteam] = words => new CeresSteamSpawnSettings(Variant: Bits(words.Parameter1, 0, 16) switch { 0 => CeresSteamVariant.Up, 1 => CeresSteamVariant.Left, 2 => CeresSteamVariant.Down, 3 => CeresSteamVariant.Right, 4 => CeresSteamVariant.RotatingElevatorLeft, 5 => CeresSteamVariant.RotatingElevatorRight, var other => throw Unmapped("Variant", other) }),
         [EnemyDefinitionId.TourianStatue] = words => new TourianEntranceStatueSpawnSettings(Role: Bits(words.Parameter1, 0, 16) switch { 0 => TourianEntranceStatueRole.SpawnsDecorations, 2 or 4 => TourianEntranceStatueRole.Inert, var other => throw Unmapped("Role", other) }),
         [EnemyDefinitionId.MotherBrainTubes] = words => new MotherBrainTubeSpawnSettings(Piece: Bits(words.Parameter1, 1, 15) switch { 0 => MotherBrainTubePiece.BottomLeft, 1 => MotherBrainTubePiece.BottomRight, 2 => MotherBrainTubePiece.BottomMiddleLeft, 3 => MotherBrainTubePiece.BottomMiddleRight, 4 => MotherBrainTubePiece.Main, var other => throw Unmapped("Piece", other) }, FallDelay: Bits(words.Parameter2, 0, 16)),
-        [EnemyDefinitionId.Rinka] = words => new RinkaSpawnSettings(Placement: (words.Parameter1 & 65535) != 0 ? RinkaPlacement.FreeSpawnPoint : RinkaPlacement.OwnPlacement),
         [EnemyDefinitionId.Zebetite] = words => new ZebetiteSpawnSettings(Half: Bits(words.Parameter1, 0, 16) switch { 0 => ZebetiteHalf.Primary, _ => ZebetiteHalf.Linked }),
         [EnemyDefinitionId.RidleyBreakupPiece] = words => new RidleyExplosionSpawnSettings(Part: Bits(words.Parameter1, 0, 16) switch { 0 => RidleyExplosionPart.TailBaseSegment, 2 => RidleyExplosionPart.TailSecondSegment, 4 => RidleyExplosionPart.TailThirdSegment, 6 => RidleyExplosionPart.TailFourthSegment, 8 => RidleyExplosionPart.TailFifthSegment, 10 => RidleyExplosionPart.TailSixthSegment, 12 => RidleyExplosionPart.TailTip, 14 => RidleyExplosionPart.Wings, 16 => RidleyExplosionPart.Legs, 18 => RidleyExplosionPart.OpenHeadAndNeck, 20 => RidleyExplosionPart.Torso, 22 => RidleyExplosionPart.Claw, var other => throw Unmapped("Part", other) }),
         [EnemyDefinitionId.Dachora] = words => new DachoraSpawnSettings(Facing: Bits(words.Parameter1, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }, Role: (words.Parameter1 & 32768) != 0 ? DachoraRole.SpeedBoostEcho : DachoraRole.Runner),
@@ -266,7 +293,8 @@ internal static class EnemySpawnSettingsCodec
         CeresSteamSpawnSettings s => Checked(EnemyDefinitionId.CeresSteam, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Variant switch { CeresSteamVariant.Up => 0, CeresSteamVariant.Left => 1, CeresSteamVariant.Down => 2, CeresSteamVariant.Right => 3, CeresSteamVariant.RotatingElevatorLeft => 4, CeresSteamVariant.RotatingElevatorRight => 5, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         TourianEntranceStatueSpawnSettings s => Checked(EnemyDefinitionId.TourianStatue, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: s.Role == TourianEntranceStatueRole.SpawnsDecorations ? 0 : 2, Parameter2: 0)),
         MotherBrainTubeSpawnSettings s => Checked(EnemyDefinitionId.MotherBrainTubes, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Piece switch { MotherBrainTubePiece.BottomLeft => 0, MotherBrainTubePiece.BottomRight => 1, MotherBrainTubePiece.BottomMiddleLeft => 2, MotherBrainTubePiece.BottomMiddleRight => 3, MotherBrainTubePiece.Main => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 1), Parameter2: Place(s.FallDelay, 0, 16))),
-        RinkaSpawnSettings s => Checked(EnemyDefinitionId.Rinka, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Placement == RinkaPlacement.FreeSpawnPoint ? 1 : 0), Parameter2: 0)),
+        // A Rinka's shared spawn point is its placement's, not its words': the words say only that it takes one.
+        RinkaSpawnSettings s => new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: s.SharedSpawnPoint is null ? 0 : 1, Parameter2: 0),
         ZebetiteSpawnSettings s => Checked(EnemyDefinitionId.Zebetite, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Half switch { ZebetiteHalf.Primary => 0, ZebetiteHalf.Linked => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         RidleyExplosionSpawnSettings s => Checked(EnemyDefinitionId.RidleyBreakupPiece, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Part switch { RidleyExplosionPart.TailBaseSegment => 0, RidleyExplosionPart.TailSecondSegment => 2, RidleyExplosionPart.TailThirdSegment => 4, RidleyExplosionPart.TailFourthSegment => 6, RidleyExplosionPart.TailFifthSegment => 8, RidleyExplosionPart.TailSixthSegment => 10, RidleyExplosionPart.TailTip => 12, RidleyExplosionPart.Wings => 14, RidleyExplosionPart.Legs => 16, RidleyExplosionPart.OpenHeadAndNeck => 18, RidleyExplosionPart.Torso => 20, RidleyExplosionPart.Claw => 22, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         DachoraSpawnSettings s => Checked(EnemyDefinitionId.Dachora, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Facing switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | (s.Role == DachoraRole.SpeedBoostEcho ? 32768 : 0), Parameter2: 0)),

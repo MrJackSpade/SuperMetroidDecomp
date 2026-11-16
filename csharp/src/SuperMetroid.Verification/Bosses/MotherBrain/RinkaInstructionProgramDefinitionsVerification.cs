@@ -58,10 +58,10 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         RoomEnemyPlace rinka = enemies.Places.InUpdateOrder[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.DefinitionId, default(RoomEnemyDefinition));
-        rinka.SetSpawnParameter1(EnemyDefinitionId.Rinka, special ? (ushort)1 : (ushort)0);
+        rinka.SetSpawnSettings(new RinkaSpawnSettings(special ? RinkaSpawnPoint.FarRightUpper : null));
         rinka.AnimationClock.StepOnNextUpdate();
 
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport)
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, special ? RinkaSpawnPoint.FarRightUpper : null)
         {
             Playback = new(RinkaAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };

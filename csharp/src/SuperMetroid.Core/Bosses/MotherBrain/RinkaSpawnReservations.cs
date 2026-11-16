@@ -16,36 +16,44 @@ internal sealed class RinkaSpawnReservations
     internal bool IsReserved(RinkaSpawnPoint point) => _reserved.Contains(point);
 
     /// <summary>
-    /// Reserves a point for a special Rinka whose population spawns it at <paramref name="populationSpawn"/>. It keeps
-    /// that place and reserves its point when the place is on <paramref name="camera"/>'s screen and its point is free;
-    /// otherwise it moves to the first free point on screen, or failing that the first free point anywhere.
+    /// Reserves a point for a special Rinka whose spawn point is <paramref name="own"/>. It keeps that point when the
+    /// point is on <paramref name="camera"/>'s screen and free; otherwise it takes the first free point on screen, or
+    /// failing that the first free point anywhere, which becomes its spawn point (#2256).
     /// </summary>
     /// <returns>The point reserved, or null when every point is reserved: no point is invented or taken from its holder.</returns>
-    internal RinkaSpawnReservation? Reserve(Position16<RoomPixels> populationSpawn, Position16<RoomPixels> camera)
+    internal RinkaSpawnPoint? Reserve(RinkaSpawnPoint own, Position16<RoomPixels> camera)
     {
-        // The Rinka's own point is the one at its population spawn; a spawn at no point's centre counts as the first
-        // point, while the screen test still reads the spawn itself.
-        RinkaSpawnPointDefinition own = RinkaSpawnPointDefinitions.SearchOrder.FirstOrDefault(
-            definition => definition.Centre == populationSpawn, RinkaSpawnPointDefinitions.SearchOrder[0]);
-        if (IsOnScreen(populationSpawn, camera) && !IsReserved(own.Point))
-            return new(Take(own.Point), MovesTo: null);
+        if (IsOnScreen(Centre(own), camera) && !IsReserved(own))
+            return Take(own);
 
         foreach (RinkaSpawnPointDefinition candidate in RinkaSpawnPointDefinitions.SearchOrder)
         {
             if (IsOnScreen(candidate.Centre, camera) && !IsReserved(candidate.Point))
-                return new(Take(candidate.Point), candidate.Centre);
+                return Take(candidate.Point);
         }
         // The second pass ignores the screen but still refuses a reserved point.
         foreach (RinkaSpawnPointDefinition candidate in RinkaSpawnPointDefinitions.SearchOrder)
         {
             if (!IsReserved(candidate.Point))
-                return new(Take(candidate.Point), candidate.Centre);
+                return Take(candidate.Point);
         }
         return null;
     }
 
     /// <summary>Releases <paramref name="point"/>, which its Rinka held until it left, died or was terminated.</summary>
     internal void Release(RinkaSpawnPoint point) => _reserved.Remove(point);
+
+    /// <summary>Where a Rinka placed at <paramref name="point"/> appears.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="point"/> is not one of the room's spawn points.</exception>
+    internal static Position16<RoomPixels> Centre(RinkaSpawnPoint point)
+    {
+        foreach (RinkaSpawnPointDefinition definition in RinkaSpawnPointDefinitions.SearchOrder)
+        {
+            if (definition.Point == point)
+                return definition.Centre;
+        }
+        throw new InvalidOperationException($"Rinka spawn point {point} has no place in Mother Brain's room.");
+    }
 
     /// <summary>Reserves <paramref name="point"/> and returns it.</summary>
     private RinkaSpawnPoint Take(RinkaSpawnPoint point)

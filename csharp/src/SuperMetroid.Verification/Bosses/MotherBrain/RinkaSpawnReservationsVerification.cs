@@ -1,4 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -6,8 +8,8 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>
 /// Checks Mother Brain's Rinka spawn reservations against the original token table (#1699): over every set of held
-/// points, every screen the camera can show of them and every population spawn, the point reserved, whether the Rinka
-/// moves to it, and its release match the original's reservation and release by token.
+/// points, every screen the camera can show of them and every spawn point a Rinka can hold (#2256), the point reserved,
+/// where the Rinka is placed, and its release match the original's reservation and release by token.
 /// </summary>
 internal static class RinkaSpawnReservationsVerification
 {
@@ -18,21 +20,22 @@ internal static class RinkaSpawnReservationsVerification
     private const int SpawnPointCount = 11;
 
     /// <summary>
-    /// Population spawns at no point's centre: one some screens show, one above the room's top edge, which no screen
-    /// shows, and the room's origin.
-    /// </summary>
-    private static readonly Position16<RoomPixels>[] UnmatchedSpawns = [new(500, 100), new(500, 0xfff0), new(0, 0)];
-
-    /// <summary>
     /// Runs every reservation and release the reservations can reach: each of the 2048 sets of held points, each camera
-    /// whose screen shows a different selection of the spawn places, and each population spawn, reserving and then
-    /// releasing, compared with the original algorithm reading the cartridge's table.
+    /// whose screen shows a different selection of the spawn places, and each spawn point the reserving Rinka holds,
+    /// reserving and then releasing, compared with the original algorithm reading the cartridge's table at that point's
+    /// centre, where the import places a Rinka that starts at it. A room-wide Rinka placed at no point's centre is refused
+    /// at import.
     /// </summary>
     internal static void VerifyRinkaSpawnReservations(CartridgeImportAddressSpace rom)
     {
         SpawnRecord[] table = ReadTable(rom);
-        Position16<RoomPixels>[] spawns = [.. table.Select(record => record.Centre), .. UnmatchedSpawns];
+        Position16<RoomPixels>[] spawns = [.. table.Select(record => record.Centre)];
         Position16<RoomPixels>[] cameras = DistinctScreens(spawns);
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Rinka, PopulationWords.Parameters(1, 0), new(500, 100)),
+            "a room-wide Rinka placed at no spawn point's centre is refused at import");
+        AssertEqual(new RinkaSpawnSettings(RinkaSpawnPoint.CentreUpper),
+            EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Rinka, PopulationWords.Parameters(1, 0), RinkaSpawnReservations.Centre(RinkaSpawnPoint.CentreUpper)),
+            "a room-wide Rinka's spawn point is the point whose centre places it");
         // Each set of held points is one case with its own reservations and its own original table state, reading only
         // the immutable table, spawns, cameras and point definitions, so the 2048 sets run across the machine's cores
         // (#1757); a set writes only its own count, summed once every set has run.
@@ -46,9 +49,9 @@ internal static class RinkaSpawnReservationsVerification
             {
                 if ((held & (1 << index)) == 0)
                     continue;
-                // A point's own centre, seen from a camera at that centre, reserves that point without moving.
-                RinkaSpawnReservation? setUp = reservations.Reserve(table[index].Centre, table[index].Centre);
-                AssertEqual(new RinkaSpawnReservation(RinkaSpawnPointDefinitions.SearchOrder[index].Point, MovesTo: null), setUp,
+                // A point, seen from a camera at its centre, reserves itself.
+                RinkaSpawnPoint point = RinkaSpawnPointDefinitions.SearchOrder[index].Point;
+                AssertEqual(point, reservations.Reserve(point, table[index].Centre),
                     $"held set {held}: point {index} reserves itself");
                 original.Occupied[index] = true;
             }
@@ -56,30 +59,29 @@ internal static class RinkaSpawnReservationsVerification
 
             foreach (Position16<RoomPixels> camera in cameras)
             {
-                foreach (Position16<RoomPixels> spawn in spawns)
+                for (int own = 0; own < SpawnPointCount; own++)
                 {
                     cases++;
-                    RinkaSpawnReservation? reserved = reservations.Reserve(spawn, camera);
+                    Position16<RoomPixels> spawn = spawns[own];
+                    RinkaSpawnPoint? reserved = reservations.Reserve(RinkaSpawnPointDefinitions.SearchOrder[own].Point, camera);
                     TokenReservation expected = original.Reserve(spawn, camera);
-                    if (reserved is not { } reservation)
+                    if (reserved is not { } point)
                     {
                         // Every point held: neither reserves, and nothing is released.
                         AssertTrue(!expected.Reserved, $"held set {held}, camera {camera}, spawn {spawn}: the original reserves token {expected.Token}");
                         continue;
                     }
-                    int token = MotherBrainNativeWords.RinkaSpawnPoints.Word(reservation.Reserved);
-                    Position16<RoomPixels> placed = reservation.MovesTo ?? spawn;
-                    bool moves = reservation.MovesTo is not null;
-                    if (!expected.Reserved || expected.Token != token || expected.Relocated != moves ||
-                        expected.Position != placed || !reservations.IsReserved(reservation.Reserved))
+                    int token = MotherBrainNativeWords.RinkaSpawnPoints.Word(point);
+                    Position16<RoomPixels> placed = RinkaSpawnReservations.Centre(point);
+                    if (!expected.Reserved || expected.Token != token || expected.Position != placed || !reservations.IsReserved(point))
                     {
-                        AssertEqual(expected, new TokenReservation(true, token, moves, placed),
-                            $"held set {held}, camera {camera}, spawn {spawn}: reservation (held after: {reservations.IsReserved(reservation.Reserved)})");
+                        AssertEqual(expected, new TokenReservation(true, token, expected.Relocated, placed),
+                            $"held set {held}, camera {camera}, spawn {spawn}: reservation (held after: {reservations.IsReserved(point)})");
                     }
 
-                    reservations.Release(reservation.Reserved);
+                    reservations.Release(point);
                     original.Release();
-                    if (reservations.IsReserved(reservation.Reserved) || original.Occupied[TableIndex(table, token)])
+                    if (reservations.IsReserved(point) || original.Occupied[TableIndex(table, token)])
                         AssertSameHeld(original, reservations, $"held set {held}, camera {camera}, spawn {spawn}: release");
                 }
             }

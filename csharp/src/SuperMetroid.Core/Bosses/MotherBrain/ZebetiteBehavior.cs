@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -25,8 +23,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Supplies room artwork, data, and event services used by Zebetites.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates the explosion projectile when a Zebetite half dies.</summary>
-    private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Clears actor shaking when the room earthquake ends.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>The room's enemies, whose places are reused across Zebetite generations.</summary>
@@ -55,7 +51,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _doorPassage = dependencies.DoorPassage;
         _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
-        _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
         _places = dependencies.Places;
         _roomStatus = dependencies.RoomStatus;
@@ -245,26 +240,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         linked.FlashTimer = struck.FlashTimer;
     }
 
-    /// <summary>Starts the death explosion, frees the half's place, and records its room kill.</summary>
+    /// <summary>Removes the half in its small death explosion, never to respawn, and records its room kill.</summary>
     private void FinishZebetiteDeath(RoomEnemyPlace place)
     {
-        RoomEnemySpawnSnapshot survivingSpawn = place.Spawn;
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is not null)
-        {
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-                projectile,
-                RoomEnemyProjectileKind.EnemyDeathExplosion,
-                _deathsAndDrops.DeathProjectiles,
-                graphics: default);
-            projectile.Position = projectile.Position.WithWhole(place.Position.Whole);
-            projectile.DropDefinitionId = place.DefinitionId;
-            projectile.KilledEnemy = KilledEnemy.Of(place, respawns: false);
-            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallExplosion));
-        }
-
-        place.Clear();
-        place.Spawn = survivingSpawn;
+        _deathsAndDrops.RemoveKilledEnemy(place, EnemyDeathExplosion.Small, respawns: false);
         _roomStatus.RecordKill();
     }
 

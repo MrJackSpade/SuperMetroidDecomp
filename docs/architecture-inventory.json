@@ -31371,6 +31371,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationProgramLayout.RecordAnimation",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusAnimationProgramLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusAnimationProgramRun",
       "kind": "record",
       "scope": "test",
@@ -122467,6 +122480,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusAnimationName",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationName.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Poses.SamusAnimationPlace",
       "kind": "record struct",
       "scope": "product",
@@ -123263,19 +123289,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Poses/SamusUnauthoredPoseDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusUnreachablePoseDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusUnreachablePoseDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

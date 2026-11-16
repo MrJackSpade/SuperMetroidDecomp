@@ -22,9 +22,6 @@ internal static class SamusPoseNumbers
         ? checked((byte)number)
         : throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined pose.");
 
-    /// <summary>Whether the pose has a record in the pose tables, rather than reading the code past them.</summary>
-    internal static bool HasRecord(SamusPoseId pose) => Number(pose) < SamusPoseNumbering.RecordCount;
-
     /// <summary>
     /// Every pose with a record in the pose tables, in the cartridge's order: the poses each installed per-pose table
     /// holds an entry for. A record no pose names has no entry.

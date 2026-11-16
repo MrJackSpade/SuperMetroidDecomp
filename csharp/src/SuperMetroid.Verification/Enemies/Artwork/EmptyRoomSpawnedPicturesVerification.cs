@@ -24,7 +24,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
         var session = new EnemySession(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(),
             InstalledFixtures.EnemySheets, InstalledFixtures.EnemyFrameDisplays);
         // A fresh presentation draws the standard artwork: the room load draws none of an empty population's.
-        var presentation = new EnemyPresentation(session, new SharedFadeStepCount());
+        var presentation = new EnemyPresentation(session, new EncounterLooks(), new SharedFadeStepCount());
         VerificationAssertions.AssertTrue(presentation.DrawnPopulation is null && ReferenceEquals(presentation.Artwork, InstalledFixtures.EnemySheets.Standard),
             "a room that has placed no enemies draws the standard artwork");
         SpriteGraphics shared = SpriteGraphics.SharedIn(PictureShading.Standard);

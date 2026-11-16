@@ -1193,7 +1193,7 @@ internal static class LookupStream2Verification
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             enemies.GunshipBehavior.ReadyGunshipTakeoffEngines(place);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineReadyingDuration,
-                enemies.Room.Session.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
+                enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
                 "the gunship shows its takeoff look from the readying's last update only");
             enumerated++;
         }

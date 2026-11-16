@@ -32,8 +32,6 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayDisplayState _display;
     /// <summary>Sprite frame made visible at each frame boundary.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
-    /// <summary>How far the room's encounters have played their artwork, which the Ceres Ridley arena's blocks follow (#1466, #1513).</summary>
-    private readonly EnemySession _enemySession;
 
     /// <summary>
     /// The loading or loaded room's enemy displays, whose bosses the publication latches; null before the gameplay
@@ -69,7 +67,6 @@ internal sealed class AcceptedFrameBoundary
         _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
         _displayedSprites = dependencies.DisplayedSprites;
-        _enemySession = dependencies.EnemySession;
         _screenLayers = dependencies.ScreenLayers;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
@@ -216,7 +213,7 @@ internal sealed class AcceptedFrameBoundary
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
         // the Ceres Ridley arena, Ridley's looks (#1466, #1791).
-        var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks);
+        var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, scope.Looks);
         // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
         // The elevator shaft's screen is its turning floor alone: it draws none of its level's blocks (#1647).
         RoomBlockPictureTable pictures = RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior)

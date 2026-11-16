@@ -626,7 +626,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RoomFx = new EnemyRoomFx(dependencies.RoomFx);
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
-        Presentation = new EnemyPresentation(session, compatibility.FadeStepCount);
+        Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
@@ -639,7 +639,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);
-        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, Places, FrameResults);
+        GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, Places, FrameResults, Presentation);
         Terrain = new EnemyTerrain(breakableTerrain);
         CorpseRowDust = new CorpseRowDust(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
@@ -858,9 +858,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         if (_populationLoaded)
             throw new InvalidOperationException("A room's enemy system loads its population once; each room builds its own.");
         _populationLoaded = true;
-        // Every encounter of the new room shows the look its room's load gives it until it shows another (#1538), its
-        // initialization among them.
-        Room.Session.Looks.Restart();
         IRoomEnemyDefinitionSource definitions = Room.Definitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);

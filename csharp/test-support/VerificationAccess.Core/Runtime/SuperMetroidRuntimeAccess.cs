@@ -40,10 +40,13 @@ internal static class SuperMetroidRuntimeAccess
         internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyDefinitionSource definitions,
             IRoomEnemyServices services, IRoomEnemyLoad request)
         {
+            // The new population's encounters start at the looks a room's load gives them, as a room load's do.
+            var looks = new SuperMetroid.Core.Enemies.Artwork.EncounterLooks();
             var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
             {
                 Session = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.ContinuingWithFixturePopulations(self.EnemySession),
                 Compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance),
+                Looks = looks,
                 Definitions = definitions,
                 Services = services,
                 Area = self.Room.LoadedRoom.Area,
@@ -53,7 +56,7 @@ internal static class SuperMetroidRuntimeAccess
                 DoorPassage = self.DoorTransition.Passage,
             });
             enemies.Load(request);
-            self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
+            self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies, Looks = looks });
             return enemies;
         }
 
@@ -67,10 +70,13 @@ internal static class SuperMetroidRuntimeAccess
         {
             RoomScope scope = self.Room.LoadedScope;
             RoomEnemySystem loaded = scope.Enemies;
+            // The rebuilt population's encounters start at the looks the room's load gives them, as the room load's did.
+            var looks = new SuperMetroid.Core.Enemies.Artwork.EncounterLooks();
             var enemies = new RoomEnemySystem(new RoomEnemySystemDependencies
             {
                 Session = self.EnemySession,
                 Compatibility = RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence, self.YardKickDistance),
+                Looks = looks,
                 Definitions = loaded.Room.Definitions,
                 Services = layer(loaded.Room.Services),
                 Area = loaded.Room.Area,
@@ -80,7 +86,7 @@ internal static class SuperMetroidRuntimeAccess
                 DoorPassage = self.DoorTransition.Passage,
             });
             // The room load hands the scope its enemy system before loading the population, as here.
-            self.Room.Adopt(scope with { Enemies = enemies });
+            self.Room.Adopt(scope with { Enemies = enemies, Looks = looks });
             enemies.Load(new RoomEnemyLoadRequest(scope.Room.State.EnemyPopulation,
                 scope.Appearance)
             {

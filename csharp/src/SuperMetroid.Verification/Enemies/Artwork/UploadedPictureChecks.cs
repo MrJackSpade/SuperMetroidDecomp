@@ -8,5 +8,5 @@ internal static class UploadedPictureChecks
 {
     /// <summary>The looks the runtime's room encounters show other than their room's load (#1538).</summary>
     internal static IReadOnlyList<EncounterLook> Shown(SuperMetroidRuntime runtime) =>
-        [.. Enum.GetValues<EncounterArtwork>().Select(runtime.EnemySession.Looks.Current).Where(look => look.Name != EncounterLook.LoadedName)];
+        [.. Enum.GetValues<EncounterArtwork>().Select((runtime.Room.Scope ?? throw new InvalidOperationException("No room is loaded.")).Looks.Current).Where(look => look.Name != EncounterLook.LoadedName)];
 }

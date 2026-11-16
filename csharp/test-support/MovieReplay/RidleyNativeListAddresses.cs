@@ -55,8 +55,10 @@ internal static class RidleyNativeListAddresses
         [0xe84d] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.AimFireball)), 0),
         [0xe904] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.SpawnFireballWithAfterburn)), 0),
         [0xe909] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.SpawnFireballWithoutAfterburn)), 0),
-        [0xe969] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.CeresStartLiftoff)), 0),
-        [0xe976] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.StartLiftoff)), 0),
+        // The cartridge has one lift-off routine per encounter; both set the same rise, and the port's one lift-off cue
+        // leaves the rest to the encounter that owns the body (#2230).
+        [0xe969] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.LiftOff)), 0),
+        [0xe976] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.LiftOff)), 0),
     };
 
     /// <summary>Each breakup program's native one-frame list in bank $A6 ($A6:CA47..CAEF), in authored order.</summary>

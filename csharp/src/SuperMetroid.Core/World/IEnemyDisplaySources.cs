@@ -3,10 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.World;
 
@@ -25,8 +25,11 @@ internal interface IEnemyDisplaySources
     /// <summary>The distortion Crocomire's melt shows on the room while its scroll runs (#1466), or null while it shows none.</summary>
     CrocomireMeltDistortion? CrocomireMelt { get; }
 
-    /// <summary>Ceres Ridley, if loaded.</summary>
-    RidleyEnemyState? CeresRidley { get; }
+    /// <summary>
+    /// How the turning floor Ceres Ridley's getaway flies over appears as the getaway last turned, zoomed and moved it, or
+    /// null while the getaway does not show it (#2228).
+    /// </summary>
+    FloorView? CeresGetawayFloor { get; }
 
     /// <summary>The warning Ceres's self-destruct shows over the foreground (#1555), empty before it shows any.</summary>
     RoomWrittenOverlay CeresWarning { get; }

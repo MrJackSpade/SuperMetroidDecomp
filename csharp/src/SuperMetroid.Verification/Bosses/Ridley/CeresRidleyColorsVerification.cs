@@ -40,7 +40,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyColorFormat.EyeFadeColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.EyeFadeColorCount,
                 color => native.ResolveEyeFade(row, color));
-        for (int row = 0; row < CeresRidleyShadeDefinitions.BodyFadeShadeCount; row++)
+        for (int row = 0; row < RidleyShadeDefinitions.BodyFadeShadeCount; row++)
             Check(RidleySourceDefinitions.Ceres.BodyFadeColors + row *
                 CeresRidleyColorFormat.BodyFadeColorCount * sizeof(ushort),
                 CeresRidleyColorFormat.BodyFadeColorCount,
@@ -74,37 +74,39 @@ internal static class CeresRidleyColorsVerification
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        Action<RoomEnemyPlace> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
+        // Binding gives the place a fresh occupant, so the body is bound before it begins the encounter it holds (#2231).
+        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        Func<RoomEnemyPlace, CeresRidleyState> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(place);
-        CheckCgram(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
+        CheckCgram(enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
-        Action<RidleyEnemyState> eyeTick = RidleyFadeIn.TickEyeFadeIn;
-        Action<RoomEnemyPlace, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.FadeIn.TickBodyFadeIn;
-        Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
-        var state = new RidleyEnemyState { Phase = RidleyPhase.FadeInEyes };
-        for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.FadeStepCount; step++)
+        Action<RidleyEncounterState> eyeTick = RidleyReveal.TickEyeFadeIn;
+        Action<RoomEnemyPlace, RidleyEncounterState> bodyTick = enemies.RidleyBody.Reveal.TickBodyFadeIn;
+        Action<CeresRidleyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes };
+        for (ushort step = 0; step < RidleyEyeFadeDefinitions.FadeStepCount; step++)
         {
-            state.FadeStep = step;
+            state.EyeFade = new RidleyEyeFadeProgress(step);
             state.PhaseTimer = 0;
             eyeTick(state);
-            int row = CeresRidleyEyeFade.Get(step).Shade;
-            AssertEqual(unchecked((ushort)(step + 1)), state.FadeStep,
+            int row = RidleyEyeFade.Get(step).Shade;
+            AssertEqual(step + 1, state.EyeFade.Step,
                 $"installed eye fade step {step} advances");
             CheckCgram(state, CeresRidleyColorFormat.EyeFadeColorCount,
                 CeresRidleyShadeDefinitionsConstants.EyeFadeCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
-        state.Phase = RidleyPhase.FadeInBody;
-        for (int row = 0; row < CeresRidleyShadeDefinitions.BodyFadeShadeCount; row++)
+        state.RevealPhase = RidleyRevealPhase.FadeInBody;
+        for (int row = 0; row < RidleyShadeDefinitions.BodyFadeShadeCount; row++)
         {
-            state.FadeStep = row;
+            state.BodyFade = new RidleyBodyFadeProgress(row);
             state.PhaseTimer = 1;
             bodyTick(place, state);
-            AssertEqual(row == CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
-                state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
+            // The body fade keeps its own progress (#2228): the last row completes it rather than resetting a shared step.
+            AssertEqual(row + 1, state.BodyFade.Shade, $"installed body fade row {row} advances to the next row");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
                 CeresRidleyShadeDefinitionsConstants.BodyFadeBgCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveBodyFade(row, color),
@@ -128,14 +130,13 @@ internal static class CeresRidleyColorsVerification
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
         Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
-        RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
+        CeresRidleyState activeRidley = enemies.CeresRidley() ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
-        activeRidley.Phase = RidleyPhase.CeresRetreatDelay;
+        activeRidley.Phase = CeresRidleyPhase.RetreatDelay;
         activeRidley.PhaseTimer = 0;
         activeRidley.MovementAnimationEnabled = false;
-        enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
-        AssertEqual(RidleyPhase.CeresPublishEscapeHandoff, activeRidley.Phase,
+        enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, activeRidley, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
+        AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
             CeresRidleyShadeDefinitionsConstants.RetreatBgCgramIndex,
@@ -155,23 +156,24 @@ internal static class CeresRidleyColorsVerification
         {
             // Compare every callback, including the three skipped frame counters
             // between each alarm color upload.
-            var nativeTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructAlarm);
-            var stockTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructAlarm);
-            var nativeState = new RidleyEnemyState();
-            var stockState = new RidleyEnemyState();
+            // The station's escape steps the alarm (#2228).
+            CeresEscape nativeEscape = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).CeresEscape;
+            CeresEscape stockEscape = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).CeresEscape;
+            var nativeState = new CeresRidleyState(Position16<RoomPixels>.Zero);
+            var stockState = new CeresRidleyState(Position16<RoomPixels>.Zero);
             for (ushort frame = 0; frame < CeresRidleyColorFormat.AlarmStepCount * 4; frame++)
             {
-                nativeTick(nativeState, frame);
-                stockTick(stockState, frame);
-                RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, original);
-                RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, original);
-                AssertEqual(nativeState.SelfDestructAlarmStep, stockState.SelfDestructAlarmStep,
+                nativeEscape.StepAlarm(frame);
+                stockEscape.StepAlarm(frame);
+                RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, nativeEscape, original);
+                RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, stockEscape, original);
+                AssertEqual(nativeEscape.Warning.AlarmStep, stockEscape.Warning.AlarmStep,
                     $"stock Ceres alarm frame {frame} selection");
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
             }
-            AssertEqual(0, stockState.SelfDestructAlarmStep,
+            AssertEqual(0, stockEscape.Warning.AlarmStep,
                 "Ceres alarm frame sixteen wraps to zero");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres alarm never reads its source color rows");
@@ -184,19 +186,19 @@ internal static class CeresRidleyColorsVerification
             // parity; the guarded installed path proves no copied ROM colors are read.
             var nativeEnemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var stockEnemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var nativeTick = new Action<RoomEnemyPlace, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
-            var stockTick = new Action<RoomEnemyPlace, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
+            var nativeTick = new Action<RoomEnemyPlace, NorfairRidleyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
+            var stockTick = new Action<RoomEnemyPlace, NorfairRidleyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
             RoomEnemyPlace nativePlace = nativeEnemy.Places.InUpdateOrder[0];
             RoomEnemyPlace stockPlace = stockEnemy.Places.InUpdateOrder[0];
-            var nativeState = new RidleyEnemyState();
-            var stockState = new RidleyEnemyState();
+            var nativeState = new NorfairRidleyState();
+            var stockState = new NorfairRidleyState();
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799, 0 })
             {
                 nativePlace.Health = stockPlace.Health = health;
                 nativeTick(nativePlace, nativeState);
                 stockTick(stockPlace, stockState);
-                RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, original);
-                RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, original);
+                RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, escape: null, original);
+                RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, escape: null, original);
                 ushort stage = health switch
                 {
                     < 1800 => 3,
@@ -227,10 +229,10 @@ internal static class CeresRidleyColorsVerification
                     $"Ceres Ridley source ${source:X6} color {color}");
             }
         }
-        void CheckCgram(RidleyEnemyState shown, int count, int destination, Func<int, RgbColor> resolve, string context)
+        void CheckCgram(CeresRidleyState shown, int count, int destination, Func<int, RgbColor> resolve, string context)
         {
             // The colours the encounter shows are the import's shades of the installed colours, laid as its AI laid them (#1512).
-            RgbColor[] cgram = RidleyLaidColours.Ceres(shown, original);
+            RgbColor[] cgram = RidleyLaidColours.Ceres(shown, escape: null, original);
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram[destination + color],
                     $"{context} color {color}");

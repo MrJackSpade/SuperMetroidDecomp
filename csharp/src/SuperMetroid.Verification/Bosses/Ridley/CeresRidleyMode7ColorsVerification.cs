@@ -48,12 +48,14 @@ internal static class CeresRidleyMode7ColorsVerification
                 File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)),
                 ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        runtime.Artwork.ScreenContent = original;
+        var enemies = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(),
+            SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom());
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var ridley = new RidleyEnemyState();
-        Action<FloorZoom> select = selectedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, selectedZoom);
+        // The station's escape shows the floor's zoom (#2228); Ceres Ridley's own colours lay nothing here.
+        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
+        CeresEscape escape = enemies.CeresEscape;
+        Action<FloorZoom> select = escape.ShowFloorZoom;
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {
@@ -62,7 +64,7 @@ internal static class CeresRidleyMode7ColorsVerification
             visited.Add(row);
             select(frame.Zoom);
             // The colours the encounter shows are the import's shades of the installed colours, laid as the getaway laid them (#1512).
-            RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, original);
+            RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, escape, original);
             for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)
                 AssertEqual(InstalledFixtures.ImportOf(original).CeresRidleyFloorColors.Resolve(row, color),
                     cgram[CeresRidleyShadeDefinitionsConstants.Mode7ZoomCgramIndex + color],

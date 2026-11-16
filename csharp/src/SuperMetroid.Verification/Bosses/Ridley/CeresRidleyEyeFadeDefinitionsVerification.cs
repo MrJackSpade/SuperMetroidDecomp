@@ -16,55 +16,51 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
     internal static void VerifyCeresRidleyEyeFadeDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort offset = 0;
-             offset < CeresRidleyEyeFadeDefinitions.FadeStepCount;
+             offset < RidleyEyeFadeDefinitions.FadeStepCount;
              offset++)
         {
-            CeresRidleyEyeFadeStep compiled = CeresRidleyEyeFade.Get(offset);
+            RidleyEyeFadeStep compiled = RidleyEyeFade.Get(offset);
             AssertTrue(!compiled.IsComplete,
                 $"Ceres Ridley eye-fade offset {offset} remains active");
             AssertEqual(
-                rom.ReadCartridgeByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress + offset),
+                rom.ReadCartridgeByte(RidleyEyeFadeDefinitions.NativeScheduleAddress + offset),
                 compiled.Shade,
                 $"Ceres Ridley eye-fade row {offset}");
         }
 
         AssertEqual((byte)0xff,
-            rom.ReadCartridgeByte(CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
-                CeresRidleyEyeFadeDefinitions.FadeStepCount),
+            rom.ReadCartridgeByte(RidleyEyeFadeDefinitions.NativeScheduleAddress +
+                RidleyEyeFadeDefinitions.FadeStepCount),
             "Ceres Ridley eye-fade native terminator");
         AssertTrue(
-            CeresRidleyEyeFade.Get(
-                CeresRidleyEyeFadeDefinitions.FadeStepCount).IsComplete,
+            RidleyEyeFade.Get(
+                RidleyEyeFadeDefinitions.FadeStepCount).IsComplete,
             "Ceres Ridley eye-fade compiled terminator");
         AssertThrows<InvalidDataException>(
-            () => CeresRidleyEyeFade.Get(
-                CeresRidleyEyeFadeDefinitions.FadeStepCount + 1),
+            () => RidleyEyeFade.Get(
+                RidleyEyeFadeDefinitions.FadeStepCount + 1),
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
         CeresRidleyColorCatalog colours = RetailImportPresentationFixture().CeresRidleyColors;
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
-        Action<RidleyEnemyState> tick = RidleyFadeIn.TickEyeFadeIn;
+        Action<CeresRidleyState> tick = RidleyReveal.TickEyeFadeIn;
 
-        var state = new RidleyEnemyState
-        {
-            Phase = RidleyPhase.FadeInEyes,
-            MovementAnimationEnabled = false,
-        };
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes, MovementAnimationEnabled = false };
         for (ushort offset = 0;
-             offset < CeresRidleyEyeFadeDefinitions.FadeStepCount;
+             offset < RidleyEyeFadeDefinitions.FadeStepCount;
              offset++)
         {
-            state.FadeStep = offset;
+            state.EyeFade = new RidleyEyeFadeProgress(offset);
             state.PhaseTimer = 0;
             tick(state);
 
-            CeresRidleyEyeFadeStep expected = CeresRidleyEyeFade.Get(offset);
+            RidleyEyeFadeStep expected = RidleyEyeFade.Get(offset);
             // The colours the encounter shows are the import's shades of its installed colours, laid as the fade laid them (#1512).
             ushort[] cgram = RidleyLaidColours.Of(state, shades, [], 0);
-            AssertEqual(unchecked((ushort)(offset + 1)), state.FadeStep,
+            AssertEqual(offset + 1, state.EyeFade.Step,
                 $"production Ceres eye-fade offset {offset} advances");
-            AssertEqual(RidleyPhase.FadeInEyes, state.Phase,
+            AssertEqual(RidleyRevealPhase.FadeInEyes, state.RevealPhase,
                 $"production Ceres eye-fade offset {offset} remains in fade phase");
             for (int color = 0; color < 3; color++)
             {
@@ -76,12 +72,14 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             }
         }
 
-        state.FadeStep = CeresRidleyEyeFadeDefinitions.FadeStepCount;
+        state.EyeFade = new RidleyEyeFadeProgress(RidleyEyeFadeDefinitions.FadeStepCount);
         state.PhaseTimer = 0;
         tick(state);
-        AssertEqual(0, state.FadeStep,
-            "production Ceres eye-fade terminator resets its offset");
-        AssertEqual(RidleyPhase.FadeInBody, state.Phase,
+        // Each fade keeps its own progress (#2228): the completed eye fade stays complete, and the body fade starts at black.
+        AssertEqual(RidleyEyeFadeDefinitions.FadeStepCount, state.EyeFade.Step,
+            "production Ceres eye-fade terminator keeps its completed offset");
+        AssertEqual(0, state.BodyFade.Shade, "production Ceres body fade starts from black");
+        AssertEqual(RidleyRevealPhase.FadeInBody, state.RevealPhase,
             "production Ceres eye-fade terminator enters body fade");
         AssertTrue(state.MovementAnimationEnabled,
             "production Ceres eye-fade terminator enables movement animation");
@@ -96,9 +94,9 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
     /// <summary>Rejects runtime access to the migrated bank-$A6 eye-fade selector bytes.</summary>
     private static CartridgeReadGuard NewCeresRidleyEyeFadeReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address >= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress &&
-                address <= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
-                    CeresRidleyEyeFadeDefinitions.FadeStepCount,
+            .Forbid(address => address >= RidleyEyeFadeDefinitions.NativeScheduleAddress &&
+                address <= RidleyEyeFadeDefinitions.NativeScheduleAddress +
+                    RidleyEyeFadeDefinitions.FadeStepCount,
                 address => $"Ceres Ridley eye fade attempted schedule read ${address:X6}.");
 
     /// <summary>Runs the eye-fade schedule comparison with the retail cartridge.</summary>

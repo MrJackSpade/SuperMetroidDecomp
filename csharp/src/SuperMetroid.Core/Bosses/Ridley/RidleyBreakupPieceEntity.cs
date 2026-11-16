@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="ridley">The Lower Norfair Ridley owner.</param>
 /// <param name="place">The place the piece occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RidleyBreakupPieceEntity(RidleyBehavior ridley, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <inheritdoc/>
-    public void Initialize() => ridley.Death.RunRidleyExplosionInitializationAi(Place);
+    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);

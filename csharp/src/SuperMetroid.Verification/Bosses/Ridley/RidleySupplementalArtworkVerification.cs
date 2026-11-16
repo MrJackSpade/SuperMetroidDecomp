@@ -80,28 +80,37 @@ internal static class RidleySupplementalArtworkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(place, "Ceres Ridley");
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        var state = new RidleyEnemyState
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
         {
             MovementAnimationEnabled = true,
-            FacingDirection = facing,
-            WingBeatStep = wingFrame,
-            TailSegments = tailDirection is null ? [] :
-                [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
+            Flight = { FacingDirection = facing, WingBeatStep = wingFrame },
+        };
+        if (tailDirection is { } direction)
+        {
+            for (int index = 0; index < 7; index++)
+            {
+                state.Tail.Segments[index] = new RidleyTailSegment
                 {
                     Position = new Position16<RoomPixels>(
                         unchecked((ushort)(80 + index * 10)),
                         unchecked((ushort)(120 + index * 3))),
-                    Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? tailDirection.Value << 4 : 0),
-                })],
-        };
-        enemies.RidleyEncounter.Ridley = state;
+                    Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? direction << 4 : 0),
+                };
+            }
+        }
+        place.HoldRidley(state);
+        // A wing selection draws his wings alone, a tail direction his tail alone (#2229: the two parts of his drawing).
         var oam = new OamBuffer();
-        oam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(
-            frame, place, Position16<RoomPixels>.Zero));
+        oam.AppendDrawn(frame =>
+        {
+            if (tailDirection is null)
+                enemies.RidleyBody.Drawing.DrawWings(frame, place, state, Position16<RoomPixels>.Zero);
+            else
+                enemies.RidleyBody.Drawing.DrawTail(frame, state, Position16<RoomPixels>.Zero);
+        });
         return oam;
     }
 

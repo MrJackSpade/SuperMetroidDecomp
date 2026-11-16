@@ -39,7 +39,7 @@ internal sealed class RidleyNativeInstructionPointers
     /// an animation his owner started for his facing stands at its left-facing list's entry, which the cartridge starts for
     /// either facing (#2175).
     /// </summary>
-    internal ushort Body(RidleyEnemyState state) =>
+    internal ushort Body(RidleyFlightState state) =>
         (state.BodyPlayback.Place.Beat == AnimationPlace.NotEntered
             ? RidleyNativeProgramOracle.FacedStartPointer(state.BodyPlayback.Animation)
             : null)
@@ -62,7 +62,7 @@ internal sealed class RidleyNativeInstructionPointers
     internal ushort? TranslatedEnemy(RoomEnemySystem enemies, RoomEnemyPlace actor)
     {
         if (RidleyInteractions.IsRidleyDefinition(actor.DefinitionId))
-            return Body(RequireRidley(enemies));
+            return Body(RequireRidley(enemies).Flight);
         if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
         {
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
@@ -98,6 +98,6 @@ internal sealed class RidleyNativeInstructionPointers
         ?? NativeEnemyAnimationOracle.PlaybackAt(body, RidleyNativeProgramOracle.BodyListEntries, RidleyAnimations.StartingAt, address);
 
     /// <summary>Ridley's encounter state.</summary>
-    private static RidleyEnemyState RequireRidley(RoomEnemySystem enemies) =>
-        enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ridley's actors require Ridley's encounter state.");
+    private static RidleyEncounterState RequireRidley(RoomEnemySystem enemies) =>
+        enemies.Ridley() ?? throw new InvalidOperationException("Ridley's actors require Ridley's encounter state.");
 }

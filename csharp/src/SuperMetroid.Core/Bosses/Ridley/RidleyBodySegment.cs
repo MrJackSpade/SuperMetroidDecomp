@@ -39,9 +39,7 @@ internal enum RidleyBodySegment
     /// <summary>The right-facing fireballing tail.</summary>
     FireballingEndFacingRight,
     /// <summary>Taking off facing left.</summary>
-    /// <remarks>It calls the Ceres lift-off, as the game's animation does.</remarks>
     TransitionToFlyingFacingLeft,
     /// <summary>The right-facing take-off.</summary>
-    /// <remarks>It calls the Lower Norfair lift-off, as the game's animation does.</remarks>
     TransitionToFlyingFacingRight,
 }

@@ -217,7 +217,9 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<RoomEffectActor> RoomEffectActors => [.. self.EffectActors.Live];
 
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
-        internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior.SporeSpawn;
+        /// <remarks>His body holds his encounter from its initialization (#2231), so the check finds it there.</remarks>
+        internal SporeSpawnEnemyState? SporeSpawn =>
+            self.Places.InUpdateOrder.Select(place => place.SpeciesState<SporeSpawnEnemyState>()).FirstOrDefault(state => state is not null);
 
         /// <summary>The Boyon state of each physical slot's occupant, or null where no initialized Boyon occupies it.</summary>
         internal IReadOnlyList<BoyonEnemyState?> BoyonStates =>
@@ -408,8 +410,13 @@ internal static class RoomEnemySystemAccess
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
-        internal bool ResolveRidleySamusContact(SamusState samus) =>
-            self.CeresRidleyBehavior.Hits.ResolveRidleyBodySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
-            self.RidleyTail.ResolveRidleyTailSamusContact(samus);
+        internal bool ResolveRidleySamusContact(SamusState samus)
+        {
+            // Each body resolves its own contact with the encounter it holds (#2231).
+            RoomEnemyPlace body = self.Places.InUpdateOrder.First(place => place.Entity is SuperMetroid.Core.Bosses.Ridley.RidleyEntity);
+            SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState ridley = SuperMetroid.Core.Bosses.Ridley.RidleyEntity.EncounterOf(body);
+            return self.RidleyBody.Contact.ResolveSamusContact(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
+                SuperMetroid.Core.Bosses.Ridley.RidleyTail.ResolveRidleyTailSamusContact(body, ridley, samus);
+        }
     }
 }

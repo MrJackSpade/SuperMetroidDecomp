@@ -5,16 +5,17 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The Ceres encounter over Ridley's encounter state and Ceres Ridley.</summary>
-/// <param name="encounter">Ridley's encounter state.</param>
+/// <summary>The Ceres encounter over the room's view of Ridley, Ceres Ridley and the station's escape.</summary>
+/// <param name="encounter">The room's view of Ridley's encounters.</param>
 /// <param name="ceresRidley">Ceres Ridley.</param>
-internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley) : ICeresEncounter
+/// <param name="escape">The station's escape, whose getaway the room main runs.</param>
+internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape) : ICeresEncounter
 {
     /// <inheritdoc/>
     public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
 
     /// <inheritdoc/>
-    public bool RidleyPresent => encounter.Ridley is not null;
+    public bool RidleyPresent => encounter.RidleyPresent;
 
     /// <inheritdoc/>
     public int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles) =>
@@ -30,5 +31,5 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
 
     /// <inheritdoc/>
     public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int frameCounter) =>
-        ceresRidley.Getaway.RunCeresRidleyGetawayRoomMain(samus, frameCounter);
+        escape.RunGetawayRoomMain(samus, frameCounter);
 }

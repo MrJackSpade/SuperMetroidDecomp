@@ -431,14 +431,17 @@ internal static class LookupStream4Verification
         for (int color = 0; color < 3; color++)
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         IReadOnlyList<SheetShade> room = [.. RidleySheetShades.CeresRoom(stock, floor), .. RidleySheetShades.CeresWarning(stock)];
-        Action<RidleyEnemyState, int> update = CeresRidleyGetaway.UpdateCeresSelfDestructAlarm;
-        var state = new RidleyEnemyState { SelfDestructAlarmStep = 15 };
+        // The station's escape steps the alarm (#2228); Ceres Ridley's own colours lay nothing here.
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        CeresEscape escape = enemies.CeresEscape;
+        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
+        escape.Warning.AlarmStep = 15;
         for (ushort nmi = 0; nmi < 64; nmi++)
         {
-            update(state, nmi);
-            ushort[] laid = RidleyLaidColours.Of(state, [], room, 0x1234);
+            escape.StepAlarm(nmi);
+            ushort[] laid = RidleyLaidColours.Of(ridley, escape, [], room, 0x1234);
             int row = nmi / 4;
-            AssertEqual((ushort)row, state.SelfDestructAlarmStep, "actual alarm advances only every fourth NMI and wraps");
+            AssertEqual((ushort)row, escape.Warning.AlarmStep, "actual alarm advances only every fourth NMI and wraps");
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 97 and <= 99 ? Native(row, color - 97) : (ushort)0x1234, laid[color], "actual gated producer preserves exact row and other CGRAM colors");
         }
@@ -812,40 +815,36 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link).RawValue, "Native shrink threshold equals initialized rest geometry");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
-        Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
+        Action<RidleyTailState> update = RidleyTail.UpdateRidleyTailDistances;
         foreach (int delta in new[] { -1, 0, 1 })
         {
-            var state = new RidleyEnemyState
+            var state = new RidleyTailState(damage: 0);
+            for (int link = 0; link < 7; link++)
             {
-                TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
-                {
-                    Distance = new SignedEightEight(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta),
-                }).ToArray(),
-            };
+                state.Segments[link].Distance = new SignedEightEight(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta);
+                state.Segments[link].TargetDistance = null;
+            }
             update(state);
             for (int link = 0; link < 7; link++)
             {
                 int before = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta;
                 ushort expected = (ushort)(before - (link != 0 && delta > 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf8b + (link - 1) * 0x36)) : 0));
-                AssertEqual(expected, state.TailSegments[link].Distance.RawValue, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
+                AssertEqual(expected, state.Segments[link].Distance.RawValue, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
             }
         }
-        var extending = new RidleyEnemyState
+        var extending = new RidleyTailState(damage: 0) { ExtensionSpeed = SignedEightEight.FromParts(0, 240) };
+        for (int link = 0; link < 7; link++)
         {
-            TailExtensionSpeed = SignedEightEight.FromParts(0, 240),
-            TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
-            {
-                Distance = new SignedEightEight(link == 0 ? 123 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1),
-                TargetDistance = new SignedEightEight(1),
-            }).ToArray(),
-        };
+            extending.Segments[link].Distance = new SignedEightEight(link == 0 ? 123 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1);
+            extending.Segments[link].TargetDistance = new SignedEightEight(1);
+        }
         update(extending);
         for (int link = 1; link < 7; link++)
         {
-            AssertEqual<SignedEightEight?>(null, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.TailSegments[link].Distance.RawValue, "Actual tail still extends and clamps on the target-clearing frame");
+            AssertEqual<SignedEightEight?>(null, extending.Segments[link].TargetDistance, "Actual tail extension clears the passed target first");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.Segments[link].Distance.RawValue, "Actual tail still extends and clamps on the target-clearing frame");
         }
-        AssertEqual(123, extending.TailSegments[0].Distance.RawValue, "Tail base stays outside extension updates");
+        AssertEqual(123, extending.Segments[0].Distance.RawValue, "Tail base stays outside extension updates");
         Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
     }
 
@@ -863,8 +862,11 @@ internal static class LookupStream4Verification
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom)));
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
-        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
+        // The station's escape flies the getaway (#2228), from its second frame.
+        CeresEscape escape = enemies.CeresEscape;
+        escape.BeginGetaway();
+        escape.Floor.FrameIndex = 1;
+        Action<SamusState?, int> tick = escape.RunGetawayRoomMain;
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
         CeresFloorAnimationFrame? Capsule() => map.Shown.TryGetValue(CeresFloorPart.BabyCapsule, out CeresFloorAnimationFrame capsule) ? capsule : null;
@@ -875,9 +877,9 @@ internal static class LookupStream4Verification
             CeresFloorAnimationFrame? before = Capsule();
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
-            tick(state, null, nmi);
+            tick(null, nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
-            AssertEqual((ushort)expectedPhase, state.GetawayCapsuleStep, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual((ushort)expectedPhase, escape.Floor.CapsuleStep, "Actual getaway advances Baby before selection only on every fourth NMI");
             AssertEqual(advances ? CeresFloorAnimation.BabyFrameForPhase(expectedPhase) : before, Capsule(),
                 "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }
@@ -1221,7 +1223,7 @@ internal static class LookupStream4Verification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Func<SamusState, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
-        Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
+        Action<NorfairRidleyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
@@ -1230,14 +1232,14 @@ internal static class LookupStream4Verification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequested = false, TailAction = RidleyTailAction.Pogo, IntangibilityTimer = 99 };
+            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, IntangibilityTimer = 99 };
             release(state, samus);
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
-            AssertTrue(state.TailWhipRequested, "Actual release requests tail whip");
-            AssertEqual(RidleyTailAction.Neutral, state.TailAction, "Actual release resets tail controller");
+            AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
+            AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
         }
-        var absentState = new RidleyEnemyState();
+        var absentState = new NorfairRidleyState();
         release(absentState, null);
         AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
     }
@@ -1283,7 +1285,7 @@ internal static class LookupStream4Verification
     /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
-        Func<RidleyEnemyState, RoomLevelData, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
+        Func<RidleyTailState, RoomLevelData, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
         for (int solidRow = 0; solidRow < 2; solidRow++)
         {
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
@@ -1292,11 +1294,10 @@ internal static class LookupStream4Verification
             for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {
-                var state = new RidleyEnemyState
-                {
-                    TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment { Position = new Position16<RoomPixels>(256, 0) }).ToArray(),
-                };
-                state.TailSegments[segmentIndex].Position = new Position16<RoomPixels>(0, y);
+                var state = new RidleyTailState(damage: 0);
+                foreach (RidleyTailSegment segment in state.Segments)
+                    segment.Position = new Position16<RoomPixels>(256, 0);
+                state.Segments[segmentIndex].Position = new Position16<RoomPixels>(0, y);
                 bool expected = false;
                 if (segmentIndex >= 2)
                 {
@@ -1306,7 +1307,6 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(expected, touches(state, level), "Actual tail terrain probes retain each native joint, ADC offset and word wrap");
             }
-            AssertTrue(!touches(new RidleyEnemyState(), level), "Incomplete tail keeps terrain gate");
         }
     }
 
@@ -1956,29 +1956,29 @@ internal static class LookupStream4Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
-                new Action<RoomEnemyPlace>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(place);
-                RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
+                new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
+                NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
+                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
-                Action<RoomEnemyPlace, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
+                // The hold before take-off runs the arena reveal; the reveal's end takes him off (#2229).
                 for (int call = 0; call < 46; call++)
                 {
-                    tick(place, state);
+                    enemies.NorfairRidleyBehavior.Body.Reveal.Run(place, state, enemies.NorfairRidleyBehavior);
                     ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
                     AssertEqual(2 - call % 3, state.PhaseTimer, "Actual three-call producer cadence preserved");
-                    AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadeStep, "Actual row and zero terminator progression");
+                    AssertEqual(call < 45 ? row + 1 : NorfairRidleyRevealDefinitions.RevealStepCount + 1, state.ArenaReveal.Step, "Actual row and terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
                             : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
                             : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
                             cgram[color], "Actual producer preserves full CGRAM and held rows");
                 }
-                AssertEqual(RidleyPhase.ClearVelocity, state.Phase, "Native terminator handoff");
+                AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
-                AssertEqual(8, state.WingAnimationTimer, "Native wing timer handoff");
-                AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
+                AssertEqual(8, state.Flight.WingAnimationTimer, "Native wing timer handoff");
+                AssertTrue(state.Tail.Segments.All(segment => segment.Active), "Native tail activation handoff");
             }
         }
         foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
@@ -2030,8 +2030,8 @@ internal static class LookupStream4Verification
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
                 place.Bind(EnemyDefinitionId.Ridley, place.Definition);
-                new Action<RoomEnemyPlace>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(place);
-                ushort[] shown = RidleyLaidColours.Of(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
+                new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
+                ushort[] shown = RidleyLaidColours.Of(enemies.Ridley() ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
                     RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
@@ -2164,20 +2164,15 @@ internal static class LookupStream4Verification
             for (int index = 1; index <= freeSlots; index++) enemies.Places.InUpdateOrder[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
-            Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnNorfairRidleyBreakupActors;
-            var state = new RidleyEnemyState
-            {
-                TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
-                {
-                    Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index)),
-                }).ToArray(),
-            };
-            // Each part's initialization AI starts it from the encounter's shared Ridley state and his body.
-            enemies.RidleyEncounter.Parts.AttachBody(enemies.Places.InUpdateOrder[0], "Lower Norfair Ridley");
-            enemies.RidleyEncounter.Ridley = state;
+            var state = new NorfairRidleyState();
+            for (int index = 0; index < 7; index++)
+                state.Tail.Segments[index].Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index));
+            // Each part joins the breakup of his encounter and his body as it spawns (#2231).
+            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+            void Spawn() => enemies.NorfairRidleyBehavior.Death.SpawnNorfairRidleyBreakupActors(body, state);
             if (freeSlots < expected.Length)
-                AssertThrows<InvalidOperationException>(() => spawn(state), "Breakup preserves partial allocation before pool exhaustion");
-            else spawn(state);
+                AssertThrows<InvalidOperationException>(Spawn, "Breakup preserves partial allocation before pool exhaustion");
+            else Spawn();
             AssertTrue(state.DeathBreakupSpawned, "Breakup commits its one-shot guard before allocation");
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
@@ -2189,7 +2184,7 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime, "Actual breakup preserves each unresolved native lifetime");
             }
-            spawn(state);
+            Spawn();
             AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");
         }
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
@@ -2285,16 +2280,20 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(stock);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawAnimation(baby));
+            Func<CeresRidleyState, ushort> advance = ridley => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawAnimation(ridley));
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;
                 int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
                 // The expressive loop's palette command for this phase is beat 1 + 2 * phase, its pose the next beat.
-                var state = new RidleyEnemyState { BabyPlayback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), BabyFrameHold = 1, BabyVerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1) };
+                var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
+                {
+                    Baby = { Playback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), VerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1) },
+                };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
-                AssertEqual(new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.BabyPlayback, "Palette instruction runs on to its pose");
-                AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
+                AssertEqual(new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.Baby.Playback, "Palette instruction runs on to its pose");
+                // The pose record the palette instruction runs on to holds its duration, then its picture (#2228).
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 4)), state.Baby.Clock.Hold.RawValue, "The new pose holds on the Baby's own clock for its native duration");
                 ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
                 for (int color = 0; color < 15; color++)
                     AssertEqual(Native(row, color), shown[177 + color], "Actual pose-selected palette");
@@ -2344,13 +2343,16 @@ internal static class LookupStream4Verification
         var ceresStock = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorExtractor.Extract(rom)));
         {
             var selected = zoomStock;
-            var ridley = new RidleyEnemyState();
+            // The station's escape shows the floor's zoom (#2228); Ceres Ridley's own colours lay nothing here.
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            CeresEscape escape = enemies.CeresEscape;
+            var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
-            Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, FloorZoom.FromTwoHundredFiftySixths(appliedZoom));
+            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoom.FromTwoHundredFiftySixths(appliedZoom));
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + 255));
-                ushort[] cgram = RidleyLaidColours.Of(ridley, [], zoomRoom, 0x1234);
+                ushort[] cgram = RidleyLaidColours.Of(ridley, escape, [], zoomRoom, 0x1234);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = color is >= 81 and < 96
@@ -2416,9 +2418,9 @@ internal static class LookupStream4Verification
             var selected = stock;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
-            Action<RoomEnemyPlace, RidleyEnemyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthBand;
-            Action<RidleyEnemyState> ceres = CeresRidleyHits.UpdateCeresRidleyHealthBand;
-            void Check(RidleyEnemyState shown, int row)
+            Action<RoomEnemyPlace, NorfairRidleyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthBand;
+            Action<CeresRidleyState> ceres = CeresRidleyHits.UpdateCeresRidleyHealthBand;
+            void Check(RidleyEncounterState shown, int row)
             {
                 ushort[] cgram = RidleyLaidColours.Of(shown, healthShades, [], 0x1234);
                 for (int color = 0; color < 256; color++)
@@ -2430,13 +2432,13 @@ internal static class LookupStream4Verification
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
             {
                 enemies.Places.InUpdateOrder[0].Health = health;
-                var state = new RidleyEnemyState(); norfair(enemies.Places.InUpdateOrder[0], state);
+                var state = new NorfairRidleyState(); norfair(enemies.Places.InUpdateOrder[0], state);
                 int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
                 AssertEqual((ushort)(row + 1), RidleyNativeWords.HealthBands.Word(state.HealthBand), "Norfair health band remains exact"); Check(state, row);
             }
             foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
             {
-                var hit = new RidleyEnemyState { FightMode = fight, HitCounter = hits };
+                var hit = new CeresRidleyState(Position16<RoomPixels>.Zero) { FightMode = fight, HitCounter = hits };
                 ceres(hit);
                 Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
             }

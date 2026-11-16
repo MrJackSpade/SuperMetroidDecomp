@@ -1,25 +1,34 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Lower Norfair Ridley (#2146): his fight, his post-hit hurt window, and the shots and bombs his definition leaves to
-/// him, which meet his frames' hitboxes.
+/// Lower Norfair Ridley (#2146): the Lower Norfair encounter his body holds from its initialization (#2231), his fight,
+/// his post-hit hurt window, and the shots and bombs his definition leaves to him, which meet his frames' hitboxes. A
+/// Ridley found defeated is deleted as he initializes and begins no encounter.
 /// </summary>
-/// <param name="ridley">The Lower Norfair Ridley owner.</param>
-/// <param name="ceres">The Ceres Ridley owner.</param>
-/// <param name="encounter">The shared Ridley encounter.</param>
+/// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NorfairRidleyEntity(
-    RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : RidleyEntity(ridley, ceres, encounter, place, common)
+internal sealed class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : RidleyEntity(norfair.Body, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => NorfairRidley.Combat.InitializeNorfairRidley(Place);
+    /// <summary>The Lower Norfair encounter his body holds from its initialization.</summary>
+    internal override NorfairRidleyState Encounter => Place.RequireSpeciesState<NorfairRidleyState>();
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => NorfairRidley.RunRidleyMainAi(Place, frame);
+    public override void Initialize() => norfair.Combat.InitializeNorfairRidley(Place);
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) => norfair.RunRidleyMainAi(Place, Encounter, frame);
+
+    /// <summary>Lower Norfair Ridley's lift-off hands control to the fight: he flies into the arena.</summary>
+    public override void LiftOff() => NorfairRidleyCombat.LiftOff(Encounter);
+
+    /// <summary>Lower Norfair Ridley never cuts his fireballing short; he plays on.</summary>
+    /// <param name="samus">Samus.</param>
+    public override RidleyBodySegment? CutFireballingShort(SamusState samus) => null;
 
     /// <summary>
     /// Ridley's hurt behaviour for the post-hit window, which owns hurt frames instead of falling back to ordinary main AI:
@@ -29,7 +38,7 @@ internal sealed class NorfairRidleyEntity(
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        NorfairRidley.RunRidleyHurt(Place, frame);
+        norfair.RunRidleyHurt(Place, Encounter, frame);
         return true;
     }
 

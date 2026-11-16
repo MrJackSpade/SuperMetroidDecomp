@@ -26,17 +26,16 @@ internal static class RetailRidleyCaptureTests
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var retained = new List<RetainedFrame>();
         foreach (int scale in new[] { 128, 240, 256 })
         foreach (int tilt in new[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
-            (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
-            ridley.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(scale);
-            ridley.FloorAngle = RotationAngle.WrappedSteps(tilt);
-            ridley.FloorCenter = new Position16<FloorPixels>(128, 120);
-            ridley.FloorOffset = new Offset16<FloorPixels>(7, unchecked(scroll));
+            runtime.Enemies.CeresEscape.Floor.Active = true;
+            runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoom.FromTwoHundredFiftySixths(scale);
+            runtime.Enemies.CeresEscape.Floor.Angle = RotationAngle.WrappedSteps(tilt);
+            runtime.Enemies.CeresEscape.Floor.Center = new Position16<FloorPixels>(128, 120);
+            runtime.Enemies.CeresEscape.Floor.Offset = new Offset16<FloorPixels>(7, unchecked(scroll));
             // The getaway's floor reaches the display at the accepted frame boundary (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
@@ -49,7 +48,7 @@ internal static class RetailRidleyCaptureTests
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add(new RetainedFrame(packet, expected));
         }
-        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = false;
+        runtime.Enemies.CeresEscape.Floor.Active = false;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),

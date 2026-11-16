@@ -101,22 +101,24 @@ internal static class BossSpriteEntriesVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(place, "Ceres Ridley");
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        enemies.RidleyEncounter.Ridley = new SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState
+        var ridley = new SuperMetroid.Core.Bosses.Ridley.CeresRidleyState(Position16<RoomPixels>.Zero)
         {
             MovementAnimationEnabled = true,
-            FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left,
-            TailSegments = [.. Enumerable.Range(0, 7).Select(index => new SuperMetroid.Core.Bosses.Ridley.RidleyTailSegment
+            Flight = { FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left },
+        };
+        for (int index = 0; index < 7; index++)
+        {
+            ridley.Tail.Segments[index] = new SuperMetroid.Core.Bosses.Ridley.RidleyTailSegment
             {
                 Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3))),
-            })],
-        };
+            };
+        }
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, place, Position16<RoomPixels>.Zero);
+        enemies.RidleyBody.Drawing.DrawTailAndWings(sprites, place, ridley, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
         // Each tail segment is told by its place: the tip, then segments five to the base, then the wings.
         (SpriteSourceKind Kind, Offset16<ScreenPixels> Origin)[] expected =

@@ -39,10 +39,10 @@ internal static class RidleyClawOffsetsVerification
             AssertTrue(Enum.IsDefined(feet.Height),
                 $"Ridley {program} selects claw height {feet.Height}");
         }
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> carry = NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus;
-        Func<RoomEnemyPlace, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = NorfairRidleyCombat.RidleyClawOverlapsSamus;
+        Action<RoomEnemyPlace, NorfairRidleyState, SamusState> carry = NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus;
+        Func<RoomEnemyPlace, NorfairRidleyState, SamusState, Extent16<RoomPixels>, bool> overlaps = NorfairRidleyCombat.RidleyClawOverlapsSamus;
         var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-        var state = new RidleyEnemyState();
+        var state = new NorfairRidleyState();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         static int Decay(short offset) => offset < 0 ? Math.Min(0, offset + 4) : Math.Max(0, offset - 4);
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
@@ -50,8 +50,8 @@ internal static class RidleyClawOffsetsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             place.Position = place.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
-            state.FacingDirection = facing;
-            state.ClawHeight = feet;
+            state.Flight.FacingDirection = facing;
+            state.Flight.ClawHeight = feet;
             state.GrabOffset = new Offset16<RoomPixels>(unchecked((short)raw), unchecked((short)(ushort.MaxValue - raw)));
             int dx = Decay(unchecked(state.GrabOffset.X));
             int dy = Decay(unchecked(state.GrabOffset.Y));
@@ -68,8 +68,8 @@ internal static class RidleyClawOffsetsVerification
         for (int dy = -32; dy <= 32; dy++)
         {
             place.Position = place.Position.WithWhole(new(world, world));
-            state.FacingDirection = facing;
-            state.ClawHeight = feet;
+            state.Flight.FacingDirection = facing;
+            state.Flight.ClawHeight = feet;
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(world + x[(int)facing] + dx)), unchecked((ushort)(world + y[RidleyClawHeightPlaces.Place(feet)] + dy))));
             bool expected = Math.Abs(dx) < samus.Kinematics.Radius.X + 8 && Math.Abs(dy) < samus.Kinematics.Radius.Y + 12;
             AssertEqual(expected, overlaps(place, state, samus, new Extent16<RoomPixels>(8, 12)), "Actual claw collision boundaries including world wrap");

@@ -19,28 +19,23 @@ internal static class RidleyMissedLungeVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The power bomb explosion of the pass's bombs, which a missed lunge dodges while it is armed.
         var bomb = new SamusPowerBombExplosionState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
-        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
-            enemies.RidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, bomb);
-        Action<RoomEnemyPlace, RidleyEnemyState, RidleyWallImpact> move = enemies.CeresRidleyBehavior.Flight.IntegrateRidleyMovement;
+        Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData> run = (ridley, ridleyState, target, input, level) =>
+            enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(ridley, ridleyState, target, input, level, bomb);
+        Action<RoomEnemyPlace, RidleyFlightState, RidleyWallImpact> move = enemies.RidleyBody.Flight.IntegrateMovement;
         var place = enemies.Places.InUpdateOrder[0];
         place.Health = 1000;
         place.Position = place.Position.WithWhole(new(160, 400));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
-        var state = new RidleyEnemyState
-        {
-            Phase = RidleyPhase.NorfairGrabApproach,
-            FacingDirection = RidleyFacing.Left, FightMode = RidleyFightMode.Fighting,
-            MovementMinimum = new Position16<RoomPixels>(32, 64), MovementMaximum = new Position16<RoomPixels>(224, 416),
-        };
+        var state = new NorfairRidleyState { Phase = NorfairRidleyPhase.GrabApproach, FightMode = RidleyFightMode.Fighting, Flight = { FacingDirection = RidleyFacing.Left, MovementMinimum = new Position16<RoomPixels>(32, 64), MovementMaximum = new Position16<RoomPixels>(224, 416) } };
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairHoverSetup, state.Phase,
+        AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase,
             "low missed lunge exits immediately when Ridley Y + 35 reaches Samus Y");
-        AssertTrue(state.TailWhipRequested, "missed lunge requests native tail whip");
+        AssertTrue(state.Tail.WhipRequested, "missed lunge requests native tail whip");
         ushort lowY = place.Position.Y.Whole;
         for (int frame = 0; frame < 32; frame++)
         {
             run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-            move(place, state, RidleyWallImpact.None);
+            move(place, state.Flight, RidleyWallImpact.None);
         }
         AssertTrue(place.Position.Y.Whole < lowY, "missed lunge retreats upward instead of chasing Samus at floor level");
         AssertEqual(RidleyGrabState.Released, state.GrabState, "retreat never falsely grabs Samus");
@@ -48,51 +43,51 @@ internal static class RidleyMissedLungeVerification
         {
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(x, y));
             place.Health = 1000;
-            state.Phase = RidleyPhase.NorfairGrabApproach;
-            state.FacingDirection = facing;
-            state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-            state.HitRoomBoundary = false;
+            state.Phase = NorfairRidleyPhase.GrabApproach;
+            state.Flight.FacingDirection = facing;
+            state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
+            state.Flight.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;
-            state.TailWhipRequested = false;
+            state.Tail.WhipRequested = false;
         }
         // The native Y comparison is >=, and applies even when the claw's X misses.
         ResetLunge(160, 384);
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairGrabApproach, state.Phase, "one pixel above vertical cutoff continues lunge");
+        AssertEqual(NorfairRidleyPhase.GrabApproach, state.Phase, "one pixel above vertical cutoff continues lunge");
         ResetLunge(160, 385);
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairHoverSetup, state.Phase, "exact vertical cutoff abandons lunge");
+        AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase, "exact vertical cutoff abandons lunge");
         foreach (RidleyFacing facing in new[] { RidleyFacing.Left, RidleyFacing.Right })
         {
             int direction = facing == RidleyFacing.Left ? -1 : 1;
             ResetLunge((ushort)(samus.Position.X.Whole + direction * 31), 300, facing);
             run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-            AssertEqual(RidleyPhase.NorfairGrabApproach, state.Phase, "31 pixels past Samus remains within native pass allowance");
+            AssertEqual(NorfairRidleyPhase.GrabApproach, state.Phase, "31 pixels past Samus remains within native pass allowance");
             ResetLunge((ushort)(samus.Position.X.Whole + direction * 32), 300, facing);
             run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-            AssertEqual(RidleyPhase.NorfairHoverSetup, state.Phase, "32 pixels past Samus abandons lunge for either facing");
+            AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase, "32 pixels past Samus abandons lunge for either facing");
         }
         // Exercise real integration, not a manually supplied boundary flag.
         ResetLunge(223, 300);
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(0x100));
-        move(place, state, RidleyWallImpact.None);
-        AssertTrue(state.HitRoomBoundary, "exact maximum X counts as a native boundary hit");
+        state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0x100));
+        move(place, state.Flight, RidleyWallImpact.None);
+        AssertTrue(state.Flight.HitRoomBoundary, "exact maximum X counts as a native boundary hit");
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairHoverSetup, state.Phase, "movement boundary result exits the next lunge call");
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-0x100)));
-        move(place, state, RidleyWallImpact.None);
-        AssertTrue(!state.HitRoomBoundary, "moving back inside clears the boundary result");
+        AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase, "movement boundary result exits the next lunge call");
+        state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(unchecked((ushort)-0x100)));
+        move(place, state.Flight, RidleyWallImpact.None);
+        AssertTrue(!state.Flight.HitRoomBoundary, "moving back inside clears the boundary result");
 
         ResetLunge(160, 400);
         place.Health = 0;
         state.ZeroHealthLungeCount = 9;
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairHoverSetup, state.Phase, "ninth zero-health miss still retreats");
-        state.Phase = RidleyPhase.NorfairGrabApproach;
+        AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase, "ninth zero-health miss still retreats");
+        state.Phase = NorfairRidleyPhase.GrabApproach;
         state.ZeroHealthLungeCount = 10;
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairDeathRoar, state.Phase, "tenth miss immediately executes death-roar setup");
+        AssertEqual(NorfairRidleyPhase.DeathRoar, state.Phase, "tenth miss immediately executes death-roar setup");
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
         AssertEqual(32, state.PhaseTimer, "native death-roar timer is armed");
 
@@ -100,13 +95,13 @@ internal static class RidleyMissedLungeVerification
         bomb.Spawn(new(200, 400));
         ResetLunge(160, 400);
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairPowerBombDodge, state.Phase, "bomb selects native dodge instead of ordinary retreat");
+        AssertEqual(NorfairRidleyPhase.PowerBombDodge, state.Phase, "bomb selects native dodge instead of ordinary retreat");
         AssertEqual(RidleyFightMode.PowerBombDodge, state.FightMode, "dodge suppresses repeated combat interruption");
-        AssertTrue((short)state.Velocity.X.RawValue < 0 && (short)state.Velocity.Y.RawValue < 0,
+        AssertTrue((short)state.Flight.Velocity.X.RawValue < 0 && (short)state.Flight.Velocity.Y.RawValue < 0,
             "low right-side bomb immediately accelerates Ridley toward upper-left target");
         bomb.ReleaseFlag();
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyPhase.NorfairSelectAttack, state.Phase, "ending bomb resumes attack selection");
+        AssertEqual(NorfairRidleyPhase.SelectAttack, state.Phase, "ending bomb resumes attack selection");
         AssertEqual(RidleyFightMode.Fighting, state.FightMode, "ending dodge restores ordinary fight mode");
         Console.WriteLine("Ridley missed low lunge: native exit, tail request and upward retreat confirmed.");
         Console.WriteLine("Native pass/height thresholds, movement boundary handoff, tenth death lunge and bomb recovery confirmed.");

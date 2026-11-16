@@ -121,7 +121,7 @@ internal static class RidleySheetShades
             shades.Add(SheetShade.Run(RidleyShades.EyeFade(shown), OwnRow + EyeFirstColour,
                 Colours(CeresRidleyColorFormat.EyeFadeColorCount, colour => ceres.ResolveEyeFade(shown, colour))));
         }
-        for (int shade = 0; shade < CeresRidleyShadeDefinitions.BodyFadeShadeCount; shade++)
+        for (int shade = 0; shade < RidleyShadeDefinitions.BodyFadeShadeCount; shade++)
         {
             int shown = shade;
             RgbColor[] body = Colours(CeresRidleyColorFormat.BodyFadeColorCount, colour => ceres.ResolveBodyFade(shown, colour));

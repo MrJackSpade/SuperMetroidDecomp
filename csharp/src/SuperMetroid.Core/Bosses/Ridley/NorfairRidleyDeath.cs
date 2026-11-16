@@ -19,8 +19,6 @@ internal sealed class NorfairRidleyDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles common combat damage and enemy drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Owns fight state shared with cutscenes and room transitions.</summary>
-    private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Coordinates Ridley's dedicated projectile effects.</summary>
     private readonly RidleyProjectiles _ridleyProjectiles;
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
@@ -29,24 +27,23 @@ internal sealed class NorfairRidleyDeath
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal NorfairRidleyDeath(IEnemyLifecycle lifecycle, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops, RidleyEncounter ridleyEncounter, RidleyProjectiles ridleyProjectiles, EnemyRoomFx roomFx, EnemyAudioQueue audio)
+    internal NorfairRidleyDeath(IEnemyLifecycle lifecycle, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops, RidleyProjectiles ridleyProjectiles, EnemyRoomFx roomFx, EnemyAudioQueue audio)
     {
         _audio = audio;
         _lifecycle = lifecycle;
         _room = room;
         _deathsAndDrops = deathsAndDrops;
-        _ridleyEncounter = ridleyEncounter;
         _ridleyProjectiles = ridleyProjectiles;
         _roomFx = roomFx;
     }
 
     /// <summary>Releases Samus's script lock and grants movement-dependent intangibility outside death.</summary>
-    internal static void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
+    internal static void ReleaseNorfairRidleyGrab(NorfairRidleyState state, SamusState? samus)
     {
         state.GrabState = RidleyGrabState.Released;
         samus?.Control.Unlock();
-        state.TailWhipRequested = true;
-        state.TailAction = RidleyTailAction.Neutral;
+        state.Tail.WhipRequested = true;
+        state.Tail.Action = RidleyTailAction.Neutral;
         // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
@@ -55,14 +52,6 @@ internal sealed class NorfairRidleyDeath
         }
     }
 
-    /// <summary>Runs the breakup explosion actor's initialization AI.</summary>
-    internal void RunRidleyExplosionInitializationAi(RoomEnemyPlace place) =>
-        InitializeNorfairRidleyExplosion(
-            place,
-            _ridleyEncounter.Parts.Body,
-            _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
-                "A Ridley breakup actor has no shared Ridley owner."));
-
     /// <summary>
     /// Runs the death roar. Ridley continues converging on the death point throughout the roar;
     /// expiry freezes velocity and starts lowering the room acid before entering the long
@@ -70,19 +59,19 @@ internal sealed class NorfairRidleyDeath
     /// </summary>
     internal void TickNorfairRidleyDeathRoar(
         RoomEnemyPlace body,
-        RidleyEnemyState state)
+        NorfairRidleyState state)
     {
-        NorfairRidleyMovement.MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
+        NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, new Position16<RoomPixels>(128, 328),
             RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
-        state.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.DrainedHeight,
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
-        state.Phase = RidleyPhase.NorfairDeathExplosions;
+        state.Phase = NorfairRidleyPhase.DeathExplosions;
         state.PhaseTimer = 160;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
@@ -94,7 +83,7 @@ internal sealed class NorfairRidleyDeath
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
         RoomEnemyPlace body,
-        RidleyEnemyState state,
+        NorfairRidleyState state,
         SamusState? samus)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
@@ -103,9 +92,9 @@ internal sealed class NorfairRidleyDeath
 
         if (state.GrabState != RidleyGrabState.Released)
             ReleaseNorfairRidleyGrab(state, samus);
-        state.Phase = RidleyPhase.NorfairDeathBreakup;
-        state.Velocity = EightEightVector<RoomPixels>.Zero;
-        SpawnNorfairRidleyBreakupActors(state);
+        state.Phase = NorfairRidleyPhase.DeathBreakup;
+        state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+        SpawnNorfairRidleyBreakupActors(body, state);
     }
 
     /// <summary>
@@ -114,21 +103,21 @@ internal sealed class NorfairRidleyDeath
     /// </summary>
     internal void BeginNorfairRidleyBreakup(
         RoomEnemyPlace body,
-        RidleyEnemyState state)
+        NorfairRidleyState state)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
         state.MovementAnimationEnabled = false;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
-        state.Phase = RidleyPhase.NorfairDeathWait;
+        state.Phase = NorfairRidleyPhase.DeathWait;
         state.PhaseTimer = 32;
     }
 
     /// <summary>The breakup's deliberate 32-frame pre-wait before the final 256 frames.</summary>
-    internal static void TickNorfairRidleyBreakupWait(RidleyEnemyState state)
+    internal static void TickNorfairRidleyBreakupWait(NorfairRidleyState state)
     {
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
-        state.Phase = RidleyPhase.NorfairDeathFinish;
+        state.Phase = NorfairRidleyPhase.DeathFinish;
         state.PhaseTimer = 256;
     }
 
@@ -141,7 +130,7 @@ internal sealed class NorfairRidleyDeath
     /// <param name="samus">Samus, whose energy and ammunition each drop's roll reads.</param>
     internal void TickNorfairRidleyDeathFinish(
         RoomEnemyPlace body,
-        RidleyEnemyState state,
+        NorfairRidleyState state,
         SamusState samus)
     {
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
@@ -162,13 +151,13 @@ internal sealed class NorfairRidleyDeath
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
-        state.Phase = RidleyPhase.NorfairDeathComplete;
+        state.Phase = NorfairRidleyPhase.DeathComplete;
     }
 
     /// <summary>Spawns a small explosion at one of its ten signed X/Y offset pairs.</summary>
     internal void SpawnSmallExplosionNearNorfairRidley(
         RoomEnemyPlace body,
-        RidleyEnemyState state)
+        NorfairRidleyState state)
     {
         if (state.DeathExplosionTimer != 0)
         {
@@ -187,8 +176,11 @@ internal sealed class NorfairRidleyDeath
         _audio.RequestRidleyDeathExplosionSound();
     }
 
-    /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>
-    internal void SpawnNorfairRidleyBreakupActors(RidleyEnemyState state)
+    /// <summary>
+    /// Allocates the body and tail pieces that continue moving after the intact body hides; each joins the breakup of
+    /// <paramref name="state"/>'s body from its setup (#2231).
+    /// </summary>
+    internal void SpawnNorfairRidleyBreakupActors(RoomEnemyPlace body, NorfairRidleyState state)
     {
         if (state.DeathBreakupSpawned)
             return;
@@ -210,7 +202,7 @@ internal sealed class NorfairRidleyDeath
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
             // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
-            if (_lifecycle.SpawnEnemy(population) is null)
+            if (_lifecycle.SpawnEnemyJoining(population, new RidleyBreakupSource(state, body.Position.Whole)) is null)
             {
                 throw new InvalidOperationException(
                     "Lower Norfair Ridley's breakup found no place left for an enemy in the room.");
@@ -218,12 +210,11 @@ internal sealed class NorfairRidleyDeath
         }
     }
 
-    /// <summary>Runs the breakup actor's initialization AI for one of its 23 pieces.</summary>
-    internal void InitializeNorfairRidleyExplosion(
-        RoomEnemyPlace fragment,
-        RoomEnemyPlace body,
-        RidleyEnemyState state)
+    /// <summary>Runs the breakup actor's initialization AI for one of its 23 pieces, from the breakup it joined.</summary>
+    internal void InitializeNorfairRidleyExplosion(RoomEnemyPlace fragment)
     {
+        RidleyBreakupSource source = fragment.RequireSpeciesState<RidleyBreakupSource>();
+        NorfairRidleyState state = source.Ridley;
         RidleyExplosionPart part = fragment.Spawn.Population.SpawnSettingsOf<RidleyExplosionSpawnSettings>().Part;
 
         fragment.AnimationClock.Restart();
@@ -242,9 +233,9 @@ internal sealed class NorfairRidleyDeath
         // Tail fragments start from their tail segment; the body fragments start from the body.
         if (RidleyExplosionDefinitions.TailSegment.TryGetValue(part, out int tailIndex))
         {
-            RidleyTailSegment tail = state.TailSegments[tailIndex];
+            RidleyTailSegment tail = state.Tail.Segments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
-            TrigonometryAngle tailTipDirection = tail.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction);
+            TrigonometryAngle tailTipDirection = tail.Angle.Direction.TurnedBy(state.Tail.Segments[5].Angle.Direction);
             fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(
                 RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, tailTipDirection)), AnimationPlace.StartOfAnimation);
             return;
@@ -253,8 +244,8 @@ internal sealed class NorfairRidleyDeath
         RidleyExplosionBodyPartDefinition bodyPart =
             RidleyBreakup.SelectBodyPart(
                 part,
-                facingRight: state.FacingDirection != RidleyFacing.Left);
-        fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
+                facingRight: state.Flight.FacingDirection != RidleyFacing.Left);
+        fragment.Position = fragment.Position.WithWhole(source.Body + bodyPart.Offset);
         fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(bodyPart.Frame), AnimationPlace.StartOfAnimation);
     }
 
@@ -266,8 +257,7 @@ internal sealed class NorfairRidleyDeath
         else
             fragment.Presence = fragment.Presence.Without(EnemyPresence.Hidden);
 
-        RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-            ?? throw new InvalidOperationException($"Ridley breakup fragment in place {fragment.Ordinal} has no state.");
+        RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
         var velocity = new EightEightVector<RoomPixels>(
             fragmentState.Velocity.X.SlowedBy(RidleyExplosionDefinitions.BreakupFragmentDrag),

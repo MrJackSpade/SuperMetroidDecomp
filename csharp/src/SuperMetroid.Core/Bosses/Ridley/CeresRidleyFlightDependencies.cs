@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -11,18 +10,18 @@ internal sealed record CeresRidleyFlightDependencies
     /// <summary>Sets up the enemies Ridley's flight spawns and runs their initialization.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
-    /// <summary>Provides room randomness and Ceres artwork state.</summary>
+    /// <summary>Provides room randomness and the getaway walls' definition.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
-    public required RoomEarthquake Earthquake { get; init; }
-
-    /// <summary>Queues Ceres battle and getaway sound effects.</summary>
+    /// <summary>Queues Ceres Ridley's starting music.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
     /// <summary>Finds the free place the turning-floor wall enemy takes when Ridley spawns it.</summary>
     public required EnemyPlaces Places { get; init; }
 
-    /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
+    /// <summary>The room's view of Ridley, which Ceres Ridley attaches himself to as he begins his encounter.</summary>
     public required RidleyEncounter RidleyEncounter { get; init; }
+
+    /// <summary>Shows Ridley's colours over the room once he has begun his encounter.</summary>
+    public required EnemyPresentation Presentation { get; init; }
 }

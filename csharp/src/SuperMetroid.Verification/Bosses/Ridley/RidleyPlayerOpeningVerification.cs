@@ -25,7 +25,7 @@ internal static class RidleyPlayerOpeningVerification
     /// <summary>Checks arrival collision edges, then compares boss motion while feeding recorded Samus position and RNG as isolated inputs.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
-        Func<RoomEnemyPlace, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyFlight.IsWithinRidleyRectangle;
+        Func<RoomEnemyPlace, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = RidleyFlight.IsWithinRectangle;
         var bounds = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
         bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
@@ -56,11 +56,11 @@ internal static class RidleyPlayerOpeningVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.
         var enemies = runtime.ReloadRoomEnemiesForVerification(loaded => new VerificationRoomEnemyServices(loaded));
-        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
+        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92), state.FacingDirection);
+        (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).Flight.BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92), state.Flight.FacingDirection);
         body.AnimationClock.HoldFor(W(seed, 0xf94));
         body.FrameCounter = W(seed, 0xfa4);
         body.SpritemapPointer = W(seed, 0xf8e);
@@ -76,10 +76,10 @@ internal static class RidleyPlayerOpeningVerification
             random = W(expected, 0x5e5);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, ControllerInput = GameplayActionWordCodec.FromJoypadWord(W(expected, 0x8b), "native Ridley opening held input"), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
             // The AI function is an identity; the native table's routine word for it lines up with the recorded word.
-            string actual = $"{RidleyNativeWords.Phases.Word((state ?? throw new InvalidOperationException("Verification requires state.")).Phase):X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
+            string actual = $"{RidleyNativeWords.NorfairPhaseWord(state ?? throw new InvalidOperationException("Verification requires state.")):X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Flight.Velocity.X.RawValue:X4},{state.Flight.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
-                throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state):X4}/{body.AnimationClock.Hold.RawValue}; timer={state.PhaseTimer} native={W(expected,0xfb2)}");
+                throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state.Flight):X4}/{body.AnimationClock.Hold.RawValue}; timer={state.PhaseTimer} native={W(expected,0xfb2)}");
         }
         Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
     }

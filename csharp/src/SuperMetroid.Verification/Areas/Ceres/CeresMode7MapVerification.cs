@@ -67,8 +67,8 @@ internal static class CeresMode7MapVerification
             "a drawn picture reaches the next NMI's floor");
         AssertTrue(first.DrawnOver.IsEmpty, "the earlier published floor keeps what it showed");
 
-        var getaway = runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room has a getaway state.");
-        getaway.GetawayActive = true;
+        // The station's escape owns the getaway's floor (#2228).
+        runtime.Enemies.CeresEscape.Floor.Active = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var mode7 = (TurningRoomLayer)captured.Layers[0];

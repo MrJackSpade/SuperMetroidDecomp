@@ -43,8 +43,8 @@ internal static class RidleyAnimations
         [P.FireballingEndFacingLeft] = [Cue(K.ClearRoaringFlag), Show(F.Left, 1)],
         [P.FireballingFacingRight] = FireballingBeats(Side.Right, []),
         [P.FireballingEndFacingRight] = [Cue(K.ClearRoaringFlag), Show(F.Right, 1)],
-        [P.TransitionToFlyingFacingLeft] = TransitionToFlyingBeats(Side.Left, new(1, -12), new(-4, -8), K.CeresStartLiftoff),
-        [P.TransitionToFlyingFacingRight] = TransitionToFlyingBeats(Side.Right, new(-1, -12), new(4, -8), K.StartLiftoff),
+        [P.TransitionToFlyingFacingLeft] = TransitionToFlyingBeats(Side.Left, new(1, -12), new(-4, -8)),
+        [P.TransitionToFlyingFacingRight] = TransitionToFlyingBeats(Side.Right, new(-1, -12), new(4, -8)),
     });
 
     /// <summary>The standing pose, which his owner starts as he is placed.</summary>
@@ -162,7 +162,7 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>
-    /// Two fireball bursts of one facing, either of which Ceres Ridley may cut short when Samus is low on energy
+    /// Two fireball bursts of one facing, either of which the encounter that owns the body may cut short
     /// (<see cref="RidleyBodyCueKind.MayCutFireballingShort"/>); the left-facing burst aims once more before its second roar,
     /// and the animation runs on into its end.
     /// </summary>
@@ -196,16 +196,16 @@ internal static class RidleyAnimations
         yield return Show(side.MouthHalfOpen, 8);
     }
 
-    /// <summary>The crouch, two hops and lift-off of one facing.</summary>
+    /// <summary>The crouch, two hops and lift-off of one facing; the encounter that owns the body handles the lift-off (#2230).</summary>
     private static AnimationBeat<F, RidleyBodyCue>[] TransitionToFlyingBeats(
-        Side side, Offset16<RoomPixels> firstHop, Offset16<RoomPixels> secondHop, RidleyBodyCueKind liftoff) =>
+        Side side, Offset16<RoomPixels> firstHop, Offset16<RoomPixels> secondHop) =>
     [
         Show(side.Standing, 3),
         Cue(new RidleyBodyCue.Move(Displacement: firstHop)),
         Show(side.LegsHalfExtended, 4),
         Cue(new RidleyBodyCue.Move(Displacement: secondHop)),
         Show(side.LegsExtended, 5),
-        Cue(liftoff),
+        Cue(K.LiftOff),
         Show(side.LegsHalfExtended, LiftoffPoseDuration),
         Show(side.Standing, LiftoffPoseDuration),
     ];

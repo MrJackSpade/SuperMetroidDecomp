@@ -18,18 +18,30 @@ internal static class RidleyLaidColours
     /// The colours <paramref name="state"/>'s encounter shows over <paramref name="under"/>: the shades it laid over its
     /// room, from <paramref name="room"/>, then those it laid over its sprites, from <paramref name="sprites"/>.
     /// </summary>
-    internal static ushort[] Of(RidleyEnemyState state, IReadOnlyList<SheetShade> sprites, IReadOnlyList<SheetShade> room, ushort under) =>
-        Over(state, sprites, room, BossShadeColours.Filled(under));
+    internal static ushort[] Of(RidleyEncounterState state, IReadOnlyList<SheetShade> sprites, IReadOnlyList<SheetShade> room, ushort under) =>
+        Over(state, escape: null, sprites, room, BossShadeColours.Filled(under));
 
     /// <summary>
-    /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter laid over its room and then its
-    /// self-destruct warning, both from <paramref name="room"/>, then over its sprites, from <paramref name="sprites"/>, laid over them.
+    /// The colours <paramref name="state"/>'s encounter and the Ceres <paramref name="escape"/> show over
+    /// <paramref name="under"/>: the shades the encounter laid over its room, those the escape laid over the room and its
+    /// warning, all from <paramref name="room"/>, then those the encounter laid over its sprites, from <paramref name="sprites"/>.
     /// </summary>
-    internal static ushort[] Over(RidleyEnemyState state, IReadOnlyList<SheetShade> sprites, IReadOnlyList<SheetShade> room, ushort[] colours)
+    internal static ushort[] Of(RidleyEncounterState state, CeresEscape escape, IReadOnlyList<SheetShade> sprites, IReadOnlyList<SheetShade> room, ushort under) =>
+        Over(state, escape, sprites, room, BossShadeColours.Filled(under));
+
+    /// <summary>
+    /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter laid over its room, then those the
+    /// Ceres <paramref name="escape"/> laid over the room and its self-destruct warning, both from <paramref name="room"/>,
+    /// then those the encounter laid over its sprites, from <paramref name="sprites"/>, laid over them.
+    /// </summary>
+    internal static ushort[] Over(RidleyEncounterState state, CeresEscape? escape, IReadOnlyList<SheetShade> sprites, IReadOnlyList<SheetShade> room, ushort[] colours)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(colours);
-        foreach (PictureShade shade in state.Colours.RoomShading.Shades.Concat(state.Colours.WarningShading.Shades))
+        IEnumerable<PictureShade> roomShades = state.Colours.RoomShading.Shades;
+        if (escape is not null)
+            roomShades = roomShades.Concat(escape.RoomShading.Shades).Concat(escape.WarningShading.Shades);
+        foreach (PictureShade shade in roomShades)
             BossShadeColours.Lay(colours, room, shade, BossShadeColours.Room);
         foreach (PictureShade shade in state.Colours.SpriteShading(flashing: false).Shades)
             BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
@@ -37,15 +49,16 @@ internal static class RidleyLaidColours
     }
 
     /// <summary>
-    /// The colours Ceres Ridley's encounter shows over black when <paramref name="state"/> holds its laid shades, from the
-    /// import's shades of the Ceres colours <paramref name="maps"/> installs.
+    /// The colours Ceres Ridley's encounter and the station's <paramref name="escape"/> show over black when
+    /// <paramref name="state"/> holds its laid shades, from the import's shades of the Ceres colours <paramref name="maps"/>
+    /// installs.
     /// </summary>
-    internal static RgbColor[] Ceres(RidleyEnemyState state, InstalledScreenContent maps)
+    internal static RgbColor[] Ceres(RidleyEncounterState state, CeresEscape? escape, InstalledScreenContent maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
         CeresRidleyColorCatalog ceres = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).CeresRidleyColors;
-        return [.. Of(state, RidleySheetShades.CeresSprites(ceres),
-            [.. RidleySheetShades.CeresRoom(ceres, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).CeresRidleyFloorColors), .. RidleySheetShades.CeresWarning(ceres)], 0)
+        return [.. Over(state, escape, RidleySheetShades.CeresSprites(ceres),
+            [.. RidleySheetShades.CeresRoom(ceres, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).CeresRidleyFloorColors), .. RidleySheetShades.CeresWarning(ceres)], BossShadeColours.Filled(0))
             .Select(RgbColor.FromWord)];
     }
 }

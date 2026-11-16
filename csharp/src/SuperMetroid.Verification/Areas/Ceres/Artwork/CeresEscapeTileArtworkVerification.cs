@@ -46,8 +46,9 @@ internal static class CeresEscapeTileArtworkVerification
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         foreach (CeresEscapeReadying start in new[] { CeresEscapeReadying.Warning, CeresEscapeReadying.Backgrounds })
         {
-            var state = new RidleyEnemyState { CeresEscapeReadying = start };
-            while (!installed.CeresRidleyBehavior.Getaway.ReadyCeresEscapeWarning(state))
+            // The station's escape readies its warning (#2228).
+            installed.CeresEscape.Warning.Readying = start;
+            while (!installed.CeresEscape.ReadyWarning())
             {
             }
         }

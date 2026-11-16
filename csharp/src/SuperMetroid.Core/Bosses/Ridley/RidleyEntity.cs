@@ -6,24 +6,31 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// One of the two Ridley bodies, Lower Norfair Ridley (<see cref="NorfairRidleyEntity"/>) or Ceres Ridley
-/// (<see cref="CeresRidleyEntity"/>): both share the body animation and drawing, his hand-authored extended body and
-/// tail tip, his shot reaction and his Power Bomb reaction.
+/// (<see cref="CeresRidleyEntity"/>): each holds its encounter from its initialization (#2231) and runs the parts of his
+/// body both share (#2229): the body animation, whose lift-off and fireball cut it handles (#2230), the drawing of his tail
+/// and wings, his hand-authored extended body and tail tip, his shot reaction and his Power Bomb reaction.
 /// </summary>
-/// <param name="ridley">The Lower Norfair Ridley owner.</param>
-/// <param name="ceres">The Ceres Ridley owner.</param>
-/// <param name="encounter">The shared Ridley encounter.</param>
+/// <param name="body">The parts of Ridley's body both encounters run.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class RidleyEntity(
-    RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction
+        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction, IRidleyBodyOwner
 {
-    /// <summary>The Lower Norfair Ridley owner.</summary>
-    protected RidleyBehavior NorfairRidley => ridley;
+    /// <summary>The parts of Ridley's body both encounters run.</summary>
+    protected RidleyBody Body => body;
 
-    /// <summary>The Ceres Ridley owner.</summary>
-    protected CeresRidleyBehavior Ceres => ceres;
+    /// <summary>The encounter the body holds from its initialization (#2231).</summary>
+    /// <exception cref="InvalidOperationException">The body has begun no encounter.</exception>
+    internal abstract RidleyEncounterState Encounter { get; }
+
+    /// <summary>The encounter <paramref name="body"/> holds, from its initialization.</summary>
+    /// <param name="body">A place holding one of Ridley's bodies.</param>
+    /// <exception cref="InvalidOperationException">The place holds no Ridley body that has begun an encounter.</exception>
+    internal static RidleyEncounterState EncounterOf(RoomEnemyPlace body) =>
+        Ensure.NotNull(body).Entity is RidleyEntity entity
+            ? entity.Encounter
+            : throw new InvalidOperationException($"Enemy place {body.Ordinal} holds no Ridley body.");
 
     /// <inheritdoc/>
     public abstract void Initialize();
@@ -32,7 +39,14 @@ internal abstract class RidleyEntity(
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NorfairRidley.Animation.AdvanceRidleyBodyTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
+        Body.Animation.Advance(Place, Encounter, context.Samus, this);
+
+    /// <inheritdoc/>
+    public abstract void LiftOff();
+
+    /// <inheritdoc/>
+    public abstract RidleyBodySegment? CutFireballingShort(SamusState samus);
 
     /// <summary>None: both Ridley bodies' definitions name the ordinary touch.</summary>
     public EnemyReaction? SpeciesTouch => null;
@@ -59,16 +73,20 @@ internal abstract class RidleyEntity(
     {
     }
 
-    /// <inheritdoc/>
-    public void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
-        _ = Ceres.Hits.ResolveRidleyBodySamusContact(samus, pseudoScrew);
+    /// <summary>Resolves Samus against his extended body after the ordinary touch pass.</summary>
+    /// <param name="samus">Samus.</param>
+    /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
+    public virtual void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
+        _ = Body.Contact.ResolveSamusContact(Place, samus, pseudoScrew);
 
     /// <summary>Ridley's AI publishes the common writer's shading: its body, wings and tail share one latched phase (#1512).</summary>
-    public PictureShading? CommonDrawShading() => encounter.Ridley?.CommonDrawShading;
+    public PictureShading? CommonDrawShading() => Encounter.CommonDrawShading;
 
     /// <summary>Both Ridley mains draw the tail and wings before the common writer emits the body.</summary>
-    public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
-        Ceres.BabyScene.DrawRidleySupplementalSprites(sprites, Place, camera);
+    /// <param name="sprites">The frame's sprites.</param>
+    /// <param name="camera">The camera.</param>
+    public virtual void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
+        Body.Drawing.DrawTailAndWings(sprites, Place, Encounter, camera);
 
     /// <summary>Both Ridley bodies' shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>

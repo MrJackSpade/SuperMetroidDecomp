@@ -28,8 +28,7 @@ internal static class SporeSpawnStalkVerification
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
-        SporeSpawnEnemyState state = enemies.SporeSpawn ??
-            throw new InvalidDataException("Spore Spawn's initializer did not install his state.");
+        SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
 
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");
         for (int link = 0; link < state.StalkLinks.Count; link++)
@@ -40,7 +39,7 @@ internal static class SporeSpawnStalkVerification
         AssertEqual(new Position16<RoomPixels>(128, 560), state.StalkLinks[0].Position.Whole,
             "Spore Spawn's first stalk link hangs at the ceiling");
 
-        enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 600));
+        enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 600), state);
         AssertEqual(9, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
             "the stalk, four spawners and a spore are live before the clear");
         enemies.SporeSpawnBehavior.DeleteProjectilesButStalk(state);

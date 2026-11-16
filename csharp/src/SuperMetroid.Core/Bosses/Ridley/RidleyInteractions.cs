@@ -13,7 +13,7 @@ internal static class RidleyInteractions
     /// Puts Norfair Ridley in the health band his health has reached and shows its health shade. Norfair and Ceres show
     /// the same installed health shades, so editing them changes both encounters.
     /// </summary>
-    internal static void UpdateNorfairRidleyHealthBand(RoomEnemyPlace place, RidleyEnemyState state)
+    internal static void UpdateNorfairRidleyHealthBand(RoomEnemyPlace place, NorfairRidleyState state)
     {
         state.HealthBand = NorfairRidleyHealthBand.Of(place.Health);
         if (state.HealthBand.HealthShade is { } shade)
@@ -28,7 +28,7 @@ internal static class RidleyInteractions
     /// </summary>
     internal static void UpdateNorfairRidleyIntangibility(
         RoomEnemyPlace body,
-        RidleyEnemyState state,
+        NorfairRidleyState state,
         Position16<RoomPixels> camera)
     {
         if (state.FightMode == RidleyFightMode.Dying)

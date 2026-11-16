@@ -20,8 +20,8 @@ internal static class CeresPerspectiveFloors
         BelowPerspectiveFloor.Nothing);
 
     /// <summary>The floor Ceres Ridley's getaway flies over, with the room's background below it and the chamber's walls around it (#1545).</summary>
-    /// <param name="ridley">How the getaway's floor appears as its room main last turned and moved it (<see cref="CeresRidleyGetaway.FloorTransform"/>).</param>
-    /// <param name="chamberWalls">The chamber's walls, which stand behind the floor (<see cref="CeresRidleyGetaway.ChamberWalls"/>).</param>
+    /// <param name="ridley">How the getaway's floor appears as its room main last turned and moved it (<see cref="CeresEscape.ShownFloor"/>).</param>
+    /// <param name="chamberWalls">The chamber's walls, which stand behind the floor (<see cref="CeresEscape.ChamberWalls"/>).</param>
     internal static PerspectiveFloor RidleyGetaway(FloorView ridley, ImmutableArray<PerspectiveFloorScenery> chamberWalls) =>
         new(ridley, BelowPerspectiveFloor.RoomBackground, chamberWalls);
 }

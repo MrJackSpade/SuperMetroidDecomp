@@ -98,19 +98,19 @@ public enum RoomEnemyProjectileKind
     /// <summary>Mother Brain's falling middle-right upper tube.</summary>
     MotherBrainTopMiddleRightTube,
     /// <summary>Ridley's aimed fireball, shared by Ceres and Zebes.</summary>
-    CeresRidleyFireball,
+    RidleyFireball,
     /// <summary>The stationary center that spawns horizontal afterburns.</summary>
-    CeresRidleyHorizontalAfterburnCenter,
+    RidleyHorizontalAfterburnCenter,
     /// <summary>The stationary center that spawns vertical afterburns.</summary>
-    CeresRidleyVerticalAfterburnCenter,
+    RidleyVerticalAfterburnCenter,
     /// <summary>A rightward afterburn and its continuation chain.</summary>
-    CeresRidleyHorizontalAfterburnRight,
+    RidleyHorizontalAfterburnRight,
     /// <summary>A leftward afterburn and its continuation chain.</summary>
-    CeresRidleyHorizontalAfterburnLeft,
+    RidleyHorizontalAfterburnLeft,
     /// <summary>An upward afterburn and its continuation chain.</summary>
-    CeresRidleyVerticalAfterburnUp,
+    RidleyVerticalAfterburnUp,
     /// <summary>A downward afterburn and its continuation chain.</summary>
-    CeresRidleyVerticalAfterburnDown,
+    RidleyVerticalAfterburnDown,
     /// <summary>The light variant of Ceres falling debris.</summary>
     CeresFallingDebrisLight,
     /// <summary>The dark variant of Ceres falling debris.</summary>

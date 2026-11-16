@@ -13,7 +13,7 @@ internal sealed class BossShadings
     /// <summary>The layers in the order their colour effects are laid over each other: a later one wins where they overlap.</summary>
     private static readonly BossShadingLayer[] Order =
     [
-        BossShadingLayer.SporeSpawn, BossShadingLayer.Phantoon, BossShadingLayer.Draygon, BossShadingLayer.Crocomire,
+        BossShadingLayer.Ridley, BossShadingLayer.CeresEscape, BossShadingLayer.SporeSpawn, BossShadingLayer.Phantoon, BossShadingLayer.Draygon, BossShadingLayer.Crocomire,
         BossShadingLayer.KraidBackdrop, BossShadingLayer.Kraid,
     ];
 

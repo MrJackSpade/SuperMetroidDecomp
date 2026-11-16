@@ -21,7 +21,7 @@ public static class CeresRidleyColorFile
         document = JsonAssetDocument.Read<CeresRidleyColorDocument>(json, ArtworkJson.Options, "Ceres Ridley color");
         if (document.Version != CeresRidleyColorFormat.Version)
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
-        RgbColor[][] bodyFade = CompileRows(document.BodyFade, CeresRidleyShadeDefinitions.BodyFadeShadeCount,
+        RgbColor[][] bodyFade = CompileRows(document.BodyFade, RidleyShadeDefinitions.BodyFadeShadeCount,
             CeresRidleyColorFormat.BodyFadeColorCount, "body fade");
         RgbColor[] start = Compile(document.Start, CeresRidleyColorFormat.StartColorCount, "start");
         RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyColorFormat.EyeFadeShadeCount,

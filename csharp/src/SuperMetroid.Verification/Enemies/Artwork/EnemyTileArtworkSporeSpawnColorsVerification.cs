@@ -68,8 +68,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
-        SporeSpawnEnemyState state = enemies.SporeSpawn ??
-            throw new InvalidDataException("Live Spore Spawn initializer did not install state.");
+        SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.
         IReadOnlyList<SheetShade> sprites = SporeSpawnSheetShades.Sprites(stock.Bosses);
@@ -82,7 +81,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthStageCount; frame++)
         {
             int shown = frame;
-            enemies.SporeSpawnBehavior.ShowSporeSpawnHealthShade(frame);
+            SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, frame);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(frame)), body.Shading,
                 $"live Spore Spawn health frame {frame}");
             AssertShade(sprites, SporeSpawnShades.Health(frame), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health frame {frame}");
@@ -91,7 +90,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         for (int frame = 0; frame < SporeSpawnColorFormat.DeathSceneFrameCount; frame++)
         {
             int shown = frame;
-            enemies.SporeSpawnBehavior.ShowSporeSpawnDeathShade(frame);
+            SporeSpawnBehavior.ShowSporeSpawnDeathShade(body, state, frame);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(frame)), body.Shading,
                 $"live Spore Spawn death frame {frame}");
             AssertShade(sprites, SporeSpawnShades.DeathSprite(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, shown, colour),

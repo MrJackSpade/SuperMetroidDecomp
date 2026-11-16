@@ -140,15 +140,11 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnSmallExplosionNearNorfairRidley;
+            Action<RoomEnemyPlace, NorfairRidleyState> spawn = enemies.NorfairRidleyBehavior.Death.SpawnSmallExplosionNearNorfairRidley;
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
-            var state = new RidleyEnemyState
-            {
-                DeathExplosionTimer = 0,
-                DeathExplosionCount = (selectedIndex + 9) % 10,
-            };
+            var state = new NorfairRidleyState { DeathExplosionTimer = 0, DeathExplosionCount = (selectedIndex + 9) % 10 };
 
             spawn(body, state);
 
@@ -176,22 +172,21 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0x8130;
-        Action<RoomEnemyPlace, RoomEnemyPlace, RidleyEnemyState> initialize = enemies.RidleyBehavior.Death.InitializeNorfairRidleyExplosion;
+        Action<RoomEnemyPlace> initialize = enemies.NorfairRidleyBehavior.Death.InitializeNorfairRidleyExplosion;
 
         RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[1];
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
-        var state = new RidleyEnemyState
+        var state = new NorfairRidleyState();
+        for (int index = 0; index < 7; index++)
         {
-            TailSegments = Enumerable.Range(0, 7)
-                .Select(index => new RidleyTailSegment
-                {
-                    Position = new Position16<RoomPixels>(
-                        unchecked((ushort)(0x1200 + index * 0x11)),
-                        unchecked((ushort)(0x3400 + index * 0x13))),
-                })
-                .ToArray(),
-        };
+            state.Tail.Segments[index] = new RidleyTailSegment
+            {
+                Position = new Position16<RoomPixels>(
+                    unchecked((ushort)(0x1200 + index * 0x11)),
+                    unchecked((ushort)(0x3400 + index * 0x13))),
+            };
+        }
 
         int cases = 0;
         for (ushort parameter = 0; parameter <= SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.Claw); parameter += 2)
@@ -203,11 +198,13 @@ internal static class RidleyExplosionDefinitionsVerification
             {
                 fragment.Clear();
                 fragment.SetSpawnParameter1(EnemyDefinitionId.RidleyBreakupPiece, parameter);
-                state.FacingDirection = facingIndex == 0 ? RidleyFacing.Left : RidleyFacing.Turning;
-                state.TailSegments[5].Angle = RidleyTailAngle.StraightDown;
-                state.TailSegments[6].Angle = RidleyTailAngle.FromStepsFromStraightDown(orientation << 4);
+                state.Flight.FacingDirection = facingIndex == 0 ? RidleyFacing.Left : RidleyFacing.Turning;
+                state.Tail.Segments[5].Angle = RidleyTailAngle.StraightDown;
+                state.Tail.Segments[6].Angle = RidleyTailAngle.FromStepsFromStraightDown(orientation << 4);
 
-                initialize(fragment, body, state);
+                // The piece joins the breakup of his encounter and his body as his death spawns it (#2231).
+                fragment.SetSpeciesState(new RidleyBreakupSource(state, body.Position.Whole));
+                initialize(fragment);
 
                 AssertEqual((ushort)1, fragment.AnimationClock.Hold.RawValue,
                     "Ridley breakup production instruction timer");
@@ -225,9 +222,9 @@ internal static class RidleyExplosionDefinitionsVerification
                 if (parameter <= SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.TailTip))
                 {
                     int tailIndex = parameter >> 1;
-                    AssertEqual(state.TailSegments[tailIndex].Position.X, fragment.Position.X.Whole,
+                    AssertEqual(state.Tail.Segments[tailIndex].Position.X, fragment.Position.X.Whole,
                         $"Ridley breakup production tail X ${parameter:X2}");
-                    AssertEqual(state.TailSegments[tailIndex].Position.Y, fragment.Position.Y.Whole,
+                    AssertEqual(state.Tail.Segments[tailIndex].Position.Y, fragment.Position.Y.Whole,
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.TailTip)
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))

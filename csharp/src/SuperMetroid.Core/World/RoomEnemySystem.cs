@@ -135,10 +135,14 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Ridley's fireballs and the afterburn that trails them, in Ceres and Norfair, which Mother Brain's afterburn reuses.</summary>
     internal RidleyProjectiles RidleyProjectiles { get; }
 
-    /// <summary>Ridley's fight in Ceres and Lower Norfair, and what his Ceres getaway hands on to the escape.</summary>
+    /// <summary>What the room sees of Ridley's encounters in Ceres and Lower Norfair, and the Ceres escape's progress.</summary>
     internal RidleyEncounter RidleyEncounter { get; }
     /// <summary>Coordinates Ridley's multipart tail through the shared place and projectile services.</summary>
     internal RidleyTail RidleyTail { get; }
+    /// <summary>The parts of Ridley's body both his encounters run (#2229).</summary>
+    internal RidleyBody RidleyBody { get; }
+    /// <summary>The station's escape from Ceres Ridley's room: his getaway and the self-destruct warning (#2228).</summary>
+    internal CeresEscape CeresEscape { get; }
     /// <summary>Raises the dust of dead monsters' fallen corpse rows through the same frame as enemy processing.</summary>
     internal CorpseRowDust CorpseRowDust { get; }
     /// <summary>Owns Mother Brain's room encounter and its cutscene state.</summary>
@@ -237,8 +241,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The Rinkas, the rings that spawn in Tourian and fly at Samus.</summary>
     internal RinkaBehavior RinkaBehavior { get; }
 
-    /// <summary>Ridley, fought in Ceres station and in Lower Norfair.</summary>
-    internal RidleyBehavior RidleyBehavior { get; }
+    /// <summary>Ridley in Lower Norfair: his fight and his death.</summary>
+    internal NorfairRidleyBehavior NorfairRidleyBehavior { get; }
 
     /// <summary>The Puyos, Norfair's small blobs that hop along floors and ceilings.</summary>
     internal PuyoBehavior PuyoBehavior { get; }
@@ -472,7 +476,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             if (value is null) active.UnbindMessage();
             else active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
         }
-        EscapeTypewriterState? ceres = RidleyEncounter.Ridley?.CeresEscapeTypewriter;
+        EscapeTypewriterState? ceres = CeresEscape.Warning.Typewriter;
         if (ceres?.MessageId == EscapeTypewriterMessageId.Ceres)
         {
             if (value is null) ceres.UnbindMessage();
@@ -511,7 +515,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
-    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior);
+    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior, CeresEscape);
 
     /// <summary>The state and hooks the room main behaviours and scrolling use.</summary>
     internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(BossEncounters, CameraDistance, CameraFloor);
@@ -547,15 +551,15 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     CrocomireMeltDistortion? IEnemyDisplaySources.CrocomireMelt =>
         BossEncounters.Crocomire?.Death is { MeltingScrollActive: true } melting ? melting.MeltDistortion : null;
     /// <inheritdoc/>
-    RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
+    FloorView? IEnemyDisplaySources.CeresGetawayFloor => CeresEscape.ShownFloor;
 
     /// <inheritdoc/>
-    RoomWrittenOverlay IEnemyDisplaySources.CeresWarning => RidleyEncounter.CeresWarning;
+    RoomWrittenOverlay IEnemyDisplaySources.CeresWarning => CeresEscape.Warning.Overlay;
 
     /// <inheritdoc/>
     RoomWrittenOverlay IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
     /// <inheritdoc/>
-    ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
+    ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresEscape.ChamberWalls();
     /// <inheritdoc/>
     BossBodyLayer? IEnemyDisplaySources.BossBody => Presentation.BossBodyDisplay?.Layer;
     /// <inheritdoc/>
@@ -572,8 +576,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         {
             yield return CeresDoorBehavior;
             yield return TourianEntranceStatueBehavior;
-            if (RidleyEncounter.Ridley is { } ridley)
-                yield return ridley.Colours;
             if (BossEncounters.MotherBrain is { } motherBrain)
                 yield return motherBrain.Colours;
             foreach (IGameplayShadingSource boss in Presentation.BossShadings.InOrder)
@@ -636,10 +638,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Terrain = new EnemyTerrain(breakableTerrain);
         CorpseRowDust = new CorpseRowDust(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio, BossEncounters);
-        RidleyTail = new RidleyTail(Projectiles, RidleyEncounter, Room);
+        RidleyTail = new RidleyTail(Projectiles, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, Projectiles = Projectiles, EffectActors = EffectActors, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
-        RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
+        RidleyProjectiles = new RidleyProjectiles(Room, Projectiles);
+        RidleyBody = new RidleyBody(new RidleyFlight(Earthquake), new RidleyReveal(doorPassage, Audio), new RidleyBodyAnimation(Audio, RidleyProjectiles),
+            new RidleyBodyContact(Collision), new RidleyDrawing(Presentation), RidleyTail);
+        CeresEscape = new CeresEscape(new CeresEscapeDependencies { FrameResults = BossFrameResults, Room = Room, Audio = Audio, Presentation = Presentation, Status = RidleyEncounter, RoomStatus = RoomStatus, BossArtwork = BossArtworkBinding, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);
         ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Lifecycle = Lifecycle, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Places = Places, DoorPassage = doorPassage, RoomStatus = RoomStatus, Collision = Collision, FadeStepCount = compatibility.FadeStepCount, DeathsAndDrops = DeathsAndDrops });
@@ -665,8 +670,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain, Audio);
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, Places = Places, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, DoorPassage = doorPassage, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
-        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, DoorPassage = doorPassage, RoomFx = RoomFx });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, Places = Places, Presentation = Presentation, RidleyEncounter = RidleyEncounter, RidleyBody = RidleyBody, Escape = CeresEscape });
+        NorfairRidleyBehavior = new NorfairRidleyBehavior(new NorfairRidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyBody = RidleyBody, RidleyProjectiles = RidleyProjectiles, RoomFx = RoomFx, Presentation = Presentation });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Projectiles);
         PowampBehavior = new PowampBehavior(Terrain, Projectiles, Places, Collision, DeathsAndDrops);
@@ -783,7 +788,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             NuclearWaffleBehavior,
             FakeKraidBehavior,
             WorkRobotBehavior,
-            RidleyBehavior,
+            NorfairRidleyBehavior,
             PuyoBehavior,
             CacatacBehavior,
             OwtchBehavior,
@@ -817,7 +822,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             NinjaSpacePirateBehavior,
         ];
         Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
-            new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter)]);
+            new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter)]);
         Places.InstallPlaces(Species);
     }
 

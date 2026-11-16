@@ -69,13 +69,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.MotherBrainHandBeamFired,
         RoomEnemyProjectileKind.MotherBrainRoomTurret,
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-        RoomEnemyProjectileKind.CeresRidleyFireball,
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter,
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight,
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft,
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp,
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown,
+        RoomEnemyProjectileKind.RidleyFireball,
+        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter,
+        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter,
+        RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight,
+        RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft,
+        RoomEnemyProjectileKind.RidleyVerticalAfterburnUp,
+        RoomEnemyProjectileKind.RidleyVerticalAfterburnDown,
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
         RoomEnemyProjectileKind.BombTorizoInitialDrool,
         RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
@@ -148,10 +148,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
         EnemyProjectileFrameId ceresFireball = RidleyFireballAnimations.ProjectileFrames[0];
         OamBuffer nativeCeres = DrawReferenceProgramFrame(stock, ceresFireball, bus,
-            RoomEnemyProjectileKind.CeresRidleyFireball);
+            RoomEnemyProjectileKind.RidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresFireball,
             NewEnemyProjectileVisualGuard(bus),
-            RoomEnemyProjectileKind.CeresRidleyFireball);
+            RoomEnemyProjectileKind.RidleyFireball);
         AssertTrue(nativeCeres.NextByteOffset > 0 &&
             nativeCeres.ImageEquals(installedCeres),
             "Ceres Ridley fireball uses installed OAM without visual ROM reads");

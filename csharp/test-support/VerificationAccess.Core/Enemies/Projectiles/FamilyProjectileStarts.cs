@@ -82,10 +82,10 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
             RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => enemies.MotherBrainBehavior.Projectiles.Projectile,
         RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion => enemies.OldTourianEscapeShaftWallBehavior.WallExplosion,
-        RoomEnemyProjectileKind.CeresRidleyFireball or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
-            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or
-            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
-            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown => enemies.RidleyProjectiles.Fireballs,
+        RoomEnemyProjectileKind.RidleyFireball or RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
+            RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
+            RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
+            RoomEnemyProjectileKind.RidleyVerticalAfterburnDown => enemies.RidleyProjectiles.Fireballs,
         RoomEnemyProjectileKind.CeresFallingDebrisLight or RoomEnemyProjectileKind.CeresFallingDebrisDark =>
             enemies.CeresFallingTiles.Behavior,
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud => SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.Behavior,
@@ -208,8 +208,8 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.TourianStatuePhantoon => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Phantoon),
         RoomEnemyProjectileKind.TourianStatueBaseDecoration =>
             new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.BaseDecoration),
-        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter),
-        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter),
+        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter),
+        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter),
         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
             RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.KraidCeilingRock or
@@ -220,9 +220,9 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
             RoomEnemyProjectileKind.MotherBrainHandBeamFired or RoomEnemyProjectileKind.MotherBrainDeathExplosion or
-            RoomEnemyProjectileKind.CeresRidleyFireball or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or
-            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
-            RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or RoomEnemyProjectileKind.CeresFallingDebrisLight or
+            RoomEnemyProjectileKind.RidleyFireball or RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
+            RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
+            RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or RoomEnemyProjectileKind.CeresFallingDebrisLight or
             RoomEnemyProjectileKind.CeresFallingDebrisDark or RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
             RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpikeLeft or
             RoomEnemyProjectileKind.FakeKraidSpikeRight or RoomEnemyProjectileKind.PirateMotherBrainLaser or

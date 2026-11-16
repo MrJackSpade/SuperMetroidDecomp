@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
@@ -11,21 +10,20 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The Baby Metroid's container in Ceres Ridley's room, and the sprites and door drawn around the fight.</summary>
+/// <summary>The Baby Metroid Ceres Ridley carries, its fall and its draw, and the door of his room drawn around the fight.</summary>
 [RoomLifetime]
 internal sealed class CeresRidleyBabyScene
 {
-    /// <summary>Provides room randomness and Ceres artwork state.</summary>
+    /// <summary>Provides room randomness.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Queues Ceres battle and getaway sound effects.</summary>
+    /// <summary>Queues the Baby's cries.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
+    /// <summary>Publishes the Baby's and the door overlay's frames.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
+    /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself, and the door of his room.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
-
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
@@ -41,49 +39,48 @@ internal sealed class CeresRidleyBabyScene
     private static readonly SignedEightEight CeresBabyFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
 
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
-    internal static void TickCeresBaby(RoomEnemyPlace place, RidleyEnemyState state)
+    /// <param name="place">Ridley's body, which carries the Baby.</param>
+    /// <param name="baby">The Baby.</param>
+    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby)
     {
-        switch (state.BabyAction)
+        switch (baby.Action)
         {
             case CeresBabyAction.CarriedInArms:
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This phase is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemyPlace.
-                state.BabyPosition = state.BabyPosition.WithWhole(place.Position.Whole + CeresBabyArmsAnchor);
+                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresBabyArmsAnchor);
                 return;
 
             case CeresBabyAction.Drop:
-                state.BabyPosition = state.BabyPosition.WithFractionY(0);
-                state.BabyVerticalVelocity = SignedEightEight.Zero;
-                state.BabyAction = CeresBabyAction.Dropped;
+                baby.Position = baby.Position.WithFractionY(0);
+                baby.VerticalVelocity = SignedEightEight.Zero;
+                baby.Action = CeresBabyAction.Dropped;
                 goto case CeresBabyAction.Dropped;
 
             case CeresBabyAction.Dropped:
                 // The falling speed only grows from zero and the fall ends at Y=192, so it stays a few pixels an
                 // update.
-                state.BabyVerticalVelocity += CeresBabyFallGravity;
-                state.BabyPosition = state.BabyPosition.WithY(state.BabyPosition.Y.MovedBy(state.BabyVerticalVelocity));
-                if (CoordinateAxis.Difference(state.BabyPosition.Y.Whole, 192) >= 0)
+                baby.VerticalVelocity += CeresBabyFallGravity;
+                baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
+                if (CoordinateAxis.Difference(baby.Position.Y.Whole, 192) >= 0)
                 {
-                    state.BabyPosition = state.BabyPosition.WithWholeY(192);
-                    state.BabyAction = CeresBabyAction.Idle;
+                    baby.Position = baby.Position.WithWholeY(192);
+                    baby.Action = CeresBabyAction.Idle;
                 }
                 return;
 
             case CeresBabyAction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the escape handoff.
-                state.BabyPosition = state.BabyPosition.WithWhole(place.Position.Whole + CeresBabyFeetAnchor);
+                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresBabyFeetAnchor);
                 return;
 
             case CeresBabyAction.Idle:
                 return;
 
-            case CeresBabyAction.None:
-                throw new InvalidOperationException("The Ceres Baby Metroid has no action.");
-
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {state.BabyAction}.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {baby.Action}.");
         }
     }
 
@@ -92,54 +89,6 @@ internal sealed class CeresRidleyBabyScene
 
     /// <summary>The Ceres Baby's anchor in Ridley's feet once retrieved, also the grasp point the retrieval compares.</summary>
     internal static Offset16<RoomPixels> CeresBabyFeetAnchor => new(14, 66);
-
-    /// <summary>Draws Ridley's tail and wings.</summary>
-    internal void DrawRidleySupplementalSprites(
-        SpriteFrameBuffer sprites,
-        RoomEnemyPlace place,
-        Position16<RoomPixels> camera)
-    {
-        RidleyEnemyState state = _ridleyEncounter.RequireRidley(place);
-        if ((place.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
-            !state.MovementAnimationEnabled)
-            return;
-
-        if (state.TailSegments.Length == 7)
-        {
-            RidleyTailSegment tip = state.TailSegments[6];
-            // The tip's pose follows its direction turned by the link before it.
-            EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.At(
-                tip.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction));
-            DrawRidleyWorldFrame(
-                sprites,
-                new SpriteSource(SpriteSourceKind.RidleyTail),
-                state.TailAndWingsShading,
-                tip,
-                tipFrame,
-                camera);
-
-            // The tail draw walks back from segment five to the base after emitting the
-            // tip. Earlier draws win equal-priority overlap, so reversing this visually
-            // changes the curl even though every individual piece is otherwise correct.
-            for (int index = 5; index >= 0; index--)
-                DrawRidleyWorldFrame(
-                    sprites,
-                    new SpriteSource(SpriteSourceKind.RidleyTail),
-                    state.TailAndWingsShading,
-                    state.TailSegments[index],
-                    RidleySupplementalVisualDefinitions.LinkFrames[index],
-                    camera);
-        }
-
-        if (state.FacingDirection == RidleyFacing.Turning)
-            return;
-        IReadOnlyList<EnemyFrameId> wingBeat = state.FacingDirection == RidleyFacing.Left
-            ? RidleySupplementalVisualDefinitions.WingBeatFacingLeft
-            : RidleySupplementalVisualDefinitions.WingBeatFacingRight;
-        EnemyFrameId wingFrame = wingBeat[state.WingBeatStep];
-        _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            place.Position.Whole.RelativeToCamera(camera), state.TailAndWingsShading);
-    }
 
     /// <summary>
     /// Replays the direct branch to the Baby and door draw taken while Ridley's movement and
@@ -152,14 +101,11 @@ internal sealed class CeresRidleyBabyScene
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        // The shared Ridley state also exists in Lower Norfair. Only Ceres
-        // Ridley's initializer installs this private Baby/door draw path.
-        if (_ridleyEncounter.Ridley is null ||
-            !_ridleyEncounter.Parts.HoldsCeresRidley ||
-            _ridleyEncounter.Ridley.MovementAnimationEnabled)
+        // Only Ceres Ridley attaches this Baby and door draw to the room.
+        if (_ridleyEncounter.CeresRidley is not { } ceres || ceres.Ridley.MovementAnimationEnabled)
             return;
 
-        DrawCeresRidleyBabyAndDoor(sprites, camera);
+        DrawCeresRidleyBabyAndDoor(sprites, ceres.Ridley, camera);
     }
 
     /// <summary>
@@ -171,35 +117,31 @@ internal sealed class CeresRidleyBabyScene
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        if (_ridleyEncounter.Ridley is null ||
-            !_ridleyEncounter.Parts.HoldsCeresRidley ||
-            !_ridleyEncounter.Ridley.MovementAnimationEnabled)
+        if (_ridleyEncounter.CeresRidley is not { } ceres || !ceres.Ridley.MovementAnimationEnabled)
             return;
 
-        DrawCeresRidleyBabyAndDoor(sprites, camera);
+        DrawCeresRidleyBabyAndDoor(sprites, ceres.Ridley, camera);
     }
 
     /// <summary>Publishes the private Baby frame and hidden door overlay with the secondary quake offset.</summary>
     private void DrawCeresRidleyBabyAndDoor(
         SpriteFrameBuffer sprites,
+        CeresRidleyState ridley,
         Position16<RoomPixels> camera)
     {
-        RidleyEnemyState state = _ridleyEncounter.Ridley
-            ?? throw new InvalidOperationException("Ceres Ridley Baby draw requires active state.");
-
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
-            if (AdvanceCeresBabyDrawAnimation(state) is { } babyFrame)
+            if (AdvanceCeresBabyDrawAnimation(ridley) is { } babyFrame)
             {
                 _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-                    state.BabyPosition.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook);
+                    ridley.Baby.Position.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook);
             }
         }
 
         // The room's door hands its drawing to Ridley's scene in its hiding step, when the common
         // enemy pass intentionally hides the actor; the Baby and door draw then draws this fixed overlay
         // after the Baby. This draws the door for it; it does not replace the door actor's own animation.
-        if (_ridleyEncounter.Parts.CeresRoomDoor is { Entity: IDrawnByCeresRidleyScene { HandsDrawingToRidley: true } } door)
+        if (_ridleyEncounter.CeresRoomDoor is { Entity: IDrawnByCeresRidleyScene { HandsDrawingToRidley: true } } door)
         {
             // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's
             // own earthquake shake, which moves only the drawn door.
@@ -212,30 +154,28 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Runs the Baby's typed cutscene animation one draw update and returns its current frame. The Baby's draw counts the
-    /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
+    /// Runs the Baby's typed cutscene animation one draw update on the Baby's own clock (#2228) and returns its current
+    /// frame: the pose it shows holds for its duration, counted off one each draw update, and the next pose is then shown.
     /// </summary>
-    internal EnemyFrameId? AdvanceCeresBabyDrawAnimation(RidleyEnemyState state)
+    /// <param name="ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
+    internal EnemyFrameId? AdvanceCeresBabyDrawAnimation(CeresRidleyState ridley)
     {
-        if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyFrameHold)
-        {
-            state.BabyFrameHold++;
-            return CeresBabyFrame(state.BabyCurrentPose);
-        }
+        CeresBaby baby = ridley.Baby;
+        if (!baby.Clock.Expire())
+            return CeresBabyFrame(baby.ShownPose);
 
-        Animation<CeresBabySegment> animation = state.BabyPlayback.Animation;
-        AnimationPlace place = state.BabyPlayback.Place;
+        Animation<CeresBabySegment> animation = baby.Playback.Animation;
+        AnimationPlace place = baby.Playback.Place;
         AnimationShown<CeresBabySegment, CeresBabyPose> outcome = CeresBabyAnimations.Segments.PlayToNextFrame(ref animation, ref place,
-            cue => ApplyCeresBabyCue(state, cue) is { } target
+            cue => ApplyCeresBabyCue(ridley, cue) is { } target
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
-        state.BabyPlayback = new AnimationPlayback<CeresBabySegment>(animation, place);
+        baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
         if (outcome is not AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown)
             throw new InvalidOperationException($"The Ceres Baby's animation ended a draw update with {outcome}.");
-        state.BabyPoseDuration = shown.Duration;
-        state.BabyFrameHold = 1;
-        state.BabyCurrentPose = shown.Shown;
-        return CeresBabyFrame(state.BabyCurrentPose);
+        baby.Clock.Show(shown.Duration);
+        baby.ShownPose = shown.Shown;
+        return CeresBabyFrame(baby.ShownPose);
     }
 
     /// <summary>The frame the draw shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
@@ -249,7 +189,7 @@ internal sealed class CeresRidleyBabyScene
     internal const CeresBabySegment SilentAnimation = CeresBabySegment.Initial;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
-    private CeresBabySegment? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
+    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)
     {
         switch (cue)
         {
@@ -257,29 +197,17 @@ internal sealed class CeresRidleyBabyScene
                 // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it reads the current random number without
                 // drawing a new one; an odd number makes it jump silently.
-                if (state.BabyVerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
+                if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
                     return SilentAnimation;
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
-                state.Colours.ShowBaby(updateColors.Shade);
+                ridley.Colours.ShowBaby(updateColors.Shade);
                 return null;
             case CeresBabyCue.ReactsToMotion:
-                return !state.BabyVerticalVelocity.IsZero ? MovingAnimation : null;
+                return !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null;
             default:
                 throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
         }
-    }
-
-    /// <summary>Publishes a Ridley component's world frame at its screen position for the current camera.</summary>
-    private void DrawRidleyWorldFrame(
-        SpriteFrameBuffer sprites,
-        SpriteSource source,
-        PictureShading colouring,
-        RidleyTailSegment segment,
-        EnemyFrameId frame,
-        Position16<RoomPixels> camera)
-    {
-        _presentation.PublishEncounterFrame(sprites, source, frame, segment.Position.RelativeToCamera(camera), colouring);
     }
 }

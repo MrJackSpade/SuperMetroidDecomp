@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Whose colour effects a boss attaches to the room (#2194).</summary>
 internal enum BossShadingLayer
 {
+    /// <summary>Ridley's colours, in Ceres or Lower Norfair (#2231).</summary>
+    Ridley,
+    /// <summary>Ceres's escape's colours: the getaway floor's zoom and the self-destruct warning's alarm (#2228).</summary>
+    CeresEscape,
     /// <summary>Spore Spawn's colours.</summary>
     SporeSpawn,
     /// <summary>Phantoon's colours.</summary>

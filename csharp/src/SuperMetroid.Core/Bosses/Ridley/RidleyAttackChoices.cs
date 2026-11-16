@@ -1,4 +1,4 @@
-using static SuperMetroid.Core.Bosses.Ridley.RidleyPhase;
+using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyPhase;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -14,16 +14,16 @@ public static class RidleyAttackChoices
     /// <returns>The AI entry; this lookup does not draw RNG or execute the selected action.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The choice is outside 0..7, including for a distribution whose entries are identical.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined distribution.</exception>
-    public static RidleyPhase Resolve(RidleyAttackSituation situation, int choice)
+    public static NorfairRidleyPhase Resolve(RidleyAttackSituation situation, int choice)
     {
         if ((uint)choice >= 8) throw new ArgumentOutOfRangeException(nameof(choice));
         return situation switch
         {
-            RidleyAttackSituation.Ordinary => choice < 4 ? NorfairPogoMoveToSide : NorfairSwoopSetup,
-            RidleyAttackSituation.DamageBoosting => choice < 6 ? NorfairGrabApproach : NorfairPogoMoveToSide,
-            RidleyAttackSituation.PogoZone => NorfairPogoMoveToSide,
-            RidleyAttackSituation.SpinJumping => NorfairWallSweepSetup,
-            RidleyAttackSituation.ZeroHealth => NorfairGrabApproach,
+            RidleyAttackSituation.Ordinary => choice < 4 ? PogoMoveToSide : SwoopSetup,
+            RidleyAttackSituation.DamageBoosting => choice < 6 ? GrabApproach : PogoMoveToSide,
+            RidleyAttackSituation.PogoZone => PogoMoveToSide,
+            RidleyAttackSituation.SpinJumping => WallSweepSetup,
+            RidleyAttackSituation.ZeroHealth => GrabApproach,
             _ => throw new ArgumentOutOfRangeException(nameof(situation)),
         };
     }

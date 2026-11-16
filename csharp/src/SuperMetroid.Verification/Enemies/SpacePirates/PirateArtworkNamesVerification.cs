@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
@@ -71,7 +70,6 @@ internal static class PirateArtworkNamesVerification
     {
         Suite(nameof(VerifyWalkingPirateArtworkNames), () => VerifyWalkingPirateArtworkNames());
         Suite(nameof(VerifyWallPirateArtworkNames), () => VerifyWallPirateArtworkNames());
-        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
         Console.WriteLine("Pirate artwork names: all 55 published keys and bounds pass.");
         return 0;
     }

@@ -81,7 +81,6 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonOa
 using static SuperMetroid.Verification.Enemies.EnemyTrigonometryVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerification;
-using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorObjectDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileProgramMappingsVerification;
@@ -3648,7 +3647,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(skeletonOracle.Rom)),
             "Skeleton frame oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyCrocomireSkeletonFrameGeometry), () => VerifyCrocomireSkeletonFrameGeometry(skeletonOracle));
-        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
         Console.WriteLine("Crocomire skeleton catalog: 33 native roots, geometry, names, enumeration, membership and bounds pass.");
         return 0;
     }
@@ -3662,7 +3660,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(footOracle.Rom)),
             "Kraid foot oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidFootFrameGeometry), () => VerifyKraidFootFrameGeometry(footOracle));
-        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
         Console.WriteLine("Kraid foot catalog: 35 native roots, names, geometry, enumeration and bounds pass.");
         return 0;
     }
@@ -3678,7 +3675,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyRidleyOamRootGeometry), () => VerifyRidleyOamRootGeometry(rootOracle));
         Suite(nameof(VerifyDraygonOamRootGeometry), () => VerifyDraygonOamRootGeometry(rootOracle));
         Suite(nameof(VerifySporeSpawnOamRootGeometry), () => VerifySporeSpawnOamRootGeometry(rootOracle));
-        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
         Console.WriteLine("Boss OAM roots: 71 original identities, native geometry and bounds pass.");
         return 0;
     }

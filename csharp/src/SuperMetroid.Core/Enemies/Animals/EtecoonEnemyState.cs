@@ -15,8 +15,16 @@ public sealed class EtecoonEnemyState
     /// </summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>The current behaviour's wrapping countdown, in updates.</summary>
-    public WrappingCountdown ActionTimer { get; internal set; }
+    /// <summary>
+    /// The updates the current behaviour still waits, 0 through <see cref="EtecoonTimingDefinitions.FlexDuration"/>:
+    /// every behaviour that waits starts its wait on entry and moves on in the update its wait reaches zero, so the wait
+    /// never runs past zero.
+    /// </summary>
+    public int ActionTimer
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, EtecoonTimingDefinitions.FlexDuration, value);
+    }
 
     /// <summary>
     /// Whether the Etecoon still lies dormant, waiting for Samus to come level with it (#1627): from its initialization

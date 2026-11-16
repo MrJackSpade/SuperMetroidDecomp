@@ -563,10 +563,12 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {
             etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
-            etecoonRecord.ActionTimer = WrappingCountdown.Start(words.E);
             etecoonRecord.Action = AnimalsNativeWords.EtecoonActions.Decode(words.F, "recorded EtecoonAction");
-            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus.
-            etecoonRecord.AwaitingSamus = etecoonRecord.Action == EtecoonAction.WaitingForSamus && etecoonRecord.ActionTimer.IsNegative;
+            // A dormant Etecoon's record holds its countdown below zero while it waits for Samus; the port's dormant
+            // Etecoon waits without one, and every other record's countdown is the wait it has left.
+            etecoonRecord.AwaitingSamus = etecoonRecord.Action == EtecoonAction.WaitingForSamus && unchecked((short)words.E) < 0;
+            if (!etecoonRecord.AwaitingSamus)
+                etecoonRecord.ActionTimer = words.E;
         }
         if (enemy.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
         {

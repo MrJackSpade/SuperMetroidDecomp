@@ -15,6 +15,12 @@ internal static class DeadTorizoCorpseDefinitions
     /// <summary>The rot calls between one line of sand falling and the next.</summary>
     internal const int RotCallsPerSandLine = 15;
 
+    /// <summary>The speed the corpse falls at when it starts to rot: eight 256ths of a pixel an update.</summary>
+    internal static SignedEightEight StartingFallSpeed { get; } = SignedEightEight.FromParts(0, 8);
+
+    /// <summary>How much the rotting corpse's fall speeds up each update: a 256th of a pixel an update.</summary>
+    internal static SignedEightEight RotGravity { get; } = SignedEightEight.FromParts(0, 1);
+
     /// <summary>The room point each fallen row's dust cloud is spread right from, whichever room the corpse lies in.</summary>
     internal static readonly Position16<RoomPixels> DustOrigin = new(272, 188);
 }

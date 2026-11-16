@@ -73,8 +73,9 @@ public sealed class DeadSidehopperEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Pre-rot AI calls counted since Samus first stood on the corpse, from zero: the sixteenth call starts rotting, and
-    /// the corpse never returns to the delay, so the count stops at sixteen.
+    /// Pre-rot AI calls counted since Samus first stood on the corpse, from zero: the call that counts
+    /// <see cref="CorpseRotScheduleDefinitions.PreRotDelayCalls"/> starts rotting, and the corpse never returns to the
+    /// delay, so the count stops there.
     /// </summary>
     public int PreRotDelayCounter
     {
@@ -83,8 +84,8 @@ public sealed class DeadSidehopperEnemyState
     }
 
     /// <summary>
-    /// The countdown initialized to 64 for the post-landing pause; expiry requires decrementing through zero
-    /// to -1, giving 65 delay-state calls.
+    /// The countdown initialized to <see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/> for the post-landing
+    /// pause; expiry requires decrementing through zero to -1, giving one more delay-state call than the pause.
     /// </summary>
     public int StateTimer { get; internal set; }
 

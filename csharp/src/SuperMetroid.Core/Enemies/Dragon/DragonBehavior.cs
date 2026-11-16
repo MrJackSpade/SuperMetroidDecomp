@@ -311,12 +311,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
         ResolveDragonCombatAfterCommon(context.Place);
     }
-    /// <summary>Upward launch velocity of each Dragon fireball: three pixels and 193 256ths per update.</summary>
-    private static readonly SignedEightEight DragonFireballInitialYVelocity = -SignedEightEight.FromParts(3, 193);
-    /// <summary>The fireball's sideways speed, two and three quarter pixels per update, toward the Dragon's facing.</summary>
-    private static readonly SignedEightEight DragonFireballHorizontalSpeed = SignedEightEight.FromParts(2, 192);
-    /// <summary>Downward acceleration applied to a live fireball, an eighth of a pixel per update each update.</summary>
-    private static readonly SignedEightEight DragonFireballGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
     internal void SpawnDragonFireball(RoomEnemyPlace body, DragonEnemyState bodyState)
@@ -330,22 +324,20 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.DragonFireball,
             Fireball,
             SpriteGraphics.SpawnedBy(body));
-        projectile.Position = projectile.Position.WithY(new(CoordinateAxis.Wrap(body.Position.Y.Whole - 28), 0));
-        projectile.Velocity = projectile.Velocity.WithY(DragonFireballInitialYVelocity);
+        Offset16<RoomPixels> muzzle = DragonFireballDefinitions.MuzzleFacingRight;
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (bodyState.FacingLeft ? muzzle.MirroredX() : muzzle));
+        projectile.Velocity = projectile.Velocity.WithY(DragonFireballDefinitions.LaunchRise);
 
         if (bodyState.FacingLeft)
         {
-            projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole - 12);
-            projectile.Velocity = projectile.Velocity.WithX(-DragonFireballHorizontalSpeed);
+            projectile.Velocity = projectile.Velocity.WithX(-DragonFireballDefinitions.SidewaysSpeed);
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingLeft));
         }
         else
         {
-            projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + 12);
-            projectile.Velocity = projectile.Velocity.WithX(DragonFireballHorizontalSpeed);
+            projectile.Velocity = projectile.Velocity.WithX(DragonFireballDefinitions.SidewaysSpeed);
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingRight));
         }
-        projectile.Position = projectile.Position.WithFractionX(0);
     }
 
     /// <summary>Runs the fireball's per-frame behaviour.</summary>
@@ -357,7 +349,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (projectile.Velocity.Y.IsNegative)
         {
-            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballGravity);
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballDefinitions.Gravity);
             if (projectile.Velocity.Y.IsNegative)
                 return;
 
@@ -369,7 +361,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballGravity);
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballDefinitions.Gravity);
 
         // The fireball is retained above the viewport; horizontal distance is never consulted.
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);

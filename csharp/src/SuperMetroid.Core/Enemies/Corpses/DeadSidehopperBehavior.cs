@@ -87,14 +87,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
 
         place.Position = place.Position.WithWhole(DeadSidehopperVictimDefinitions.StartPosition);
-        place.Radius = place.Radius.WithY(21);
+        place.Radius = place.Radius.WithY(DeadSidehopperVictimDefinitions.LivingHalfHeight);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.AliveWaitForCamera);
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = 0;
         place.Shading = state.Shading;
-        state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.FromParts(0, 96), SignedEightEight.FromParts(1, 0));
+        state.Velocity = DeadSidehopperLaunchDefinitions.FirstHop;
     }
 
     /// <summary>Runs the already-dead Tourian layout.</summary>
@@ -154,7 +154,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             case DeadSidehopperAction.BeginPostLandingDelay:
                 state.Action = DeadSidehopperAction.PostLandingDelay;
-                state.StateTimer = 64;
+                state.StateTimer = DeadSidehopperVictimDefinitions.PostLandingPause;
                 return;
 
             case DeadSidehopperAction.PostLandingDelay:
@@ -183,7 +183,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             case DeadSidehopperAction.PreRotDelay:
                 state.CountPreRotDelayCall();
-                if (state.PreRotDelayCounter >= 16)
+                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayCalls)
                 {
                     state.Action = DeadSidehopperAction.Rotting;
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -226,9 +226,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 horizontalDisplacement);
         }
 
-        // Upward motion slows by an eighth of a pixel per update each update; falling motion speeds up by half a
-        // pixel. The game checks whether it is rising before the addition.
-        SignedEightEight acceleration = state.Velocity.Y.IsNegative ? SignedEightEight.FromParts(0, 32) : SignedEightEight.FromParts(0, 128);
+        // Upward motion slows and falling motion speeds up; the game checks whether it is rising before the addition.
+        SignedEightEight acceleration = state.Velocity.Y.IsNegative
+            ? DeadSidehopperLaunchDefinitions.RisingGravity
+            : DeadSidehopperLaunchDefinitions.FallingGravity;
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
         if (beforeTerrainBoundary)
         {
@@ -264,13 +265,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Counts one draining call and, on every eighth, steps the drain, which only the victim shows (#1512).</summary>
+    /// <summary>Counts one draining call and, once it has counted a stage's calls, steps the drain, which only the victim shows (#1512).</summary>
     private static void StepDeadSidehopperDrain(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state)
     {
         state.DrainStepCalls++;
-        if (state.DrainStepCalls < 8)
+        if (state.DrainStepCalls < DeadSidehopperVictimDefinitions.DrainCallsPerStage)
             return;
 
         state.DrainStepCalls = 0;
@@ -285,7 +286,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperCorpse);
         state.Action = DeadSidehopperAction.WaitForSamusCollision;
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
-        place.Radius = place.Radius.WithY(12);
+        place.Radius = place.Radius.WithY(DeadSidehopperVictimDefinitions.DrainedHalfHeight);
     }
 
     /// <summary>

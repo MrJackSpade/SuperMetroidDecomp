@@ -155,11 +155,11 @@ internal static class EnemyTerrainBlockAddressingVerification
         EnemyTerrainScanOutcome expected = room.ScanEdge(fixedBlock, startBlock, extraBlocks, edge);
         if (expected.Failure is { } failure)
         {
-            AssertFailure(failure, () => EyeDoorBehavior.EyeDoorEffectEdgeIsSolid(room.Level, fixedPixel, spanStart, spanEnd, edge), Context());
+            AssertFailure(failure, () => EyeDoorScanStops(room.Level, fixedPixel, spanStart, spanEnd, edge), Context());
             return;
         }
 
-        bool solid = EyeDoorBehavior.EyeDoorEffectEdgeIsSolid(room.Level, fixedPixel, spanStart, spanEnd, edge);
+        bool solid = EyeDoorScanStops(room.Level, fixedPixel, spanStart, spanEnd, edge);
         if (solid != expected.Solid)
             AssertEqual(expected.Solid, solid, Context());
     }
@@ -242,11 +242,11 @@ internal static class EnemyTerrainBlockAddressingVerification
                 EnemyTerrainScanOutcome expected = room.Scan(edgeBlock, spanBlock, extraBlocks, edge, EyeDoorPassable);
                 if (expected.Failure is { } failure)
                 {
-                    AssertFailure(failure, () => EyeDoorBehavior.EyeDoorEffectEdgeIsSolid(room.Level, edgeBlock * 16 + 5, spanBlock * 16 + 2, spanBlock * 16 + extraBlocks * 16 + 9, edge), Context("eye door"));
+                    AssertFailure(failure, () => EyeDoorScanStops(room.Level, edgeBlock * 16 + 5, spanBlock * 16 + 2, spanBlock * 16 + extraBlocks * 16 + 9, edge), Context("eye door"));
                 }
                 else
                 {
-                    bool solid = EyeDoorBehavior.EyeDoorEffectEdgeIsSolid(room.Level, edgeBlock * 16 + 5, spanBlock * 16 + 2, spanBlock * 16 + extraBlocks * 16 + 9, edge);
+                    bool solid = EyeDoorScanStops(room.Level, edgeBlock * 16 + 5, spanBlock * 16 + 2, spanBlock * 16 + extraBlocks * 16 + 9, edge);
                     if (solid != expected.Solid)
                         AssertEqual(expected.Solid, solid, Context("eye door"));
                 }
@@ -265,6 +265,18 @@ internal static class EnemyTerrainBlockAddressingVerification
 
         Console.WriteLine("Enemy projectile scan rows: both block scans test the blocks the original's place scan reaches from every first row.");
     }
+
+    /// <summary>
+    /// Whether the eye door projectiles' collision (<see cref="EyeDoorEffectCollision"/>) stops a move whose leading edge lies
+    /// at <paramref name="fixedPixel"/> and whose span across the move covers <paramref name="spanStart"/> through
+    /// <paramref name="spanEnd"/>: the scan the shared axis move builds from those pixels, tested with the eye door's
+    /// collision. The eye door's collision reads only the blocks, so the projectile the move carries is any one.
+    /// </summary>
+    private static bool EyeDoorScanStops(RoomLevelData level, int fixedPixel, int spanStart, int spanEnd, Axis edge) =>
+        EyeDoorEffectCollision.Rule.Stops(
+            level,
+            new EnemyProjectileScannedMove(ScannedProjectile, EnemyProjectileBlockScan.Across(fixedPixel, spanStart, spanEnd, edge), MovingNegative: false, LeadingEdge: fixedPixel),
+            out _);
 
     /// <summary>The first rows the scan checks compare: four cycles of 256.</summary>
     private const int ScannedFirstRows = 1024;

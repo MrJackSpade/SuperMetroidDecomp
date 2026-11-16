@@ -40,6 +40,5 @@ public sealed class NorfairLavaJumpingEnemyState
     /// past the type's range fails loudly.
     /// </summary>
     /// <param name="gravity">The 1/256-pixel gravity step.</param>
-    internal void ApplyGravity(SignedEightEight gravity) =>
-        YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(YVelocity.InTwoHundredFiftySixthsOfPixel + gravity.InTwoHundredFiftySixthsOfPixel);
+    internal void ApplyGravity(SignedEightEight gravity) => YVelocity = YVelocity.Accelerated(gravity);
 }

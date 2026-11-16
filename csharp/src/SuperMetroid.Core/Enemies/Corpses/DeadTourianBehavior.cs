@@ -75,7 +75,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case DeadTourianCorpsePhase.PreRotDelay:
                 state.CountPreRotDelayCall();
-                if (state.PreRotDelayCounter >= 16)
+                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayCalls)
                 {
                     state.Phase = DeadTourianCorpsePhase.Rotting;
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);

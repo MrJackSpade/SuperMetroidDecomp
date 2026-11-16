@@ -59,10 +59,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Strict distance around Samus that changes Beetom's action selection.</summary>
-    private const int BeetomProximityDistance = 96;
-    /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
-    private const int BeetomMashCount = 64;
 
     /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
@@ -73,7 +69,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActionTimer = 0;
         state.Falling = false;
         state.AttachedToSamus = false;
-        state.ButtonCounter = BeetomMashCount;
+        state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
 
         // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
@@ -104,7 +100,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case BeetomAction.DecideAction:
-                state.Action = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < BeetomProximityDistance
+                state.Action = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < BeetomMotionDefinitions.ProximityDistance
                     ? BeetomAction.DecideActionSamusInProximity
                     : BeetomAction.DecideActionSamusNotInProximity;
                 return;
@@ -112,7 +108,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomAction.StartIdling:
-                state.ActionTimer = 32;
+                state.ActionTimer = BeetomMotionDefinitions.IdleDuration;
                 state.Action = BeetomAction.Idling;
                 return;
             case BeetomAction.StartCrawlingLeft:
@@ -160,22 +156,22 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunBeetomCrawl(place, state, level, direction: HorizontalDirection.Right);
                 return;
             case BeetomAction.ShortHopLeft:
-                RunBeetomArc(place, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: 4, fallingDelta: 4);
+                RunBeetomArc(place, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: BeetomMotionDefinitions.ShortHopMarks, fallingDelta: BeetomMotionDefinitions.ShortHopMarks);
                 return;
             case BeetomAction.ShortHopRight:
-                RunBeetomArc(place, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: 4, fallingDelta: 4);
+                RunBeetomArc(place, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: BeetomMotionDefinitions.ShortHopMarks, fallingDelta: BeetomMotionDefinitions.ShortHopMarks);
                 return;
             case BeetomAction.LongHopLeft:
-                RunBeetomArc(place, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: 5, fallingDelta: 5);
+                RunBeetomArc(place, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: BeetomMotionDefinitions.LongHopMarks, fallingDelta: BeetomMotionDefinitions.LongHopMarks);
                 return;
             case BeetomAction.LongHopRight:
-                RunBeetomArc(place, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: 5, fallingDelta: 5);
+                RunBeetomArc(place, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: BeetomMotionDefinitions.LongHopMarks, fallingDelta: BeetomMotionDefinitions.LongHopMarks);
                 return;
             case BeetomAction.LungeLeft:
-                RunBeetomArc(place, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Lunge, risingDelta: 5, fallingDelta: 3);
+                RunBeetomArc(place, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Lunge, risingDelta: BeetomMotionDefinitions.LungeRisingMarks, fallingDelta: BeetomMotionDefinitions.LungeFallingMarks);
                 return;
             case BeetomAction.LungeRight:
-                RunBeetomArc(place, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Lunge, risingDelta: 5, fallingDelta: 3);
+                RunBeetomArc(place, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Lunge, risingDelta: BeetomMotionDefinitions.LungeRisingMarks, fallingDelta: BeetomMotionDefinitions.LungeFallingMarks);
                 return;
             case BeetomAction.DrainingLeft:
                 RunBeetomDrain(place, state, samus, level, controllerInput, side: HorizontalDirection.Left);
@@ -293,25 +289,26 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--state.ActionTimer < 0)
         {
-            state.ActionTimer = 64;
+            state.ActionTimer = BeetomMotionDefinitions.CrawlDuration;
             state.Action = BeetomAction.DecideAction;
             return;
         }
 
-        // The ledge probe temporarily moves the center eight pixels ahead, then
-        // performs a real one-pixel downward collision move. Restore only the whole pixels,
-        // preserving collision-produced subposition just as the game does.
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8));
-        if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1)))
+        // The ledge probe temporarily moves the center ahead, then performs a real downward
+        // collision move. Restore only the whole pixels, preserving collision-produced
+        // subposition just as the game does.
+        int reach = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.LedgeProbeReach : BeetomMotionDefinitions.LedgeProbeReach;
+        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + reach);
+        if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(BeetomMotionDefinitions.LedgeProbeDrop)))
         {
             state.Action = direction == HorizontalDirection.Left ? BeetomAction.StartCrawlingRight : BeetomAction.StartCrawlingLeft;
-            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 1);
-            place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8));
+            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - BeetomMotionDefinitions.LedgeProbeDrop);
+            place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - reach);
             return;
         }
 
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8));
-        SignedSixteenSixteen displacement = direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromSixteenthsOfPixel(-4) : SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - reach);
+        SignedSixteenSixteen displacement = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.CrawlSpeed : BeetomMotionDefinitions.CrawlSpeed;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             state.Action = direction == HorizontalDirection.Left ? BeetomAction.StartCrawlingRight : BeetomAction.StartCrawlingLeft;
     }
@@ -332,8 +329,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // the AI action. That ordering is easy to lose when expressing the two axes
         // as a single combined movement vector.
         SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
-            ? (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-3) : SignedSixteenSixteen.FromWholePixels(3))
-            : (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromSixteenthsOfPixel(-4) : SignedSixteenSixteen.FromSixteenthsOfPixel(4));
+            ? (direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.LungeSpeed : BeetomMotionDefinitions.LungeSpeed)
+            : (direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.HopSpeed : BeetomMotionDefinitions.HopSpeed);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
@@ -381,7 +378,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.ButtonCounter != 0)
         {
-            place.Position = place.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole - 4)));
+            place.Position = place.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole - BeetomMotionDefinitions.DrainHoldAbove)));
             if (controllerInput != state.LastSeenPlayerActions)
             {
                 state.LastSeenPlayerActions = controllerInput;
@@ -390,14 +387,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Escape throws the Beetom sixteen pixels away. A wall reverses the direction and
-        // applies an additional 32-pixel move, producing the net sixteen-pixel throw
-        // to the other side rather than merely cancelling the first displacement.
-        SignedSixteenSixteen initialDisplacement = side == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(16) : SignedSixteenSixteen.FromWholePixels(-16);
+        // Escape throws the Beetom away. A wall reverses the direction and applies the rebound,
+        // producing the net throw to the other side rather than merely cancelling the first displacement.
+        SignedSixteenSixteen initialDisplacement = SignedSixteenSixteen.FromWholePixels(side == HorizontalDirection.Left ? BeetomMotionDefinitions.EscapeThrow : -BeetomMotionDefinitions.EscapeThrow);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, initialDisplacement))
         {
             state.FacingRight = side == HorizontalDirection.Left;
-            SignedSixteenSixteen reflectedDisplacement = side == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-32) : SignedSixteenSixteen.FromWholePixels(32);
+            SignedSixteenSixteen reflectedDisplacement = SignedSixteenSixteen.FromWholePixels(side == HorizontalDirection.Left ? -BeetomMotionDefinitions.EscapeRebound : BeetomMotionDefinitions.EscapeRebound);
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, reflectedDisplacement);
         }
         state.AttachedToSamus = false;
@@ -407,7 +403,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Falls three pixels per frame and resumes crawling on floor contact.</summary>
     private void RunBeetomDrop(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level)
     {
-        if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(3)))
+        if (!_terrain.MoveEnemyVertically(level, place, BeetomMotionDefinitions.DropSpeed))
             return;
         state.Action = state.FacingRight
             ? BeetomAction.StartCrawlingRight
@@ -420,11 +416,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Positive))
             state.Action = BeetomAction.DecideAction;
         else
-            state.StepFallingSpeed(1);
+            state.StepFallingSpeed(BeetomMotionDefinitions.FlungFallingMarks);
 
         // The facing is the pre-escape facing. The throw deliberately travels in the
         // opposite direction: facing left moves right and facing right moves left.
-        SignedSixteenSixteen horizontal = state.FacingRight ? SignedSixteenSixteen.FromWholePixels(-2) : SignedSixteenSixteen.FromWholePixels(2);
+        SignedSixteenSixteen horizontal = state.FacingRight ? -BeetomMotionDefinitions.FlungSpeed : BeetomMotionDefinitions.FlungSpeed;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontal))
             return;
         state.FacingRight = !state.FacingRight;
@@ -443,7 +439,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? BeetomAction.StartDrainingRight
                 : BeetomAction.StartDrainingLeft;
             state.AttachedToSamus = true;
-            state.ButtonCounter = BeetomMashCount;
+            state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         }
 
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
@@ -454,7 +450,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
+        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
         // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the

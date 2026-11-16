@@ -3,24 +3,14 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// The blocks an enemy projectile's block scan tests across its leading edge (#1628): it starts at the block where the
 /// edge meets the first pixel of the span the projectile covers across its move, and steps down the edge's column for a
-/// horizontal move or along the edge's row for a vertical one, testing one block more than the span's distance in whole
-/// blocks from that first block's start to its last pixel. The scan names its blocks through
-/// <see cref="BlockScanCycle"/>: its first row is taken within the cycle of 256, a column past the room's width runs
-/// into the following rows, a step along a row past its end continues on the next row, and the blocks are counted within
-/// the cycle of 32768.
+/// horizontal move or along the edge's row for a vertical one, testing the first block and the blocks
+/// <see cref="BlockScanCycle.BlocksAfterFirstAcross"/> counts after it. The scan names its blocks through
+/// <see cref="BlockScanCycle"/>.
 /// </summary>
 /// <remarks>
-/// <para>
-/// Built once for each axis an enemy projectile moves on during the enemy projectile pass, by the shared axis move and
-/// by the eye door's projectiles; each tested block is then resolved through its extension links and classified by the
-/// projectile's collision. A span whose last pixel lies before its first block's start, as a zero radius on a block boundary gives, counts
-/// on past 65535 to 4095 more blocks.
-/// </para>
-/// <para>
-/// Evidence: the original's horizontal and vertical enemy projectile moves count the blocks to test as the span's last
-/// pixel less its first pixel's block start, a difference counted within 65536, over 16, and test one block more than that; they
-/// name the blocks as <see cref="BlockScanCycle"/> steps, stepping a row down a column or a block along a row.
-/// </para>
+/// Built once for each axis an enemy projectile moves on during the enemy projectile pass, by the shared axis move
+/// (<see cref="EnemyProjectileEngine"/>); each tested block is then judged by the move's
+/// <see cref="EnemyProjectileBlockCollision"/>.
 /// </remarks>
 /// <param name="First">The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</param>
 /// <param name="Edge">The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</param>
@@ -36,7 +26,7 @@ internal readonly record struct EnemyProjectileBlockScan(Position16<RoomBlocks> 
     {
         int edgeLine = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(edgePixel));
         int spanStart = CoordinateAxis.Wrap(spanStartPixel);
-        int extraBlocks = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(CoordinateAxis.Wrap(spanEndPixel) - RoomGridConversions.BlockStart(spanStart)));
+        int extraBlocks = BlockScanCycle.BlocksAfterFirstAcross(spanStart, CoordinateAxis.Wrap(spanEndPixel));
         Position16<RoomBlocks> first = edge == Axis.Vertical
             ? Position16<RoomBlocks>.Of(RoomGridConversions.PixelToBlock(spanStart), edgeLine)
             : Position16<RoomBlocks>.Of(edgeLine, RoomGridConversions.PixelToBlock(spanStart));

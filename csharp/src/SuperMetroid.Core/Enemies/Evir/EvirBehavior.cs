@@ -244,8 +244,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace body = state.Body;
         state.Facing = BodyFacingOf(body);
-        arms.Position = arms.Position.WithWhole(new(CoordinateAxis.Wrap(
-            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 10)));
+        Offset16<RoomPixels> armsOffset = EvirMotionDefinitions.ArmsFacingRight;
+        arms.Position = arms.Position.WithWhole(body.Position.Whole + (state.Facing == EvirFacing.Left ? armsOffset.MirroredX() : armsOffset));
         RequestEvirAnimation(
             arms,
             state,
@@ -259,8 +259,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemyPlace body = state.Body;
         state.Facing = BodyFacingOf(body);
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
-            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 18)));
+        Offset16<RoomPixels> spitOffset = EvirMotionDefinitions.IdleSpitFacingRight;
+        projectile.Position = projectile.Position.WithWhole(body.Position.Whole + (state.Facing == EvirFacing.Left ? spitOffset.MirroredX() : spitOffset));
     }
 
     /// <summary>Aims at nearby Samus using the angle transform and signed 1/65536-pixel speed tables.</summary>
@@ -355,7 +355,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private static void SetInitialEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? CoordinateAxis.AsSigned(-RegenerationStartDistance) : RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -RegenerationStartDistance : RegenerationStartDistance, 0);
 
     /// <summary>Animation cue: advances the regeneration offset.</summary>
     private static void AdvanceEvirRegenerationOffset(EvirSpitState state) =>

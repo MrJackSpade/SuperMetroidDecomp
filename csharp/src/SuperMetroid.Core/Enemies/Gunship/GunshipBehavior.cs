@@ -370,11 +370,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!newlyPressed.HasAny(GameplayAction.Down))
             return;
 
+        // Samus stands within the entrance's half width of the ship's middle, the left edge excluded, and less than the
+        // entrance's height above its top.
+        int samusFromShipX = CoordinateAxis.Difference(samus.Position.X.Whole, top.Position.X.Whole);
+        int samusFromShipY = CoordinateAxis.Difference(samus.Position.Y.Whole, top.Position.Y.Whole);
         bool insideEntrance =
-            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.X.Whole - 8 - samus.Position.X.Whole)) < 0 &&
-            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.X.Whole + 8 - samus.Position.X.Whole)) >= 0 &&
-            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.Y.Whole - 64 - samus.Position.Y.Whole)) < 0 &&
-            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
+            samusFromShipX > -GunshipBoardingDefinitions.EntranceHalfWidth && samusFromShipX <= GunshipBoardingDefinitions.EntranceHalfWidth &&
+            samusFromShipY > -GunshipBoardingDefinitions.EntranceHeight && samusFromShipY <= 0;
         if (insideEntrance && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Standing)
         {
             RoomEnemyPlace pad = Pieces(top).EntrancePad;

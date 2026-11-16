@@ -86,6 +86,14 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
         Wrapped(velocity.RawValue + acceleration.RawValue);
 
     /// <summary>
+    /// The velocity after one update's <paramref name="acceleration"/>, for a velocity whose owner keeps it far inside the
+    /// type's range: a sum outside the range fails instead of continuing from the other end.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The sum lies outside the type's range.</exception>
+    public SignedEightEight Accelerated(SignedEightEight acceleration) =>
+        FromTwoHundredFiftySixthsOfPixel(InTwoHundredFiftySixthsOfPixel + acceleration.InTwoHundredFiftySixthsOfPixel);
+
+    /// <summary>
     /// A velocity changed by a deceleration, as the game's velocity arithmetic subtracts them: a difference past the most
     /// negative value continues from the largest positive one and the reverse (<see cref="Wrapped"/>).
     /// </summary>

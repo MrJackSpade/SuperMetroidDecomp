@@ -15,6 +15,12 @@ internal static class DeadTorizoTouchDefinitions
         new(Left: 17, Top: -31, Right: 40, Bottom: -7),
     ];
 
+    /// <summary>The least distance, in pixels, the intact corpse pushes Samus sideways when she touches it.</summary>
+    internal const int LeastSidewaysPush = 4;
+
+    /// <summary>The distance, in pixels, the intact corpse pushes Samus down when she touches it.</summary>
+    internal const int DownwardPush = 4;
+
     /// <summary>Dead Torizo's seven asymmetric corpse touch rectangles in order.</summary>
     internal static ReadOnlySpan<EnemyHitboxRectangle> TouchHitboxes => TouchRectangles;
 }

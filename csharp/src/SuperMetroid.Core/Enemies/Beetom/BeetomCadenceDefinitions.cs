@@ -9,6 +9,9 @@ internal static class BeetomCadenceDefinitions
     /// </summary>
     internal static readonly UpdateCadence DrainSoundEveryEighthEnemyPass = new(8, 7);
 
+    /// <summary>The least energy Samus has for a latched Beetom's drain to sound.</summary>
+    internal const int DrainSoundLeastHealth = 30;
+
     /// <summary>
     /// The updates on which a latched Beetom takes energy from Samus: every 64th update of its own update count, on the
     /// period's last place.

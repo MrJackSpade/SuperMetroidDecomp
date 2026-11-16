@@ -22,7 +22,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// <summary>
     /// Resolves the grapple beam's endpoint against enemies. Extended hitboxes are
     /// intentionally ignored: the beam compares the endpoint with each ordinary radius
-    /// plus an eight-pixel beam-point radius and selects the first interactive place.
+    /// plus the beam point's radius and selects the first interactive place.
     /// </summary>
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
@@ -33,7 +33,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
             int xDistance = CoordinateAxis.Distance(enemy.Position.X.Whole, endpoint.X);
             int yDistance = CoordinateAxis.Distance(enemy.Position.Y.Whole, endpoint.Y);
-            if (xDistance >= enemy.Radius.X + 8 || yDistance >= enemy.Radius.Y + 8)
+            if (xDistance >= enemy.Radius.X + GrappleTargetDefinitions.BeamPointRadius || yDistance >= enemy.Radius.Y + GrappleTargetDefinitions.BeamPointRadius)
                 continue;
 
             // The collision stores exactly one, rather than combining it with an old

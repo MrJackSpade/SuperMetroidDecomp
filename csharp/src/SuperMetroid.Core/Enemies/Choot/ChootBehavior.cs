@@ -148,14 +148,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static QuadraticSpeedCurvePlace CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {
-        QuadraticSpeedCurvePlace curvePlace = QuadraticSpeedCurvePlace.Start;
         FixedCoordinate accumulatedDistance = default;
-        for (int iteration = 0; iteration < 128; iteration++)
+        for (QuadraticSpeedCurvePlace curvePlace = ChootAscentStep; curvePlace <= QuadraticSpeedCurvePlace.LastMark; curvePlace += ChootAscentStep)
         {
-            curvePlace += ChootAscentStep;
             accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Speed.Positive);
-            int wholeDistance = accumulatedDistance.Whole;
-            if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
+            if (accumulatedDistance.Whole >= jumpHeight)
                 return curvePlace;
         }
 

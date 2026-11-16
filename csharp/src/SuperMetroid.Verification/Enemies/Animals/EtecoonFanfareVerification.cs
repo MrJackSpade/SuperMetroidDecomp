@@ -51,7 +51,7 @@ internal static class EtecoonFanfareVerification
         AssertEqual(EnemySound.EtecoonTheme, request.SoundEffect,
             "native Etecoon fanfare identity");
         AssertEqual(15, request.Priority.Requests, "native wake request uses Max15");
-        AssertEqual((ushort)256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).ActionTimer.RawValue, "wake begins flexing timer");
+        AssertEqual(256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).ActionTimer, "wake begins flexing timer");
         AssertTrue(!(enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).AwaitingSamus,
             "Samus coming level wakes the Etecoon");
 

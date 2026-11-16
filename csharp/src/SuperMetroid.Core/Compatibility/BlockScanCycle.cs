@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// counts the blocks it steps through within a cycle of 32768, so one that runs past it continues from the room's first
 /// block. The blocks a lookup finds there are the ones the scan reacts to, swings against or collides with. The
 /// rooms are authored inside both cycles, so they are observed only at a room's edges and by lookups that run past them.
+/// An enemy projectile's block scan also counts how many blocks it tests across its span within a cycle of 65536 pixels
+/// (<see cref="BlocksAfterFirstAcross"/>), so a span that ends before its first block starts runs the scan on through
+/// 4095 further blocks.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -27,12 +30,31 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>$A0:C6AD</c>, <c>$A0:C788</c>) and the enemy projectile moves (<c>$86:88B6</c>, <c>$86:897B</c>) the row of the
 /// top edge or of the leading edge. The scans then step their
 /// block index, and the enemies' extension reactions (<c>$A0:C619</c>, <c>$A0:C64F</c>) add their offsets to it, as a
-/// sixteen-bit offset two bytes a block.
+/// sixteen-bit offset two bytes a block. The enemy projectile moves count the blocks to test as the span's last pixel
+/// less its first pixel's block start, a difference kept within sixteen bits, over 16, and test one block more than that.
 /// </para>
 /// </remarks>
-[CompatibilityService("a block scan's rows continue from zero past the 256th and its blocks past the 32768th, so scans past a room's edge read blocks from its top")]
+[CompatibilityService("a block scan's rows continue from zero past the 256th and its blocks past the 32768th, so scans past a room's edge read blocks from its top; an enemy projectile's scan counts its span within 65536 pixels, so a span ending before its first block runs 4095 blocks on")]
 public static class BlockScanCycle
 {
+    /// <summary>The pixels within which an enemy projectile's scan counts its span before the count continues from zero.</summary>
+    private const int SpanPixels = 65536;
+
+    /// <summary>
+    /// How many blocks an enemy projectile's block scan tests after its first across a span: the whole blocks from the
+    /// start of the block holding <paramref name="spanStartPixel"/> to <paramref name="spanEndPixel"/>, 0 through 4095.
+    /// The distance is counted within 65536 pixels, so a span whose last pixel lies before its first block's start (a
+    /// zero radius on a block boundary gives one) counts on to 4095 blocks, and the scan runs on through the room until a
+    /// block stops it.
+    /// </summary>
+    /// <param name="spanStartPixel">The span's first pixel, a room coordinate 0 through 65535.</param>
+    /// <param name="spanEndPixel">The span's last pixel, a room coordinate 0 through 65535.</param>
+    public static int BlocksAfterFirstAcross(int spanStartPixel, int spanEndPixel)
+    {
+        int distance = Ensure.BetweenInclusive(0, SpanPixels - 1, spanEndPixel) - RoomGridConversions.BlockStart(spanStartPixel);
+        return RoomGridConversions.WholeBlocksIn((distance % SpanPixels + SpanPixels) % SpanPixels);
+    }
+
     /// <summary>The row and column numbers a scan's lookup holds before it continues from zero.</summary>
     private const int Places = 256;
 

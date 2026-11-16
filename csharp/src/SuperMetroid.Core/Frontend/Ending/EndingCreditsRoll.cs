@@ -90,9 +90,8 @@ internal sealed class EndingCreditsRoll
         screen.Colours.Fade(EndingFade.SuitlessSamus, rewardFadeStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
             screen.Colours.Fade(EndingFade.SuitedSamus, rewardFadeStep);
-        // The fade saves the post-credits colours as its target, then runs the shared colour component step 32 times.
-        // Each increment is eight times the component in 256ths and composing keeps only whole units, so step S of 32 shows
-        // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
+        // The fade brightens toward the post-credits colours in 32 steps: step S shows each colour at S 32nds of its
+        // brightness, rounded down, the level the import pre-colours (#1512).
     }
 
     /// <summary>The steps left of the white wash of the brief transition into the final logo (<see cref="WhiteWash"/>), fading to none, where it stays.</summary>

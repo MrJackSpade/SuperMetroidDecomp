@@ -267,7 +267,7 @@ internal sealed class IntroCeresFlightState
     internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
-    /// <summary>Loads the rear map, places five actors, and primes the white fixed-color flash.</summary>
+    /// <summary>Loads the rear map, places five actors, and starts the white flash.</summary>
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
@@ -283,8 +283,8 @@ internal sealed class IntroCeresFlightState
         RearViewActors = [.. CeresFlightActorDefinitions.RearViewSpawnOrder
             .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Place)))];
 
-        // The flash adds the fixed colour to the rear view, sprites, and backdrop. It begins at
-        // white and takes one step off the wash per frame until black.
+        // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
+        // off the wash per frame until none is left.
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
@@ -305,10 +305,10 @@ internal sealed class IntroCeresFlightState
         return actor;
     }
 
-    /// <summary>Fades fixed color and enlarges the rear-view turning image until the title begins.</summary>
+    /// <summary>Fades the white flash and enlarges the rear-view turning image until the title begins.</summary>
     private void StepFlyingTowardCeres()
     {
-        // The fixed-colour flash fades by one component step per frame, clamped at zero.
+        // The white flash fades by one step per frame, stopping at none.
         flashIntensity = Math.Max(0, flashIntensity - 1);
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning

@@ -247,8 +247,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one cinematic step after the opening waits and advances the station blast.</summary>
     private void StepPhase()
     {
-        // The update's per-line effects run before the cinematic. A
-        // newly spawned blast therefore cannot advance until the following call.
+        // The station blast steps before the cinematic's phase, so a blast the phase spawns does not advance until
+        // the following update.
         stationExplosion.StepFrame();
         switch (Phase)
         {

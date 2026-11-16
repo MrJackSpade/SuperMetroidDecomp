@@ -45,14 +45,14 @@ internal sealed class EndingPostShot
     }
 
     /// <summary>
-    /// Fades <paramref name="group"/> from the colours it showed when the shot began using the 32-step component
-    /// progression (#1512): those are the post-credits colours, which nothing recolours between their restoration and
-    /// the shot, so the import pre-colours each level from them.
+    /// Fades <paramref name="group"/> in 32 steps from the colours it showed when the shot began (#1512): those are the
+    /// post-credits colours, which nothing recolours between their restoration and the shot, so the import pre-colours
+    /// each level from them.
     /// </summary>
     private static void ApplyFade(EndingColours colours, EndingFade group, int elapsed)
     {
-        // The game's fade lowers each colour component by a 32nd of its full value on every call;
-        // the whole part left is exactly floor(component * remaining / 32).
+        // Each step dims every colour by a 32nd of its full brightness: the level left is its brightness times the steps
+        // remaining over 32, rounded down.
         colours.Fade(group, EndingPostShotDefinitions.FadeFrames - elapsed);
     }
 

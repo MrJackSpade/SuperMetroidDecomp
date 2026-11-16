@@ -13,7 +13,7 @@ internal static class FileSelectEnergyTankDefinitions
     internal const int RowOffset = 1;
     /// <summary>Seven tanks are drawn on the lower row first.</summary>
     internal const int FirstRowCount = 7;
-    /// <summary>Eight tanks are permitted after wrapping (a harmless off-by-one in the game).</summary>
+    /// <summary>Each later row holds eight tanks, one more than the first row.</summary>
     internal const int WrappedRowCount = 8;
     /// <summary>
     /// After a row the drawing steps up one tank and back seven tanks, so a wrapped row starts where the first row

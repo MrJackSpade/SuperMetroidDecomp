@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// </summary>
 public sealed record GameOverPlacements
 {
-    /// <summary>Shared Baby and egg drawing origin in screen pixels, X=0-255 and Y=0-255.</summary>
+    /// <summary>Shared Baby and egg drawing origin on the screen, in pixels.</summary>
     public required Offset16<ScreenPixels> BabyAnchor { get; init; }
-    /// <summary>Common horizontal missile-cursor position in screen pixels, 0-255.</summary>
+    /// <summary>The missile cursor's horizontal place on the screen, in pixels, shared by both answers.</summary>
     public required int CursorX { get; init; }
-    /// <summary>Vertical missile-cursor position for the Yes answer in screen pixels, 0-255.</summary>
+    /// <summary>The missile cursor's vertical place on the screen for the Yes answer, in pixels.</summary>
     public required int YesCursorY { get; init; }
-    /// <summary>Vertical missile-cursor position for the No answer in screen pixels, 0-255.</summary>
+    /// <summary>The missile cursor's vertical place on the screen for the No answer, in pixels.</summary>
     public required int NoCursorY { get; init; }
     /// <summary>Duration in menu updates, at least one, of each looping missile-cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }

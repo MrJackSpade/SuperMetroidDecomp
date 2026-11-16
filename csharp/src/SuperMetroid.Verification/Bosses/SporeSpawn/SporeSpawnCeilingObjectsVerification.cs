@@ -148,14 +148,16 @@ internal static class SporeSpawnCeilingObjectsVerification
                 soundFrame = frame;
             if (frame % 4 == 0 && frame <= (clear ? 0 : 12))
             {
-                int expectedBlock = clear ? 0xff : frame switch
+                // The crumble's stages show their breakup blocks, and both the crumble and the clear end on open space,
+                // which shows nothing (#2100).
+                RoomBlockAppearance expectedAppearance = clear ? RoomBlockAppearance.Nothing : frame switch
                 {
-                    0 => 0x53,
-                    4 => 0x54,
-                    8 => 0x55,
-                    _ => 0xff,
+                    0 => RoomBlockAppearance.Of(0x53),
+                    4 => RoomBlockAppearance.Of(0x54),
+                    8 => RoomBlockAppearance.Of(0x55),
+                    _ => RoomBlockAppearance.Nothing,
                 };
-                RoomTerrainBlock expected = RoomTerrainBlock.Of(expectedBlock, BlockMirroring.None, RoomCollisionType.Air);
+                var expected = new RoomTerrainBlock(expectedAppearance, RoomCollisionType.Air);
                 for (int y = 30; y <= 31; y++)
                 for (int x = 7; x <= 8; x++)
                     AssertEqual(expected,

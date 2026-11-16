@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// enemies consult (the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint)
 /// and the installed enemy sheets and enemy frame displays every room's enemies draw from (#1616).
 /// </summary>
+[ArchitectureReview("context-bag", "The enemy side of the game session: it owns the session-lifetime enemy state (the elevator journey, Ceres's escape progress, the drop bias, the enemy counter, the death quota) together with the session's collaborators every room's enemies are built over; state with a lifetime, not a parameter bag.")]
 public sealed class EnemySession
 {
     /// <summary>

@@ -75,30 +75,30 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
         // The initializer selects its first action from the way it grows and what it waits for.
-        bool growsUp = settings.Growth switch
+        VerticalDirection growth = settings.Growth switch
         {
-            GrowingShutterGrowth.Down => false,
-            GrowingShutterGrowth.Up => true,
+            GrowingShutterGrowth.Down => VerticalDirection.Down,
+            GrowingShutterGrowth.Up => VerticalDirection.Up,
             _ => throw new InvalidOperationException($"Growing shutter growth {settings.Growth} is not a direction."),
         };
         GrowingShutterAction action = settings.Wait switch
         {
-            GrowingShutterWait.Timer => growsUp
+            GrowingShutterWait.Timer => growth == VerticalDirection.Up
                 ? GrowingShutterAction.WaitToGrowUpForTimer
                 : GrowingShutterAction.WaitToGrowDownForTimer,
-            GrowingShutterWait.SamusNear => growsUp
+            GrowingShutterWait.SamusNear => growth == VerticalDirection.Up
                 ? GrowingShutterAction.WaitToGrowUpForProximity
                 : GrowingShutterAction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
-        var state = new GrowingShutterEnemyState(action)
+        // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
+        var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, growth)
         {
             ActivationTimer = settings.ActivationWait,
             ActivationDistance = settings.ActivationDistance,
         };
         place.SetSpeciesState(state);
 
-        state.PlaceSectionOrigins(place.Position.Y.Whole, growsUp);
         state.GrowthLevel = 0;
 
         state.GrowthSpeed = settings.GrowthSpeed;

@@ -325,10 +325,10 @@ internal sealed class CrocomireCombat
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile)
     {
-        MiscDustAnimation animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
+        MiscDustAnimation dust = projectileType.Family != SamusProjectileFamily.SuperMissile
             ? MiscDustAnimation.DudShotTinyExplosion
             : MiscDustAnimation.BigExplosion;
-        _projectiles.SpawnDustOrExplosion(projectile, animationIndex);
+        _projectiles.SpawnDustOrExplosion(projectile, dust);
     }
 
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>

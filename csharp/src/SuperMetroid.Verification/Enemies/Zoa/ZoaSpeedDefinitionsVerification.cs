@@ -44,7 +44,7 @@ internal static class ZoaSpeedDefinitionsVerification
             foreach (ZoaSegment direction in new[] { ZoaSegment.FacingLeftShooting, ZoaSegment.FacingRightShooting })
             {
                 // Keep the shooting animation playing: this exercises movement alone.
-                state.FacesRight = direction == ZoaSegment.FacingRightShooting;
+                state.Facing = direction == ZoaSegment.FacingRightShooting ? HorizontalDirection.Right : HorizontalDirection.Left;
                 state.Playback = new(ZoaAnimations.StartingWith(direction), AnimationPlace.StartOfAnimation);
                 int displacement = direction == ZoaSegment.FacingLeftShooting ? -magnitude : magnitude;
                 for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
@@ -63,7 +63,7 @@ internal static class ZoaSpeedDefinitionsVerification
         // #1269: leaving the camera square snaps Zoa to its spawn coordinate. $A3:B51E-$B527
         // writes only the whole words, so both subpixel fractions carry into the next flight.
         state.LaunchSpeed = SignedSixteenSixteen.Zero;
-        state.FacesRight = false;
+        state.Facing = HorizontalDirection.Left;
         state.Playback = new(ZoaAnimations.StartingWith(ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation);
         state.SpawnPosition = new(0x560, 0xd8);
         actor.Position = new(new(128, 0x8000), new(128, 0x4000));

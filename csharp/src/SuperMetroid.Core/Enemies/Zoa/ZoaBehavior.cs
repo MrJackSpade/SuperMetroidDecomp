@@ -38,7 +38,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
         {
-            FacesRight = false,
+            Facing = HorizontalDirection.Left,
             LaunchSpeed = SignedSixteenSixteen.Zero,
             SpawnPosition = place.Position.Whole,
         };
@@ -84,8 +84,10 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The Zoa rises facing Samus, judged by the same wrapped distance from the Zoa to her.
-        state.FacesRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole);
-        SetZoaAnimation(place, state, ZoaAnimationChoices.Rising(state.FacesRight));
+        state.Facing = CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole)
+            ? HorizontalDirection.Left
+            : HorizontalDirection.Right;
+        SetZoaAnimation(place, state, ZoaAnimationChoices.Rising(state.Facing));
         state.Action = ZoaAction.Rising;
     }
 
@@ -104,7 +106,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SetZoaAnimation(place, state, ZoaAnimationChoices.Shooting(state.FacesRight));
+        SetZoaAnimation(place, state, ZoaAnimationChoices.Shooting(state.Facing));
         state.Action = ZoaAction.Shooting;
     }
 
@@ -118,13 +120,13 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The shot travels the way the Zoa faces. The shooting animation's cues change the speed at its 64-, 8- and
         // 48-update marks.
-        SignedSixteenSixteen xDisplacement = state.FacesRight
+        SignedSixteenSixteen xDisplacement = state.Facing == HorizontalDirection.Right
             ? speed
             : -speed;
         place.Position = place.Position.AdvanceX(xDisplacement);
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(place, camera))
         {
-            SetZoaAnimation(place, state, ZoaAnimationChoices.Shooting(state.FacesRight));
+            SetZoaAnimation(place, state, ZoaAnimationChoices.Shooting(state.Facing));
             return;
         }
 
@@ -134,8 +136,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // rise and the shot carry into the next flight.
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         place.Position = place.Position.WithWhole(state.SpawnPosition);
-        state.FacesRight = false;
-        SetZoaAnimation(place, state, ZoaAnimationChoices.Shooting(state.FacesRight));
+        state.Facing = HorizontalDirection.Left;
+        SetZoaAnimation(place, state, ZoaAnimationChoices.Shooting(state.Facing));
         state.Action = ZoaAction.WaitForSamus;
     }
 

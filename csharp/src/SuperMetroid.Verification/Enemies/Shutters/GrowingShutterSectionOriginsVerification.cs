@@ -9,10 +9,9 @@ internal static class GrowingShutterSectionOriginsVerification
     /// <summary>Confirms an upward-growing shutter places its fourth section 24 pixels above its spawn row.</summary>
     internal static void VerifyGrowingShutterSectionOrigins()
     {
-        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer);
-        state.PlaceSectionOrigins(spawnY: 0x0200, growsUp: true);
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer, spawnY: 0x0200, VerticalDirection.Up);
         AssertEqual(0x0200 - 24, state.SectionOriginY(3), "the fourth section sits 24 pixels above the spawn row");
-        state.PlaceSectionOrigins(spawnY: 8, growsUp: true);
+        state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer, spawnY: 8, VerticalDirection.Up);
         AssertEqual(65536 - 16, state.SectionOriginY(3), "an origin above the room's top row wraps to its bottom");
         Console.WriteLine("Growing shutter section origins: an upward shutter stacks its sections above its spawn.");
     }

@@ -318,9 +318,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             if (movesVertically)
-                state.CrawlingVelocity = state.CrawlingVelocity.WithY(NegateEightEight(state.CrawlingVelocity.Y));
+                state.CrawlingVelocity = state.CrawlingVelocity.WithY(-state.CrawlingVelocity.Y);
             else
-                state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
+                state.CrawlingVelocity = state.CrawlingVelocity.WithX(-state.CrawlingVelocity.X);
             SetYardAnimationAndDisableTurn(
                 place,
                 state,
@@ -336,7 +336,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedSixteenSixteen tangent = state.CrawlingVelocity.Y.ToSixteenSixteenDelta();
             if (_terrain.MoveEnemyVertically(level, place, tangent))
             {
-                state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
+                state.CrawlingVelocity = state.CrawlingVelocity.WithX(-state.CrawlingVelocity.X);
                 SetYardAnimationAndDisableTurn(
                     place,
                     state,
@@ -351,7 +351,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             level);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalTangent))
         {
-            state.CrawlingVelocity = state.CrawlingVelocity.WithY(NegateEightEight(state.CrawlingVelocity.Y));
+            state.CrawlingVelocity = state.CrawlingVelocity.WithY(-state.CrawlingVelocity.Y);
             SetYardAnimationAndDisableTurn(
                 place,
                 state,
@@ -466,7 +466,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // After landing, Yard starts crawling as a new crawler does, but keeps its own state and main AI. Only the
         // crawler's starting velocity carries over: the live crawl speed on both axes, the horizontal one reversed for
         // a block on Yard's right.
-        state.BlockSide = state.AirborneFacingDirection == YardAirborneFacing.Right
+        state.BlockSide = state.AirborneFacingDirection == HorizontalDirection.Right
             ? CrawlerSurfaceOrientation.UpsideLeft
             : CrawlerSurfaceOrientation.UpsideRight;
         // Surface direction can still describe a wall or ceiling. The landing instead uses
@@ -497,7 +497,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         SamusState samus)
     {
-        bool shouldTurn = state.AirborneFacingDirection == YardAirborneFacing.Right
+        bool shouldTurn = state.AirborneFacingDirection == HorizontalDirection.Right
             ? place.Position.X.Whole >= samus.Position.X.Whole
             : place.Position.X.Whole < samus.Position.X.Whole;
         return shouldTurn && TurnYardAround(state);
@@ -564,10 +564,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             -1));
     }
 
-    /// <summary>Negates one raw 1/256-pixel crawl velocity, wrapping in its signed range.</summary>
-    private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
-        velocity.Negated();
-
     /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(
         RoomEnemyPlace place,
@@ -613,7 +609,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool pressingExactlyRight =
             (controllerInput & GameplayActions.HorizontalDirections) == GameplayAction.Right;
-        bool yardFacesRight = state.AirborneFacingDirection == YardAirborneFacing.Right;
+        bool yardFacesRight = state.AirborneFacingDirection == HorizontalDirection.Right;
         return pressingExactlyRight ? !yardFacesRight : yardFacesRight;
     }
 

@@ -48,15 +48,13 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         WreckedShipGhostEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus;
-
         switch (state.Action)
         {
             case WreckedShipGhostAction.BrighteningAndFlickering:
                 RunWreckedShipGhostBrightening(place, state);
                 break;
             case WreckedShipGhostAction.FadingToGhostColours:
-                RunWreckedShipGhostColourFade(place, state, activeSamus);
+                RunWreckedShipGhostColourFade(place, state, samus);
                 break;
             case WreckedShipGhostAction.WaitingForWhiteFade:
                 RunWreckedShipGhostWhiteFade(place, state);
@@ -68,7 +66,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 RunWreckedShipGhostInitialDelay(state);
                 break;
             case WreckedShipGhostAction.TrackingSamusForSpawn:
-                RunWreckedShipGhostTracking(place, state, activeSamus);
+                RunWreckedShipGhostTracking(place, state, samus);
                 break;
             default:
                 throw new InvalidDataException(

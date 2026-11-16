@@ -75,7 +75,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int requestedLeft = startsAtLeft
             ? place.Position.X.Whole
             : CoordinateAxis.Wrap(place.Position.X.Whole - settings.PostDistance);
-        int requestedHalfSpan = Ensure.BetweenInclusive(0, SpacePirateMotionDefinitions.NinjaLongestPostHalfSpan, settings.PostDistance / 2);
+        int requestedHalfSpan = settings.PostDistance / 2;
         state.PostsMidpointX = CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan);
 
         // The spin's speed grows until the distance it covers reaches the half-span; it runs at least once, so posts no
@@ -320,7 +320,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction,
         VerticalDirection vertical)
     {
-        int xPixels = state.Speed.UnsignedWholePixels;
+        int xPixels = state.Speed.WholePixels;
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole +
             (vertical == VerticalDirection.Up ? -SpacePirateMotionDefinitions.NinjaSpinClimbStep : SpacePirateMotionDefinitions.NinjaSpinClimbStep));
@@ -366,7 +366,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - state.Speed.UnsignedWholePixels);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - state.Speed.WholePixels);
         state.ChangeSpeed(-SpacePirateMotionDefinitions.NinjaDiveSpeedChange);
         if (!state.Speed.IsNegative)
             return;
@@ -399,7 +399,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!landed)
         {
             state.ChangeSpeed(-SpacePirateMotionDefinitions.NinjaDiveSpeedChange);
-            landed = state.Speed.IsNegative || state.Speed.UnsignedWholePixels == 0;
+            landed = state.Speed.IsNegative || state.Speed.WholePixels == 0;
         }
         if (!landed)
             return;

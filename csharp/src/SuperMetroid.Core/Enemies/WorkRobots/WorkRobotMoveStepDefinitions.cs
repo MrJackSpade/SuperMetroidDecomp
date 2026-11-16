@@ -15,10 +15,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = -StepPixels,
         Facing = HorizontalDirection.Left,
         WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards,
-        CheckLedge = true,
-        LedgeProbeDirection = -1,
-        FallAnimation = WorkRobotSegment.ApproachingFallLeft,
-        FallFacing = HorizontalDirection.Right,
+        Ledge = new(HorizontalDirection.Left, WorkRobotSegment.ApproachingFallLeft, HorizontalDirection.Right),
     };
 
     /// <summary>A step forward facing left.</summary>
@@ -27,10 +24,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = -StepPixels,
         Facing = HorizontalDirection.Left,
         WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards,
-        CheckLedge = false,
-        LedgeProbeDirection = 0,
-        FallAnimation = null,
-        FallFacing = null,
+        Ledge = null,
     };
 
     /// <summary>A step backward facing left, watching for ledges.</summary>
@@ -39,10 +33,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = StepPixels,
         Facing = HorizontalDirection.Left,
         WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards,
-        CheckLedge = true,
-        LedgeProbeDirection = 1,
-        FallAnimation = WorkRobotSegment.ApproachingFallRight,
-        FallFacing = HorizontalDirection.Left,
+        Ledge = new(HorizontalDirection.Right, WorkRobotSegment.ApproachingFallRight, HorizontalDirection.Left),
     };
 
     /// <summary>A step backward facing left.</summary>
@@ -51,10 +42,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = StepPixels,
         Facing = HorizontalDirection.Left,
         WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards,
-        CheckLedge = false,
-        LedgeProbeDirection = 0,
-        FallAnimation = null,
-        FallFacing = null,
+        Ledge = null,
     };
 
     /// <summary>A step forward facing right, watching for ledges.</summary>
@@ -63,10 +51,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = StepPixels,
         Facing = HorizontalDirection.Right,
         WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards,
-        CheckLedge = true,
-        LedgeProbeDirection = 1,
-        FallAnimation = WorkRobotSegment.ApproachingFallRight,
-        FallFacing = HorizontalDirection.Left,
+        Ledge = new(HorizontalDirection.Right, WorkRobotSegment.ApproachingFallRight, HorizontalDirection.Left),
     };
 
     /// <summary>A step forward facing right.</summary>
@@ -75,10 +60,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = StepPixels,
         Facing = HorizontalDirection.Right,
         WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards,
-        CheckLedge = false,
-        LedgeProbeDirection = 0,
-        FallAnimation = null,
-        FallFacing = null,
+        Ledge = null,
     };
 
     /// <summary>A step backward facing right, watching for ledges.</summary>
@@ -87,10 +69,7 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = -StepPixels,
         Facing = HorizontalDirection.Right,
         WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards,
-        CheckLedge = true,
-        LedgeProbeDirection = -1,
-        FallAnimation = WorkRobotSegment.ApproachingFallLeft,
-        FallFacing = HorizontalDirection.Right,
+        Ledge = new(HorizontalDirection.Left, WorkRobotSegment.ApproachingFallLeft, HorizontalDirection.Right),
     };
 
     /// <summary>A step backward facing right.</summary>
@@ -99,9 +78,6 @@ internal static class WorkRobotMoveStepDefinitions
         HorizontalPixels = -StepPixels,
         Facing = HorizontalDirection.Right,
         WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards,
-        CheckLedge = false,
-        LedgeProbeDirection = 0,
-        FallAnimation = null,
-        FallFacing = null,
+        Ledge = null,
     };
 }

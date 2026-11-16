@@ -443,8 +443,8 @@ internal static class NativeEnemyFamilyStateImport
             yardRecord.CrawlingVelocity = new(new SignedEightEight(words.A), new SignedEightEight(words.B));
             yardRecord.AirborneFacingDirection = words.C switch
             {
-                0 => YardAirborneFacing.Left,
-                1 => YardAirborneFacing.Right,
+                0 => HorizontalDirection.Left,
+                1 => HorizontalDirection.Right,
                 _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
             };
             yardRecord.ConsecutiveTurnCounter = words.E;
@@ -456,7 +456,9 @@ internal static class NativeEnemyFamilyStateImport
             // The record keeps the requested animation beside the installed one (#2145): Core keeps the Zoa's facing, which
             // the requested animation shows, and only the playing animation, which this import does not read.
             ZoaSegment requested = ZoaNativeWords.AnimationSelectorOf(words.C);
-            zoaRecord.FacesRight = requested is ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting;
+            zoaRecord.Facing = requested is ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting
+                ? HorizontalDirection.Right
+                : HorizontalDirection.Left;
             RequirePlaying(zoaRecord.Playback, ZoaAnimations.StartingWith(ZoaNativeWords.AnimationSelectorOf(words.D)), "Zoa");
             zoaRecord.Action = ZoaNativeWords.ZoaActions.Decode(words.F, "recorded ZoaAction");
         }
@@ -499,9 +501,16 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
         {
             growingShutterRecord.Action = ShuttersNativeWords.GrowingShutterActions.Decode(words.A, "recorded GrowingShutterAction");
+            // The record keeps every section's origin; Core derives them from the first, the spawn row (#2183), and the
+            // recorded origins must be the ones it derives.
+            growingShutterRecord.SpawnY = words.B;
             ushort[] originRows = [words.B, words.C, words.D, words.E];
             for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                growingShutterRecord.SetSectionOriginY(level, originRows[level]);
+            {
+                if (growingShutterRecord.SectionOriginY(level) != originRows[level])
+                    throw new InvalidDataException(
+                        $"Recorded growing shutter section {level} origin {originRows[level]:X4} does not follow from its spawn row {words.B:X4}.");
+            }
             growingShutterRecord.GrowthLevel = words.F;
         }
         // A bobbing Fireflea keeps none of these words.

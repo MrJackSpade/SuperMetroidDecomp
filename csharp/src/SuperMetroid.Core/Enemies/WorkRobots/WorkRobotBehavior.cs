@@ -182,25 +182,25 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(step.HorizontalPixels), 0));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromWholePixels(step.HorizontalPixels));
         }
 
-        if (!step.CheckLedge)
+        if (step.Ledge is not { } ledge)
             return null;
 
         // The game moves only whole X/Y pixels for this temporary foot probe. In particular,
         // the downward move's collision-produced Y subposition survives after Y is restored.
         Position16<RoomPixels> walkingPosition = place.Position.Whole;
         place.Position = place.Position.WithWrappedWholeX(
-            place.Position.X.Whole + step.LedgeProbeDirection * place.Radius.X * 2);
+            place.Position.X.Whole + (ledge.ProbeSide == HorizontalDirection.Left ? -2 : 2) * place.Radius.X);
         bool floorFound = _terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1));
         place.Position = place.Position.WithWhole(walkingPosition);
         if (floorFound)
             return null;
 
         state.LaserCooldown = state.LaserCooldown.AddFrames(WorkRobotLaserDefinitions.TurnDelay);
-        state.Facing = step.FallFacing ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall facing.");
-        return step.FallAnimation ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall animation.");
+        state.Facing = ledge.FallFacing;
+        return ledge.FallAnimation;
     }
 
     /// <summary>Checks the robot origin against the screen rectangle with exclusive top and left edges.</summary>

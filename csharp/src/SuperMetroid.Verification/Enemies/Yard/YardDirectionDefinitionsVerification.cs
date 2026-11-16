@@ -34,7 +34,7 @@ internal static class YardDirectionDefinitionsVerification
                 $"Yard direction {direction} block side");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingAnimation),
                 $"Yard direction {direction} hiding list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == YardAirborneFacing.Right ? (ushort)1 : (ushort)0,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
                 $"Yard direction {direction} airborne facing");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((oppositeAddress + direction * 2)),
                 SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.NumberOf(definition.OppositeDirection),
@@ -45,9 +45,9 @@ internal static class YardDirectionDefinitionsVerification
         }
 
         foreach (int source in airborneAddresses)
-        foreach (YardAirborneFacing facing in Enum.GetValues<YardAirborneFacing>())
+        foreach (HorizontalDirection facing in Enum.GetValues<HorizontalDirection>())
         {
-            int row = facing == YardAirborneFacing.Right ? 1 : 0;
+            int row = facing == HorizontalDirection.Right ? 1 : 0;
             YardAirborneAnimationDefinition definition =
                 YardDirections.ForAirborneFacing(facing);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4)),
@@ -60,7 +60,7 @@ internal static class YardDirectionDefinitionsVerification
 
 
         AssertThrows<InvalidDataException>(
-            () => YardDirections.ForAirborneFacing((YardAirborneFacing)2),
+            () => YardDirections.ForAirborneFacing((HorizontalDirection)2),
             "Yard invalid airborne facing definition");
 
         var guarded = NewYardDirectionReadGuard(rom);
@@ -110,7 +110,7 @@ internal static class YardDirectionDefinitionsVerification
             place.Bind(EnemyDefinitionId.Yard, place.Definition);
             YardEnemyBehavior.InitializeYard(place);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
-            YardAirborneFacing facing = state.AirborneFacingDirection;
+            HorizontalDirection facing = state.AirborneFacingDirection;
             YardAirborneAnimationDefinition expected =
                 YardDirections.ForAirborneFacing(facing);
 

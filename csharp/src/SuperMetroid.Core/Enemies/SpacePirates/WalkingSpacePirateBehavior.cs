@@ -236,10 +236,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         }
 
-        WalkingSpacePirateSegment list = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0
+        WalkingSpacePirateSegment flinch = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0
             ? WalkingSpacePirateSegment.FlinchFacingRight
             : WalkingSpacePirateSegment.FlinchFacingLeft;
-        StartWalkingSpacePirateAnimation(place, state, list);
+        StartWalkingSpacePirateAnimation(place, state, flinch);
     }
 
     /// <summary>Runs the movement cue's direct animation selection.</summary>

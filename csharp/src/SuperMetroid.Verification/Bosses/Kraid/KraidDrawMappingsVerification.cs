@@ -31,10 +31,10 @@ internal static class KraidDrawMappingsVerification
     /// <summary>Independent native record positions, run lengths, and visual names for Kraid's ten draw lists.</summary>
     private static Definition[] KraidDrawOracle() =>
     [
-        new Definition(0x9367, 1, "crumble-first"), new Definition(0x936d, 1, "crumble-second"),
-        new Definition(0x9373, 1, "crumble-third"), new Definition(0x9379, 1, "ceiling-background-left-edge"),
+        new Definition(0x9367, 1, "crumble-rock"), new Definition(0x936d, 1, "crumble-pieces"),
+        new Definition(0x9373, 1, "crumble-dust"), new Definition(0x9379, 1, "ceiling-background-left-edge"),
         new Definition(0x937f, 1, "ceiling-background-odd-column"), new Definition(0x9385, 1, "ceiling-background-even-column"),
-        new Definition(0x9391, 1, "spike-first"), new Definition(0x9397, 1, "spike-second"),
+        new Definition(0x9391, 1, "spike-background-left-column"), new Definition(0x9397, 1, "spike-background-right-column"),
         new Definition(0x939d, 15, "clear-ceiling"), new Definition(0x93bf, 22, "clear-spikes"),
     ];
 
@@ -52,8 +52,8 @@ internal static class KraidDrawMappingsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool exists = pointers.Contains((ushort)pointer);
-            RoomObjectDraw native = NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer);
-            AssertEqual(exists, RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, native, out RoomBlockShape? shape),
+            RoomObjectDraw native = KraidRoomDrawsAt.Draw((ushort)pointer);
+            AssertEqual(exists, KraidRoomDrawsAt.TryShape(native, out RoomBlockShape? shape),
                 "Kraid full draw-pointer domain");
             if (exists)
                 AssertEqual((ushort)pointer, RoomObjectDrawAddressCodec.Of(native), "Kraid draw address");
@@ -74,7 +74,7 @@ internal static class KraidDrawMappingsVerification
         var exported = RoomObjectKraidVisualFiles.All.ToDictionary(draw => RoomObjectDrawAddressCodec.Of(draw.Draw));
         foreach (var expected in KraidDrawOracle())
         {
-            AssertTrue(RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid draw exists");
+            AssertTrue(KraidRoomDrawsAt.TryShape(KraidRoomDrawsAt.Draw(expected.Pointer), out RoomBlockShape? described), "Kraid draw exists");
             RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
             ushort directionCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
             AssertEqual((ushort)expected.Count, directionCount, "Kraid native horizontal run count");
@@ -122,7 +122,7 @@ internal static class KraidDrawMappingsVerification
         InstalledRoomObjectKraidVisuals pictures = InstalledRoomObjectKraidVisuals.Stock();
         foreach (var expected in definitions)
         {
-            AssertTrue(RoomObjectDrawIdentity.TryShape(KraidRoomObjectDraws.Family, NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out RoomBlockShape? described), "Kraid word owner exists");
+            AssertTrue(KraidRoomDrawsAt.TryShape(KraidRoomDrawsAt.Draw(expected.Pointer), out RoomBlockShape? described), "Kraid word owner exists");
             RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
             for (int block = 0; block < expected.Count; block++)
             {
@@ -131,7 +131,7 @@ internal static class KraidDrawMappingsVerification
                 AssertEqual(native.Collision, shape.CollisionAt(new Offset16<RoomBlocks>(block, 0)), "Kraid shape collision matches the native level word");
                 AssertEqual(native.Collision, exported[expected.Pointer].Runs.Span[0].Collisions.Span[block],
                     "Kraid materialized export collision");
-                AssertEqual(native.Appearance, pictures.Image(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer)).At(new Offset16<RoomBlocks>(block, 0)),
+                AssertEqual(native.Appearance, pictures.Image(KraidRoomDrawsAt.Draw(expected.Pointer)).At(new Offset16<RoomBlocks>(block, 0)),
                     "Kraid installed picture shows the native level word's block");
             }
         }
@@ -143,7 +143,7 @@ internal static class KraidDrawMappingsVerification
         var expected = KraidDrawOracle();
         foreach (var entry in expected)
         {
-            AssertEqual(entry.Id, RoomObjectKraidVisualFiles.VisualId(NativeObjectDraws.At<KraidRoomDraw>(entry.Pointer)), "Kraid published visual ID");
+            AssertEqual(entry.Id, RoomObjectKraidVisualFiles.VisualId(KraidRoomDrawsAt.Draw(entry.Pointer)), "Kraid published visual ID");
             RoomObjectDraw draw = RoomObjectKraidVisualFiles.Family.Ids.Single(pair => pair.Value == entry.Id).Key;
             AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(draw), "Kraid reverse ID pointer");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), entry.Id + " ", " " + entry.Id })
@@ -155,7 +155,7 @@ internal static class KraidDrawMappingsVerification
         var pointers = expected.Select(draw => draw.Pointer).ToHashSet();
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (!pointers.Contains((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => RoomObjectKraidVisualFiles.VisualId(NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer)),
+                AssertThrows<InvalidDataException>(() => RoomObjectKraidVisualFiles.VisualId(KraidRoomDrawsAt.Draw((ushort)pointer)),
                     "Kraid unknown pointer has no visual ID");
     }
 }

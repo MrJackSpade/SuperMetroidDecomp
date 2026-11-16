@@ -61,6 +61,7 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<ElevatorPlatformDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ElevatorPlatform[frame],
         RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.EscapeAnimal[frame],
         RoomObjectFrameDraw<KraidRoomDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.KraidRoom[frame],
+        RoomObjectFrameDraw<KraidRoomObjectDraws.CrumbleDraw> { Frame: var crumble } => RoomObjectDrawSourceDefinitions.KraidCrumble[crumble.Stage],
         RoomObjectFrameDraw<MotherBrainEscapeGateDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainEscapeGate[frame],
         RoomObjectFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainFakeDeath[frame],
         RoomObjectFrameDraw<MotherBrainGlassDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainGlass[frame],

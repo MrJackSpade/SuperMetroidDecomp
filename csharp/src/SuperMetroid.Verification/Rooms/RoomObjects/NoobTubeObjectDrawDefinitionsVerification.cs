@@ -20,7 +20,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Noob Tube draw geometry and editable visual tiles through production PLM drawing.</summary>
 internal static class NoobTubeObjectDrawDefinitionsVerification
 {
-    /// <summary>Compares seven physical draw lists and their guarded production draws.</summary>
+    /// <summary>Compares the five physical draw lists and their guarded production draws.</summary>
     internal static void VerifyNoobTubeObjectDrawDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
@@ -29,13 +29,13 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
 
         RoomObjectDrawLists.DrawList[] lists =
             RoomObjectNoobTubeVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectDrawLists.DrawList cleared = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "cleared");
-        AssertEqual(0x98e3, RoomObjectDrawAddressCodec.Of(cleared.Draw), "the cleared tube is the draw the cartridge stores at $98E3");
-        AssertEqual(InstalledFramePictureAssertions.NativePicture(rom, 0x98e3, out _)[cleared.Runs.Span[2].Start],
-            InstalledRoomObjectNoobTubeVisuals.Stock().Image(NativeObjectDraws.At<NoobTubeDraw>(0x98e3)).At(cleared.Runs.Span[2].Start),
+        RoomObjectDrawLists.DrawList upperRows = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "upper-rows-open");
+        AssertEqual(0x9991, RoomObjectDrawAddressCodec.Of(upperRows.Draw), "the tube's opened upper rows are the draw the cartridge stores at $9991");
+        AssertEqual(InstalledFramePictureAssertions.NativePicture(rom, 0x9991, out _)[upperRows.Runs.Span[2].Start],
+            InstalledRoomObjectNoobTubeVisuals.Stock().Image(NativeObjectDraws.At<NoobTubeDraw>(0x9991)).At(upperRows.Runs.Span[2].Start),
             "stock n00b-tube catalog retains the native row tile");
-        AssertEqual(7, lists.Length,
-            "n00b-tube program selects seven distinct physical draw lists");
+        AssertEqual(5, lists.Length,
+            "the n00b tube shows five distinct physical draw lists");
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
@@ -43,7 +43,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
             VerifyNoobTubeNativeDrawPath(bank84, lists, list);
         Suite(nameof(VerifyNoobTubeVisualInstallation), () => VerifyNoobTubeVisualInstallation(rom));
         Console.WriteLine(
-            "  N00b-tube PLM: seven guarded native layouts preserve physical blocks.");
+            "  N00b-tube PLM: five guarded native layouts preserve physical blocks.");
     }
 
     /// <summary>Draws one native layout through the guarded PLM path and compares resulting blocks and streamed art.</summary>
@@ -112,7 +112,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
             "tampered tube stock fails loudly where it is read");
     }
 
-    /// <summary>Rejects runtime reads of all seven compiled bank 84 draw payload ranges.</summary>
+    /// <summary>Rejects runtime reads of the five compiled bank 84 draw payload ranges.</summary>
     private static CartridgeReadGuard NewNoobTubeDrawReadGuard(
         ISnesAddressSpace source, RoomObjectDrawLists.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>

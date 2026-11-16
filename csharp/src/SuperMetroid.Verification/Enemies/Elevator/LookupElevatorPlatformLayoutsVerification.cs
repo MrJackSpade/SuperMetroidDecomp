@@ -28,7 +28,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
     private static void VerifyElevatorPlatformLayoutDrawField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xaa97,0xaaaf,0xaac7];
-        string[] ids = ["first-frame","second-frame","third-frame"];
+        string[] ids = ["dim","glowing","bright"];
         var exported = RoomObjectElevatorPlatformVisualFiles.DrawLists.ToArray();
         AssertEqual(3, exported.Length, "ElevatorPlatform layout export count");
         InstalledRoomObjectElevatorPlatformVisuals pictures = InstalledRoomObjectElevatorPlatformVisuals.Stock();

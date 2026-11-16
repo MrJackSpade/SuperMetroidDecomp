@@ -11,20 +11,20 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// <summary>Compares every compiled Noob Tube PLM draw against native geometry, collision, and visual words.</summary>
 internal static class LookupTubeDrawsVerification
 {
-    /// <summary>Checks the seven draw identities, run shapes, and native ordering.</summary>
+    /// <summary>Checks the five draw identities, run shapes, and native ordering.</summary>
     internal static void VerifyTubeGeometry(CartridgeImportAddressSpace rom) => VerifyTubeDrawField(rom, 0);
     /// <summary>Checks each tube cell's collision nibble against the cartridge draw list.</summary>
     internal static void VerifyTubeCollision(CartridgeImportAddressSpace rom) => VerifyTubeDrawField(rom, 1);
     /// <summary>Checks each tube cell's visual tile bits against the cartridge draw list.</summary>
     internal static void VerifyTubeVisuals(CartridgeImportAddressSpace rom) => VerifyTubeDrawField(rom, 2);
 
-    /// <summary>Walks all seven native draw lists, selecting geometry, collision, or visual assertions by field.</summary>
+    /// <summary>Walks the five native draw lists the tube shows, selecting geometry, collision, or visual assertions by field.</summary>
     private static void VerifyTubeDrawField(CartridgeImportAddressSpace rom, int field)
     {
-        ushort[] pointers = [0x98d1,0x98d7,0x98dd,0x98e3,0x9953,0x9991,0x99e5];
-        string[] ids = ["intact","damaged","opened","cleared","broken-late","opened-rows","broken-full"];
+        ushort[] pointers = [0x98d1,0x98d7,0x98dd,0x9991,0x99e5];
+        string[] ids = ["intact","cracking","opened","upper-rows-open","lower-rows-open"];
         var exported = RoomObjectNoobTubeVisualFiles.All.ToArray();
-        AssertEqual(7, exported.Length, "Tube export count");
+        AssertEqual(5, exported.Length, "Tube export count");
         InstalledRoomObjectNoobTubeVisuals? pictures = field == 2 ? InstalledRoomObjectNoobTubeVisuals.Stock() : null;
         if (field == 0)
         {
@@ -102,6 +102,6 @@ internal static class LookupTubeDrawsVerification
             }
             AssertEqual(run, dto.Runs.Length, "Tube native DTO run count");
         }
-        AssertEqual(149, cells, "Tube independent physical cell count");
+        AssertEqual(76, cells, "Tube independent physical cell count");
     }
 }

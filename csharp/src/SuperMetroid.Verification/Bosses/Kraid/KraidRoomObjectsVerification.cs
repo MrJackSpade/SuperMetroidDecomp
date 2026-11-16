@@ -106,7 +106,7 @@ internal static class KraidRoomObjectsVerification
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (BossRoomObjectNativeListAddresses.IsTypedProgramByte(SnesAddressMath.OffsetInBank(address)) ||
-                 ((SnesAddressMath.OffsetInBank(address)) >= RoomObjectDrawAddressCodec.Of(KraidRoomObjectDraws.Family.Of(KraidRoomDraw.CrumbleFirst)) &&
+                 ((SnesAddressMath.OffsetInBank(address)) >= RoomObjectDrawAddressCodec.Of(KraidRoomObjectDraws.Crumble(BlockBreakupStage.Rock)) &&
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomObjectDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");
 

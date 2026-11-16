@@ -26,21 +26,19 @@ public static class RoomObjectNoobTubeVisualFiles
     public static InstalledRoomObjectNoobTubeVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Enumerates tube states in intact-to-cleared and broken presentation order.</summary>
+    /// <summary>Enumerates the tube's five frames in their published order: the glass's three, then the opened rows, upper first.</summary>
     private static IEnumerable<NoobTubeDraw> Draws()
     {
         yield return NoobTubeDraw.Intact;
-        yield return NoobTubeDraw.Damaged;
+        yield return NoobTubeDraw.Cracking;
         yield return NoobTubeDraw.Opened;
-        yield return NoobTubeDraw.Cleared;
-        yield return NoobTubeDraw.BrokenLate;
-        yield return NoobTubeDraw.OpenedRows;
-        yield return NoobTubeDraw.BrokenFull;
+        yield return NoobTubeDraw.UpperRowsOpen;
+        yield return NoobTubeDraw.LowerRowsOpen;
     }
 
     /// <summary>
     /// The draw list of a tube draw (#1862): its block shape written as the glass's one block, or as its twelve-block rows
-    /// top row first, the broken frames' cleared block before them.
+    /// top row first, the lower rows' cleared glass block before them.
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
@@ -52,11 +50,9 @@ public static class RoomObjectNoobTubeVisualFiles
         RoomObjectShapeRun glass = RoomObjectShapeRun.Row(new(0, 0), 1);
         list = RoomObjectShapeRun.DrawList(request, shape, RoomObjectDrawIdentity.FrameOf<NoobTubeDraw>(request, "n00b tube") switch
         {
-            NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened => [glass],
-            NoobTubeDraw.Cleared => TubeRows(0, 1, 2, 3),
-            NoobTubeDraw.OpenedRows => TubeRows(0, 1, 2),
-            NoobTubeDraw.BrokenLate => [glass, .. TubeRows(4, 5)],
-            NoobTubeDraw.BrokenFull => [glass, .. TubeRows(3, 4, 5)],
+            NoobTubeDraw.Intact or NoobTubeDraw.Cracking or NoobTubeDraw.Opened => [glass],
+            NoobTubeDraw.UpperRowsOpen => TubeRows(0, 1, 2),
+            NoobTubeDraw.LowerRowsOpen => [glass, .. TubeRows(3, 4, 5)],
             var frame => throw new InvalidOperationException($"Undefined NoobTubeDraw {frame}."),
         });
         return true;
@@ -69,16 +65,14 @@ public static class RoomObjectNoobTubeVisualFiles
     internal static string VisualId(RoomObjectDraw request) =>
         VisualId(RoomObjectDrawIdentity.FrameOf<NoobTubeDraw>(request, "n00b-tube draw with a visual ID"));
 
-    /// <summary>Names the typed intact, damaged, opened, cleared, or broken presentation state.</summary>
+    /// <summary>Names the intact, cracking or opened glass, or the opened upper or lower rows.</summary>
     internal static string VisualId(NoobTubeDraw frame) => frame switch
     {
         NoobTubeDraw.Intact => "intact",
-        NoobTubeDraw.Damaged => "damaged",
+        NoobTubeDraw.Cracking => "cracking",
         NoobTubeDraw.Opened => "opened",
-        NoobTubeDraw.Cleared => "cleared",
-        NoobTubeDraw.BrokenLate => "broken-late",
-        NoobTubeDraw.OpenedRows => "opened-rows",
-        NoobTubeDraw.BrokenFull => "broken-full",
+        NoobTubeDraw.UpperRowsOpen => "upper-rows-open",
+        NoobTubeDraw.LowerRowsOpen => "lower-rows-open",
         _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {frame}."),
     };
 

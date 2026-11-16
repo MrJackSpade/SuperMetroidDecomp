@@ -132,12 +132,12 @@ internal static class RoomObjectVisualIdDefinitions
         [ChozoStatueDraw.BlockSlopeAccess] = "wrecked-ship-block-slope-access",
     };
 
-    /// <summary>The three platform frames' stable artwork identifiers.</summary>
+    /// <summary>The platform's three looks' stable artwork identifiers.</summary>
     internal static readonly Dictionary<ElevatorPlatformDraw, string> ElevatorPlatform = new()
     {
-        [ElevatorPlatformDraw.First] = "first-frame",
-        [ElevatorPlatformDraw.Second] = "second-frame",
-        [ElevatorPlatformDraw.Third] = "third-frame",
+        [ElevatorPlatformDraw.Dim] = "dim",
+        [ElevatorPlatformDraw.Glowing] = "glowing",
+        [ElevatorPlatformDraw.Bright] = "bright",
     };
 
     /// <summary>The station draws in their published enumeration order: each glow by station, then save and access states.</summary>

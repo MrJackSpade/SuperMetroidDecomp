@@ -3,10 +3,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The block shape each of the seven noob tube draws draws (#1862). The glass's own frames are one block at the object's
-/// block; the opened and broken frames are rows twelve blocks wide down from it, the rim row's and the floor row's pipe
-/// edges solid around air, the floor with a second solid edge block, and the panel rows between air. What each frame
-/// shows is its installed picture (#1557).
+/// The block shape each of the five noob tube draws draws (#1862). The glass's own frames are one block at the object's
+/// block; the opened frames are rows twelve blocks wide down from it, the rim row's and the floor row's pipe edges solid
+/// around air, the floor with a second solid edge block, and the panel rows between air. What each frame shows is its
+/// installed picture (#1557).
 /// </summary>
 internal static class NoobTubeObjectDraws
 {
@@ -17,22 +17,20 @@ internal static class NoobTubeObjectDraws
     private const int FloorRow = 5;
 
     /// <summary>
-    /// The block shape of each tube draw: the intact glass is the projectile trigger, shootable; once damaged it is solid,
-    /// and the opened frame's block is the solid upper rim. The cleared and opened-rows frames draw their rows from the
-    /// rim down; the broken frames clear the object's block and draw the rows down to the floor.
+    /// The block shape of each tube draw: the intact glass is the projectile trigger, shootable; cracking it is solid,
+    /// and the opened frame's block is the solid upper rim. The upper rows open from the rim down; the lower rows clear
+    /// the object's block and open the rows down to the floor.
     /// </summary>
     private static readonly Dictionary<NoobTubeDraw, RoomBlockShape> Shapes = new()
     {
         [NoobTubeDraw.Intact] = RoomBlockShapes.Block(RoomCollisionType.ShootableBlock),
-        [NoobTubeDraw.Damaged] = RoomBlockShapes.Block(RoomCollisionType.SolidBlock),
+        [NoobTubeDraw.Cracking] = RoomBlockShapes.Block(RoomCollisionType.SolidBlock),
         [NoobTubeDraw.Opened] = RoomBlockShapes.Block(RoomCollisionType.SolidBlock),
-        [NoobTubeDraw.Cleared] = Rows(0, 1, 2, 3),
-        [NoobTubeDraw.OpenedRows] = Rows(0, 1, 2),
-        [NoobTubeDraw.BrokenLate] = BrokenRows(4, 5),
-        [NoobTubeDraw.BrokenFull] = BrokenRows(3, 4, 5),
+        [NoobTubeDraw.UpperRowsOpen] = Rows(0, 1, 2),
+        [NoobTubeDraw.LowerRowsOpen] = BrokenRows(3, 4, 5),
     };
 
-    /// <summary>The tube's seven frames (#2034), pictured by the installed n00b tube frames.</summary>
+    /// <summary>The tube's five frames (#2034), pictured by the installed n00b tube frames.</summary>
     internal static RoomObjectDrawFamily<NoobTubeDraw> Family { get; } =
         RoomObjectDrawFamily<NoobTubeDraw>.Pictured<InstalledRoomObjectNoobTubeVisuals>("n00b tube",
             frame => RoomObjectDrawFamily<NoobTubeDraw>.Defined(Shapes, frame), (visuals, draw) => visuals.Image(draw));

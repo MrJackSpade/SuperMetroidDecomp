@@ -14,7 +14,7 @@ internal static class LookupElevatorPlatformStockVerification
     internal static void VerifyElevatorPlatformStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectElevatorPlatformVisuals installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xaa97,"first-frame"),new LookupEscapeGateStockFrame(0xaaaf,"second-frame"),new LookupEscapeGateStockFrame(0xaac7,"third-frame")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xaa97,"dim"),new LookupEscapeGateStockFrame(0xaaaf,"glowing"),new LookupEscapeGateStockFrame(0xaac7,"bright")];
         foreach (InstalledRoomObjectElevatorPlatformVisuals pictures in new[] { InstalledRoomObjectElevatorPlatformVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectElevatorPlatformVisualFiles.Family, frames, WrittenCells(RoomObjectElevatorPlatformVisualFiles.Family));

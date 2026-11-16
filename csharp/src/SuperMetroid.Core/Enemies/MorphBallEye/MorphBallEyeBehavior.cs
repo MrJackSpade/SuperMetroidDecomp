@@ -285,8 +285,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int colourStep = MorphBallEyeBeam.ColourStep;
-        MorphBallEyeBeam.Color = MorphBallEyeGeometry.BeamColor(colourStep);
-        MorphBallEyeBeam.ColourStep = (colourStep + 1) % MorphBallEyeBeamDefinitions.ColorCycleLength;
+        MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.CycleColors[colourStep];
+        MorphBallEyeBeam.ColourStep = (colourStep + 1) % MorphBallEyeBeamDefinitions.CycleColors.Count;
     }
 
     /// <summary>Darkens the beam's colour one step and removes the beam once green has faded to black.</summary>

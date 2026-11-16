@@ -12,7 +12,8 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 /// CS0414, a private field assigned but never read (#1659), and IDE0052, a private field or automatic property written
 /// but never read (#1660), enforced by the asynchronous cleanup. The member and every write to it go (<see cref="Writes"/>): a write of a value free of effects is deleted, any other keeps its value as
 /// <c>_ = value;</c>, and an assignment used as a value is replaced by the value. An initializer that could have an
-/// effect is kept at the start of the type's constructors (<see cref="InitializerEvaluation"/>).
+/// effect is kept at the start of the type's constructors (<see cref="InitializerEvaluation"/>). A parameter only the
+/// removed writes and initializers read goes with them (<see cref="UnreadParameters"/>).
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(WriteOnlyMemberCodeFixProvider)), Shared]
 public sealed class WriteOnlyMemberCodeFixProvider : DocumentFixProvider
@@ -42,6 +43,7 @@ public sealed class WriteOnlyMemberCodeFixProvider : DocumentFixProvider
         var properties = new List<PropertyDeclarationSyntax>();
         var sites = new Dictionary<SyntaxNode, Diagnostic>();
         var kept = new List<KeptInitializer>();
+        var unread = new UnreadParameters(solution, edits, diagnostics[0]);
         foreach (Diagnostic diagnostic in diagnostics)
         {
             SyntaxToken identifier = root.FindToken(diagnostic.Location.SourceSpan.Start);
@@ -67,15 +69,18 @@ public sealed class WriteOnlyMemberCodeFixProvider : DocumentFixProvider
                     throw new CleanupFailure(diagnostic, $"the finding is at a {identifier.Parent?.Kind()}, not a field or an automatic property");
             }
             var references = await MemberReferences.FindAsync(member, solution, cancellationToken).ConfigureAwait(false);
-            await Writes.RemoveAsync(edits, member, references, diagnostic, cancellationToken).ConfigureAwait(false);
+            await Writes.RemoveAsync(edits, member, references, diagnostic, unread, cancellationToken).ConfigureAwait(false);
             if (initializer is not null && !SideEffects.IsFree(model.GetOperation(initializer, cancellationToken)))
                 kept.Add(new KeptInitializer(member, initializer, type, model));
+            else if (initializer is not null)
+                unread.Removing(initializer, model);
         }
         SourceEdits own = await edits.ForAsync(root.SyntaxTree, cancellationToken).ConfigureAwait(false);
         VariableDeclarations.Remove(own, declarators, node => sites[node]);
         foreach (PropertyDeclarationSyntax property in properties)
             own.Remove(property);
         await InitializerEvaluation.KeepAsync(edits, kept, diagnostics[0], cancellationToken).ConfigureAwait(false);
+        await unread.RemoveAsync(cancellationToken).ConfigureAwait(false);
         return edits.Apply();
     }
 

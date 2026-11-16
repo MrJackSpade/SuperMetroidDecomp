@@ -11,13 +11,14 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 /// evaluation where it could have an effect. An assignment statement whose value is free of effects goes; one whose
 /// value is not becomes <c>_ = value;</c>; an assignment used as a value is replaced by the value; an increment or a
 /// compound assignment statement goes, or keeps its right-hand side as <c>_ = value;</c>; an <c>out</c> argument and a
-/// deconstruction target become <c>_</c>. Any other use reads the variable, and the fix fails naming it.
+/// deconstruction target become <c>_</c>. Any other use reads the variable, and the fix fails naming it. A parameter only
+/// a removed statement read is left to <see cref="UnreadParameters"/>.
 /// </summary>
 internal static class Writes
 {
     /// <summary>Removes the writes at <paramref name="references"/> to <paramref name="symbol"/>.</summary>
     internal static async Task RemoveAsync(SolutionEdits edits, ISymbol symbol, List<ReferenceLocation> references, Diagnostic site,
-        CancellationToken cancellationToken)
+        UnreadParameters unread, CancellationToken cancellationToken)
     {
         foreach (ReferenceLocation reference in references)
         {
@@ -32,12 +33,14 @@ internal static class Writes
                 ?? throw new CleanupFailure(reference.Location, site.Id, $"'{symbol.Name}' is used where it has no operation");
             if (operation is IMemberReferenceOperation { Instance: { IsImplicit: false } instance } && !SideEffects.IsFree(instance))
                 throw new CleanupFailure(reference.Location, site.Id, $"'{symbol.Name}' is written through a receiver whose evaluation has effects");
-            Remove(await edits.ForAsync(tree, cancellationToken).ConfigureAwait(false), operation, expression, symbol, reference.Location, site);
+            Remove(await edits.ForAsync(tree, cancellationToken).ConfigureAwait(false), operation, expression, symbol, reference.Location, site,
+                unread, model);
         }
     }
 
     /// <summary>Removes one write, the use <paramref name="operation"/> of <paramref name="expression"/>.</summary>
-    private static void Remove(SourceEdits edits, IOperation operation, ExpressionSyntax expression, ISymbol symbol, Location location, Diagnostic site)
+    private static void Remove(SourceEdits edits, IOperation operation, ExpressionSyntax expression, ISymbol symbol, Location location, Diagnostic site,
+        UnreadParameters unread, SemanticModel model)
     {
         switch (operation.Parent)
         {
@@ -45,7 +48,10 @@ internal static class Writes
                 if (assignment.Parent is IExpressionStatementOperation statement)
                 {
                     if (statement.Syntax is ExpressionStatementSyntax written && SideEffects.IsFree(assignment.Value))
+                    {
                         RemoveStatement(edits, written);
+                        unread.Removing(written, model);
+                    }
                     else
                         edits.Replace(expression.Span, "_");
                     return;
@@ -57,7 +63,10 @@ internal static class Writes
             case ICompoundAssignmentOperation compound when compound.Target.Syntax == expression &&
                 compound.Parent is IExpressionStatementOperation { Syntax: ExpressionStatementSyntax line }:
                 if (SideEffects.IsFree(compound.Value))
+                {
                     RemoveStatement(edits, line);
+                    unread.Removing(line, model);
+                }
                 else
                     edits.Replace(compound.Syntax.Span, "_ = " + compound.Value.Syntax);
                 return;

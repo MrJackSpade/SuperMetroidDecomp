@@ -17,7 +17,8 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 /// evaluation at the start of the type's constructors (<see cref="InitializerEvaluation"/>). Reflection by name into
 /// owned state is already forbidden (SME6373), so it is no hazard; debugger save states key fields by name, so a state
 /// taken before the fix loses that field's value, which loading only warns about, as after any field rename. A member
-/// still named somewhere (in <c>nameof</c>, say) fails the fix.
+/// still named somewhere (in <c>nameof</c>, say) fails the fix. A parameter only the removed code read, a primary
+/// constructor's among them, goes with it (<see cref="UnreadParameters"/>).
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UnusedMemberCodeFixProvider)), Shared]
 public sealed class UnusedMemberCodeFixProvider : DocumentFixProvider
@@ -50,6 +51,7 @@ public sealed class UnusedMemberCodeFixProvider : DocumentFixProvider
         var members = new List<MemberDeclarationSyntax>();
         var sites = new Dictionary<SyntaxNode, Diagnostic>();
         var kept = new List<KeptInitializer>();
+        var removedCode = new List<SyntaxNode?>();
         foreach (Diagnostic diagnostic in diagnostics)
         {
             SyntaxToken identifier = root.FindToken(diagnostic.Location.SourceSpan.Start);
@@ -102,12 +104,23 @@ public sealed class UnusedMemberCodeFixProvider : DocumentFixProvider
             }
             if (initializer is not null && type is not null && !SideEffects.IsFree(model.GetOperation(initializer, cancellationToken)))
                 kept.Add(new KeptInitializer(member, initializer, type, model));
+            else if (declaration is VariableDeclaratorSyntax)
+                removedCode.Add(initializer);
+            else
+                removedCode.Add(declaration);
         }
         SourceEdits own = await edits.ForAsync(root.SyntaxTree, cancellationToken).ConfigureAwait(false);
         VariableDeclarations.Remove(own, declarators, node => sites[node]);
         foreach (MemberDeclarationSyntax member in members)
             own.Remove(member);
         await InitializerEvaluation.KeepAsync(edits, kept, diagnostics[0], cancellationToken).ConfigureAwait(false);
+        var unread = new UnreadParameters(solution, edits, diagnostics[0]);
+        foreach (SyntaxNode? removed in removedCode)
+        {
+            if (removed is not null)
+                unread.Removing(removed, model);
+        }
+        await unread.RemoveAsync(cancellationToken).ConfigureAwait(false);
         return edits.Apply();
     }
 }

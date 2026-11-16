@@ -84,15 +84,12 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         SamusState samus)
     {
-        int signedDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - place.Position.X.Whole);
-        int absoluteDistance = CoordinateAxis.AsSigned(signedDistance) < 0
-            ? CoordinateAxis.Wrap(-signedDistance)
-            : signedDistance;
-        if (absoluteDistance >= ZoaActivationColumnDistance)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ZoaActivationColumnDistance)
             return;
 
-        // The Zoa rises facing Samus; the facing check uses the same wrapped Samus-minus-enemy distance as the common helper.
-        state.RequestedAnimation = ZoaAnimationChoices.Rising(facingRight: CoordinateAxis.AsSigned(signedDistance) >= 0);
+        // The Zoa rises facing Samus, judged by the same wrapped distance from the Zoa to her.
+        state.RequestedAnimation = ZoaAnimationChoices.Rising(
+            facingRight: !CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole));
         SetZoaAnimation(place, state);
         state.Action = ZoaAction.Rising;
     }

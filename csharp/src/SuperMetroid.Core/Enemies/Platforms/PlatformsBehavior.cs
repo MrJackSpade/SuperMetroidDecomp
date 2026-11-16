@@ -80,7 +80,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every frame starts in the rising phase and changes to sinking only when the
         // exact asymmetric "Samus from below" test succeeds. This is also the solid-
         // platform riding gate; ordinary radius overlap would trigger from the sides.
-        state.YMovement = IsSamusRidingPlatform(place, samus)
+        state.YMovement = EnemyCollision.IsSamusStandingOn(place, samus)
             ? PlatformVerticalMovement.Sinking
             : PlatformVerticalMovement.Rising;
 
@@ -95,34 +95,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.YMovement != state.PreviousYMovement)
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.PreviousYMovement = state.YMovement;
-    }
-
-    /// <summary>Exact wrapped-coordinate test of Samus riding the platform from above.</summary>
-    internal static bool IsSamusRidingPlatform(RoomEnemyPlace place, SamusState samus)
-    {
-        int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - place.Position.X.Whole);
-        if (CoordinateAxis.AsSigned(xDistance) < 0)
-            xDistance = CoordinateAxis.Wrap(-xDistance);
-
-        // A distance within Samus's radius goes directly to the Y test. Otherwise the
-        // remainder must be strictly less than the platform radius; equality is not overlap.
-        if (xDistance >= samus.Kinematics.Radius.X)
-        {
-            int remainder = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
-            if (remainder >= place.Radius.X)
-                return false;
-        }
-
-        // The +3 bias requires Samus's center to remain above the enemy center. After taking
-        // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        int yDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - place.Position.Y.Whole);
-        if (CoordinateAxis.AsSigned(yDifference) >= 0)
-            return false;
-        int yDistance = CoordinateAxis.Wrap(-yDifference);
-        if (yDistance < samus.Kinematics.Radius.Y)
-            return true;
-        int yRemainder = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
-        return yRemainder <= place.Radius.Y;
     }
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>

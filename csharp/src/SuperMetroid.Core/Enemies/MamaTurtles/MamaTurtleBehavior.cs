@@ -248,7 +248,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         mama.Radius = mama.Radius.WithY(CoordinateAxis.Wrap(-contourOffset));
         mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);
 
-        if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
+        if (!EnemyCollision.IsSamusStandingOn(mama, samus))
             return;
 
         int shellTop = CoordinateAxis.Wrap(mama.Position.Y.Whole - mama.Radius.Y);
@@ -271,7 +271,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
             return;
 
-        if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
+        if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(1, 0);
         }
@@ -320,7 +320,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-1)))
             return;
 
-        if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
+        if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, 1);
         }
@@ -363,7 +363,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
+        if (!EnemyCollision.IsSamusStandingOn(mama, samus))
             return;
 
         state.Action = MamaTurtleAction.RisingToPeak;
@@ -414,7 +414,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
+        if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
             mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleRisingSpeed);
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleRisingSpeed);
@@ -480,7 +480,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case BabyTurtleAction.CrawlingNotCarryingSamus:
-                if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
+                if (EnemyCollision.IsSamusStandingOn(baby, samus))
                 {
                     state.Action = BabyTurtleAction.HidingCarryingSamus;
                     state.NotCarryingSamusReactionTimer = MamaTurtleMotionDefinitions.BabyRiderLeftDelay;
@@ -494,7 +494,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyTurtleAction.HidingCarryingSamus:
-                if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
+                if (EnemyCollision.IsSamusStandingOn(baby, samus))
                 {
                     state.NotCarryingSamusReactionTimer = MamaTurtleMotionDefinitions.BabyRiderLeftDelay;
                     return;
@@ -507,7 +507,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyTurtleAction.HidingNotCarryingSamus:
-                if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
+                if (EnemyCollision.IsSamusStandingOn(baby, samus))
                 {
                     state.Action = BabyTurtleAction.SpinningUnstoppable;
                     StartTurtleAnimation(
@@ -531,7 +531,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyTurtleAction.SpinningStoppable:
-                if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
+                if (EnemyCollision.IsSamusStandingOn(baby, samus))
                 {
                     StartBabyTurtleCrawlingAnimation(baby, state);
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
@@ -541,7 +541,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyTurtleAction.CrawlingCarryingSamus:
-                if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
+                if (!EnemyCollision.IsSamusStandingOn(baby, samus))
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                 return;
 
@@ -573,7 +573,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        bool carryingSamus = PlatformsBehavior.IsSamusRidingPlatform(baby, samus);
+        bool carryingSamus = EnemyCollision.IsSamusStandingOn(baby, samus);
         if (carryingSamus)
         {
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(state.Velocity.X, 0);
@@ -638,7 +638,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         BabyTurtleEnemyState state,
         SamusState samus)
     {
-        if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
+        if (!EnemyCollision.IsSamusStandingOn(baby, samus))
             return null;
         return state.Velocity.X < 0
             ? MamaTurtleSegment.BabyLeaveShellLeft
@@ -651,7 +651,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         BabyTurtleEnemyState state,
         SamusState samus)
     {
-        state.Action = PlatformsBehavior.IsSamusRidingPlatform(baby, samus)
+        state.Action = EnemyCollision.IsSamusStandingOn(baby, samus)
             ? BabyTurtleAction.CrawlingCarryingSamus
             : BabyTurtleAction.CrawlingNotCarryingSamus;
         return state.Velocity.X < 0

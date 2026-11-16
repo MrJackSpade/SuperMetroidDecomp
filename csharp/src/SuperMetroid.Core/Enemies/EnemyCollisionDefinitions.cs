@@ -52,6 +52,12 @@ internal static class EnemyCollisionDefinitions
     /// </summary>
     internal const int SamusProjectileHitInvincibilityUpdates = 96;
 
+    /// <summary>
+    /// How far below Samus's centre the test of her standing on an enemy reckons her, in pixels: her centre must lie
+    /// more than this far above the enemy's for her to stand on it.
+    /// </summary>
+    internal const int SamusStandingBias = 3;
+
     /// <summary>The updates of knockback an enemy's touch requests for Samus.</summary>
     internal const int SamusTouchKnockbackUpdates = 5;
 }

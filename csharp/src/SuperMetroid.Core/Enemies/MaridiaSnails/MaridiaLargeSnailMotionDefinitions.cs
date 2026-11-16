@@ -9,9 +9,6 @@ internal static class MaridiaLargeSnailMotionDefinitions
     /// </summary>
     internal const int PushReach = 16;
 
-    /// <summary>How far below her centre the snail reckons Samus's touch from above, in pixels.</summary>
-    internal const int SamusTouchBias = 3;
-
     /// <summary>How far the snail shoves Samus sideways when she touches it, in pixels.</summary>
     internal const int ShoveDistance = 4;
 }

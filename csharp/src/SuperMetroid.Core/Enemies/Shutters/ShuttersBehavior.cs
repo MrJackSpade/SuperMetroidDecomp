@@ -222,7 +222,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterEnemyState state,
         SamusState samus)
     {
-        if (!PlatformsBehavior.IsSamusRidingPlatform(place, samus))
+        if (!EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
         int wholeDelta = (place.Position.Whole - state.PreviousPosition).Y;
@@ -302,17 +302,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ReferenceEquals(SolidContactPlaceCombination.NamedPlace<ISolidEnemy>(samus.Kinematics.SolidEnemyContacts, _places.InUpdateOrder), place) &&
         samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
 
-    /// <summary>Tests the strict, wrapped absolute-X proximity threshold.</summary>
+    /// <summary>Whether Samus lies strictly within <paramref name="maximumDistance"/> of the shutter horizontally.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(
         RoomEnemyPlace place,
         SamusState samus,
-        int maximumDistance)
-    {
-        int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - place.Position.X.Whole);
-        if (CoordinateAxis.AsSigned(distance) < 0)
-            distance = CoordinateAxis.Wrap(-distance);
-        return distance < maximumDistance;
-    }
+        int maximumDistance) =>
+        CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < maximumDistance;
 
     /// <summary>
     /// Publishes the activation sound only when the shutter's centre lies in the enemies' square view, which reaches
@@ -565,7 +560,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalDirection direction)
     {
         state.PreviousPosition = place.Position.Whole;
-        state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(place, samus);
+        state.MovingSamus = EnemyCollision.IsSamusStandingOn(place, samus);
         place.Position = place.Position.AdvanceY(direction == VerticalDirection.Up ? state.UpVelocity : state.DownVelocity);
         CarrySamusVertically(place, state, samus);
 

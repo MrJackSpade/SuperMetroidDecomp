@@ -341,7 +341,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         SamusState samus)
     {
         state.StopMovementNextFrame = false;
-        if (MaridiaLargeSnailTouchesSamusFromBelow(place, samus))
+        if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement. This preserves the last touching Oum's ownership.
@@ -395,32 +395,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         place.Position = place.Position.WithWholeX(state.PreviousPosition.X);
     }
 
-    /// <summary>
-    /// Exact asymmetric "touching from below" predicate used for Oum carrying and
-    /// its post-contact shove. It is intentionally not interchangeable with radius overlap.
-    /// </summary>
-    private static bool MaridiaLargeSnailTouchesSamusFromBelow(
-        RoomEnemyPlace place,
-        SamusState samus)
-    {
-        int xDistance = CoordinateAxis.Distance(
-            samus.Position.X.Whole, place.Position.X.Whole);
-        bool centerWithinSamusRadius = xDistance < samus.Kinematics.Radius.X;
-        int remainingX = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
-        if (!centerWithinSamusRadius && remainingX >= place.Radius.X)
-            return false;
-
-        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + MaridiaLargeSnailMotionDefinitions.SamusTouchBias);
-        if (CoordinateAxis.Difference(biasedSamusY, place.Position.Y.Whole) >= 0)
-            return false;
-
-        int verticalDistance = CoordinateAxis.Wrap(place.Position.Y.Whole - biasedSamusY);
-        int remainingY = CoordinateAxis.Wrap(verticalDistance - samus.Kinematics.Radius.Y);
-        return verticalDistance < samus.Kinematics.Radius.Y ||
-            remainingY == place.Radius.Y ||
-            remainingY < place.Radius.Y;
-    }
-
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
     private void ApplyMaridiaLargeSnailCue(MaridiaLargeSnailEnemyState state, MaridiaLargeSnailCue cue)
     {
@@ -462,7 +436,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomEnemyPlace place,
         SamusState samus)
     {
-        if (MaridiaLargeSnailTouchesSamusFromBelow(place, samus))
+        if (EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
         int shove = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0

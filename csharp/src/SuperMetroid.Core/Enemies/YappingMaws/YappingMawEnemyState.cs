@@ -80,18 +80,17 @@ public sealed class YappingMawEnemyState
     public int RetractedDelayTimer { get; internal set; }
 
     /// <summary>
-    /// The distance from its spawn settings below which an attack starts. The game compares it by a
-    /// wrapped difference read as signed, so a distance of 32768 or more behaves as the game's
-    /// wrapped comparison does; <see cref="IsWithinActivationDistance"/> owns that comparison.
+    /// The distance from its spawn settings below which an attack starts, in pixels: every authored Maw's lies between
+    /// 48 and 128.
     /// </summary>
     public int ActivationDistance { get; internal set; }
 
     /// <summary>
-    /// Whether <paramref name="distance"/> is strictly inside <see cref="ActivationDistance"/>, judged as the game
-    /// does by their difference wrapped to sixteen bits and read as signed.
+    /// Whether <paramref name="distance"/> is strictly inside <see cref="ActivationDistance"/>. The game compares them by
+    /// the sign of their difference; with the target distance at most 32768 and an authored activation distance, that
+    /// difference never reaches half the counting range, so the plain comparison is the game's.
     /// </summary>
-    internal bool IsWithinActivationDistance(int distance) =>
-        CoordinateAxis.Difference(distance, ActivationDistance) < 0;
+    internal bool IsWithinActivationDistance(int distance) => distance < ActivationDistance;
 
     /// <summary>Whether the mouth currently holds Samus, owning her input and position.</summary>
     public bool HasGrabbedSamus { get; internal set; }

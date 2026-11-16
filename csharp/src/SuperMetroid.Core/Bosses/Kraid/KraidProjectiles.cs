@@ -478,7 +478,7 @@ internal sealed class KraidProjectiles
         // Checks support after moving and even on the frame that hides the lint.
         // Publish carry for Samus's later movement step, rather than teleporting
         // her here. The clamp changes only the whole pixels; the subpixels keep what the subtraction left.
-        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
+        if (EnemyCollision.IsSamusStandingOn(lint, samus))
         {
             SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X + KraidPlatformMovement.FiringDisplacement;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(

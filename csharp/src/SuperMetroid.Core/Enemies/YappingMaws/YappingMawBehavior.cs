@@ -505,13 +505,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int deltaX = CoordinateAxis.Difference(samus.X, origin.X);
         int absoluteX = Math.Abs(deltaX);
-        // The farthest difference's magnitude, 32768, is compared as the game's signed comparison reads it.
-        if (CoordinateAxis.Difference(absoluteX, ShortProductReach) >= 0)
+        if (absoluteX >= ShortProductReach)
             return new YappingMawTarget(absoluteX, default);
 
         int deltaY = CoordinateAxis.Difference(samus.Y, origin.Y);
         int absoluteY = Math.Abs(deltaY);
-        if (CoordinateAxis.Difference(absoluteY, ShortProductReach) >= 0)
+        if (absoluteY >= ShortProductReach)
             return new YappingMawTarget(absoluteY, default);
 
         // Both magnitudes are below the reach here, so each short product is below 255 pixels and their sum below 510:

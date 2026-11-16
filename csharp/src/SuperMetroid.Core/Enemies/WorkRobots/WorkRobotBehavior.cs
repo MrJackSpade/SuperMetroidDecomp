@@ -229,7 +229,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return step.WallAnimation;
         }
 
-        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(place, samus))
+        if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(step.HorizontalPixels), 0));
         }

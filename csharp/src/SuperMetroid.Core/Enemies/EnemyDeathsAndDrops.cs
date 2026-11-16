@@ -420,8 +420,8 @@ internal sealed class EnemyDeathsAndDrops
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
-            AbsoluteWrappedDelta(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < 16 &&
-            AbsoluteWrappedDelta(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < 16)
+            CoordinateAxis.Distance(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < 16 &&
+            CoordinateAxis.Distance(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < 16)
         {
             CollectEnemyPickup(projectile, samus);
             return;
@@ -429,9 +429,9 @@ internal sealed class EnemyDeathsAndDrops
 
         // The overlap test's subtract/borrow formulation is exactly strict radius-sum overlap for
         // valid actor radii. Equality is not contact in either axis.
-        if (AbsoluteWrappedDelta(samus.Position.X.Whole, projectile.Position.X.Whole) >=
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, projectile.Position.X.Whole) >=
                 samus.Kinematics.Radius.X + projectile.Radius.X ||
-            AbsoluteWrappedDelta(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=
+            CoordinateAxis.Distance(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=
                 samus.Kinematics.Radius.Y + projectile.Radius.Y)
         {
             return;
@@ -530,10 +530,6 @@ internal sealed class EnemyDeathsAndDrops
             samus.PowerBombs = samus.MaxPowerBombs;
         }
     }
-
-    /// <summary>Measures the absolute distance between two of the room's wrapping coordinates.</summary>
-    private static int AbsoluteWrappedDelta(int left, int right) =>
-        CoordinateAxis.Distance(left, right);
 
     /// <summary>
     /// Runs the respawn cue for the respawning enemy a death actor retains.

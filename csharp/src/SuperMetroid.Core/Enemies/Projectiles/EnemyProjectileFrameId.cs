@@ -159,12 +159,6 @@ public enum EnemyProjectileFrameId
     PhantoonFlameFlickering,
     /// <summary>Phantoon's flame: a flame splashed flat.</summary>
     PhantoonFlameSplashed,
-    /// <summary>Phantoon's flame: a tall flame around a ringed eye: the picture of PhantoonFlameRingedEye, as a frame of its own.</summary>
-    PhantoonFlameRingedEyeTwin,
-    /// <summary>Phantoon's flame: a tall flame around a bright eye: the picture of PhantoonFlameBrightEye, as a frame of its own.</summary>
-    PhantoonFlameBrightEyeTwin,
-    /// <summary>Phantoon's flame: a tall flame flickering: the picture of PhantoonFlameFlickering, as a frame of its own.</summary>
-    PhantoonFlameFlickeringTwin,
     /// <summary>Phantoon's flame: a tall flame swelling.</summary>
     PhantoonFlameSwelling,
     /// <summary>Phantoon's flame: a tall flame leaning.</summary>
@@ -175,8 +169,6 @@ public enum EnemyProjectileFrameId
     PhantoonFlameRestingSwaying,
     /// <summary>Phantoon's flame: a tall flame low at rest.</summary>
     PhantoonFlameRestingLow,
-    /// <summary>Phantoon's flame: a tall flame at rest: the picture of PhantoonFlameResting, as a frame of its own.</summary>
-    PhantoonFlameRestingTwin,
     /// <summary>Phantoon's flame: a flame dying down.</summary>
     PhantoonFlameDying,
     /// <summary>Phantoon's flame: a flame guttering.</summary>
@@ -185,34 +177,14 @@ public enum EnemyProjectileFrameId
     PhantoonFlameWisps,
     /// <summary>Phantoon's flame: the last wisp of a flame.</summary>
     PhantoonFlameLastWisp,
-    /// <summary>Phantoon's flame: a flame splashed flat: the picture of PhantoonFlameSplashed, as a frame of its own.</summary>
-    PhantoonFlameSplashedTwin,
     /// <summary>Phantoon's flame: a flame kindling.</summary>
     PhantoonFlameKindling,
     /// <summary>Phantoon's flame: nothing; it draws no picture.</summary>
     PhantoonFlameBlank,
     /// <summary>Phantoon's flame: a teardrop of flame.</summary>
     PhantoonFlameTeardrop,
-    /// <summary>Phantoon's flame: nothing; it draws no picture: the picture of PhantoonFlameBlank, as a frame of its own.</summary>
-    PhantoonFlameBlankTwin,
     /// <summary>Phantoon's flame: a flame sputtering.</summary>
     PhantoonFlameSputtering,
-    /// <summary>Phantoon's flame: nothing; it draws no picture: the picture of PhantoonFlameBlank, as a frame of its own.</summary>
-    PhantoonFlameBlankTwinB,
-    /// <summary>Phantoon's flame: a flame kindling: the picture of PhantoonFlameKindling, as a frame of its own.</summary>
-    PhantoonFlameKindlingTwin,
-    /// <summary>Phantoon's flame: a teardrop of flame: the picture of PhantoonFlameTeardrop, as a frame of its own.</summary>
-    PhantoonFlameTeardropTwin,
-    /// <summary>Phantoon's flame: a flame sputtering: the picture of PhantoonFlameSputtering, as a frame of its own.</summary>
-    PhantoonFlameSputteringTwin,
-    /// <summary>Phantoon's flame: a flame dying down: the picture of PhantoonFlameDying, as a frame of its own.</summary>
-    PhantoonFlameDyingTwin,
-    /// <summary>Phantoon's flame: a flame guttering: the picture of PhantoonFlameGuttering, as a frame of its own.</summary>
-    PhantoonFlameGutteringTwin,
-    /// <summary>Phantoon's flame: wisps of a flame: the picture of PhantoonFlameWisps, as a frame of its own.</summary>
-    PhantoonFlameWispsTwin,
-    /// <summary>Phantoon's flame: the last wisp of a flame: the picture of PhantoonFlameLastWisp, as a frame of its own.</summary>
-    PhantoonFlameLastWispTwin,
     /// <summary>Kraid's rock: a large rock.</summary>
     KraidRockLarge,
     /// <summary>Kraid's rock: a small rock.</summary>

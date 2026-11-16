@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
 using SuperMetroid.Verification.Harness;
@@ -70,7 +71,7 @@ internal static class PhantoonAnimationsVerification
             {
                 AssertTrue(PartCallbacks.TryGetValue(operands[0], out PhantoonPartCue native), $"{at}: native routine ${operands[0]:X4} is known");
                 AssertEqual(native, cue, $"{at}: event");
-            }));
+            }, PicturedAt: PicturedAt));
         for (int ordinal = 0; ordinal < 8; ordinal++)
             AssertEqual(PhantoonPartSegment.EyeLookingUp + ordinal, PhantoonAnimationsConstants.Gaze(ordinal), $"gaze {ordinal} selects its program");
 
@@ -78,6 +79,14 @@ internal static class PhantoonAnimationsVerification
         VerifyMouthFlame();
         Console.WriteLine($"  Phantoon part animations: {PartEntries.Length} segments and {stepCount} beats match bank $A7; eye-opening and mouth callbacks run as the native lists do.");
     }
+
+    /// <summary>
+    /// The native frame word an installed part frame is read from, for a word whose record repeats another's picture
+    /// (#2249): his eye lists show the closed eye and the open eye looking ahead from two records each.
+    /// </summary>
+    private static ushort PicturedAt(ushort word) =>
+        PhantoonPartFramesConstants.Spritemap(RoomEnemyPlaceFrameAccess.FrameAt(PartBankNumber, word)
+            ?? throw new InvalidDataException($"Phantoon's part lists show no frame at ${PartBankNumber:X2}:{word:X4}."));
 
     /// <summary>Runs one part update, optionally expiring the current frame first.</summary>
     private static void Pass(RoomEnemyPlace part, bool forceExpiry = false)
@@ -108,13 +117,13 @@ internal static class PhantoonAnimationsVerification
         AssertTrue(enemies.Audio.LatestSound.HasValue, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartSegment.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartSegment.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
-        AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonEyeballCenteredTwin), eye.SpritemapPointer, "the opened eye keeps its last frame");
+        AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonEyeballCentered), eye.SpritemapPointer, "the opened eye keeps its last frame");
         AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "the callback's one-update timer survives the sleep");
     }
 
     /// <summary>The eye's three opening frames, in the order the eyelid opens.</summary>
     private static readonly EnemyFrameId[] OpeningEyeFrames =
-        [EnemyFrameId.PhantoonEyeClosedTwin, EnemyFrameId.PhantoonEyeHalfOpen, EnemyFrameId.PhantoonEyeballCenteredTwin];
+        [EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeHalfOpen, EnemyFrameId.PhantoonEyeballCentered];
 
     /// <summary>The mouth's flame program spawns one casual flame and runs on into its initial frame.</summary>
     private static void VerifyMouthFlame()
@@ -164,7 +173,8 @@ internal static class PhantoonAnimationsVerification
                 if (native.Deleted)
                     break;
                 AssertEqual(native.Timer, flame.FrameHold.RawValue, $"{at}: timer");
-                AssertEqual(native.Operand, flame.PresentationOperandAddress, $"{at}: frame");
+                // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2249).
+                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
                 if (NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<PhantoonFlameAnimation>(flame.Animation, $"{at}: flame animation").Playback) is { } playsLeft)
                     AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }

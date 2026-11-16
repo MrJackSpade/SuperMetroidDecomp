@@ -20,11 +20,16 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// Whether an owner instruction may show the pose before it again (#2180), as the Yard's closed shell holds: the pose and
 /// the instruction are a run of their own, which the owner plays again; null when the owner has none.
 /// </param>
+/// <param name="PicturedAt">
+/// The native frame word an installed frame is read from, for a frame word the cartridge stores a picture at again (#2249):
+/// a frame repeating another record's picture shows that record's frame; null when every frame word is its frame's own.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
     Func<TCue, bool>? EndsList = null,
     Func<ushort, bool>? Omitted = null,
     Func<ushort, ushort?>? GoesTo = null,
-    Func<ushort, bool>? ShowsPoseAgain = null)
+    Func<ushort, bool>? ShowsPoseAgain = null,
+    Func<ushort, ushort>? PicturedAt = null)
     where TCue : notnull;

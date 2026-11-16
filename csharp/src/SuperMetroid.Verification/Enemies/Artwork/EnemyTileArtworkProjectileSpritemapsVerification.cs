@@ -276,7 +276,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             TorizoFamily("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking, TorizoProjectileFamily.StatueFragment),
             ShownFamily("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard, MotherBrainGlassAnimations.ProjectileFrames),
             ShownFamily("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging, MotherBrainHandBeamAnimations.ProjectileFrames),
-            ShownFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames.Values),
+            ShownFamily("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube, [.. MotherBrainTopTubeAnimations.Segments.Frames]),
             ShownFamily("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret, MotherBrainTurretAnimations.ProjectileFrames),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in motherBrainAndStatueFamilies)

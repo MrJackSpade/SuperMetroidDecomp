@@ -178,16 +178,16 @@ internal static class MotherBrainAnimationsVerification
         foreach ((MotherBrainTurretDirection direction, ushort turretPose, ushort bulletPose, int selectorEntry) in TurretEntries)
         {
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurret,
-                new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction),
+                new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(direction)),
                 turretPose, 4, $"turret {direction}");
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-                new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction),
+                new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction)),
                 bulletPose, 4, $"bullet {direction}");
             // The bullet list's direction selector jumps to this pose; the typed bullet starts it directly.
             AssertEqual(bulletPose, cartridge.ReadCartridgeWord(selectorEntry),
                 $"the bullet selector's {direction} entry");
         }
-        compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, new MotherBrainTurretAnimation(),
+        compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact),
             BulletImpact, 64, "bullet impact");
         compared += CompareHandBeam(cartridge);
         Console.WriteLine($"  Mother Brain projectile programs: {compared} updates of glass, turret, bullet and hand-beam frames match bank $86.");

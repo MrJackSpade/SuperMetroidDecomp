@@ -33,9 +33,9 @@ internal static class PhantoonFlameAnimations
         [P.CasualHitGround] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashed, 1)],
         [P.CasualBouncing] =
         [
-            Show(EnemyProjectileFrameId.PhantoonFlameRingedEyeTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameBrightEyeTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameFlickeringTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameRingedEye, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameBrightEye, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameFlickering, 5),
         ],
         [P.CasualResting] =
         [
@@ -44,7 +44,7 @@ internal static class PhantoonFlameAnimations
             Show(EnemyProjectileFrameId.PhantoonFlameResting, 5),
             Show(EnemyProjectileFrameId.PhantoonFlameRestingSwaying, 5),
             Show(EnemyProjectileFrameId.PhantoonFlameRestingLow, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameRestingTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameResting, 5),
         ],
         [P.Dying] =
         [
@@ -54,29 +54,29 @@ internal static class PhantoonFlameAnimations
             Show(EnemyProjectileFrameId.PhantoonFlameLastWisp, 5),
             Cue(PhantoonFlameCue.Delete),
         ],
-        [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashedTwin, 8)],
+        [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashed, 8)],
         [P.CasualFalling] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
             Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
             Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
-            Show(EnemyProjectileFrameId.PhantoonFlameBlankTwin, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
             Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
-            Show(EnemyProjectileFrameId.PhantoonFlameBlankTwinB, 1),
+            Show(EnemyProjectileFrameId.PhantoonFlameBlank, 1),
         ],
         [P.StartingFlame] =
         [
-            Show(EnemyProjectileFrameId.PhantoonFlameKindlingTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameTeardropTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameSputteringTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameKindling, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 5),
         ],
         [P.Delete] = [Cue(PhantoonFlameCue.Delete)],
         [P.DestroyableShot] =
         [
-            Show(EnemyProjectileFrameId.PhantoonFlameDyingTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameGutteringTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameWispsTwin, 5),
-            Show(EnemyProjectileFrameId.PhantoonFlameLastWispTwin, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameDying, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameGuttering, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameWisps, 5),
+            Show(EnemyProjectileFrameId.PhantoonFlameLastWisp, 5),
             Cue(PhantoonFlameCue.SpawnDrop),
             Cue(PhantoonFlameCue.Delete),
         ],

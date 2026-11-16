@@ -4,23 +4,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A turret's, bullet's or impact smoke's typed animation.</summary>
-internal sealed class MotherBrainTurretAnimation
-    : EnemyProjectileFrameAnimation<MotherBrainTurretPose, MotherBrainTurretCue>
+/// <param name="pose">The turret's or bullet's pose facing its direction, or the impact smoke.</param>
+internal sealed class MotherBrainTurretAnimation(MotherBrainTurretPose pose)
+    : EnemyProjectileFrameAnimation<MotherBrainTurretPose, MotherBrainTurretCue>(MotherBrainTurretAnimations.StartingAt[pose])
 {
-    /// <summary>Plays the still pose of <paramref name="segment"/> facing <paramref name="direction"/>.</summary>
-    internal MotherBrainTurretAnimation(MotherBrainTurretSegment segment, MotherBrainTurretDirection direction)
-        : base(segment == MotherBrainTurretSegment.BulletImpact
-            ? throw new ArgumentOutOfRangeException(nameof(segment), segment, "Only turrets and bullets have direction poses.")
-            : MotherBrainTurretAnimations.StartingAt[new MotherBrainTurretPose(segment, direction)])
-    {
-    }
-
-    /// <summary>Plays a bullet's impact smoke.</summary>
-    internal MotherBrainTurretAnimation()
-        : base(MotherBrainTurretAnimations.StartingAt[MotherBrainTurretPose.BulletImpact])
-    {
-    }
-
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
         MotherBrainTurretAnimations.Segments;

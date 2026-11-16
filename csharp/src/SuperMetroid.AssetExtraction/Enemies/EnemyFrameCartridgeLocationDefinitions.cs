@@ -1727,10 +1727,8 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.PhantoonFullHitboxBody] = new(0xa7, 0xdee7),
         [EnemyFrameId.PhantoonEyeHitboxBody] = new(0xa7, 0xdef1),
         [EnemyFrameId.PhantoonEyeClosed] = new(0xa7, 0xdefb),
-        [EnemyFrameId.PhantoonEyeClosedTwin] = new(0xa7, 0xdf05),
         [EnemyFrameId.PhantoonEyeHalfOpen] = new(0xa7, 0xdf0f),
-        [EnemyFrameId.PhantoonEyeballCenteredTwin] = new(0xa7, 0xdf19),
-        [EnemyFrameId.PhantoonEyeballCentered] = new(0xa7, 0xdf23),
+        [EnemyFrameId.PhantoonEyeballCentered] = new(0xa7, 0xdf19),
         [EnemyFrameId.PhantoonEyeLookingUp] = new(0xa7, 0xdf2d),
         [EnemyFrameId.PhantoonEyeLookingDown] = new(0xa7, 0xdf37),
         [EnemyFrameId.PhantoonEyeLookingLeft] = new(0xa7, 0xdf41),
@@ -1847,5 +1845,17 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.KraidFootPlantedOffset4By0] = new(0xa7, 0x8f23),
         [EnemyFrameId.KraidFootPlantedTwinB] = new(0xa7, 0x8f47),
         [EnemyFrameId.KraidFootPlanted] = new(0xa7, 0xa565),
+    };
+
+    /// <summary>
+    /// The records at which the cartridge stores a picture again that another record already stores (#2249), each with the
+    /// installed frame showing it. Phantoon's eye lists show his closed eye from two identical records, and his open eye
+    /// looking ahead from a whole record and from one that writes only the eyeball's cells over it, the same picture; each
+    /// is one frame, read from the first record.
+    /// </summary>
+    internal static IReadOnlyDictionary<SnesAddress, EnemyFrameId> RepeatedLocations { get; } = new Dictionary<SnesAddress, EnemyFrameId>
+    {
+        [new(0xa7, 0xdf05)] = EnemyFrameId.PhantoonEyeClosed,
+        [new(0xa7, 0xdf23)] = EnemyFrameId.PhantoonEyeballCentered,
     };
 }

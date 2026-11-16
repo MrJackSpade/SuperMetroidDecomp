@@ -544,7 +544,7 @@ internal static class NativeEnemyAnimationOracle
         where TEvent : notnull
     {
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted,
-            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain) = rules;
+            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt) = rules;
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
         var continuedAt = new HashSet<ushort>();
@@ -569,6 +569,8 @@ internal static class NativeEnemyAnimationOracle
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
+            // A frame word repeating another record's picture shows the frame read from that record (#2249).
+            ushort pictured = kind == NativeEnemyListDefinitions.WordKind.Frame && picturedAt is not null ? picturedAt(operand) : operand;
             if (kind == NativeEnemyListDefinitions.WordKind.Callback && goesTo?.Invoke(word) is { } goneTo)
             {
                 // An owner routine that only goes on to another list (#2167) is that list's goto.
@@ -584,7 +586,7 @@ internal static class NativeEnemyAnimationOracle
                     // followed by a goto back to that frame (#2068, #2096): the list shows it again and again, for good,
                     // whatever duration it names. Where that frame is a list of its own the goto is read as the list's
                     // loop; where it follows the beats before it in one segment, the segment rests on it at the goto.
-                    VerificationAssertions.AssertEqual(operand, spritemap(held.Shown), $"{at}: held frame's spritemap");
+                    VerificationAssertions.AssertEqual(pictured, spritemap(held.Shown), $"{at}: held frame's spritemap");
                     ushort afterHeldCursor = unchecked((ushort)(cursor + 4));
                     int afterHeld = (int)new SnesAddress(bank, afterHeldCursor);
                     NativeEnemyListDefinitions.WordKind followedBy = NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(afterHeld));
@@ -607,7 +609,7 @@ internal static class NativeEnemyAnimationOracle
                 {
                     var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beat, at), $"{at}: frame");
                     VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
-                    VerificationAssertions.AssertEqual(operand, spritemap(frame.Shown), $"{at}: spritemap");
+                    VerificationAssertions.AssertEqual(pictured, spritemap(frame.Shown), $"{at}: spritemap");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;

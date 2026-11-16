@@ -25,22 +25,22 @@ internal static class PhantoonAnimations
         [P.EyeHitboxBody] = Still(F.PhantoonEyeHitboxBody),
         [P.EyeOpen] =
         [
-            Show(F.PhantoonEyeClosedTwin, EyelidFrameDuration),
+            Show(F.PhantoonEyeClosed, EyelidFrameDuration),
             Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
-            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Cue(C.PlayMaterializationSound),
             Cue(C.BeginEyeTracking),
         ],
         [P.EyeClosed] = Still(F.PhantoonEyeClosed),
         [P.EyeCloseAndPickNewPattern] =
         [
-            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
             Cue(C.PickNewPattern),
         ],
         [P.EyeClose] =
         [
-            Show(F.PhantoonEyeballCenteredTwin, 1),
+            Show(F.PhantoonEyeballCentered, 1),
             Show(F.PhantoonEyeHalfOpen, EyelidFrameDuration),
         ],
         [P.EyeballCentered] =

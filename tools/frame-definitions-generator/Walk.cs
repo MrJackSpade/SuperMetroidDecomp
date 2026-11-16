@@ -149,7 +149,7 @@ internal sealed class Walk
     public static readonly string[] ExcludedProjectileFrames =
     [
         "Blank", "EnemyDeathBlank", "EnemyDeathBlankTwin", "EnemyDeathBlankTwinB", "FallingSparkBlank", "FallingSparkBlankTwin",
-        "FallingSparkBlankTwinB", "FallingSparkBlankTwinC", "FallingSparkBlankTwinD", "PhantoonFlameBlank", "PhantoonFlameBlankTwin", "PhantoonFlameBlankTwinB",
+        "FallingSparkBlankTwinB", "FallingSparkBlankTwinC", "FallingSparkBlankTwinD", "PhantoonFlameBlank",
         "TorizoDroolBlank", "TorizoDroolBlankTwin", "GoldenTorizoEyeBeamBlank", "TourianStatueEyeGlowBlank", "BotwoonBlank",
     ];
 

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -27,5 +26,5 @@ internal static class MotherBrainTopTubeNativeListAddresses
 
     /// <summary>The family's typed segments and animations beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainTopTubeAnimations.Segments, MotherBrainTopTubeAnimations.StartingAt,
-        frame => EnemyProjectileProgramFrameSources.Operand(MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame]), Rules);
+        EnemyProjectileProgramFrameSources.Operand, Rules);
 }

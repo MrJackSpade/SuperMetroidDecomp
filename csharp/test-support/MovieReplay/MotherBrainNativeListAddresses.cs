@@ -396,7 +396,7 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares the falling tubes' typed segments and animations with their native lists; returns each piece's native list.</summary>
     internal static Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Segments, MotherBrainTubeAnimations.StartingAt, TubeEntries,
-            frame => EnemyFrameCartridgeLookupTooling.Word(MotherBrainVisualDefinitions.TubeFrames.Of(frame)),
+            EnemyFrameCartridgeLookupTooling.Word,
             new Dictionary<ushort, NativeListOp<MotherBrainTubePiece, NoAnimationCue>>());
 
     /// <summary>Each glass program's native list in bank $86.</summary>

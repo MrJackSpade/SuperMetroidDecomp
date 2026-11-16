@@ -20,7 +20,10 @@ internal static class EnemyFrameCartridgeLookupTooling
     /// </summary>
     internal const ushort EmptyFrameHitboxWord = 0x804f;
 
-    /// <summary>Each installed frame by where the cartridge stores it; the first composition in schema order wins a shared record.</summary>
+    /// <summary>
+    /// Each installed frame by where the cartridge stores it; the first composition in schema order wins a shared record, and
+    /// a record that repeats another's picture names the frame showing it (#2249).
+    /// </summary>
     private static readonly Lazy<Dictionary<SnesAddress, EnemyFrameId>> FramesByLocation = new(Bind);
 
     /// <summary>Binds every installed composition's location, ordinary compositions first.</summary>
@@ -31,6 +34,8 @@ internal static class EnemyFrameCartridgeLookupTooling
             frames.TryAdd(EnemyFrameCartridgeLookup.Of(frame.Frame), frame.Frame);
         foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
             frames.TryAdd(EnemyFrameCartridgeLookup.Of(frame.Frame), frame.Frame);
+        foreach ((SnesAddress repeated, EnemyFrameId frame) in EnemyFrameCartridgeLocationDefinitions.RepeatedLocations)
+            frames.Add(repeated, frame);
         return frames;
     }
 

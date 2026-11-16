@@ -35,7 +35,7 @@ internal static class MovieDesyncComparison
         if (game.Session.ScreenAs<IntroCinematicState>() is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
         if (game.Session.ScreenAs<GameOptionsMenuState>() is { } options)
-            Console.WriteLine($"  options port phase={options.Phase} item={options.SelectedItem}");
+            Console.WriteLine($"  options port phase={options.Phase} row={options.SelectedRow}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
             $"vs={samus.Kinematics.YSpeed.Whole:X4}.{samus.Kinematics.YSpeed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4} ydir={samus.Kinematics.YDirection} drained={samus.Drained.Phase} movement={SamusPoseMetadata.ReadMovementType(samus)}");

@@ -19,6 +19,13 @@ public static class GameOptionsLayout
         ControllerAction.ItemCancel, ControllerAction.AimUp, ControllerAction.AimDown,
     ];
 
+    /// <summary>The controller page's rows from the top: a row assigning each action, then Exit and Reset.</summary>
+    internal static readonly GameOptionsControllerRow[] ControllerRows =
+    [
+        .. ControllerActionRows.Select(action => new GameOptionsControllerRow.AssignsAction(action)),
+        GameOptionsControllerRow.Exit.Instance, GameOptionsControllerRow.Reset.Instance,
+    ];
+
     /// <summary>The special page's rows from the top.</summary>
     internal static readonly GameOptionsSpecialRow[] SpecialRows =
         [GameOptionsSpecialRow.IconCancel, GameOptionsSpecialRow.Moonwalk, GameOptionsSpecialRow.Exit];

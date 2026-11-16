@@ -286,9 +286,9 @@ internal static class TitleGradientVerification
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            native.StepScreen();
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+            installed.StepScreen();
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {
@@ -365,7 +365,7 @@ internal static class TitleGradientVerification
         var cartridgeReads = new HashSet<int>();
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
-            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth)));
+            _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth.TwoHundredFiftySixths)));
 
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitleGradientExtractor.Extract(bus);
         TitleGradientPresentation presentation = TitleGradientFile.Read(

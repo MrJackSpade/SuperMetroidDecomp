@@ -35,7 +35,7 @@ internal static class PaletteFxContractTests
         var fx = new ColourEffectSystem(fxSession);
         fx.BindAudioRequests(new GameplayAudioRequests(new NoSoundQueues()));
         fx.Start(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
-        fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        fx.StepScreen();
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
         var first = new ColourEffectFrame(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
         if (shown.Count != 1 || shown[0] != new ShownColourEffectFrame(ColourEffectColours.CutsceneGunshipEngine, first)

@@ -150,7 +150,7 @@ internal static class EndingRewardGestureVerification
                 EndingRewardNativeWords.Actors.Decode(pointer, "reward actor definition"));
             int address = 0x8b0000 | pointer;
             ushort initializer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(initializer, EndingRewardNativeWords.Initializations.Word(actual.Initialization), $"reward actor ${pointer:X4} initialization callback");
+            AssertEqual(initializer, EndingRewardNativeWords.Starts.Word(actual.Start), $"reward actor ${pointer:X4} initialization callback");
             ushort routine = pointer == EndingRewardNativeWords.Actors.Word(EndingRewardActor.SuitlessUpper) ? CinematicActorNativeMotions.RewardSuitlessUpper : CinematicActorNativeMotions.NoMotion;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), routine, $"reward actor ${pointer:X4} routine: no motion until the jump starts it");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation), $"reward actor ${pointer:X4} instruction list");
@@ -158,8 +158,7 @@ internal static class EndingRewardGestureVerification
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)
                 AssertEqual((byte)0xa9, bus.ReadCartridgeByte(code + offset), "reward initializer uses LDA immediate");
-            var origin = EndingRewardActors.GetInitialization(
-                EndingRewardNativeWords.Initializations.Decode(initializer, "reward initialization"));
+            EndingRewardStart origin = EndingRewardNativeWords.Starts.Decode(initializer, "reward initialization");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 1)), origin.Position.X, "reward native initial X");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 7)), origin.Position.Y, "reward native initial Y");
             PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), EndingScreenInks.SpriteSet(origin.Colouring), "reward native initial palette selects the sprite group the import draws the reward colouring in");
@@ -168,8 +167,6 @@ internal static class EndingRewardGestureVerification
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");
         foreach (int invalid in new[] { -1, 10, 0xef33, 0xffff })
             AssertThrows<InvalidOperationException>(() => EndingRewardActors.Get((EndingRewardActor)invalid), "reward record membership");
-        foreach (int invalid in new[] { -1, 4, 0xf143, 0xffff })
-            AssertThrows<InvalidOperationException>(() => EndingRewardActors.GetInitialization((EndingRewardInitialization)invalid), "reward initializer membership");
         Console.WriteLine(
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }

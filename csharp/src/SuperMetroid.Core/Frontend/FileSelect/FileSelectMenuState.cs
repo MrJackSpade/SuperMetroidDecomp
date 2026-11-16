@@ -33,8 +33,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The installed sprite sheets the borders, cursor, helmets and copy arrows draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;
 
-    /// <summary>Receives menu sound requests when audio is available.</summary>
-    private readonly AudioQueues? audio;
+    /// <summary>Receives the menu's sound requests.</summary>
+    private readonly AudioQueues audio;
     /// <summary>Reads and changes the three save slots.</summary>
     private readonly SaveSlotStore saves;
     /// <summary>The menu screen file select draws: its artwork, pictures, colours and sprite entries.</summary>
@@ -61,14 +61,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         SaveSlots.All.ToImmutableDictionary(slot => slot, _ => (ShownFileSelectSave?)null), SaveSlot.A, SaveSlot.A);
 
     /// <summary>Performs the menu's first three steps, including every artwork load.</summary>
-    public FileSelectMenuState(SaveSlotStore saves, AudioQueues? audio = null,
-        AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? spriteSheets = null)
+    public FileSelectMenuState(SaveSlotStore saves, AudioQueues audio,
+        AreaMapPresentation mapPresentation, InstalledSpriteSheets spriteSheets)
     {
-        this.audio = audio;
-        this.mapPresentation = mapPresentation;
-        if (mapPresentation is null)
-            throw new InvalidOperationException("File select requires installed menu presentation assets.");
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, spriteSheets);
+        this.audio = Ensure.NotNull(audio);
+        this.mapPresentation = Ensure.NotNull(mapPresentation);
+        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
 
         this.saves = Ensure.NotNull(saves);
@@ -356,7 +354,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
-            audio?.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
             // The menu moves on to the helmet turn, which turns only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
@@ -566,7 +564,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
-        audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
+        audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
         if (confirmationSelection != YesNoChoice.Yes)
         {
             ReturnFromConfirmation(mode);
@@ -646,7 +644,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Queues the menu cursor sound at normal priority.</summary>
     private void QueueCursorSound() =>
-        audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+        audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
 
     /// <summary>Binds the installed file-select artwork when the game is bound to its installed content.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)

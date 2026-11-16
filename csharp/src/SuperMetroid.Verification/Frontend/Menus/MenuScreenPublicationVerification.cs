@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -66,7 +67,7 @@ internal static class MenuScreenPublicationVerification
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         saves.SelectSlot(SaveSlot.A);
-        var fileSelect = new FileSelectMenuState(saves, mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var fileSelect = new FileSelectMenuState(saves, AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)
             fileSelect.Step(0);
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
@@ -86,7 +87,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
-        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: optionsSheets);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: optionsSheets);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
         // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).

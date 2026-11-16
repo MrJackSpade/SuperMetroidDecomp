@@ -78,7 +78,7 @@ public static class TitleSequenceDefinitions
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
         public const int DownwardPanEndY = 163;
         /// <summary>The final zoom's step every second update, in 256ths of a floor pixel per screen pixel.</summary>
-        public const int FinalZoomStep = 1;
+        public static FloorZoomStep FinalZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(1);
         /// <summary>
         /// The updates of the final zoom on which the zoom grows one step (#1619): every second update of the phase's own
         /// count, on its even place, from the first.

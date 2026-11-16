@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Where file select shows a slot's energy tanks, row by row, in steps of one tank.</summary>
+/// <summary>Where file select shows a slot's energy tanks, in rows of seven, in steps of one tank.</summary>
 internal static class FileSelectEnergyTankDefinitions
 {
     /// <summary>The display divides current and maximum energy by 100.</summary>
@@ -11,13 +11,9 @@ internal static class FileSelectEnergyTankDefinitions
     internal const int ColumnOffset = 4;
     /// <summary>The first tank is shown one tank's height below the ENERGY label.</summary>
     internal const int RowOffset = 1;
-    /// <summary>Seven tanks are drawn on the lower row first.</summary>
-    internal const int FirstRowCount = 7;
-    /// <summary>Each later row holds eight tanks, one more than the first row.</summary>
-    internal const int WrappedRowCount = 8;
     /// <summary>
-    /// After a row the drawing steps up one tank and back seven tanks, so a wrapped row starts where the first row
-    /// started, and a third row one tank right of that.
+    /// Each row holds seven tanks: the first seven fill the row below ENERGY, the rest the row above it. Samus has at most
+    /// fourteen tanks, so two rows hold them all.
     /// </summary>
-    internal const int RowRewindColumns = 7;
+    internal const int TanksPerRow = 7;
 }

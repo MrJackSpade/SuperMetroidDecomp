@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -69,7 +70,7 @@ internal static class PauseSelectorsVerification
                 samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
                 samus.CollectedItems = samus.EquippedItems = bit.Item;
             }
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);
             if (control == PauseEquipmentControls.ReserveTransfer) pause.Step(0, ControllerButton.Down);
             return pause;

@@ -58,12 +58,12 @@ internal sealed class IntroNarrationActors
         IntroNarrationText text,
         IntroJapaneseSubtitles subtitles,
         AudioQueues audio,
-        IntroNarrationPresentation? narrationPresentation = null)
+        IntroNarrationPresentation narrationPresentation)
     {
         this.subtitles = Ensure.NotNull(subtitles);
         this.text = Ensure.NotNull(text);
         this.audio = Ensure.NotNull(audio);
-        this.narrationPresentation = narrationPresentation;
+        this.narrationPresentation = Ensure.NotNull(narrationPresentation);
     }
 
     /// <summary>Set when the narration reaches the English page-one input marker.</summary>

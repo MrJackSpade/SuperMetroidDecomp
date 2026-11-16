@@ -20,9 +20,9 @@ internal sealed class EndingLogo
     /// <summary>The lower circle.</summary>
     private readonly CinematicActor lowerCircle;
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
-    public bool CrossfadeStarted { get; internal set; }
+    public bool CrossfadeStarted { get; private set; }
     /// <summary>Number of crossfade steps already shown.</summary>
-    public int CrossfadeStep { get; internal set; }
+    public int CrossfadeStep { get; private set; }
     /// <summary>The logo hands off to percentage text after its sixteenth colour step.</summary>
     public bool Completed => CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps;
 
@@ -78,7 +78,7 @@ internal sealed class EndingLogo
         Ensure.NotNull(destination);
         if (!Completed)
             foreach (CinematicActor actor in Actors)
-                actor.Draw(destination, EndingLogoDefinitions.Camera, installedArt);
+                actor.Draw(destination, installedArt, EndingLogoDefinitions.Camera);
     }
 
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>

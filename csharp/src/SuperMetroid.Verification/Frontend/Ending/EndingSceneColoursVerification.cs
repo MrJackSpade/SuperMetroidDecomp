@@ -15,9 +15,6 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// </summary>
 internal static class EndingSceneColoursVerification
 {
-    /// <summary>The conditions a frontend screen's colour effects run under.</summary>
-    private static readonly ColourEffectInputs Screen = new() { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
-
     /// <summary>Runs the scene colour checks on the ending's colours alone, without an installation.</summary>
     internal static void VerifyEndingSceneColours()
     {
@@ -30,7 +27,7 @@ internal static class EndingSceneColoursVerification
         colours.Fade(EndingFade.ExplosionBackground, 3);
         colours.Flash(EndingFlash.SilhouetteBackdrop, black);
         colours.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
-        colours.ColourEffects.StepScreen(Screen);
+        colours.ColourEffects.StepScreen();
         colours.Load(EndingColourLoad.Explosion, explosion);
         colours.ResetColourEffects();
         AssertTrue(colours.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.Explosion)]),
@@ -46,7 +43,7 @@ internal static class EndingSceneColoursVerification
             "restoring the explosion's backgrounds ends the far background's fade-out and keeps the scene's other fades");
 
         colours.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
-        colours.ColourEffects.StepScreen(Screen);
+        colours.ColourEffects.StepScreen();
         PictureShade gunshipRecord = ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion,
             colours.ColourEffects.FrameOf(ColourEffectColours.GunshipEmergingFromExplosion)
             ?? throw new InvalidOperationException("The gunship's emergence showed no record on its first step."));
@@ -69,7 +66,7 @@ internal static class EndingSceneColoursVerification
         actors.Flash(EndingFlash.PlanetGlow, null);
         actors.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
         actors.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
-        actors.ColourEffects.StepScreen(Screen);
+        actors.ColourEffects.StepScreen();
         PictureShade planetFadeOut = ColourEffectShades.Of(ColourEffectColours.ZoomedOutExplodingZebes,
             actors.ColourEffects.FrameOf(ColourEffectColours.ZoomedOutExplodingZebes)
             ?? throw new InvalidOperationException("The planet's fade-out showed no record on its first step."));

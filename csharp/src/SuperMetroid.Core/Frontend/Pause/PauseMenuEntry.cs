@@ -22,8 +22,8 @@ internal sealed record PauseMenuEntry
     /// <summary>The room's place on the area map, which the map centres on and marks.</summary>
     public required Position16<MapTiles> RoomMapPosition { get; init; }
 
-    /// <summary>The queues the pause screens' sounds go to, or null when no live frontend owns audio.</summary>
-    public AudioQueues? Audio { get; init; } = null;
+    /// <summary>The queues the pause screens' sounds go to.</summary>
+    public required AudioQueues Audio { get; init; }
 
     /// <summary>The HUD gameplay displayed at its last frame (#1351, #1466), which pause keeps resident.</summary>
     public ShownHud? GameplayHud { get; init; } = null;

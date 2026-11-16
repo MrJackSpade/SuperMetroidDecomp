@@ -16,11 +16,11 @@ public sealed class FileSelectStationMarker
 
     /// <summary>Binds a saved station's drawing anchor and starts a fresh indicator animation; this object neither chooses the gameplay load target nor initializes map scrolling.</summary>
     /// <param name="station">The saved station; it must have a map marker.</param>
-    /// <param name="layout">Required installed save-marker layout; its independently edited X/Y coordinates affect drawing only, despite the optional parameter syntax.</param>
+    /// <param name="layout">The installed save-marker layout; its independently edited X/Y coordinates affect drawing only.</param>
     /// <remarks>The frame and timer begin at zero. The first <see cref="Step"/> advances to frame one; subsequent frame holds use the 8/4/8/4 menu-update sequence.</remarks>
     public FileSelectStationMarker(LoadStation station,
-        SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout = null)
-        => BindPosition(station, layout);
+        SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions layout)
+        => BindPosition(station, Ensure.NotNull(layout));
 
     /// <summary>Rebinds drawing position without changing the existing marker animation or selected station.</summary>
     internal void BindPosition(LoadStation station, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout)
@@ -55,8 +55,9 @@ public sealed class FileSelectStationMarker
     }
 
     /// <summary>Appends the current marker without advancing time; repainting cannot speed up the animation.</summary>
-    public void Draw(ScreenSprites entries, Offset16<MapPixels> scroll, SpriteSheet? sheet = null)
+    public void Draw(ScreenSprites entries, Offset16<MapPixels> scroll, SpriteSheet sheet)
     {
+        Ensure.NotNull(sheet);
         Offset16<ScreenPixels> origin = MapPosition.RelativeToScroll(scroll);
         // The backing is drawn behind the station marker on even animation loops.
         if (ShowBacking) Add(MapSpriteId.IndicatorBacking);
@@ -64,8 +65,7 @@ public sealed class FileSelectStationMarker
 
         void Add(MapSpriteId id)
         {
-            MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Save marker requires the installed map sprite sheet."),
-                id, entries, origin, MapSpriteScreen.FileSelect, MapSpriteColouring.Markers);
+            MapSpriteSheet.Draw(sheet, id, entries, origin, MapSpriteScreen.FileSelect, MapSpriteColouring.Markers);
         }
     }
 }

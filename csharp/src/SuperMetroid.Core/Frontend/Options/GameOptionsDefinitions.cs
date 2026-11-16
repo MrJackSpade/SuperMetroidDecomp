@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
-/// The options screen's fixed layout and timing: page geometry, fades and scrolling and row counts. The cursor's and
-/// headings' anchors are installed (#1615).
+/// The options screen's fixed timing: the controller page's scrolling and the menu's sound priority. The pages' rows are
+/// <see cref="GameOptionsLayout"/>'s; the cursor's and headings' anchors are installed (#1615).
 /// </summary>
 public static class GameOptionsDefinitions
 {
@@ -15,19 +15,4 @@ public static class GameOptionsDefinitions
     /// priority.
     /// </summary>
     public static readonly SoundRequestPriority MenuSoundPriority = SoundRequestPriority.Normal;
-
-    /// <summary>Row counts and the controller page's navigation rows.</summary>
-    public static class Rows
-    {
-        /// <summary>Rows of the primary page.</summary>
-        public const int PrimaryCount = 5;
-        /// <summary>Assignable action rows of the controller page, zero through six.</summary>
-        public const int ControllerActionCount = 7;
-        /// <summary>The controller page's Reset row, which restores the default buttons.</summary>
-        public const int ControllerReset = 8;
-        /// <summary>Rows of the controller page.</summary>
-        public const int ControllerCount = 9;
-        /// <summary>Rows of the special-settings page.</summary>
-        public const int SpecialCount = 3;
-    }
 }

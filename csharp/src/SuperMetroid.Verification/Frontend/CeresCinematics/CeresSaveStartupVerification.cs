@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -57,7 +58,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         options.SkipToPhase(GameOptionsPhase.StartGame);
         game.Session.Show(options);
         game.Session.LoadingExistingSave = true;
@@ -118,7 +119,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var reloadOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
         reload.Session.Show(reloadOptions);
         reload.Session.LoadingExistingSave = true;
@@ -147,7 +148,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var probeOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
         gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.LoadingExistingSave = true;
@@ -213,7 +214,7 @@ internal static class CeresSaveStartupVerification
         {
             MapPresentation = maps,
         });
-        var oldOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
         oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
         unmodified.Session.Show(oldOptions);
         unmodified.Session.LoadingExistingSave = true;

@@ -46,8 +46,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private SpriteSheet PauseSheet => spriteSheets.Get(SpriteSheetId.PauseSprites);
 
 
-    /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
-    private readonly AudioQueues? audio;
+    /// <summary>Queues menu navigation and animation sounds.</summary>
+    private readonly AudioQueues audio;
     /// <summary>The map's highlight cycle, advanced once per accepted stable menu update.</summary>
     internal readonly MapHighlightAnimation mapHighlight = new();
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
@@ -104,13 +104,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
     /// <summary>Current map-position marker frame.</summary>
-    internal int MapIndicatorAnimationFrame { get; set; }
+    internal int MapIndicatorAnimationFrame { get; private set; }
     /// <summary>Remaining updates in the map-position marker frame.</summary>
-    internal int MapIndicatorAnimationTimer { get; set; }
+    internal int MapIndicatorAnimationTimer { get; private set; }
     /// <summary>Current equipment selector sprite frame.</summary>
-    internal int ItemSelectorAnimationFrame { get; set; }
+    internal int ItemSelectorAnimationFrame { get; private set; }
     /// <summary>Remaining updates in the equipment selector frame.</summary>
-    internal int ItemSelectorAnimationTimer { get; set; }
+    internal int ItemSelectorAnimationTimer { get; private set; }
 
     /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -121,7 +121,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
-        this.audio = entry.Audio;
+        this.audio = Ensure.NotNull(entry.Audio);
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
         mapHighlight.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.Area;
@@ -192,7 +192,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             // the same frame's scroll pulse.
             if ((delayedPressed & ControllerButton.R) != ControllerButton.None)
             {
-                audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
                 SetPauseButtonLabelMode(PauseButtonHighlight.EquipmentPage);
                 Transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 transitionFade.Restart(DisplayBrightness.Full, 0);
@@ -201,7 +201,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             // Map arrows read the ordinary held controller buttons, not the delayed chrome
             // input. An accepted pulse keeps running after release, as in the game.
             if (ActiveMapScroll.Step(heldInput))
-                audio?.QueueSound(SamusSound.MapScroll, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(SamusSound.MapScroll, priority: SoundRequestPriority.Normal);
             return mapStart;
         }
 
@@ -212,7 +212,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         HandleEquipmentInput(newlyPressed, bombs);
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
-            audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
             Transition = PauseMenuTransition.EquipmentToMapFadeOut;
             transitionFade.Restart(DisplayBrightness.Full, 0);
@@ -229,7 +229,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if ((delayedPressed & ControllerButton.Start) == ControllerButton.None)
             return false;
-        audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
+        audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
         SetPauseButtonLabelMode(PauseButtonHighlight.Unpausing);
         return true;
     }
@@ -253,7 +253,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The stable pause update advances the highlight cycle afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && mapHighlight.Step())
-            audio?.QueueSound(RoomSound.PauseBeep, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(RoomSound.PauseBeep, priority: SoundRequestPriority.Normal);
         if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
         else
@@ -518,7 +518,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 throw new NotSupportedException(
                     "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
                     "reproducing it needs full memory emulation, which is outside the port's scope.");
-            audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SamusBomb last = bombs.Bombs[^1];
             last.BombSpreadVerticalVelocity = last.BombSpreadVerticalVelocity.WithWholePixels(
                 ReserveRowToggleSpreadBombSpeed.Repaint(last.BombSpreadVerticalVelocity.WholePixels));
@@ -536,7 +536,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         samus.EquippedBeams ^= mask.Beam;
         samus.EquippedItems ^= mask.Item;
 
-        audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
+        audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
         if (handlingCategory == PauseEquipmentCategory.Beams)
         {
             SamusBeamFlags added = samus.EquippedBeams & ~previousBeams;
@@ -593,7 +593,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 continue;
             }
             SelectedControl = column[place];
-            audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
             return true;
         }
         return false;
@@ -604,7 +604,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if (samus.MaxReserveEnergy == 0) return false;
         SelectedControl = PauseEquipmentControls.ReserveMode;
-        audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+        audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
         return true;
     }
 
@@ -653,7 +653,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     if (SelectedControl != PauseEquipmentControls.ReserveMode)
                     {
                         SelectedControl = ReserveNeighbour(ColumnSearch.Up);
-                        audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+                        audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
                     }
                 }
                 else if (down)
@@ -665,7 +665,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     {
                         SelectedControl = ReserveNeighbour(ColumnSearch.Down);
                         if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                        else audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+                        else audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
                     }
                 }
                 break;
@@ -777,7 +777,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (SelectedControl == PauseEquipmentControls.ReserveMode)
         {
             if ((pressed & ControllerButton.A) == ControllerButton.None || samus.MaxReserveEnergy == 0) return;
-            audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+            audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
             samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
                 ? ReserveTankMode.Manual : ReserveTankMode.Auto;
             return;
@@ -794,7 +794,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ReserveRefillSoundDelay--;
         int placeInInterval = (ReserveRefillSoundDelay % interval + interval) % interval;
         if (placeInInterval == interval - 1)
-            audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.RefillSoundPriority);
+            audio.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.RefillSoundPriority);
 
         int amount = PauseEquipmentRules.ReserveEnergyPerFrame;
         samus.Health += amount;

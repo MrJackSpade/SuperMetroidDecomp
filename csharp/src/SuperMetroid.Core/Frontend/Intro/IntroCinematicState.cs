@@ -168,9 +168,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal IntroMotherBrainSpriteState FlashbackMotherBrain => CurrentFlashbackMotherBrain ??
         throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>Explosion actors shown after the Mother Brain demo input ends.</summary>
-    internal IntroMotherBrainExplosionSystem? FlashbackMotherBrainExplosions { get; set; }
+    internal IntroMotherBrainExplosionSystem? FlashbackMotherBrainExplosions { get; private set; }
     /// <summary>Rinka actors and collision for the Mother Brain scene.</summary>
-    internal IntroRinkaSystem? FlashbackRinkas { get; set; }
+    internal IntroRinkaSystem? FlashbackRinkas { get; private set; }
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>
     internal IntroBabyDiscoveryState? CurrentBabyDiscovery { get; private set; }
     /// <summary>The Baby Metroid discovery scene, which exists while that scene runs.</summary>
@@ -182,7 +182,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal IntroScientistCutsceneState ScientistCutscene => CurrentScientistCutscene ??
         throw new InvalidOperationException("The scientist cutscene is not running.");
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
-    internal IntroCeresFlightState? CurrentCeresFlight { get; set; }
+    internal IntroCeresFlightState? CurrentCeresFlight { get; private set; }
     /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
     internal IntroCeresFlightState CeresFlight => CurrentCeresFlight ??
         throw new InvalidOperationException("The Ceres flight is not running.");
@@ -232,7 +232,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         AudioQueues audio,
         SamusArtworkBinding samusArtwork,
         InstalledPowerBombGlowColors powerBombGlowColors,
-        IntroCinematicArtwork? characterArtwork = null,
+        IntroCinematicArtwork characterArtwork,
         bool japaneseText = false)
     {
         flashbackSamusArtwork = Ensure.NotNull(samusArtwork);
@@ -248,8 +248,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = Ensure.NotNull(audio);
-        CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
-            "Opening cinematic requires installed artwork.");
+        CharacterArtwork = Ensure.NotNull(characterArtwork);
 
         // Setup loads the sprite sheets the intro binds; the narration, the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
@@ -484,8 +483,9 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // a blanked screen, while the approach restores full brightness only after
                     // the fourteen-frame delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
-                        CharacterArtwork?.CeresFlight, subtitles.Enabled,
-                        SceneSheets);
+                        (CharacterArtwork ?? throw new InvalidOperationException(
+                            "Ceres approach requires installed cinematic artwork.")).CeresFlight,
+                        SceneSheets, subtitles.Enabled);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
                 break;
@@ -584,7 +584,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
         if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.PageTwoRequested != true)
-            ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
+            ColourEffects.StepScreen();
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay colours.</summary>
@@ -1159,7 +1159,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             narrationText,
             subtitles,
             audio,
-            NarrationPresentation);
+            NarrationPresentation ?? throw new InvalidOperationException(
+                "Opening narration requires installed text presentation assets."));
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));

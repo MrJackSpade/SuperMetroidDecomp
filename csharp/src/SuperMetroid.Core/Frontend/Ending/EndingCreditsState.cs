@@ -411,7 +411,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
         // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
         // The screen binds no audio requests, so an effect that made a sound would fail loudly (#2057).
-        Stage.ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
+        Stage.ColourEffects.StepScreen();
         // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-started colour effects when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
@@ -420,14 +420,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>
-    /// Rotates the turning floor every other cinematic call while widening its zoom by <paramref name="zoomStep"/> 256ths
-    /// of a floor pixel per screen pixel.
+    /// Rotates the turning floor every other cinematic call while widening its zoom by <paramref name="zoomStep"/>.
     /// </summary>
-    private void StepAtmosphericTransform(int zoomStep)
+    private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
         if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(Flyaway.CinematicFrame))
-            Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(-1);
+            Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.FloorZoom = Stage.FloorZoom.Widened(zoomStep);
     }
 

@@ -33,7 +33,7 @@ internal sealed class EndingFlyaway
     internal int CinematicFrame { get; set; }
 
     /// <summary>Where the gunship's shake stands in the current planet-escape leg's authored sequence (#1902).</summary>
-    internal EndingShipShakeCursor ShipShake { get; set; }
+    internal EndingShipShakeCursor ShipShake { get; private set; }
 
     /// <summary>Planet-escape velocity: a signed 1/65536-pixel displacement that grows more negative every accelerating update.</summary>
     internal SignedSixteenSixteen PlanetVelocity { get; private set; }
@@ -77,7 +77,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
-            _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-1);
+            _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(EndingMotionDefinitions.PlanetSlowTurnSteps);
         ShakeShip();
         _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetSlowZoomStep);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndZoom)

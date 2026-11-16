@@ -180,11 +180,9 @@ internal sealed class EndingRewardJump
     private static CinematicActor Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
-        EndingRewardActorInitializationDefinition initialization =
-            EndingRewardActors.GetInitialization(authored.Initialization);
         var actor = new CinematicActor(
-            initialization.Position,
-            EndingShades.Drawn(initialization.Colouring),
+            authored.Start.Position,
+            EndingShades.Drawn(authored.Start.Colouring),
             authored.Animation);
         return actor;
     }

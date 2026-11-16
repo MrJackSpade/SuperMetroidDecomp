@@ -16,11 +16,11 @@ internal sealed class MenuScreen
     /// <summary>Installs the screen's backdrop and the sheets its backgrounds draw from.</summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn (#1512).</param>
     /// <param name="sheets">The installed sheets the screen's pictures come from.</param>
-    public MenuScreen(RgbColor backdrop, InstalledSpriteSheets? sheets)
+    public MenuScreen(RgbColor backdrop, InstalledSpriteSheets sheets)
     {
         Sprites = new ScreenSprites();
         Backdrop = backdrop;
-        BindScreenPictures(sheets);
+        BindScreenPictures(Ensure.NotNull(sheets));
     }
 
     /// <summary>The installed sheets the screen's pictures come from (#1467).</summary>

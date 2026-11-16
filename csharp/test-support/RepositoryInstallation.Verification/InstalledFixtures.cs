@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -474,7 +475,7 @@ internal static class InstalledFixtures
         TitleGradientPresentation? titleGradientPresentation = null,
         RgbColor? titleBackdrop = null,
         TitleGraphicsCharacters? titleGraphicsPresentation = null) =>
-        new(audio, titleGradientPresentation ?? Maps.TitleGradient,
+        new(audio ?? AudioQueues.Standalone(), titleGradientPresentation ?? Maps.TitleGradient,
             titleBackdrop ?? Maps.TitleBackdrop,
             MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? ImportMaps.TitleGraphics));
 

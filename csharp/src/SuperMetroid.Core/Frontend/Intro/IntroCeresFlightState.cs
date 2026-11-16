@@ -73,19 +73,17 @@ internal sealed class IntroCeresFlightState
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
     /// <param name="audio">The shared music queue the approach waits on.</param>
-    /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
+    /// <param name="artwork">Installed cinematic artwork.</param>
+    /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</param>
     /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
-    /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures; required.</param>
-    public IntroCeresFlightState(AudioQueues audio,
-        CeresFlightArtwork? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
+    public IntroCeresFlightState(AudioQueues audio, CeresFlightArtwork artwork, InstalledSpriteSheets sheets,
+        bool japaneseText = false)
     {
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
-        BindSheets(sheets ?? throw new InvalidOperationException("Ceres approach requires the installed sprite sheets."));
-        actorLayout = artwork?.Actors;
-
-        CeresFlightArtwork content = artwork ?? throw new InvalidOperationException(
-            "Ceres approach requires installed cinematic artwork.");
+        BindSheets(Ensure.NotNull(sheets));
+        CeresFlightArtwork content = Ensure.NotNull(artwork);
+        actorLayout = content.Actors;
 
         // Setup loads the floor's front view and the actors' artwork; the scene shows the front view's installed floor (#1467).
         screenSprites = new ScreenSprites();
@@ -191,7 +189,7 @@ internal sealed class IntroCeresFlightState
 
         // The cinematic's game state runs the colour effects after its actors, including on the update that
         // starts one; their frames are shades the import pre-colours the flight's sheet in (#1733).
-        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
+        ColourEffects.StepScreen();
     }
 
     /// <summary>
@@ -242,8 +240,8 @@ internal sealed class IntroCeresFlightState
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();
-        CinematicSpriteSheet? spriteArtwork = flightSprites is null ? null
-            : new CinematicSpriteSheet(flightSprites, CinematicSpriteFamily.CeresFlight, ActorShading);
+        var spriteArtwork = new CinematicSpriteSheet(flightSprites ?? throw new InvalidOperationException(
+            "Cinematic sprites require installed artwork."), CinematicSpriteFamily.CeresFlight, ActorShading);
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
             foreach (CeresRearViewActor actor in RearViewActors)
                 actor.Sprite.Draw(screenSprites, installedArt: spriteArtwork);
@@ -317,7 +315,7 @@ internal sealed class IntroCeresFlightState
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
-        background = background.WithX(background.X - SignedSixteenSixteen.FromSixteenthsOfPixel(2));
+        background = background.WithX(background.X - CeresFlightRenderDefinitions.RearViewDrift);
         if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
             zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
         else if (zoom < CeresFlightRenderDefinitions.RearFastWideningLimit)

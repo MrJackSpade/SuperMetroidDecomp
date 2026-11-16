@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -24,7 +25,7 @@ internal static class PauseMapArrowsVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 11) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 11) });
         pause.FrameMap(new MapScroll(MapFramingDefinitions.Pause, new MapScrollLimits(0, 512, 0, 256), Offset16<MapPixels>.Zero));
         pause.BindFixtureArtwork(RetailPresentationFixture());
         var nativeArrowColors = new RgbColor[16];

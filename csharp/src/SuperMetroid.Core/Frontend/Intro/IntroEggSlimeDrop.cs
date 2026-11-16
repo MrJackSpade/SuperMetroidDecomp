@@ -32,7 +32,10 @@ internal sealed class IntroEggSlimeDrop
             segment: definition.Animation);
     }
 
-    /// <summary>Flies the drop by its launch until Y 168, then plays the puddle animation in place.</summary>
+    /// <summary>
+    /// Flies the drop by its launch until it reaches <see cref="IntroEggEffectDefinitions.SlimeDropLandingY"/>, then plays
+    /// the puddle animation in place.
+    /// </summary>
     public void Step()
     {
         if (!sprite.IsActive)
@@ -43,7 +46,7 @@ internal sealed class IntroEggSlimeDrop
             AddVelocity(axis: Axis.Horizontal, launch.Drift);
             AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(framesFallen));
 
-            if (sprite.ScreenPlace.Y >= 168)
+            if (sprite.ScreenPlace.Y >= IntroEggEffectDefinitions.SlimeDropLandingY)
             {
                 // Landing changes the animation and stops the drop, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.
@@ -59,9 +62,8 @@ internal sealed class IntroEggSlimeDrop
         sprite.Step();
     }
 
-    /// <summary>Draws the drop's current frame with installed egg-effect artwork when provided.</summary>
-    public void Draw(ScreenSprites screenSprites,
-        IIntroCinematicSpritePresentation? installedArt = null) =>
+    /// <summary>Draws the drop's current frame with the installed egg-effect artwork.</summary>
+    public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         sprite.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>Adds 1/65536-pixel motion to one screen coordinate while preserving its fractional part.</summary>

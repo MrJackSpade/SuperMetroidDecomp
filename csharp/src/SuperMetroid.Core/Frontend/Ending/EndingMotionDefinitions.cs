@@ -21,10 +21,10 @@ public static class EndingMotionDefinitions
     public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
     /// <summary>The side-cloud escape's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
-    public const int SideCloudEscapeZoomStep = 2;
+    public static FloorZoomStep SideCloudEscapeZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(2);
 
     /// <summary>The top-and-bottom-cloud escape's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
-    public const int TopAndBottomCloudEscapeZoomStep = 3;
+    public static FloorZoomStep TopAndBottomCloudEscapeZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(3);
 
     /// <summary>The zoom enabling the side clouds' motion in the side-cloud escape.</summary>
     public static FloorZoom CloudMotionStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(96);
@@ -56,6 +56,15 @@ public static class EndingMotionDefinitions
     /// <summary>The space view's floor angle as the gunship's emergence starts.</summary>
     public static RotationAngle PlanetEscapeInitialAngle => RotationAngle.WrappedSteps(-112);
 
+    /// <summary>How far the cloud escapes turn the floor on each of their turning updates, in steps: one step clockwise.</summary>
+    public const int AtmosphereTurnSteps = -1;
+
+    /// <summary>
+    /// How far the slow emergence turns the floor each update until it reaches
+    /// <see cref="PlanetSlowTargetAngle"/>, in steps: one step clockwise.
+    /// </summary>
+    public const int PlanetSlowTurnSteps = -1;
+
     /// <summary>How far the fast emergence turns the floor each update, in steps: four steps clockwise.</summary>
     public const int PlanetFastTurnSteps = -4;
 
@@ -63,13 +72,13 @@ public static class EndingMotionDefinitions
     public const int PlanetExitTurnSteps = 2;
 
     /// <summary>The fast emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
-    public const int PlanetFastZoomStep = 8;
+    public static FloorZoomStep PlanetFastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(8);
 
     /// <summary>The slow emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
-    public const int PlanetSlowZoomStep = 2;
+    public static FloorZoomStep PlanetSlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(2);
 
     /// <summary>The fly-to-camera phase's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
-    public const int PlanetFlyToCameraZoomStep = 4;
+    public static FloorZoomStep PlanetFlyToCameraZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
 
     /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
     public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -41,7 +42,7 @@ internal static class PauseReserveHudVerification
         samus.CollectedBeams = SamusBeamFlags.Charge;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame with { Health = 20, ReserveHealth = 2, ReserveMode = ReserveTankMode.Auto });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
         EnterPauseEquipment(pause);
         pause.Step(0, ControllerButton.Up);
         // Construct just the paused dispatcher boundary. Input, HUD updates, the NMI

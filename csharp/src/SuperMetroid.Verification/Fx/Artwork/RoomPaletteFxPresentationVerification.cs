@@ -734,7 +734,7 @@ internal static class RoomPaletteFxPresentationVerification
     private static void StepFamily(ColourEffectSystem fx, PaletteFxFamilyShape shape, ColourEffectInputs conditions)
     {
         if (shape.OnScreen)
-            fx.StepScreen(conditions);
+            fx.StepScreen();
         else
             fx.Step(conditions);
     }

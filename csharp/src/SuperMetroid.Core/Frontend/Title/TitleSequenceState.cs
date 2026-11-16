@@ -44,8 +44,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The installed sprite sheets the title's compositions draw from; artwork, never saved.</summary>
     private InstalledSpriteSheets spriteSheets;
 
-    /// <summary>Queues the opening music and title transitions when audio is available.</summary>
-    private readonly AudioQueues? audio;
+    /// <summary>Queues the opening music and title transitions.</summary>
+    private readonly AudioQueues audio;
     /// <summary>
     /// Runs the title's colour effects (#1714): the two console lights for the whole sequence, and the logo's and the
     /// copyright's fades from the updates they first show.
@@ -103,39 +103,36 @@ public sealed class TitleSequenceState : IFrontendScreen
     private bool fadingToDemo;
 
     /// <summary>Creates the initial title setup.</summary>
-    /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
+    /// <param name="audio">Receives the opening music and title transitions.</param>
     /// <param name="titleGradientPresentation">The installed gradients, one per zoom range.</param>
-    /// <param name="titleBackdrop">Required installed title backdrop.</param>
-    /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
+    /// <param name="titleBackdrop">The installed title backdrop.</param>
+    /// <param name="spriteSheets">The installed sprite sheets the title's compositions draw from.</param>
     public TitleSequenceState(
-        AudioQueues? audio = null,
-        TitleGradientPresentation? titleGradientPresentation = null,
-        RgbColor? titleBackdrop = null,
-        InstalledSpriteSheets? spriteSheets = null)
+        AudioQueues audio,
+        TitleGradientPresentation titleGradientPresentation,
+        RgbColor titleBackdrop,
+        InstalledSpriteSheets spriteSheets)
         : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titleBackdrop, spriteSheets)
     {
     }
 
     /// <summary>Builds the initial title artwork and colour state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
-        AudioQueues? audio,
+        AudioQueues audio,
         TitleOpeningMusic openingMusic,
-        TitleGradientPresentation? titleGradientPresentation,
-        RgbColor? titleBackdrop,
-        InstalledSpriteSheets? spriteSheets)
+        TitleGradientPresentation titleGradientPresentation,
+        RgbColor titleBackdrop,
+        InstalledSpriteSheets spriteSheets)
     {
-        this.audio = audio;
-        BindSpriteSheets(spriteSheets);
-        this.titleGradientPresentation = titleGradientPresentation;
+        this.audio = Ensure.NotNull(audio);
+        BindSpriteSheets(Ensure.NotNull(spriteSheets));
+        this.titleGradientPresentation = Ensure.NotNull(titleGradientPresentation);
         this.titleBackdrop = titleBackdrop;
-        if (titleBackdrop is null)
-            throw new InvalidOperationException(
-                "Title sequence requires the installed title backdrop.");
         if (openingMusic == TitleOpeningMusic.Queue)
         {
-            audio?.QueueMusic(
+            audio.QueueMusic(
                 MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-            audio?.QueueMusic(
+            audio.QueueMusic(
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
@@ -164,9 +161,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The player-cancelled return from the demo skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
         AudioQueues audio,
-        TitleGradientPresentation? titleGradientPresentation = null,
-        RgbColor? titleBackdrop = null,
-        InstalledSpriteSheets? spriteSheets = null)
+        TitleGradientPresentation titleGradientPresentation,
+        RgbColor titleBackdrop,
+        InstalledSpriteSheets spriteSheets)
     {
         var title = new TitleSequenceState(
             audio,
@@ -230,7 +227,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
-        colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
+        colourEffects.StepScreen();
         // The skip's rebuild follows the colour effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuiltTitleScreen)
@@ -370,7 +367,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (!fade.Darken(TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep))
             return;
         // The transition queues the immediate title song an update before rebuilding the immediate title screen.
-        audio?.QueueMusic(
+        audio.QueueMusic(
             MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
         SkipStage = TitleSkipStage.Rebuilding;
     }

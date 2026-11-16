@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Pause;
@@ -34,7 +35,7 @@ internal static class PauseRemappedShoulderVerification
             runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = ControllerButton.L, AimDown = ControllerButton.R };
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud });
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)

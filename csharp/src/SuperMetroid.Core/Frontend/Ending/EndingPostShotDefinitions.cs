@@ -20,7 +20,7 @@ internal static class EndingPostShotDefinitions
     /// <summary>The reward turning floor's starting zoom: nine floor pixels per screen pixel.</summary>
     public static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(9);
     /// <summary>The zoom narrows by a quarter floor pixel per screen pixel each frame, in 256ths.</summary>
-    public const int ZoomStep = 64;
+    public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(64);
     /// <summary>The zoom the completed rotation stops at.</summary>
     public static FloorZoom MinimumZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(24);
     /// <summary>The shot's rotation turns eight angle units backwards each frame.</summary>

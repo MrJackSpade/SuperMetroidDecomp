@@ -37,13 +37,12 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
     /// <summary>How many floor pixels one screen pixel spans, fraction included.</summary>
     public double FloorPixelsPerScreenPixel => (double)TwoHundredFiftySixths / TwoHundredFiftySixthsPerFloorPixel;
 
-    /// <summary>The zoom widened by <paramref name="twoHundredFiftySixths"/> 256ths: the floor shown smaller.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The step would leave the zoom negative.</exception>
-    public FloorZoom Widened(int twoHundredFiftySixths) => new(checked(TwoHundredFiftySixths + twoHundredFiftySixths));
+    /// <summary>The zoom widened by one <paramref name="step"/>: the floor shown smaller.</summary>
+    public FloorZoom Widened(FloorZoomStep step) => new(checked(TwoHundredFiftySixths + step.TwoHundredFiftySixths));
 
-    /// <summary>The zoom narrowed by <paramref name="twoHundredFiftySixths"/> 256ths: the floor shown larger.</summary>
+    /// <summary>The zoom narrowed by one <paramref name="step"/>: the floor shown larger.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The step would leave the zoom negative.</exception>
-    public FloorZoom Narrowed(int twoHundredFiftySixths) => new(checked(TwoHundredFiftySixths - twoHundredFiftySixths));
+    public FloorZoom Narrowed(FloorZoomStep step) => new(checked(TwoHundredFiftySixths - step.TwoHundredFiftySixths));
 
     /// <inheritdoc />
     public int CompareTo(FloorZoom other) => TwoHundredFiftySixths.CompareTo(other.TwoHundredFiftySixths);

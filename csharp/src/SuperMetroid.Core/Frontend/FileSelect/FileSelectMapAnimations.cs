@@ -15,12 +15,10 @@ public sealed class FileSelectMapAnimations
     private MapArrowPresentation? presentation;
 
     /// <summary>Creates independent arrow counters and highlight timing for a map menu, binding installed arrow positions and phase durations without reading the game's animation data.</summary>
-    /// <param name="presentation">Required installed arrow definitions.</param>
-    /// <exception cref="ArgumentNullException">The installed arrow definitions are null.</exception>
-    /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
-    public FileSelectMapAnimations(MapArrowPresentation? presentation = null)
+    /// <param name="presentation">The installed arrow definitions.</param>
+    public FileSelectMapAnimations(MapArrowPresentation presentation)
     {
-        BindPresentation(presentation);
+        BindPresentation(Ensure.NotNull(presentation));
     }
 
     /// <summary>Binds the installed arrow phases when the game is bound to its installed content, without resetting visible-arrow timing.</summary>
@@ -72,12 +70,11 @@ public sealed class FileSelectMapAnimations
     /// <summary>Appends currently visible arrow compositions to the sprite list in the map highlight shade, without advancing counters or changing scroll availability.</summary>
     /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
     /// <param name="highlight">The shading of the highlight cycle's current frame on the screen that draws the arrows (#1512).</param>
-    /// <param name="sheet">Required installed map sprite sheet; no fallback artwork is used when absent.</param>
+    /// <param name="sheet">The installed map sprite sheet.</param>
     /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor; pause-map rendering supplies its banner offset here.</param>
-    /// <exception cref="InvalidOperationException">Installed sprite definitions are absent, including when the optional argument is omitted.</exception>
-    public void DrawArrows(ScreenSprites entries, PictureShading highlight, SpriteSheet? sheet = null, int verticalOffset = 0)
+    public void DrawArrows(ScreenSprites entries, PictureShading highlight, SpriteSheet sheet, int verticalOffset = 0)
     {
-        SpriteSheet installed = sheet ?? throw new InvalidOperationException("Map arrows require the installed map sprite sheet.");
+        SpriteSheet installed = Ensure.NotNull(sheet);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
             Arrow arrow = arrows[direction];

@@ -246,6 +246,18 @@ public sealed record GameArtwork
         BossBodySheets = Installed(BossBodySheets),
     };
 
+    /// <summary>The installed map presentation: the menus', maps' and title's artwork, which every frontend screen requires.</summary>
+    /// <exception cref="InvalidOperationException">No map presentation is installed.</exception>
+    internal AreaMapPresentation InstalledMapPresentation => Installed(MapPresentation);
+
+    /// <summary>The installed sprite sheets every frontend screen draws from.</summary>
+    /// <exception cref="InvalidOperationException">No sprite sheets are installed.</exception>
+    internal InstalledSpriteSheets InstalledSpriteSheets => Installed(SpriteSheets);
+
+    /// <summary>The installed opening and Ceres cinematic artwork the cinematics require.</summary>
+    /// <exception cref="InvalidOperationException">No cinematic artwork is installed.</exception>
+    internal IntroCinematicArtwork InstalledIntroCinematicArt => Installed(IntroCinematicArt);
+
     /// <summary>The installed Power Bomb glow colours, which the Ceres station's blast and the flashbacks' bombs glow in.</summary>
     /// <exception cref="InvalidOperationException">No map presentation is installed.</exception>
     internal InstalledPowerBombGlowColors InstalledPowerBombGlowColors => Installed(MapPresentation).PowerBombGlowColors;
@@ -256,8 +268,8 @@ public sealed record GameArtwork
         new(Installed(SamusBodyArt), Installed(SamusShownFrames), Installed(SpriteSheets), Installed(GrappleFlarePlacement), Installed(GrappleSwingFrames),
             Installed(ProjectileFrameBindings));
 
-    /// <summary>The installed catalog <paramref name="catalog"/>, which gameplay requires.</summary>
+    /// <summary>The installed catalog <paramref name="catalog"/>, which the game requires.</summary>
     /// <exception cref="InvalidOperationException">The catalog is not installed.</exception>
     private static T Installed<T>(T? catalog, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(catalog))] string name = "") where T : class =>
-        catalog ?? throw new InvalidOperationException($"Gameplay requires the installed {name}.");
+        catalog ?? throw new InvalidOperationException($"The game requires the installed {name}.");
 }

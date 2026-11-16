@@ -22,6 +22,9 @@ internal static class IntroEggEffectDefinitions
             [IntroEggShellFragment.Lower] = CinematicSpriteSegment.MetroidEggShellLower,
         };
 
+    /// <summary>The screen height a falling slime drop lands at, where its puddle plays in place.</summary>
+    public const int SlimeDropLandingY = 168;
+
     /// <summary>The slime drops' actor: they fly as slime drops do and show the flying drop's picture.</summary>
     /// <remarks>
     /// A landed drop shows the four pictures of its puddle instead, each in the egg's colours in front of the scene.

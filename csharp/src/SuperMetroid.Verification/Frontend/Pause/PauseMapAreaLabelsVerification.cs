@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -41,7 +42,7 @@ internal static class PauseMapAreaLabelsVerification
             gated.FinishFrame();
             AssertEqual(0, gated.LastFinalizedSpriteCount, "another area's map does not reveal these destinations");
             system.SetAreaMapAcquired(area);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = area, RoomMapPosition = new(0, 1) });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = area, RoomMapPosition = new(0, 1) });
             int list = 0x820000 | Read(0x82c74d + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             // The map is scrolled so every label lies on the screen's lines, the topmost LabelTopLine lines down: a label's
             // origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).

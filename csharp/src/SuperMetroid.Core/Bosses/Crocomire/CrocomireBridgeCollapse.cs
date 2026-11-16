@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireBridgeCollapse
 {
-    /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
+    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -51,7 +51,7 @@ internal sealed class CrocomireBridgeCollapse
     /// </summary>
     internal void HandleCrocomireBridgeThreshold(CrocomireEnemyState state)
     {
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         HandleCrocomireBridgeApproach(body);
         if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBehavior.CrocomireBridgeThreshold) < 0)
             return;
@@ -80,7 +80,7 @@ internal sealed class CrocomireBridgeCollapse
     /// Runs the bridge effects of the bridge approach, staged at Crocomire X 1536, 1552 and 1568.
     /// Each stage's dust lands one block ahead, and at 1584.
     /// </summary>
-    private void HandleCrocomireBridgeApproach(RoomEnemyPlace body)
+    private void HandleCrocomireBridgeApproach(RoomEnemySlot body)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1536) < 0)
@@ -218,7 +218,7 @@ internal sealed class CrocomireBridgeCollapse
         _bodyLayer.LevelCrocomireMeltDistortion(state);
         state.DamageReactionPending = false;
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
 
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 280) >= 0)
         {
@@ -252,7 +252,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(state);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
         {
             state.DeathPhase = state.DeathPhase.Next();

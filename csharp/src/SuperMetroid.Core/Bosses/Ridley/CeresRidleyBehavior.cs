@@ -47,7 +47,7 @@ internal sealed class CeresRidleyBehavior
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
         _doorPassage = dependencies.DoorPassage;
-        Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Places = dependencies.Places, RidleyEncounter = _ridleyEncounter });
+        Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, RidleyEncounter = _ridleyEncounter });
         BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.Presentation.Surfaces, _ridleyEncounter);
         FadeIn = new RidleyFadeIn(dependencies.Audio);
         Hits = new CeresRidleyHits(dependencies.Room, dependencies.Collision, _ridleyEncounter);
@@ -67,18 +67,18 @@ internal sealed class CeresRidleyBehavior
     /// Ridley's later rotating getaway presentation remains a room-main concern, not enemy AI.
     /// </summary>
     internal void RunCeresRidleyMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SamusState samus)
     {
-        RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(place);
-        place.Health = RestoredHealth;
+        RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
+        slot.Health = RestoredHealth;
 
         // The colour selection runs after the boss step and before movement. None of the
         // step branches mutate the flash timer, so selecting the two
         // draw colours here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
-            CeresRidleyHits.UpdateRidleyHurtFlash(place, state, place.FrameCounter);
+            CeresRidleyHits.UpdateRidleyHurtFlash(slot, state, slot.FrameCounter);
 
         switch (state.Phase)
         {
@@ -100,13 +100,13 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.FadeInBody:
-                FadeIn.TickBodyFadeIn(place, state);
+                FadeIn.TickBodyFadeIn(slot, state);
                 break;
 
             case RidleyPhase.WaitBeforeRoar:
                 if (--state.PhaseTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.OpeningRoar);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
                     state.PhaseTimer = 252;
                     state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }
@@ -116,7 +116,7 @@ internal sealed class CeresRidleyBehavior
                 if (--state.PhaseTimer < 0)
                 {
                     state.FadeStep = 0;
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.TransitionToFlying);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.TransitionToFlying);
                     // Ridley's roar before flying primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs the flying animation.
@@ -137,38 +137,38 @@ internal sealed class CeresRidleyBehavior
                 // The rising step adds -16 to the 1/256-pixel Y velocity before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
-                if (CoordinateAxis.Difference(place.Position.Y.Whole, 112) < 0)
+                if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
                 {
                     state.Phase = RidleyPhase.CeresLiftoffDecelerating;
-                    CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state);
+                    CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(slot, state);
                 }
                 break;
 
             case RidleyPhase.CeresLiftoffDecelerating:
-                CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state);
+                CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(slot, state);
                 break;
 
             case RidleyPhase.CeresHovering:
-                Flight.TickCeresRidleyHover(place, state, samus);
+                Flight.TickCeresRidleyHover(slot, state, samus);
                 break;
 
             case RidleyPhase.CeresFireballMoveToPosition:
-                Flight.TickCeresRidleyFireballMove(place, state);
+                Flight.TickCeresRidleyFireballMove(slot, state);
                 break;
 
             case RidleyPhase.CeresFireballShooting:
-                Flight.TickCeresRidleyFireballShooting(place, state);
+                Flight.TickCeresRidleyFireballShooting(slot, state);
                 break;
 
             case RidleyPhase.CeresLungeSetup:
-                CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.CeresLunge);
+                CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.CeresLunge);
                 state.Phase = RidleyPhase.CeresLungeMain;
                 state.PhaseTimer = 64;
-                CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
+                CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
                 break;
 
             case RidleyPhase.CeresLungeMain:
-                CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
+                CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
                 break;
 
             case RidleyPhase.CeresSwoopSetup:
@@ -176,11 +176,11 @@ internal sealed class CeresRidleyBehavior
                 state.PhaseTimer = 10;
                 state.SwoopAngleAccumulator = RotationAngle.Zero;
                 state.IdleTailWhipEnabled = false;
-                CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
+                CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
 
             case RidleyPhase.CeresSwoopMoveToPosition:
-                CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
+                CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
 
             case RidleyPhase.CeresSwoopDescendingAimingDown:
@@ -234,28 +234,28 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.CeresFakeRetreatMoveToPosition:
-                CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(place, state);
+                CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(slot, state);
                 break;
 
             case RidleyPhase.CeresFakeRetreatRising:
-                CeresRidleyFlight.TickCeresRidleyFakeRetreatRising(place, state);
+                CeresRidleyFlight.TickCeresRidleyFakeRetreatRising(slot, state);
                 break;
 
             case RidleyPhase.CeresWaitBeforeRetrievingBaby:
                 if (--state.PhaseTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyAnimation(state, place, RidleyBodySegment.RetrieveBabyMetroid);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.RetrieveBabyMetroid);
                     state.Phase = RidleyPhase.CeresRetrieveBaby;
-                    CeresRidleyFlight.TickCeresRidleyRetrieveBaby(place, state);
+                    CeresRidleyFlight.TickCeresRidleyRetrieveBaby(slot, state);
                 }
                 break;
 
             case RidleyPhase.CeresRetrieveBaby:
-                CeresRidleyFlight.TickCeresRidleyRetrieveBaby(place, state);
+                CeresRidleyFlight.TickCeresRidleyRetrieveBaby(slot, state);
                 break;
 
             case RidleyPhase.CeresRealRetreatRising:
-                Flight.TickCeresRidleyRetreat(place, state);
+                Flight.TickCeresRidleyRetreat(slot, state);
                 break;
 
             case RidleyPhase.CeresRetreatDelay:
@@ -268,7 +268,7 @@ internal sealed class CeresRidleyBehavior
                 // this point because the rotating view owns his departure; hide the ordinary actor so
                 // it cannot remain parked over that separately scoped presentation seam.
                 state.Phase = RidleyPhase.CeresInactive;
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
                 CeresRidleyGetaway.SetupCeresRidleyGetawayFloor(state);
                 break;
@@ -282,7 +282,7 @@ internal sealed class CeresRidleyBehavior
                 return;
 
             case RidleyPhase.CeresSelfDestructAlarmOnly:
-                CeresRidleyGetaway.UpdateCeresSelfDestructAlarm(state, place.FrameCounter);
+                CeresRidleyGetaway.UpdateCeresSelfDestructAlarm(state, slot.FrameCounter);
                 return;
 
             case RidleyPhase.NorfairEnterArena:
@@ -326,14 +326,14 @@ internal sealed class CeresRidleyBehavior
         // matters in the rise and swoop: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
-            Flight.IntegrateRidleyMovement(place, state, wallImpact: RidleyWallImpact.CeresWall);
+            Flight.IntegrateRidleyMovement(slot, state, wallImpact: RidleyWallImpact.CeresWall);
             CeresRidleyFlight.TickRidleyWingAnimation(state);
             _ridleyTail.RandomlyUpdateCeresRidleyTailCurliness(state);
-            _ridleyTail.TickRidleyTail(place, state, samus);
+            _ridleyTail.TickRidleyTail(slot, state, samus);
             CeresRidleyHits.UpdateCeresRidleyHealthBand(state);
         }
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
-            CeresRidleyBabyScene.TickCeresBaby(place, state);
+            CeresRidleyBabyScene.TickCeresBaby(slot, state);
     }
 
     /// <summary>The fastest 1/256-pixel speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
@@ -345,6 +345,6 @@ internal sealed class CeresRidleyBehavior
     internal static readonly RotationAngle SwoopClimbTarget = RotationAngle.FromSteps(120);
 
     /// <summary>Runs Ceres Ridley's main step.</summary>
-    internal void RunCeresRidleyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunCeresRidleyMain(place, frame.Samus);
+    internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
+        RunCeresRidleyMain(slot, frame.Samus);
 }

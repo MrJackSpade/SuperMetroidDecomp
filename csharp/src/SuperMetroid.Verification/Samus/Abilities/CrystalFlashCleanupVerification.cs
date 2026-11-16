@@ -77,7 +77,7 @@ internal static class CrystalFlashCleanupVerification
         ControllerButton chord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
         int started = -1, finished = -1;
         bool bubble = false, drained = false;
-        RoomEnemyPlace? contactEnemy = null;
+        RoomEnemySlot? contactEnemy = null;
         bool contactVerified = false;
         // Each frame's published scenes are kept and drawn once the route has run. A published scene shares no storage
         // with the runtime: its paint copies the frame's draws, its layers copy their arrays, and everything else it
@@ -105,7 +105,7 @@ internal static class CrystalFlashCleanupVerification
                 // zero-only RNG would hang native-style drop selection on death.
                 var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
                 runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), new RoomEnemyLoadRequest(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), BgArtworkFixtures.For(runtime.Vram)) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
-                contactEnemy = runtime.Enemies.Places.InUpdateOrder[0];
+                contactEnemy = runtime.Enemies.SlotTable.Slots[0];
                 (contactEnemy.SpeciesState<RipperEnemyState>()
                     ?? throw new InvalidOperationException("The contact Ripper has no state.")).XVelocity = SignedSixteenSixteen.Zero;
                 // Contact runs before AI publishes its first map. Seed that same

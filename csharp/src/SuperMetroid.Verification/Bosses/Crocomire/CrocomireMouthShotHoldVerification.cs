@@ -23,7 +23,7 @@ internal static class CrocomireMouthShotHoldVerification
     {
         int expected = WrappingCountdown.Start(StartingHold).AddFrames(8).RemainingFrames;
         int cases = 0;
-        (RoomEnemySystem enemies, RoomEnemyPlace body) = NewCrocomireBody();
+        (RoomEnemySystem enemies, RoomEnemySlot body) = NewCrocomireBody();
         foreach (CrocomirePhase phase in Enum.GetValues<CrocomirePhase>())
         {
             foreach ((string place, int cameraX) in new[] { ("off screen", 0), ("on screen", 400) })
@@ -54,7 +54,7 @@ internal static class CrocomireMouthShotHoldVerification
     /// </summary>
     internal static void VerifyCrocomireMouthShotReadsPassCamera()
     {
-        (RoomEnemySystem enemies, RoomEnemyPlace body) = NewCrocomireBody();
+        (RoomEnemySystem enemies, RoomEnemySlot body) = NewCrocomireBody();
         var state = new CrocomireEnemyState(body) { Phase = CrocomirePhase.SteppingForward };
         enemies.CrocomireBehavior.Access.Crocomire = state;
         var ordinaryProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
@@ -84,11 +84,11 @@ internal static class CrocomireMouthShotHoldVerification
     }
 
     /// <summary>A room enemy system whose first actor is Crocomire's body, standing at column 576.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemyPlace Body) NewCrocomireBody()
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Body) NewCrocomireBody()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
         return (enemies, body);

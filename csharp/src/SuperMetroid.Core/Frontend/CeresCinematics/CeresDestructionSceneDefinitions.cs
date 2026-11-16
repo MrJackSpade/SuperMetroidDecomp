@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>The Ceres station's destruction and the approach to Zebes: their timing, motion, floor views and actor places.</summary>
+/// <summary>The Ceres station's destruction and the approach to Zebes: their timing, motion, floor views and actor slots.</summary>
 internal static class CeresDestructionSceneDefinitions
 {
     /// <summary>Updates the scene waits before it sets up the station.</summary>

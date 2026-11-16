@@ -114,10 +114,10 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace place = system.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place);
+            RoomEnemySlot slot = system.SlotTable.Slots[0];
+            slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
+            system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
                 system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
@@ -126,7 +126,7 @@ internal static class EnemyRomTablePointersVerification
         foreach (bool facingRight in new[] { false, true })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace torizo = system.Places.InUpdateOrder[0];
+            RoomEnemySlot torizo = system.SlotTable.Slots[0];
             torizo.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0, isGolden: true);
             system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);

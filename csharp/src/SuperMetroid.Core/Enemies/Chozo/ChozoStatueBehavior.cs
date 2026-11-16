@@ -20,7 +20,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ChozoStatueEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChozoStatueEntity(this, slot, common);
 
     /// <summary>Supplies room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;
@@ -33,7 +33,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
     /// <summary>The room's Chozo statue, which its hand trigger wakes; null until the statue is placed.</summary>
-    private RoomEnemyPlace? _statue;
+    private RoomEnemySlot? _statue;
 
     /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
     internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx)
@@ -66,7 +66,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
     /// <summary>Initializes either shipped statue.</summary>
-    internal void InitializeChozoStatue(RoomEnemyPlace statue)
+    internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
         ChozoStatueSite site = statue.SpawnSettings<ChozoStatueSpawnSettings>().Site;
         bool isWreckedShip = site switch
@@ -107,7 +107,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Represents the exact enemy-place side effect produced by the Chozo hand
+    /// Represents the exact enemy-slot side effect produced by the Chozo hand
     /// trigger. Collision/pose/item admission remains the room object's responsibility; once
     /// admitted, both trigger setups mark the hand triggered and disable Samus controls.
     /// </summary>
@@ -116,7 +116,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks> handBlock)
     {
         Ensure.NotNull(level);
-        RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
+        RoomEnemySlot statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
         if (statue.DefinitionId != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");
 
@@ -153,7 +153,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Starts the statue's activation once it is awaiting Samus at its hand and she has triggered it: at once in Lower
     /// Norfair, and in the Wrecked Ship only once Phantoon is defeated. The animation does the rest.
     /// </summary>
-    private void RunChozoStatueMain(RoomEnemyPlace statue, ChozoStatueState state)
+    private void RunChozoStatueMain(RoomEnemySlot statue, ChozoStatueState state)
     {
         if (!state.AwaitingHand || !state.HandTriggered)
             return;
@@ -171,7 +171,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private ChozoStatueSegment? ApplyChozoStatueCue(
-        RoomEnemyPlace statue,
+        RoomEnemySlot statue,
         ChozoStatueCue cue,
         SamusState samus,
         RoomLevelData level)
@@ -235,7 +235,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
     internal void ProcessChozoStatueMovement(
-        RoomEnemyPlace statue,
+        RoomEnemySlot statue,
         SamusState samus,
         RoomLevelData level,
         ChozoCarryStep carryStep)
@@ -261,7 +261,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Spawns a plug-crumble room object and spike-footstep only when the offset floor block has the special type.</summary>
     private void ProcessChozoStatueFootstep(
-        RoomEnemyPlace statue,
+        RoomEnemySlot statue,
         RoomLevelData level,
         int footstepOffsetX)
     {
@@ -277,7 +277,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
-    internal void SpawnWreckedShipChozoFootstep(RoomEnemyPlace statue, int footstepOffsetX)
+    internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, int footstepOffsetX)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -318,16 +318,16 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueObjectRequests.Add(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
-    internal void RunChozoStatueMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunChozoStatueMain(place, place.RequireSpeciesState<ChozoStatueState>());
+        RunChozoStatueMain(slot, slot.RequireSpeciesState<ChozoStatueState>());
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, ChozoStatueAnimations.Segments,
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyChozoStatueCue(place, cue, context.Samus, context.Level) is { } target
+            (state, cue) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 }

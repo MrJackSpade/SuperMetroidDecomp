@@ -20,7 +20,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         var denied = NewKraidFootCollisionNoReadBus();
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        RoomEnemyPlace installedFoot = installed.Places.InUpdateOrder[0];
+        RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];
         installedFoot.Bind(installedFoot.DefinitionId, default(RoomEnemyDefinition));
         installedFoot.Bind(EnemyDefinitionId.KraidFoot, installedFoot.Definition);
         ushort[] frames =
@@ -44,7 +44,7 @@ internal static class KraidFootCollisionDefinitionsVerification
 
         int probes = 0;
         // A foot shows only installed frames; the catalog's stride also spans $8F35, which no composition shows.
-        foreach (ushort frame in frames.Where(frame => RoomEnemyPlaceFrameAccess.Shows(0xa7, frame)))
+        foreach (ushort frame in frames.Where(frame => RoomEnemySlotFrameAccess.Shows(0xa7, frame)))
         foreach ((ushort originX, ushort originY) in
                  new VerifyKraidFootCollisionDefinitionsCase[]
                  {

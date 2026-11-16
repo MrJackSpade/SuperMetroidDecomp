@@ -33,7 +33,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
 
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
         runtime.Enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(MotherBrainTubePiece.Main);
-        RoomEnemyPlace tube = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes);
+        RoomEnemySlot tube = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes);
         MotherBrainFallingTubeState tubeState = tube.SpeciesState<MotherBrainFallingTubeState>()
             ?? throw new InvalidOperationException("The spawned main tube has no state.");
         tubeState.Action = MotherBrainTubeAction.Falling;

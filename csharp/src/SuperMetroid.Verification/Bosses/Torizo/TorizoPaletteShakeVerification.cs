@@ -23,7 +23,7 @@ internal static class TorizoPaletteShakeVerification
     internal static int VerifyTorizoPaletteShake()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var actor = enemies.Places.InUpdateOrder[0];
+        var actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
         actor.Bind(actor.DefinitionId, RoomEnemyDefinitionLookup.Get(actor.DefinitionId));
         // The initializer's function words; the build-pinned debugger state below rejects the undefined zero defaults.

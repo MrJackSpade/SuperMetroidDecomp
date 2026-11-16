@@ -35,20 +35,20 @@ internal sealed class KraidEncounterAccess
     /// Marks a Kraid part dead: it stops being solid, ignores Samus, stops its animation and off-screen processing,
     /// and is hidden and deleted; its other properties are kept.
     /// </summary>
-    internal static void MarkKraidPartDead(RoomEnemyPlace place)
+    internal static void MarkKraidPartDead(RoomEnemySlot slot)
     {
-        place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-        place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
+        slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+        slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
     /// <summary>Installs <paramref name="segment"/> as the part's animation, from its start; the part's timer is set separately.</summary>
-    internal void SetKraidPartAnimation(RoomEnemyPlace part, KraidPartSegment segment) =>
+    internal void SetKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment) =>
         _parts.StateOf(RequireKraidState(part), part).Playback =
             new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Sets a part's animation and runs its first step on the next frame.</summary>
-    internal void StartKraidPartAnimation(RoomEnemyPlace part, KraidPartSegment segment)
+    internal void StartKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment)
     {
         SetKraidPartAnimation(part, segment);
         part.AnimationClock.StepOnNextUpdate();
@@ -82,29 +82,29 @@ internal sealed class KraidEncounterAccess
     /// read the body's state directly, so they keep running after the dead-room body is
     /// deleted, as the fingernails do.
     /// </summary>
-    internal KraidEnemyState RequireKraidState(RoomEnemyPlace place)
+    internal KraidEnemyState RequireKraidState(RoomEnemySlot slot)
     {
         if (Kraid is null)
         {
             throw new InvalidOperationException(
-                $"Enemy {place.DefinitionId} requires Kraid's body to have initialized this room.");
+                $"Enemy {slot.DefinitionId} requires Kraid's body to have initialized this room.");
         }
         return Kraid;
     }
 
-    /// <summary>The state of the Kraid part in <paramref name="place"/>.</summary>
-    internal KraidPartState Part(RoomEnemyPlace place) => _parts.StateOf(RequireKraidState(place), place);
+    /// <summary>The state of the Kraid part in <paramref name="slot"/>.</summary>
+    internal KraidPartState Part(RoomEnemySlot slot) => _parts.StateOf(RequireKraidState(slot), slot);
 
-    /// <summary>The state of the Kraid lint in <paramref name="place"/>.</summary>
-    internal KraidLintState LintState(RoomEnemyPlace place) => _parts.LintStateOf(RequireKraidState(place), place);
+    /// <summary>The state of the Kraid lint in <paramref name="slot"/>.</summary>
+    internal KraidLintState LintState(RoomEnemySlot slot) => _parts.LintStateOf(RequireKraidState(slot), slot);
 
-    /// <summary>The state of the Kraid fingernail in <paramref name="place"/>.</summary>
-    internal KraidNailState NailState(RoomEnemyPlace place) => _parts.NailStateOf(RequireKraidState(place), place);
+    /// <summary>The state of the Kraid fingernail in <paramref name="slot"/>.</summary>
+    internal KraidNailState NailState(RoomEnemySlot slot) => _parts.NailStateOf(RequireKraidState(slot), slot);
 
-    /// <summary>Installs a part's state for the part's occupant of its place; the encounter keeps it across the part's kills and respawns.</summary>
-    internal void AttachKraidPart(RoomEnemyPlace place, KraidEnemyState state)
+    /// <summary>Installs a part's state for the part's occupant of its slot; the encounter keeps it across the part's kills and respawns.</summary>
+    internal void AttachKraidPart(RoomEnemySlot slot, KraidEnemyState state)
     {
-        KraidPartState part = _parts.StateOf(state, place);
-        place.SetSpeciesState(part);
+        KraidPartState part = _parts.StateOf(state, slot);
+        slot.SetSpeciesState(part);
     }
 }

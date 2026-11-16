@@ -2,30 +2,30 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>One Metroid occupant: its own AI and reactions, with the shared ones its definition names.</summary>
 /// <param name="species">The Metroid species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeMetroid(Place);
+    public void Initialize() => species.InitializeMetroid(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Slot, context);
 
     /// <summary>The Metroid's own hurt behaviour, ahead of frozen AI when both states are active; the animation still advances.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        MetroidBehavior.ApplyMetroidHurt(Place);
+        MetroidBehavior.ApplyMetroidHurt(Slot);
         return true;
     }
 
     /// <summary>The frozen Metroid's behaviour, which retains its outer-body state.</summary>
-    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place);
+    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Slot);
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -35,7 +35,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyPlace plac
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ResolveMetroidTouch(context.Place, context.Samus);
+            species.ResolveMetroidTouch(context.Slot, context.Samus);
         else
             base.ReactToTouch(context);
     }

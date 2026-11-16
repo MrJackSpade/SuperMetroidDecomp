@@ -69,10 +69,10 @@ internal static class EnemyDefinitionBoundaryVerification
             int drawnBase = 0;
             int drawnRow = 0;
             OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitionsConstants.Bank, frame, new(x, y),
-                (place, system) =>
+                (slot, system) =>
                 {
-                    drawnBase = place.NativeTileBaseIn(system);
-                    drawnRow = place.PaletteRowIn(system);
+                    drawnBase = slot.NativeTileBaseIn(system);
+                    drawnRow = slot.PaletteRowIn(system);
                 });
             var expected = new OamBuffer();
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));

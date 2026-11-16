@@ -12,7 +12,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
     private static readonly EnemyCollisionHitbox[][] ListsInNativeOrder =
     [
         .. MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Select(frame =>
-            MaridiaLargeSnailCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame))),
+            MaridiaLargeSnailCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame))),
     ];
 
     /// <summary>The hitbox lists laid over their native run.</summary>
@@ -35,7 +35,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
         /// <summary>The native address of the hitbox list the frame at <paramref name="frame"/> selects.</summary>
         internal static ushort HitboxListAt(ushort frame) => HasFrame(frame)
             ? NativeLists.PointerAt(Array.IndexOf(ListsInNativeOrder,
-                MaridiaLargeSnailCollisionDefinitions.Frames.Of(RoomEnemyPlaceFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame))))
+                MaridiaLargeSnailCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame))))
             : throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
 
         /// <summary>The hitbox list at native address <paramref name="list"/>.</summary>

@@ -49,44 +49,44 @@ internal static class RipperBehaviorVerification
         void VerifyGrappleRipper(RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
-            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
-            place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
-            place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
-            VerifyInstalledLoop(enemies, place, expectedProgram, context);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GrappleRipper);
+            slot.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            slot.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
+            RipperBehavior.InitializeGrappleRipper(slot);
+            VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 
         void VerifyGrappleRipperReversal()
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
-            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
-            place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
-            place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
-            RipperBehavior.ReverseRipperVariant(place, RipperSegment.GrappleRipperMovingRight, RipperSegment.GrappleRipperMovingLeft);
-            VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GrappleRipper);
+            slot.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            slot.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
+            RipperBehavior.InitializeGrappleRipper(slot);
+            RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GrappleRipperMovingRight, RipperSegment.GrappleRipperMovingLeft);
+            VerifyInstalledLoop(enemies, slot, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
 
         void VerifyRipper2(ushort initialDirection, RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.JetRipper);
-            place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
-            place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeJetRipper(place);
-            VerifyInstalledLoop(enemies, place, expectedProgram, context);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.JetRipper);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
+            RipperBehavior.InitializeJetRipper(slot);
+            VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 
         void VerifyRipper(ushort initialDirection, RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.Ripper);
-            place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
-            place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeRipper(place);
-            VerifyInstalledLoop(enemies, place, expectedProgram, context);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
+            RipperBehavior.InitializeRipper(slot);
+            VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 
         RoomEnemySystem NewSystem()
@@ -95,22 +95,22 @@ internal static class RipperBehaviorVerification
             return enemies;
         }
 
-        void VerifyInstalledLoop(RoomEnemySystem enemies, RoomEnemyPlace place, RipperSegment expectedProgram, string context)
+        void VerifyInstalledLoop(RoomEnemySystem enemies, RoomEnemySlot slot, RipperSegment expectedProgram, string context)
         {
             // The loop shows four frames held 8, 7, 8 and 7 updates, then its goto shows the first frame again.
             ushort[] loop = RipperAnimationsConstants.Spritemaps(expectedProgram).ToArray();
             ushort[] expected = [.. loop, loop[0]];
             int[] expectedUpdates = [0, 8, 15, 23, 30];
-            place.AnimationClock.Restart();
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            slot.AnimationClock.Restart();
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             List<VerifyInstalledLoopCase> shown = [];
             for (int update = 0; update < 31; update++)
             {
                 EnemyInstructionRunner.Process(arguments);
-                if (place.AnimationClock.ShowsNewFrame)
+                if (slot.AnimationClock.ShowsNewFrame)
                 {
-                    shown.Add(new VerifyInstalledLoopCase(update, place.SpritemapPointer));
-                    observedFrames.Add(place.SpritemapPointer);
+                    shown.Add(new VerifyInstalledLoopCase(update, slot.SpritemapPointer));
+                    observedFrames.Add(slot.SpritemapPointer);
                 }
             }
             AssertEqual(string.Join(",", expected.Zip(expectedUpdates, (map, update) => $"{update}:{map:X4}")),
@@ -120,12 +120,12 @@ internal static class RipperBehaviorVerification
     }
 
     /// <summary>A slot of <paramref name="enemies"/> holding <paramref name="definition"/> in bank $A2.</summary>
-    private static RoomEnemyPlace NewPlace(RoomEnemySystem enemies, EnemyDefinitionId definition)
+    private static RoomEnemySlot NewSlot(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(definition, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        return place;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        return slot;
     }
 
     /// <summary>Runs the Ripper-family behavior checks against the local retail cartridge.</summary>

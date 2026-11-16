@@ -21,10 +21,10 @@ internal sealed class CorpseRowDust
     /// Spawns the dust cloud a finished corpse row raises, spread by <paramref name="random"/> across the corpse, and
     /// queues the dust sound on every eighth enemy frame.
     /// </summary>
-    internal void Spawn(RoomEnemyPlace place, int random, EnemyProjectileEngine projectiles, int randomEnemyCounter)
+    internal void Spawn(RoomEnemySlot slot, int random, EnemyProjectileEngine projectiles, int randomEnemyCounter)
     {
         projectiles.SpawnDustOrExplosion(
-            new(CoordinateAxis.Wrap(place.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(place.Position.Y.Whole + 16)),
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(slot.Position.Y.Whole + 16)),
             MiscDustAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(randomEnemyCounter))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);

@@ -9,7 +9,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new OwtchEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new OwtchEntity(this, slot, common);
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -40,43 +40,43 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int OwtchMaximumBurialDepth = OwtchEnemyState.OwtchMaximumBurialDepth;
 
     /// <summary>Initializes the Owtch.</summary>
-    internal static void InitializeOwtch(RoomEnemyPlace place)
+    internal static void InitializeOwtch(RoomEnemySlot slot)
     {
-        OwtchSpawnSettings settings = place.SpawnSettings<OwtchSpawnSettings>();
+        OwtchSpawnSettings settings = slot.SpawnSettings<OwtchSpawnSettings>();
         var state = new OwtchEnemyState
         {
             Speed = settings.Speed,
             Behavior = settings.InitialBehavior,
             BurialDepth = 0,
             UndergroundTimer = settings.UndergroundWait,
-            MinimumX = CoordinateAxis.Wrap(place.Position.X.Whole - settings.TravelDistance),
-            MaximumX = CoordinateAxis.Wrap(place.Position.X.Whole + settings.TravelDistance),
+            MinimumX = CoordinateAxis.Wrap(slot.Position.X.Whole - settings.TravelDistance),
+            MaximumX = CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance),
         };
-        place.SetSpeciesState(state);
-        SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
+        slot.SetSpeciesState(state);
+        SetOwtchAnimation(slot, state, InitialAnimation(settings.InitialBehavior));
 
         // An Owtch placed underground starts buried: it moves down by whole pixels only and records the same
         // sixteen-pixel depth sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
             state.BurialDepth = OwtchMaximumBurialDepth;
-            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + OwtchMaximumBurialDepth);
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + OwtchMaximumBurialDepth);
         }
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
-    private void RunOwtchMain(RoomEnemyPlace place, OwtchEnemyState state)
+    private void RunOwtchMain(RoomEnemySlot slot, OwtchEnemyState state)
     {
         switch (state.Behavior)
         {
             case OwtchBehaviorState.MovingLeft:
-                MoveOwtch(place, state, direction: HorizontalDirection.Left);
-                MaybeMakeOwtchSink(place, state);
+                MoveOwtch(slot, state, direction: HorizontalDirection.Left);
+                MaybeMakeOwtchSink(slot, state);
                 return;
 
             case OwtchBehaviorState.MovingRight:
-                MoveOwtch(place, state, direction: HorizontalDirection.Right);
-                MaybeMakeOwtchSink(place, state);
+                MoveOwtch(slot, state, direction: HorizontalDirection.Right);
+                MaybeMakeOwtchSink(slot, state);
                 return;
 
             case OwtchBehaviorState.Underground:
@@ -85,19 +85,19 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Sinking:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
                 // Sinking starts from zero, so the depth stays within one through sixteen and the game's signed
                 // comparison is an ordinary one.
                 state.BurialDepth++;
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = place.SpawnSettings<OwtchSpawnSettings>().UndergroundWait;
+                    state.UndergroundTimer = slot.SpawnSettings<OwtchSpawnSettings>().UndergroundWait;
                 }
                 return;
 
             case OwtchBehaviorState.Rising:
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - 1);
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
                     // Surfacing reads the current random number without advancing it.
@@ -111,7 +111,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             case OwtchBehaviorState.TurningAtLeftBound:
                 // Owtch does not move this update; it restarts the right-facing animation, whose first cue sets it
                 // walking right.
-                SetOwtchAnimation(place, state, OwtchSegment.MovingRight);
+                SetOwtchAnimation(slot, state, OwtchSegment.MovingRight);
                 return;
 
             default:
@@ -136,16 +136,16 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves the Owtch with the game's 1/65536-pixel additions.</summary>
     private static void MoveOwtch(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
         // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
+        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.Speed : -state.Speed);
 
         if (direction != HorizontalDirection.Right)
         {
-            if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.MinimumX))
+            if (!CoordinateAxis.Precedes(slot.Position.X.Whole, state.MinimumX))
                 return;
 
             // Unlike the right bound, the left bound does not turn Owtch at once: it spends the next update turning.
@@ -153,14 +153,14 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.MaximumX))
+        if (!CoordinateAxis.Precedes(slot.Position.X.Whole, state.MaximumX))
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 
     /// <summary>Runs Owtch's six-in-256 per-frame burial gate.</summary>
-    private void MaybeMakeOwtchSink(RoomEnemyPlace place, OwtchEnemyState state)
+    private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
-        if (OwtchMovementDefinitions.Sinks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))
+        if (OwtchMovementDefinitions.Sinks.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter))
             state.Behavior = OwtchBehaviorState.Sinking;
     }
 
@@ -176,9 +176,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.TurningAtLeftBound;
 
     /// <summary>Restarts the selected facing animation at its first step.</summary>
-    private static void SetOwtchAnimation(RoomEnemyPlace place, OwtchEnemyState state, OwtchSegment segment)
+    private static void SetOwtchAnimation(RoomEnemySlot slot, OwtchEnemyState state, OwtchSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(place, OwtchAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.Start(slot, OwtchAnimations.StartingWith(segment));
     }
 
     /// <summary>Allows common bomb damage only while the Owtch walks left, the one way its shell leaves it open.</summary>
@@ -188,14 +188,14 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Owtch's main AI.</summary>
-    internal void RunOwtchMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
+    internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunOwtchMain(place, place.RequireSpeciesState<OwtchEnemyState>());
+        RunOwtchMain(slot, slot.RequireSpeciesState<OwtchEnemyState>());
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, OwtchAnimations.Segments,
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

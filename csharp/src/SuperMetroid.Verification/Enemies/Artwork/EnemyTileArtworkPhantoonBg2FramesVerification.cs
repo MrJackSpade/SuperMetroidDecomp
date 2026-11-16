@@ -205,13 +205,13 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         ImportEnemyArtwork? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.PhantoonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SpritemapPointer = pointer;
-        place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SpritemapPointer = pointer;
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [place, target, new Extent16<RoomPixels>(2, 2), selectShot, null];
+            [slot, target, new Extent16<RoomPixels>(2, 2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(arguments);
         return found ? ExtendedHitboxWalker.Reaction(arguments) : null;
     }
@@ -225,15 +225,15 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the body his body frames show on.
         BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Phantoon);
-        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.PhantoonBody, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.CollidesByFrameHitboxes = true;
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.CollidesByFrameHitboxes = true;
         if (newInstructionFrame)
-            place.AnimationClock.ShowsNewFrame = true;
-        place.SpritemapPointer = pointer;
-        place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
+            slot.AnimationClock.ShowsNewFrame = true;
+        slot.SpritemapPointer = pointer;
+        slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawAsOam(new OamBuffer(), new(0, 0));
         return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Phantoon, art.Bosses, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
     }

@@ -18,7 +18,7 @@ public sealed class InstantRoomLoad : IRoomLoadProgress
     private InstantRoomLoad() { }
 
     /// <summary>Reports every enemy initialized from the first scroll update on.</summary>
-    /// <param name="place">The enemy's place; every place is initialized at once.</param>
+    /// <param name="slot">The enemy's slot; every slot is initialized at once.</param>
     /// <returns>Always true.</returns>
-    public bool HasInitializedEnemyPlace(int place) => true;
+    public bool HasInitializedEnemySlot(int slot) => true;
 }

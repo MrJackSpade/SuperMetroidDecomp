@@ -21,15 +21,15 @@ internal static class MotherBrainLaterContactVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
+        var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         body.Bind(body.DefinitionId, RoomEnemyDefinitionLookup.Get(body.DefinitionId));
-        var state = new MotherBrainEnemyState(body) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
         enemies.MotherBrainEncounter.MotherBrain = state;
-        Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
+        Action<RoomEnemySlot, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
@@ -55,7 +55,7 @@ internal static class MotherBrainLaterContactVerification
         body.Radius = new(16, 16);
         body.Frame = EnemyFrameId.MotherBrainBodyStanding;
         body.Health = 1000;
-        var interactive = (List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies;
+        var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
         interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {

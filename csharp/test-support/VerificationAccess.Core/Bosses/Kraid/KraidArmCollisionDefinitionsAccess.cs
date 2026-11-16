@@ -48,7 +48,7 @@ internal static class KraidArmCollisionDefinitionsAccess
 
         /// <summary>The components of the arm frame at native address <paramref name="pointer"/>, when it is one.</summary>
         internal static bool TryGetComponents(ushort pointer, out ImmutableArray<KraidCollisionComponent> components) =>
-            KraidArmCollision.TryGetComponents(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, pointer), out components);
+            KraidArmCollision.TryGetComponents(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, pointer), out components);
     }
 
     /// <summary>Calculates Kraid arm collision frame roots from the native record stride.</summary>

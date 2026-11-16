@@ -21,19 +21,19 @@ internal static class OwtchPatrolStateVerification
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
 
-        (RoomEnemySystem enemies, RoomEnemyPlace place, OwtchEnemyState state) = NewOwtch(OwtchBehaviorState.MovingRight);
+        (RoomEnemySystem enemies, RoomEnemySlot slot, OwtchEnemyState state) = NewOwtch(OwtchBehaviorState.MovingRight);
         state.Speed = SignedSixteenSixteen.FromParts(1, 32768);
-        place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(49152);
-        enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
-        AssertEqual((ushort)102, place.Position.X.Whole, "Owtch rightward speed carries its fraction into the whole pixel");
-        AssertEqual((ushort)16384, place.Position.X.Fraction, "Owtch rightward fraction after the carry");
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(49152);
+        enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
+        AssertEqual((ushort)102, slot.Position.X.Whole, "Owtch rightward speed carries its fraction into the whole pixel");
+        AssertEqual((ushort)16384, slot.Position.X.Fraction, "Owtch rightward fraction after the carry");
 
-        (enemies, place, state) = NewOwtch(OwtchBehaviorState.MovingLeft);
+        (enemies, slot, state) = NewOwtch(OwtchBehaviorState.MovingLeft);
         state.Speed = SignedSixteenSixteen.FromParts(1, 32768);
-        place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(16384);
-        enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
-        AssertEqual((ushort)98, place.Position.X.Whole, "Owtch leftward speed wraps its whole word");
-        AssertEqual((ushort)49152, place.Position.X.Fraction, "Owtch leftward fraction without a carry");
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(16384);
+        enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
+        AssertEqual((ushort)98, slot.Position.X.Whole, "Owtch leftward speed wraps its whole word");
+        AssertEqual((ushort)49152, slot.Position.X.Fraction, "Owtch leftward fraction without a carry");
 
         foreach ((int depth, int expectedDepth, OwtchBehaviorState expectedBehavior) in new VerifyOwtchPatrolStateCase[]
                  {
@@ -41,16 +41,16 @@ internal static class OwtchPatrolStateVerification
                      new VerifyOwtchPatrolStateCase(15, 16, OwtchBehaviorState.Underground),
                  })
         {
-            (enemies, place, state) = NewOwtch(OwtchBehaviorState.Sinking);
+            (enemies, slot, state) = NewOwtch(OwtchBehaviorState.Sinking);
             state.BurialDepth = depth;
-            enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
+            enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
             AssertEqual(expectedDepth, state.BurialDepth, $"Owtch sinking from {depth}");
             AssertEqual(expectedBehavior, state.Behavior, $"Owtch sinking from {depth}: behavior");
         }
 
-        (enemies, place, state) = NewOwtch(OwtchBehaviorState.Rising);
+        (enemies, slot, state) = NewOwtch(OwtchBehaviorState.Rising);
         state.BurialDepth = 1;
-        enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
+        enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
         AssertEqual(0, state.BurialDepth, "Owtch rising from depth one surfaces");
         AssertTrue(state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.MovingRight, "Owtch walks again once surfaced");
 
@@ -64,13 +64,13 @@ internal static class OwtchPatrolStateVerification
         // A walk rolls the sink chance each update; a high roll keeps the Owtch walking.
         enemies.VerificationServices().NextRandom = () => 0x80;
         enemies.VerificationServices().ReadRandom = () => 0x80;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Owtch, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(behavior));
-        place.SetSpawnParameter2(EnemyDefinitionId.Owtch, 0);
-        place.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
-        OwtchBehavior.InitializeOwtch(place);
-        return new NewOwtchResult(enemies, place, place.RequireSpeciesState<OwtchEnemyState>());
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(behavior));
+        slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, 0);
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
+        OwtchBehavior.InitializeOwtch(slot);
+        return new NewOwtchResult(enemies, slot, slot.RequireSpeciesState<OwtchEnemyState>());
     }
 
     /// <summary>Runs the Owtch patrol-state check.</summary>

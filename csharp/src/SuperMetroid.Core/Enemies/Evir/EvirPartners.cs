@@ -17,10 +17,10 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// first; null for the spit, which has no follow-up.
 /// </param>
 internal sealed record EvirPartners(
-    RoomEnemyPlace? Body,
+    RoomEnemySlot? Body,
     EvirEnemyState? BodyState,
-    RoomEnemyPlace? Spit,
-    IReadOnlyList<RoomEnemyPlace>? FollowUpRecipients)
+    RoomEnemySlot? Spit,
+    IReadOnlyList<RoomEnemySlot>? FollowUpRecipients)
 {
     /// <summary>
     /// A spit's own state as it was placed; null for a body and its arms. Its body keeps reaching it after the spit has

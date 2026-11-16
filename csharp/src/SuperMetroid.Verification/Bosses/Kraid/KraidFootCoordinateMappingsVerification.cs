@@ -35,7 +35,7 @@ internal static class KraidFootCoordinateMappingsVerification
             // No instruction list shows ExtendedSpritemap_KraidFoot_21, so it is no frame Kraid's foot can show.
             if (pointer == UnshownFrame)
             {
-                AssertTrue(RoomEnemyPlaceFrameAccess.TryFrameAt(KraidFootCollisionDefinitions.Bank, pointer) is null, "Unshown foot frame has no identity");
+                AssertTrue(RoomEnemySlotFrameAccess.TryFrameAt(KraidFootCollisionDefinitions.Bank, pointer) is null, "Unshown foot frame has no identity");
                 continue;
             }
             AssertTrue(KraidFootCollision.TryGetComponents(pointer, out var components), "Native foot components exist");

@@ -60,9 +60,9 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonColorFormat.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
-        RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot eye = enemies.SlotTable.Slots[1];
+        RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
         var state = new PhantoonEnemyState(body)
         {
             Eye = eye,

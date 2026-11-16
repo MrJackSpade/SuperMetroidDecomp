@@ -19,10 +19,10 @@ internal static class KraidPartsAccess
         /// Joins the first eight enemies of <paramref name="enemies"/> to Kraid as his parts in the order his room lists
         /// them, as their initialization would (#1877).
         /// </summary>
-        internal void JoinInRoomOrder(EnemyPlaces enemies)
+        internal void JoinInRoomOrder(EnemySlotTable enemies)
         {
             for (int place = 0; place < RoomOrder.Length; place++)
-                parts.Join(RoomOrder[place], enemies.InUpdateOrder[place]);
+                parts.Join(RoomOrder[place], enemies.Slots[place]);
         }
     }
 }

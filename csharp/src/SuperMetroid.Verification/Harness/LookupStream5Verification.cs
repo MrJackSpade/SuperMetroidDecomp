@@ -140,15 +140,15 @@ internal static class LookupStream5Verification
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-            var place = system.Places.InUpdateOrder[0];
-            place.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
-            place.Position = place.Position.WithWhole(origin);
+            var slot = system.SlotTable.Slots[0];
+            slot.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            slot.Position = slot.Position.WithWhole(origin);
             var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, RumbleCallsLeft = 48 };
-            place.SetSpeciesState(doorState);
+            slot.SetSpeciesState(doorState);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0);
-            Action tick = place.ElevatorDoor().Explode;
+            Action tick = slot.ElevatorDoor().Explode;
             for (int call = 1; call <= 49; call++)
             {
                 tick();
@@ -168,7 +168,7 @@ internal static class LookupStream5Verification
                     AssertEqual(y, particle.Position.Y.Whole, "Actual produced native Y including 16-bit wrap");
                     AssertTrue(particle.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program, "RNG changes animation only");
                 }
-                AssertEqual(call == 49, place.Presence.HasAny(EnemyPresence.Hidden), "Hide only at destruction expiry");
+                AssertEqual(call == 49, slot.Presence.HasAny(EnemyPresence.Hidden), "Hide only at destruction expiry");
             }
             AssertEqual(CeresEscapeStatus.ElevatorDoorDestroyed, system.RidleyEncounter.CeresStatus, "Actual rotation handoff after last anchor");
             AssertTrue(system.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.BigExplosion), "Emission sound preserved");
@@ -183,16 +183,16 @@ internal static class LookupStream5Verification
         foreach (int bucket in new[] { 2, 0, 1 })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-            var body = system.Places.InUpdateOrder[0];
-            var eye = system.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Places.InUpdateOrder[2], Mouth = system.Places.InUpdateOrder[3] };
+            var body = system.SlotTable.Slots[0];
+            var eye = system.SlotTable.Slots[1];
+            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = system.SlotTable.Slots[3] };
             system.PhantoonBehavior.Combat.Phantoon = state;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
             system.BossArtwork = InstalledFixtures.BossArtwork;
             Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
-            Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
+            Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
             body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathCursor = 42; state.PhaseTimer = 17;
             state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
@@ -243,15 +243,15 @@ internal static class LookupStream5Verification
         foreach (bool reversed in new[] { false, true })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-            var body = system.Places.InUpdateOrder[0];
-            var eye = system.Places.InUpdateOrder[1];
-            var mouth = system.Places.InUpdateOrder[3];
-            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Places.InUpdateOrder[2], Mouth = mouth };
+            var body = system.SlotTable.Slots[0];
+            var eye = system.SlotTable.Slots[1];
+            var mouth = system.SlotTable.Slots[3];
+            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = mouth };
             system.PhantoonBehavior.Combat.Phantoon = state;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
             Action<PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
-            Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
+            Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext.SeedFrame((ushort)(bucket << 1), InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Colours.SamusColours());
             body.Position = body.Position.WithWhole(new(128, 96)); state.PhaseTimer = 1; state.FlameRainRequested = true;
@@ -321,12 +321,12 @@ internal static class LookupStream5Verification
         }
         RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = floor });
-        var places = (RoomEnemyPlace[])system.Places.InUpdateOrder;
-        places[0].BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+        var slots = (RoomEnemySlot[])system.SlotTable.Slots;
+        slots[0].BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
-            places[0].FrameCounter = tick;
-            places[0].ElevatorDoor().CycleGlowAndPlatform();
+            slots[0].FrameCounter = tick;
+            slots[0].ElevatorDoor().CycleGlowAndPlatform();
             AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
@@ -353,14 +353,14 @@ internal static class LookupStream5Verification
         foreach (bool shot in new[] { false, true })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-            var body = system.Places.InUpdateOrder[0];
-            var eye = system.Places.InUpdateOrder[1];
-            var tentacles = system.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.Places.InUpdateOrder[3] };
+            var body = system.SlotTable.Slots[0];
+            var eye = system.SlotTable.Slots[1];
+            var tentacles = system.SlotTable.Slots[2];
+            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.SlotTable.Slots[3] };
             system.PhantoonBehavior.Combat.Phantoon = state;
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
-            Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> tick = PhantoonPatterns.RunPhantoonEyeTracking;
+            Action<RoomEnemySlot, PhantoonEnemyState, SamusState> tick = PhantoonPatterns.RunPhantoonEyeTracking;
             body.Position = body.Position.WithWhole(new(128, 96));
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
@@ -944,13 +944,13 @@ internal static class LookupStream5Verification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
+        var body = enemies.SlotTable.Slots[0];
         var state = new PhantoonEnemyState(body)
         {
-            Eye = enemies.Places.InUpdateOrder[1], Tentacles = enemies.Places.InUpdateOrder[2], Mouth = enemies.Places.InUpdateOrder[3],
+            Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3],
         };
-        Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
-            enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
+        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = (shotSlot, shotPhantoon, shotType, shotDamage) =>
+            enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotSlot, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = () => { calls++; return random; };
@@ -1032,10 +1032,10 @@ internal static class LookupStream5Verification
     /// <summary>Compares Yapping Maw's animation offsets with native address and displacement tables.</summary>
     internal static void VerifyLookupStream5YappingMawOffsets(CartridgeImportAddressSpace rom)
     {
-        Action<RoomEnemyPlace,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
+        Action<RoomEnemySlot,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
         Action<YappingMawEnemyState,YappingMawAim> set = YappingMawBehavior.SetYappingMawHeldOffset;
-        var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-        var state = new YappingMawEnemyState(place) { DistanceToSamus = 32 };
+        var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
+        var state = new YappingMawEnemyState(slot) { DistanceToSamus = 32 };
         // The cartridge's held-offset table lists the aims clockwise from up, the order of the aim sequence.
         for (int direction = 0; direction < 8; direction++)
         {
@@ -1049,7 +1049,7 @@ internal static class LookupStream5Verification
         for (ushort angle = 0; angle < 256; angle++)
         {
             state.AimAngle = new Bearing(checked((byte)angle));
-            begin(place, state);
+            begin(slot, state);
             int direction = unchecked((byte)(angle + 16)) >> 5;
             AssertEqual(YappingMawAnimationDefinitions.Aims.At(direction), state.Aim,
                 "Actual angle quantization/wrap retained");
@@ -1081,16 +1081,16 @@ internal static class LookupStream5Verification
             {
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 // The mount's beam follows the eye listed right after it (#1835).
-                var followed = enemies.Places.InUpdateOrder[1];
+                var followed = enemies.SlotTable.Slots[1];
                 followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
-                var place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.MorphBallEye, place.Definition);
-                place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
-                place.Position = place.Position.WithWhole(new(origin, origin));
-                new Action<RoomEnemyPlace>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(place);
-                AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
-                AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
-                MorphBallEyeEnemyState eye = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The mount has no state.");
+                var slot = enemies.SlotTable.Slots[0];
+                slot.Bind(EnemyDefinitionId.MorphBallEye, slot.Definition);
+                slot.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
+                slot.Position = slot.Position.WithWhole(new(origin, origin));
+                new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
+                AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
+                AssertEqual(unchecked((ushort)(origin + expected.Second)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
+                MorphBallEyeEnemyState eye = enemies.SlotTable.Slots[0].SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The mount has no state.");
                 AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
                     eye.Playback,
                     "Actual directional mount program");
@@ -1098,10 +1098,10 @@ internal static class LookupStream5Verification
             }
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var body = owner.Places.InUpdateOrder[1];
+        var body = owner.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
         body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
-        new Action<RoomEnemyPlace>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
+        new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
@@ -1257,13 +1257,13 @@ internal static class LookupStream5Verification
             ushort random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
-            var body = enemies.Places.InUpdateOrder[0];
-            var eye = enemies.Places.InUpdateOrder[1];
+            var body = enemies.SlotTable.Slots[0];
+            var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
             enemies.PhantoonBehavior.Combat.Phantoon = state;
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
-            new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
+            new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathCursor, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
@@ -1285,10 +1285,10 @@ internal static class LookupStream5Verification
         EyeTarget[] eyeTargets = PhantoonEyeTargets.All;
         PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(CartridgeImportSource.Require(rom));
         var eyeEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
-        RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.Places.InUpdateOrder[2], Mouth = eyeEnemies.Places.InUpdateOrder[3] };
+        Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
+        RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
+        RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
+        var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.SlotTable.Slots[2], Mouth = eyeEnemies.SlotTable.Slots[3] };
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -1584,11 +1584,11 @@ internal static class LookupStream5Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
-        enemies.RidleyEncounter.Parts.AttachBody(enemies.Places.InUpdateOrder[0], "Ceres Ridley");
+        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
+        enemies.RidleyEncounter.Parts.AttachBody(enemies.SlotTable.Slots[0], "Ceres Ridley");
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        var door = enemies.Places.InUpdateOrder[1];
+        var door = enemies.SlotTable.Slots[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
         enemies.RidleyEncounter.Parts.AttachCeresRoomDoor(door);
         door.SetSpeciesState(new CeresRidleyRoomDoorState { HandsDrawingToRidley = true });
@@ -1698,11 +1698,11 @@ internal static class LookupStream5Verification
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
                 var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom());
-                var place = system.Places.InUpdateOrder[0];
+                var slot = system.SlotTable.Slots[0];
                 (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
-                place.StartCeresDoorOrWall(actor, settings);
+                slot.StartCeresDoorOrWall(actor, settings);
                 // The initializer shows the normal colours as the door's shade, which the import paints from this paint (#1512).
-                AssertEqual(CeresDoorShades.InNormalColours, place.Shading, "Actual normal/target initializer shows the normal colours");
+                AssertEqual(CeresDoorShades.InNormalColours, slot.Shading, "Actual normal/target initializer shows the normal colours");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {
@@ -1744,11 +1744,11 @@ internal static class LookupStream5Verification
             {
                 var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
-                var place = system.Places.InUpdateOrder[0];
+                var slot = system.SlotTable.Slots[0];
                 (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
-                place.StartCeresDoorOrWall(actor, settings);
+                slot.StartCeresDoorOrWall(actor, settings);
                 // Once the self-destruct starts, the initializer shows the escaping colours as the door's shade (#1512).
-                AssertEqual(CeresDoorShades.InEscapingColours, place.Shading, "Actual escape initializer shows the escaping colours");
+                AssertEqual(CeresDoorShades.InEscapingColours, slot.Shading, "Actual escape initializer shows the escaping colours");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {
@@ -1791,7 +1791,7 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(document.Animation[row][color]), visual.Visuals.AnimationColor(row, color), "Every installed beacon channel");
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() });
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            RoomEnemyPlace door = system.Places.InUpdateOrder[0];
+            RoomEnemySlot door = system.SlotTable.Slots[0];
             door.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             foreach (int counter in Enumerable.Range(0, 64))
             {

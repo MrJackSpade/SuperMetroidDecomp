@@ -13,10 +13,10 @@ internal static class CrocomireBodyCollisionDefinitionsAccess
 
         /// <summary>Whether the living or defeated body frame at native address <paramref name="frame"/> has compiled collision.</summary>
         internal static bool HasFrame(ushort frame) =>
-            CrocomireBodyCollision.HasFrame(RoomEnemyPlaceFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, frame));
+            CrocomireBodyCollision.HasFrame(RoomEnemySlotFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, frame));
 
         /// <summary>The components of the living or defeated body frame at native address <paramref name="frame"/>.</summary>
         internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
-            CrocomireBodyCollision.ComponentsAt(RoomEnemyPlaceFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, frame));
+            CrocomireBodyCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, frame));
     }
 }

@@ -18,16 +18,16 @@ internal static class MetareeDiveSpeedVerification
         foreach ((int samusOffset, int expected) in new[] { new VerifyMetareeDiveSpeedCase(96, 8), new VerifyMetareeDiveSpeedCase(-1, 2734) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Metaree, place.Definition);
-            place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
-            MetareeBehavior.InitializeMetaree(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Metaree, slot.Definition);
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
+            MetareeBehavior.InitializeMetaree(slot);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("The Metaree has no state.");
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, unchecked((ushort)(0x0080 + samusOffset)))),
             };
-            MetareeBehavior.RunMetareeIdle(place, state, samus);
+            MetareeBehavior.RunMetareeIdle(slot, state, samus);
             AssertEqual(expected, state.YVelocity, $"Samus {samusOffset} pixels below gives a dive of {expected}");
             AssertEqual(MetareeAction.PreparingAttack, state.Action, "the Metaree prepares its attack");
         }

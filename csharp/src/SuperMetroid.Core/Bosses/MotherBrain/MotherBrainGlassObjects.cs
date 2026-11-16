@@ -28,7 +28,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Four shard spawns emitted by the most recent shatter.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
-    /// <summary>The place of the live glass room object, or null after deletion.</summary>
+    /// <summary>The slot of the live glass room object, or null after deletion.</summary>
     private RoomObjectPlace? _motherBrainGlassPlace;
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; private set; }
@@ -38,7 +38,7 @@ internal sealed class MotherBrainGlassObjects
         _motherBrainGlassProjectileRequests;
 
     /// <summary>Runs the glass setup against the place room population gave it.</summary>
-    internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
+    internal void SetupMotherBrainGlassSlot(RoomLevelData level, RoomObjectPlace place)
     {
         place.Become(new MotherBrainGlassObject(this));
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);

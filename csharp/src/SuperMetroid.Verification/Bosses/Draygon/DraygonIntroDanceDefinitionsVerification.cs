@@ -101,7 +101,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
         Action<DraygonEnemyState, SamusState, byte> run = (danceState, danceSamus, frameCounter) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]);
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] expectedX = new ushort[4];
         ushort[] expectedY = new ushort[4];
@@ -176,7 +176,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         var malformedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<DraygonEnemyState, SamusState, byte> malformedRun = (danceState, danceSamus, frameCounter) =>
             malformedEnemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
-        var malformedState = new DraygonEnemyState(malformedEnemies.Places.InUpdateOrder[0])
+        var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
             IntroDanceStep = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0),

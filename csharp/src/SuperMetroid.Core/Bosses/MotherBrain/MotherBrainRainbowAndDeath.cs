@@ -208,12 +208,12 @@ internal sealed class MotherBrainRainbowAndDeath
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
 
-    /// <summary>Copies rainbow-beam phase state into the live actor place.</summary>
+    /// <summary>Copies rainbow-beam phase state into the live actor slot.</summary>
     internal static void SynchronizeLiveMotherBrainRainbowActor(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence)
     {
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyCollidesByFrameHitboxes = state.Body.CollidesByFrameHitboxes, BodyShowsNewFrame = state.Body.AnimationClock.ShowsNewFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainCollidesByFrameHitboxes = head.CollidesByFrameHitboxes, BrainShowsNewFrame = head.AnimationClock.ShowsNewFrame, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
@@ -230,7 +230,7 @@ internal sealed class MotherBrainRainbowAndDeath
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
 
         // The brain-animation request resets the physical animation's timer only when body AI requests a new animation.
         // The dedicated latch is essential because the running animation advances away from

@@ -41,8 +41,8 @@ internal static class FuneNamiheCooldownVerification
     private static FuneNamiheEnemyState Wait(int count)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Fune, place.Definition);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Fune, slot.Definition);
         var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown)
         {
             ShowsActiveAnimation = false,
@@ -52,8 +52,8 @@ internal static class FuneNamiheCooldownVerification
             CooldownTime = CooldownTime,
             CooldownTimer = count,
         };
-        place.SetSpeciesState(state);
-        FuneNamiheBehavior.RunFuneNamiheMain(place, state, RoomEnemyFrameFixtures.StandaloneSamus());
+        slot.SetSpeciesState(state);
+        FuneNamiheBehavior.RunFuneNamiheMain(slot, state, RoomEnemyFrameFixtures.StandaloneSamus());
         return state;
     }
 

@@ -22,14 +22,14 @@ internal static class KzanRiseStepVerification
     internal static void VerifyKzanRiseStep()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.KzanTop, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
-        place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
+        slot.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
+        slot.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         // The rising target lies sixteen pixels above the room's bottom edge, so every height checked keeps rising.
-        place.Position = place.Position.WithWhole(new(128, 65520));
-        KzanBehavior.InitializeKzanTop(place);
-        KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
+        slot.Position = slot.Position.WithWhole(new(128, 65520));
+        KzanBehavior.InitializeKzanTop(slot);
+        KzanEnemyState state = slot.RequireSpeciesState<KzanEnemyState>();
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
@@ -37,13 +37,13 @@ internal static class KzanRiseStepVerification
         for (int fraction = 0; fraction < WordRange; fraction++)
         {
             state.Action = KzanAction.Rising;
-            place.Position = place.Position.WithY(new FixedCoordinate(whole, fraction));
-            enemies.KzanBehavior.RunKzanTopMainAi(place, frame);
+            slot.Position = slot.Position.WithY(new FixedCoordinate(whole, fraction));
+            enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
             int lowered = fraction - 0x8000;
             int borrow = lowered < 0 ? 1 : 0;
             var expected = new FixedCoordinate((whole - borrow) & ushort.MaxValue, lowered & ushort.MaxValue);
-            if (state.Action != KzanAction.Rising || place.Position.Y != expected)
-                throw new InvalidOperationException($"A Kzan rising from {whole}+{fraction:X4} reached {place.Position.Y}, not {expected}.");
+            if (state.Action != KzanAction.Rising || slot.Position.Y != expected)
+                throw new InvalidOperationException($"A Kzan rising from {whole}+{fraction:X4} reached {slot.Position.Y}, not {expected}.");
         }
         Console.WriteLine("  Kzan rise step: every fraction rises half a pixel with the original's borrow.");
     }

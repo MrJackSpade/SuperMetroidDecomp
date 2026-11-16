@@ -16,13 +16,13 @@ internal static class PowampOwnedStateVerification
     internal static void VerifyPowampOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         balloon.SetSpawnParameter2(EnemyDefinitionId.Powamp, ushort.MaxValue);
         balloon.Position = balloon.Position.WithWhole(new(0x0180, 0x0020));
         enemies.PowampBehavior.InitializePowamp(balloon);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
+        RoomEnemySlot body = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
         enemies.PowampBehavior.InitializePowamp(body);

@@ -43,7 +43,7 @@ internal sealed class BombTorizoHandObjects
     public bool HandRemains => _handPlace is { Active: true } place && ReferenceEquals(place.Behaviour, _hand);
 
     /// <summary>Sets up the hand the room's population placed at <paramref name="place"/>; a defeated Torizo's room has none.</summary>
-    internal void SetupBombTorizoHand(
+    internal void SetupBombTorizoHandSlot(
         RoomObjectPlace place,
         IAreaBossFlagReader bosses)
     {

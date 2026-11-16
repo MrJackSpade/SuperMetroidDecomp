@@ -171,10 +171,10 @@ internal static class RoomEnemyDefinitionNative
     internal static EnemyDefinitionId FirstInBank(byte bank) => Words.First(entry => entry.Value.Bank == bank).Key;
 
     /// <summary>A slot's native header words.</summary>
-    extension(RoomEnemyPlace place)
+    extension(RoomEnemySlot slot)
     {
         /// <summary>The native words of the header the slot's definition identity names.</summary>
-        internal RoomEnemyNativeWords NativeHeader => Words[place.DefinitionId];
+        internal RoomEnemyNativeWords NativeHeader => Words[slot.DefinitionId];
     }
 }
 

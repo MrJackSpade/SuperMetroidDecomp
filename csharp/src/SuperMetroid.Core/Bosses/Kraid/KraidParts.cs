@@ -14,84 +14,84 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidParts
 {
     /// <summary>Each part that has initialized, by the part its definition names.</summary>
-    private readonly Dictionary<KraidPart, RoomEnemyPlace> _joined = [];
+    private readonly Dictionary<KraidPart, RoomEnemySlot> _joined = [];
 
     /// <summary>
-    /// Joins <paramref name="place"/> to Kraid as his <paramref name="part"/>, as it initializes. A part that initializes
+    /// Joins <paramref name="slot"/> to Kraid as his <paramref name="part"/>, as it initializes. A part that initializes
     /// again, as a respawned fingernail does, joins the same enemy again.
     /// </summary>
     /// <exception cref="InvalidDataException">Another enemy already initialized as <paramref name="part"/>.</exception>
-    internal void Join(KraidPart part, RoomEnemyPlace place)
+    internal void Join(KraidPart part, RoomEnemySlot slot)
     {
-        Ensure.NotNull(place);
-        if (_joined.TryGetValue(part, out RoomEnemyPlace? held) && !ReferenceEquals(held, place))
-            throw new InvalidDataException($"Kraid's {part} initialized as enemy {place.Ordinal}, but enemy {held.Ordinal} already is.");
-        _joined[part] = place;
+        Ensure.NotNull(slot);
+        if (_joined.TryGetValue(part, out RoomEnemySlot? held) && !ReferenceEquals(held, slot))
+            throw new InvalidDataException($"Kraid's {part} initialized as enemy {slot.SlotIndex}, but enemy {held.SlotIndex} already is.");
+        _joined[part] = slot;
     }
 
     /// <summary>The enemy that joined as <paramref name="part"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> has not initialized.</exception>
-    private RoomEnemyPlace Joined(KraidPart part) =>
-        _joined.TryGetValue(part, out RoomEnemyPlace? place)
-            ? place
+    private RoomEnemySlot Joined(KraidPart part) =>
+        _joined.TryGetValue(part, out RoomEnemySlot? slot)
+            ? slot
             : throw new InvalidOperationException($"Kraid's {part} is reached before it initialized.");
 
     /// <summary>His body, which runs first.</summary>
-    internal RoomEnemyPlace Body => Joined(KraidPart.Kraid);
+    internal RoomEnemySlot Body => Joined(KraidPart.Kraid);
 
     /// <summary>His arm.</summary>
-    internal RoomEnemyPlace Arm => Joined(KraidPart.Arm);
+    internal RoomEnemySlot Arm => Joined(KraidPart.Arm);
 
     /// <summary>His top lint.</summary>
-    internal RoomEnemyPlace TopLint => Joined(KraidPart.LintTop);
+    internal RoomEnemySlot TopLint => Joined(KraidPart.LintTop);
 
     /// <summary>His middle lint.</summary>
-    internal RoomEnemyPlace MiddleLint => Joined(KraidPart.LintMiddle);
+    internal RoomEnemySlot MiddleLint => Joined(KraidPart.LintMiddle);
 
     /// <summary>His bottom lint.</summary>
-    internal RoomEnemyPlace BottomLint => Joined(KraidPart.LintBottom);
+    internal RoomEnemySlot BottomLint => Joined(KraidPart.LintBottom);
 
     /// <summary>His foot.</summary>
-    internal RoomEnemyPlace Foot => Joined(KraidPart.Foot);
+    internal RoomEnemySlot Foot => Joined(KraidPart.Foot);
 
     /// <summary>His first fingernail.</summary>
-    internal RoomEnemyPlace FirstNail => Joined(KraidPart.FirstNail);
+    internal RoomEnemySlot FirstNail => Joined(KraidPart.FirstNail);
 
     /// <summary>His second fingernail, which runs last.</summary>
-    internal RoomEnemyPlace SecondNail => Joined(KraidPart.SecondNail);
+    internal RoomEnemySlot SecondNail => Joined(KraidPart.SecondNail);
 
-    /// <summary>Which of Kraid's parts <paramref name="place"/> is.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="place"/> has not initialized as one of his parts.</exception>
-    internal KraidPart PartAt(RoomEnemyPlace place)
+    /// <summary>Which of Kraid's parts <paramref name="slot"/> is.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="slot"/> has not initialized as one of his parts.</exception>
+    internal KraidPart PartAt(RoomEnemySlot slot)
     {
-        foreach ((KraidPart part, RoomEnemyPlace joined) in _joined)
+        foreach ((KraidPart part, RoomEnemySlot joined) in _joined)
         {
-            if (ReferenceEquals(joined, place))
+            if (ReferenceEquals(joined, slot))
                 return part;
         }
-        throw new InvalidOperationException($"Enemy {place.Ordinal} is not one of Kraid's parts.");
+        throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's parts.");
     }
 
-    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's parts <paramref name="place"/> is.</summary>
-    internal KraidPartState StateOf(KraidEnemyState state, RoomEnemyPlace place) => state.Part(PartAt(place));
+    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's parts <paramref name="slot"/> is.</summary>
+    internal KraidPartState StateOf(KraidEnemyState state, RoomEnemySlot slot) => state.Part(PartAt(slot));
 
-    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's lints <paramref name="place"/> is.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="place"/> is not one of his lints.</exception>
-    internal KraidLintState LintStateOf(KraidEnemyState state, RoomEnemyPlace place) =>
-        ReferenceEquals(place, TopLint) ? state.TopLintState
-        : ReferenceEquals(place, MiddleLint) ? state.MiddleLintState
-        : ReferenceEquals(place, BottomLint) ? state.BottomLintState
-        : throw new InvalidOperationException($"Enemy {place.Ordinal} is not one of Kraid's lints.");
+    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's lints <paramref name="slot"/> is.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="slot"/> is not one of his lints.</exception>
+    internal KraidLintState LintStateOf(KraidEnemyState state, RoomEnemySlot slot) =>
+        ReferenceEquals(slot, TopLint) ? state.TopLintState
+        : ReferenceEquals(slot, MiddleLint) ? state.MiddleLintState
+        : ReferenceEquals(slot, BottomLint) ? state.BottomLintState
+        : throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's lints.");
 
-    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's fingernails <paramref name="place"/> is.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="place"/> is not one of his fingernails.</exception>
-    internal KraidNailState NailStateOf(KraidEnemyState state, RoomEnemyPlace place) =>
-        ReferenceEquals(place, FirstNail) ? state.FirstNailState
-        : ReferenceEquals(place, SecondNail) ? state.SecondNailState
-        : throw new InvalidOperationException($"Enemy {place.Ordinal} is not one of Kraid's fingernails.");
+    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's fingernails <paramref name="slot"/> is.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="slot"/> is not one of his fingernails.</exception>
+    internal KraidNailState NailStateOf(KraidEnemyState state, RoomEnemySlot slot) =>
+        ReferenceEquals(slot, FirstNail) ? state.FirstNailState
+        : ReferenceEquals(slot, SecondNail) ? state.SecondNailState
+        : throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's fingernails.");
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
-    internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
+    internal RoomEnemySlot Lint(KraidLintPart part) => part switch
     {
         KraidLintPart.Top => TopLint,
         KraidLintPart.Middle => MiddleLint,
@@ -100,7 +100,7 @@ internal sealed class KraidParts
     };
 
     /// <summary>His three lints, top first.</summary>
-    internal IEnumerable<RoomEnemyPlace> Lints
+    internal IEnumerable<RoomEnemySlot> Lints
     {
         get
         {
@@ -111,7 +111,7 @@ internal sealed class KraidParts
     }
 
     /// <summary>His two fingernails, first first.</summary>
-    internal IEnumerable<RoomEnemyPlace> Nails
+    internal IEnumerable<RoomEnemySlot> Nails
     {
         get
         {
@@ -121,26 +121,26 @@ internal sealed class KraidParts
     }
 
     /// <summary>His body, arm, lints and foot, in running order: every part but the fingernails.</summary>
-    internal IEnumerable<RoomEnemyPlace> AllButNails
+    internal IEnumerable<RoomEnemySlot> AllButNails
     {
         get
         {
             yield return Body;
             yield return Arm;
-            foreach (RoomEnemyPlace lint in Lints)
+            foreach (RoomEnemySlot lint in Lints)
                 yield return lint;
             yield return Foot;
         }
     }
 
     /// <summary>All eight parts in running order.</summary>
-    internal IEnumerable<RoomEnemyPlace> All
+    internal IEnumerable<RoomEnemySlot> All
     {
         get
         {
-            foreach (RoomEnemyPlace part in AllButNails)
+            foreach (RoomEnemySlot part in AllButNails)
                 yield return part;
-            foreach (RoomEnemyPlace nail in Nails)
+            foreach (RoomEnemySlot nail in Nails)
                 yield return nail;
         }
     }

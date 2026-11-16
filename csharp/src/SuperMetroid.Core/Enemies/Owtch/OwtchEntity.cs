@@ -2,19 +2,19 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>One Owtch occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Owtch species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => OwtchBehavior.InitializeOwtch(Place);
+    public void Initialize() => OwtchBehavior.InitializeOwtch(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Slot, context);
 
     /// <summary>The Owtch's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? OwtchBehavior.OwtchShotReaction : base.ShotReaction;

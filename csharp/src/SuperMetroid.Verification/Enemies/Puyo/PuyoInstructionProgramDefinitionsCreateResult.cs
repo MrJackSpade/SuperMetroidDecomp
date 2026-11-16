@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Puyo;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
-internal readonly record struct PuyoInstructionProgramDefinitionsCreateResult(RoomEnemySystem First, RoomEnemyPlace Second, PuyoEnemyState Third);
+internal readonly record struct PuyoInstructionProgramDefinitionsCreateResult(RoomEnemySystem First, RoomEnemySlot Second, PuyoEnemyState Third);

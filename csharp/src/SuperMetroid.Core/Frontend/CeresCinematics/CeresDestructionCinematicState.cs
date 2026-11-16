@@ -571,7 +571,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
 
-    /// <summary>Spawns authored blast waves and advances live Ceres actors in descending place order.</summary>
+    /// <summary>Spawns authored blast waves and advances live Ceres actors in descending slot order.</summary>
     private void StepCeresActors()
     {
         explosionSpawnerFrame++;
@@ -722,7 +722,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actor.Step(HandleZebesCue);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
-            // A subtitle the title has just spawned takes the next free object place, which the cinematic's object handling
+            // A subtitle the title has just spawned takes the next free object slot, which the cinematic's object handling
             // reaches after the title's on the same update: it runs once now and shows its first pose.
             if (spawnedSubtitle is { } subtitle)
             {

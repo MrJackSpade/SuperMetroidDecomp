@@ -16,28 +16,28 @@ internal static class EnemyOccupantStatesVerification
     internal static void VerifyEnemyOccupantStates()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
+        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         var killed = new DachoraEnemyState(DachoraAction.WaitingForSamus);
-        place.SetSpeciesState(killed);
-        AssertTrue(ReferenceEquals(killed, place.SpeciesState<DachoraEnemyState>()), "the occupant reads the state its species installed");
-        EnemyOccupantStates struck = place.OccupantStates;
-        place.Clear();
-        AssertEqual<DachoraEnemyState?>(null, place.SpeciesState<DachoraEnemyState>(), "a kill takes the occupant's state with it");
-        AssertThrows<InvalidOperationException>(() => place.RequireSpeciesState<DachoraEnemyState>(),
+        slot.SetSpeciesState(killed);
+        AssertTrue(ReferenceEquals(killed, slot.SpeciesState<DachoraEnemyState>()), "the occupant reads the state its species installed");
+        EnemyOccupantStates struck = slot.OccupantStates;
+        slot.Clear();
+        AssertEqual<DachoraEnemyState?>(null, slot.SpeciesState<DachoraEnemyState>(), "a kill takes the occupant's state with it");
+        AssertThrows<InvalidOperationException>(() => slot.RequireSpeciesState<DachoraEnemyState>(),
             "a read of a killed occupant's state fails");
         AssertTrue(ReferenceEquals(killed, struck.Find<DachoraEnemyState>()), "the struck occupant's own set still holds its state");
 
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-        place.SetSpeciesState(new DachoraEnemyState(DachoraAction.WaitingForSamus));
-        place.Unbind();
-        AssertEqual<DachoraEnemyState?>(null, place.SpeciesState<DachoraEnemyState>(), "a deletion takes the occupant's state with it");
+        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+        slot.SetSpeciesState(new DachoraEnemyState(DachoraAction.WaitingForSamus));
+        slot.Unbind();
+        AssertEqual<DachoraEnemyState?>(null, slot.SpeciesState<DachoraEnemyState>(), "a deletion takes the occupant's state with it");
 
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-        place.SetSpeciesState(new DachoraEnemyState(DachoraAction.WaitingForSamus));
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-        AssertEqual<DachoraEnemyState?>(null, place.SpeciesState<DachoraEnemyState>(), "a new occupant starts without its predecessor's state");
+        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+        slot.SetSpeciesState(new DachoraEnemyState(DachoraAction.WaitingForSamus));
+        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+        AssertEqual<DachoraEnemyState?>(null, slot.SpeciesState<DachoraEnemyState>(), "a new occupant starts without its predecessor's state");
         Console.WriteLine("Enemy occupant states: a kill, a deletion and a new occupant each end the previous occupant's state.");
     }
 

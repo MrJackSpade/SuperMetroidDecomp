@@ -21,20 +21,20 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyPuyoInstructionProgramDefinitions(ImportEnemyArtwork? artwork = null)
     {
-        (RoomEnemySystem enemies, RoomEnemyPlace place, PuyoEnemyState state) = Create(artwork);
+        (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
         AssertEqual(new AnimationPlayback<PuyoSegment>(PuyoAnimations.StartingWith(PuyoSegment.GroundedFast), AnimationPlace.StartOfAnimation), state.Playback, "Puyo starts on its fast grounded loop");
         foreach (PuyoSegment loop in new[] { PuyoSegment.GroundedFast, PuyoSegment.GroundedMedium, PuyoSegment.GroundedSlow })
         {
-            Start(place, state, loop);
+            Start(slot, state, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Segments, loop, PuyoFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Segments, loop)), $"Puyo {loop} loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Segments, loop)), $"Puyo {loop} loop");
         }
         foreach (PuyoSegment pose in new[] { PuyoSegment.TiltedFarRight, PuyoSegment.TiltedRight, PuyoSegment.Upright,
                      PuyoSegment.TiltedLeft, PuyoSegment.TiltedFarLeft })
         {
-            Start(place, state, pose);
+            Start(slot, state, pose);
             ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(place, 3), $"Puyo {pose} pose");
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), $"Puyo {pose} pose");
         }
         if (artwork is not null)
             foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoSegment>()).Distinct())
@@ -47,19 +47,19 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     private static PuyoInstructionProgramDefinitionsCreateResult Create(ImportEnemyArtwork? artwork)
     {
         var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork?.Bosses);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Puyo, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnSettings(new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0));
-        PuyoBehavior.InitializePuyo(place);
-        return new PuyoInstructionProgramDefinitionsCreateResult(enemies, place, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnSettings(new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0));
+        PuyoBehavior.InitializePuyo(slot);
+        return new PuyoInstructionProgramDefinitionsCreateResult(enemies, slot, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }
 
     /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>
-    private static void Start(RoomEnemyPlace place, PuyoEnemyState state, PuyoSegment program)
+    private static void Start(RoomEnemySlot slot, PuyoEnemyState state, PuyoSegment program)
     {
         state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        place.AnimationClock.Restart();
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Runs the Puyo checks and its program oracle against the local retail cartridge.</summary>

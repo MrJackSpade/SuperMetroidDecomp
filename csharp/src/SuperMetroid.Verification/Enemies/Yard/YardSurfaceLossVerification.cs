@@ -26,9 +26,9 @@ internal static class YardSurfaceLossVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Position = place.Position.WithWhole(new(512, 512));
-            place.Radius = new(8, 8);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Position = slot.Position.WithWhole(new(512, 512));
+            slot.Radius = new(8, 8);
             var state = new YardEnemyState(YardMovement.HoldingStill)
             {
                 Movement = YardMovement.CrawlingUpsideUpMovingRight,
@@ -37,7 +37,7 @@ internal static class YardSurfaceLossVerification
                 ConsecutiveTurnCounter = counted,
             };
 
-            enemies.YardBehavior.RunYardCrawlingMovement(place, state, air);
+            enemies.YardBehavior.RunYardCrawlingMovement(slot, state, air);
 
             string context = $"Yard missing its surface after {counted} misses";
             AssertEqual(expected, state.ConsecutiveTurnCounter, $"{context}: count");

@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Boyon;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
-internal readonly record struct BoyonBehaviorCreateResult(RoomEnemySystem First, RoomEnemyPlace Second, BoyonEnemyState Third);
+internal readonly record struct BoyonBehaviorCreateResult(RoomEnemySystem First, RoomEnemySlot Second, BoyonEnemyState Third);

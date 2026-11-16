@@ -18,7 +18,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PhantoonPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PhantoonEntity(this, place, common, _bossArtwork);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PhantoonEntity(this, slot, common, _bossArtwork);
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -60,7 +60,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets Phantoon's body up when the room spawns it.</summary>
-    internal void InitializePhantoonBody(RoomEnemyPlace body)
+    internal void InitializePhantoonBody(RoomEnemySlot body)
     {
         Combat.Phantoon = new PhantoonEnemyState(body);
 
@@ -84,7 +84,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared part initializer.</summary>
-    internal void InitializePhantoonPart(RoomEnemyPlace part)
+    internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
         // Each part is its own enemy, so the part's identity selects its animation; every part belongs to the encounter.
@@ -107,14 +107,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            throw new InvalidDataException($"Phantoon part place {part.Ordinal} holds {part.DefinitionId}, not a Phantoon part.");
+            throw new InvalidDataException($"Phantoon part slot {part.SlotIndex} holds {part.DefinitionId}, not a Phantoon part.");
         }
         part.SetSpeciesState(state);
         ResetPhantoonMouthControls(state);
     }
 
     /// <summary>Copies body presentation state into a physical part and starts its chosen animation.</summary>
-    private void StartPhantoonPart(RoomEnemyPlace part, PhantoonPartSegment segment)
+    private void StartPhantoonPart(RoomEnemySlot part, PhantoonPartSegment segment)
     {
         PhantoonEnemyState state = Combat.Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
@@ -136,7 +136,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Phantoon's encounter phase for one update.</summary>
     private void RunPhantoonMain(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         SamusState samus)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
@@ -259,14 +259,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
     }
 
-    /// <summary>Requires the body's encounter state; each part property requires its attached place when read.</summary>
-    internal PhantoonEnemyState RequireCompletePhantoonState(RoomEnemyPlace body) => Combat.RequirePhantoonState(body);
+    /// <summary>Requires the body's encounter state; each part property requires its attached slot when read.</summary>
+    internal PhantoonEnemyState RequireCompletePhantoonState(RoomEnemySlot body) => Combat.RequirePhantoonState(body);
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;
 
     /// <summary>Runs Phantoon's hurt reaction, which only flashes his colours.</summary>
-    internal void ApplyPhantoonHurt(RoomEnemyPlace body, PhantoonEnemyState state)
+    internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         PhantoonRoundState round = state.Round;
         bool showHealthColours = body.FlashTimer == 8 ||
@@ -286,7 +286,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shows his body in the colours of his health band.</summary>
-    internal void ShowPhantoonHealthColours(RoomEnemyPlace body) =>
+    internal void ShowPhantoonHealthColours(RoomEnemySlot body) =>
         (Combat.Phantoon ?? throw new InvalidOperationException("Phantoon's health colours show once Phantoon is loaded."))
             .Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(body)));
 
@@ -294,7 +294,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a Phantoon part's animation where the shared enemy animation runs: the frame expires on the update
     /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
-    internal void AdvancePhantoonPartAnimation(RoomEnemyPlace part)
+    internal void AdvancePhantoonPartAnimation(RoomEnemySlot part)
     {
         if (!part.AnimationClock.Expire())
             return;
@@ -313,7 +313,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
     internal void ApplyPhantoonPartCue(
-        RoomEnemyPlace part,
+        RoomEnemySlot part,
         PhantoonPartCue cue)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(part);
@@ -352,7 +352,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.Swoop.Requested = false;
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.PhaseTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
@@ -361,8 +361,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs PhantoonBody's main AI.</summary>
-    internal void RunPhantoonBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPhantoonMain(place, frame.Samus);
+        RunPhantoonMain(slot, frame.Samus);
     }
 }

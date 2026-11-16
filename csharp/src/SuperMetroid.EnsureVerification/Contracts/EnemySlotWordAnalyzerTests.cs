@@ -30,11 +30,11 @@ internal static class EnemySlotWordAnalyzerTests
         string source = $$"""
             namespace SuperMetroid.Core.Enemies
             {
-                public sealed class RoomEnemyPlace { {{slotMember}} }
+                public sealed class RoomEnemySlot { {{slotMember}} }
                 public sealed class FamilyEnemyState { {{other}} }
             }
             """;
-        SyntaxTree tree = CSharpSyntaxTree.ParseText(source, path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Enemies/RoomEnemyPlace.cs");
+        SyntaxTree tree = CSharpSyntaxTree.ParseText(source, path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Enemies/RoomEnemySlot.cs");
         var compilation = CSharpCompilation.Create(assembly, [tree], AnalyzerTests.References,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
         Diagnostic[] errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();

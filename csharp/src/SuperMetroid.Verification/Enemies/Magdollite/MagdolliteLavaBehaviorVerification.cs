@@ -25,7 +25,7 @@ internal static class MagdolliteLavaBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
         enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Health = 99, MaxHealth = 99 });
-        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);

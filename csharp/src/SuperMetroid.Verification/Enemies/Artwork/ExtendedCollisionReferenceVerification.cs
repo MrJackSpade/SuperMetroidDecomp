@@ -13,7 +13,7 @@ internal static class ExtendedCollisionReferenceVerification
     /// its output slot; this oracle remains independent of compiled geometry.</remarks>
     internal static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, byte frameBank, object?[] arguments)
     {
-        var enemy = (RoomEnemyPlace)(arguments[0] ?? throw new InvalidOperationException("Verification requires arguments[0]."));
+        var enemy = (RoomEnemySlot)(arguments[0] ?? throw new InvalidOperationException("Verification requires arguments[0]."));
         var target = (Position16<RoomPixels>)(arguments[1] ?? throw new InvalidOperationException("Verification requires arguments[1]."));
         var radius = (Extent16<RoomPixels>)(arguments[2] ?? throw new InvalidOperationException("Verification requires arguments[2]."));
         ushort x = target.X, y = target.Y;

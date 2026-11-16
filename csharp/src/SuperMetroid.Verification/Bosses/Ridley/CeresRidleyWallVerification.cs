@@ -20,7 +20,7 @@ internal static class CeresRidleyWallVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
-        var body = runtime.Enemies.Places.InUpdateOrder[0];
+        var body = runtime.Enemies.SlotTable.Slots[0];
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase = RidleyPhase.CeresLungeMain;

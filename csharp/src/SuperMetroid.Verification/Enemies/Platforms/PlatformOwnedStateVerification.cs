@@ -18,15 +18,15 @@ internal static class PlatformOwnedStateVerification
     internal static void VerifyPlatformOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Tripper, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Tripper, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         const int speedRecord = 5;
         const int accelerationCap = 3;
-        place.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
-        place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = PlatformHorizontalMovement.Left });
-        place.Position = place.Position.WithWholeY(ushort.MaxValue);
-        PlatformsBehavior.InitializePlatform(place);
+        slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
+        slot.SetSpawnSettings(slot.SpawnSettings<PlatformSpawnSettings>() with { Movement = PlatformHorizontalMovement.Left });
+        slot.Position = slot.Position.WithWholeY(ushort.MaxValue);
+        PlatformsBehavior.InitializePlatform(slot);
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 

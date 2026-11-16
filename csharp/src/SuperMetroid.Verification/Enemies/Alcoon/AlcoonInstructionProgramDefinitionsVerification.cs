@@ -47,7 +47,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices((installedArt ?? InstalledFixtures.EnemyArtwork).Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }, installedBosses: (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses);
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = assets.LevelData });
 
-        RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??
             throw new InvalidDataException("Real Alcoon initializer omitted slot-zero state.");
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
@@ -70,12 +70,12 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus });
-            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder)
+            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
                 // A playback that has just passed a frame beat is showing that pose; one resting on a held frame stands past
                 // its phase's last beat, the held frame.
-                if (place.DefinitionId == EnemyDefinitionId.Alcoon &&
-                    enemies.AlcoonStates[place.Ordinal] is { Playback: { Place.Beat: > 0 } playback } &&
+                if (slot.DefinitionId == EnemyDefinitionId.Alcoon &&
+                    enemies.AlcoonStates[slot.SlotIndex] is { Playback: { Place.Beat: > 0 } playback } &&
                     playback.Animation.Phases[playback.Place.Phase] is var phase &&
                     phase.FirstBeat + Math.Min(playback.Place.Beat, phase.BeatCount) - 1 is var shownBeat &&
                     AlcoonAnimations.Segments.Beats(phase.Segment)[shownBeat].ShownFrame is not null)

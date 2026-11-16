@@ -33,10 +33,10 @@ internal static class HopperHopArcVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Sidehopper, place.Definition);
-            place.Position = place.Position.WithWhole(new(64, 48));
-            place.Radius = new(8, 8);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Sidehopper, slot.Definition);
+            slot.Position = slot.Position.WithWhole(new(64, 48));
+            slot.Radius = new(8, 8);
             var state = new HopperEnemyState(HopperAction.ChooseHopSize)
             {
                 Action = HopperAction.Jumping,
@@ -45,9 +45,9 @@ internal static class HopperHopArcVerification
                 YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
                 YSpeedCurvePlaceDelta = step,
             };
-            place.SetSpeciesState(state);
+            slot.SetSpeciesState(state);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place, frame);
+            enemies.HoppersBehavior.RunHoppersMainAi(slot, frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted by the shutters' idle contact test, after Samus's movement has recorded the enemies she met for the update
 /// and before the enemy pass clears them. Her records hold the enemies themselves (#1702); only this test reads their
 /// positions. Evidence: the shared idle-shutter contact test at <c>$A2:EEE9</c> and <c>$A2:F1F6</c> ANDs the four
-/// direction words, which hold the enemy's place offset or all ones, and compares the result with the shutter's own
+/// direction words, which hold the enemy's slot offset or all ones, and compares the result with the shutter's own
 /// offset; the offsets are the positions shifted left, so the combination is the same in positions.
 /// </remarks>
 [CompatibilityService("An idle shutter takes Samus to be pressing against the enemy whose place the places of the solid enemies she met this update, combined bit by bit, name")]
-public static class SolidContactPlaceCombination
+public static class SolidContactSlotCombination
 {
     /// <summary>
     /// The place Samus's contacts combine to, or null when she met no solid enemy in any direction.

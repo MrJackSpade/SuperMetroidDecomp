@@ -52,9 +52,9 @@ internal static class EnemyEffectsFixtureVerification
         {
             if (art is not null)
                 Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
-            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0]) { Tongue = Enemies.Places.InUpdateOrder[1] };
+            Actor = new CrocomireEnemyState(Enemies.SlotTable.Slots[0]) { Tongue = Enemies.SlotTable.Slots[1] };
             var tongueState = new CrocomireTongueState();
-            Enemies.Places.InUpdateOrder[1].SetSpeciesState(tongueState);
+            Enemies.SlotTable.Slots[1].SetSpeciesState(tongueState);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
@@ -97,8 +97,8 @@ internal static class EnemyEffectsFixtureVerification
         AssertAnimationValues(expected.Actor, actual.Actor, context);
         AssertAnimationValues(expected.Effect, actual.Effect, context);
         AssertAnimationValues(expected.Enemies, actual.Enemies, context);
-        for (int slot = 0; slot < expected.Enemies.Places.InUpdateOrder.Count; slot++)
-            AssertAnimationValues(expected.Enemies.Places.InUpdateOrder[slot], actual.Enemies.Places.InUpdateOrder[slot], context);
+        for (int slot = 0; slot < expected.Enemies.SlotTable.Slots.Count; slot++)
+            AssertAnimationValues(expected.Enemies.SlotTable.Slots[slot], actual.Enemies.SlotTable.Slots[slot], context);
         AssertEqual(expected.Enemies.RoomEffectActors.Count, actual.Enemies.RoomEffectActors.Count, context + " live sprite objects");
         for (int spawned = 0; spawned < expected.Enemies.RoomEffectActors.Count; spawned++)
             AssertAnimationValues(expected.Enemies.RoomEffectActors[spawned], actual.Enemies.RoomEffectActors[spawned], context);

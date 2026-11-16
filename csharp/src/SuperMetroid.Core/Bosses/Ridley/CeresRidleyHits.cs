@@ -41,9 +41,9 @@ internal sealed class CeresRidleyHits
         if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             return 0;
 
-        RoomEnemyPlace place = _ridleyEncounter.Parts.Body;
-        if (place.DefinitionId != EnemyDefinitionId.RidleyCeres ||
-            place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || place.Contact.HasAny(EnemyContact.IgnoresSamus))
+        RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
+        if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
+            slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || slot.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
             return 0;
         }
@@ -52,7 +52,7 @@ internal sealed class CeresRidleyHits
         {
             if (!projectile.HasEnemyCollisionPayload ||
                 !FrameHitboxesOverlapRectangle(
-                    place,
+                    slot,
                     projectile.Position.Whole,
                     projectile.Radius))
             {
@@ -61,7 +61,7 @@ internal sealed class CeresRidleyHits
             if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile))
                 continue;
 
-            ResolveCeresRidleyShotAfterCollision(place);
+            ResolveCeresRidleyShotAfterCollision(slot);
             return 1;
         }
 
@@ -74,20 +74,20 @@ internal sealed class CeresRidleyHits
     /// reaction; keeping the reaction here prevents those two collisions from acquiring subtly different cinematic
     /// rules.
     /// </summary>
-    private void ResolveCeresRidleyShotAfterCollision(RoomEnemyPlace place)
+    private void ResolveCeresRidleyShotAfterCollision(RoomEnemySlot slot)
     {
-        RidleyEnemyState state = _ridleyEncounter.RequireRidley(place);
-        if (place.DefinitionId != EnemyDefinitionId.RidleyCeres)
+        RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
+        if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres)
         {
             throw new InvalidOperationException(
-                $"Enemy place {place.Ordinal} entered Ceres Ridley's shot branch as " +
-                $"definition {place.DefinitionId}.");
+                $"Enemy slot {slot.SlotIndex} entered Ceres Ridley's shot branch as " +
+                $"definition {slot.DefinitionId}.");
         }
 
         // The hurt flash starts at 13 and selects 14 only when the old nonzero timer is odd.
         // Testing any other property of it (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt flash.
-        place.FlashTimer = place.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(place.FlashTimer)
+        slot.FlashTimer = slot.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(slot.FlashTimer)
             ? 14
             : 13;
         state.HitCounter++;
@@ -97,9 +97,9 @@ internal sealed class CeresRidleyHits
         // for standalone renderers inspecting the colours before the next enemy update. Only the count's cadence
         // phase is read, and it wraps, so the count before zero reads as the last phase.
         UpdateRidleyHurtFlash(
-            place,
+            slot,
             state,
-            place.FrameCounter - 1);
+            slot.FrameCounter - 1);
         UpdateCeresRidleyHealthBand(state);
     }
 
@@ -110,13 +110,13 @@ internal sealed class CeresRidleyHits
     /// deliberately test the counter after an increment.
     /// </summary>
     internal static void UpdateRidleyHurtFlash(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
     {
-        state.BodyFlashing = place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter);
+        state.BodyFlashing = slot.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter);
         // His drawn parts take the phase one pass ahead of his body's colours.
-        state.TailAndWingsFlashing = place.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
+        state.TailAndWingsFlashing = slot.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
     }
 
     /// <summary>
@@ -152,22 +152,22 @@ internal sealed class CeresRidleyHits
         if (_ridleyEncounter.Ridley is null)
             return false;
 
-        RoomEnemyPlace place = _ridleyEncounter.Parts.Body;
-        if (!RidleyInteractions.IsRidleyDefinition(place.DefinitionId) ||
-            place.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
+        RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
+        if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
+            slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
             !samus.InvincibilityTimer.IsZero)
         {
             return false;
         }
 
-        if (place.Frame is null ||
-            place.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || place.Contact.HasAny(EnemyContact.IgnoresSamus))
+        if (slot.Frame is null ||
+            slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted) || slot.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
             return false;
         }
 
         if (!EnemyCollision.TryFindFrameHitboxReaction(
-                place,
+                slot,
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
                 contactKind: HitboxContactKind.Touch,
@@ -180,14 +180,14 @@ internal sealed class CeresRidleyHits
         {
             throw new InvalidDataException(
                 $"Ridley extended body selected touch reaction {bodyTouch?.ToString() ?? "(unnamed)"}, expected " +
-                $"{RidleyReactions.FrameHitboxTouch} from map {place.Frame}.");
+                $"{RidleyReactions.FrameHitboxTouch} from map {slot.Frame}.");
         }
 
         // Ridley's touch enters the common touch response that does not check for death. That distinction matters for
         // Screw Attack: a lethal body touch leaves Lower Norfair Ridley alive long enough
         // to select the forced zero-health lunge and grab Samus for the authored death.
         _collision.ResolveNormalEnemyTouch(
-            place,
+            slot,
             samus,
             deathAnimation: TouchDeathAnimation.Skip);
         return true;
@@ -200,7 +200,7 @@ internal sealed class CeresRidleyHits
     /// body and must never be substituted for this data.
     /// </summary>
     internal static bool FrameHitboxesOverlapRectangle(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)
     {
@@ -209,10 +209,10 @@ internal sealed class CeresRidleyHits
         int subjectTop = CoordinateAxis.Wrap(subject.Y - subjectRadius.Y);
         int subjectBottom = CoordinateAxis.Wrap(subject.Y + subjectRadius.Y);
         var components =
-            RidleyCollision.ComponentsAt(place.Frame);
+            RidleyCollision.ComponentsAt(slot.Frame);
         foreach (RidleyCollisionComponent component in components)
         {
-            Position16<RoomPixels> componentOrigin = place.Position.Whole + component.Offset;
+            Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
                 int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);

@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One Rinka occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Rinka species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeRinka(Place);
+    public void Initialize() => species.InitializeRinka(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Slot, context);
 
     /// <summary>Whether Rinka's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -43,7 +43,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyPlace place, E
     public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.RinkaPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>Runs Rinka's frozen tail before the common thaw; true when it ended the turn.</summary>
-    public override bool PreemptFrozenTurn() => species.RunRinkaFrozenTail(Place);
+    public override bool PreemptFrozenTurn() => species.RunRinkaFrozenTail(Slot);
 
     /// <summary>Rinka's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>

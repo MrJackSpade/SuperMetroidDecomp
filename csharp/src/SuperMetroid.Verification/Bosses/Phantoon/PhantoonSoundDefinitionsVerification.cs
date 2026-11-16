@@ -28,16 +28,16 @@ internal static class PhantoonSoundDefinitionsVerification
             "Phantoon materialization sound past definitions");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         var state = new PhantoonEnemyState(body)
         {
-            Eye = enemies.Places.InUpdateOrder[1],
-            Tentacles = enemies.Places.InUpdateOrder[2],
-            Mouth = enemies.Places.InUpdateOrder[3],
+            Eye = enemies.SlotTable.Slots[1],
+            Tentacles = enemies.SlotTable.Slots[2],
+            Mouth = enemies.SlotTable.Slots[3],
         };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
-        Action<RoomEnemyPlace, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
+        Action<RoomEnemySlot, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
         for (int call = 0; call < 6; call++)
         {

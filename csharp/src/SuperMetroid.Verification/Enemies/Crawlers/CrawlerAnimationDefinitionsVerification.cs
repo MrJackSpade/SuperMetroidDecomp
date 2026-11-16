@@ -56,28 +56,28 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(family == CrawlerAnimationFamily.OrangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, place.Definition);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(family == CrawlerAnimationFamily.OrangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
             AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))),
                 SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
                     new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
                 $"crawler population words {orientation} decode to its surface and block side");
-            place.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
-                place.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             }
-            place.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
+            slot.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (family == CrawlerAnimationFamily.OrangeZoomer)
             {
-                new Action<RoomEnemyPlace>(CrawlersBehavior.InitializeOrangeZoomer)(place);
+                new Action<RoomEnemySlot>(CrawlersBehavior.InitializeOrangeZoomer)(slot);
             }
             else
             {
-                new Action<RoomEnemyPlace, CrawlerAnimationFamily>(CrawlersBehavior.InitializeCrawler)(place, family);
+                new Action<RoomEnemySlot, CrawlerAnimationFamily>(CrawlersBehavior.InitializeCrawler)(slot, family);
             }
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
@@ -86,31 +86,31 @@ internal static class CrawlerAnimationDefinitionsVerification
                 $"crawler production initial selector {family}/{orientation}");
         }
 
-        Action<RoomEnemyPlace, CrawlerEnemyState> setVertical = CrawlersBehavior.SetCrawlerVerticalSurfaceAnimation;
-        Action<RoomEnemyPlace, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceAnimation;
+        Action<RoomEnemySlot, CrawlerEnemyState> setVertical = CrawlersBehavior.SetCrawlerVerticalSurfaceAnimation;
+        Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceAnimation;
         foreach (CrawlerAnimationFamily surfaceFamily in new[] { CrawlerAnimationFamily.Shared, CrawlerAnimationFamily.Viola, CrawlerAnimationFamily.Sciser, CrawlerAnimationFamily.Zero })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             var state = new CrawlerEnemyState(CrawlerAction.Settling) { SurfaceFamily = surfaceFamily };
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
-            setHorizontal(place, state);
+            setHorizontal(slot, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideRight)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production right surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
-            setHorizontal(place, state);
+            setHorizontal(slot, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideLeft)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production left surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
-            setVertical(place, state);
+            setVertical(slot, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideDown)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production down surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
-            setVertical(place, state);
+            setVertical(slot, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideUp)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production up surface {surfaceFamily}");

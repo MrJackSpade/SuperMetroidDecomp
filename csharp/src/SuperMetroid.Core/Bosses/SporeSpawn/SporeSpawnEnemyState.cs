@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
-    /// <summary>Binds boss-specific state to its live common enemy place.</summary>
-    internal SporeSpawnEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <summary>Binds boss-specific state to its live common enemy slot.</summary>
+    internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Spore Spawn's body's and his room's colours (#1512).</summary>
     internal SporeSpawnColours Colours { get; } = new();
 
-    /// <summary>Live common enemy place owned by the room enemy system; shared by movement, combat, animation, and stalk-projectile owners.</summary>
-    public RoomEnemyPlace Body { get; }
+    /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, animation, and stalk-projectile owners.</summary>
+    public RoomEnemySlot Body { get; }
     /// <summary>Current main-AI movement: the phase of the fight it runs each update.</summary>
     public SporeSpawnMovement Movement { get; internal set; }
     /// <summary>The body's animation and where it stands in it (#1600).</summary>

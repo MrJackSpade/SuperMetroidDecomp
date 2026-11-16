@@ -30,14 +30,14 @@ internal static class TorizoRestingLandingVerification
         RoomLevelData floor = CreateSolidRowsRoom(new(16, 16), firstSolidRow: 12, solidRowCount: 1);
 
         // A falling Torizo lands once: the quake starts on the update it meets the floor, and it then rests.
-        (RoomEnemySystem falling, RoomEnemyPlace place, TorizoEnemyState state) = NewTorizo(AboveFloor);
+        (RoomEnemySystem falling, RoomEnemySlot slot, TorizoEnemyState state) = NewTorizo(AboveFloor);
         state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);
         int updates = 0;
         while (falling.Earthquake.RemainingFrames == 0)
         {
             AssertTrue(updates < 64, "the falling Torizo reaches the floor");
             AssertTrue(!state.FallsAtRestingSpeed, $"update {updates}: the falling Torizo does not rest before it lands");
-            falling.TorizoBehavior.Movement.ApplyTorizoGravity(place, state, floor);
+            falling.TorizoBehavior.Movement.ApplyTorizoGravity(slot, state, floor);
             updates++;
         }
         AssertEqual(TorizoMotionDefinitions.LandingQuakeUpdates, falling.Earthquake.RemainingFrames, "the landing starts the quake");
@@ -45,17 +45,17 @@ internal static class TorizoRestingLandingVerification
         AssertEqual(TorizoMotionDefinitions.RestingFallSpeed, state.Velocity.Y, "the landed Torizo falls at the resting speed");
 
         // A resting Torizo on the floor meets it without a quake, update after update.
-        (RoomEnemySystem resting, RoomEnemyPlace restingPlace, TorizoEnemyState restingState) = NewTorizo(place.Position.Whole);
+        (RoomEnemySystem resting, RoomEnemySlot restingSlot, TorizoEnemyState restingState) = NewTorizo(slot.Position.Whole);
         restingState.FallAtRestingSpeed();
         for (int update = 0; update < 3; update++)
-            resting.TorizoBehavior.Movement.ApplyTorizoGravity(restingPlace, restingState, floor);
+            resting.TorizoBehavior.Movement.ApplyTorizoGravity(restingSlot, restingState, floor);
         AssertEqual(0, resting.Earthquake.RemainingFrames, "a resting Torizo on the floor starts no quake");
         AssertTrue(restingState.FallsAtRestingSpeed, "a resting Torizo on the floor keeps resting");
 
         // Gravity in the air ends the rest, so the next meeting with the floor is a landing.
-        (RoomEnemySystem airborne, RoomEnemyPlace airbornePlace, TorizoEnemyState airborneState) = NewTorizo(AboveFloor);
+        (RoomEnemySystem airborne, RoomEnemySlot airborneSlot, TorizoEnemyState airborneState) = NewTorizo(AboveFloor);
         airborneState.FallAtRestingSpeed();
-        airborne.TorizoBehavior.Movement.ApplyTorizoGravity(airbornePlace, airborneState, floor);
+        airborne.TorizoBehavior.Movement.ApplyTorizoGravity(airborneSlot, airborneState, floor);
         AssertTrue(!airborneState.FallsAtRestingSpeed, "gravity ends a resting Torizo's rest in the air");
         AssertEqual(TorizoMotionDefinitions.RestingFallSpeed + TorizoMotionDefinitions.StatueGravity, airborneState.Velocity.Y,
             "the resting Torizo in the air gains gravity");
@@ -67,7 +67,7 @@ internal static class TorizoRestingLandingVerification
         AssertTrue(!restingState.FallsAtRestingSpeed, "a jump's rise ends the rest");
 
         // A leap's landing quakes and rests the Torizo.
-        (RoomEnemySystem leaping, RoomEnemyPlace leapingPlace, TorizoEnemyState leapingState) = NewTorizo(AboveFloor);
+        (RoomEnemySystem leaping, RoomEnemySlot leapingSlot, TorizoEnemyState leapingState) = NewTorizo(AboveFloor);
         leapingState.Motion = TorizoBodyMotion.Leaping;
         leapingState.Landing = TorizoAnimation.FacingLeftLanding;
         leapingState.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);
@@ -76,16 +76,16 @@ internal static class TorizoRestingLandingVerification
         while (leaping.Earthquake.RemainingFrames == 0)
         {
             AssertTrue(updates < 64, "the leaping Torizo reaches the floor");
-            leaping.TorizoBehavior.Movement.MoveBody(leapingPlace, leapingState, floor);
+            leaping.TorizoBehavior.Movement.MoveBody(leapingSlot, leapingState, floor);
             updates++;
         }
         AssertTrue(leapingState.FallsAtRestingSpeed, "a leap's landing rests the Torizo");
 
         // A walk off a ledge starts the fall at the resting speed with no sideways speed.
-        (RoomEnemySystem walking, RoomEnemyPlace walkingPlace, TorizoEnemyState walkingState) = NewTorizo(AboveFloor);
+        (RoomEnemySystem walking, RoomEnemySlot walkingSlot, TorizoEnemyState walkingState) = NewTorizo(AboveFloor);
         walkingState.Motion = TorizoBodyMotion.Walking;
         walkingState.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-256, 1024);
-        walking.TorizoBehavior.Movement.MoveBody(walkingPlace, walkingState, CreateEmptyRoom(new(16, 16)));
+        walking.TorizoBehavior.Movement.MoveBody(walkingSlot, walkingState, CreateEmptyRoom(new(16, 16)));
         AssertTrue(walkingState.FallsAtRestingSpeed, "a walk off a ledge starts the fall resting");
         AssertEqual(EightEightVector<RoomPixels>.Zero.WithY(TorizoMotionDefinitions.RestingFallSpeed), walkingState.Velocity,
             "a walk off a ledge starts the fall at the resting speed");
@@ -94,15 +94,15 @@ internal static class TorizoRestingLandingVerification
     }
 
     /// <summary>A Torizo of a fresh room's enemies at <paramref name="at"/>, facing left, with Bomb Torizo's radii.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemyPlace Slot, TorizoEnemyState State) NewTorizo(Position16<RoomPixels> at)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, TorizoEnemyState State) NewTorizo(Position16<RoomPixels> at)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Position = FixedPosition<RoomPixels>.FromWhole(at);
-        place.Radius = Radius;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(at);
+        slot.Radius = Radius;
         var state = new TorizoEnemyState(isGolden: false);
-        place.SetSpeciesState(state);
-        return (enemies, place, state);
+        slot.SetSpeciesState(state);
+        return (enemies, slot, state);
     }
 
     /// <summary>Runs the Torizo resting landing check.</summary>

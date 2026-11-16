@@ -30,11 +30,11 @@ internal static class PhantoonDeathExplosionsVerification
         foreach (bool full in new[] { false, true })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var body = enemies.Places.InUpdateOrder[0];
-            var tentacles = enemies.Places.InUpdateOrder[2];
+            var body = enemies.SlotTable.Slots[0];
+            var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
             enemies.PhantoonBehavior.Combat.Phantoon = state;
-            Action<RoomEnemyPlace, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
+            Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseTimer = 15;
             state.Phase = PhantoonPhase.DyingExplosions;

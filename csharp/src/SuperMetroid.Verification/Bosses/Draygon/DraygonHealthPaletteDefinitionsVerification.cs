@@ -49,7 +49,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) });
         Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]);
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] productionHealth =
             [6000, 5250, 5249, 4500, 4499, 3750, 3749, 3000, 2999,

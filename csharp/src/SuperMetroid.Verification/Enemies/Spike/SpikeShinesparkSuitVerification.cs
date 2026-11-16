@@ -165,7 +165,7 @@ internal static class SpikeShinesparkSuitVerification
         runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         RoomLevelData level = runtime.Room.LoadedLevelData;
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
-        foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
+        foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
             enemy.Clear();
         foreach (EnemyProjectile projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             projectile.Delete();

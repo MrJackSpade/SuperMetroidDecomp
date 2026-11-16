@@ -46,14 +46,14 @@ internal sealed class EnemySpeciesRegistry
         return registry;
     }
 
-    /// <summary>Creates the entity for the occupant <paramref name="place"/> now holds, through its species' factory.</summary>
-    /// <param name="place">The place, already holding its new identity.</param>
-    /// <exception cref="InvalidOperationException">No species owns the place's definition.</exception>
-    internal IEnemyEntity Create(RoomEnemyPlace place)
+    /// <summary>Creates the entity for the occupant <paramref name="slot"/> now holds, through its species' factory.</summary>
+    /// <param name="slot">The slot, already holding its new identity.</param>
+    /// <exception cref="InvalidOperationException">No species owns the slot's definition.</exception>
+    internal IEnemyEntity Create(RoomEnemySlot slot)
     {
-        Ensure.NotNull(place);
-        if (!_factories.TryGetValue(place.DefinitionId, out IEnemyEntityFactory? factory))
-            throw new InvalidOperationException($"No enemy species owns definition {place.DefinitionId}.");
-        return factory.Create(place, _common);
+        Ensure.NotNull(slot);
+        if (!_factories.TryGetValue(slot.DefinitionId, out IEnemyEntityFactory? factory))
+            throw new InvalidOperationException($"No enemy species owns definition {slot.DefinitionId}.");
+        return factory.Create(slot, _common);
     }
 }

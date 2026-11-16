@@ -14,11 +14,11 @@ internal static class RioOwnedStateVerification
     internal static void VerifyRioOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
-        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
+        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);

@@ -2,19 +2,19 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>One Spark occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Spark species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SparkEntity(SparkBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => SparkBehavior.InitializeSpark(Place);
+    public void Initialize() => SparkBehavior.InitializeSpark(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Slot, context);
 
     /// <summary>The pass-through shot reaction where the Spark's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? SparkBehavior.PassThroughShot : base.ShotReaction;

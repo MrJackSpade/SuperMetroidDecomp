@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Selects the enemies the enemy pass processes this frame: the processing window, on-screen tests, and the active and
-/// interactive enemies, each in <see cref="EnemyPlaceOrder"/>.
+/// interactive enemies, each in <see cref="EnemySlotOrder"/>.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyProcessingWindow
@@ -15,31 +15,31 @@ internal sealed class EnemyProcessingWindow
     private readonly IStepBeforeEnemySelection _stepBeforeSelection;
     /// <summary>Room load guard for selection against a valid enemy population.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>The places traversed, in place order, while choosing active enemies.</summary>
-    private readonly EnemyPlaces _places;
+    /// <summary>The slots traversed, in slot order, while choosing active enemies.</summary>
+    private readonly EnemySlotTable _slotTable;
 
     /// <summary>Binds processing-window decisions to one room's frame policy and enemy pool.</summary>
     /// <param name="frameContext">The frame policy that can force off-screen enemies into the active list.</param>
     /// <param name="stepBeforeSelection">The species' work that steps at the start of the update, before selection.</param>
     /// <param name="room">The room load guard.</param>
-    /// <param name="places">The room's enemy places.</param>
-    internal EnemyProcessingWindow(EnemyFrameContext frameContext, IStepBeforeEnemySelection stepBeforeSelection, EnemyRoomBinding room, EnemyPlaces places)
+    /// <param name="slotTable">The room's enemy places.</param>
+    internal EnemyProcessingWindow(EnemyFrameContext frameContext, IStepBeforeEnemySelection stepBeforeSelection, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _frameContext = frameContext;
         _stepBeforeSelection = stepBeforeSelection;
         _room = room;
-        _places = places;
+        _slotTable = slotTable;
     }
-    /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in place order.</summary>
-    private readonly List<RoomEnemyPlace> _activeEnemies = new();
-    /// <summary>The active enemies still eligible for Samus interaction and grapple endpoint scans, in place order.</summary>
-    private readonly List<RoomEnemyPlace> _interactiveEnemies = new();
+    /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in slot order.</summary>
+    private readonly List<RoomEnemySlot> _activeEnemies = new();
+    /// <summary>The active enemies still eligible for Samus interaction and grapple endpoint scans, in slot order.</summary>
+    private readonly List<RoomEnemySlot> _interactiveEnemies = new();
 
-    /// <summary>The enemies scheduled for AI this frame, in place order.</summary>
-    internal IReadOnlyList<RoomEnemyPlace> ActiveEnemies => _activeEnemies;
+    /// <summary>The enemies scheduled for AI this frame, in slot order.</summary>
+    internal IReadOnlyList<RoomEnemySlot> ActiveEnemies => _activeEnemies;
 
-    /// <summary>The active enemies still eligible for Samus interaction, in place order.</summary>
-    internal IReadOnlyList<RoomEnemyPlace> InteractiveEnemies => _interactiveEnemies;
+    /// <summary>The active enemies still eligible for Samus interaction, in slot order.</summary>
+    internal IReadOnlyList<RoomEnemySlot> InteractiveEnemies => _interactiveEnemies;
 
     /// <summary>
     /// Steps the species' work that runs before selection (the Morph Ball eye's beam), then decides which enemies to process.
@@ -59,32 +59,32 @@ internal sealed class EnemyProcessingWindow
         DetermineWhichEnemiesToProcess(camera);
     }
 
-    /// <summary>Rebuilds active and interactive lists after clearing deleted places and applying off-screen policy.</summary>
+    /// <summary>Rebuilds active and interactive lists after clearing deleted slots and applying off-screen policy.</summary>
     internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
     {
         _activeEnemies.Clear();
         _interactiveEnemies.Clear();
-        foreach (RoomEnemyPlace place in _places.InUpdateOrder)
+        foreach (RoomEnemySlot slot in _slotTable.Slots)
         {
             // A place with no enemy, one awaiting its enemy's respawn among them, is not processed.
-            if (place.DefinitionId == EnemyDefinitionId.None)
+            if (slot.DefinitionId == EnemyDefinitionId.None)
                 continue;
-            if (place.Presence.HasAny(EnemyPresence.Deleted))
+            if (slot.Presence.HasAny(EnemyPresence.Deleted))
             {
-                place.Unbind();
+                slot.Unbind();
                 continue;
             }
 
             bool active = _frameContext.ProcessAllEnemies ||
-                place.Processing.HasAny(EnemyProcessing.OffScreen) ||
-                (place.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None ||
-                IsWithinProcessingWindow(place, camera);
+                slot.Processing.HasAny(EnemyProcessing.OffScreen) ||
+                (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None ||
+                IsWithinProcessingWindow(slot, camera);
             if (!active)
                 continue;
 
-            _activeEnemies.Add(place);
-            if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
-                _interactiveEnemies.Add(place);
+            _activeEnemies.Add(slot);
+            if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
+                _interactiveEnemies.Add(slot);
         }
     }
 
@@ -95,29 +95,29 @@ internal sealed class EnemyProcessingWindow
     /// pipe bugs treat as on screen.
     /// </summary>
     internal static bool IsWithinProcessingWindow(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        !CoordinateAxis.Precedes(place.Radius.X + place.Position.X.Whole, camera.X) &&
-        !CoordinateAxis.Precedes(place.Radius.X + camera.X + EnemyView.Extent, place.Position.X.Whole) &&
-        !CoordinateAxis.Precedes(place.Position.Y.Whole + ProcessingWindowAboveView, camera.Y) &&
-        !CoordinateAxis.Precedes(camera.Y + EnemyView.Extent - ProcessingWindowAboveView, place.Position.Y.Whole);
+        !CoordinateAxis.Precedes(slot.Radius.X + slot.Position.X.Whole, camera.X) &&
+        !CoordinateAxis.Precedes(slot.Radius.X + camera.X + EnemyView.Extent, slot.Position.X.Whole) &&
+        !CoordinateAxis.Precedes(slot.Position.Y.Whole + ProcessingWindowAboveView, camera.Y) &&
+        !CoordinateAxis.Precedes(camera.Y + EnemyView.Extent - ProcessingWindowAboveView, slot.Position.Y.Whole);
 
     /// <summary>How far above the view the processing window reaches, and so how far short of its bottom edge it stops.</summary>
     private const int ProcessingWindowAboveView = 8;
 
     /// <summary>Whether the enemy's centre lies in the view (<see cref="EnemyView.Contains"/>).</summary>
-    internal static bool EnemyCenterIsOnScreen(RoomEnemyPlace place, Position16<RoomPixels> camera) =>
-        EnemyView.Contains(place.Position.Whole, camera);
+    internal static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
+        EnemyView.Contains(slot.Position.Whole, camera);
 
     /// <summary>
     /// A negative X, a right edge left of the camera, or a position at least the view's width right of the camera is
     /// off-screen.
     /// </summary>
-    internal static bool EnemyIsHorizontallyOffScreen(RoomEnemyPlace place, int cameraX)
+    internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, int cameraX)
     {
-        if (CoordinateAxis.AsSigned(place.Position.X.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
-        int fromCamera = CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - cameraX);
-        return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, EnemyView.Extent + place.Radius.X);
+        int fromCamera = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - cameraX);
+        return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, EnemyView.Extent + slot.Radius.X);
     }
 }

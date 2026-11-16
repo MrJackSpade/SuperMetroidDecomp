@@ -21,7 +21,7 @@ internal sealed class TourianObjects
     /// <summary>The room's room objects, which the fake wall, the acid trigger and the access floor's change join.</summary>
     private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Binds Tourian room behaviours to the active room's services and room-object places.</summary>
+    /// <summary>Binds Tourian room behaviours to the active room's services and room-object slots.</summary>
     internal TourianObjects(IRoomSamusAccess samus, IRoomObjectEnemyEffects enemies, IRoomFxMotion roomFx,
         RoomObjectPlaceList places)
     {
@@ -34,7 +34,7 @@ internal sealed class TourianObjects
     /// Sets up a Metroid room's clearance watch: its placement names the event it marks, or none for a watch that
     /// observes nothing, and it stays in the room for good.
     /// </summary>
-    internal static void SetupMetroidsCleared(RoomObjectPlace place)
+    internal static void SetupMetroidsClearedSlot(RoomObjectPlace place)
     {
         Ensure.NotNull(place);
         place.Become(new MetroidRoomClearanceObject((place.Argument as MetroidRoomArgument

@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// them, so they are kept although they show and do nothing else.
 /// </remarks>
 /// <param name="species">The Tourian entrance statue species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeTourianEntranceStatue(Place);
+    public void Initialize() => species.InitializeTourianEntranceStatue(Slot);
 
     /// <inheritdoc/>
     /// <remarks>A placement has no behaviour of its own before it leaves.</remarks>
@@ -28,5 +28,5 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
 
     /// <inheritdoc/>
     /// <remarks>The placement leaves the room: its first animation step is its last.</remarks>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Place.Presence = Place.Presence.With(EnemyPresence.Deleted);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Slot.Presence = Slot.Presence.With(EnemyPresence.Deleted);
 }

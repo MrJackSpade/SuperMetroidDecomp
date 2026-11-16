@@ -47,7 +47,7 @@ internal static class ZoaAnimationDefinitionsVerification
     {
         foreach (ZoaSegment selector in Enum.GetValues<ZoaSegment>())
         {
-            var place = NewZoaAnimationPlace();
+            var slot = NewZoaAnimationSlot();
             var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
             {
                 RequestedAnimation = selector,
@@ -55,8 +55,8 @@ internal static class ZoaAnimationDefinitionsVerification
                     ? ZoaSegment.FacingLeftRising
                     : ZoaSegment.FacingLeftShooting,
             };
-            ZoaBehavior.SetZoaAnimation(place, state);
-            AssertZoaAnimationHandoff(place, state, selector, $"Zoa {selector}");
+            ZoaBehavior.SetZoaAnimation(slot, state);
+            AssertZoaAnimationHandoff(slot, state, selector, $"Zoa {selector}");
         }
     }
 
@@ -65,18 +65,18 @@ internal static class ZoaAnimationDefinitionsVerification
         bool facingRight)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        place.Bind(EnemyDefinitionId.Zoa, place.Definition);
-        ZoaBehavior.InitializeZoa(place);
+        slot.Bind(EnemyDefinitionId.Zoa, slot.Definition);
+        ZoaBehavior.InitializeZoa(slot);
         ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
 
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
-            Position = new(new(unchecked((ushort)(place.Position.X.Whole + (facingRight ? 0x10 : -0x10))), 0), new(place.Position.Y.Whole, 0)),
+            Position = new(new(unchecked((ushort)(slot.Position.X.Whole + (facingRight ? 0x10 : -0x10))), 0), new(slot.Position.Y.Whole, 0)),
         };
-        ZoaBehavior.RunZoaWait(place, (state), samus);
+        ZoaBehavior.RunZoaWait(slot, (state), samus);
         ZoaSegment direction = facingRight
             ? ZoaSegment.FacingRightShooting
             : ZoaSegment.FacingLeftShooting;
@@ -84,26 +84,26 @@ internal static class ZoaAnimationDefinitionsVerification
             ? ZoaSegment.FacingRightRising
             : ZoaSegment.FacingLeftRising;
         AssertZoaAnimationHandoff(
-            place,
+            slot,
             state,
             rising,
             facingRight ? "live right-facing Zoa rise" : "live left-facing Zoa rise");
 
-        ZoaBehavior.RunZoaRising(place, state, samus);
+        ZoaBehavior.RunZoaRising(slot, state, samus);
         AssertZoaAnimationHandoff(
-            place,
+            slot,
             state,
             direction,
             facingRight ? "live right-facing Zoa shoot" : "live left-facing Zoa shoot");
     }
 
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
-    private static RoomEnemyPlace NewZoaAnimationPlace() =>
-        new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry).WithAnimationClock(hold: 0x2222);
+    private static RoomEnemySlot NewZoaAnimationSlot() =>
+        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Checks requested and installed selectors, the started animation, and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         ZoaEnemyState state,
         ZoaSegment expected,
         string context)
@@ -115,7 +115,7 @@ internal static class ZoaAnimationDefinitionsVerification
         AssertEqual(new AnimationPlayback<ZoaSegment>(ZoaAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");
-        AssertEqual(1, place.AnimationClock.Hold.RawValue, $"{context} instruction timer");
+        AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
     }
 
 }

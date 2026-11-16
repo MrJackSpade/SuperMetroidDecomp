@@ -8,70 +8,70 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One MotherBrain occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The MotherBrain species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
+internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (MotherBrainPartDefinitions.Parts[Place.DefinitionId])
+        switch (MotherBrainPartDefinitions.Parts[Slot.DefinitionId])
         {
             case MotherBrainPart.Body:
-                species.Body.InitializeMotherBrainBody(Place);
+                species.Body.InitializeMotherBrainBody(Slot);
                 break;
             case MotherBrainPart.Head:
-                species.Head.InitializeMotherBrainHead(Place);
+                species.Head.InitializeMotherBrainHead(Slot);
                 break;
             case MotherBrainPart.Tubes:
-                MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Place);
+                MotherBrainFakeDeath.InitializeMotherBrainFallingTube(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"MotherBrain entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (MotherBrainPartDefinitions.Parts[Place.DefinitionId])
+        switch (MotherBrainPartDefinitions.Parts[Slot.DefinitionId])
         {
             case MotherBrainPart.Body:
-                species.RunMotherBrainBodyMainAi(Place, frame);
+                species.RunMotherBrainBodyMainAi(Slot, frame);
                 break;
             case MotherBrainPart.Head:
-                species.RunMotherBrainHeadMainAi(Place, frame);
+                species.RunMotherBrainHeadMainAi(Slot, frame);
                 break;
             case MotherBrainPart.Tubes:
-                species.FakeDeath.RunMotherBrainFallingTubeMain(Place);
+                species.FakeDeath.RunMotherBrainFallingTubeMain(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"MotherBrain entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        switch (MotherBrainPartDefinitions.Parts[Place.DefinitionId])
+        switch (MotherBrainPartDefinitions.Parts[Slot.DefinitionId])
         {
             case MotherBrainPart.Tubes:
-                MotherBrainBody.AdvanceMotherBrainTubeAnimation(Place);
+                MotherBrainBody.AdvanceMotherBrainTubeAnimation(Slot);
                 break;
             case MotherBrainPart.Body or MotherBrainPart.Head:
-                species.AdvanceMotherBrainBodyTypedAnimation(Place, context);
+                species.AdvanceMotherBrainBodyTypedAnimation(Slot, context);
                 break;
             default:
-                throw new InvalidOperationException($"MotherBrain entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <summary>The part the occupant is.</summary>
-    private MotherBrainPart Part => MotherBrainPartDefinitions.Parts[Place.DefinitionId];
+    private MotherBrainPart Part => MotherBrainPartDefinitions.Parts[Slot.DefinitionId];
 
     /// <summary>The head's touch reaction, which its definition leaves to it; the body and tubes name shared ones.</summary>
     public EnemyReaction? SpeciesTouch => Part == MotherBrainPart.Head ? MotherBrainReactions.HeadTouch : null;
@@ -82,7 +82,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPl
         MotherBrainPart.Head => MotherBrainReactions.HeadShot,
         MotherBrainPart.Body => MotherBrainReactions.BodyShot,
         MotherBrainPart.Tubes => null,
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Place.DefinitionId}."),
+        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
 
     /// <summary>Whether the head's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
@@ -104,7 +104,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPl
         MotherBrainPart.Body => species.Combat.BodyShotReaction,
         MotherBrainPart.Head => species.Combat.HeadShotReaction,
         MotherBrainPart.Tubes => base.ShotReaction,
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Place.DefinitionId}."),
+        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
 
     /// <summary>
@@ -132,20 +132,20 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyPl
     /// <exception cref="InvalidDataException">The occupant is the head or the body.</exception>
     public override EnemyPowerBombReaction? PowerBombReaction =>
         (Part is MotherBrainPart.Head or MotherBrainPart.Body) && LeavesPowerBombToSpecies
-            ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
+            ? throw new InvalidDataException($"Enemy {Slot.DefinitionId} has no response to its own Power Bomb reaction.")
             : base.PowerBombReaction;
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MotherBrainCombat.FindMotherBrainHitboxReaction(Place, probe, out reaction);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MotherBrainCombat.FindMotherBrainHitboxReaction(Slot, probe, out reaction);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        Place.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(selected)
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyPictureFrames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
     /// <summary>Shots meet the body's and head's frames' hitboxes; their contact and the tubes' use the definition's radius.</summary>
     public override EnemyCapabilities Capabilities =>
-        Place.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's and head's own shot reactions, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>

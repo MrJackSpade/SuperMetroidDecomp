@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// spawn fills the earliest emptied place, and enemies update, queue for drawing and so overlap in place order,
 /// while the blast reaches them from the last place back to the first.
 /// </summary>
-internal static class EnemyPlaceOrder
+internal static class EnemySlotOrder
 {
     /// <summary>
     /// How many enemies, counting each part of a multipart enemy, a room holds at once: the game's thirty-two, kept
@@ -17,24 +17,24 @@ internal static class EnemyPlaceOrder
     public const int Capacity = 32;
 
     /// <summary>The empty place a newly spawned enemy takes: the earliest, or null when every place is taken.</summary>
-    /// <param name="places">The room's places, in order.</param>
-    internal static RoomEnemyPlace? FirstFree(IReadOnlyList<RoomEnemyPlace> places)
+    /// <param name="slots">The room's places, in order.</param>
+    internal static RoomEnemySlot? FirstFree(IReadOnlyList<RoomEnemySlot> slots)
     {
-        Ensure.NotNull(places);
-        foreach (RoomEnemyPlace place in places)
+        Ensure.NotNull(slots);
+        foreach (RoomEnemySlot slot in slots)
         {
-            if (place.IsFree)
-                return place;
+            if (slot.IsFree)
+                return slot;
         }
         return null;
     }
 
     /// <summary>The places in the order a Power Bomb's blast reaches them: from the last back to the first.</summary>
-    /// <param name="places">The room's places, in order.</param>
-    internal static IEnumerable<RoomEnemyPlace> InBlastOrder(IReadOnlyList<RoomEnemyPlace> places)
+    /// <param name="slots">The room's places, in order.</param>
+    internal static IEnumerable<RoomEnemySlot> InBlastOrder(IReadOnlyList<RoomEnemySlot> slots)
     {
-        Ensure.NotNull(places);
-        for (int ordinal = places.Count - 1; ordinal >= 0; ordinal--)
-            yield return places[ordinal];
+        Ensure.NotNull(slots);
+        for (int ordinal = slots.Count - 1; ordinal >= 0; ordinal--)
+            yield return slots[ordinal];
     }
 }

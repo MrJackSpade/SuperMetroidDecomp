@@ -7,7 +7,7 @@ internal interface IEnemyLoaderHooks
     bool HasDeferredRinkaLoaderTimeCameraReads { get; }
 
     /// <summary>Completes the Rinka spawns deferred to the loader's camera.</summary>
-    void CompleteRinkaLoaderTimeCameraReads(Func<int, bool> loaderInitializedPlace, Position16<RoomPixels> camera);
+    void CompleteRinkaLoaderTimeCameraReads(Func<int, bool> loaderInitializedSlot, Position16<RoomPixels> camera);
 
     /// <summary>Spawns the pre-Phantoon room's setup projectile.</summary>
     void SpawnPrePhantoonRoomProjectile();

@@ -25,7 +25,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
         foreach (EnemyDeathExplosion animation in Enum.GetValues<EnemyDeathExplosion>())
         {
             EnemyDropFixture variant = CreateEnemyDropFixture(CreateDropTestSamus(), randomValues: []);
-            RoomEnemyPlace enemy = variant.System.Places.InUpdateOrder[0];
+            RoomEnemySlot enemy = variant.System.SlotTable.Slots[0];
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             variant.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
             EnemyProjectile explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
@@ -35,10 +35,10 @@ internal static class EnemyDeathProjectileBehaviorVerification
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
+        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemySlotFixtures.StandIn);
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
-        RoomEnemyPlace killed = fixture.System.Places.InUpdateOrder[0];
-        killed.Bind(EnemyPlaceFixtures.StandIn, killed.Definition);
+        RoomEnemySlot killed = fixture.System.SlotTable.Slots[0];
+        killed.Bind(EnemySlotFixtures.StandIn, killed.Definition);
         killed.Position = killed.Position.WithWhole(new(320, 120));
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: EnemyDeathExplosion.Small);
         EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

@@ -15,7 +15,7 @@ internal static class BombTorizoDroolSineVerification
     /// <summary>Checks both facing modes and native velocity table indexes for every drool random value.</summary>
     internal static void VerifyBombTorizoDroolSine(CartridgeImportAddressSpace rom)
     {
-        Action<RoomEnemySystem, RoomEnemyPlace> spawn =
+        Action<RoomEnemySystem, RoomEnemySlot> spawn =
             (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo);
 
         for (int random = byte.MinValue; random <= byte.MaxValue; random++)
@@ -61,7 +61,7 @@ internal static class BombTorizoDroolSineVerification
     /// <summary>Spawns drool through production behavior with sine ROM reads forbidden and compares its velocity and origin to cartridge words.</summary>
     private static void VerifyBombTorizoDroolSpawn(
         CartridgeImportAddressSpace rom,
-        Action<RoomEnemySystem, RoomEnemyPlace> spawn,
+        Action<RoomEnemySystem, RoomEnemySlot> spawn,
         int random,
         ushort parameter1,
         int expectedIndex,
@@ -70,7 +70,7 @@ internal static class BombTorizoDroolSineVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue;
 
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
         torizo.BindTorizoFixtureState(parameter1);
 

@@ -15,12 +15,12 @@ internal static class NuclearWaffleOwnedStateVerification
     internal static void VerifyNuclearWaffleOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Puromi, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(24, 32));
-        place.SetSpawnParameter2(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(1, 6));
-        place.Position = place.Position.WithWhole(new(384, 512));
-        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(24, 32));
+        slot.SetSpawnParameter2(EnemyDefinitionId.Puromi, LittleEndianBytes.Word(1, 6));
+        slot.Position = slot.Position.WithWhole(new(384, 512));
+        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertEqual<NuclearWaffleAction?>(NuclearWaffleAction.Waiting, state.Action, "a new Nuclear Waffle waits");
         AssertEqual(6, state.WaitingTimer, "the wait starts at the population's reset value");

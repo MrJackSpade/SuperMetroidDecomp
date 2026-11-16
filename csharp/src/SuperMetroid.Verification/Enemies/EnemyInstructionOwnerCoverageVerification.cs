@@ -97,7 +97,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "only the definitions the game never places have no species");
 
         var unknownEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace unknown = unknownEnemies.Places.InUpdateOrder[0];
+        RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
         // A definition no species owns has no entity to become (#2010): binding it fails, naming the definition, instead
         // of creating a placeholder that runs nothing.
         const EnemyDefinitionId unowned = (EnemyDefinitionId)0x9000;
@@ -143,13 +143,13 @@ internal static class EnemyInstructionOwnerCoverageVerification
             enemies.VerificationServices().NextRandom = () => 0;
             enemies.VerificationServices().ReadRandom = () => 0;
 
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             // The placement's settings are recorded before the entity is bound, as a room load records them, so a species
             // that places several actors (the Ceres doors and walls) creates the one the placement names (#1953, #1999).
-            place.SetSpawnSettings(population.SpawnSettings);
+            slot.SetSpawnSettings(population.SpawnSettings);
             try
             {
-                place.Bind(definitionPointer, place.Definition);
+                slot.Bind(definitionPointer, slot.Definition);
             }
             catch (InvalidOperationException exception) when (
                 exception.Message.StartsWith("No enemy species owns definition", StringComparison.Ordinal))
@@ -157,22 +157,22 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // The registry refuses a definition no species owns; the audit records it and the caller asserts which.
                 return new DefinitionOutcome(false, false, [], WithoutSpecies: true);
             }
-            place.Bind(place.DefinitionId, definition);
-            place.Radius = new(definition.Radius.X, definition.Radius.Y);
-            place.Health = definition.Health;
-            place.Position = place.Position.WithWhole(new(population.Position.X, population.Position.Y));
-            place.Contact = population.Contact;
-            place.Processing = population.Processing;
-            place.Presence = population.Presence;
-            place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-            place.AnimationClock.ShowsNewFrame = false;
+            slot.Bind(slot.DefinitionId, definition);
+            slot.Radius = new(definition.Radius.X, definition.Radius.Y);
+            slot.Health = definition.Health;
+            slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
+            slot.Contact = population.Contact;
+            slot.Processing = population.Processing;
+            slot.Presence = population.Presence;
+            slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
+            slot.AnimationClock.ShowsNewFrame = false;
 
-            place.AnimationClock.StepOnNextUpdate();
+            slot.AnimationClock.StepOnNextUpdate();
 
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.RunInitializationAi(place, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) });
+                EnemyLifecycle.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) });
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(
@@ -195,14 +195,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
             // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
             // removed by the scheduler before any AI or instruction frame.
             bool processesInstructions =
-                place.Processing.HasAny(EnemyProcessing.Animates) &&
-                !place.Presence.HasAny(EnemyPresence.Deleted);
+                slot.Processing.HasAny(EnemyProcessing.Animates) &&
+                !slot.Presence.HasAny(EnemyPresence.Deleted);
             if (!processesInstructions)
                 continue;
 
             // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
             definitionNeedsOwner = true;
-            if (place.Entity is IEnemyTypedAnimation { HasTypedAnimation: true })
+            if (slot.Entity is IEnemyTypedAnimation { HasTypedAnimation: true })
                 definitionHasOwner = true;
             else
                 unresolved.Add($"{definitionPointer} has no typed animation");
@@ -292,7 +292,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         {
             int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
             for (int recordIndex = 0;
-                 recordIndex < EnemyPlaceOrder.Capacity;
+                 recordIndex < EnemySlotOrder.Capacity;
                  recordIndex++, cursor += 16)
             {
                 ushort definitionPointerWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);

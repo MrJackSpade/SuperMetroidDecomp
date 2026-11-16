@@ -52,14 +52,14 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
-    internal void InitializeMotherBrainHead(RoomEnemyPlace head)
+    internal void InitializeMotherBrainHead(RoomEnemySlot head)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidDataException("Mother Brain's head appeared before her body.");
 
         head.Health = 3000;
         // The brain initializer gives the head enemy the dummy animation for life (the encounter state's
-        // head-place cursor starts there): its dummy frame is the head's collision hitbox.
+        // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
         // The visible brain runs a separate animation.
         head.AnimationClock.StepOnNextUpdate();
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -69,7 +69,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
-    internal void RunMotherBrainHeadMain(RoomEnemyPlace head, SamusState samus)
+    internal void RunMotherBrainHeadMain(RoomEnemySlot head, SamusState samus)
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(head);
 
@@ -107,7 +107,7 @@ internal sealed class MotherBrainHead
     internal void DrawMotherBrainBrainAndNeck(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState? state = _motherBrainEncounter.MotherBrain;
-        RoomEnemyPlace? head = state?.Head;
+        RoomEnemySlot? head = state?.Head;
         if (state?.DrawBrain != true || head is null)
             return;
         // The brain draw samples (never advances) the RNG before reading the brain frame,
@@ -179,7 +179,7 @@ internal sealed class MotherBrainHead
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
-        RoomEnemyPlace head)
+        RoomEnemySlot head)
     {
         int shake;
         if (state.BrainMainShakeTimer != 0)
@@ -357,7 +357,7 @@ internal sealed class MotherBrainHead
     /// <summary>Fires the mouth laser, freezing the neck.</summary>
     private void SpawnMotherBrainMouthLaser(MotherBrainEnemyState state)
     {
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         state.NeckMovementEnabled = false;
 
         // The bomb spawn gives an explicit mouth coordinate as the common
@@ -382,7 +382,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         Position16<RoomPixels> target)
     {
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
         TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
@@ -428,7 +428,7 @@ internal sealed class MotherBrainHead
             _projectileAttacks.Projectile,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         bomb.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb));
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
         bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
         bomb.Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224), SignedEightEight.FromPixels(1));
@@ -504,7 +504,7 @@ internal sealed class MotherBrainHead
             _projectileAttacks.Projectile,
             graphics: default);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig));
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
     }
 
@@ -521,7 +521,7 @@ internal sealed class MotherBrainHead
             _projectileAttacks.Projectile,
             graphics: default);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall));
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
         state.SmallPurpleBreathActive = true;
     }

@@ -14,7 +14,7 @@ internal static class ChootPatternDefinitionsVerification
     /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>
     internal static void VerifyChootPatternDefinitions(CartridgeImportAddressSpace rom)
     {
-        var runFall = new Action<RoomEnemyPlace, ChootEnemyState>(ChootBehavior.RunChootFall);
+        var runFall = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.RunChootFall);
         int[] frameCounts = [74, 74, 74, 94, 134];
 
         for (ushort patternIndex = 0; patternIndex < 5; patternIndex++)
@@ -60,12 +60,12 @@ internal static class ChootPatternDefinitionsVerification
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-                var initialize = new Action<RoomEnemyPlace>(ChootBehavior.InitializeChoot);
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.Choot, place.Definition);
-                place.Position = place.Position.WithWhole(new(0x3456, 0x789a));
-                place.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | loopCount));
-                initialize(place);
+                var initialize = new Action<RoomEnemySlot>(ChootBehavior.InitializeChoot);
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+                slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
+                slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
+                slot.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | loopCount));
+                initialize(slot);
 
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
@@ -74,7 +74,7 @@ internal static class ChootPatternDefinitionsVerification
                     $"Choot production pattern {patternIndex}/{loopCount}");
                 AssertEqual(loopYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
-                AssertEqual(place.Position.X.Whole, state.InitialFallingPosition.X,
+                AssertEqual(slot.Position.X.Whole, state.InitialFallingPosition.X,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");
                 AssertEqual(unchecked((ushort)(0x789a - jumpHeight)),
                     state.InitialFallingPosition.Y,
@@ -82,12 +82,12 @@ internal static class ChootPatternDefinitionsVerification
             }
 
             var fallEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var initializeFall = new Action<RoomEnemyPlace>(ChootBehavior.InitializeChoot);
-            RoomEnemyPlace fallPlace = fallEnemies.Places.InUpdateOrder[0];
-            fallPlace.Bind(EnemyDefinitionId.Choot, fallPlace.Definition);
-            fallPlace.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
-            fallPlace.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | 2));
-            initializeFall(fallPlace);
+            var initializeFall = new Action<RoomEnemySlot>(ChootBehavior.InitializeChoot);
+            RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
+            fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);
+            fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
+            fallSlot.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | 2));
+            initializeFall(fallSlot);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingPatternFrame = 0;
@@ -98,19 +98,19 @@ internal static class ChootPatternDefinitionsVerification
                 Offset16<RoomPixels> point = ChootFalls.At(
                     fallingPath,
                     frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
-                runFall(fallPlace, fallState);
+                runFall(fallSlot, fallState);
                 AssertEqual(unchecked((ushort)(0x4000 + point.X)),
-                    fallPlace.Position.X.Whole,
+                    fallSlot.Position.X.Whole,
                     $"Choot production fall X {patternIndex}/{frameIndex}");
                 AssertEqual(unchecked((ushort)(0x5000 + point.Y)),
-                    fallPlace.Position.Y.Whole,
+                    fallSlot.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(frameIndex + 1,
                     fallState.FallingPatternFrame,
                     $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
-            runFall(fallPlace, fallState);
+            runFall(fallSlot, fallState);
             AssertEqual(0, fallState.FallingPatternFrame,
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual(0, fallState.FallingPatternLoopCounter,
@@ -120,14 +120,14 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot production loop Y advance {patternIndex}");
 
             fallState.FallingPatternFrame = frameCounts[patternIndex] - 1;
-            runFall(fallPlace, fallState);
-            AssertEqual((ushort)0x3456, fallPlace.Position.X.Whole,
+            runFall(fallSlot, fallState);
+            AssertEqual((ushort)0x3456, fallSlot.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");
-            AssertEqual((ushort)0x789a, fallPlace.Position.Y.Whole,
+            AssertEqual((ushort)0x789a, fallSlot.Position.Y.Whole,
                 $"Choot production final spawn Y {patternIndex}");
-            AssertEqual((ushort)0, fallPlace.Position.X.Fraction,
+            AssertEqual((ushort)0, fallSlot.Position.X.Fraction,
                 $"Choot production final spawn X fraction {patternIndex}");
-            AssertEqual((ushort)0, fallPlace.Position.Y.Fraction,
+            AssertEqual((ushort)0, fallSlot.Position.Y.Fraction,
                 $"Choot production final spawn Y fraction {patternIndex}");
         }
 

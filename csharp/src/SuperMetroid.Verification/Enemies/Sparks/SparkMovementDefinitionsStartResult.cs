@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Sparks;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
-internal readonly record struct SparkMovementDefinitionsStartResult(RoomEnemySystem First, RoomEnemyPlace Second, SparkEnemyState Third);
+internal readonly record struct SparkMovementDefinitionsStartResult(RoomEnemySystem First, RoomEnemySlot Second, SparkEnemyState Third);

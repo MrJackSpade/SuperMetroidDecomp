@@ -97,10 +97,10 @@ internal static class YardTurnDefinitionsVerification
             string context)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Position = place.Position.WithWhole(new(0x0200, 0x0200));
-            place.Radius = new(8, 8);
+            Action<RoomEnemySlot, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));
+            slot.Radius = new(8, 8);
             var state = new YardEnemyState(YardMovement.HoldingStill)
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
@@ -110,7 +110,7 @@ internal static class YardTurnDefinitionsVerification
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
             };
 
-            run(place, state, level);
+            run(slot, state, level);
 
             AssertEqual(new AnimationPlayback<YardSegment>(YardAnimations.StartingWith(expectedProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"{context} production instruction");

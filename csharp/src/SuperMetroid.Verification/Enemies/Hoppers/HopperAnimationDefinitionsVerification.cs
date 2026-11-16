@@ -64,11 +64,11 @@ internal static class HopperAnimationDefinitionsVerification
             enemies.VerificationServices().SeedRandom = _ => { };
             enemies.VerificationServices().NextRandom = () => 0;
 
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(definitions[variant], place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, upsideDown ? (ushort)1 : (ushort)0);
-            enemies.HoppersBehavior.InitializeHopper(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(definitions[variant], slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, upsideDown ? (ushort)1 : (ushort)0);
+            enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
             HopperSegment landed = HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
@@ -76,24 +76,24 @@ internal static class HopperAnimationDefinitionsVerification
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.XVelocity = 3;
-            HoppersBehavior.StartHopperJump(place, state, HopperHopDirection.Forward);
+            HoppersBehavior.StartHopperJump(slot, state, HopperHopDirection.Forward);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(place, 2), $"hopper airborne pose {context}");
-            AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen),
+                EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
+            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
             AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperJump : null, enemies.Audio.LatestSound,
                 $"hopper jumping sound {context}");
 
-            HoppersBehavior.LandHopper(place, state);
+            HoppersBehavior.LandHopper(slot, state);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
-                EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"hopper landing poses {context}");
+                EnemyInstructionRunner.ShownFrames(slot, holds.Sum()), $"hopper landing poses {context}");
             AssertTrue(!state.ReadyToHop, $"hopper landed program {context} holds its last pose before readiness");
-            EnemyInstructionRunner.ShownFrames(place, 1);
-            AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen),
+            EnemyInstructionRunner.ShownFrames(slot, 1);
+            AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
             AssertEqual(variant is 0 or 1 ? EnemySound.LowThud : null, enemies.Audio.LatestSound,
@@ -118,12 +118,12 @@ internal static class HopperAnimationDefinitionsVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = () => 0;
 
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.SidehopperTourian, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place);
-        EnemyInstructionRunner.ShownFrames(place, 1);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.SidehopperTourian, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
+        enemies.HoppersBehavior.InitializeHopper(slot);
+        EnemyInstructionRunner.ShownFrames(slot, 1);
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }

@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
         int growthSteps = 0;
         while (!fade(KraidBackdropFade.ToRoomColors))
@@ -115,7 +115,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
         // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
@@ -242,7 +242,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         // A room whose fifth colour group holds distinct colours, so every step of a fade moves them.
         var standard = new RgbColor[ImageColourGroup.HalfColours];
         for (int colour = 0; colour < standard.Length; colour++)
@@ -370,12 +370,12 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var colours = new RgbColor[SnesCgram.ColorCount];
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         switch (consumer)
         {
@@ -404,7 +404,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
                     ? (ushort)1 : (ushort)0;
-                new Action<RoomEnemyPlace, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state);
                 KraidColourBand band = state.Colours.Band ?? throw new InvalidOperationException("Kraid's health update names no band.");
                 AssertEqual(consumer == KraidPaletteConsumer.HealthFlash, band == KraidColourBand.HurtFlash, $"Kraid's {consumer} update shows the hurt flash only on its flash");
                 AssertEqual(PictureShading.Shaded(KraidShades.Health(band)), body.Shading, $"Kraid's body slot draws in band {band}");
@@ -423,7 +423,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
                 state.Colours.ShowBandEyes([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
-                new Action<RoomEnemyPlace, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
                 ImmutableArray<RgbColor> eyes = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < eyes.Length; eye++)
                     colours[113 + eye] = eyes[eye];

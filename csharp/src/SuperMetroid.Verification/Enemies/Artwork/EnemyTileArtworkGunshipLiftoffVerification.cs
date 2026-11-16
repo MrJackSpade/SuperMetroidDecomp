@@ -76,7 +76,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         static SpriteArtworkPlacements ShowAllTakeoffPages(ImportEnemyArtwork art, IInstalledArtworkContent resolver)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: art.Bosses);
-            RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipState(GunshipPhase.ReadyTakeoffEngines);
             top.SetSpeciesState(part);
             for (int index = 0; index < GunshipTakeoffDefinitions.EngineReadyingDuration; index++)

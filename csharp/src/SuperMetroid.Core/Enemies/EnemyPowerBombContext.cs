@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Camera">The camera's position this update, as the power-bomb pass runs.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyPowerBombContext(
-    RoomEnemyPlace Enemy,
+    RoomEnemySlot Enemy,
     SamusState Samus,
     RoomLevelData Level,
     Position16<RoomPixels> Camera);

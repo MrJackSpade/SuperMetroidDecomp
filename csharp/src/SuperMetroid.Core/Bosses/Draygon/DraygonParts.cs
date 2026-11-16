@@ -52,7 +52,7 @@ internal sealed class DraygonParts
     public DraygonEnemyState? Draygon { get; internal set; }
 
     /// <summary>Sets Draygon's body up when the room spawns it.</summary>
-    internal void InitializeDraygonBody(RoomEnemyPlace body)
+    internal void InitializeDraygonBody(RoomEnemySlot body)
     {
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
@@ -72,7 +72,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Runs the independent initializers.</summary>
-    internal void InitializeDraygonPart(RoomEnemyPlace part)
+    internal void InitializeDraygonPart(RoomEnemySlot part)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before his body.");
@@ -110,7 +110,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Runs the no-op tail/arms main AI and the active eye step.</summary>
-    internal void RunDraygonPartMain(RoomEnemyPlace part, SamusState samus)
+    internal void RunDraygonPartMain(RoomEnemySlot part, SamusState samus)
     {
         if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
             return;
@@ -135,7 +135,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Restarts a linked Draygon part's animation on its next update, as starting an animation does.</summary>
-    internal void StartDraygonAnimation(RoomEnemyPlace part, DraygonSegment segment)
+    internal void StartDraygonAnimation(RoomEnemySlot part, DraygonSegment segment)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon animation started without encounter state.");
@@ -148,7 +148,7 @@ internal sealed class DraygonParts
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
     /// part.
     /// </summary>
-    internal void AdvanceDraygonPartAnimation(RoomEnemyPlace part, SamusState samus)
+    internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState samus)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
@@ -194,7 +194,7 @@ internal sealed class DraygonParts
     /// final store of the running part's position replaces it.
     /// </summary>
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
-    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemyPlace part, SamusState samus, DraygonCue cue)
+    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState samus, DraygonCue cue)
     {
         switch (cue)
         {
@@ -245,7 +245,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>A linked Draygon part, failing if the part never loaded.</summary>
-    internal static RoomEnemyPlace RequirePart(RoomEnemyPlace? part) =>
+    internal static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
         part ?? throw new InvalidDataException("A Draygon animation ran before all four parts loaded.");
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
@@ -257,7 +257,7 @@ internal sealed class DraygonParts
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Runs the eye direction partition.</summary>
-    internal void TrackSamusWithDraygonEye(RoomEnemyPlace eye, SamusState samus, HorizontalDirection facing)
+    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState samus, HorizontalDirection facing)
     {
         // Emission precedes the angle-change early return, so a stationary
         // target must not suppress the periodic particle. It shares the real pool.

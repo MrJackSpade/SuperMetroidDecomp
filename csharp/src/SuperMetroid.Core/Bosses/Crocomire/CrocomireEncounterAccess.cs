@@ -13,7 +13,7 @@ internal sealed class CrocomireEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
+    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -49,12 +49,12 @@ internal sealed class CrocomireEncounterAccess
         state.BodyPlayback = EnemyAnimationPlayback.Start(state.Body, CrocomireBodyAnimations.StartingWith(segment));
     }
 
-    /// <summary>Finds the Crocomire encounter owning an enemy place, failing if its room state is absent.</summary>
-    internal CrocomireEnemyState RequireCrocomire(RoomEnemyPlace place) =>
-        Crocomire is { } state && ReferenceEquals(state.Body, place)
+    /// <summary>Finds the Crocomire encounter owning an enemy slot, failing if its room state is absent.</summary>
+    internal CrocomireEnemyState RequireCrocomire(RoomEnemySlot slot) =>
+        Crocomire is { } state && ReferenceEquals(state.Body, slot)
             ? state
             : throw new InvalidOperationException(
-                $"Enemy place {place.Ordinal} has no initialized Crocomire body state.");
+                $"Enemy slot {slot.SlotIndex} has no initialized Crocomire body state.");
 
     /// <summary>Requires the active death-sequence state before processing skeleton or wall cues.</summary>
     internal CrocomireDeathState RequireCrocomireDeath() =>

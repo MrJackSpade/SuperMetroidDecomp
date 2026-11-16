@@ -2,51 +2,51 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>One Evir occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Evir species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class EvirEntity(EvirBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize(EnemySpawnSurroundings surroundings)
     {
-        switch (EvirPartDefinitions.Parts[Place.DefinitionId])
+        switch (EvirPartDefinitions.Parts[Slot.DefinitionId])
         {
             case EvirPart.Evir:
-                species.RunEvirInitializationAi(Place, surroundings);
+                species.RunEvirInitializationAi(Slot, surroundings);
                 break;
             case EvirPart.Projectile:
-                species.InitializeEvirProjectile(Place);
+                species.InitializeEvirProjectile(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"Evir entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (EvirPartDefinitions.Parts[Place.DefinitionId])
+        switch (EvirPartDefinitions.Parts[Slot.DefinitionId])
         {
             case EvirPart.Evir:
-                species.RunEvirMainAi(Place, frame);
+                species.RunEvirMainAi(Slot, frame);
                 break;
             case EvirPart.Projectile:
-                species.RunEvirProjectileMainAi(Place, frame);
+                species.RunEvirProjectileMainAi(Slot, frame);
                 break;
             default:
-                throw new InvalidOperationException($"Evir entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEvirTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEvirTypedAnimation(Slot, context);
 
     /// <summary>
     /// Whether the occupant is an Evir's arms, which share the Evir's definition but take neither its touch nor its shot
     /// reaction; their bombs and Power Bombs still take the Evir's.
     /// </summary>
-    private bool IsArms => Place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms;
+    private bool IsArms => Slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms;
 
     /// <summary>Whether the Evir's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => (LeavesTouchToSpecies && !IsArms) || base.ReactsToTouch;
@@ -74,5 +74,5 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemyPlace place, Ene
 
     /// <summary>The Evir's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => Place.DefinitionId == EnemyDefinitionId.Evir && reaction is null && LeavesShotToSpecies;
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => Slot.DefinitionId == EnemyDefinitionId.Evir && reaction is null && LeavesShotToSpecies;
 }

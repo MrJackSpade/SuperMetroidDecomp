@@ -9,37 +9,37 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>One Phantoon occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Phantoon species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotReaction
+internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (PhantoonPartDefinitions.Parts[Place.DefinitionId])
+        switch (PhantoonPartDefinitions.Parts[Slot.DefinitionId])
         {
             case PhantoonPart.Body:
-                species.InitializePhantoonBody(Place);
+                species.InitializePhantoonBody(Slot);
                 break;
             case PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth:
-                species.InitializePhantoonPart(Place);
+                species.InitializePhantoonPart(Slot);
                 break;
             default:
-                throw new InvalidOperationException($"Phantoon entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (PhantoonPartDefinitions.Parts[Place.DefinitionId])
+        switch (PhantoonPartDefinitions.Parts[Slot.DefinitionId])
         {
             case PhantoonPart.Body:
-                species.RunPhantoonBodyMainAi(Place, frame);
+                species.RunPhantoonBodyMainAi(Slot, frame);
                 break;
             // The eye's main is an empty step; the body positions it and it plays its own animation.
             case PhantoonPart.Eye:
@@ -48,15 +48,15 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace pl
             case PhantoonPart.Tentacles or PhantoonPart.Mouth:
                 break;
             default:
-                throw new InvalidOperationException($"Phantoon entity bound to {Place.DefinitionId}.");
+                throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvancePhantoonPartAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvancePhantoonPartAnimation(Slot);
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe, out reaction);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Slot, probe, out reaction);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
@@ -68,7 +68,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace pl
     /// </summary>
     public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
     {
-        if (Place.DefinitionId == EnemyDefinitionId.PhantoonBody &&
+        if (Slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
             frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
             _ = species.Combat.ResolvePhantoonProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles);
     }
@@ -83,10 +83,10 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace pl
 
     /// <summary>Only Samus's contact meets the body's frames' hitboxes; its weapon collision is the encounter's own resolver.</summary>
     public override EnemyCapabilities Capabilities =>
-        Place.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.SamusFrameHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.SamusFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>Whether the occupant is Phantoon's body, the one part with reactions of its own.</summary>
-    private bool IsBody => Place.DefinitionId == EnemyDefinitionId.PhantoonBody;
+    private bool IsBody => Slot.DefinitionId == EnemyDefinitionId.PhantoonBody;
 
     /// <summary>The body's touch reaction, which its definition leaves to it; the other parts name shared ones.</summary>
     public EnemyReaction? SpeciesTouch => IsBody ? PhantoonReactions.Touch : null;
@@ -104,7 +104,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace pl
     {
         if (!IsBody)
             return base.RunHurt(frame);
-        species.ApplyPhantoonHurt(Place, species.RequireCompletePhantoonState(Place));
+        species.ApplyPhantoonHurt(Slot, species.RequireCompletePhantoonState(Slot));
         return true;
     }
 

@@ -72,11 +72,11 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateAction expectedAction = movingRight
                 ? WallSpacePirateAction.WallJumpingRight
                 : WallSpacePirateAction.WallJumpingLeft;
-            (RoomEnemySystem enemies, RoomEnemyPlace place,
+            (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, level, 70);
+            slot.AnimationClock.StepOnNextUpdate();
+            RunFrames(enemies, slot, samus, level, 70);
             AssertEqual(expected, state.Playback,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack sleeps");
             AssertEqual(expectedAction, state.Action,
@@ -92,32 +92,32 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateAction expectedAction,
             int frames)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place,
+            (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            ushort initialY = place.Position.Y.Whole;
+            ushort initialY = slot.Position.Y.Whole;
             state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, level, frames);
+            slot.AnimationClock.StepOnNextUpdate();
+            RunFrames(enemies, slot, samus, level, frames);
             AssertEqual(expectedAction, state.Action,
                 $"wall Pirate program {program} climb function");
             if (frames > 12)
             {
-                AssertTrue(place.Position.Y.Whole != initialY,
+                AssertTrue(slot.Position.Y.Whole != initialY,
                     $"wall Pirate program {program} applies climb displacement");
             }
         }
 
         void VerifyCollisionReversal(bool onRightWall)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place,
+            (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WallSpacePirateAnimations.StartingWith(onRightWall
                 ? WallSpacePirateSegment.MovingDownRightWall
                 : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
-            place.AnimationClock.StepOnNextUpdate();
+            slot.AnimationClock.StepOnNextUpdate();
             RunFrames(
                 enemies,
-                place,
+                slot,
                 samus,
                 CreateWallPirateFloorRoom(),
                 11);
@@ -139,7 +139,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         // quarter. It lands on the update the angle reaches its endpoint, thirty-two updates in, and not before.
         void VerifyJumpAngleWrap(bool jumpingRight)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place,
+            (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             AssertEqual(4, state.JumpAngleDelta, "the fixture Pirate makes fast jumps");
             RotationAngle start = jumpingRight ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
@@ -148,7 +148,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 : WallSpacePirateSegment.LandedOnLeftWall;
             state.Action = jumpingRight ? WallSpacePirateAction.WallJumpingRight : WallSpacePirateAction.WallJumpingLeft;
             state.WallJumpArcAngle = start;
-            state.WallJumpArcCenter = place.Position.Whole;
+            state.WallJumpArcCenter = slot.Position.Whole;
             state.Playback = new(WallSpacePirateAnimations.StartingWith(
                 jumpingRight ? WallSpacePirateSegment.FireAndJumpRight : WallSpacePirateSegment.FireAndJumpLeft), AnimationPlace.StartOfAnimation);
             var frame = new ClockedEnemyAiFrame(
@@ -156,7 +156,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 new FrameCounters(0));
             for (int update = 1; update <= 32; update++)
             {
-                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, frame);
+                WallSpacePirateBehavior.RunWallSpacePirateMainAi(slot, frame);
                 RotationAngle expected = start.TurnedBySteps(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
@@ -171,32 +171,32 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateGreyWall, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition) with
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.PirateGreyWall, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Damage = 20,
             });
-            place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
-            place.Radius = new(8, 16);
-            place.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWall, 0x0080);
-            WallSpacePirateBehavior.InitializeWallSpacePirate(place);
+            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
+            slot.Radius = new(8, 16);
+            slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWall, 0x0080);
+            WallSpacePirateBehavior.InitializeWallSpacePirate(slot);
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return new WallSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, (enemies.WallSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WallSpacePirate state.")), samus);
+            return new WallSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, (enemies.WallSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WallSpacePirate state.")), samus);
         }
 
         static void RunFrames(
             RoomEnemySystem enemies,
-            RoomEnemyPlace place,
+            RoomEnemySlot slot,
             SamusState samus,
             RoomLevelData level,
             int frames)
         {
             object?[] arguments =
-                [place, samus, level, Position16<RoomPixels>.Zero, default(GameplayAction)];
+                [slot, samus, level, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(arguments);
         }

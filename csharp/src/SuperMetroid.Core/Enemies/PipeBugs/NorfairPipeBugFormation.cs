@@ -14,9 +14,9 @@ internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMembe
     /// </summary>
     /// <param name="places">The room's enemy places.</param>
     /// <param name="leader">The formation's leader.</param>
-    internal static NorfairPipeBugFormation LedBy(EnemyPlaces places, RoomEnemyPlace leader)
+    internal static NorfairPipeBugFormation LedBy(EnemySlotTable places, RoomEnemySlot leader)
     {
-        RoomEnemyPlace[] followers = places.ListedRunAfter(leader, 4);
+        RoomEnemySlot[] followers = places.ListedRunAfter(leader, 4);
         return new NorfairPipeBugFormation(
         [
             new(leader, PipeBugDefinitions.LeaderRole),

@@ -13,4 +13,4 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// The two enemies the part's follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>), nearest first; an
 /// entry is null where the room has no place that far after the part.
 /// </param>
-internal sealed record MagdollitePartners(MagdolliteComposite Composite, RoomEnemyPlace? Next, IReadOnlyList<RoomEnemyPlace?> FollowUpRecipients);
+internal sealed record MagdollitePartners(MagdolliteComposite Composite, RoomEnemySlot? Next, IReadOnlyList<RoomEnemySlot?> FollowUpRecipients);

@@ -15,10 +15,10 @@ internal static class ZebetiteShotShareVerification
     internal static void VerifyZebetiteShotShare()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
-        AssertTrue(ReferenceEquals(places[4], ZebetiteShotShare.Recipient(places, places[4])), "a linked Zebetite shares with its other half");
-        AssertTrue(ReferenceEquals(places[0], ZebetiteShotShare.Recipient<RoomEnemyPlace>(places, null)), "a single Zebetite shares with the first enemy placed");
-        AssertThrows<InvalidOperationException>(() => ZebetiteShotShare.Recipient<RoomEnemyPlace>([], null), "a single Zebetite in a room with no enemy is refused");
+        IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
+        AssertTrue(ReferenceEquals(slots[4], ZebetiteShotShare.Recipient(slots, slots[4])), "a linked Zebetite shares with its other half");
+        AssertTrue(ReferenceEquals(slots[0], ZebetiteShotShare.Recipient<RoomEnemySlot>(slots, null)), "a single Zebetite shares with the first enemy placed");
+        AssertThrows<InvalidOperationException>(() => ZebetiteShotShare.Recipient<RoomEnemySlot>([], null), "a single Zebetite in a room with no enemy is refused");
         Console.WriteLine("Zebetite shot share: a linked half, or the first enemy placed for a single Zebetite.");
     }
 

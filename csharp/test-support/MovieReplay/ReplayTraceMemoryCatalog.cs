@@ -161,7 +161,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Between(SamusHorizontalSpeedsStart, SamusHorizontalSpeedsEnd),
         WorkRamRange.Between(SamusProjectileArraysStart, SamusProjectileArraysEnd),
         WorkRamRange.Between(SamusSlopeAndTotalSpeedStart, SamusSlopeAndTotalSpeedEnd),
-        .. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(slot =>
+        .. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(slot =>
             new WorkRamRange(MovieDesyncMemory.EnemyBase + slot * MovieDesyncMemory.EnemyStride, MovieEnemySlotPrefix)),
         WorkRamRange.Between(RidleySlotWordsStart, RidleySlotWordsEnd),
         WorkRamRange.Between(BabyMetroidVelocityStart, BabyMetroidVelocityEnd),

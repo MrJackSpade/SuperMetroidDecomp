@@ -93,7 +93,7 @@ together) lives in the `World` module, above the domains it composes. A domain b
 it states what it needs as a capability interface in its own module (`IEnemyObjectRequests`, `IRoomObjectFx`,
 `IRoomWaterPhysics`), and `World` implements it over the species and owners. A contract only the composition
 consumes, such as the display sources the frame boundary reads, belongs to `World` itself. Shared facts a lower domain
-needs move to the lowest type that owns them: the enemy slot limits are `EnemyPlaces`'s, and a solid enemy body
+needs move to the lowest type that owns them: the enemy slot limits are `EnemySlotTable`'s, and a solid enemy body
 carries its slot and whether it blocks Samus instead of the raw enemy words Samus would have to decode.
 
 The seams that broke the cycle follow a few shapes, and a new dependency should reuse them:
@@ -385,7 +385,7 @@ name what happened (SME6353).
 implementation state; another type changes it through a named operation on the owner (`BeginRoomLoad`,
 `BindCgram`, `RecordRespawnScratch`) or reads a member named as part of the owner's surface, never the field.
 
-**SME6408** keeps enemy state out of generic slot words. `RoomEnemyPlace` declares no multipurpose word
+**SME6408** keeps enemy state out of generic slot words. `RoomEnemySlot` declares no multipurpose word
 (`VariableA`-`F`, `Parameter1`/`2` or another lettered variable or numbered parameter): each family owns its state as
 typed fields, and authored spawn parameters are read from the slot's spawn record.
 

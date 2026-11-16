@@ -28,7 +28,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        RoomEnemyPlace head = state.Head;
+        RoomEnemySlot head = state.Head;
         state.DrawBrain = true;
         state.SmallPurpleBreathGenerationEnabled = true;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));

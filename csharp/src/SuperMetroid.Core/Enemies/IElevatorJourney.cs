@@ -21,7 +21,7 @@ internal interface IElevatorJourney
     bool ElevatorRunsSamusMovement { get; }
 
     /// <summary>Returns and clears the arriving elevator that placed Samus during the room load.</summary>
-    RoomEnemyPlace? ConsumeElevatorArrivalPlacement();
+    RoomEnemySlot? ConsumeElevatorArrivalPlacement();
 
     /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();

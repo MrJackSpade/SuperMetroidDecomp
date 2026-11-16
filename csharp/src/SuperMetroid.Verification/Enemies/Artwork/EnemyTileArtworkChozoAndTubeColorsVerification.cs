@@ -70,10 +70,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
 
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
-            Action<RoomEnemySystem, RoomEnemyPlace> initialize, ChozoStatueSegment? expectedProgram)
+            Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueSegment? expectedProgram)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-            RoomEnemyPlace statue = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
             initialize(enemies, statue);
             // The import pre-colours each shade from the installed band whose words VerifyBand matched to the cartridge.

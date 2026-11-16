@@ -48,10 +48,10 @@ internal static class EvirVisualsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(),
                 definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            PrepareEvirInstructionPlace(place, EnemyDefinitionId.Evir, loop);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
                 $"installed Evir {loop} shows its authored poses");
         }
         Console.WriteLine(

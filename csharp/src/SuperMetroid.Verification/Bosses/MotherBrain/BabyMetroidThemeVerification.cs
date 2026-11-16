@@ -13,7 +13,7 @@ internal static class BabyMetroidThemeVerification
     internal static int VerifyBabyMetroidTheme()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0]);
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = state;
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;

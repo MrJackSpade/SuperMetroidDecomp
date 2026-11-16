@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.ColourCycleLength, Counter(selected),
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
-        (selected.Places.InUpdateOrder[0].SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException("Verification requires the primary Zebetite state.")).IsSecondaryHalf = true;
+        (selected.SlotTable.Slots[0].SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException("Verification requires the primary Zebetite state.")).IsSecondaryHalf = true;
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
@@ -96,10 +96,10 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies),
                 RoomEnemyCompatibilityFixtures.ForNewRoom(fadeStepCount, new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            RoomEnemyPlace primaryPlace = enemies.Places.InUpdateOrder[0];
-            primaryPlace.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
-            var primary = new ZebetiteEnemyState(primaryPlace.Spawn.Population);
-            primaryPlace.SetSpeciesState(primary);
+            RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
+            primarySlot.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
+            var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
+            primarySlot.SetSpeciesState(primary);
             return enemies;
         }
 
@@ -144,7 +144,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
 
         static void Cycle(RoomEnemySystem enemies)
         {
-            enemies.ZebetiteBehavior.CycleZebetiteColours(enemies.Places.InUpdateOrder[0]);
+            enemies.ZebetiteBehavior.CycleZebetiteColours(enemies.SlotTable.Slots[0]);
         }
     }
 }

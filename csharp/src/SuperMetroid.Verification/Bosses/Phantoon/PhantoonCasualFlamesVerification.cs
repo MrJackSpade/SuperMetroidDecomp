@@ -27,11 +27,11 @@ internal static class PhantoonCasualFlamesVerification
                     compiled.Intervals[flame], "Native casual flame interval");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
-        var mouth = enemies.Places.InUpdateOrder[3];
-        var state = new PhantoonEnemyState(body) { Eye = enemies.Places.InUpdateOrder[1], Tentacles = enemies.Places.InUpdateOrder[2], Mouth = mouth };
+        var body = enemies.SlotTable.Slots[0];
+        var mouth = enemies.SlotTable.Slots[3];
+        var state = new PhantoonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = mouth };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
-        void step(RoomEnemyPlace _) => enemies.PhantoonBehavior.Patterns.StepPhantoonCasualFlameSchedule(state);
+        void step(RoomEnemySlot _) => enemies.PhantoonBehavior.Patterns.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = () => { calls++; return random; };

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireSkeleton
 {
-    /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
+    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -45,7 +45,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Moves the skeleton through the acid river toward the arena's breakable wall.</summary>
     internal static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - 2);
         if (CoordinateAxis.Difference(body.Position.X.Whole, 480) < 0)
         {
@@ -69,7 +69,7 @@ internal sealed class CrocomireSkeleton
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.RightEdge);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         if (state.Tongue is { } tongue)
         {
@@ -143,7 +143,7 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
         death.SkeletonFallDelay = 80;
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;

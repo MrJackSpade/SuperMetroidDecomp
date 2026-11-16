@@ -50,7 +50,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
 
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body)
         {
@@ -60,9 +60,9 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
 
-        RoomEnemyPlace baby = state.BabyMetroidPlace ??
+        RoomEnemySlot baby = state.BabyMetroidSlot ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
-        AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
+        AssertEqual(1, baby.SlotIndex, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             baby.DefinitionId,
             "Mother Brain Baby physical definition");
@@ -70,9 +70,9 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby retained population snapshot");
         AssertTrue(state.BabyMetroid is not null,
             "Mother Brain Baby initialization created cutscene state");
-        AssertEqual(2, enemies.Places.EnemyCount,
+        AssertEqual(2, enemies.SlotTable.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");
-        AssertEqual(enemies.Places.InUpdateOrder[2], enemies.Places.FindFreePlace(),
+        AssertEqual(enemies.SlotTable.Slots[2], enemies.SlotTable.FindFreeSlot(),
             "Mother Brain Baby's spawn leaves the following slot free");
 
         try

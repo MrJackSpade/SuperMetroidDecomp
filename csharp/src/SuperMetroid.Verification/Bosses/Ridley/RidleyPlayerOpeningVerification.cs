@@ -26,8 +26,8 @@ internal static class RidleyPlayerOpeningVerification
     /// <summary>Checks arrival collision edges, then compares boss motion while feeding recorded Samus position and RNG as isolated inputs.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
-        Func<RoomEnemyPlace, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyFlight.IsWithinRidleyRectangle;
-        var bounds = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
+        Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyFlight.IsWithinRidleyRectangle;
+        var bounds = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
         foreach (ushort targetRadius in new ushort[] { 2, 4, 8 })
@@ -57,7 +57,7 @@ internal static class RidleyPlayerOpeningVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.
         var enemies = runtime.ReloadRoomEnemiesForVerification(loaded => new VerificationRoomEnemyServices(loaded));
-        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
+        var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));

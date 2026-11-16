@@ -30,20 +30,20 @@ internal static class CeresSteamCollisionDefinitionsVerification
             var denied = NewCeresSteamCollisionNoReadBus();
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
             enemies.VerificationServices().NextRandom = () => 0;
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)variant);
-            enemies.CeresSteamBehavior.InitializeCeresSteam(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.CeresSteam, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)variant);
+            enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
-                [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+                [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < 90; frame++)
             {
                 EnemyInstructionRunner.Process(arguments);
-                if ((place.SpritemapPointer & 0x8000) == 0)
+                if ((slot.SpritemapPointer & 0x8000) == 0)
                     continue;
                 AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
-                        CeresSteamCollisionDefinitions.Bank, place.SpritemapPointer,
+                        CeresSteamCollisionDefinitions.Bank, slot.SpritemapPointer,
                         out _),
                     $"installed Ceres steam {variant} frame {frame} has installed art");
                 selected++;
@@ -64,11 +64,11 @@ internal static class CeresSteamCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCeresSteamCollisionNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry);
-        RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        compiledPlace.Bind(compiledPlace.DefinitionId, default(RoomEnemyDefinition));
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
+        compiledSlot.Bind(compiledSlot.DefinitionId, default(RoomEnemyDefinition));
 
-        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, compiledPlace.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.CeresSteam, compiledSlot.Definition);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),
@@ -91,14 +91,14 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 "Ceres steam native hitbox-list pointer");
             seenLists.Add(hitboxList);
 
-            compiledPlace.SpritemapPointer = frame;
+            compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
                      new VerifyCeresSteamCollisionDefinitionsCase[]
                      {
                          new VerifyCeresSteamCollisionDefinitionsCase(0x0100, 0x0100), new VerifyCeresSteamCollisionDefinitionsCase(0x0004, 0x0006), new VerifyCeresSteamCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
-                compiledPlace.Position = compiledPlace.Position.WithWhole(new(originX, originY));
+                compiledSlot.Position = compiledSlot.Position.WithWhole(new(originX, originY));
                 // Probe every rectangle boundary and the fully hidden frames.
                 // Shot and touch use different strict/inclusive comparisons.
                 ReadOnlySpan<EnemyHitboxRectangle> boxes =
@@ -114,7 +114,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 for (int shot = 0; shot <= 1; shot++)
                 {
                     object?[] compiledArguments =
-                        [compiledPlace, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
+                        [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                     AssertEqual(nativeHit, compiledHit,

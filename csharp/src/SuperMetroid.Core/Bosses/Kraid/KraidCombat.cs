@@ -86,10 +86,10 @@ internal sealed class KraidCombat
         // the arm launches Samus up and right.
         // Writes only the whole pixels of the displacement, so preserve both
         // fractions exactly as they were before contact.
-        _ = _access.RequireKraidState(context.Place);
+        _ = _access.RequireKraidState(context.Slot);
         context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
         _access.Part(_parts.BottomLint).Phase = KraidPhase.LintFire;
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
     }
 
     /// <summary>
@@ -115,14 +115,14 @@ internal sealed class KraidCombat
     /// <summary>
     /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
-    private bool KraidSinkingSkipsProjectileCollision(RoomEnemyPlace body) =>
+    private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
         _access.Part(body).Phase is { } phase && !KraidPhaseGroups.ShotsCollide.Contains(phase);
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile's own update.
     /// </summary>
-    internal int ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(body))
             return 0;
@@ -195,7 +195,7 @@ internal sealed class KraidCombat
     /// Resolves projectile hits on Kraid's body, the independent
     /// outer mouth/body pass.
     /// </summary>
-    internal int ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(body))
             return 0;
@@ -233,11 +233,11 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Places a mouth shape at Kraid's body position as the bounds a collision pass starts from.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
+    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemySlot body, KraidMouthHitbox shape) =>
         PlaceKraidPassBounds(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position.</summary>
-    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
+    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemySlot body, KraidMouthCollisionEdges shape) =>
         KraidPassBounds.Placed(
             body.Position.X.Whole + shape.Left,
             body.Position.Y.Whole + shape.Top,
@@ -254,7 +254,7 @@ internal sealed class KraidCombat
     /// Whether a projectile overlaps Kraid's body: inside the pass's bounds when it reaches above their bottom, and
     /// otherwise left of the body's contour at its height, which leaves the projectile's right edge as the bottom.
     /// </summary>
-    internal static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
+    internal static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemySlot body, KraidBehavior.KraidCollisionShot shot)
     {
         if (bounds.IsAboveBottom(shot.Position.Y - shot.Radius.Y))
             return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);
@@ -274,14 +274,14 @@ internal sealed class KraidCombat
         state.ClearMouthReactions();
         // The intangible property disables the ordinary touch list while the private death state owns body movement
         // and breakup effects. The fingernails are left out: they delete themselves once his health reads zero.
-        foreach (RoomEnemyPlace part in _parts.AllButNails)
+        foreach (RoomEnemySlot part in _parts.AllButNails)
             part.Contact = part.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
-    internal void ResolveKraidBodyContact(RoomEnemyPlace body, KraidEnemyState state, SamusState samus)
+    internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
         if (!IsFighting(state.BodyState.Phase))
             return;
@@ -301,7 +301,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidFootHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindKraidFootHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
@@ -329,7 +329,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidArmHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindKraidArmHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidArm &&

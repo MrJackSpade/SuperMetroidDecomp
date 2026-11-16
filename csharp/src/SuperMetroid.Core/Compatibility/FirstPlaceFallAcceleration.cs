@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted by the falling piece's update. Evidence: the piece's update at <c>$86:A8EF</c> adds the acceleration word
-/// it reads without the place index, which is the first place's word; every piece's spawn sets its own word. Any other
+/// it reads without the slot index, which is the first slot's word; every piece's spawn sets its own word. Any other
 /// projectile in the first place keeps no acceleration a piece could read in its terms, so that case is refused rather
 /// than given an invented value.
 /// </remarks>

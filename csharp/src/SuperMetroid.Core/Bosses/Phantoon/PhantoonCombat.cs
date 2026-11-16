@@ -280,7 +280,7 @@ internal sealed class PhantoonCombat
         if (Phantoon is not { } state)
             return 0;
 
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
             CommonEnemyEmptyFrames.ShotsPass(body) ||
             body.InvincibilityTimer != 0 ||
@@ -390,7 +390,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
     internal void ResolvePhantoonShotReaction(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         PhantoonEnemyState state,
         SamusProjectileType projectileType,
         int damage)
@@ -460,13 +460,13 @@ internal sealed class PhantoonCombat
 
     /// <summary>Closes the eye and ends the vulnerable interval after a damaging hit.</summary>
     private static void ClosePhantoonAfterDamage(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         PhantoonEnemyState state,
         PhantoonPhase fadeOut)
     {
         state.Phase = fadeOut;
         state.PhaseTimer = 0;
-        RoomEnemyPlace eye = state.Eye;
+        RoomEnemySlot eye = state.Eye;
         state.Swoop.Requested = false;
         state.Round.Damage = 0;
         state.Translucent = true;
@@ -564,7 +564,7 @@ internal sealed class PhantoonCombat
     /// <summary>Converts an orbit phase into a world-space flame position around the body.</summary>
     internal static void PositionPhantoonFlameAroundBody(
         EnemyProjectile flame,
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         TrigonometryAngle angle,
         int radius)
     {
@@ -610,13 +610,13 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Requires Phantoon's living body before handling one of his parts.</summary>
-    internal PhantoonEnemyState RequirePhantoonState(RoomEnemyPlace place)
+    internal PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
             Phantoon.Body.DefinitionId != EnemyDefinitionId.PhantoonBody)
         {
             throw new InvalidOperationException(
-                $"Enemy {place.DefinitionId} requires Phantoon's body.");
+                $"Enemy {slot.DefinitionId} requires Phantoon's body.");
         }
         return Phantoon;
     }
@@ -638,11 +638,11 @@ internal sealed class PhantoonCombat
             throw new InvalidDataException(
                 $"Phantoon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool? FindPhantoonHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
         if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))

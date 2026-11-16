@@ -24,8 +24,8 @@ internal static class YardInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyYardInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemyPlace yard);
-        YardEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
+        RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemySlot yard);
+        YardEnemyState state = enemies.SlotTable.Slots[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
         foreach (YardSegment program in Enum.GetValues<YardSegment>())
         {
             state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -54,7 +54,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     private static YardSegment StandsIn(AnimationPlayback<YardSegment> playback) => playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Forces the requested number of animation updates.</summary>
-    private static void RunYard(RoomEnemyPlace yard, int updates)
+    private static void RunYard(RoomEnemySlot yard, int updates)
     {
         for (int update = 0; update < updates; update++)
         {
@@ -65,12 +65,12 @@ internal static class YardInstructionProgramDefinitionsVerification
 
     /// <summary>Creates a bank A3 Yard slot with deterministic random input and its behavior state installed.</summary>
     internal static RoomEnemySystem CreateYardInstructionSystem(
-        out RoomEnemyPlace yard)
+        out RoomEnemySlot yard)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
 
-        yard = enemies.Places.InUpdateOrder[0];
+        yard = enemies.SlotTable.Slots[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.DefinitionId, default(RoomEnemyDefinition));
         var state = new YardEnemyState(YardMovement.HoldingStill) { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation) };

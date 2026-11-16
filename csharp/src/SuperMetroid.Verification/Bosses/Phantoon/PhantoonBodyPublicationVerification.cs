@@ -34,7 +34,7 @@ internal static class PhantoonBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState state = runtime.Enemies.PhantoonBehavior.Combat.Phantoon
             ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
-        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot body = runtime.Enemies.SlotTable.Slots[0];
 
         // The body frame draws on his body layer from his installed body sheet (#1466).
         EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;

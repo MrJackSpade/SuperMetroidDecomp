@@ -32,7 +32,7 @@ internal static class CrocomireBg2ScrollVerification
         {
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa48b79 + 2 * index);
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | unchecked((ushort)(pointer + 0x1c)));
-            EnemyFrameId frame = RoomEnemyPlaceFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, pointer)
+            EnemyFrameId frame = RoomEnemySlotFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, pointer)
                 ?? throw new InvalidDataException($"Crocomire's searched pose ${pointer:X4} is not a named frame.");
             AssertTrue(searched.Add(frame), "Crocomire's searched poses are distinct");
             AssertEqual(-(short)offset, BossBodySourceDefinitions.FramesLowered.GetValueOrDefault(frame),

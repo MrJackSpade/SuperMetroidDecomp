@@ -1056,7 +1056,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, enemyWallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, enemyWallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     var launchRoom = WallJumpLaunchShakeChecks.CreateFilledRoom();
-    SuperMetroid.Core.Enemies.RoomEnemyPlace launchEnemy = launchRoom.Places.InUpdateOrder[4];
+    SuperMetroid.Core.Enemies.RoomEnemySlot launchEnemy = launchRoom.SlotTable.Slots[4];
     enemyWallGrabSamus.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(

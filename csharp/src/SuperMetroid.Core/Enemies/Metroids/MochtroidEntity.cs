@@ -2,19 +2,19 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>One Mochtroid occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Mochtroid species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => MochtroidBehavior.InitializeMochtroid(Place);
+    public void Initialize() => MochtroidBehavior.InitializeMochtroid(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Slot, context);
 
     /// <summary>Whether the Mochtroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

@@ -71,14 +71,14 @@ internal static class KraidSinkScheduleVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemyPlace> step = enemies.KraidBehavior.Death.TakeKraidSinkStep;
+        Action<RoomEnemySlot> step = enemies.KraidBehavior.Death.TakeKraidSinkStep;
         var requests = enemies.BossFrameResults.KraidObjects;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
-            enemies.Places.InUpdateOrder[0].Position = enemies.Places.InUpdateOrder[0].Position.WithWholeY(entry.Key);
-            step(enemies.Places.InUpdateOrder[0]);
+            enemies.SlotTable.Slots[0].Position = enemies.SlotTable.Slots[0].Position.WithWholeY(entry.Key);
+            step(enemies.SlotTable.Slots[0]);
             int code = 0xa70000 | entry.Value;
             bool empty = KraidSinkRockPlacementRomByte(rom, code) == 0x60;
             AssertEqual(empty ? 0 : 1, requests.Count, "Sinking callback mutation count");
@@ -116,9 +116,9 @@ internal static class KraidSinkScheduleVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemyPlace> step = enemies.KraidBehavior.Death.TakeKraidSinkStep;
+        Action<RoomEnemySlot> step = enemies.KraidBehavior.Death.TakeKraidSinkStep;
         var requests = enemies.BossFrameResults.KraidObjects;
-        var body = enemies.Places.InUpdateOrder[0];
+        var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();

@@ -36,11 +36,11 @@ internal static class MultiviolaLeftOrUpSpeedVerification
             throw new InvalidOperationException("No authored Multiviola heads along an axis, so none reaches a speed of nothing turned left or up.");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         RoomEnemyDefinition definition = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.Multiviola);
-        place.Bind(EnemyDefinitionId.Multiviola, definition);
+        slot.Bind(EnemyDefinitionId.Multiviola, definition);
         // The moves probe the terrain the Multiviola's hitbox spans, an open room's nothing.
-        place.Radius = definition.Radius;
+        slot.Radius = definition.Radius;
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
@@ -48,18 +48,18 @@ internal static class MultiviolaLeftOrUpSpeedVerification
         for (int heading = 0; heading < HeadingCount; heading++)
         {
             var angle = new TrigonometryAngle(heading);
-            place.SetSpawnSettings(new MultiviolaSpawnSettings(angle, speed));
-            place.Position = FixedPosition<RoomPixels>.FromWhole(new(Centre, Centre));
-            MultiviolaBehavior.InitializeMultiviola(place);
-            enemies.MultiviolaBehavior.RunMultiviolaMainAi(place, frame);
+            slot.SetSpawnSettings(new MultiviolaSpawnSettings(angle, speed));
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new(Centre, Centre));
+            MultiviolaBehavior.InitializeMultiviola(slot);
+            enemies.MultiviolaBehavior.RunMultiviolaMainAi(slot, frame);
 
             // The original turns an axis left when the heading a quarter turn on lies in the turn's first half, and up
             // when the heading lies in its second half.
             var expected = new FixedPosition<RoomPixels>(
                 Moved(EnemyMath.AbsoluteCosineSpeed(angle, speed), turnedLeftOrUp: ((heading + 0x40) & 0x80) == 0),
                 Moved(EnemyMath.AbsoluteSineSpeed(angle, speed), turnedLeftOrUp: ((heading + 0x80) & 0x80) == 0));
-            if (place.Position != expected)
-                throw new InvalidOperationException($"A Multiviola heading {heading} at speed {speed} moved to {place.Position}, not {expected}.");
+            if (slot.Position != expected)
+                throw new InvalidOperationException($"A Multiviola heading {heading} at speed {speed} moved to {slot.Position}, not {expected}.");
         }
         Console.WriteLine($"  Multiviola left-or-up speed: all {HeadingCount} headings at each of the {placements.Select(placement => placement.Speed).Distinct().Count()} authored speeds move as the original's main update.");
     }

@@ -120,13 +120,13 @@ internal static class GeneratedBossBg2CatalogsVerification
         var originalPointers = expected.Select(frame => frame.Pointer).ToHashSet();
         for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(originalPointers.Contains((ushort)pointer),
-                RoomEnemyPlaceFrameAccess.TryFrameAt(bank, (ushort)pointer) is { } frame && access.IsFrame(frame), $"{family} exact selector domain");
+                RoomEnemySlotFrameAccess.TryFrameAt(bank, (ushort)pointer) is { } frame && access.IsFrame(frame), $"{family} exact selector domain");
         return access.Extract();
     }
 
     /// <summary>The frame bank <paramref name="bank"/> stores at <paramref name="pointer"/>.</summary>
     private static EnemyFrameId FrameAt(byte bank, ushort pointer) =>
-        RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer) ?? throw new InvalidOperationException($"No installed frame at ${bank:X2}:{pointer:X4}.");
+        RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer) ?? throw new InvalidOperationException($"No installed frame at ${bank:X2}:{pointer:X4}.");
 
     /// <summary>Reads native frame words while comparing generated BG2 catalogs.</summary>
     private static byte GeneratedBg2CatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);

@@ -19,7 +19,7 @@ internal static class ShaktoolOwnedStateVerification
         RoomEnemySystem enemies = CreateShaktoolGroup();
         ShaktoolSegmentState[] states = [.. Enumerable.Range(0, 7).Select(index =>
             enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
-        RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
+        RoomEnemySlot center = enemies.SlotTable.Slots[3];
         ShaktoolSegmentState centerState = states[3];
 
         foreach ((bool reversed, CompassDirection expectedOrientation) in new[] { new VerifyShaktoolOwnedStateCase(false, CompassDirection.Down), new VerifyShaktoolOwnedStateCase(true, CompassDirection.Up) })
@@ -39,7 +39,7 @@ internal static class ShaktoolOwnedStateVerification
         foreach (ShaktoolSegmentState state in states)
             state.MotionFlags = ShaktoolMotionFlags.Straightening;
         centerState.ResetOrientation();
-        RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
+        RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         states[6].CurlProgress = RotationAngle.FromSteps(0x12, 0x34);
         enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, states[6], tail.Position.Whole);
         AssertEqual(RotationAngle.Zero, states[6].CurlProgress, "a wall reversal empties the saw's curl progress");
@@ -52,7 +52,7 @@ internal static class ShaktoolOwnedStateVerification
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
         var misplacedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace misplaced = misplacedEnemies.Places.InUpdateOrder[1];
+        RoomEnemySlot misplaced = misplacedEnemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
         misplaced.Bind(misplaced.DefinitionId, default(RoomEnemyDefinition));
         misplaced.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
@@ -67,12 +67,12 @@ internal static class ShaktoolOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 7; index++)
         {
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
-            place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            enemies.ShaktoolBehavior.InitializeShaktool(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
+            slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
+            slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
+            enemies.ShaktoolBehavior.InitializeShaktool(slot);
         }
         return enemies;
     }

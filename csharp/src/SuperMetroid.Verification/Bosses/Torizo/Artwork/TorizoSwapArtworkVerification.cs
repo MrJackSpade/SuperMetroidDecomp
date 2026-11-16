@@ -35,9 +35,9 @@ internal static class TorizoSwapArtworkVerification
         AssertTrue(stock.Bosses.TorizoSwaps is not null,
             "installed Torizo instruction tile pages exist");
         var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        RoomEnemyPlace installedPlace = installedEnemies.Places.InUpdateOrder[0];
-        installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.Definition);
-        installedPlace.Bind(installedPlace.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
+        installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
+        installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition));
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();
@@ -72,7 +72,7 @@ internal static class TorizoSwapArtworkVerification
                 AssertEqual(rom.ReadCartridgeByte(transfer.SourceAddress + offset),
                     installed.Span[offset],
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
-            ShowTorizoArtwork(installedEnemies, installedPlace, site.Torizo, site.Look);
+            ShowTorizoArtwork(installedEnemies, installedSlot, site.Torizo, site.Look);
             AssertTrue(installedEnemies.Room.Session.Looks.Shows(look),
                 $"production Torizo swap $AA:{instruction:X4} shows its look {look}");
             for (int offset = 0; offset < transfer.ByteCount; offset++)
@@ -105,15 +105,15 @@ internal static class TorizoSwapArtworkVerification
                 out ReadOnlyMemory<byte> stockBytes),
             "stock Golden Torizo upload remains addressable");
         var goldenEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        RoomEnemyPlace goldenPlace = goldenEnemies.Places.InUpdateOrder[0];
-        goldenPlace.Bind(EnemyDefinitionId.GoldenTorizo, goldenPlace.Definition);
-        goldenPlace.Bind(goldenPlace.DefinitionId, installedPlace.Definition);
+        RoomEnemySlot goldenSlot = goldenEnemies.SlotTable.Slots[0];
+        goldenSlot.Bind(EnemyDefinitionId.GoldenTorizo, goldenSlot.Definition);
+        goldenSlot.Bind(goldenSlot.DefinitionId, installedSlot.Definition);
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkLook goldenAwakening = TorizoAnimations.Segments.Beats(TorizoAnimation.GoldenTorizoDormant)
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Look;
         AssertEqual(golden.SourceAddress, TorizoLookUploadDefinitions.Uploads[goldenAwakening].Single().SourceAddress,
             "Golden Torizo's initial look shows its awakening sheet");
-        ShowTorizoArtwork(goldenEnemies, goldenPlace, EncounterArtwork.GoldenTorizo, goldenAwakening);
+        ShowTorizoArtwork(goldenEnemies, goldenSlot, EncounterArtwork.GoldenTorizo, goldenAwakening);
         EncounterLook goldenLook = goldenAwakening.Of(EncounterArtwork.GoldenTorizo);
         AssertTrue(goldenEnemies.Room.Session.Looks.Shows(goldenLook), "Golden Torizo's first look is its awakening");
         AssertEqual(1, EncounterLookUploads.IndexOf(ComposedEncounter.GoldenTorizo, goldenLook.Name),
@@ -137,8 +137,8 @@ internal static class TorizoSwapArtworkVerification
     }
 
     /// <summary>Shows artwork look <paramref name="look"/> through the production cue of <paramref name="torizo"/>, whose programs make it.</summary>
-    private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemyPlace place, EncounterArtwork torizo, TorizoArtworkLook look) =>
-        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place,
+    private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, EncounterArtwork torizo, TorizoArtworkLook look) =>
+        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(slot,
                 new TorizoEnemyState(isGolden: torizo == EncounterArtwork.GoldenTorizo),
                 new TorizoCueInputs { Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(look),

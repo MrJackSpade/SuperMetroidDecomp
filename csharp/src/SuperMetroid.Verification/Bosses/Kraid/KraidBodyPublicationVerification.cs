@@ -45,7 +45,7 @@ internal static class KraidBodyPublicationVerification
 
         // Risen: his body shown as it now appears, with the head it rises with before his head shows a pose, placed at his
         // position (#1515, #1540, #2031).
-        RoomEnemyPlace body = runtime.Enemies.KraidBehavior.Parts.Body;
+        RoomEnemySlot body = runtime.Enemies.KraidBehavior.Parts.Body;
         state.BodyAppearance = KraidBodyAppearance.BehindSprites;
         state.ShowBody();
         state.DisplayedHeadFrame = null;

@@ -84,7 +84,7 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         int entry = state.SwoopEntry;
         if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
             _parts.StartDraygonAnimation(state.Arms, side.ArmsNearApex);
@@ -106,7 +106,7 @@ internal sealed class DraygonSwoops
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         int frameCount = PathOf(state).EntryCount;
         int distance = CoordinateAxis.Wrap(672 - body.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
@@ -127,7 +127,7 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (side.Direction != HorizontalDirection.Right)
             _movement.SpawnPeriodicDraygonBreathBubble(state);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         int entry = state.SwoopEntry;
         if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
             _parts.StartDraygonAnimation(state.Arms, side.ArmsIdle);
@@ -190,7 +190,7 @@ internal sealed class DraygonSwoops
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         int frameCount = PathOf(state).EntryCount;
         int distance = CoordinateAxis.Wrap(body.Position.X.Whole - state.LeftSideReset.X);
         SetDraygonSwoopVelocity(state, distance, frameCount);
@@ -216,7 +216,7 @@ internal sealed class DraygonSwoops
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        RoomEnemyPlace body = state.Body;
+        RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 4);
         if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)
             return;

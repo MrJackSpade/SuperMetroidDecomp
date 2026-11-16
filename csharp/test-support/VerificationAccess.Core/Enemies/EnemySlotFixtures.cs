@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The species registry for slots a fixture builds outside any enemy system, and the real species a fixture binds when
 /// its check needs an occupant but none of the occupant's own behaviour (#2010).
 /// </summary>
-internal static class EnemyPlaceFixtures
+internal static class EnemySlotFixtures
 {
     /// <summary>
     /// The species a check binds for an occupant whose own behaviour it does not exercise: the Tourian entrance statue,

@@ -13,16 +13,16 @@ public sealed class GrowingShutterEnemyState
     /// <summary>The number of growth sections, each with a stored origin; a fully grown shutter is at this level.</summary>
     internal const int SectionCount = 4;
 
-    /// <summary>The shutter's place, whose position the state reads.</summary>
-    private readonly RoomEnemyPlace _place;
+    /// <summary>The shutter's slot, whose position the state reads.</summary>
+    private readonly RoomEnemySlot _slot;
 
     /// <summary>Each growth section's stored origin row, indexed by growth level; the column is always the shutter's own.</summary>
     private readonly Position16<RoomPixels>[] _sectionOrigins = new Position16<RoomPixels>[SectionCount];
 
-    /// <summary>Creates the state for a room-owned shutter place, starting in <paramref name="action"/>.</summary>
-    internal GrowingShutterEnemyState(RoomEnemyPlace place, GrowingShutterAction action)
+    /// <summary>Creates the state for a room-owned shutter slot, starting in <paramref name="action"/>.</summary>
+    internal GrowingShutterEnemyState(RoomEnemySlot slot, GrowingShutterAction action)
     {
-        _place = place;
+        _slot = slot;
         Action = action;
     }
 
@@ -50,7 +50,7 @@ public sealed class GrowingShutterEnemyState
     /// bits. A growing shutter only ever moves vertically, so every section origin shares the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>
-    public Position16<RoomPixels> SectionOrigin(int level) => new(_place.Position.X.Whole, _sectionOrigins[level].Y);
+    public Position16<RoomPixels> SectionOrigin(int level) => new(_slot.Position.X.Whole, _sectionOrigins[level].Y);
 
     /// <summary>Stores the origin row of the section grown at <paramref name="level"/>.</summary>
     /// <param name="level">The growth level, 0 through 3.</param>
@@ -76,7 +76,7 @@ public sealed class GrowingShutterEnemyState
     /// </summary>
     internal void PlaceSectionOrigins(bool growsUp)
     {
-        Position16<RoomPixels> spawn = _place.Position.Whole;
+        Position16<RoomPixels> spawn = _slot.Position.Whole;
         var spacing = new Offset16<RoomPixels>(0, growsUp ? CoordinateAxis.AsSigned(-SectionOriginSpacing) : SectionOriginSpacing);
         Position16<RoomPixels> origin = spawn;
         for (int level = 0; level < SectionCount; level++)

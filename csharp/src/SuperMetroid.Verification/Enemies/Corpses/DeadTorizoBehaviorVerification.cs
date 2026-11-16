@@ -18,7 +18,7 @@ internal static class DeadTorizoBehaviorVerification
     internal static void VerifyDeadTorizoBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         DeadTorizoBehavior.InitializeDeadTorizo(corpse);

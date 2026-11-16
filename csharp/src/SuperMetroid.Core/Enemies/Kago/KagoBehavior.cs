@@ -15,7 +15,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new KagoEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KagoEntity(this, slot, common);
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -43,16 +43,16 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Kago.</summary>
-    internal static void InitializeKago(RoomEnemyPlace place)
+    internal static void InitializeKago(RoomEnemySlot slot)
     {
         var state = new KagoEnemyState();
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
 
         // Kago's placement already authors its other processing properties. The initializer
         // sets only the animating property so the shared enemy animation animates the shell.
-        place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
-        state.HitCounter = place.SpawnSettings<KagoSpawnSettings>().HitCount;
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+        state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
+        state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// already executed common normal-enemy shot AI, exactly matching the leading call in
     /// the game's reaction.
     /// </summary>
-    internal void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
+    internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground),
             KagoDefinitions.ShotQuakeDuration);
@@ -69,16 +69,16 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.UsesFastAnimation = true;
             state.Playback = new(KagoAnimations.StartingWith(KagoSegment.Fast), AnimationPlace.StartOfAnimation);
-            place.AnimationClock.StepOnNextUpdate();
+            slot.AnimationClock.StepOnNextUpdate();
         }
 
         if (--state.HitCounter < 0)
         {
             // Common shot AI can in principle kill the 1600-health shell first. Do not
             // count the same death twice.
-            if (!place.Presence.HasAny(EnemyPresence.Deleted))
+            if (!slot.Presence.HasAny(EnemyPresence.Deleted))
             {
-                place.Presence = place.Presence.With(EnemyPresence.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 _roomStatus.RecordKill();
             }
         }
@@ -86,7 +86,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game spawns even on the lethal eleventh hit, after requesting Kago's
         // death animation. Pool exhaustion is silent and therefore does not roll back the
         // counter, earthquake, or animation transition.
-        _ = SpawnKagoBug(place);
+        _ = SpawnKagoBug(slot);
     }
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
@@ -248,7 +248,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStepPixels;
             projectile.Velocity = projectile.Velocity.WithY(-SignedEightEight.FromParts(upwardPixels, 0));
 
-            RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
+            RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
             int sourceDelta = CoordinateAxis.Difference(source.Position.X.Whole, projectile.Position.X.Whole);
             bool jumpLeft;
             if (Math.Abs(sourceDelta) >= KagoBugSourceHomingDistance)
@@ -286,13 +286,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!place.AnimationClock.Expire())
+        if (!slot.AnimationClock.Expire())
             return;
-        KagoEnemyState state = place.RequireSpeciesState<KagoEnemyState>();
+        KagoEnemyState state = slot.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, KagoAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(slot, KagoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
         state.Playback = playback;
     }
@@ -312,7 +312,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KagoBugSourceHomingDistance = 48;
 
     /// <summary>Spawns and initializes a Kago bug.</summary>
-    internal bool SpawnKagoBug(RoomEnemyPlace source)
+    internal bool SpawnKagoBug(RoomEnemySlot source)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -345,7 +345,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void EnableKagoBugShotCollisionWhenSeparated(EnemyProjectile projectile)
     {
-        RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
+        RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
         int distance = CoordinateAxis.Distance(source.Position.X.Whole, projectile.Position.X.Whole);
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;

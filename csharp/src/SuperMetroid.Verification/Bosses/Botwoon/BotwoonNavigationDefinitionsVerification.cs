@@ -50,12 +50,12 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// <summary>Checks each hole's exclusive right edge through the production detection routine.</summary>
     internal static void VerifyBotwoonHoleRightBounds(CartridgeImportAddressSpace rom)
     {
-        Action<RoomEnemyPlace, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
+        Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
         for (int offset = 0; offset < 32; offset += 8)
         {
             ushort native = ReadRomWord(rom, 0xb3949d + offset);
             AssertEqual(native, HoleAtTablePosition(offset / RecordBytes).BottomRight.X, "Botwoon native right boundary");
-            var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
+            var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeY(ReadRomWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
             {
@@ -72,12 +72,12 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// <summary>Checks each hole's exclusive bottom edge through the production detection routine.</summary>
     internal static void VerifyBotwoonHoleBottomBounds(CartridgeImportAddressSpace rom)
     {
-        Action<RoomEnemyPlace, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
+        Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
         for (int offset = 0; offset < 32; offset += 8)
         {
             ushort native = ReadRomWord(rom, 0xb394a1 + offset);
             AssertEqual(native, HoleAtTablePosition(offset / RecordBytes).BottomRight.Y, "Botwoon native bottom boundary");
-            var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
+            var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeX(ReadRomWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
             {
@@ -207,9 +207,9 @@ internal static class BotwoonNavigationDefinitionsVerification
 
         // Every position a walk can reach, one before the first step through one after the last, moves the head by
         // the cartridge's sample at that position, or ends the walk where the cartridge reads a marker.
-        Action<RoomEnemyPlace, BotwoonEnemyState> runMovement = BotwoonBehavior.RunBotwoonMovement;
+        Action<RoomEnemySlot, BotwoonEnemyState> runMovement = BotwoonBehavior.RunBotwoonMovement;
         var movementEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace movementHead = movementEnemies.Places.InUpdateOrder[0];
+        RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
         List<int> separators = BotwoonPathCodec.SeparatorAddresses(cartridge);
         int movementStepCount = 0;
         for (int path = 0; path < BotwoonPathDefinitions.Paths.Length; path++)
@@ -252,10 +252,10 @@ internal static class BotwoonNavigationDefinitionsVerification
             }
         }
 
-        Action<RoomEnemyPlace, BotwoonEnemyState> detectHole = BotwoonBehavior.DetectBotwoonHole;
+        Action<RoomEnemySlot, BotwoonEnemyState> detectHole = BotwoonBehavior.DetectBotwoonHole;
         foreach (BotwoonHoleDefinition hole in holes)
         {
-            var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
+            var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
             var state = new BotwoonEnemyState() { RingIndex = 141 };
             head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
@@ -280,7 +280,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         foreach (BotwoonHoleDefinition hole in holes)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
+            RoomEnemySlot head = enemies.SlotTable.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState()
             {

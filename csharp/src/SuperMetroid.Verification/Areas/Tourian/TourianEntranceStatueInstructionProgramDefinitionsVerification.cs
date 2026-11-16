@@ -36,18 +36,18 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
                 $"Tourian entrance-statue parameter {parameter} selects a native list that deletes the statue at once");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(place);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
+            enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(parameter == 0 ? 3 : 0, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian entrance-statue parameter {parameter} spawns the decorations only from the first placement");
-            AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted),
+            AssertTrue(!slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} stays in the room until its first animation step");
 
-            EnemyAnimationPlayer.AdvanceAnimation(place, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
-            AssertTrue(place.Presence.HasAny(EnemyPresence.Deleted),
+            EnemyAnimationPlayer.AdvanceAnimation(slot, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
+            AssertTrue(slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} leaves the room at its first animation step");
         }
 

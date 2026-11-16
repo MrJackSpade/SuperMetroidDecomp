@@ -24,14 +24,14 @@ internal static class EvirInitTimerVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.EastSandHall);
 
         int checkedBodies = 0;
-        foreach (RoomEnemyPlace place in runtime.Enemies.Places.InUpdateOrder)
+        foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)
         {
-            if (place.DefinitionId != EnemyDefinitionId.Evir || place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
+            if (slot.DefinitionId != EnemyDefinitionId.Evir || slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
                 continue;
             // The game stores the body's speed eight bytes per linear-speed row, at the row its settings encode.
-            int speedOffset = (SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(place.Spawn.Population.SpawnSettings).Parameter2 & 0xff) * 8;
+            int speedOffset = (SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(slot.Spawn.Population.SpawnSettings).Parameter2 & 0xff) * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;
-            RoomEnemyPlace aliased = runtime.Enemies.Places.InUpdateOrder[relative / 0x40];
+            RoomEnemySlot aliased = runtime.Enemies.SlotTable.Slots[relative / 0x40];
             int byteOffset = relative % 0x40;
             ushort word = byteOffset switch
             {
@@ -42,8 +42,8 @@ internal static class EvirInitTimerVerification
                     aliased.Spawn.Population.SpawnSettings).Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
-            AssertEqual(LittleEndianBytes.HighByte(word) >> 1, (runtime.Enemies.EvirStates[place.Ordinal] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[place.Ordinal].")).MovementTimer,
-                $"Evir body in slot {place.Ordinal} takes its first half-cycle from aliased enemy RAM");
+            AssertEqual(LittleEndianBytes.HighByte(word) >> 1, (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer,
+                $"Evir body in slot {slot.SlotIndex} takes its first half-cycle from aliased enemy RAM");
             checkedBodies++;
         }
         AssertEqual(3, checkedBodies, "room $D4C2 has three Evir bodies");

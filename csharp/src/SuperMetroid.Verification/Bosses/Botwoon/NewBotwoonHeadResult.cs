@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 /// <param name="Enemies">The enemies.</param>
 /// <param name="Head">The head.</param>
 /// <param name="State">The state.</param>
-internal readonly record struct NewBotwoonHeadResult(RoomEnemySystem Enemies, RoomEnemyPlace Head, BotwoonEnemyState State);
+internal readonly record struct NewBotwoonHeadResult(RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State);

@@ -12,16 +12,16 @@ internal static class MotherBrainTubeDescentVerification
     internal static int VerifyMotherBrainTubeDescent()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0]) { Head = enemies.Places.InUpdateOrder[1] };
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
         enemies.MotherBrainEncounter.MotherBrain = state;
-        var tube = enemies.Places.InUpdateOrder[2];
+        var tube = enemies.SlotTable.Slots[2];
         tube.SetSpawnParameter1(EnemyDefinitionId.MotherBrainTubes, 8);
         tube.SetSpawnParameter2(EnemyDefinitionId.MotherBrainTubes, 0);
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
         MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
-        Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
+        Action<RoomEnemySlot> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SixteenSixteenWords.FromWhole(tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
         ushort previousHeadY = state.Head.Position.Y.Whole;

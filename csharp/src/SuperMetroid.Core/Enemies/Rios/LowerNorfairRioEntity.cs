@@ -2,17 +2,17 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>One Lower Norfair Rio occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Lower Norfair Rio species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class LowerNorfairRioEntity(LowerNorfairRioBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class LowerNorfairRioEntity(LowerNorfairRioBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeLowerNorfairRio(Place);
+    public void Initialize() => species.InitializeLowerNorfairRio(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunLowerNorfairRioMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunLowerNorfairRioMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => LowerNorfairRioBehavior.AdvanceLowerNorfairRioTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => LowerNorfairRioBehavior.AdvanceLowerNorfairRioTypedAnimation(Slot, context);
 }

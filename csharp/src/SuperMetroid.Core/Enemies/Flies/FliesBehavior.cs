@@ -11,7 +11,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new FliesEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FliesEntity(this, slot, common);
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
@@ -26,38 +26,38 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int FlyAttackHorizontalRange = 112;
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
-    internal static void InitializeFly(RoomEnemyPlace place)
+    internal static void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState(FlyAction.ClockwiseCircle)
         {
             Angle = RotationAngle.Zero,
         };
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
-        place.Frame = EnemyFrameId.Empty;
-        place.AnimationClock.StepOnNextUpdate();
+        slot.Frame = EnemyFrameId.Empty;
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
-    private void RunFlyMain(RoomEnemyPlace place, SamusState samus)
+    private void RunFlyMain(RoomEnemySlot slot, SamusState samus)
     {
         // The flies advance the global RNG even though this family does not consume the
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
-        FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
+        FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         switch (state.Action)
         {
             case FlyAction.ClockwiseCircle:
-                RunFlyCircle(place, state, samus, rotation: RotationDirection.Clockwise);
+                RunFlyCircle(slot, state, samus, rotation: RotationDirection.Clockwise);
                 return;
             case FlyAction.AntiClockwiseCircle:
-                RunFlyCircle(place, state, samus, rotation: RotationDirection.Counterclockwise);
+                RunFlyCircle(slot, state, samus, rotation: RotationDirection.Counterclockwise);
                 return;
             case FlyAction.AttackSamus:
-                RunFlyAttack(place, state);
+                RunFlyAttack(slot, state);
                 return;
             case FlyAction.Retreat:
-                MoveFlyAccordingToVelocities(place, state);
+                MoveFlyAccordingToVelocities(slot, state);
                 if (--state.RetreatTimer < 0)
                 {
                     state.RetreatTimer = 24;
@@ -72,7 +72,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rotates a fly around its flight path, reversing direction each revolution or diving when Samus enters range.</summary>
     private static void RunFlyCircle(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         FlyEnemyState state,
         SamusState samus,
         RotationDirection rotation)
@@ -81,14 +81,14 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.RetreatTimer--;
         }
-        else if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) <
+        else if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) <
             FlyAttackHorizontalRange)
         {
-            SetFlyToAttackSamus(place, state, samus);
+            SetFlyToAttackSamus(slot, state, samus);
             return;
         }
 
-        MoveFlyAccordingToAngle(place, state);
+        MoveFlyAccordingToAngle(slot, state);
         state.AdvanceCircle(rotation == RotationDirection.Clockwise);
         if (state.Angle == RotationAngle.Zero)
         {
@@ -100,26 +100,26 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Aims an asymmetric horizontal and vertical dive toward Samus's current position.</summary>
     private static void SetFlyToAttackSamus(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         FlyEnemyState state,
         SamusState samus)
     {
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
         state.Action = FlyAction.AttackSamus;
     }
 
     /// <summary>Continues the dive until it crosses Samus's captured height, then reverses vertical speed into retreat.</summary>
-    private static void RunFlyAttack(RoomEnemyPlace place, FlyEnemyState state)
+    private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
-        MoveFlyAccordingToVelocities(place, state);
+        MoveFlyAccordingToVelocities(slot, state);
         state.RetreatTimer++;
 
         bool crossedTarget = state.Velocity.Y.IsNegative
-            ? place.Position.Y.Whole < state.TargetY
-            : place.Position.Y.Whole >= state.TargetY;
+            ? slot.Position.Y.Whole < state.TargetY
+            : slot.Position.Y.Whole >= state.TargetY;
         if (!crossedTarget)
             return;
 
@@ -144,34 +144,34 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 1));
 
     /// <summary>Steps the fly around its circle at its angle, across before down.</summary>
-    private static void MoveFlyAccordingToAngle(RoomEnemyPlace place, FlyEnemyState state)
+    private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         EightEightVector<RoomPixels> step = CircleStep(state.Angle.ToTrigonometryAngle());
-        place.Position = place.Position.AdvanceX(step.X.ToSixteenSixteenDelta());
-        place.Position = place.Position.AdvanceY(step.Y.ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceX(step.X.ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceY(step.Y.ToSixteenSixteenDelta());
     }
 
     /// <summary>Applies the fixed-point dive or retreat velocity to the enemy position.</summary>
-    private static void MoveFlyAccordingToVelocities(RoomEnemyPlace place, FlyEnemyState state)
+    private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
-        place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
+        slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
     }
 
     /// <summary>Advances Flies's typed animation.</summary>
-    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceFliesTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!place.AnimationClock.Expire())
+        if (!slot.AnimationClock.Expire())
             return;
-        FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
+        FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlySegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, FlyAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(slot, FlyAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
         state.Playback = playback;
     }
 
     /// <summary>Runs Flies's main AI.</summary>
-    internal void RunFliesMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunFliesMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunFlyMain(place, frame.Samus);
+        RunFlyMain(slot, frame.Samus);
     }
 }

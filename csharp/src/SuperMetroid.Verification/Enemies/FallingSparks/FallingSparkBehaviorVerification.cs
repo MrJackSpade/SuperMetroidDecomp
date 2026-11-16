@@ -24,7 +24,7 @@ internal static class FallingSparkBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
 
-        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 96));
         enemies.FallingSparksBehavior.SpawnFallingSpark(source);
         EnemyProjectile spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);

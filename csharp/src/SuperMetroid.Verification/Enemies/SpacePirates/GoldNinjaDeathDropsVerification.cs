@@ -28,8 +28,8 @@ internal static class GoldNinjaDeathDropsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MetalPirates);
         var samus = runtime.Player.IntroducedSamus;
-        RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.PirateGoldNinja);
+        RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.PirateGoldNinja);
         samus.Control.LockOutPlayer();
         // The Gold Ninja is invincible in almost every frame. Install
         // ExtendedSpritemaps_PirateNinja_28 ($B2:8EA2), whose lower piece

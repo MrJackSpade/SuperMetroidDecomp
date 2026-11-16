@@ -73,15 +73,15 @@ internal static class CeresRidleyColorsVerification
         runtime.Artwork.MapPresentation = original;
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        Action<RoomEnemyPlace> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
-        initialize(place);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
+        initialize(slot);
         CheckCgram(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEnemyState> eyeTick = RidleyFadeIn.TickEyeFadeIn;
-        Action<RoomEnemyPlace, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.FadeIn.TickBodyFadeIn;
+        Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.FadeIn.TickBodyFadeIn;
         Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new RidleyEnemyState { Phase = RidleyPhase.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.FadeStepCount; step++)
@@ -102,7 +102,7 @@ internal static class CeresRidleyColorsVerification
         {
             state.FadeStep = row;
             state.PhaseTimer = 1;
-            bodyTick(place, state);
+            bodyTick(slot, state);
             AssertEqual(row == CeresRidleyShadeDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
                 state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
@@ -128,13 +128,13 @@ internal static class CeresRidleyColorsVerification
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
         Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
+        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Phase = RidleyPhase.CeresRetreatDelay;
         activeRidley.PhaseTimer = 0;
         activeRidley.MovementAnimationEnabled = false;
-        enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyPhase.CeresPublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
@@ -184,17 +184,17 @@ internal static class CeresRidleyColorsVerification
             // parity; the guarded installed path proves no copied ROM colors are read.
             var nativeEnemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var stockEnemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var nativeTick = new Action<RoomEnemyPlace, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
-            var stockTick = new Action<RoomEnemyPlace, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
-            RoomEnemyPlace nativePlace = nativeEnemy.Places.InUpdateOrder[0];
-            RoomEnemyPlace stockPlace = stockEnemy.Places.InUpdateOrder[0];
+            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
+            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthBand);
+            RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];
+            RoomEnemySlot stockSlot = stockEnemy.SlotTable.Slots[0];
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799, 0 })
             {
-                nativePlace.Health = stockPlace.Health = health;
-                nativeTick(nativePlace, nativeState);
-                stockTick(stockPlace, stockState);
+                nativeSlot.Health = stockSlot.Health = health;
+                nativeTick(nativeSlot, nativeState);
+                stockTick(stockSlot, stockState);
                 RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, original);
                 RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, original);
                 ushort stage = health switch

@@ -21,10 +21,10 @@ internal static class SbugMovementDefinitionsVerification
         const int activationTable = 0xa3a121;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = SbugBehavior.InitializeSbug;
-        Action<RoomEnemyPlace, SamusState, RoomLevelData> runMain = enemies.SbugBehavior.RunSbugMain;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
+        Action<RoomEnemySlot> initialize = SbugBehavior.InitializeSbug;
+        Action<RoomEnemySlot, SamusState, RoomLevelData> runMain = enemies.SbugBehavior.RunSbugMain;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
 
         for (int facing = 0; facing < 8; facing++)
         {
@@ -52,9 +52,9 @@ internal static class SbugMovementDefinitionsVerification
         for (ushort selector = 0; selector < 8; selector++)
         {
             byte angle = unchecked((byte)(0x30 + selector * 0x20));
-            place.SetSpawnParameter1(EnemyDefinitionId.Sbug, (ushort)(angle << 8 | 1));
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-            initialize(place);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Sbug, (ushort)(angle << 8 | 1));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
+            initialize(slot);
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
@@ -67,20 +67,20 @@ internal static class SbugMovementDefinitionsVerification
             // Each loop shows its four frames five updates apiece, then its goto shows the first again.
             ushort[] loop = SbugAnimationsConstants.Spritemaps(state.Playback.Animation.Phases[0].Segment).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [5, 5, 5, 5, 5]),
-                EnemyInstructionRunner.ShownFrames(place, 21), $"Sbug facing loop {selector}");
+                EnemyInstructionRunner.ShownFrames(slot, 21), $"Sbug facing loop {selector}");
         }
 
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
-        place.Position = place.Position.WithWhole(samus.Position.Whole);
+        slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
         {
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Action = SbugAction.WaitForSamus;
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
-            runMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
+            runMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
 
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
@@ -106,24 +106,24 @@ internal static class SbugMovementDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 96;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
-        place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-        place.Position = place.Position.WithWhole(new(512, 512));
-        SbugBehavior.InitializeSbug(place);
-        SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
+        slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
+        slot.Position = slot.Position.WithWhole(new(512, 512));
+        SbugBehavior.InitializeSbug(slot);
+        SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         state.FaceCustomHeading(RotationAngle.FromSteps(240));
         state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
-        enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+        enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");
         AssertEqual(CompassDirection.DownRight, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugAction.MoveStraightAndReverseWhenFar, state.Action, "the chooser starts a reversal-aware leg");
 
         state.StraightMovementTimer = WrappingCountdown.Start(512);
-        enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+        enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(CompassDirection.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
         AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(CompassDirection.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
             "the folded facing installs its loop");
@@ -136,7 +136,7 @@ internal static class SbugMovementDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => turn;
             state.FaceCustomHeading(start);
             state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
-            enemies.SbugBehavior.RunSbugMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            enemies.SbugBehavior.RunSbugMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(RotationAngle.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
                 $"Sbug random turn {random}");
         }

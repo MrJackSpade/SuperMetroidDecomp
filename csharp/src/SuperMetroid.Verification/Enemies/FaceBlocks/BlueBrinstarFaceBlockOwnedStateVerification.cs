@@ -17,13 +17,13 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
     internal static void VerifyBlueBrinstarFaceBlockOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
-        place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
-        place.Position = place.Position.WithWhole(new(256, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
+        slot.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
+        slot.Position = slot.Position.WithWhole(new(256, 256));
+        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, RoomEnemyFrameFixtures.StandaloneSamus());
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
@@ -31,7 +31,7 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(224, 256)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
+        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(slot, state, samus);
         AssertEqual(!state.FacesRight, state.Activated, "the face block wakes for Samus 32 pixels left only when it faces left");
         Console.WriteLine("Face block owned state: the block wakes for the side it faces.");
     }

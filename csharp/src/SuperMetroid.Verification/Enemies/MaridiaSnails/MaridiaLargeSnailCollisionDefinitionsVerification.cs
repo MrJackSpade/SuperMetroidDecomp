@@ -35,12 +35,12 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewOumNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry);
-        RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition);
-        nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);
-        compiledPlace.Bind(compiledPlace.DefinitionId, boundDefinition);
-        compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.Definition);
+        nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
+        compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
+        compiledSlot.Bind(EnemyDefinitionId.Oum, compiledSlot.Definition);
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.HitboxPointers.Count(),
@@ -78,17 +78,17 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                 boxesChecked++;
             }
 
-            nativePlace.Frame = compiledPlace.Frame = RoomEnemyPlaceFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame);
+            nativeSlot.Frame = compiledSlot.Frame = RoomEnemySlotFrameAccess.FrameAt(MaridiaLargeSnailCollisionDefinitions.Bank, frame);
             foreach ((ushort originX, ushort originY) in
                      new VerifyMaridiaLargeSnailCollisionDefinitionsCase[]
                      {
                          new VerifyMaridiaLargeSnailCollisionDefinitionsCase(0x0100, 0x0100), new VerifyMaridiaLargeSnailCollisionDefinitionsCase(0x0004, 0x0006), new VerifyMaridiaLargeSnailCollisionDefinitionsCase(0xfffc, 0xfffa),
                      })
             {
-                compiledPlace.Position = compiledPlace.Position.WithWholeX(originX);
-                nativePlace.Position = nativePlace.Position.WithWholeX(originX);
-                compiledPlace.Position = compiledPlace.Position.WithWholeY(originY);
-                nativePlace.Position = nativePlace.Position.WithWholeY(originY);
+                compiledSlot.Position = compiledSlot.Position.WithWholeX(originX);
+                nativeSlot.Position = nativeSlot.Position.WithWholeX(originX);
+                compiledSlot.Position = compiledSlot.Position.WithWholeY(originY);
+                nativeSlot.Position = nativeSlot.Position.WithWholeY(originY);
                 foreach (EnemyCollisionHitbox box in boxes)
                 {
                     ushort[] xs = BoundaryPoints(originX, box.Left, box.Right);
@@ -98,9 +98,9 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                     for (int shot = 0; shot <= 1; shot++)
                     {
                         object?[] nativeArguments =
-                            [nativePlace, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
+                            [nativeSlot, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                         object?[] compiledArguments =
-                            [compiledPlace, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
+                            [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                         bool nativeHit = ReferenceExtendedCollision(rom, MaridiaLargeSnailCollisionDefinitions.Bank, nativeArguments);
                         bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                         AssertEqual(nativeHit, compiledHit,

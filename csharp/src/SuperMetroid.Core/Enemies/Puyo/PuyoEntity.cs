@@ -2,17 +2,17 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>One Puyo occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Puyo species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => PuyoBehavior.InitializePuyo(Place);
+    public void Initialize() => PuyoBehavior.InitializePuyo(Slot);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Slot, context);
 }

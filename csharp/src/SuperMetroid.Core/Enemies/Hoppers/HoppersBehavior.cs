@@ -14,7 +14,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new HoppersEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new HoppersEntity(this, slot, common);
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -33,15 +33,15 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
-    private HopperSegment? ApplyHopperCue(RoomEnemyPlace place, HopperEnemyState state, HopperCue cue)
+    private HopperSegment? ApplyHopperCue(RoomEnemySlot slot, HopperEnemyState state, HopperCue cue)
     {
         switch (cue.Kind)
         {
             case HopperCueKind.ProcessOffScreen:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
                 break;
             case HopperCueKind.StopProcessingOffScreen:
-                place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
+                slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 break;
             case HopperCueKind.PlaySound:
                 _audio.QueueEnemySound(cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound."), priority: SoundRequestPriority.Normal);
@@ -61,9 +61,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly QuadraticSpeedCurvePlace MaximumHopperYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>Initializes the Hopper.</summary>
-    internal void InitializeHopper(RoomEnemyPlace place)
+    internal void InitializeHopper(RoomEnemySlot slot)
     {
-        HopperKind kind = HopperAnimationChoices.KindOf(place.DefinitionId);
+        HopperKind kind = HopperAnimationChoices.KindOf(slot.DefinitionId);
         // The initializer overwrites the global RNG seed and consumes one generated value
         // even though it never reads that value. This changes later enemy randomness and is
         // therefore observable whenever a hopper appears earlier in population order.
@@ -75,11 +75,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             Falling = false,
             ReadyToHop = false,
             Kind = kind,
-            UpsideDown = place.SpawnSettings<HopperSpawnSettings>().Mounting == HopperMounting.Ceiling,
+            UpsideDown = slot.SpawnSettings<HopperSpawnSettings>().Mounting == HopperMounting.Ceiling,
         };
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
 
         // Every Hopper definition authors the same small and big hops, so the definition selects nothing here; the
         // two hop sizes' starting speeds are still calculated independently.
@@ -89,11 +89,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         SamusState samus,
         RoomLevelData level)
     {
-        HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
+        HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         switch (state.Action)
         {
             case HopperAction.ChooseHopSize:
@@ -109,19 +109,19 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 PrepareHopperHop(state, HopperHopSize.Big);
                 return;
             case HopperAction.ChooseDirection:
-                ChooseHopperDirection(place, state, samus);
+                ChooseHopperDirection(slot, state, samus);
                 return;
             case HopperAction.StartBackwardHop:
-                StartHopperJump(place, state, HopperHopDirection.Backward);
+                StartHopperJump(slot, state, HopperHopDirection.Backward);
                 return;
             case HopperAction.StartForwardHop:
-                StartHopperJump(place, state, HopperHopDirection.Forward);
+                StartHopperJump(slot, state, HopperHopDirection.Forward);
                 return;
             case HopperAction.Landed:
-                LandHopper(place, state);
+                LandHopper(slot, state);
                 return;
             case HopperAction.Jumping:
-                RunHopperMovement(place, state, level, SurfaceOf(state));
+                RunHopperMovement(slot, state, level, SurfaceOf(state));
                 return;
             case HopperAction.WaitToHop:
                 if (state.ReadyToHop)
@@ -150,18 +150,18 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Chooses the hop's direction from Samus's signed horizontal position relative to the actor.</summary>
     private static void ChooseHopperDirection(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         HopperEnemyState state,
         SamusState samus)
     {
-        state.Action = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        state.Action = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? HopperAction.StartBackwardHop
             : HopperAction.StartForwardHop;
     }
 
     /// <summary>Installs the jumping animation and negates X velocity only for the leftward branch.</summary>
     internal static void StartHopperJump(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         HopperEnemyState state,
         HopperHopDirection direction)
     {
@@ -170,20 +170,20 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (direction == HopperHopDirection.Backward)
             state.XVelocity = -state.XVelocity;
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Jumping));
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Jumping));
         state.Action = HopperAction.Jumping;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
-    internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
+    internal static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
     }
 
     /// <summary>Advances a floor or ceiling hop with vertical-first collision and phase-dependent horizontal reversal.</summary>
     private void RunHopperMovement(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         HopperEnemyState state,
         RoomLevelData level,
         HopperSurface surface)
@@ -199,7 +199,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
         // A collision while falling installs Landed and likewise ends the frame immediately.
-        if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
+        if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
             if (movingAwayFromSurface)
             {
@@ -215,7 +215,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(state.XVelocity);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             state.XVelocity = -state.XVelocity;
             if (movingAwayFromSurface)
@@ -264,28 +264,28 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts a new animation with a one-tick countdown.</summary>
     private static void SetHopperAnimation(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         HopperEnemyState state,
         HopperSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(place, HopperAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.Start(slot, HopperAnimations.StartingWith(segment));
     }
 
     /// <summary>Runs the hoppers' main AI.</summary>
-    internal void RunHoppersMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunHoppersMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunHopperMain(place, frame.Samus, frame.Level);
+        RunHopperMain(slot, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Hoppers's typed animation.</summary>
-    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceHoppersTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!place.AnimationClock.Expire())
+        if (!slot.AnimationClock.Expire())
             return;
-        HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
+        HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, HopperAnimations.Segments, ref playback,
-            cue => ApplyHopperCue(place, state, cue) is { } target
+        EnemyAnimationPlayback.Play(slot, HopperAnimations.Segments, ref playback,
+            cue => ApplyHopperCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<HopperSegment>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;

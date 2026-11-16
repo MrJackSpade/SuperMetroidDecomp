@@ -19,7 +19,7 @@ internal sealed class PhantoonPresentation
 
     /// <summary>Blends the body colours toward its visible colors over the selected interval.</summary>
     internal void AdvancePhantoonFadeIn(
-        RoomEnemyPlace body,
+        RoomEnemySlot body,
         PhantoonEnemyState state,
         int denominator)
     {
@@ -68,16 +68,16 @@ internal sealed class PhantoonPresentation
     internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state) => --state.PhaseTimer <= 0;
 
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
-    internal static int HealthBand(RoomEnemyPlace body) =>
+    internal static int HealthBand(RoomEnemySlot body) =>
         Math.Min(PhantoonColorDefinitions.HealthBandCount - 1, Math.Max(0, (body.Health - 1) / PhantoonColorDefinitions.HealthPerBand));
 
     /// <summary>Restarts a part's animation from its start with a one-tick timer.</summary>
     internal static void StartPhantoonAnimation(
         PhantoonEnemyState state,
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         PhantoonPartSegment segment)
     {
-        place.AnimationClock.StepOnNextUpdate();
-        state.PartPlayback(place) = PhantoonEnemyState.Starting(segment);
+        slot.AnimationClock.StepOnNextUpdate();
+        state.PartPlayback(slot) = PhantoonEnemyState.Starting(segment);
     }
 }

@@ -37,22 +37,22 @@ internal static class EnemyLinearSpeedsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Ripper does not need any bus for its speed setup.
-        var cacatac = new Action<RoomEnemyPlace>(CacatacBehavior.InitializeCacatac);
-        var owtch = new Action<RoomEnemyPlace>(OwtchBehavior.InitializeOwtch);
+        var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);
+        var owtch = new Action<RoomEnemySlot>(OwtchBehavior.InitializeOwtch);
         Action<RipperEnemyState, bool> ripper = RipperBehavior.LoadRipperVelocity;
-        var place = enemies.Places.InUpdateOrder[0];
+        var slot = enemies.SlotTable.Slots[0];
         for (int index = 0; index < EnemyLinearSpeedTable.RowCount; index++)
         {
             (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = EnemySpeedTableCodec.LinearRow(cartridge, EnemySpeedTableCodec.LinearTable, index);
-            place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
-            place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
-            place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
-            cacatac(place);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
+            slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
+            cacatac(slot);
             var c = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires c.");
             AssertEqual((positive, negative), (c.Speed, -c.Speed), "Cacatac native speed setup, negated for walking left");
-            place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
-            place.Bind(EnemyDefinitionId.Owtch, place.Definition);
-            owtch(place);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
+            slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
+            owtch(slot);
             var o = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires o.");
             AssertEqual((positive, negative), (o.Speed, -o.Speed), "Owtch native speed setup, negated for moving left");
             var ripperState = new RipperEnemyState() { Speeds = new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(index)) };

@@ -33,11 +33,11 @@ internal static class PowerBombDeathRadiusVerification
         {
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
-            var higher = Place(enemies.Places.InUpdateOrder[1], explosionX, killerLethal ? (ushort)1 : (ushort)1000);
+            var higher = Place(enemies.SlotTable.Slots[1], explosionX, killerLethal ? (ushort)1 : (ushort)1000);
             higher.Contact = EnemyContact.None;
             higher.Processing = EnemyProcessing.None;
             higher.Presence = killerRespawns ? EnemyPresence.RespawnsIfKilled : EnemyPresence.None;
-            var lower = Place(enemies.Places.InUpdateOrder[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
+            var lower = Place(enemies.SlotTable.Slots[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
 
             enemies.Collision.ResolveOrdinaryPowerBombHits(new(explosionX, explosionY), radius, RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
 
@@ -51,7 +51,7 @@ internal static class PowerBombDeathRadiusVerification
             AssertEqual(expectLowerHit, lower.Health < 1000, label + ": lower slot damage");
         }
 
-        static RoomEnemyPlace Place(RoomEnemyPlace actor, ushort x, ushort health)
+        static RoomEnemySlot Place(RoomEnemySlot actor, ushort x, ushort health)
         {
             actor.Bind(EnemyDefinitionId.Atomic, actor.Definition);
             actor.Bind(actor.DefinitionId, RoomEnemyDefinitionLookup.Get(actor.DefinitionId));

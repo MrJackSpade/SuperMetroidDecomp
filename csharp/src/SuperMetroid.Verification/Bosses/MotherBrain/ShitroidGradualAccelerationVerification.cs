@@ -24,8 +24,8 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
-        RoomEnemyPlace shitroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+        RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
@@ -54,8 +54,8 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
-        RoomEnemyPlace shitroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+        RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
         var samus = runtime.Player.IntroducedSamus;
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
@@ -101,13 +101,13 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
-        RoomEnemyPlace shitroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+        RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         ShitroidBehavior behavior = runtime.Enemies.ShitroidBehavior;
         var samus = runtime.Player.IntroducedSamus;
-        RoomEnemyPlace victim = behavior.RequireShitroidVictim(shitroid);
+        RoomEnemySlot victim = behavior.RequireShitroidVictim(shitroid);
 
         var flights = new (ShitroidAction Action, int TablePosition, Func<Position16<RoomPixels>> Target)[]
         {

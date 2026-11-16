@@ -41,16 +41,16 @@ internal static class EnemyFormatDrawEntriesVerification
         // Ordinary enemy on layer zero, in the row its graphics set loaded it in.
         EnemyFrameId ordinaryFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.Beetom]
             .First(frame => spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) && parts.Count > 0);
-        RoomEnemyPlace ordinary = enemies.Places.InUpdateOrder[0];
+        RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
-        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
+        enemies.Drawing.Enqueue(enemies.SlotTable.Slots[0], reached: true);
 
         // Extended enemy on layer one, showing a frame with several components.
         EnemyFrameId extendedFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
             .First(frame => extendedFrames.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && components.Length > 1);
-        RoomEnemyPlace extended = enemies.Places.InUpdateOrder[1];
+        RoomEnemySlot extended = enemies.SlotTable.Slots[1];
         extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
         extended.CollidesByFrameHitboxes = true;
         extended.Frame = extendedFrame;

@@ -18,7 +18,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new RinkaEntity(this, place, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RinkaEntity(this, slot, common);
 
     /// <summary>Applies normal Samus contact damage before the Rinka-specific death tail.</summary>
     private readonly EnemyCollision _collision;
@@ -60,7 +60,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Special Rinkas awaiting the door loader's camera for spawn selection, in the
     /// order the room's enemy setup reaches them.
     /// </summary>
-    private readonly List<RoomEnemyPlace> _deferredRinkaSpawnPlaces = new();
+    private readonly List<RoomEnemySlot> _deferredRinkaSpawnSlots = new();
 
     /// <summary>
     /// Captures camera coordinates used by the Rinka's flight and spawn checks. StepFrame refreshes these before
@@ -72,68 +72,68 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
-    internal void InitializeRinka(RoomEnemyPlace place)
+    internal void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState();
-        place.SetSpeciesState(state);
+        slot.SetSpeciesState(state);
 
         // Both branches first clear the four lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
         // respawn; ordinary room Rinkas retain the respawn property so their death explosion resurrects
         // the enemy in its place in the room's listing from its population snapshot.
-        place.Presence = place.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-        place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-        if (IsSpecialRinka(place))
+        slot.Presence = slot.Presence.Without(EnemyPresence.RespawnsIfKilled);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+        slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+        if (IsSpecialRinka(slot))
         {
             // The spawn selection tests its spawn points against the foreground. A door's loader runs this
             // while the door transition is still scrolling, so that choice waits for the camera
-            // of the update in which the loader reaches this place.
+            // of the update in which the loader reaches this slot.
             if (_frameContext.DeferLoaderTimeCameraReads)
-                _deferredRinkaSpawnPlaces.Add(place);
+                _deferredRinkaSpawnSlots.Add(slot);
             else
-                ReserveSpecialRinkaSpawn(place, state);
-            place.Processing = place.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
-            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+                ReserveSpecialRinkaSpawn(slot, state);
+            slot.Processing = slot.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
         else
         {
-            place.Presence = place.Presence.With(EnemyPresence.RespawnsIfKilled);
-            place.Processing = place.Processing.With(EnemyProcessing.Animates);
-            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+            slot.Presence = slot.Presence.With(EnemyPresence.RespawnsIfKilled);
+            slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
 
         // Both ordinary and Mother Brain variants draw in the Rinka's own colours, which every room placing
         // Rinkas draws them in: their variant's standard colours (#1512, #1599).
-        place.Shading = PictureShading.Standard;
-        InitializeRinkaLife(place, state);
+        slot.Shading = PictureShading.Standard;
+        InitializeRinkaLife(slot, state);
     }
 
     /// <summary>Re-initializes a Rinka, covering both of its later setup paths.</summary>
-    private void ReinitializeRinka(RoomEnemyPlace place, RinkaEnemyState state)
+    private void ReinitializeRinka(RoomEnemySlot slot, RinkaEnemyState state)
     {
-        if (IsSpecialRinka(place))
-            ReserveSpecialRinkaSpawn(place, state);
+        if (IsSpecialRinka(slot))
+            ReserveSpecialRinkaSpawn(slot, state);
 
         // The population entry is separate and survives clearing the common
         // actor. Special spawn selection deliberately mutates that snapshot; ordinary
         // Rinkas continue to return to their original population coordinate.
-        place.Position = place.Position.WithWhole(new(place.Spawn.Population.Position.X, place.Spawn.Population.Position.Y));
-        InitializeRinkaLife(place, state);
+        slot.Position = slot.Position.WithWhole(new(slot.Spawn.Population.Position.X, slot.Spawn.Population.Position.Y));
+        InitializeRinkaLife(slot, state);
     }
 
     /// <summary>Resets the watch state and animation after initialization or respawn; deletes terminated special actors.</summary>
-    private void InitializeRinkaLife(RoomEnemyPlace place, RinkaEnemyState state)
+    private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
         state.Action = RinkaAction.WatchForLeavingViewport;
         state.DelayTimer = RinkaInitialDelay;
         state.Velocity = default;
 
-        if (IsSpecialRinka(place))
+        if (IsSpecialRinka(slot))
         {
             if (_rinkaTerminationFlag)
             {
-                place.Presence = place.Presence.With(EnemyPresence.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             }
             state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Special), AnimationPlace.StartOfAnimation);
@@ -142,27 +142,27 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Ordinary), AnimationPlace.StartOfAnimation);
         }
-        place.AnimationClock.Restart();
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
-    public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnPlaces.Count != 0;
+    public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnSlots.Count != 0;
 
     /// <summary>
-    /// Runs the camera-dependent part of each deferred initialization whose place the door
+    /// Runs the camera-dependent part of each deferred initialization whose slot the door
     /// loader has reached, against that update's camera position.
     /// </summary>
     public void CompleteLoaderTimeCameraReads(
-        Func<int, bool> loaderInitializedPlace,
+        Func<int, bool> loaderInitializedSlot,
         Position16<RoomPixels> camera)
     {
-        Ensure.NotNull(loaderInitializedPlace);
-        while (_deferredRinkaSpawnPlaces.Count != 0 && loaderInitializedPlace(_deferredRinkaSpawnPlaces[0].Ordinal))
+        Ensure.NotNull(loaderInitializedSlot);
+        while (_deferredRinkaSpawnSlots.Count != 0 && loaderInitializedSlot(_deferredRinkaSpawnSlots[0].SlotIndex))
         {
-            RoomEnemyPlace rinka = _deferredRinkaSpawnPlaces[0];
-            _deferredRinkaSpawnPlaces.RemoveAt(0);
+            RoomEnemySlot rinka = _deferredRinkaSpawnSlots[0];
+            _deferredRinkaSpawnSlots.RemoveAt(0);
             RinkaEnemyState state = rinka.SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
-                $"Deferred Rinka spawn place {rinka.Ordinal} no longer holds a Rinka.");
+                $"Deferred Rinka spawn slot {rinka.SlotIndex} no longer holds a Rinka.");
             SetRinkaCamera(camera);
             ReserveSpecialRinkaSpawn(rinka, state);
         }
@@ -170,25 +170,25 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a Rinka's main AI for one update through all four of its actions.</summary>
     private void RunRinkaMain(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RinkaEnemyState state,
         SamusState samus)
     {
-        if (_deferredRinkaSpawnPlaces.Count != 0)
+        if (_deferredRinkaSpawnSlots.Count != 0)
             throw new InvalidOperationException(
                 "A Rinka ran before the door loader chose every special Rinka's spawn point.");
-        if (IsSpecialRinka(place) && _rinkaTerminationFlag)
+        if (IsSpecialRinka(slot) && _rinkaTerminationFlag)
         {
             ReleaseSpecialRinkaSpawn(state);
-            RunRinkaDeathAnimation(place);
+            RunRinkaDeathAnimation(slot);
             return;
         }
 
         switch (state.Action)
         {
             case RinkaAction.WatchForLeavingViewport:
-                if (RinkaIsOutsideFlightWindow(place))
-                    RecycleRinkaAfterLeavingViewport(place, state);
+                if (RinkaIsOutsideFlightWindow(slot))
+                    RecycleRinkaAfterLeavingViewport(slot, state);
                 return;
 
             case RinkaAction.AimDelay:
@@ -198,11 +198,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // Special and ordinary branches have different source masks in code,
                 // but both observable results make the Rinka tangible and set its processing property here.
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
 
                 TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
                     EnemyMath.SineSpeed(RinkaSpeed, velocityAngle),
                     EnemyMath.SineSpeed(
@@ -211,16 +211,16 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.Flying:
-                place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
-                if (RinkaIsOutsideFlightWindow(place))
-                    RecycleRinkaAfterLeavingViewport(place, state);
+                slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
+                if (RinkaIsOutsideFlightWindow(slot))
+                    RecycleRinkaAfterLeavingViewport(slot, state);
                 return;
 
             case RinkaAction.DeathRespawnDelay:
                 if (--state.DelayTimer >= 0)
                     return;
-                place.Health = RinkaHealth;
-                ReinitializeRinka(place, state);
+                slot.Health = RinkaHealth;
+                ReinitializeRinka(slot, state);
                 return;
 
             default:
@@ -234,59 +234,59 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Common damage deliberately leaves lethal Rinkas alive long enough for this method to
     /// select their two distinct death lifecycles.
     /// </summary>
-    private void ResolveRinkaCombatAfterCommon(RoomEnemyPlace place)
+    private void ResolveRinkaCombatAfterCommon(RoomEnemySlot slot)
     {
-        if (place.Health != 0)
+        if (slot.Health != 0)
             return;
 
-        RinkaEnemyState state = place.RequireSpeciesState<RinkaEnemyState>();
+        RinkaEnemyState state = slot.RequireSpeciesState<RinkaEnemyState>();
         ReleaseSpecialRinkaSpawn(state);
-        if (!IsSpecialRinka(place))
+        if (!IsSpecialRinka(slot))
         {
-            RunRinkaDeathAnimation(place);
+            RunRinkaDeathAnimation(slot);
             return;
         }
 
-        // Special Mother Brain Rinkas do not clear their enemy place. They hide, emit the
+        // Special Mother Brain Rinkas do not clear their enemy slot. They hide, emit the
         // room-graphics small explosion, wait for
         // the 1, 0, -1 countdown, restore ten health, and select a spawn.
-        place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        SpawnRinkaDustExplosion(place.Position.Whole);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
+        SpawnRinkaDustExplosion(slot.Position.Whole);
         state.Action = RinkaAction.DeathRespawnDelay;
         state.DelayTimer = 1;
     }
 
     /// <summary>Runs Rinka's private frozen-AI prelude/tail around common frozen handling.</summary>
-    internal bool RunRinkaFrozenTail(RoomEnemyPlace place)
+    internal bool RunRinkaFrozenTail(RoomEnemySlot slot)
     {
-        if (RinkaIsOutsideFlightWindow(place))
-            place.FrozenTimer = 0;
+        if (RinkaIsOutsideFlightWindow(slot))
+            slot.FrozenTimer = 0;
         if (!_rinkaTerminationFlag)
             return false;
 
-        ReleaseSpecialRinkaSpawn(place.RequireSpeciesState<RinkaEnemyState>());
-        RunRinkaDeathAnimation(place);
+        ReleaseSpecialRinkaSpawn(slot.RequireSpeciesState<RinkaEnemyState>());
+        RunRinkaDeathAnimation(slot);
         return true;
     }
 
     /// <summary>Carries out one event of the Rinkas' animations: hiding, hiding with off-screen processing, and firing.</summary>
-    private static void ApplyRinkaCue(RoomEnemyPlace place, RinkaEnemyState state, RinkaCue cue)
+    private static void ApplyRinkaCue(RoomEnemySlot slot, RinkaEnemyState state, RinkaCue cue)
     {
         switch (cue.Kind)
         {
             case RinkaCueKind.Hide:
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 break;
             case RinkaCueKind.HideAndProcessOffScreen:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 break;
             case RinkaCueKind.Fire:
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 state.Action = RinkaAction.AimDelay;
                 break;
             default:
@@ -296,40 +296,40 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Releases a special spawn resource and restarts its life unless the room has terminated it.</summary>
     private void RecycleRinkaAfterLeavingViewport(
-        RoomEnemyPlace place,
+        RoomEnemySlot slot,
         RinkaEnemyState state)
     {
-        if (IsSpecialRinka(place))
+        if (IsSpecialRinka(slot))
         {
             ReleaseSpecialRinkaSpawn(state);
             if (_rinkaTerminationFlag)
             {
-                place.Presence = place.Presence.With(EnemyPresence.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             }
         }
 
-        ReinitializeRinka(place, state);
+        ReinitializeRinka(slot, state);
     }
 
     /// <summary>
     /// Reserves a special Rinka's spawn point against the current camera, moving the Rinka and its spawn snapshot to the
     /// point when it cannot keep its own.
     /// </summary>
-    private void ReserveSpecialRinkaSpawn(RoomEnemyPlace place, RinkaEnemyState state)
+    private void ReserveSpecialRinkaSpawn(RoomEnemySlot slot, RinkaEnemyState state)
     {
         // Every point being held is a real failure path: the Rinka keeps its place and whatever point it held.
-        if (_spawnReservations.Reserve(place.Spawn.Population.Position, _rinkaCamera) is not { } reservation)
+        if (_spawnReservations.Reserve(slot.Spawn.Population.Position, _rinkaCamera) is not { } reservation)
             return;
 
         if (reservation.MovesTo is { } centre)
         {
-            RoomEnemyPlacement rewrittenPopulation = place.Spawn.Population with
+            RoomEnemyPlacement rewrittenPopulation = slot.Spawn.Population with
             {
                 Position = centre,
             };
-            place.Spawn = place.Spawn with { Population = rewrittenPopulation };
-            place.Position = place.Position.WithWhole(centre);
+            slot.Spawn = slot.Spawn with { Population = rewrittenPopulation };
+            slot.Position = slot.Position.WithWhole(centre);
         }
         state.HeldSpawnPoint = reservation.Reserved;
     }
@@ -345,21 +345,21 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The Rinka's asymmetric (-16..271, -16..239) flight rectangle.</summary>
-    private bool RinkaIsOutsideFlightWindow(RoomEnemyPlace place)
+    private bool RinkaIsOutsideFlightWindow(RoomEnemySlot slot)
     {
-        if (CoordinateAxis.AsSigned(place.Position.Y.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0)
             return true;
-        int relativeY = CoordinateAxis.Difference(place.Position.Y.Whole + 16, _rinkaCamera.Y);
+        int relativeY = CoordinateAxis.Difference(slot.Position.Y.Whole + 16, _rinkaCamera.Y);
         if (relativeY is < 0 or >= 256)
             return true;
-        if (CoordinateAxis.AsSigned(place.Position.X.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
-        int relativeX = CoordinateAxis.Difference(place.Position.X.Whole + 16, _rinkaCamera.X);
+        int relativeX = CoordinateAxis.Difference(slot.Position.X.Whole + 16, _rinkaCamera.X);
         return relativeX is < 0 or >= 288;
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
-    private static bool IsSpecialRinka(RoomEnemyPlace place) => place.Spawn.Population.SpawnSettingsOf<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint;
+    private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Spawn.Population.SpawnSettingsOf<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint;
 
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
     internal EnemyBombReaction RinkaBombReaction => field ??= new()
@@ -371,18 +371,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
-    internal void RunRinkaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRinkaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRinkaMain(place, place.RequireSpeciesState<RinkaEnemyState>(), frame.Samus);
+        RunRinkaMain(slot, slot.RequireSpeciesState<RinkaEnemyState>(), frame.Samus);
     }
 
     /// <summary>Advances Rinka's typed animation.</summary>
-    internal static void AdvanceRinkaTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, RinkaAnimations.Segments,
+    internal static void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, RinkaAnimations.Segments,
             static (RinkaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                ApplyRinkaCue(place, state, cue);
+                ApplyRinkaCue(slot, state, cue);
                 return null;
             });
 
@@ -411,8 +411,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
     internal void ReactToRinkaTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-        ResolveRinkaCombatAfterCommon(context.Place);
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        ResolveRinkaCombatAfterCommon(context.Slot);
     }
 
     /// <inheritdoc/>
@@ -427,11 +427,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         => _projectiles.SpawnDustOrExplosion(position, RinkaDustAnimationIndex);
 
     /// <summary>Runs a Rinka's death animation.</summary>
-    internal void RunRinkaDeathAnimation(RoomEnemyPlace place)
+    internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
-        _deathsAndDrops.RecordKill(place);
-        bool respawns = place.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
-        RoomEnemySpawnSnapshot survivingSpawnSnapshot = place.Spawn;
+        _deathsAndDrops.RecordKill(slot);
+        bool respawns = slot.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
+        RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
         // The death explosion draws from the room's shared sheet in its standard colours. When every place is held,
         // the spawn is lost, and with it both the effect and the only future respawn cue.
@@ -443,20 +443,20 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 _deathsAndDrops.DeathProjectiles,
                 graphics: default);
-            projectile.Position = projectile.Position.WithWhole(place.Position.Whole);
-            projectile.DropDefinitionId = place.DefinitionId;
-            projectile.KilledEnemy = KilledEnemy.Of(place, respawns);
+            projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
+            projectile.DropDefinitionId = slot.DefinitionId;
+            projectile.KilledEnemy = KilledEnemy.Of(slot, respawns);
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallExplosion));
         }
 
-        place.Clear();
+        slot.Clear();
 
         // Clearing the enemy leaves its spawn data in place, which the respawn cue rebuilds
         // the Rinka from; a special Rinka that does not respawn keeps it as every cleared enemy does.
-        place.Spawn = survivingSpawnSnapshot;
+        slot.Spawn = survivingSpawnSnapshot;
         if (respawns)
         {
-            place.AwaitRespawn();
+            slot.AwaitRespawn();
         }
     }
 }

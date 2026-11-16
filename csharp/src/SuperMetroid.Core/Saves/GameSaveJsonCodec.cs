@@ -35,7 +35,8 @@ public static class GameSaveJsonCodec
         {
             SelectedSlot = SlotNumber(saves.ReadSelectedSlot()),
             Slots = slots,
-            GameCompleted = saves.HasCompletedGame,
+            GameCompleted = saves.History == SaveFileHistory.GameCompleted,
+            PowerOnFoundNoValidSave = saves.History == SaveFileHistory.PowerOnFoundNoValidSave,
         };
     }
 
@@ -91,7 +92,9 @@ public static class GameSaveJsonCodec
                 saves.SaveSlot(SlotAt(slotIndex), ToSnapshot(slot));
         }
         saves.SelectSlot(SlotAt(document.SelectedSlot));
-        saves.SetGameCompleted(document.GameCompleted);
+        saves.RestoreHistory(document.GameCompleted ? SaveFileHistory.GameCompleted
+            : document.PowerOnFoundNoValidSave ? SaveFileHistory.PowerOnFoundNoValidSave
+            : SaveFileHistory.None);
         return saves;
     }
 
@@ -230,6 +233,8 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
         if (document.Slots is null || document.Slots.Length != SaveSlots.All.Count)
             throw new InvalidDataException("slots must contain exactly three entries");
+        if (document.GameCompleted && document.PowerOnFoundNoValidSave)
+            throw new InvalidDataException("gameCompleted and powerOnFoundNoValidSave cannot both hold");
 
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {

@@ -37,7 +37,7 @@ internal static class EyeWindowSnapshotTestsVerification
             ColourAddWindowLayer layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768))
                 ?? throw new InvalidOperationException($"eye capture origin {x},{y}; angle {angle}; width {width}");
             var apex = Offset16<ScreenPixels>.Of(unchecked((short)x), unchecked((short)(y - 1)));
-            AssertEqual(ScreenWindow.Of(new WindowCone(apex, TrigonometryAngle.Wrapped(angle - width), TrigonometryAngle.Wrapped(angle + width)), DisplayScreen.HudHeight), layer.Window,
+            AssertEqual(ScreenWindow.Of(new WindowCone(apex, TrigonometryAngle.Wrapped(angle - width), TrigonometryAngle.Wrapped(angle + width)), ScreenGeometry.GameplayHudHeightPixels), layer.Window,
                 $"eye cone from the line above the eye, origin {x},{y}; angle {angle}; width {width}");
             AssertEqual(new RgbColor(255, 99, 8), layer.Colour, "eye cone adds the beam's colour");
             samples++;
@@ -71,8 +71,8 @@ internal static class EyeWindowSnapshotTestsVerification
             // The beam over a black screen, as the display renderer draws it.
             RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
-            int[] lit = Enumerable.Range(0, DisplayScreen.Width)
-                .Where(x => drawn[sample.Y * DisplayScreen.Width + x].R != 0).ToArray();
+            int[] lit = Enumerable.Range(0, ScreenGeometry.ScreenWidthPixels)
+                .Where(x => drawn[sample.Y * ScreenGeometry.ScreenWidthPixels + x].R != 0).ToArray();
             string context = $"reported eye angle {sample.Angle}, width {sample.Width}, line {sample.Y}";
             if (sample.Left > sample.Right)
             {

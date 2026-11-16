@@ -606,8 +606,8 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static RgbaPixel[] ReadRows(RgbaPixel[] frame, int firstRow, int endRow) =>
         frame.AsSpan(
-            firstRow * DisplayScreen.Width,
-            (endRow - firstRow) * DisplayScreen.Width)
+            firstRow * ScreenGeometry.ScreenWidthPixels,
+            (endRow - firstRow) * ScreenGeometry.ScreenWidthPixels)
         .ToArray();
 
     /// <summary>Compares an animated FX object's instruction pointer, transfer size, destination, and first source with ROM.</summary>
@@ -745,7 +745,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         AssertTrue((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")).WaterSurfaceScreenY >=
-                DisplayScreen.Height,
+                ScreenGeometry.ScreenHeightPixels,
             $"room {definition.Room.Name} entry lava begins below the viewport");
 
         int movingFrames = 0;
@@ -767,8 +767,8 @@ internal static class RoomFxRetailInventoryVerification
         RoomFxOverlayRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
                 $"Room {definition.Room.Name} rising lava published no final snapshot.");
-        AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= DisplayScreen.HudHeight and
-                < DisplayScreen.Height,
+        AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= ScreenGeometry.GameplayHudHeightPixels and
+                < ScreenGeometry.ScreenHeightPixels,
             $"room {definition.Room.Name} risen lava enters the gameplay viewport");
         RgbaPixel[] frame = RenderRoomFx(vram, cgram, finalSnapshot, finalPlane);
         AssertTrue(!frame.SequenceEqual(RenderRoomFxBackdrop(cgram)),

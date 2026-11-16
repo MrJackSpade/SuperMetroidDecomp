@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -70,7 +71,7 @@ public static class TitleGradientFile
                     throw new InvalidDataException(
                         $"Title gradient variant {variant}, stop {stops.Count} requires an RGB5 colour.");
                 }
-                bool placed = stops.Count == 0 ? value.Line == 0 : value.Line > stops[^1].Line && value.Line < DisplayScreen.Height;
+                bool placed = stops.Count == 0 ? value.Line == 0 : value.Line > stops[^1].Line && value.Line < ScreenGeometry.ScreenHeightPixels;
                 if (!placed)
                 {
                     throw new InvalidDataException(
@@ -78,7 +79,7 @@ public static class TitleGradientFile
                 }
                 stops.Add(new GradientStop(value.Line, new FadeLevelColour(value.Red, value.Green, value.Blue).ToColour(), Blend(value)));
             }
-            variants[variant] = new ScreenGradient(stops.MoveToImmutable(), DisplayScreen.Height);
+            variants[variant] = new ScreenGradient(stops.MoveToImmutable(), ScreenGeometry.ScreenHeightPixels);
         }
         return new TitleGradientPresentation(variants);
     }

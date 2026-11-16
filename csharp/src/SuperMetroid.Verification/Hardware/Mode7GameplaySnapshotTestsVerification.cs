@@ -66,7 +66,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         getaway.GetawayActive = false; getaway.FloorZoom = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
-        AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
+        AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), ScreenGeometry.ScreenHeightPixels + 1), "the HUD cannot cover more than the screen");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 32,
             new TurningRoomLowerBand(31, new Position16<BackgroundPixels>(0, 0), RoomBackgroundsFixtures.Blank().Foreground)),
             "floor cannot overlap HUD");

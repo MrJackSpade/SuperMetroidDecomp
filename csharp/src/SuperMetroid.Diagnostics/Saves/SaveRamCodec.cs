@@ -19,10 +19,10 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// <remarks>
 /// <c>$81:8000-$81:812A</c> stores one contiguous WRAM mirror ($D7C0-$DE1B) per slot, then writes both a checksum and
 /// its complement into two redundant directories. Decoding applies the cartridge's validity and selected-slot rules to
-/// the image as given, and decides from its raw completion mark the earthquake rumble delay power-on gives
-/// (<see cref="PowerOnEarthquakeSoundDelay"/>); progress is read through <see cref="ProgressionTableCodec"/>, which keeps
-/// what the game can observe. Encoding writes the canonical image of a store, without padding or noncanonical marker
-/// bytes, and with the words the game itself writes in the fields no retail routine reads.
+/// the image as given, and reads the save file's history from its marker field (<see cref="ReadHistory"/>), the one place
+/// the marker's signatures are known; progress is read through <see cref="ProgressionTableCodec"/>, which keeps what the
+/// game can observe. Encoding writes the canonical image of a store, without padding or noncanonical marker bytes, and
+/// with the words the game itself writes in the fields no retail routine reads.
 /// <para>
 /// The encoding owned here: the little-endian slot words at the <see cref="SaveRamLayout"/> offsets,
 /// the controller bindings stored as controller-button words, the equipment, beam and per-area boss flags stored as
@@ -34,7 +34,7 @@ namespace SuperMetroid.Diagnostics.Saves;
 [EncodingOwner("legacy 8-KiB save RAM image")]
 public static class SaveRamCodec
 {
-    /// <summary>Decodes every slot, the selected slot, completion and the boot carry from a whole SRAM image.</summary>
+    /// <summary>Decodes every slot, the selected slot and the save file's history from a whole SRAM image.</summary>
     /// <param name="image">The exact 8-KiB SRAM image.</param>
     /// <param name="maps">Installed stock map rules that unpack each valid slot's explored map.</param>
     /// <exception cref="ArgumentException"><paramref name="image"/> is not exactly 8 KiB.</exception>
@@ -49,11 +49,7 @@ public static class SaveRamCodec
             if (IsSlotValid(image, slot))
                 saved.Add(DecodeSlot(image, slot, maps));
         }
-        return SaveSlotStore.Imported(saved, SlotAt(ReadSelectedSlot(image)), HasCompletedGame(image), HasCorruptMarker(image),
-            MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length))
-                ? PowerOnEarthquakeSoundDelay.OneFrame
-                : PowerOnEarthquakeSoundDelay.None,
-            maps);
+        return SaveSlotStore.Imported(saved, SlotAt(ReadSelectedSlot(image)), ReadHistory(image), maps);
     }
 
     /// <summary>Encodes the canonical SRAM image of <paramref name="store"/>.</summary>
@@ -70,10 +66,7 @@ public static class SaveRamCodec
                 WriteSlot(image, SlotNumber(slot), EncodePayload(ToSnapshot(saved), maps));
         }
         WriteSelectedSlot(image, SlotNumber(store.ReadSelectedSlot()));
-        if (store.CorruptMarkerWritten)
-            WriteMarker(image, SaveRamLayout.CorruptSramMarker);
-        else
-            WriteCompletion(image, store.HasCompletedGame);
+        WriteHistory(image, store.History);
         return image;
     }
 
@@ -311,29 +304,43 @@ public static class SaveRamCodec
         return true;
     }
 
-    /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>
-    internal static bool HasCompletedGame(ReadOnlySpan<byte> image) =>
-        image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length)
-            .SequenceEqual(SaveRamLayout.CompletionMarker);
-
-    /// <summary>Whether the marker field holds the corrupt-SRAM signature boot writes when every slot is invalid.</summary>
-    internal static bool HasCorruptMarker(ReadOnlySpan<byte> image) =>
-        image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CorruptSramMarker.Length)
-            .SequenceEqual(SaveRamLayout.CorruptSramMarker);
-
-    /// <summary>Writes the completion signature, or zeros, over the marker field.</summary>
-    internal static void WriteCompletion(Span<byte> image, bool completed)
+    /// <summary>
+    /// The save file's history from the image's marker field, independent of slot checksums (#2140): the completion
+    /// signature holds a completed game. The signature boot writes when every slot is invalid holds a power-on that found
+    /// no valid save, and so does any other field whose comparison with the completion signature leaves the boot's carry
+    /// set (<see cref="MarkerCarry"/>): the game cannot tell the two apart, since neither unlocks the completion demo set
+    /// and both add the rumble's frame, so encoding writes the boot's signature for both. Any other field holds neither.
+    /// </summary>
+    internal static SaveFileHistory ReadHistory(ReadOnlySpan<byte> image)
     {
-        Span<byte> field = image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length);
-        if (completed)
-            SaveRamLayout.CompletionMarker.CopyTo(field);
-        else
-            field.Clear();
+        ReadOnlySpan<byte> field = image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length);
+        if (field.SequenceEqual(SaveRamLayout.CompletionMarker))
+            return SaveFileHistory.GameCompleted;
+        return MarkerCarry(field) ? SaveFileHistory.PowerOnFoundNoValidSave : SaveFileHistory.None;
     }
 
-    /// <summary>Writes <paramref name="marker"/> over the completion-marker field.</summary>
-    internal static void WriteMarker(Span<byte> image, ReadOnlySpan<byte> marker) =>
-        marker.CopyTo(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length));
+    /// <summary>
+    /// Writes <paramref name="history"/> over the marker field: the completion signature for a completed game, the
+    /// signature boot writes when every slot is invalid for a power-on that found no valid save, and zeros for neither.
+    /// </summary>
+    internal static void WriteHistory(Span<byte> image, SaveFileHistory history)
+    {
+        Span<byte> field = image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length);
+        switch (history)
+        {
+            case SaveFileHistory.GameCompleted:
+                SaveRamLayout.CompletionMarker.CopyTo(field);
+                break;
+            case SaveFileHistory.PowerOnFoundNoValidSave:
+                SaveRamLayout.CorruptSramMarker.CopyTo(field);
+                break;
+            case SaveFileHistory.None:
+                field.Clear();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(history), history, "Undefined save-file history.");
+        }
+    }
 
     /// <summary>
     /// The persistent menu selection under the cartridge's validity rule (<c>$81:9B0C-9B24</c>,

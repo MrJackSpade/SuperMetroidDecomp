@@ -68,7 +68,7 @@ internal static class HudAtlasVerification
                 BlendOperation.Add, ScrollBands.Uniform(0));
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(colours, []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
-            return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
+            return frame[..(ScreenGeometry.GameplayHudHeightPixels * ScreenGeometry.ScreenWidthPixels)];
         }
     }
 }

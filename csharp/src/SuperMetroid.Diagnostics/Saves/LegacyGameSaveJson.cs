@@ -18,7 +18,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// seven (#1691) kept the count of item set-ups, which nothing in the game reads; schema eight (#1723) named the
 /// checkpoint and used stations by their numbers in each area's station list, which become the stations' names; schema
 /// nine (#1778) could list the item no item occupies, which is not carried; schema ten (#2103) named item locations and
-/// doors after the disassembly's abbreviated room labels, which become the rooms' spelled-out names.
+/// doors after the disassembly's abbreviated room labels, which become the rooms' spelled-out names; schema eleven
+/// (#2140) kept no history of a power-on that found no valid save, which becomes none.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -56,7 +57,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through ten to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through eleven to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -85,9 +86,21 @@ public static class LegacyGameSaveJson
             UpgradeSchemaNine(root);
         if (sourceSchemaVersion <= SchemaTen)
             UpgradeSchemaTen(root);
+        // Schema one's upgrade reads the save file's history from its preserved image.
+        if (sourceSchemaVersion is >= SchemaTwo and <= SchemaEleven)
+            UpgradeSchemaEleven(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
+
+    /// <summary>The last schema that kept no history of a power-on that found no valid save.</summary>
+    private const int SchemaEleven = 11;
+
+    /// <summary>
+    /// Schema eleven to twelve (#2140): schemas two through eleven kept completion alone and lost a power-on that found no
+    /// valid save from the save file's history; the upgraded file holds no such power-on.
+    /// </summary>
+    private static void UpgradeSchemaEleven(JsonObject root) => root["powerOnFoundNoValidSave"] = false;
 
     /// <summary>The last schema that kept the count of item set-ups.</summary>
     private const int SchemaSeven = 7;
@@ -568,8 +581,9 @@ public static class LegacyGameSaveJson
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
             ushort Word(int offset) => SaveRamCodec.ReadSlotWord(sram, index, offset);
         }
-        root["gameCompleted"] = sram.AsSpan(SaveRamLayout.CompletionMarkerOffset,
-            SaveRamLayout.CompletionMarker.Length).SequenceEqual(SaveRamLayout.CompletionMarker);
+        SaveFileHistory history = SaveRamCodec.ReadHistory(sram);
+        root["gameCompleted"] = history == SaveFileHistory.GameCompleted;
+        root["powerOnFoundNoValidSave"] = history == SaveFileHistory.PowerOnFoundNoValidSave;
         root.Remove("preservedUntranslatedSram");
     }
 

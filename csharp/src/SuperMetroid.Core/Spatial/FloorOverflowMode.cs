@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 public enum FloorOverflowMode
 {
     /// <summary>Nothing shows beyond the floor.</summary>
-    Transparent = 0,
+    Transparent,
     /// <summary>The floor repeats beyond its edges, with the period of its image.</summary>
-    Wrap = 2,
+    Wrap,
 }

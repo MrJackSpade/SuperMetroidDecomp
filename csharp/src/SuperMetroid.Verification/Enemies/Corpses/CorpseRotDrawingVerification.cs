@@ -214,12 +214,12 @@ internal static class CorpseRotDrawingVerification
             for (int x = 0; x < size.X; x++)
             {
                 int screenX = draw.Corner.X + x, screenY = draw.Corner.Y + y;
-                if ((uint)screenX >= DisplayScreen.Width || (uint)screenY >= DisplayScreen.Height)
+                if ((uint)screenX >= ScreenGeometry.ScreenWidthPixels || (uint)screenY >= ScreenGeometry.ScreenHeightPixels)
                     continue;
-                RgbaPixel want = rot.Shown(y) is int row && draw.Corner.Y + row is >= 0 and < DisplayScreen.Height
-                    ? plain[(draw.Corner.Y + row) * DisplayScreen.Width + screenX]
+                RgbaPixel want = rot.Shown(y) is int row && draw.Corner.Y + row is >= 0 and < ScreenGeometry.ScreenHeightPixels
+                    ? plain[(draw.Corner.Y + row) * ScreenGeometry.ScreenWidthPixels + screenX]
                     : backdrop;
-                RgbaPixel got = rotted[screenY * DisplayScreen.Width + screenX];
+                RgbaPixel got = rotted[screenY * ScreenGeometry.ScreenWidthPixels + screenX];
                 if (got != want)
                     throw new InvalidOperationException($"{context}: the renderer draws {got} at screen pixel ({screenX},{screenY}), where the corpse's rows show {want}.");
             }

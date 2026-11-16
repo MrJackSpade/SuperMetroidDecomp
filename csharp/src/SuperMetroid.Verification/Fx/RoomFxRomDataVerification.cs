@@ -284,16 +284,16 @@ internal static class RoomFxRomDataVerification
                     snapshot,
                     backgroundVerticalScroll: 0x0200) ?? throw new InvalidDataException(
                         $"{type} did not publish its BG2 HDMA scroll table."));
-            AssertEqual(DisplayScreen.Height - DisplayScreen.HudHeight,
+            AssertEqual(ScreenGeometry.ScreenHeightPixels - ScreenGeometry.GameplayHudHeightPixels,
                 backgroundScroll.Length,
                 $"{type} BG2 wave table covers gameplay scanlines");
             if (type == RoomFxType.Water)
             {
                 AssertEqual((ushort)0x0200,
-                    backgroundScroll[90 - DisplayScreen.HudHeight],
+                    backgroundScroll[90 - ScreenGeometry.GameplayHudHeightPixels],
                     "water leaves BG2 undistorted above the surface");
                 AssertTrue(
-                    backgroundScroll.Skip(101 - DisplayScreen.HudHeight).Distinct().Count() > 1,
+                    backgroundScroll.Skip(101 - ScreenGeometry.GameplayHudHeightPixels).Distinct().Count() > 1,
                     "water distorts BG2 below the surface");
             }
             else

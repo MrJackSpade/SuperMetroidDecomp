@@ -25,7 +25,7 @@ internal static class RoomFxPaletteBlendsVerification
     /// <summary>The colour a Ceres haze layer adds at the start of screen line 120, drawn over black by the display renderer.</summary>
     private static RgbaPixel HazeLine(ColourAddWindowLayer haze) =>
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
-            new DisplayLayer[] { haze }, DisplayBrightness.Full))[120 * DisplayScreen.Width];
+            new DisplayLayer[] { haze }, DisplayBrightness.Full))[120 * ScreenGeometry.ScreenWidthPixels];
 
     /// <summary>Compares compiled FX palettes with the retail source and checks guarded load and reload paths.</summary>
     internal static void VerifyRoomFxPaletteBlends()

@@ -679,7 +679,7 @@ internal static class CollectiblesVerification
         if (GameplayEffectCapture.CaptureSuitPickup(flash) is not { } layer)
             return (0, 0, 0);
         RgbaPixel pixel = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
-            new DisplayLayer[] { layer }, DisplayBrightness.Full))[y * DisplayScreen.Width + x];
+            new DisplayLayer[] { layer }, DisplayBrightness.Full))[y * ScreenGeometry.ScreenWidthPixels + x];
         return (pixel.R, pixel.G, pixel.B);
     }
 
@@ -834,7 +834,7 @@ internal static class CollectiblesVerification
         ScreenWindow wiped = SuitWindow(closing[0]);
         int top = closing[0].Progress;
         AssertEqual(top, wiped.FirstLine, "closing wipes the top progress lines");
-        AssertEqual(Math.Min(DisplayScreen.Height, 256 - (top - 1)), wiped.EndLine, "closing wipes one fewer bottom line");
+        AssertEqual(Math.Min(ScreenGeometry.ScreenHeightPixels, 256 - (top - 1)), wiped.EndLine, "closing wipes one fewer bottom line");
         AssertEqual(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, new Extent16<ScreenPixels>(24, 128)), wiped.Shapes[0], "closing keeps the final curved column between its wipes");
 
         SamusSuitPickupBeam[] line = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CenterLine)];

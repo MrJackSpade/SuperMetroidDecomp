@@ -12,6 +12,12 @@ public sealed record GameSaveJsonDocument
     /// <summary>The three fixed save slots in index order; <see langword="null"/> entries are empty or invalid.</summary>
     public required GameSaveSlotJsonDocument?[] Slots { get; init; }
 
-    /// <summary>Global completion marker that unlocks the fourth attract-demo set.</summary>
+    /// <summary>Whether the save file's history holds a completed game, which unlocks the fourth attract-demo set.</summary>
     public required bool GameCompleted { get; init; }
+
+    /// <summary>
+    /// Whether the save file's history holds a power-on that found no valid save (#2140), which adds a frame to the earthquake
+    /// rumble's delay at every later power-on until the game is completed; never together with <see cref="GameCompleted"/>.
+    /// </summary>
+    public required bool PowerOnFoundNoValidSave { get; init; }
 }

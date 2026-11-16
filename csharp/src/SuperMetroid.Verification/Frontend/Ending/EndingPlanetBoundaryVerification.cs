@@ -69,7 +69,7 @@ internal static class EndingPlanetBoundaryVerification
             {
                 int pixel = Enumerable.Range(0, actual.Length).First(index => actual[index] != expected[index]);
                 // Each layer alone on both sides says whether the floor's colours or the sprites' combination differ.
-                string inkTrace = SpritePixelTrace(snapshot, pixel % DisplayScreen.Width, pixel / DisplayScreen.Width);
+                string inkTrace = SpritePixelTrace(snapshot, pixel % ScreenGeometry.ScreenWidthPixels, pixel / ScreenGeometry.ScreenWidthPixels);
                 string screenShades = string.Join(" ", ending.screen.Colours.Shading.Shades.Select(shade => shade.Key));
                 string spriteShades = string.Join(" | ", snapshot.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()
                     .Select(draw => draw.Shading is { } shading ? string.Join(" ", shading.Shades.Select(shade => shade.Key)) : "none").Distinct());
@@ -79,7 +79,7 @@ internal static class EndingPlanetBoundaryVerification
                 int SpritesOnly() => DisplayRendering.Render(new LayeredScene(snapshot.Paint, [snapshot.LayersOf<SpritesLayer>().Single()], snapshot.Brightness))
                     .Zip(DisplayRendering.Render(new LayeredScene(nativeMemory, [nativeLayers[1]], snapshot.Brightness)), (first, second) => first != second)
                     .Count(differs => differs);
-                firstDifference = $"frame {checkedFrames} ({ending.Stage.Phase}) pixel ({pixel % DisplayScreen.Width},{pixel / DisplayScreen.Width}): " +
+                firstDifference = $"frame {checkedFrames} ({ending.Stage.Phase}) pixel ({pixel % ScreenGeometry.ScreenWidthPixels},{pixel / ScreenGeometry.ScreenWidthPixels}): " +
                     $"live {actual[pixel]}, native {expected[pixel]}, {changed} pixels that frame; floor alone differs at {FloorOnly()} pixels, " +
                     $"sprites alone at {SpritesOnly()}; live floor subtracts sprites {projection.SubtractsSprites}, adds foreground {projection.AddsForeground}; " +
                     $"live layers {string.Join(", ", snapshot.Layers.ToArray().Select(layer => layer.GetType().Name))}; screen shades {screenShades}; sprite shadings {spriteShades}; ink trace {inkTrace}; native colour 10 of each sprite row {string.Join(" ", Enumerable.Range(0, 8).Select(row => snapshotColours[128 + row * 16 + 10]))}";

@@ -121,7 +121,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             tileShader = Own(LoadShader(D3D11ShaderLayout.TileResourceName));
             screenGradientShader = Own(LoadShader(D3D11ShaderLayout.ScreenGradientResourceName));
             output = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
-                D3D11Screen.Width, D3D11Screen.Height, 1, 1, BindFlags.UnorderedAccess | BindFlags.ShaderResource)));
+                ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.ShaderResource)));
             view = Own(owner.Device.CreateUnorderedAccessView(output));
             displaySource = Own(owner.Device.CreateShaderResourceView(output));
             displayVertexShader = Own(owner.Device.CreateVertexShader(LoadShaderBytes(D3D11ShaderLayout.DisplayVertexResourceName)));
@@ -131,7 +131,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             spriteDraws = Own(new D3D11SpriteDrawBuffer(owner.Device));
             roomLevels = Own(new D3D11RoomLevelBuffer(owner.Device));
             spriteLayer = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
-                D3D11Screen.Width, D3D11Screen.Height, 1, 1, BindFlags.UnorderedAccess | BindFlags.RenderTarget)));
+                ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.RenderTarget)));
             objectView = Own(owner.Device.CreateUnorderedAccessView(spriteLayer));
             spriteTarget = Own(owner.Device.CreateRenderTargetView(spriteLayer));
             spriteVertexShader = Own(owner.Device.CreateVertexShader(LoadShaderBytes(D3D11ShaderLayout.SpriteVertexResourceName)));
@@ -336,13 +336,11 @@ public sealed class D3D11FrameRenderer : IDisposable
             // The overlay's first line; the room buffer places its picture (#1514).
             data[21] = (uint)overlay.FirstLine;
         }
-        for (int y = 32; y < 224; y++)
+        for (int y = ScreenGeometry.GameplayHudHeightPixels; y < ScreenGeometry.ScreenHeightPixels; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
             // The third byte holds the layers this line shows.
             ScreenLayers shown = layer.Gameplay.ShownLayersAt(y);
-            // Draygon's room hides its background outside his band even while the X-ray blends.
-            if (y < r.BackgroundFirstLine || y >= r.BackgroundEndLine) shown &= ~ScreenLayers.Background;
             data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)ShownWord(shown), 0);
         }
         // The window (#1468): inside it the room shows unblended.
@@ -435,8 +433,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         // hold the picture (#1392).
         data[3] = layer.Corner.X;
         data[4] = layer.Corner.Y;
-        data[25] = (uint)Math.Clamp(layer.FirstLine, 0, D3D11Screen.Height);
-        data[26] = (uint)Math.Clamp(layer.EndLine, 0, D3D11Screen.Height);
+        data[25] = (uint)Math.Clamp(layer.FirstLine, 0, ScreenGeometry.ScreenHeightPixels);
+        data[26] = (uint)Math.Clamp(layer.EndLine, 0, ScreenGeometry.ScreenHeightPixels);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -506,12 +504,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     private void DispatchOrdinaryGameplay(GameplaySceneLayer layer)
     {
         GameplaySceneView r = layer.View;
-        int first = D3D11Screen.HudHeight;
-        while (first < D3D11Screen.Height)
+        int first = ScreenGeometry.GameplayHudHeightPixels;
+        while (first < ScreenGeometry.ScreenHeightPixels)
         {
             ScreenLayers shownLayers = layer.ShownLayersAt(first);
             int end = first + 1;
-            while (end < D3D11Screen.Height && layer.ShownLayersAt(end) == shownLayers) end++;
+            while (end < ScreenGeometry.ScreenHeightPixels && layer.ShownLayersAt(end) == shownLayers) end++;
             foreach (GameplayLayer shown in GameplaySceneLayer.Order)
             {
                 switch (shown)
@@ -552,7 +550,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (uint)D3D11TileOperation.Layer;
         data[7] = PicturePart(frontTiles); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Rooms);
-        data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
+        data[25] = (uint)first; data[26] = (uint)end;
         // Header word 27 is the mosaic's block size (zero elsewhere).
         data[27] = (uint)r.BackgroundPixelation.Size;
         PackBackgroundScrolls(data, layer);
@@ -833,7 +831,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         RoomSource = D3D11RoomSource.Hud, TransparentZero = hudLayer.DrawsOpaque ? 0u : 1u,
-                        EndScanline = D3D11Screen.HudHeight,
+                        EndScanline = ScreenGeometry.GameplayHudHeightPixels,
                     });
                     break;
                 case ScreenTintLayer add:
@@ -877,7 +875,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
             owner.Context.VSSetConstantBuffer(0, constants);
             owner.Context.OMSetRenderTargets(spriteTarget);
-            owner.Context.RSSetViewport(0, 0, D3D11Screen.Width, D3D11Screen.Height);
+            owner.Context.RSSetViewport(0, 0, ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels);
             owner.Context.RSSetState(spriteRasterizer);
             owner.Context.IASetInputLayout(null);
             owner.Context.IASetPrimitiveTopology(PrimitiveTopology.TriangleStrip);

@@ -28,8 +28,8 @@ internal static class DraygonPrebattleXrayVerification
     private const int BodyAreaExtent = 128;
 
     /// <summary>
-    /// Verifies that pre-battle X-Ray in the arena's corner shows none of Draygon's offscreen body, with or without the native
-    /// background-line range, and that the body still displays at battle start.
+    /// Verifies that pre-battle X-Ray in the arena's corner shows none of Draygon's offscreen body, and that the body still
+    /// displays at battle start.
     /// </summary>
     internal static void VerifyDraygonPrebattleXray()
     {
@@ -61,22 +61,16 @@ internal static class DraygonPrebattleXrayVerification
         var math = (GameplayBlendLayer)scene.Layers[0];
         var r = math.Gameplay.View;
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
-        // His body is drawn whole, on every gameplay line, rather than on the original's band of lines (#1873): what keeps the
-        // pre-battle body off the screen is where it is placed, which the checks below confirm.
-        AssertEqual(ScreenLineBandConstants.Gameplay, new ScreenLineBand(r.BackgroundFirstLine, r.BackgroundEndLine),
-            "Draygon's body layer shows on every gameplay line");
+        // His body is drawn whole, on every gameplay line, rather than on the original's band of lines (#1873, #2136): what
+        // keeps the pre-battle body off the screen is where it is placed, which the checks below confirm.
         var pixels = DisplayRendering.Render(scene);
         var hidden = RenderWithRegisters(r with { ShownLayers = r.ShownLayers & ~ScreenLayers.Background });
-        var unmasked = RenderWithRegisters(r with { BackgroundFirstLine = 32, BackgroundEndLine = 224 });
         int exposed = pixels.Zip(hidden, (first, second) => first != second).Count(differs => differs);
-        int wrapped = unmasked.Zip(hidden, (first, second) => first != second).Count(differs => differs);
-        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.ForegroundScroll.X}/{r.ForegroundScroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
+        Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.ForegroundScroll.X}/{r.ForegroundScroll.Y}; exposed={exposed} pixels.");
 
         // The reported exposure (#1260) was the body layer's art repeating into the corner. Since #1617 the body reaches the
         // display placed at the body's own room position, which before the battle lies off the view, so no repeated art
-        // reaches the corner even with the background lines unclipped; the battle-start check below shows the same body
-        // placement does display once it is in view.
-        AssertEqual(0, wrapped, "the pre-battle body, placed at its own position off the view, shows nothing even unclipped");
+        // reaches the corner; the battle-start check below shows the same body placement does display once it is in view.
         AssertEqual(0, exposed, "pre-battle X-Ray shows none of the offscreen body");
 
         // End X-Ray, then stage the native end of the intro rather than replaying the dance.

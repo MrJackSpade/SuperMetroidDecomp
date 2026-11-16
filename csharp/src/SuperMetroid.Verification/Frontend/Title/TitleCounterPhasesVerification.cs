@@ -17,7 +17,7 @@ internal static class TitleCounterPhasesVerification
     {
         // Sixteen gradients told apart by their colour, so the gradient a zoom resolves to names its range.
         ScreenGradient[] variants = [.. Enumerable.Range(0, TitleGradientFormat.VariantCount).Select(variant => new ScreenGradient(
-            [new GradientStop(0, new RgbColor(variant, 0, 0), GradientBlend.DarkensFloorAndBackdrop)], DisplayScreen.Height))];
+            [new GradientStop(0, new RgbColor(variant, 0, 0), GradientBlend.DarkensFloorAndBackdrop)], ScreenGeometry.ScreenHeightPixels))];
         var presentation = new TitleGradientPresentation(variants);
         AssertEqual(FloorZoom.OwnSize.TwoHundredFiftySixths, TitleGradientFormat.VariantCount * TitleGradientFormat.ZoomRangeWidth,
             "the zoom ranges cover every zoom below the floor's own size");

@@ -18,7 +18,7 @@ public readonly record struct ScreenLineBand
     /// <exception cref="ArgumentOutOfRangeException">The band is not within the screen.</exception>
     public ScreenLineBand(int firstLine, int endLine)
     {
-        FirstLine = Ensure.BetweenInclusive(0, DisplayScreen.Height, firstLine);
-        EndLine = Ensure.BetweenInclusive(FirstLine, DisplayScreen.Height, endLine);
+        FirstLine = Ensure.BetweenInclusive(0, ScreenGeometry.ScreenHeightPixels, firstLine);
+        EndLine = Ensure.BetweenInclusive(FirstLine, ScreenGeometry.ScreenHeightPixels, endLine);
     }
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The collaborators a <see cref="CrocomireBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[ArchitectureReview("wide-dependencies", "The composition seam for Crocomire's five parts (combat, fight, bridge collapse, melting, skeleton), each built from a different subset of these collaborators; #2177 added the room's places, among which his parts find his body.")]
 [RoomLifetime]
 internal sealed record CrocomireBehaviorDependencies
 {

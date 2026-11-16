@@ -8,6 +8,4 @@ internal enum WorkRobotLaserSegment
 {
     /// <summary>The initial animation.</summary>
     Initial,
-    /// <summary>The loop animation.</summary>
-    Loop,
 }

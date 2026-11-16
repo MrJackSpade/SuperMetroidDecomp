@@ -19,9 +19,6 @@ internal static class WorkRobotLaserAnimations
             Show(EnemyProjectileFrameId.WorkRobotLaserInitialFirst, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserInitialSecond, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserInitialThird, 4),
-        ],
-        [P.Loop] =
-        [
             Show(EnemyProjectileFrameId.WorkRobotLaserLoopFirst, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserLoopSecond, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserLoopThird, 4),
@@ -32,8 +29,7 @@ internal static class WorkRobotLaserAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<WorkRobotLaserSegment, Animation<WorkRobotLaserSegment>> StartingAt { get; } = new Dictionary<WorkRobotLaserSegment, Animation<WorkRobotLaserSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 3, 1), new(P.Loop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Loop] = new([new(P.Loop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Initial] = new([new(P.Initial, 0, 3, 1), new(P.Initial, 3, 4, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

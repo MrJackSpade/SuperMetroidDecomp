@@ -17,9 +17,7 @@ internal static class OwtchNativeListAddresses
     internal static readonly NativeProgramEntry<OwtchSegment>[] Entries =
     [
         new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingLeft, 0xa3ab),
-        new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingLeftLoop, 0xa3ad),
         new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingRight, 0xa3bd),
-        new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingRightLoop, 0xa3bf),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -10,8 +10,6 @@ public enum CrocomireBodySegment
     Initial,
     /// <summary>Opening his mouth to spit, before the spit loop.</summary>
     ProjectileAttack,
-    /// <summary>The spit loop, whose fight cues spit his volley.</summary>
-    ProjectileAttackLoop,
     /// <summary>A pause before his step forward.</summary>
     StepForwardAfterDelay,
     /// <summary>His step forward.</summary>
@@ -36,12 +34,8 @@ public enum CrocomireBodySegment
     PowerBombReactionMouthPartiallyOpen,
     /// <summary>The Power Bomb reaction struck with his mouth closed, raising dust.</summary>
     PowerBombReactionMouthNotOpen,
-    /// <summary>The Power Bomb reaction's charge to the left.</summary>
-    PowerBombReactionMouthNotOpenLoop,
     /// <summary>His charge near the spike wall, starting.</summary>
     NearSpikeWallCharge,
-    /// <summary>His charge toward the spike wall.</summary>
-    NearSpikeWallChargeLoop,
     /// <summary>Backing off from the spike wall.</summary>
     BackOffFromSpikeWall,
     /// <summary>The first melting pass, its top row.</summary>

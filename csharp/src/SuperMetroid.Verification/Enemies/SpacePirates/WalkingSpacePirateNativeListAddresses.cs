@@ -19,11 +19,9 @@ internal static class WalkingSpacePirateNativeListAddresses
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FlinchFacingLeft, 0xfb4c),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FlinchFacingRight, 0xfb58),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingLeft, 0xfb64),
-        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingLeftLoop, 0xfb68),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FireLasersLeft, 0xfb8c),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.LookingFacingLeft, 0xfbc6),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingRight, 0xfbe6),
-        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingRightLoop, 0xfbea),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FireLasersRight, 0xfc0e),
         new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.LookingFacingRight, 0xfc48),
     ];

@@ -221,12 +221,6 @@ internal static class EnemyProjectileDefinitionCatalog
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.TourianStatueDescentDust] = new(
             new(0, 0), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = new(
-            new(4, 4), 10, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = new(
-            new(4, 4), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = new(
-            new(4, 4), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.SporeSpawnStalk] = new(
             new(8, 8), 0, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.SporeSpawnSpore] = new(

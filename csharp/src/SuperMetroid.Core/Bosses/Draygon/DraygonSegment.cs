@@ -27,8 +27,6 @@ public enum DraygonSegment
     BodyDying,
     /// <summary>Draygon body animation: dying, the counted explosions that end by paralysing the tail and arms.</summary>
     BodyDyingExplosions,
-    /// <summary>Draygon body animation: dying, the explosions that repeat until the body sinks.</summary>
-    BodyDyingExplosionsLoop,
     /// <summary>Draygon animation: delete.</summary>
     Delete,
     /// <summary>Draygon body animation: facing left, fire goop.</summary>

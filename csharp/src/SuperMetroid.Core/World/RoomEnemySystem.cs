@@ -667,7 +667,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         ShuttersBehavior = new ShuttersBehavior(Audio, Places);
         ShitroidBehavior = new ShitroidBehavior(Room, Places, compatibility.FadeStepCount, BossFrameResults, Audio);
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, Shitroid = new ShitroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
-        ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, Places, Collision);
+        ShaktoolBehavior = new ShaktoolBehavior(Terrain, Places, Collision);
         SbugBehavior = new SbugBehavior(Room, Terrain);
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain, Audio);

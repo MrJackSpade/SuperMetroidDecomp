@@ -865,22 +865,6 @@ public enum EnemyProjectileFrameId
     NuclearWaffleInitialTwelfth,
     /// <summary>The frame of the Polyp rock initial.</summary>
     PolypRockInitial,
-    /// <summary>The first frame of the Shaktool front.</summary>
-    ShaktoolFrontFirst,
-    /// <summary>The second frame of the Shaktool front.</summary>
-    ShaktoolFrontSecond,
-    /// <summary>The frame of the Shaktool front loop.</summary>
-    ShaktoolFrontLoop,
-    /// <summary>The first frame of the Shaktool middle.</summary>
-    ShaktoolMiddleFirst,
-    /// <summary>The second frame of the Shaktool middle.</summary>
-    ShaktoolMiddleSecond,
-    /// <summary>The frame of the Shaktool middle loop.</summary>
-    ShaktoolMiddleLoop,
-    /// <summary>The frame of the Shaktool back.</summary>
-    ShaktoolBack,
-    /// <summary>The frame of the Shaktool back loop.</summary>
-    ShaktoolBackLoop,
     /// <summary>The first frame of the Mother Brain turret pose.</summary>
     MotherBrainTurretPoseFirst,
     /// <summary>The second frame of the Mother Brain turret pose.</summary>

@@ -22,7 +22,9 @@ internal static class WorkRobotAnimationsVerification
                     AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                cue => cue is WorkRobotCue.Walk));
+                cue => cue is WorkRobotCue.Walk),
+            // Each recoil only runs on from the shots that fire its laser (#2166).
+            onlyRunOnInto: new HashSet<WorkRobotSegment> { WorkRobotSegment.FacingLeftLaserShotRecoil, WorkRobotSegment.FacingRightLaserShotRecoil });
         Console.WriteLine($"  Work Robot animations: {Entries.Length} segments ({beats} beats) and {WorkRobotAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

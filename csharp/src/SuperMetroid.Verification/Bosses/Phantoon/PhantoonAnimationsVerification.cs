@@ -144,7 +144,10 @@ internal static class PhantoonAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         VerifyFlameProducers();
-        foreach ((PhantoonFlameSegment program, ushort entry) in FlameEntries)
+        // The dying flame is no animation of its own (#2166): a resting flame and a rain impact run on into it, and their
+        // plays match its native list.
+        AssertTrue(!PhantoonFlameAnimations.StartingAt.ContainsKey(PhantoonFlameSegment.Dying), "no animation starts at the dying flame");
+        foreach ((PhantoonFlameSegment program, ushort entry) in FlameEntries.Where(item => item.Program != PhantoonFlameSegment.Dying))
         {
             RoomEnemySystem enemies = NewFlameSystem();
             EnemyProjectile flame = SpawnDestroyable(enemies, SpawnRageFlame, "rage");
@@ -166,7 +169,7 @@ internal static class PhantoonAnimationsVerification
                     AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }
             AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Phantoon flame {program}: drop requests");
-            bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.Dying or PhantoonFlameSegment.RainImpact
+            bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.RainImpact
                 or PhantoonFlameSegment.Delete or PhantoonFlameSegment.DestroyableShot;
             AssertEqual(deletes, native.Deleted, $"Phantoon flame {program}: deletion matches the native list");
         }

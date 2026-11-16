@@ -129,8 +129,6 @@ internal static class FamilyProjectileStarts
             enemies.TourianUnlockBehavior.Effects,
         RoomEnemyProjectileKind.TourianStatueRidley or RoomEnemyProjectileKind.TourianStatuePhantoon or
             RoomEnemyProjectileKind.TourianStatueBaseDecoration => enemies.TourianEntranceStatueBehavior.Decorations,
-        RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
-            RoomEnemyProjectileKind.ShaktoolAttackBackCircle => enemies.ShaktoolBehavior.AttackCircles,
         RoomEnemyProjectileKind.SporeSpawnStalk => enemies.SporeSpawnBehavior.Stalk,
         RoomEnemyProjectileKind.SporeSpawnSpore => enemies.SporeSpawnBehavior.Spore,
         RoomEnemyProjectileKind.SporeSpawnSpawner => enemies.SporeSpawnBehavior.Spawner,
@@ -177,9 +175,6 @@ internal static class FamilyProjectileStarts
             new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallEnergy),
         RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacSpikeDirection.LeftFacingUp),
         RoomEnemyProjectileKind.NuclearWaffleBody => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial),
-        RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Front),
-        RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Middle),
-        RoomEnemyProjectileKind.ShaktoolAttackBackCircle => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Back),
         RoomEnemyProjectileKind.YappingMawBody => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment.FacingDown),
         RoomEnemyProjectileKind.EyeDoorProjectile => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial),
         RoomEnemyProjectileKind.EyeDoorSweat => new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling),

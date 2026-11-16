@@ -8,8 +8,6 @@ internal enum LowerNorfairRioSegment
 {
     /// <summary>The idle animation.</summary>
     Idle,
-    /// <summary>The loop.</summary>
-    IdleLoop,
     /// <summary>The prepare to swoop animation.</summary>
     PrepareToSwoop,
     /// <summary>The descending animation.</summary>
@@ -18,8 +16,6 @@ internal enum LowerNorfairRioSegment
     AscentOpening,
     /// <summary>The climb back to the perch, running on into its loop.</summary>
     Ascending,
-    /// <summary>The loop.</summary>
-    AscendingLoop,
     /// <summary>The cooldown animation.</summary>
     Cooldown,
     /// <summary>The flames animation.</summary>

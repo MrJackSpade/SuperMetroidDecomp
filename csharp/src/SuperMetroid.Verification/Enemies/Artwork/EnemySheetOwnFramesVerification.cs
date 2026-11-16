@@ -239,7 +239,7 @@ internal static class EnemySheetOwnFramesVerification
             [EnemyDefinitionId.UnpoweredWorkRobot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
                 [WorkRobotSegment.NoPowerNeutral, WorkRobotSegment.NoPowerLeaningLeft, WorkRobotSegment.NoPowerLeaningRight]),
             [EnemyDefinitionId.WorkRobot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
-                Enum.GetValues<WorkRobotSegment>()),
+                WorkRobotAnimations.StartingAt.Keys),
         });
 
     /// <summary>

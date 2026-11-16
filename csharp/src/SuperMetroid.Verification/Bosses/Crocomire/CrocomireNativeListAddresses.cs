@@ -29,7 +29,6 @@ internal static class CrocomireNativeListAddresses
     [
         new BodyEntryValue(CrocomireBodySegment.Initial, 0xbade),
         new BodyEntryValue(CrocomireBodySegment.ProjectileAttack, 0xbb36),
-        new BodyEntryValue(CrocomireBodySegment.ProjectileAttackLoop, 0xbb94),
         new BodyEntryValue(CrocomireBodySegment.StepForwardAfterDelay, 0xbbca),
         new BodyEntryValue(CrocomireBodySegment.StepForward, 0xbbce),
         new BodyEntryValue(CrocomireBodySegment.StepBack, 0xbc30),
@@ -42,9 +41,7 @@ internal static class CrocomireNativeListAddresses
         new BodyEntryValue(CrocomireBodySegment.PowerBombReactionMouthFullyOpen, 0xbdae),
         new BodyEntryValue(CrocomireBodySegment.PowerBombReactionMouthPartiallyOpen, 0xbdb2),
         new BodyEntryValue(CrocomireBodySegment.PowerBombReactionMouthNotOpen, 0xbdb6),
-        new BodyEntryValue(CrocomireBodySegment.PowerBombReactionMouthNotOpenLoop, 0xbe06),
         new BodyEntryValue(CrocomireBodySegment.NearSpikeWallCharge, 0xbe7e),
-        new BodyEntryValue(CrocomireBodySegment.NearSpikeWallChargeLoop, 0xbeec),
         new BodyEntryValue(CrocomireBodySegment.BackOffFromSpikeWall, 0xbf3c),
         new BodyEntryValue(CrocomireBodySegment.MeltingOneTopRow, 0xbf64),
         new BodyEntryValue(CrocomireBodySegment.MeltingOneTopTwoRows, 0xbf6c),

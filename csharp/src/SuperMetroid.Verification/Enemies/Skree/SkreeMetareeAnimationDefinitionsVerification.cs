@@ -55,26 +55,26 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         SkreeMetareeSegment[] metareeAnimations = [SkreeMetareeSegment.MetareeIdling, SkreeMetareeSegment.MetareePreparingAttack, SkreeMetareeSegment.MetareeDiving];
         foreach (SkreeMetareeSegment animation in metareeAnimations)
         {
-            var metareeSlot = NewSkreeMetareeAnimationSlot();
+            var metareePlace = NewSkreeMetareeAnimationPlace();
             var metareeState = new MetareeEnemyState(MetareeAction.Idling) { InstalledAnimation = Different(metareeAnimations, animation) };
-            MetareeBehavior.StartMetareeAnimation(metareeSlot, metareeState, animation);
-            AssertSkreeMetareeHandoff(metareeSlot, metareeState.InstalledAnimation, animation, metareeState.Playback, $"Metaree {animation}");
+            MetareeBehavior.StartMetareeAnimation(metareePlace, metareeState, animation);
+            AssertSkreeMetareeHandoff(metareePlace, metareeState.InstalledAnimation, animation, metareeState.Playback, $"Metaree {animation}");
 
             AnimationPlayback<SkreeMetareeSegment> playing = metareeState.Playback;
-            MetareeBehavior.StartMetareeAnimation(metareeSlot, metareeState, animation);
+            MetareeBehavior.StartMetareeAnimation(metareePlace, metareeState, animation);
             AssertEqual(playing, metareeState.Playback, $"Metaree {animation} asked for again keeps playing");
         }
 
         SkreeMetareeSegment[] skreeAnimations = [SkreeMetareeSegment.SkreeIdling, SkreeMetareeSegment.SkreePreparingAttack, SkreeMetareeSegment.SkreeDiving];
         foreach (SkreeMetareeSegment animation in skreeAnimations)
         {
-            var skreeSlot = NewSkreeMetareeAnimationSlot();
+            var skreePlace = NewSkreeMetareeAnimationPlace();
             var skreeState = new SkreeEnemyState(SkreeAction.Idling) { InstalledAnimation = Different(skreeAnimations, animation) };
-            SkreeBehavior.StartSkreeAnimation(skreeSlot, skreeState, animation);
-            AssertSkreeMetareeHandoff(skreeSlot, skreeState.InstalledAnimation, animation, skreeState.Playback, $"Skree {animation}");
+            SkreeBehavior.StartSkreeAnimation(skreePlace, skreeState, animation);
+            AssertSkreeMetareeHandoff(skreePlace, skreeState.InstalledAnimation, animation, skreeState.Playback, $"Skree {animation}");
 
             AnimationPlayback<SkreeMetareeSegment> playing = skreeState.Playback;
-            SkreeBehavior.StartSkreeAnimation(skreeSlot, skreeState, animation);
+            SkreeBehavior.StartSkreeAnimation(skreePlace, skreeState, animation);
             AssertEqual(playing, skreeState.Playback, $"Skree {animation} asked for again keeps playing");
         }
     }
@@ -83,46 +83,46 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static void VerifyLiveMetareeAnimationHandoffs()
     {
         var enemies = NewSkreeMetareeGuardedSystem();
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
-        slot.Bind(EnemyDefinitionId.Metaree, slot.Definition);
-        MetareeBehavior.InitializeMetaree(slot);
+        place.Bind(EnemyDefinitionId.Metaree, place.Definition);
+        MetareeBehavior.InitializeMetaree(place);
         MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(place.Position.X.Whole, unchecked((ushort)(place.Position.Y.Whole + 0x60)))),
         };
 
-        MetareeBehavior.RunMetareeIdle(slot, (state), samus);
-        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.MetareePreparingAttack, state.Playback, "live Metaree preparation");
+        MetareeBehavior.RunMetareeIdle(place, (state), samus);
+        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.MetareePreparingAttack, state.Playback, "live Metaree preparation");
 
         state.AttackReady = true;
-        enemies.MetareeBehavior.RunMetareePreparation(slot, state);
-        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.MetareeDiving, state.Playback, "live Metaree dive");
+        enemies.MetareeBehavior.RunMetareePreparation(place, state);
+        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.MetareeDiving, state.Playback, "live Metaree dive");
     }
 
     /// <summary>Drives a live Skree from idle through attack preparation into its diving animation.</summary>
     private static void VerifyLiveSkreeAnimationHandoffs()
     {
         var enemies = NewSkreeMetareeGuardedSystem();
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
-        slot.Bind(EnemyDefinitionId.Skree, slot.Definition);
-        SkreeBehavior.InitializeSkree(slot);
+        place.Bind(EnemyDefinitionId.Skree, place.Definition);
+        SkreeBehavior.InitializeSkree(place);
         SkreeEnemyState state = (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0]."));
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
         {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(place.Position.X.Whole, unchecked((ushort)(place.Position.Y.Whole + 0x60)))),
         };
 
-        enemies.SkreeBehavior.RunSkreeMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
+        enemies.SkreeBehavior.RunSkreeMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.SkreePreparingAttack, state.Playback, "live Skree preparation");
 
         state.AttackReady = true;
-        enemies.SkreeBehavior.RunSkreeMain(slot, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertSkreeMetareeHandoff(slot, state.InstalledAnimation, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
+        enemies.SkreeBehavior.RunSkreeMain(place, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+        AssertSkreeMetareeHandoff(place, state.InstalledAnimation, SkreeMetareeSegment.SkreeDiving, state.Playback, "live Skree dive");
     }
 
     /// <summary>Creates an enemy system that rejects reads from the two migrated animation selector tables.</summary>
@@ -134,8 +134,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
-    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() =>
-        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
+    private static RoomEnemyPlace NewSkreeMetareeAnimationPlace() =>
+        new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>One of <paramref name="animations"/> other than <paramref name="animation"/>, installed before each handoff.</summary>
     private static SkreeMetareeSegment Different(SkreeMetareeSegment[] animations, SkreeMetareeSegment animation) =>
@@ -143,7 +143,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
 
     /// <summary>Checks the installed animation and the freshly started animation plus both timer resets.</summary>
     private static void AssertSkreeMetareeHandoff(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkreeMetareeSegment installed,
         SkreeMetareeSegment expected,
         AnimationPlayback<SkreeMetareeSegment> playback,
@@ -152,7 +152,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         AssertEqual(expected, installed, $"{context} installed animation");
         AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expected), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
-        AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
+        AssertEqual(1, place.AnimationClock.Hold.RawValue, $"{context} instruction timer");
     }
 
 }

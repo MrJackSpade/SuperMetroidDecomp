@@ -2,23 +2,23 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One Tourian corpse occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Tourian corpses' species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
+internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Slot);
+    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place);
 
     /// <inheritdoc/>
-    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Slot);
+    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place, context);
 
     /// <summary>Whether the dead Tourian corpse's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

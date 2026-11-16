@@ -11,14 +11,14 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public sealed class PhantoonEnemyState
 {
-    /// <summary>Attaches shared encounter state to the body's slot.</summary>
-    internal PhantoonEnemyState(RoomEnemySlot body) => Body = body;
+    /// <summary>Attaches shared encounter state to the body's place.</summary>
+    internal PhantoonEnemyState(RoomEnemyPlace body) => Body = body;
 
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
     /// <summary>Gets the body, whose health and position are his; it runs first.</summary>
-    public RoomEnemySlot Body { get; }
+    public RoomEnemyPlace Body { get; }
 
     /// <summary>
     /// The encounter phase his body runs, or null while it runs none: while his eye's opening or closing animation
@@ -66,20 +66,20 @@ public sealed class PhantoonEnemyState
     public PhantoonDeathState Death { get; } = new();
 
     /// <summary>The eye, once attached (<see cref="Eye"/>).</summary>
-    private RoomEnemySlot? _eye;
+    private RoomEnemyPlace? _eye;
 
     /// <summary>The tentacles, once attached (<see cref="Tentacles"/>).</summary>
-    private RoomEnemySlot? _tentacles;
+    private RoomEnemyPlace? _tentacles;
 
     /// <summary>The mouth, once attached (<see cref="Mouth"/>).</summary>
-    private RoomEnemySlot? _mouth;
+    private RoomEnemyPlace? _mouth;
 
     /// <summary>Gets the eye, attached by part initialization and sharing the body's position while retaining its own animation/colour counters.</summary>
-    public RoomEnemySlot Eye { get => _eye ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set => _eye = value; }
+    public RoomEnemyPlace Eye { get => _eye ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set => _eye = value; }
     /// <summary>Gets the tentacles, attached by part initialization and positioned from the body after its AI pass.</summary>
-    public RoomEnemySlot Tentacles { get => _tentacles ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set => _tentacles = value; }
+    public RoomEnemyPlace Tentacles { get => _tentacles ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set => _tentacles = value; }
     /// <summary>Gets the mouth, attached by part initialization and positioned from the body after its AI pass.</summary>
-    public RoomEnemySlot Mouth { get => _mouth ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set => _mouth = value; }
+    public RoomEnemyPlace Mouth { get => _mouth ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set => _mouth = value; }
 
     /// <summary>
     /// The body's animation playback (#641, #1600). Every part's playback is the invulnerable body's until the part's
@@ -102,7 +102,7 @@ public sealed class PhantoonEnemyState
 
     /// <summary>The animation playback of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-    internal ref AnimationPlayback<PhantoonPartSegment> PartPlayback(RoomEnemySlot part)
+    internal ref AnimationPlayback<PhantoonPartSegment> PartPlayback(RoomEnemyPlace part)
     {
         Ensure.NotNull(part);
         if (ReferenceEquals(part, Body))
@@ -113,7 +113,7 @@ public sealed class PhantoonEnemyState
             return ref _tentaclesPlayback;
         if (ReferenceEquals(part, _mouth))
             return ref _mouthPlayback;
-        throw new InvalidOperationException($"Enemy {part.DefinitionId} in slot {part.SlotIndex} is not one of Phantoon's parts.");
+        throw new InvalidOperationException($"Enemy {part.DefinitionId} in place {part.Ordinal} is not one of Phantoon's parts.");
     }
 
     /// <summary>

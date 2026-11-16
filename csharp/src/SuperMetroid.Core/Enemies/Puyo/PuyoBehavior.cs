@@ -18,7 +18,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PuyoEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PuyoEntity(this, place, common);
 
     /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;
@@ -39,15 +39,15 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly QuadraticSpeedCurvePlace MaximumPuyoYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>Initializes the Puyo.</summary>
-    internal static void InitializePuyo(RoomEnemySlot slot)
+    internal static void InitializePuyo(RoomEnemyPlace place)
     {
         // The initializer shows the common empty frame before starting the fast grounded animation.
-        slot.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.Empty;
 
         var state = new PuyoEnemyState(PuyoAction.Grounded)
         {
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
-            HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
+            HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             // The initialization AI never writes the airborne movement or the inactive extra values. The room loader's
             // cleared enemy allocation therefore leaves them empty until the first hop owns
             // them; do not pre-populate plausible values the game has not written.
@@ -62,13 +62,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             InitialYSpeedCurvePlaceThreeQuarters = QuadraticSpeedCurvePlace.Start,
             InitialYSpeedCurvePlaceHalf = QuadraticSpeedCurvePlace.Start,
         };
-        slot.SetSpeciesState(state);
-        SetPuyoAnimation(slot, state, PuyoSegment.GroundedFast);
+        place.SetSpeciesState(state);
+        SetPuyoAnimation(place, state, PuyoSegment.GroundedFast);
     }
 
     /// <summary>Runs a Puyo's per-frame behaviour and its top-level actions.</summary>
     private void RunPuyoMain(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PuyoEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -76,10 +76,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case PuyoAction.Grounded:
-                RunGroundedPuyo(slot, state, samus);
+                RunGroundedPuyo(place, state, samus);
                 return;
             case PuyoAction.Airborne:
-                RunAirbornePuyo(slot, state, level);
+                RunAirbornePuyo(place, state, level);
                 return;
             default:
                 throw new InvalidDataException(
@@ -88,7 +88,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the grounded Puyo.</summary>
-    private void RunGroundedPuyo(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
+    private void RunGroundedPuyo(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // Decrementing and then testing for a non-negative count means a zero cooldown waits one frame and then wraps to 65535
         // before hopping. This is not equivalent to a conventional "if timer != 0" test.
@@ -96,28 +96,28 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = PuyoAction.Airborne;
-        state.HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown;
+        state.HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown;
         state.HoppingAnimationActive = true;
-        InitiatePuyoHop(slot, state, samus);
+        InitiatePuyoHop(place, state, samus);
     }
 
     /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
-    private void InitiatePuyoHop(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
+    private void InitiatePuyoHop(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // Normal follow-up hops are promoted from the small hop to the big one when Samus is
         // strictly inside its horizontal hop distance. Giant/dropping/dropped types
         // deliberately bypass this proximity rewrite.
         if (IsNormalHop(state.HopType))
         {
-            int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
-            state.HopType = distance < slot.SpawnSettings<PuyoSpawnSettings>().HopDistance
+            int distance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
+            state.HopType = distance < place.SpawnSettings<PuyoSpawnSettings>().HopDistance
                 ? PuyoHopType.NormalBig
                 : PuyoHopType.NormalSmall;
         }
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
         // direction. Equality follows the game's non-negative path and therefore aims right.
-        PuyoDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+        PuyoDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
             ? PuyoDirection.Left
             : PuyoDirection.Right;
         if (state.InvertDirection)
@@ -133,7 +133,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             WeightedRandomChoice<PuyoHopType> nextHop = state.HopType == PuyoHopType.NormalSmall
                 ? PuyoHopDefinitions.HopAfterSmallHop
                 : PuyoHopDefinitions.HopAfterLargerHop;
-            state.HopType = nextHop.Choose(sample, advancedBy: slot.FrameCounter);
+            state.HopType = nextHop.Choose(sample, advancedBy: place.FrameCounter);
         }
 
         state.CurrentHop = state.HopType;
@@ -181,7 +181,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the airborne step.</summary>
     private void RunAirbornePuyo(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PuyoEnemyState state,
         RoomLevelData level)
     {
@@ -189,33 +189,33 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case PuyoAirborneMovement.NormalShortHop:
                 RunNormalPuyoHop(
-                    slot,
+                    place,
                     state,
                     level,
                     PuyoSegment.GroundedSlow);
                 return;
             case PuyoAirborneMovement.NormalBigHop:
                 RunNormalPuyoHop(
-                    slot,
+                    place,
                     state,
                     level,
                     PuyoSegment.GroundedMedium);
                 return;
             case PuyoAirborneMovement.NormalLongHop:
                 RunNormalPuyoHop(
-                    slot,
+                    place,
                     state,
                     level,
                     PuyoSegment.GroundedFast);
                 return;
             case PuyoAirborneMovement.GiantHop:
-                RunGiantPuyoHop(slot, state, level);
+                RunGiantPuyoHop(place, state, level);
                 return;
             case PuyoAirborneMovement.Dropping:
-                RunDroppingPuyo(slot, state, level);
+                RunDroppingPuyo(place, state, level);
                 return;
             case PuyoAirborneMovement.Dropped:
-                RunDroppedPuyo(slot, state, level);
+                RunDroppedPuyo(place, state, level);
                 return;
             default:
                 throw new InvalidDataException(
@@ -226,23 +226,23 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the common body of short, big, and nominally-unused long hops.</summary>
     private void RunNormalPuyoHop(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         PuyoEnemyState state,
         RoomLevelData level,
         PuyoSegment landingSegment)
     {
-        MovePuyo(slot, state, level);
+        MovePuyo(place, state, level);
         if (!state.InvertDirection && state.HoppingAnimationActive)
             return;
 
         state.HoppingAnimationActive = false;
-        SetPuyoAnimation(slot, state, landingSegment);
+        SetPuyoAnimation(place, state, landingSegment);
     }
 
     /// <summary>Runs the Puyo's giant airborne hop.</summary>
-    private void RunGiantPuyoHop(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
+    private void RunGiantPuyoHop(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
-        MovePuyo(slot, state, level);
+        MovePuyo(place, state, level);
         if (!state.InvertDirection && state.HoppingAnimationActive)
             return;
 
@@ -255,43 +255,43 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.HoppingAnimationActive = false;
-        SetPuyoAnimation(slot, state, PuyoSegment.GroundedSlow);
+        SetPuyoAnimation(place, state, PuyoSegment.GroundedSlow);
     }
 
     /// <summary>
     /// Runs the constant-speed fall: at the drop speed of the hop the Puyo last launched, which a wall or ceiling cut short
     /// (#1820).
     /// </summary>
-    private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
+    private void RunDroppingPuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
-        if (!_terrain.MoveEnemyVertically(level, slot, Hop(state).DropSpeed))
+        if (!_terrain.MoveEnemyVertically(level, place, Hop(state).DropSpeed))
             return;
 
         // The bounce picks one of the two dropped bounce heights from the same advanced hop roll.
-        state.HopType = PuyoHopDefinitions.BigDroppedBounce.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter)
+        state.HopType = PuyoHopDefinitions.BigDroppedBounce.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter)
             ? PuyoHopType.DroppedBig
             : PuyoHopType.DroppedSmall;
         state.Action = PuyoAction.Grounded;
     }
 
     /// <summary>Runs the post-drop bounce wrapper.</summary>
-    private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
+    private void RunDroppedPuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
-        MovePuyo(slot, state, level);
+        MovePuyo(place, state, level);
         if (state.HoppingAnimationActive)
             return;
 
         state.HopType = PuyoHopType.Giant;
         state.Action = PuyoAction.Grounded;
-        SetPuyoAnimation(slot, state, PuyoSegment.GroundedSlow);
+        SetPuyoAnimation(place, state, PuyoSegment.GroundedSlow);
     }
 
     /// <summary>Moves the Puyo.</summary>
-    private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
+    private void MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
         QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Speed;
         SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
-        bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
+        bool verticalCollision = _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         if (verticalCollision)
         {
             if (!state.Falling)
@@ -314,7 +314,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Pose selection happens before the place changes, matching the five discrete
         // squash/stretch thresholds in the authored rather than interpolating sprite frames.
-        SetPuyoAirborneAnimation(slot, state);
+        SetPuyoAirborneAnimation(place, state);
 
         state.StepAirbornePlace(Hop(state).CurveStep);
 
@@ -329,7 +329,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                slot,
+                place,
                 horizontalDisplacement))
         {
             return;
@@ -343,7 +343,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the rising/falling one-frame pose for the current curve place.</summary>
-    private static void SetPuyoAirborneAnimation(RoomEnemySlot slot, PuyoEnemyState state)
+    private static void SetPuyoAirborneAnimation(RoomEnemyPlace place, PuyoEnemyState state)
     {
         PuyoSegment segment;
         if (!state.Falling)
@@ -384,7 +384,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                     : PuyoSegment.TiltedFarRight;
         }
 
-        SetPuyoAnimation(slot, state, segment);
+        SetPuyoAnimation(place, state, segment);
     }
 
     /// <summary>Turns a Puyo to its other direction after a terrain impact.</summary>
@@ -397,20 +397,20 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
-    private static void SetPuyoAnimation(RoomEnemySlot slot, PuyoEnemyState state, PuyoSegment segment)
+    private static void SetPuyoAnimation(RoomEnemyPlace place, PuyoEnemyState state, PuyoSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, PuyoAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.Start(place, PuyoAnimations.StartingWith(segment));
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, PuyoAnimations.Segments,
+    internal static void AdvancePuyoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
     /// <summary>Runs Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunPuyoMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunPuyoMain(slot, slot.RequireSpeciesState<PuyoEnemyState>(), frame.Samus, frame.Level);
+        RunPuyoMain(place, place.RequireSpeciesState<PuyoEnemyState>(), frame.Samus, frame.Level);
     }
 }

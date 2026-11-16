@@ -69,12 +69,12 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             // The movement choice continues the attack at its own start, which has run its function cue and shown its
             // first pose again.
             var expected = new AnimationPlayback<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, program, 2));
-            (RoomEnemySystem enemies, RoomEnemySlot slot,
+            (RoomEnemySystem enemies, RoomEnemyPlace place,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, slot, samus, 113);
+            place.AnimationClock.StepOnNextUpdate();
+            RunFrames(enemies, place, samus, 113);
             AssertEqual(expected, state.Playback,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser),
@@ -89,11 +89,11 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             WalkingSpacePirateSegment expectedSegment,
             WalkingSpacePirateAction expectedAction)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot,
+            (RoomEnemySystem enemies, RoomEnemyPlace place,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, slot, samus, frames);
+            place.AnimationClock.StepOnNextUpdate();
+            RunFrames(enemies, place, samus, frames);
             // The walk loop has shown its first pose and stands before its second.
             AssertEqual(new AnimationPlayback<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, expectedSegment, 1)), state.Playback,
                 $"walking Pirate program {program} playback");
@@ -108,28 +108,28 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.PirateGreyWalking, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             // A left-facing Pirate's population entry with no options and no patrol reach, as the room load gives it.
-            slot.SetSpawnSettings(new WalkingSpacePirateSpawnSettings(WalkingSpacePirateOptions.None, PatrolReach: 0));
-            slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
+            place.SetSpawnSettings(new WalkingSpacePirateSpawnSettings(WalkingSpacePirateOptions.None, PatrolReach: 0));
+            place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
+            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place);
             var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return new WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, (enemies.WalkingSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WalkingSpacePirate state.")), samus);
+            return new WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, (enemies.WalkingSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WalkingSpacePirate state.")), samus);
         }
 
         static void RunFrames(
             RoomEnemySystem enemies,
-            RoomEnemySlot slot,
+            RoomEnemyPlace place,
             SamusState samus,
             int frames)
         {
             object?[] arguments =
-                [slot, samus, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+                [place, samus, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(arguments);
         }

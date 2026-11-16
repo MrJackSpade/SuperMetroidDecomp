@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("how far room loading has progressed when each enemy initializes")]
 public interface IRoomLoadProgress
 {
-    /// <summary>True once loading has initialized the enemy in slot <paramref name="slot"/>.</summary>
-    /// <param name="slot">The enemy's slot in the room's enemy list.</param>
-    bool HasInitializedEnemySlot(int slot);
+    /// <summary>True once loading has initialized the enemy in place <paramref name="place"/>.</summary>
+    /// <param name="place">The enemy's place in the room's enemy list.</param>
+    bool HasInitializedEnemyPlace(int place);
 }

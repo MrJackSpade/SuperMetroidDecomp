@@ -12,10 +12,10 @@ internal static class GrowingShutterSectionOriginsVerification
     internal static void VerifyGrowingShutterSectionOrigins()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
-        var state = new GrowingShutterEnemyState(slot, GrowingShutterAction.WaitToGrowUpForTimer);
-        slot.SetSpeciesState(state);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
+        var state = new GrowingShutterEnemyState(place, GrowingShutterAction.WaitToGrowUpForTimer);
+        place.SetSpeciesState(state);
         state.PlaceSectionOrigins(growsUp: true);
         AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200 - 24), state.SectionOrigin(3),
             "the fourth section sits 24 pixels above the spawn in the shutter's column");

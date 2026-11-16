@@ -19,7 +19,7 @@ internal static class MotherBrainPlasmaImpactVerification
     internal static int VerifyMotherBrainPlasmaImpact()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var head = enemies.SlotTable.Slots[1];
+        var head = enemies.Places.InUpdateOrder[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
         head.Bind(head.DefinitionId, RoomEnemyDefinitionLookup.Get(head.DefinitionId));
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
@@ -27,9 +27,9 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBodyInitialDummy;
         head.Health = 18000;
-        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;
-        ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
+        ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
         var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem();

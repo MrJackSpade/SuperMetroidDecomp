@@ -22,11 +22,11 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
-        installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemyPlace installedPlace = installed.Places.InUpdateOrder[0];
+        installedPlace.Bind(installedPlace.DefinitionId, default(RoomEnemyDefinition));
         // The test-only cartridge walker supplies an independent reference.
-        installedSlot.Bind(EnemyDefinitionId.SporeSpawn, installedSlot.Definition);
-        installedSlot.Position = installedSlot.Position.WithWhole(new(0x100, 0x100));
+        installedPlace.Bind(EnemyDefinitionId.SporeSpawn, installedPlace.Definition);
+        installedPlace.Position = installedPlace.Position.WithWhole(new(0x100, 0x100));
 
         var seenLists = new HashSet<ushort>();
         int frameCount = 0;
@@ -39,7 +39,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 continue;
             AssertTrue(selected.Contains(frame.Pointer),
                 $"Spore Spawn program selects native frame {frame.Pointer:X4}");
-            installedSlot.SpritemapPointer =
+            installedPlace.SpritemapPointer =
                 frame.Pointer;
             int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             ReadOnlySpan<EnemyCollisionComponent> components =
@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 ushort targetX = unchecked((ushort)(0x100 + x));
                 ushort targetY = unchecked((ushort)(0x100 + y));
                 object?[] installedArguments =
-                    [installedSlot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>(2, 2), shot != 0, (ushort)0];
+                    [installedPlace, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>(2, 2), shot != 0, (ushort)0];
                 bool nativeFound = NativeCallback(root, targetX, targetY, shot != 0, out ushort nativeCallback);
                 bool installedFound = ExtendedHitboxWalker.Find(installedArguments);
                 AssertEqual(nativeFound, installedFound,

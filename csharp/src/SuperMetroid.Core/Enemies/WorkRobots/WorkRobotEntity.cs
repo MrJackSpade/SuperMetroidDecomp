@@ -2,36 +2,36 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>One WorkRobot occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The WorkRobot species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission, IEnemyPrivateShotReaction
+internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeWorkRobot(Slot);
+    public void Initialize() => species.InitializeWorkRobot(Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (WorkRobotPartDefinitions.Parts[Slot.DefinitionId])
+        switch (WorkRobotPartDefinitions.Parts[Place.DefinitionId])
         {
             case WorkRobotPart.Powered:
-                species.RunWorkRobotMainAi(Slot, frame);
+                species.RunWorkRobotMainAi(Place, frame);
                 break;
             // The unpowered robot's main does nothing.
             case WorkRobotPart.Unpowered:
                 break;
             default:
-                throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"WorkRobot entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWorkRobotTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWorkRobotTypedAnimation(Place, context);
 
     /// <summary>The powered robot returns before common shot AI until Phantoon is defeated.</summary>
     public bool AdmitsShots() =>
-        Slot.DefinitionId != EnemyDefinitionId.WorkRobot || species.IsAreaBossDefeated;
+        Place.DefinitionId != EnemyDefinitionId.WorkRobot || species.IsAreaBossDefeated;
 
     /// <summary>Whether the Work Robot's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

@@ -14,7 +14,7 @@ internal enum EnemyCapabilities
     SamusFrameHitboxes = 1,
 
     /// <summary>
-    /// Samus's shots are tested against the enemy's frames' hitboxes. <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/>
+    /// Samus's shots are tested against the enemy's frames' hitboxes. <see cref="RoomEnemyPlace.CollidesByFrameHitboxes"/>
     /// alone is not sufficient: enemies that collide by frame hitboxes may still meet Samus by their radius or by
     /// encounter-specific geometry.
     /// </summary>

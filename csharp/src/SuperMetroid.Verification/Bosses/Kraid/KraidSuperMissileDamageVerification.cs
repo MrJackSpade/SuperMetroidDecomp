@@ -35,7 +35,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
-        var body=runtime.Enemies.SlotTable.Slots[0];
+        var body=runtime.Enemies.Places.InUpdateOrder[0];
         var state= runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid.");
         state.BodyState.Phase=KraidPhase.MainAttackWithMouthOpen;
         state.HeadPlayback=RoarPastOpenPose;state.BodyState.HeadTimer=64;
@@ -93,7 +93,7 @@ internal static class KraidSuperMissileDamageVerification
         ushort nativeCompare=unchecked((ushort)(nextTop-0x8200));
         Console.WriteLine($"native next top={nextTop:X4} clobberedBottom=8200 CMP={nativeCompare:X4} BPL-reject={(nativeCompare&0x8000)==0}");
         if((nativeCompare&0x8000)!=0)throw new InvalidDataException("Native scratch-word rejection is not satisfied by the reproduced coordinates.");
-        Suite(nameof(VerifyKraidCollisionSlotOrder), () => VerifyKraidCollisionSlotOrder(runtime, body, state));
+        Suite(nameof(VerifyKraidCollisionPlaceOrder), () => VerifyKraidCollisionPlaceOrder(runtime, body, state));
         return 0;
     }
 
@@ -137,8 +137,8 @@ internal static class KraidSuperMissileDamageVerification
     private static SuperMetroid.Core.Animation.AnimationPlayback<KraidHeadSegment> RoarPastOpenPose => KraidHeadAnimations.At(KraidHeadSegment.Roar, 5);
 
     /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
-    private static void VerifyKraidCollisionSlotOrder(
-        SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
+    private static void VerifyKraidCollisionPlaceOrder(
+        SuperMetroidRuntime runtime, RoomEnemyPlace body, KraidEnemyState state)
     {
         var projectiles = runtime.Projectiles;
         void Prepare(ushort count)

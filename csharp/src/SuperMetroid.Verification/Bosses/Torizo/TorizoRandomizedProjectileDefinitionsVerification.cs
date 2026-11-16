@@ -53,7 +53,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             int randomCall = 0;
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
-            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
+            RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
             enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
@@ -108,7 +108,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             draws++;
             return 0;
         };
-        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 
@@ -127,13 +127,13 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
     /// <summary>Checks each direction's spawner uses its compiled instruction, offset and jittered base velocity.</summary>
     private static void VerifyTorizoRandomizedSpawn(
         string methodName,
-        Action<RoomEnemySystem, RoomEnemySlot> spawn,
+        Action<RoomEnemySystem, RoomEnemyPlace> spawn,
         bool facingRight,
         TorizoRandomizedProjectileDefinition expected)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 

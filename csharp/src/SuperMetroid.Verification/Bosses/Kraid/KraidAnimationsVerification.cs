@@ -139,10 +139,10 @@ internal static class KraidAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState { InitialHealth = 104 };
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
-        RoomEnemySlot arm = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
         arm.Bind(EnemyDefinitionId.KraidArm, arm.Definition);
         return new NewKraidResult(enemies, state, body, arm);
     }
@@ -153,7 +153,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     private static void VerifyArmSpeedSwitch()
     {
-        (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
+        (_, KraidEnemyState state, RoomEnemyPlace body, RoomEnemyPlace arm) = NewKraid();
         body.Health = 104;
         state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
         arm.AnimationClock.StepOnNextUpdate();
@@ -186,8 +186,8 @@ internal static class KraidAnimationsVerification
     /// </summary>
     private static void VerifyHeldAndLongestPoses()
     {
-        (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemySlot arm) = NewKraid();
-        RoomEnemySlot foot = enemies.SlotTable.Slots[5];
+        (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
+        RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
@@ -220,7 +220,7 @@ internal static class KraidAnimationsVerification
         playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Runs one arm update, optionally expiring the current frame first.</summary>
-    private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
+    private static void Pass(RoomEnemyPlace part, bool forceExpiry = false)
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
@@ -266,7 +266,7 @@ internal static class KraidAnimationsVerification
     }
 
     /// <summary>A Kraid body position and art for the real rock producers.</summary>
-    private static RoomEnemySlot NewRockSource() => new(0, EnemySlotFixtures.Registry)
+    private static RoomEnemyPlace NewRockSource() => new(0, EnemyPlaceFixtures.Registry)
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
         Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
@@ -278,7 +278,7 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, _, _, _) = NewKraid();
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
-        RoomEnemySlot source = NewRockSource();
+        RoomEnemyPlace source = NewRockSource();
         random = 32;
         enemies.KraidBehavior.Head.SpawnKraidSpitRock(source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock),

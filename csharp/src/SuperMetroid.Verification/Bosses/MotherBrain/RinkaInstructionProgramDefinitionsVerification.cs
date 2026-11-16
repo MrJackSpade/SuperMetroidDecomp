@@ -29,7 +29,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         }
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(RinkaSegment.Ordinary, special: false);
+        (RoomEnemySystem ordinarySystem, RoomEnemyPlace ordinary) = RunRinkaProgram(RinkaSegment.Ordinary, special: false);
         AssertEqual(RinkaAction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Action,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Presence.HasAny(EnemyPresence.Hidden),
@@ -37,7 +37,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         AssertTrue(!ordinary.Processing.HasAny(EnemyProcessing.OffScreen),
             "ordinary Rinka program does not enable off-screen processing");
 
-        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(RinkaSegment.Special, special: true);
+        (RoomEnemySystem specialSystem, RoomEnemyPlace special) = RunRinkaProgram(RinkaSegment.Special, special: true);
         AssertEqual(RinkaAction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Action,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),
@@ -55,7 +55,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         bool special)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace rinka = enemies.Places.InUpdateOrder[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.DefinitionId, default(RoomEnemyDefinition));
         rinka.SetSpawnParameter1(EnemyDefinitionId.Rinka, special ? (ushort)1 : (ushort)0);
@@ -66,7 +66,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             Action = RinkaAction.WatchForLeavingViewport,
             Playback = new(RinkaAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
-        enemies.SlotTable.Slots[0].SetSpeciesState(state);
+        enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
 
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 

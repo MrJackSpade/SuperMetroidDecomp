@@ -36,14 +36,14 @@ internal static class CeresSteamDefinitionsVerification
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0x001f;
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
-            slot.Bind(EnemyDefinitionId.CeresSteam, slot.Definition);
-            enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
+            place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
+            enemies.CeresSteamBehavior.InitializeCeresSteam(place);
 
-            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), slot.RequireSpeciesState<CeresSteamEnemyState>().Playback,
+            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
                 $"production Ceres steam {variant} program");
-            CeresSteamEnemyState steamState = slot.SpeciesState<CeresSteamEnemyState>()
+            CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
                 ?? throw new InvalidOperationException("The initialized vent has no state.");
             AssertEqual<CeresSteamAction?>(definition.Action, steamState.Action,
                 $"production Ceres steam {variant} function");

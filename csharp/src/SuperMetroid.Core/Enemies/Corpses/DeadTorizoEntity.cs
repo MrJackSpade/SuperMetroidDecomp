@@ -2,23 +2,23 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One dead Torizo occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The dead Torizo species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
+internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Slot);
+    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place);
 
     /// <inheritdoc/>
-    public void Initialize() => DeadTorizoBehavior.InitializeDeadTorizo(Slot);
+    public void Initialize() => DeadTorizoBehavior.InitializeDeadTorizo(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Slot, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Place, context);
 
     /// <summary>Whether the dead Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

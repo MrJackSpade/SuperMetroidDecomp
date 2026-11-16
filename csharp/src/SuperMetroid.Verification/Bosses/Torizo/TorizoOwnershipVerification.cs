@@ -36,12 +36,12 @@ internal static class TorizoOwnershipVerification
     {
         RoomEnemySystem enemies = NewEnemies();
         var frame = new ColourEffectFrame(ColourEffectId.BombTorizoBelly, 0);
-        AssertThrows<InvalidOperationException>(() => TorizoBehavior.ShowBellyGlow(enemies.SlotTable.Slots, frame),
+        AssertThrows<InvalidOperationException>(() => TorizoBehavior.ShowBellyGlow(enemies.Places.InUpdateOrder, frame),
             "the belly glow shows on no Torizo in a room without one");
-        RoomEnemySlot torizo = enemies.SlotTable.Slots[3];
+        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
-        TorizoBehavior.ShowBellyGlow(enemies.SlotTable.Slots, frame);
+        TorizoBehavior.ShowBellyGlow(enemies.Places.InUpdateOrder, frame);
         AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, frame), torizo.Shading.Shades[^1],
             "the belly glow shows on the room's Torizo in the place it stands");
     }
@@ -51,7 +51,7 @@ internal static class TorizoOwnershipVerification
     {
         RoomEnemySystem enemies = NewEnemies();
         RoomLevelData level = CreateEmptyRoom(new(64, 64));
-        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(400, 400));
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0, isGolden: true);
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
@@ -72,7 +72,7 @@ internal static class TorizoOwnershipVerification
     {
         RoomEnemySystem enemies = NewEnemies();
         RoomLevelData level = CreateEmptyRoom(new(64, 64));
-        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(400, 400));
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0, isGolden: true);
         state.EyeBeamExplosionsEnabled = explosionsEnabled;

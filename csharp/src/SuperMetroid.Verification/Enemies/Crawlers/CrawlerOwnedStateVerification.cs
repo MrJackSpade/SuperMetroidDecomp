@@ -15,14 +15,14 @@ internal static class CrawlerOwnedStateVerification
     internal static void VerifyCrawlerOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Zoomer, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(EnemyDefinitionId.Zoomer, 2);
-        slot.Contact = EnemyContact.None;
-        slot.Processing = EnemyProcessing.None;
-        slot.Presence = EnemyPresence.None;
-        CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Zoomer, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SetSpawnParameter1(EnemyDefinitionId.Zoomer, 2);
+        place.Contact = EnemyContact.None;
+        place.Processing = EnemyProcessing.None;
+        place.Presence = EnemyPresence.None;
+        CrawlersBehavior.InitializeCrawler(place, CrawlerAnimationFamily.Shared);
         CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
         int speed = CrawlerSpeeds.ForParameter(2);
         AssertEqual(new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),

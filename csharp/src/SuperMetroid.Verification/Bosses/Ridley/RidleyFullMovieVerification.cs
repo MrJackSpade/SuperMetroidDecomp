@@ -45,7 +45,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
+        var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         foreach (var sample in new[] { new VerifyRidleySpinFireballCase(0x7f, false, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0x80, false, RidleyFacing.Right, true),
             new VerifyRidleySpinFireballCase(0xff, true, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0xff, false, RidleyFacing.Turning, false), new VerifyRidleySpinFireballCase(0x180, false, RidleyFacing.Left, true) })
         {
@@ -71,7 +71,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 158));
-        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
+        var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
         body.SpritemapPointer = 0xe9e9; body.Contact = EnemyContact.BlocksPlasmaBeam;
         body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
@@ -100,7 +100,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
+        var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairSwoopSetup; state.PhaseTimer = 112;
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
@@ -123,7 +123,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
+        var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairDeathFinish; state.PhaseTimer = 0;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
@@ -145,7 +145,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
+        var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(211, 346));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x400));
         state.FacingDirection = RidleyFacing.Right; state.Phase = RidleyPhase.NorfairPogoFall;
@@ -435,7 +435,7 @@ internal static class RidleyFullMovieVerification
         {
             var samus = runtime.Player.IntroducedSamus;
             samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(samusArea);
-            runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.SlotTable.Slots[0], afterburns: 0);
+            runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0], afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(norfairDamage, fireball.Damage, $"the Norfair room's fireball damage with Samus's record in {samusArea}");
             runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(3584, 0));
@@ -458,7 +458,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var state = runtime.Enemies.RidleyEncounter.Ridley;
-        var body = runtime.Enemies.SlotTable.Slots[0];
+        var body = runtime.Enemies.Places.InUpdateOrder[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairPogoFall;
         state.TailSegments[6].Position = new Position16<RoomPixels>(4, 118);
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
@@ -474,7 +474,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks that Ridley enters his screen gate only after the prior Y position becomes visible.</summary>
     internal static void VerifyRidleyScreenGate()
     {
-        var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
+        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
         var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = 3 };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
@@ -604,19 +604,19 @@ internal static class RidleyFullMovieVerification
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         foreach (var sample in cases)
         {
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)) }
+            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)) }
                 .WithAnimationClock(hold: 7);
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
             state.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
-            NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(slot, state);
+            NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(place, state);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
                 : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromLeftToRight)
                 : RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromRightToLeft);
             AssertEqual(expected, pointers.Body(state), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
-            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.AnimationClock.Hold.RawValue, "turn timer changes only when native condition is met");
+            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, place.AnimationClock.Hold.RawValue, "turn timer changes only when native condition is met");
         }
         var hoverState = new RidleyEnemyState { PhaseTimer = 0, Phase = RidleyPhase.NorfairHover };
-        NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemySlot(0, EnemySlotFixtures.Registry), hoverState);
+        NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry), hoverState);
         AssertEqual(-1, hoverState.PhaseTimer, "native hover counts zero one update past it before selecting next attack");
         AssertEqual(RidleyPhase.NorfairSelectAttack, hoverState.Phase, "negative hover timer exits before movement");
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
@@ -757,7 +757,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
-        var actor = runtime.Enemies.SlotTable.Slots[6];
+        var actor = runtime.Enemies.Places.InUpdateOrder[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
         BrinstarPipeBugState pipeBug = runtime.Enemies.BrinstarPipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
@@ -844,7 +844,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.FinishDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
         int nmiBeforeNudge = runtime.Clock.Counter;
         int samusAnimation = samus.AnimationFrame;
-        var ridley = runtime.Enemies.SlotTable.Slots[0];
+        var ridley = runtime.Enemies.Places.InUpdateOrder[0];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         ushort bodyInstruction = pointers.Enemy(runtime.Enemies, ridley);
         game.Step(0);

@@ -14,7 +14,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SkreeEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SkreeEntity(this, place, common);
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -34,27 +34,27 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
-    internal static void InitializeSkree(RoomEnemySlot slot)
+    internal static void InitializeSkree(RoomEnemyPlace place)
     {
         var state = new SkreeEnemyState(SkreeAction.Idling)
         {
             InstalledAnimation = SkreeMetareeSegment.SkreeIdling,
             AttackReady = false,
         };
-        slot.SetSpeciesState(state);
+        place.SetSpeciesState(state);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    internal void RunSkreeMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
+    internal void RunSkreeMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
-        SkreeEnemyState state = slot.RequireSpeciesState<SkreeEnemyState>();
+        SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
         switch (state.Action)
         {
             case SkreeAction.Idling:
-                if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < 48)
+                if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) < 48)
                 {
-                    StartSkreeAnimation(slot, state, SkreeMetareeSegment.SkreePreparingAttack);
+                    StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreePreparingAttack);
                     state.Action = SkreeAction.PreparingAttack;
                 }
                 return;
@@ -63,7 +63,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AttackReady)
                     return;
                 state.AttackReady = false;
-                StartSkreeAnimation(slot, state, SkreeMetareeSegment.SkreeDiving);
+                StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
                 state.Action = SkreeAction.Diving;
                 // The dive queues its dive sound on the exact frame the wind-up
                 // cue releases the dive. Publishing it as a frame event retains
@@ -72,11 +72,11 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case SkreeAction.Diving:
-                RunSkreeDive(slot, state, samus, level);
+                RunSkreeDive(place, state, samus, level);
                 return;
 
             case SkreeAction.Burrowing:
-                RunSkreeBurrow(slot, state);
+                RunSkreeBurrow(place, state);
                 return;
 
             default:
@@ -87,7 +87,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves six pixels downward and one toward Samus until the downward solid-block probe starts burrowing.</summary>
     private void RunSkreeDive(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkreeEnemyState state,
         SamusState samus,
         RoomLevelData level)
@@ -95,37 +95,37 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The Japanese and North American release reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
         state.BurrowTimer = 21;
-        if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(6)))
+        if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, place, SignedSixteenSixteen.FromWholePixels(6)))
         {
-            slot.AnimationClock.Restart();
+            place.AnimationClock.Restart();
             state.Action = SkreeAction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(EnemySound.SkreeBurrow, priority: SoundRequestPriority.Normal);
             return;
         }
 
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 6);
-        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
-            (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -1 : 1));
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 6);
+        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
+            (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -1 : 1));
     }
 
-    /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the slot at zero.</summary>
-    private void RunSkreeBurrow(RoomEnemySlot slot, SkreeEnemyState state)
+    /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the place at zero.</summary>
+    private void RunSkreeBurrow(RoomEnemyPlace place, SkreeEnemyState state)
     {
         if (--state.BurrowTimer == 0)
         {
-            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
+            place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
         if (state.BurrowTimer == 8)
-            SkreeMetareeParticles.SpawnBurst(_projectiles, slot, SkreeParticleDefinitions.Burst);
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeParticleDefinitions.Burst);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
     internal static void StartSkreeAnimation(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         SkreeEnemyState state,
         SkreeMetareeSegment animation)
     {
@@ -133,29 +133,29 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledAnimation = animation;
-        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(animation));
+        state.Playback = EnemyAnimationPlayback.Start(place, SkreeMetareeAnimations.StartingWith(animation));
     }
 
     /// <summary>Runs Skree's main AI.</summary>
-    internal void RunSkreeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunSkreeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunSkreeMain(slot, frame.Samus, frame.Level);
+        RunSkreeMain(place, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
-    internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(slot, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(place, SkreeMetareeAnimations.Segments,
             static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true);
+                SkreeMetareeCues.Apply(place, cue, () => state.AttackReady = true);
                 return null;
             });
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
     /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot response reports death, before the
-    /// common death animation releases the enemy slot.</remarks>
+    /// common death animation releases the enemy place.</remarks>
     internal EnemyShotReaction SkreeShotReaction => field ??= new()
     {
         // Skree's shot reaction runs the common damage without the hit burst.

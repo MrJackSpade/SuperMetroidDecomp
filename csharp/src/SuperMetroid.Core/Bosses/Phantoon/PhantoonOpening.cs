@@ -32,7 +32,7 @@ internal sealed class PhantoonOpening
 
     /// <summary>Emits the intro flames on the authored schedule before Phantoon materializes.</summary>
     internal void RunPhantoonStartingFlameSpawner(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
@@ -84,7 +84,7 @@ internal sealed class PhantoonOpening
 
     /// <summary>Raises intro wave amplitude and reveals the body colours.</summary>
     internal void RunPhantoonWavyFadeIn(
-        RoomEnemySlot body,
+        RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
         _presentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
@@ -106,7 +106,7 @@ internal sealed class PhantoonOpening
     /// <summary>Allocates one intro flame at its place on the circle round the body.</summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonStartingFlame(RoomEnemySlot body, TrigonometryAngle start)
+    internal bool SpawnPhantoonStartingFlame(RoomEnemyPlace body, TrigonometryAngle start)
     {
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)

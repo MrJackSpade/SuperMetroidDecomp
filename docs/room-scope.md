@@ -106,7 +106,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 - **Enemy projectile hand-over** (`RoomHandOver`, #1476): enemy projectile deletion (`$86:8016/8154`) clears a
   place's fractions but leaves its whole position and velocity for the next projectile that does not set them; the 13%,
   100%, lowc and Ridley movies diverge in enemy projectiles without them. The first free enemy place is not handed over:
-  each room finds it from its own places (`EnemySlotOrder`, #1471). The enemy graphics set is not handed over either: a
+  each room finds it from its own places (`EnemyPlaceOrder`, #1471). The enemy graphics set is not handed over either: a
   room that loads none draws under the standard sprites alone, as stale tiles and colours are a presentation quirk.
 - **Session RNG and progression** stay session-lifetime (#1330); layer-3 FX reads the RNG value during the load.
 

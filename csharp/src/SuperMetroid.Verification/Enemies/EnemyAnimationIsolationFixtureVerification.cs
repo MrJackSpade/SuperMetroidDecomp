@@ -33,15 +33,15 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal const int FloorY = 224;
 
         /// <summary>
-        /// Whether <paramref name="slot"/>'s current frame's finished picture shows nothing, so that it draws nothing (#1538)
+        /// Whether <paramref name="place"/>'s current frame's finished picture shows nothing, so that it draws nothing (#1538)
         /// where the cartridge writes its transparent sprites.
         /// </summary>
-        internal bool FrameShowsNothing(RoomEnemySlot slot) =>
-            slot.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(slot.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+        internal bool FrameShowsNothing(RoomEnemyPlace place) =>
+            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
         /// <summary>The Boyon placed in the first enemy slot.</summary>
-        internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
+        internal RoomEnemyPlace Actor => Enemies.Places.InUpdateOrder[0];
         /// <summary>Samus position used for the actor's proximity and hit interactions.</summary>
         internal SamusState Samus { get; } = new(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
         /// <summary>Room collision plane with a flat floor below the actor.</summary>
@@ -90,7 +90,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             // fixture inputs, not authored animation/gameplay tuning.
             Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
             Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
-            new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
+            new Action<RoomEnemyPlace>(BoyonBehavior.InitializeBoyon)(Actor);
         }
 
         /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>

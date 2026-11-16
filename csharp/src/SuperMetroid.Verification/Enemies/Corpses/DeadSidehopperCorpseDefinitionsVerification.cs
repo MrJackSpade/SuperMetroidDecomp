@@ -60,12 +60,12 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperAction startingAction)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.CorpseSidehopper, slot.Definition);
-        slot.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, parameter1);
+        Action<RoomEnemyPlace> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.CorpseSidehopper, place.Definition);
+        place.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, parameter1);
 
-        initialize(slot);
+        initialize(place);
 
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
         AssertEqual<DeadSidehopperAction?>(startingAction, state.Action,

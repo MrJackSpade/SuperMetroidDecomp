@@ -25,11 +25,11 @@ internal static class CrocomireCutsceneVerification
     internal static void VerifyCrocomireCorpseCollision()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SpritemapPointer = 0xe6bc;
-        object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>(8, 8), false, (ushort)0];
+        var place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
+        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.SpritemapPointer = 0xe6bc;
+        object?[] arguments = [place, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>(8, 8), false, (ushort)0];
         AssertTrue(!ExtendedHitboxWalker.Find(arguments), "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
@@ -38,8 +38,8 @@ internal static class CrocomireCutsceneVerification
             // The compiled frame keeps each native component with hitboxes, once at its place (#1937).
             int?[] kept = CrocomireKeptComponents.Of(rom.ReadCartridgeWordFixedBank, 0xa40000 | frame.Pointer);
             AssertEqual(kept.Count(index => index is not null), components.Length, "corpse native component count");
-            slot.SpritemapPointer = frame.Pointer;
-            slot.Position = slot.Position.WithWhole(new(4096, 4096));
+            place.SpritemapPointer = frame.Pointer;
+            place.Position = place.Position.WithWhole(new(4096, 4096));
             bool anyHitbox = false;
             for (int native = 0; native < kept.Length; native++)
             {
@@ -72,7 +72,7 @@ internal static class CrocomireCutsceneVerification
                     ushort y = (ushort)(4096 + component.Offset.Y + (box.Top + box.Bottom) / 2);
                     foreach (bool shot in new[] { false, true })
                     {
-                        object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot, (ushort)0];
+                        object?[] hit = [place, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot, (ushort)0];
                         AssertTrue(ExtendedHitboxWalker.Find(hit), "corpse physical component is visited");
                         AssertEqual((EnemyReaction?)(shot ? box.Shot : box.Touch), ExtendedHitboxWalker.Reaction(hit), "corpse selects native reaction");
                     }
@@ -81,7 +81,7 @@ internal static class CrocomireCutsceneVerification
             }
             if (!anyHitbox)
             {
-                object?[] empty = [slot, slot.Position.Whole, new Extent16<RoomPixels>(100, 100), true, (ushort)0];
+                object?[] empty = [place, place.Position.Whole, new Extent16<RoomPixels>(100, 100), true, (ushort)0];
                 AssertTrue(!ExtendedHitboxWalker.Find(empty), "native empty corpse geometry remains non-colliding");
             }
         }
@@ -101,14 +101,14 @@ internal static class CrocomireCutsceneVerification
         var scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
-        var body = enemies.SlotTable.Slots[0];
+        var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(1480, 144));
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
         enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
         enemies.VerificationServices().NextRandom = () => 1;
-        Action<RoomEnemySlot, SamusState, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
+        Action<RoomEnemyPlace, SamusState, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
@@ -184,7 +184,7 @@ internal static class CrocomireCutsceneVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
             enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
-            RoomEnemySlot body = enemies.SlotTable.Slots[0];
+            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
             enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
             string room = defeated ? "a defeated room" : "a living fight";

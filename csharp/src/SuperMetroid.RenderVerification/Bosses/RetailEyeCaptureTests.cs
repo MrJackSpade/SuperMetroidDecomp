@@ -25,7 +25,7 @@ internal static class RetailEyeCaptureTests
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MorphBall,
             new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
-        var body = runtime.Enemies.SlotTable.Slots[1];
+        var body = runtime.Enemies.Places.InUpdateOrder[1];
         var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + 64)), body.Position.Y.Whole));

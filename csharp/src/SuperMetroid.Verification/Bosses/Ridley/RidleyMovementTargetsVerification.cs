@@ -44,12 +44,12 @@ internal static class RidleyMovementTargetsVerification
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords,
             stage => RidleyInertiaDefinitions.LargestDivisor - bands[stage].GrabDivisor, 4);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, RidleyEnemyState> beginCarry = NorfairRidleyCombat.BeginNorfairRidleyCarry;
+        Action<RoomEnemyPlace, RidleyEnemyState> beginCarry = NorfairRidleyCombat.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState, RidleyWallSweepTarget> sweep = enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToSide;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
-        var slot = enemies.SlotTable.Slots[0];
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, RidleyWallSweepTarget> sweep = enemies.RidleyBehavior.Combat.TickNorfairRidleyWallSweep;
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogoMoveToSide;
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState, GameplayAction, RoomLevelData> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
+        var place = enemies.Places.InUpdateOrder[0];
         var state = new RidleyEnemyState();
         // Independent closed form of native inertia from zero velocity: target selection
         // must change actual output velocity, not just expose a matching catalog value.
@@ -75,14 +75,14 @@ internal static class RidleyMovementTargetsVerification
             state.HealthBand = bands[raw % 4];
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[Math.Min(raw, 2)];
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-            slot.Position = slot.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
-            beginCarry(slot, state);
+            place.Position = place.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
+            beginCarry(place, state);
             ushort x = carry[Math.Min(raw, 2)];
             ushort y = unchecked((short)(raw - 320)) < 0 ? (ushort)256 : unchecked((ushort)(raw - 64));
             AssertEqual(x, state.Target.X, "Real carry anchor facing selection");
             AssertEqual(y, state.Target.Y, "Real carry height selection");
-            AssertEqual(Expected(slot.Position.X.Whole, x, 16), state.Velocity.X.RawValue, "Carry target drives exact X acceleration");
-            AssertEqual(Expected(slot.Position.Y.Whole, y, 16), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
+            AssertEqual(Expected(place.Position.X.Whole, x, 16), state.Velocity.X.RawValue, "Carry target drives exact X acceleration");
+            AssertEqual(Expected(place.Position.Y.Whole, y, 16), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual(31, state.PhaseTimer, "Carry setup timer");
             AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "Carry setup phase");
@@ -92,28 +92,28 @@ internal static class RidleyMovementTargetsVerification
         foreach (ushort x in new ushort[] { 0, 128, 0xffff })
         for (int health = 0; health < 4; health++)
         {
-            slot.Position = slot.Position.WithWhole(new(x, 352));
+            place.Position = place.Position.WithWhole(new(x, 352));
             state.FacingDirection = facing;
             state.HealthBand = bands[health];
             foreach (RidleyWallSweepTarget wall in Enum.GetValues<RidleyWallSweepTarget>())
             {
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-                sweep(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), wall);
+                sweep(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), wall);
                 ushort target = (wall == RidleyWallSweepTarget.WallBehind ? behind : ahead)[RidleyNativeWords.Facings.Word(facing)];
                 AssertEqual(Expected(x, target, RidleyInertiaDefinitions.LargestDivisor - hover[health]), state.Velocity.X.RawValue, "Wall sweep target and health divisor reach motion");
             }
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-            moveSide(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+            moveSide(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(Expected(x, pogoSide[RidleyNativeWords.Facings.Word(facing)], 16), state.Velocity.X.RawValue, "Pogo side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Phase = RidleyPhase.NorfairCarryRelease;
             state.PhaseTimer = 1;
-            run(slot, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+            run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(Expected(x, release[RidleyNativeWords.Facings.Word(facing)], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState> approach = enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach;
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> approach = enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach;
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {
@@ -122,9 +122,9 @@ internal static class RidleyMovementTargetsVerification
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             // Start ahead of the lunge stopping boundary for each facing.
             ushort startX = state.FacingDirection == RidleyFacing.Right ? (ushort)128 : (ushort)384;
-            slot.Position = slot.Position.WithWhole(new(startX, 128));
+            place.Position = place.Position.WithWhole(new(startX, 128));
             state.HitRoomBoundary = false;
-            approach(slot, state, samus);
+            approach(place, state, samus);
             ushort targetX = (ushort)(state.FacingDirection == RidleyFacing.Left ? 240 : 272);
             int divisor = RidleyInertiaDefinitions.LargestDivisor - grab[health % 4];
             AssertEqual(Expected(startX, targetX, divisor), state.Velocity.X.RawValue, "Actual grab health divisor drives X acceleration");

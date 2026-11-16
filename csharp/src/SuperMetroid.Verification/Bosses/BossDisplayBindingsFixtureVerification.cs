@@ -27,7 +27,7 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>Enemy owner whose ordinary queue and presentation path the fixture exercises.</summary>
         internal RoomEnemySystem Enemies { get; }
         /// <summary>The physical slot initialized as the selected boss definition.</summary>
-        internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[_slot];
+        internal RoomEnemyPlace Actor => Enemies.Places.InUpdateOrder[_slot];
         /// <summary>The actor's physical slot.</summary>
         private readonly int _slot;
         /// <summary>The boss whose body layer the actor draws on, or null for a boss that draws none.</summary>
@@ -55,7 +55,7 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>The body sheets composed from the fixture's boss frames.</summary>
         private BossBodySheets Sheets => bodies.Sheets;
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
-        private readonly Action<RoomEnemySlot, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction> instructions;
+        private readonly Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction> instructions;
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
         internal BossDisplayFixture(EnemyDefinitionId definition, ImportEnemyArtwork artwork, int slot = 0)
@@ -79,7 +79,7 @@ internal static class BossDisplayBindingsFixtureVerification
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.
             ClearBg2();
-            instructions = new Action<RoomEnemySlot, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
+            instructions = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
         }
 
         /// <summary>The boss whose body layer <paramref name="definition"/> draws on, or null for one that draws none.</summary>

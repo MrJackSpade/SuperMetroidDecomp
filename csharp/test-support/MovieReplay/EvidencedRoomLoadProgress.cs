@@ -19,5 +19,5 @@ internal sealed class EvidencedRoomLoadProgress : IRoomLoadProgress
     }
 
     /// <summary>Reports a slot initialized only when native evidence places it below the completed-slot count.</summary>
-    public bool HasInitializedEnemySlot(int slot) => completedSlots is int completed && slot < completed;
+    public bool HasInitializedEnemyPlace(int slot) => completedSlots is int completed && slot < completed;
 }

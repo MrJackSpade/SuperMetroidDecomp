@@ -27,8 +27,8 @@ internal static class MotherBrainRingBabyHealthVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
-        RoomEnemySlot babySlot = (state.BabyMetroidSlot ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
-        AssertEqual(0x0c80, babySlot.Health, "the Baby spawns with 3200 health");
+        RoomEnemyPlace babyPlace = (state.BabyMetroidPlace ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
+        AssertEqual(0x0c80, babyPlace.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
         EnemyProjectile ring = runtime.Enemies.Projectiles.EnemyProjectiles[16];
@@ -41,7 +41,7 @@ internal static class MotherBrainRingBabyHealthVerification
 
         runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.IntroducedSamus, 0);
         AssertEqual(0x0c30, state.BabyMetroid.Health, "the ring charges the Baby $50");
-        AssertEqual(0x0c30, babySlot.Health, "the Baby slot's health drops within the projectile pass");
+        AssertEqual(0x0c30, babyPlace.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");
     }
 

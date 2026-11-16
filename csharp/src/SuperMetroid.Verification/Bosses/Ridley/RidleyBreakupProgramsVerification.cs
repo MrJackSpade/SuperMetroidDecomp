@@ -29,9 +29,9 @@ internal static class RidleyBreakupProgramsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
-        var process = new Action<RoomEnemySlot, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
-        var body = enemies.SlotTable.Slots[0];
+        Action<RoomEnemyPlace, RidleyEnemyState, SamusState> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
+        var process = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
+        var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         enemies.RidleyEncounter.Parts.AttachBody(body, "Lower Norfair Ridley");
         var state = new RidleyEnemyState
@@ -43,7 +43,7 @@ internal static class RidleyBreakupProgramsVerification
         enemies.RidleyEncounter.Ridley = state;
         death(body, state, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
+        var fragments = enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual(RidleyBreakupFrame.TailTipPointingDownDownLeft, RidleyNativeProgramOracle.BreakupFrameOf(fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Playback),
             "reported tail orientation selects the second tip pose ($A6:CA9B)");

@@ -33,18 +33,18 @@ internal static class CrawlerBehaviorVerification
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = EnemySystemFixtures.New((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork?.Bosses);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(definition, slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(definition, place.Definition);
+            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             // The population entry names the surface; InitAI_Viola reads its block side instead.
             if (family == CrawlerAnimationFamily.Viola)
-                slot.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+                place.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             else
-                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+                place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (family == CrawlerAnimationFamily.OrangeZoomer)
-                CrawlersBehavior.InitializeOrangeZoomer(slot);
+                CrawlersBehavior.InitializeOrangeZoomer(place);
             else
-                CrawlersBehavior.InitializeCrawler(slot, family);
+                CrawlersBehavior.InitializeCrawler(place, family);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerSegment program = CrawlerSurfaceAnimations.AnimationFor(family, orientation);
             string context = $"{family} {orientation}";
@@ -53,7 +53,7 @@ internal static class CrawlerBehaviorVerification
             // The surface animation runs on into the loop it then repeats.
             CrawlerSegment loop = CrawlerAnimations.StartingWith(program).Phases[^1].Segment;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
             CrawlerAction expected = family == CrawlerAnimationFamily.OrangeZoomer
                 ? sideWall ? CrawlerAction.OrangeZoomerCrawlingVertically : CrawlerAction.OrangeZoomerCrawlingHorizontally

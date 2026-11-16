@@ -18,7 +18,7 @@ internal static class BabyMetroidDeathCryVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var installation = RepositoryInstallation.Installation;
         // The Baby's scene runs while Mother Brain's encounter is loaded; the room shows the shades it lays (#1512).
-        var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
+        var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0]);
         enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);

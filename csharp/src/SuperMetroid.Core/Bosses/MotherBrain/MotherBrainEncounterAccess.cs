@@ -40,13 +40,13 @@ internal sealed class MotherBrainEncounterAccess
         throw new InvalidDataException(
             "Mother Brain's brain needs the live rainbow beam and Baby sequence.");
 
-    /// <summary>Requires a body and head pair initialized in their enemy slots.</summary>
-    internal MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)
+    /// <summary>Requires a body and head pair initialized in their enemy places.</summary>
+    internal MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemyPlace place)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidDataException("A Mother Brain part has no shared encounter state.");
-        if (!ReferenceEquals(slot, state.Body) && !ReferenceEquals(slot, state.Head))
-            throw new InvalidDataException("A non-Mother-Brain slot entered the Mother Brain behaviour.");
+        if (!ReferenceEquals(place, state.Body) && !ReferenceEquals(place, state.Head))
+            throw new InvalidDataException("A non-Mother-Brain place entered the Mother Brain behaviour.");
         return state;
     }
 

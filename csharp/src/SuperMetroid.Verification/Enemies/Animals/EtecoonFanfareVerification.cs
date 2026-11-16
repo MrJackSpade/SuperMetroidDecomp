@@ -22,17 +22,17 @@ internal static class EtecoonFanfareVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, doorPassage: passage);
         for (int index = 0; index < 3; index++)
         {
-            var slot = enemies.SlotTable.Slots[index];
-            slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
-            slot.Bind(slot.DefinitionId, RoomEnemyDefinitionLookup.Get(slot.DefinitionId));
-            slot.Health = slot.Definition.Health;
-            slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
-            slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
-            slot.Contact = EnemyContact.IgnoresSamus;
-            slot.Processing = EnemyProcessing.OffScreen;
-            slot.Presence = EnemyPresence.None;
-            slot.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
-            EtecoonBehavior.InitializeEtecoon(slot);
+            var place = enemies.Places.InUpdateOrder[index];
+            place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
+            place.Bind(place.DefinitionId, RoomEnemyDefinitionLookup.Get(place.DefinitionId));
+            place.Health = place.Definition.Health;
+            place.Radius = new(place.Definition.Radius.X, place.Definition.Radius.Y);
+            place.Position = place.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
+            place.Contact = EnemyContact.IgnoresSamus;
+            place.Processing = EnemyProcessing.OffScreen;
+            place.Presence = EnemyPresence.None;
+            place.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
+            EtecoonBehavior.InitializeEtecoon(place);
         }
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));

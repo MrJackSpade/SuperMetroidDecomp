@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Third">The third.</param>
-internal readonly record struct MaridiaLargeSnailInstructionDefinitionsCreateResult(RoomEnemySystem First, RoomEnemySlot Second, MaridiaLargeSnailEnemyState Third);
+internal readonly record struct MaridiaLargeSnailInstructionDefinitionsCreateResult(RoomEnemySystem First, RoomEnemyPlace Second, MaridiaLargeSnailEnemyState Third);

@@ -16,7 +16,7 @@ internal static class WallJumpLaunchShakeChecks
     internal static RoomEnemySystem CreateFilledRoom()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.SlotTable.CoverSpawn(enemies.SlotTable.Slots[enemies.SlotTable.Slots.Count - 1]);
+        enemies.Places.CoverSpawn(enemies.Places.InUpdateOrder[enemies.Places.InUpdateOrder.Count - 1]);
         return enemies;
     }
 
@@ -24,11 +24,11 @@ internal static class WallJumpLaunchShakeChecks
     /// Runs <paramref name="room"/>'s enemy pass shake for <paramref name="samus"/>: only <paramref name="expected"/>
     /// shakes, for 64 draws, or no enemy when it is null, and the pass takes the request once.
     /// </summary>
-    internal static void AssertEnemyPassShakes(RoomEnemySystem room, SamusState samus, RoomEnemySlot? expected, string message)
+    internal static void AssertEnemyPassShakes(RoomEnemySystem room, SamusState samus, RoomEnemyPlace? expected, string message)
     {
         room.ShakeWallJumpLaunchEnemy(samus);
-        foreach (RoomEnemySlot slot in room.SlotTable.Slots)
-            AssertEqual(ReferenceEquals(slot, expected) ? LaunchShakeDraws : 0, slot.ShakeTimer, $"{message}: enemy {slot.SlotIndex}'s shake");
+        foreach (RoomEnemyPlace place in room.Places.InUpdateOrder)
+            AssertEqual(ReferenceEquals(place, expected) ? LaunchShakeDraws : 0, place.ShakeTimer, $"{message}: enemy {place.Ordinal}'s shake");
         AssertEqual<ISolidEnemy?>(null, samus.Kinematics.TakeWallJumpLaunchShake(), $"{message}: the enemy pass takes the request once");
     }
 }

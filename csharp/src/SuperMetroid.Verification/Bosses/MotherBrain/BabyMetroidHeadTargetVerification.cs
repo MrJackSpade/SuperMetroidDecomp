@@ -25,21 +25,21 @@ internal static class BabyMetroidHeadTargetVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        RoomEnemySlot head = state.Head;
+        RoomEnemyPlace head = state.Head;
         var sequence = new MotherBrainRainbowBeamAttackSequence { State = { BrainPosition = new(0x007e, 0x005b) } };
         state.RainbowBeamSequence = sequence;
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
-        RoomEnemySlot slot = (state.BabyMetroidSlot ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
+        RoomEnemyPlace place = (state.BabyMetroidPlace ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
         BabyMetroidCutsceneState baby = (state.BabyMetroid ?? throw new InvalidOperationException("Verification requires state.BabyMetroid."));
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
         baby.Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position);
 
-        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((slot), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
-        AssertEqual((ushort)0x007d, slot.Position.X.Whole, "the Baby pins to the head enemy's current X");
-        AssertEqual((ushort)0x0045, slot.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");
+        AssertEqual((ushort)0x007d, place.Position.X.Whole, "the Baby pins to the head enemy's current X");
+        AssertEqual((ushort)0x0045, place.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");
         Console.WriteLine("Baby Metroid head target: the Baby reads the head enemy's current position.");
     }
 

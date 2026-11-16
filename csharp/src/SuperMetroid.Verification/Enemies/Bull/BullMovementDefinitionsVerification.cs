@@ -15,15 +15,15 @@ internal static class BullMovementDefinitionsVerification
     internal static void VerifyCompiledBullMovement(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
-        var slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
+        Action<RoomEnemyPlace> initialize = enemies.BullBehavior.InitializeBull;
+        var place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Bull, place.Definition);
         for (ushort interval = 0; interval < 13; interval++)
         for (ushort speed = 0; speed < 8; speed++)
         {
-            slot.SetSpawnParameter1(EnemyDefinitionId.Bull, interval);
-            slot.SetSpawnParameter2(EnemyDefinitionId.Bull, speed);
-            initialize(slot); // No loaded cartridge bus; exercises the real initializer.
+            place.SetSpawnParameter1(EnemyDefinitionId.Bull, interval);
+            place.SetSpawnParameter2(EnemyDefinitionId.Bull, speed);
+            initialize(place); // No loaded cartridge bus; exercises the real initializer.
             var state = enemies.BullStates[0];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), (state ?? throw new InvalidOperationException("Verification requires state.")).AccelerationIntervalTimerReset, "Bull compiled acceleration");
             AssertEqual(state.AccelerationIntervalTimerReset, state.AccelerationIntervalTimer, "Bull live timer initialization");
@@ -31,11 +31,11 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), state.MaxSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
             AssertEqual(BullAction.MovementDelay, state.Action, "Bull initial function");
             AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
-            AssertEqual(1, slot.AnimationClock.Hold.RawValue, "Bull instruction timer");
+            AssertEqual(1, place.AnimationClock.Hold.RawValue, "Bull instruction timer");
             AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initial animation");
         }
-        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Bull, 8), "Bull import rejects the speed selector past its table");
-        AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter1(EnemyDefinitionId.Bull, 13), "Bull import rejects the interval selector past its table");
+        AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Bull, 8), "Bull import rejects the speed selector past its table");
+        AssertThrows<InvalidDataException>(() => place.SetSpawnParameter1(EnemyDefinitionId.Bull, 13), "Bull import rejects the interval selector past its table");
         Console.WriteLine("Bull definitions: all 104 authored initializer combinations match native tables without a loaded bus; live timers and instruction setup preserved.");
     }
 }

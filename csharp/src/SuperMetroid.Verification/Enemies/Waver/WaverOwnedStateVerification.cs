@@ -15,10 +15,10 @@ internal static class WaverOwnedStateVerification
     internal static void VerifyWaverOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
-        slot.SetSpawnParameter1(EnemyDefinitionId.Waver, 1);
-        WaverBehavior.InitializeWaver(slot);
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.Waver, place.Definition);
+        place.SetSpawnParameter1(EnemyDefinitionId.Waver, 1);
+        WaverBehavior.InitializeWaver(place);
         WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("The initialized Waver has no state.");
         AssertEqual(SignedSixteenSixteen.FromParts(1, 0x8000), state.XVelocity, "a right-facing Waver moves one and a half pixels per update");
         AssertEqual(WaverSegment.SteadyFacingRight, state.RequestedAnimation, "parameter one's low bit faces right");

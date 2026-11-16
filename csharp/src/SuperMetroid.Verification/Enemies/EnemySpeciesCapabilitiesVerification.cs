@@ -185,18 +185,18 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Distinct();
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
         int bound = 0;
         int answers = 0;
         foreach (EnemyDefinitionId definition in definitions)
         {
             // An ordinary Ceres door faces the way its placement says, and a getaway chamber wall stands on its side (#1989).
             if (definition == EnemyDefinitionId.CeresDoor)
-                slot.SetSpawnSettings(new CeresDoorSpawnSettings(HorizontalDirection.Right));
+                place.SetSpawnSettings(new CeresDoorSpawnSettings(HorizontalDirection.Right));
             if (definition == EnemyDefinitionId.CeresGetawayChamberWall)
-                slot.SetSpawnSettings(new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left));
-            slot.Bind(definition, HeaderOf(definition));
-            IEnemyEntity entity = slot.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
+                place.SetSpawnSettings(new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left));
+            place.Bind(definition, HeaderOf(definition));
+            IEnemyEntity entity = place.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
             bound++;
 
             AssertEqual(capabilities.GetValueOrDefault(definition, EnemyCapabilities.None), entity.Capabilities,
@@ -212,7 +212,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             }
 
             var doorState = new CeresRidleyRoomDoorState();
-            slot.SetSpeciesState(doorState);
+            place.SetSpeciesState(doorState);
             foreach (bool handed in new[] { false, true })
             {
                 doorState.HandsDrawingToRidley = handed;

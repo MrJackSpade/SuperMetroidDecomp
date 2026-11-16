@@ -57,16 +57,16 @@ internal static class DragonAnimationDefinitionsVerification
     /// </summary>
     private static void VerifyDragonReinstallRequest()
     {
-        RoomEnemySlot slot = NewDragonAnimationSlot(0);
+        RoomEnemyPlace place = NewDragonAnimationPlace(0);
         DragonPartState state = NewDragonAnimationState();
         state.RequestedAnimation = DragonSegment.AttackingFacingLeft;
         state.InstalledAnimation = DragonSegment.AttackingFacingLeft;
-        DragonBehavior.StartDragonAnimation(slot, state);
-        AssertEqual(0x2222, slot.AnimationClock.Hold.RawValue, "Dragon installs nothing for the installed animation");
+        DragonBehavior.StartDragonAnimation(place, state);
+        AssertEqual(0x2222, place.AnimationClock.Hold.RawValue, "Dragon installs nothing for the installed animation");
 
         state.ReinstallRequested = true;
-        DragonBehavior.StartDragonAnimation(slot, state);
-        AssertDragonAnimationHandoff(slot, state, DragonSegment.AttackingFacingLeft, "Dragon reinstall request");
+        DragonBehavior.StartDragonAnimation(place, state);
+        AssertDragonAnimationHandoff(place, state, DragonSegment.AttackingFacingLeft, "Dragon reinstall request");
         AssertEqual(false, state.ReinstallRequested, "Dragon reinstall request is spent by the install");
     }
 
@@ -76,12 +76,12 @@ internal static class DragonAnimationDefinitionsVerification
         for (int index = 0; index < 6; index++)
         {
             DragonSegment requested = Selector(index);
-            var slot = NewDragonAnimationSlot(0);
+            var place = NewDragonAnimationPlace(0);
             DragonPartState state = NewDragonAnimationState();
             state.RequestedAnimation = requested;
             state.ReinstallRequested = true;
-            DragonBehavior.StartDragonAnimation(slot, state);
-            AssertDragonAnimationHandoff(slot, state, requested, $"Dragon {requested}");
+            DragonBehavior.StartDragonAnimation(place, state);
+            AssertDragonAnimationHandoff(place, state, requested, $"Dragon {requested}");
         }
     }
 
@@ -90,8 +90,8 @@ internal static class DragonAnimationDefinitionsVerification
         bool facingLeft)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        RoomEnemySlot wing = enemies.SlotTable.Slots[1];
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
         body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
@@ -144,15 +144,15 @@ internal static class DragonAnimationDefinitionsVerification
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
-    private static RoomEnemySlot NewDragonAnimationSlot(int index) =>
-        new RoomEnemySlot(index, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222);
+    private static RoomEnemyPlace NewDragonAnimationPlace(int index) =>
+        new RoomEnemyPlace(index, EnemyPlaceFixtures.Registry).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
     private static DragonWingState NewDragonAnimationState() => new();
 
     /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(
-        RoomEnemySlot slot,
+        RoomEnemyPlace place,
         DragonPartState state,
         DragonSegment expected,
         string context,
@@ -165,7 +165,7 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(new AnimationPlayback<DragonSegment>(DragonAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");
-        AssertEqual(expectedFrameHold, slot.AnimationClock.Hold.RawValue,
+        AssertEqual(expectedFrameHold, place.AnimationClock.Hold.RawValue,
             $"{context} instruction timer");
     }
 

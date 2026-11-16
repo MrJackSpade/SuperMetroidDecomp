@@ -33,7 +33,7 @@ internal static class RidleyShotHealthStageVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockOutPlayer();
-        RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
+        RoomEnemyPlace ridley = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Ridley, ridley.DefinitionId, "slot zero is Norfair Ridley");
         var state = runtime.Enemies.RidleyEncounter.RequireNorfairRidley(ridley);
 

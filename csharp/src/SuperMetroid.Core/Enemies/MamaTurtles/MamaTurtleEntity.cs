@@ -2,56 +2,56 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>One MamaTurtle occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The MamaTurtle species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId])
+        switch (MamaTurtlePartDefinitions.Parts[Place.DefinitionId])
         {
             case MamaTurtlePart.MamaTurtle:
-                species.InitializeMamaTurtle(Slot);
+                species.InitializeMamaTurtle(Place);
                 break;
             case MamaTurtlePart.BabyTurtle:
-                MamaTurtleBehavior.InitializeBabyTurtle(Slot);
+                MamaTurtleBehavior.InitializeBabyTurtle(Place);
                 break;
             default:
-                throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"MamaTurtle entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId])
+        switch (MamaTurtlePartDefinitions.Parts[Place.DefinitionId])
         {
             case MamaTurtlePart.MamaTurtle:
-                species.RunMamaTurtleMainAi(Slot, frame);
+                species.RunMamaTurtleMainAi(Place, frame);
                 break;
             case MamaTurtlePart.BabyTurtle:
-                species.RunBabyTurtleMainAi(Slot, frame);
+                species.RunBabyTurtleMainAi(Place, frame);
                 break;
             default:
-                throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"MamaTurtle entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        switch (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId])
+        switch (MamaTurtlePartDefinitions.Parts[Place.DefinitionId])
         {
             case MamaTurtlePart.MamaTurtle:
-                species.AdvanceMamaTurtleTypedAnimation(Slot, context);
+                species.AdvanceMamaTurtleTypedAnimation(Place, context);
                 break;
             case MamaTurtlePart.BabyTurtle:
-                species.AdvanceBabyTurtleTypedAnimation(Slot, context);
+                species.AdvanceBabyTurtleTypedAnimation(Place, context);
                 break;
             default:
-                throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"MamaTurtle entity bound to {Place.DefinitionId}.");
         }
     }
 
@@ -64,7 +64,7 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
     {
         if (!LeavesTouchToSpecies)
             base.ReactToTouch(context);
-        else if (MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] == MamaTurtlePart.MamaTurtle)
+        else if (MamaTurtlePartDefinitions.Parts[Place.DefinitionId] == MamaTurtlePart.MamaTurtle)
             species.ReactToMamaTurtleTouch(context);
         else
             species.ReactToBabyTurtleTouch(context);

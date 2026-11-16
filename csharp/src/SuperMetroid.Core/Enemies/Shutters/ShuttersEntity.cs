@@ -2,61 +2,61 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>One Shutters occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The Shutters species owner.</param>
-/// <param name="slot">The slot the enemy occupies.</param>
+/// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize()
     {
-        switch (ShuttersPartDefinitions.Parts[Slot.DefinitionId])
+        switch (ShuttersPartDefinitions.Parts[Place.DefinitionId])
         {
             case ShuttersPart.ShutterGrowing:
-                ShuttersBehavior.InitializeGrowingShutter(Slot);
+                ShuttersBehavior.InitializeGrowingShutter(Place);
                 break;
             case ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer:
-                ShuttersBehavior.InitializeVerticalShutter(Slot);
+                ShuttersBehavior.InitializeVerticalShutter(Place);
                 break;
             default:
-                throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Shutters entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        switch (ShuttersPartDefinitions.Parts[Slot.DefinitionId])
+        switch (ShuttersPartDefinitions.Parts[Place.DefinitionId])
         {
             case ShuttersPart.ShutterGrowing:
-                species.RunShutterGrowingMainAi(Slot, frame);
+                species.RunShutterGrowingMainAi(Place, frame);
                 break;
             case ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer:
-                species.RunShutterShootableMainAi(Slot, frame);
+                species.RunShutterShootableMainAi(Place, frame);
                 break;
             default:
-                throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Shutters entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        switch (ShuttersPartDefinitions.Parts[Slot.DefinitionId])
+        switch (ShuttersPartDefinitions.Parts[Place.DefinitionId])
         {
             case ShuttersPart.ShutterGrowing:
-                ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Slot, context);
+                ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, context);
                 break;
             case ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer:
-                ShuttersBehavior.AdvanceShutterShootableTypedAnimation(Slot, context);
+                ShuttersBehavior.AdvanceShutterShootableTypedAnimation(Place, context);
                 break;
             default:
-                throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}.");
+                throw new InvalidOperationException($"Shutters entity bound to {Place.DefinitionId}.");
         }
     }
 
     /// <summary>Whether the occupant is a shootable vertical shutter (or the Kamer that reuses it) rather than the destroyable one.</summary>
-    private bool IsShootable => ShuttersPartDefinitions.Parts[Slot.DefinitionId] is ShuttersPart.ShutterShootable or ShuttersPart.Kamer;
+    private bool IsShootable => ShuttersPartDefinitions.Parts[Place.DefinitionId] is ShuttersPart.ShutterShootable or ShuttersPart.Kamer;
 
     /// <summary>Whether the vertical shutter's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -92,7 +92,7 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     /// <summary>The destroyable shutter's own stages around common bomb damage, for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        Slot.DefinitionId == EnemyDefinitionId.ShutterDestroyable && context.SelectedShot is null
+        Place.DefinitionId == EnemyDefinitionId.ShutterDestroyable && context.SelectedShot is null
             ? species.DestroyableShutterBombReaction
             : base.CommonBombDamageReaction(context);
 

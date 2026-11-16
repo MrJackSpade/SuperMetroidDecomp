@@ -22,7 +22,7 @@ internal static class BotwoonAttackCooldownVerification
     internal static void VerifyBotwoonAttackCooldown()
     {
         // Moving frame: the only path on which the cooldown starts at zero and runs below it.
-        (RoomEnemySystem moving, RoomEnemySlot movingHead, BotwoonEnemyState movingState) = NewBotwoon();
+        (RoomEnemySystem moving, RoomEnemyPlace movingHead, BotwoonEnemyState movingState) = NewBotwoon();
         movingState.Phase = BotwoonPhase.ChooseNextAction;
         movingState.Movement = BotwoonMovement.MoveTowardHole;
         movingState.HeadAction = BotwoonHeadAction.AttackCooldown;
@@ -37,7 +37,7 @@ internal static class BotwoonAttackCooldownVerification
         AssertEqual(BotwoonHeadAction.AnimateFromMovement, movingState.HeadAction, "the expired cooldown returns the head to following its movement");
 
         // Hidden spit: the state's gate runs the cooldown while it is nonzero and leaves once it reads zero.
-        (RoomEnemySystem hidden, RoomEnemySlot hiddenHead, BotwoonEnemyState hiddenState) = NewBotwoon();
+        (RoomEnemySystem hidden, RoomEnemyPlace hiddenHead, BotwoonEnemyState hiddenState) = NewBotwoon();
         hiddenState.Phase = BotwoonPhase.SpitWhileHidden;
         hiddenState.HeadAction = BotwoonHeadAction.AttackCooldown;
         hiddenState.AttackTimer = 1;
@@ -66,7 +66,7 @@ internal static class BotwoonAttackCooldownVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemySlot head = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
         var state = new BotwoonEnemyState()

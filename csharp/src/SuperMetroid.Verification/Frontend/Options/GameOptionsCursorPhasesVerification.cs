@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -96,8 +97,8 @@ internal static class GameOptionsCursorPhasesVerification
     {
         menu.CaptureRenderSnapshot();
         SpriteSheet sheet = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.GameOptions);
-        SpriteSheetFrame[] cursorFrames = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
-            .Select(frame => sheet.Frame(GameOptionsNames.CursorSpriteName(frame)))];
+        SpriteSheetFrame[] cursorFrames = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount)
+            .Select(frame => sheet.Frame(MenuMissileFrames.Name(frame)))];
         return menu.screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => cursorFrames.Contains(draw.Image));
     }
 

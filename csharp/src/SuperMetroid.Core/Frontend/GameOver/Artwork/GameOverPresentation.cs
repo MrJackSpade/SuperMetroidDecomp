@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
@@ -51,15 +52,13 @@ public sealed class GameOverPresentation
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
-    /// <param name="frame">Zero-based looping animation frame 0-3.</param>
+    /// <param name="frame">The step of the missile's roll.</param>
     /// <param name="selectNo">True draws at the No position; false draws at the Yes position.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is not a step of the roll.</exception>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, bool selectNo)
     {
-        if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.CursorFrameName(frame)),
+        Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(MenuMissileFrames.Name(frame)),
             new Offset16<ScreenPixels>(CursorX, selectNo ? NoCursorY : YesCursorY), shading: PictureShading.Standard);
     }
 }

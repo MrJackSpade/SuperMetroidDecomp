@@ -120,7 +120,7 @@ public static class FileSelectPresentationExtractor
                 MenuSpriteExtractor.Read(bus, FileSelectNativeLayout.ClearBorderSpritemap),
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
-            sprites.Add(FileSelectParts.CursorSpriteName(frame),
+            sprites.Add(MenuMissileFrames.Name(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
             sprites.Add(FileSelectParts.HelmetSpriteName(frame),

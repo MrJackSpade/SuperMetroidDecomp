@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
@@ -63,9 +64,9 @@ public static class GameOverPresentationExtractor
             [GameOverPresentationDefinitions.EggFrame] =
                 MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap),
         };
-        for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
+        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
-            sprites.Add(GameOverPresentationNames.CursorFrameName(frame),
+            sprites.Add(MenuMissileFrames.Name(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         }
 

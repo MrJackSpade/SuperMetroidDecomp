@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -38,9 +39,9 @@ internal static class FileSelectSheetComposer
             string name = FileSelectParts.BorderSpriteName(border);
             frames.Add(new(name, source.borderSprites[border].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < FileSelectPresentationFormat.CursorFrameCount; frame++)
+        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
-            string name = FileSelectParts.CursorSpriteName(frame);
+            string name = MenuMissileFrames.Name(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
         for (int frame = 0; frame < FileSelectPresentationFormat.HelmetFrameCount; frame++)

@@ -12,9 +12,9 @@ internal static class PauseMapIndicatorAnimation
     /// </summary>
     internal static IReadOnlyList<MapIndicatorPulseStep> Pulse { get; } =
     [
-        new(MapSpriteId.IndicatorFrame0, 8),
-        new(MapSpriteId.IndicatorFrame1, 4),
-        new(MapSpriteId.IndicatorFrame2, 8),
-        new(MapSpriteId.IndicatorFrame1, 4),
+        new(MapSpriteId.IndicatorSmall, 8),
+        new(MapSpriteId.IndicatorMiddle, 4),
+        new(MapSpriteId.IndicatorLarge, 8),
+        new(MapSpriteId.IndicatorMiddle, 4),
     ];
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
@@ -18,14 +19,14 @@ public static class GameOverPresentationFormat
     private static readonly string[] spriteNames =
     [
         "Baby.Closed", "Baby.Middle", "Baby.Open", GameOverPresentationDefinitions.EggFrame,
-        "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
+        .. MenuMissileFrames.Names,
     ];
 
     /// <summary>Required idle and crying Baby color phases in schema order.</summary>
     private static readonly string[] paletteNames =
         ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
 
-    /// <summary>Read-only view of eight required composition identities: three Baby frames, egg, then four cursor frames.</summary>
+    /// <summary>Read-only view of the required composition identities: three Baby frames, egg, then the missile's pictures.</summary>
     public static ReadOnlySpan<string> SpriteNames => spriteNames;
     /// <summary>Read-only view of four required Baby palette identities in idle, closed-cry, middle-cry, and open-cry order.</summary>
     public static ReadOnlySpan<string> BabyPaletteNames => paletteNames;

@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
-/// <summary>The game-over screen's cursor frames and the names its pieces are pictured under.</summary>
+/// <summary>The names the game-over screen's pieces are pictured under.</summary>
 public static class GameOverPresentationDefinitions
 {
-    /// <summary>Four frames in the looping missile-cursor animation.</summary>
-    public const int CursorFrameCount = 4;
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";
     /// <summary>The menus' picture of the whole game-over page: its title, objective, prompt and both answers (#1467).</summary>
@@ -17,15 +15,5 @@ public static class GameOverPresentationDefinitions
             [GameOverBabyFrame.Closed] = "Baby.Closed",
             [GameOverBabyFrame.Middle] = "Baby.Middle",
             [GameOverBabyFrame.Open] = "Baby.Open",
-        };
-
-    /// <summary>Returns the authored composition identity for a missile-cursor frame.</summary>
-    internal static readonly IReadOnlyDictionary<int, string> CursorFrameNames =
-        new Dictionary<int, string>
-        {
-            [0] = "Cursor.0",
-            [1] = "Cursor.1",
-            [2] = "Cursor.2",
-            [3] = "Cursor.3",
         };
 }

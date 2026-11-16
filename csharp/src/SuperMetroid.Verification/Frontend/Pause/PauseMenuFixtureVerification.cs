@@ -59,7 +59,7 @@ internal static class PauseMenuFixtureVerification
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
                 SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
             ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
-        foreach (string name in new[] { "Indicator.Frame0", "Indicator.Frame1", "Indicator.Frame2" })
+        foreach (string name in new[] { "Indicator.Small", "Indicator.Middle", "Indicator.Large" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
         // The map sprites' page is import data no installation holds: the cartridge-derived extraction's (#1636).

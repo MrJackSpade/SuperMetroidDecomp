@@ -34,7 +34,7 @@ public static class IntroNarrationPictures
     private const int PagesRaise = IntroCinematicState.GameplayFlashbackVerticalScroll;
 
     /// <summary>The name of <paramref name="letter"/>'s picture, which shows each colour variant as a shade (#1512).</summary>
-    internal static string Letter(char letter) => $"letter-{(int)letter:x2}";
+    internal static string Letter(char letter) => $"letter-{letter}";
 
     /// <summary>
     /// The plane showing the first card in <paramref name="shading"/> (#1512): the scene's group shades, as the card's colours

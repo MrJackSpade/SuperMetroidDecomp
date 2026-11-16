@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
@@ -49,5 +50,5 @@ public sealed class GameOptionsPresentation
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
     internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Offset16<ScreenPixels> point) =>
-        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point, shading: PictureShading.Standard);
+        sprites.AddImage(sheet.Frame(MenuMissileFrames.Name(frame)), point, shading: PictureShading.Standard);
 }

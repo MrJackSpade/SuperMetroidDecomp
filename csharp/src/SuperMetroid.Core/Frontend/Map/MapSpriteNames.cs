@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 public static class MapSpriteNames
 {
-    /// <summary>Resolves the exact case-sensitive presentation key for a map sprite, preserving semantic roles such as <c>Indicator.Frame0</c> and <c>World.Crateria</c>.</summary>
+    /// <summary>Resolves the exact case-sensitive presentation key for a map sprite, preserving semantic roles such as <c>Indicator.Small</c> and <c>World.Crateria</c>.</summary>
     /// <param name="id">The map sprite.</param>
     /// <returns>The stable key used to validate, serialize, and bind the installed map-sprite composition.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The identity has no named map-presentation role.</exception>

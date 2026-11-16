@@ -45,7 +45,7 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(EnemyProjectileFrameId.TorizoExplosionSparkTwin, 4),
+            Show(EnemyProjectileFrameId.TorizoDeathExplosionSpark, 4),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballSmall, 6),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballLarge, 5),
             Show(EnemyProjectileFrameId.TorizoExplosionFlamingRing, 5),
@@ -63,7 +63,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoExplosionFireCloudEmbers, 8),
         ],
         [P.DroolFourFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolBlank, 2)],
-        [P.DroolTwoFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolBlankTwin, 2)],
+        [P.DroolTwoFrameDelay] = [Show(EnemyProjectileFrameId.TorizoDroolBlank, 2)],
         [P.DroolNoDelay] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StartDroolFall)),
@@ -71,7 +71,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoDroolDrop, 5),
             Cue(new TorizoProjectileCue.ClearProperties(Properties: EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus)),
         ],
-        [P.DroolFalling] = [Hold(EnemyProjectileFrameId.TorizoDroolDropTwin)],
+        [P.DroolFalling] = [Hold(EnemyProjectileFrameId.TorizoDroolDrop)],
         [P.DroolWallImpact] =
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
@@ -95,14 +95,14 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.TorizoSwipeFlareRingFading, 5),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
-        [P.StatueFragmentTopMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueMossClump, restUpdates: 128, EnemyProjectileFrameId.BombTorizoStatueMossClumpTwin),
-        [P.StatueFragmentTopRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight, restUpdates: 120, EnemyProjectileFrameId.BombTorizoStatueRubbleLitRightTwin),
-        [P.StatueFragmentMiddleLeft] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenter, restUpdates: 112, EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenterTwin),
-        [P.StatueFragmentCentre] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpot, restUpdates: 104, EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpotTwin),
-        [P.StatueFragmentMiddleRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTop, restUpdates: 96, EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTopTwin),
-        [P.StatueFragmentBottomLeft] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeck, restUpdates: 88, EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeckTwin),
-        [P.StatueFragmentBottomMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitBase, restUpdates: 80, EnemyProjectileFrameId.BombTorizoStatueRubbleLitBaseTwin),
-        [P.StatueFragmentBottomRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueSlab, restUpdates: 72, EnemyProjectileFrameId.BombTorizoStatueSlabTwin),
+        [P.StatueFragmentTopMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueMossClump, restUpdates: 128),
+        [P.StatueFragmentTopRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight, restUpdates: 120),
+        [P.StatueFragmentMiddleLeft] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenter, restUpdates: 112),
+        [P.StatueFragmentCentre] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpot, restUpdates: 104),
+        [P.StatueFragmentMiddleRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTop, restUpdates: 96),
+        [P.StatueFragmentBottomLeft] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeck, restUpdates: 88),
+        [P.StatueFragmentBottomMiddle] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueRubbleLitBase, restUpdates: 80),
+        [P.StatueFragmentBottomRight] = StatueFragment(EnemyProjectileFrameId.BombTorizoStatueSlab, restUpdates: 72),
         [P.ChozoOrbMovingLeft] = [Hold(EnemyProjectileFrameId.TorizoChozoOrbFacingLeft)],
         [P.ChozoOrbMovingRight] = [Hold(EnemyProjectileFrameId.TorizoChozoOrbFacingRight)],
         [P.ChozoOrbWallImpact] =
@@ -134,11 +134,11 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.PersistsOnContact, Depth: EnemyProjectileDepth.InFrontOfSamus)),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbSparkTwin, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBallTwin, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCoredTwin, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingTwin, 4),
-            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingFadingTwin, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbSpark, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareBall, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingCored, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRing, 4),
+            Show(EnemyProjectileFrameId.TorizoChozoOrbFlareRingFading, 4),
             Cue(new TorizoProjectileCue.Signal(K.SpawnOrbDrops)),
             Cue(new TorizoProjectileCue.Signal(K.Delete)),
         ],
@@ -221,7 +221,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftClawsRaised, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftClawsLowered, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftHunched, 6),
-            Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftClawsLoweredTwin, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoHatchlingLeftClawsLowered, 6),
         ],
         [P.EggHatchedRight] =
         [
@@ -233,7 +233,7 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightClawsRaised, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightClawsLowered, 6),
             Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightHunched, 6),
-            Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightClawsLoweredTwin, 6),
+            Show(EnemyProjectileFrameId.GoldenTorizoHatchlingRightClawsLowered, 6),
         ],
         [P.EggBreakLeft] =
         [
@@ -270,24 +270,24 @@ internal static class TorizoProjectileAnimations
             Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUpLeft, 2),
             Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingLeft, 2),
             Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownLeft, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownTwin, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDown, 2),
         ],
         [P.SuperMissileLeft] =
         [
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownTwinB, 48),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDown, 48),
             Cue(new TorizoProjectileCue.Signal(K.AimSuperMissileAwayFromSamus)),
             Cue(new TorizoProjectileCue.Signal(K.ThrowSuperMissile)),
         ],
         [P.SuperMissileSpinningLeft] =
         [
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownLeftTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingLeftTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUpLeftTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUpTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUpRightTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingRightTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownRightTwin, 2),
-            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownTwinC, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownLeft, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingLeft, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUpLeft, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUp, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingUpRight, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingRight, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDownRight, 2),
+            Show(EnemyProjectileFrameId.GoldenTorizoSuperMissilePointingDown, 2),
         ],
         [P.SuperMissileImpact] =
         [
@@ -334,11 +334,11 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeam] =
         [
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingFadingTwin, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingTwin, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingCoredTwin, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareBallTwin, 1),
-            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamSparkTwin, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingFading, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRing, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareRingCored, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlareBall, 1),
+            Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamSpark, 1),
         ],
         [P.EggHatch] =
         [
@@ -419,12 +419,12 @@ internal static class TorizoProjectileAnimations
     /// <paramref name="restUpdates"/>, cracks off with the impact sound and starts its fall, falls in
     /// <paramref name="falling"/> for 112 updates, and is deleted.
     /// </summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] StatueFragment(EnemyProjectileFrameId resting, int restUpdates, EnemyProjectileFrameId falling) =>
+    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] StatueFragment(EnemyProjectileFrameId fragment, int restUpdates) =>
     [
-        Show(resting, restUpdates),
+        Show(fragment, restUpdates),
         Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.BeamImpact, Priority: SoundRequestPriority.Normal)),
         Cue(new TorizoProjectileCue.Signal(K.StartFragmentFall)),
-        Show(falling, 112),
+        Show(fragment, 112),
         Cue(new TorizoProjectileCue.Signal(K.Delete)),
     ];
 

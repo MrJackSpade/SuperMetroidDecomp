@@ -22,7 +22,6 @@ internal static class EnemyProjectileEmptyFrameDefinitions
         EnemyProjectileFrameId.FallingSparkBlankTwinD,
         EnemyProjectileFrameId.PhantoonFlameBlank,
         EnemyProjectileFrameId.TorizoDroolBlank,
-        EnemyProjectileFrameId.TorizoDroolBlankTwin,
         EnemyProjectileFrameId.GoldenTorizoEyeBeamBlank,
         EnemyProjectileFrameId.TourianStatueEyeGlowBlank,
         EnemyProjectileFrameId.BotwoonBlank,

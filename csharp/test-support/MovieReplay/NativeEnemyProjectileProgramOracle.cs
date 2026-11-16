@@ -351,7 +351,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 // it follows the beats before it in one segment, the segment rests on it at the goto.
                 bool firstOfList = addresses.Count == 0 && cursor == entry;
                 _ = Next("held frame");
-                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");
+                VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(held.Shown), $"{at}: held frame's presentation key");
                 var afterHeld = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
                 ushort afterHeldOperand = cartridge.ReadCartridgeWord(address + 6);
                 bool loopsOnItself = afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == cursor;
@@ -370,7 +370,7 @@ internal static class NativeEnemyProjectileProgramOracle
             {
                 var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Next("frame"), $"{at}: frame");
                 VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(frame.Shown), $"{at}: presentation key");
+                VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(frame.Shown), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
@@ -442,7 +442,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 // A flicker shows its first operand's pose (or, by parity, its second's) for one update.
                 var flicker = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Next("flicker frame"), $"{at}: flicker frame");
                 VerificationAssertions.AssertEqual(1, flicker.Duration, $"{at}: flicker duration");
-                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(flicker.Shown), $"{at}: flicker presentation key");
+                VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(flicker.Shown), $"{at}: flicker presentation key");
                 Func<TFrame, ushort?> reflected = reflectedPresentationKey ??
                     throw new InvalidOperationException($"{at}: a flicker family supplies its reflected presentation keys.");
                 VerificationAssertions.AssertEqual(count == 4 ? unchecked((ushort)(cursor + 4)) : null, reflected(flicker.Shown), $"{at}: flicker reflected presentation key");

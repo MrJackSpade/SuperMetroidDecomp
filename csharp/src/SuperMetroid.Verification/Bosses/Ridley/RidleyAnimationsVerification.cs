@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -37,7 +38,7 @@ internal static class RidleyAnimationsVerification
         VerifyFacingBranch();
         VerifyLowEnergyBranch();
         Console.WriteLine($"  Ridley animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats), " +
-            $"{Enum.GetValues<RidleyBreakupFrame>().Length} held breakup pictures and {fireball.Count} fireball segments match their native lists; " +
+            $"{RidleyNativeListAddresses.BreakupEntries.Length} held breakup pictures and {fireball.Count} fireball segments match their native lists; " +
             "the facing and low-energy branches redirect natively.");
     }
 
@@ -67,7 +68,7 @@ internal static class RidleyAnimationsVerification
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.OpeningRoar);
         Pass(body, samus: null);
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingRight), state.Flight.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
-        AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right,
+        AssertEqual((EnemyFrameId?)EnemyFrameId.RidleyBodyRight,
             RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing roar shows its first frame at once");
         AssertEqual((ushort)6, body.AnimationClock.Hold.RawValue, "the right-facing roar's first frame lasts six updates");
 
@@ -75,7 +76,7 @@ internal static class RidleyAnimationsVerification
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.OpeningRoar);
         Pass(body, samus: null);
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingLeft), state.Flight.BodyPlayback.Animation, "a left-facing Ridley keeps the left-facing roar");
-        AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the left-facing roar shows its first frame");
+        AssertEqual((EnemyFrameId?)EnemyFrameId.RidleyBodyLeft, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the left-facing roar shows its first frame");
     }
 
     /// <summary>
@@ -91,14 +92,14 @@ internal static class RidleyAnimationsVerification
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingLeft), state.Flight.BodyPlayback.Animation, "low energy in Ceres skips to the fireballing tail");
         AssertEqual(8, state.PhaseTimer.Count, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Flight.Roaring, "the fireballing tail clears the roaring flag");
-        AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
+        AssertEqual((EnemyFrameId?)EnemyFrameId.RidleyBodyLeft, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
 
         // A right-facing Ridley's fireballing is cut short to its own right-facing tail (#2175).
         (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Right);
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);
         Pass(body, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 29 });
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingRight), state.Flight.BodyPlayback.Animation, "low energy in Ceres skips to the right-facing fireballing tail");
-        AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing tail shows the standing pose");
+        AssertEqual((EnemyFrameId?)EnemyFrameId.RidleyBodyRight, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing tail shows the standing pose");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);

@@ -14,7 +14,10 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// The type declaring the frame table the segments' poses are looked up in, or null when the segments name the frames they
 /// show (#1623).
 /// </param>
-/// <param name="TableMember">The frame table property: <c>{ key, EnemyFrameId.X }</c> entries, or null with no table.</param>
+/// <param name="TableMember">
+/// The frame table property: <c>{ key, EnemyFrameId.X }</c> entries, or a list of frames, each keyed as the member it is
+/// (<c>EnemyFrameId=X</c>, #2234); null with no table.
+/// </param>
 /// <param name="AnimationsType">
 /// The type declaring the parts' <c>Segments</c> (<c>[P.X] = [beats]</c> entries, or segments joining tables it spreads in,
 /// as Torizo's join four, whose entries are read from those tables) and <c>StartingAt</c> (the animation starting at each
@@ -358,14 +361,14 @@ internal sealed record PartFrameConfiguration(
         {
             StepHelperTypes = ["TorizoAnimationSteps"],
         },
-        // Ridley's body poses: Lower Norfair Ridley's programs stand, roar, lift off, breathe fire, turn through the
-        // forward pose and roar as he dies; Ceres Ridley's stand, roar, lift off, lunge, take the Baby and breathe fire,
-        // never turning; his death breakup runs no body program.
-        new("RidleyEntityFactory", "RidleyBodyFrameDefinitions", "ShownFrames", null, null, [],
+        // Ridley's body poses (his body frames, #2234): Lower Norfair Ridley's programs stand, roar, lift off, breathe fire,
+        // turn through the forward pose and roar as he dies; Ceres Ridley's stand, roar, lift off, lunge, take the Baby and
+        // breathe fire, never turning; his death breakup runs no body program.
+        new("RidleyEntityFactory", "RidleyCollisionDefinitions", "BodyFrames", null, null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal),
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
-                ["Ridley"] = [.. RidleyBodyFrames, "BodyFrame=Forward"],
+                ["Ridley"] = [.. RidleyBodyFrames, "EnemyFrameId=RidleyBodyForward"],
                 ["RidleyCeres"] = RidleyBodyFrames,
                 ["RidleyBreakupPiece"] = [],
             },
@@ -395,9 +398,10 @@ internal sealed record PartFrameConfiguration(
     /// <summary>Ridley's body poses of both facings that both Ridleys show: standing, mouth and legs.</summary>
     private static string[] RidleyBodyFrames =>
     [
-        "BodyFrame=Left", "BodyFrame=LeftMouthHalfOpen", "BodyFrame=LeftMouthOpen", "BodyFrame=LeftLegsHalfExtended", "BodyFrame=LeftLegsExtended",
-        "BodyFrame=Right", "BodyFrame=RightMouthHalfOpen", "BodyFrame=RightMouthOpen", "BodyFrame=RightLegsHalfExtended",
-        "BodyFrame=RightLegsExtended",
+        "EnemyFrameId=RidleyBodyLeft", "EnemyFrameId=RidleyBodyLeftMouthHalfOpen", "EnemyFrameId=RidleyBodyLeftMouthOpen",
+        "EnemyFrameId=RidleyBodyLeftLegsHalfExtended", "EnemyFrameId=RidleyBodyLeftLegsExtended", "EnemyFrameId=RidleyBodyRight",
+        "EnemyFrameId=RidleyBodyRightMouthHalfOpen", "EnemyFrameId=RidleyBodyRightMouthOpen", "EnemyFrameId=RidleyBodyRightLegsHalfExtended",
+        "EnemyFrameId=RidleyBodyRightLegsExtended",
     ];
 
     /// <summary>A crawler family's four surface programs, as <c>CrawlerAnimationDefinitions.Families</c> names them.</summary>
@@ -538,8 +542,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     }
 
     /// <summary>
-    /// The frame table's entries, by key; with no table, every frame the segments name, keyed as the enum member it is
-    /// (<c>EnemyFrameId=X</c>).
+    /// The frame table's entries, by key; with no table, every frame the segments name, and with a list of frames, every
+    /// frame it lists, each keyed as the enum member it is (<c>EnemyFrameId=X</c>).
     /// </summary>
     private Dictionary<string, string> Table(List<string> problems)
     {
@@ -556,6 +560,12 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             return entries;
         }
         ExpressionSyntax table = TableInitializer();
+        if (IsFrameList(table))
+        {
+            foreach (string frame in model.EnemyFramesNamed(table))
+                entries.TryAdd($"{model.EnemyFrameId.Name}={frame}", frame);
+            return entries;
+        }
         foreach (InitializerExpressionSyntax entry in table.DescendantNodes().OfType<InitializerExpressionSyntax>()
                      .Where(node => node.Expressions.Count == 2 && node.Parent is InitializerExpressionSyntax))
         {
@@ -574,6 +584,11 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             problems.Add($"{TableName} has no entries");
         return entries;
     }
+
+    /// <summary>Whether the configured table is a list of frames: it holds no <c>{ key, frame }</c> entry and names a frame.</summary>
+    private bool IsFrameList(ExpressionSyntax table) =>
+        !table.DescendantNodes().OfType<InitializerExpressionSyntax>().Any(node => node.Expressions.Count == 2 && node.Parent is InitializerExpressionSyntax)
+        && model.EnemyFramesNamed(table).Count > 0;
 
     /// <summary>The frames drawn on another layer than the sprites.</summary>
     private HashSet<string> Excluded()
@@ -943,7 +958,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     {
         if (_keyType is not null)
             return _keyType;
-        if (configuration.TableType is null)
+        if (configuration.TableType is null || IsFrameList(TableInitializer()))
             return _keyType = model.EnemyFrameId;
         ExpressionSyntax initializer = TableInitializer();
         SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);

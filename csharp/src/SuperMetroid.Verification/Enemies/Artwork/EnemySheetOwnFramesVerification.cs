@@ -294,16 +294,16 @@ internal static class EnemySheetOwnFramesVerification
     /// Ridley in Lower Norfair stands, roars, lifts off, breathes fire, turns and roars as he dies; Ceres Ridley stands,
     /// roars, lifts off, lunges, takes the Baby and breathes fire. His death breakup runs no body program.
     /// </summary>
-    private static EnemySheetOwnFrameFamily RidleysFamily() => new("Ridley", TableFrames(RidleyBodyFrameDefinitions.ShownFrames),
+    private static EnemySheetOwnFrameFamily RidleysFamily() => new("Ridley", RidleyAnimations.Segments.Frames.ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames.Of,
+            [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt,
             [
                 .. EitherFacing(RidleyAnimations.Initial, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.Fireballing,
                     RidleyAnimations.DeathRoar),
                 RidleyBodySegment.TurnFromLeftToRight, RidleyBodySegment.TurnFromRightToLeft,
             ], RidleyCueTargets),
-            [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames.Of,
+            [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt,
             [
                 .. EitherFacing(RidleyAnimations.Initial, RidleyAnimations.OpeningRoar, RidleyAnimations.TransitionToFlying, RidleyAnimations.CeresLunge,
                     RidleyAnimations.RetrieveBabyMetroid, RidleyAnimations.Fireballing),

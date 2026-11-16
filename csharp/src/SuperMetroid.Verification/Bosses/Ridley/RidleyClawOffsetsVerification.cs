@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -34,7 +35,7 @@ internal static class RidleyClawOffsetsVerification
         foreach (RidleyBodySegment program in Enum.GetValues<RidleyBodySegment>())
         foreach (var beat in RidleyAnimations.Segments.Beats(program))
         {
-            if (beat is not AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.Event { Raised: RidleyBodyCue.SetClawHeight feet })
+            if (beat is not AnimationBeat<EnemyFrameId, RidleyBodyCue>.Event { Raised: RidleyBodyCue.SetClawHeight feet })
                 continue;
             AssertTrue(Enum.IsDefined(feet.Height),
                 $"Ridley {program} selects claw height {feet.Height}");

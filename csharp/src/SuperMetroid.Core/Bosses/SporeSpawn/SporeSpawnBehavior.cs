@@ -728,7 +728,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SporeSpawnCollision.IsFrame(enemy.Frame)))
             return null;
 
-        // Every rectangle and reaction of these twelve frames comes from Spore Spawn's collision catalog.
+        // Every rectangle and reaction of these eleven frames comes from Spore Spawn's collision catalog.
         foreach (EnemyCollisionComponent component in
                  SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Core.Bosses.Ridley.RidleyExplosionDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -25,9 +26,9 @@ internal static class RidleyBreakup
     /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
     /// six segments.
     /// </summary>
-    public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart parameter, TrigonometryAngle tailTipDirection)
+    public static EnemyFrameId SelectTailFrame(RidleyExplosionPart parameter, TrigonometryAngle tailTipDirection)
     {
-        if (TailFrames.TryGetValue(parameter, out RidleyBreakupFrame frame))
+        if (TailFrames.TryGetValue(parameter, out EnemyFrameId frame))
             return frame;
         if (parameter == RidleyExplosionPart.TailTip)
             return TailTipBreakupFrames.At(tailTipDirection);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -64,39 +65,39 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each breakup program's native one-frame list in bank $A6 ($A6:CA47..CAEF), in authored order.</summary>
     internal static readonly BreakupEntryValue[] BreakupEntries =
     [
-        new BreakupEntryValue(RidleyBreakupFrame.TailBaseLink, 0xca47),
-        new BreakupEntryValue(RidleyBreakupFrame.TailMiddleLink, 0xca4d),
-        new BreakupEntryValue(RidleyBreakupFrame.TailOuterLink, 0xca53),
-        new BreakupEntryValue(RidleyBreakupFrame.WingsFacingLeft, 0xca59),
-        new BreakupEntryValue(RidleyBreakupFrame.WingsFacingRight, 0xca5f),
-        new BreakupEntryValue(RidleyBreakupFrame.LegsFacingLeft, 0xca65),
-        new BreakupEntryValue(RidleyBreakupFrame.LegsFacingRight, 0xca6b),
-        new BreakupEntryValue(RidleyBreakupFrame.OpenHeadAndNeckFacingLeft, 0xca71),
-        new BreakupEntryValue(RidleyBreakupFrame.OpenHeadAndNeckFacingRight, 0xca77),
-        new BreakupEntryValue(RidleyBreakupFrame.TorsoFacingLeft, 0xca7d),
-        new BreakupEntryValue(RidleyBreakupFrame.TorsoFacingRight, 0xca83),
-        new BreakupEntryValue(RidleyBreakupFrame.ClawFacingLeft, 0xca89),
-        new BreakupEntryValue(RidleyBreakupFrame.ClawFacingRight, 0xca8f),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingDown, 0xca95),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingDownDownLeft, 0xca9b),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingDownLeft, 0xcaa1),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingLeftDownLeft, 0xcaa7),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingLeft, 0xcaad),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingLeftUpLeft, 0xcab3),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingUpLeft, 0xcab9),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingUpUpLeft, 0xcabf),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingUp, 0xcac5),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingUpUpRight, 0xcacb),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingUpRight, 0xcad1),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingRightUpRight, 0xcad7),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingRight, 0xcadd),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingRightDownRight, 0xcae3),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingDownRight, 0xcae9),
-        new BreakupEntryValue(RidleyBreakupFrame.TailTipPointingDownDownRight, 0xcaef),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailBaseLink, 0xca47),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailMiddleLink, 0xca4d),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailOuterLink, 0xca53),
+        new BreakupEntryValue(EnemyFrameId.RidleyWingFacingLeftRaised, 0xca59),
+        new BreakupEntryValue(EnemyFrameId.RidleyWingFacingRightRaised, 0xca5f),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupLegsLeft, 0xca65),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupLegsRight, 0xca6b),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft, 0xca71),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight, 0xca77),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupTorsoLeft, 0xca7d),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupTorsoRight, 0xca83),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupClawLeft, 0xca89),
+        new BreakupEntryValue(EnemyFrameId.RidleyBreakupClawRight, 0xca8f),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward180, 0xca95),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward157, 0xca9b),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward135, 0xcaa1),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward112, 0xcaa7),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward90, 0xcaad),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward67, 0xcab3),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward45, 0xcab9),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward22, 0xcabf),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward0, 0xcac5),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward337, 0xcacb),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward315, 0xcad1),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward292, 0xcad7),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward270, 0xcadd),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward247, 0xcae3),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward225, 0xcae9),
+        new BreakupEntryValue(EnemyFrameId.RidleyTailTipPointingToward202, 0xcaef),
     ];
 
     /// <summary>The native list of breakup <paramref name="frame"/>.</summary>
-    internal static ushort BreakupEntry(RidleyBreakupFrame frame) => BreakupEntries.Single(item => item.Frame == frame).Entry;
+    internal static ushort BreakupEntry(EnemyFrameId frame) => BreakupEntries.Single(item => item.Frame == frame).Entry;
 
     /// <summary>Each typed fireball program's native entry point in bank $86.</summary>
     internal static readonly FireballEntry[] FireballEntries =

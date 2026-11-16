@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 /// <summary>Cross-checks compiled Spore Spawn component lists and collision callbacks against cartridge data.</summary>
 internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 {
-    /// <summary>Compares all twelve visual roots, their hitbox records, and live touch/shot overlap results with an independent cartridge walker.</summary>
+    /// <summary>Compares all eleven visual roots, their hitbox records, and live touch/shot overlap results with an independent cartridge walker.</summary>
     internal static void VerifyCompiledSporeSpawnCollision(
         CartridgeImportAddressSpace rom)
     {
@@ -81,7 +81,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         }
         AssertEqual(SporeSpawnCollisionDefinitions.FrameCount, frameCount,
             "all compiled Spore Spawn frames are installed visual identities");
-        AssertEqual(12, frameCount, "all twelve Spore Spawn OAM frame roots");
+        AssertEqual(11, frameCount, "all eleven Spore Spawn OAM frame roots");
         AssertEqual(SporeSpawnCollisionDefinitions.ListCount, seenLists.Count,
             "all compiled Spore Spawn hitbox lists are referenced");
         AssertThrows<InvalidDataException>(

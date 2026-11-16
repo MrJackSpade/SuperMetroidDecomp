@@ -57,12 +57,20 @@ internal static class SporeSpawnAnimationsVerification
             BodyListEntries, SporeSpawnAnimations.Segments, SporeSpawnFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<SporeSpawnCue>(
                 word => BodyInstructions.TryGetValue(word, out var instruction) ? instruction.Operands : null,
-                (word, operands, cue, at) => CompareBodyCue(word, operands, cue, at)));
+                (word, operands, cue, at) => CompareBodyCue(word, operands, cue, at), PicturedAt: PicturedAt));
         // The death's closing and fade are the parts of its counted lists after their repeats, which the death runs on into (#2235).
         NativeEnemyAnimationOracle.CompareAnimations(lists, SporeSpawnAnimations.StartingAt,
             onlyRunOnInto: new HashSet<SporeSpawnBodySegment> { SporeSpawnBodySegment.DeathClosing, SporeSpawnBodySegment.DeathFade });
         return lists;
     }
+
+    /// <summary>
+    /// The native frame word an installed body frame is read from, for a word whose record repeats another's picture
+    /// (#2234): his open pulse's last pose is a byte-identical copy of his fully open record.
+    /// </summary>
+    internal static ushort PicturedAt(ushort word) =>
+        SporeSpawnFrameDefinitionsConstants.Spritemap(RoomEnemyPlaceFrameAccess.FrameAt(BodyBankNumber, word)
+            ?? throw new InvalidDataException($"Spore Spawn's body lists show no frame at ${BodyBankNumber:X2}:{word:X4}."));
 
     /// <summary>Compares one native body instruction's operands with the cue it became.</summary>
     private static void CompareBodyCue(ushort word, ushort[] operands, SporeSpawnCue cue, string at)
@@ -151,7 +159,8 @@ internal static class SporeSpawnAnimationsVerification
                 // nothing else, so only the picture is compared once the typed animation rests.
                 if (!Rests(projectile))
                     AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
-                AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
+                // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2234).
+                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, projectile.Graphics.Owner), projectile.Frame, $"{at}: frame");
             }
             AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
             AssertEqual(program == SporeSpawnProjectileSegment.SporeShot, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");

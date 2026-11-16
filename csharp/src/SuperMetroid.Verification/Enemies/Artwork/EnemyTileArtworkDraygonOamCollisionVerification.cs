@@ -15,7 +15,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
 {
     /// <summary>
     /// Checks native zero-hitbox components and guarded shot and touch lookup. Version 6 grouped
-    /// 60 bank $A5 roots under Draygon, but the final twelve belong to Spore Spawn and must be excluded.
+    /// 60 bank $A5 roots under Draygon, but the final eleven belong to Spore Spawn and must be excluded.
     /// </summary>
     internal static void VerifyCompiledDraygonOamCollision(
         CartridgeImportAddressSpace rom)
@@ -85,13 +85,13 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
 
         AssertEqual(48, draygonFrames,
             "all selected Draygon OAM frames have empty native hitbox lists");
-        AssertEqual(12, sporeFrames,
+        AssertEqual(11, sporeFrames,
             "remaining bank-$A5 OAM frames are selected by Spore Spawn");
         AssertEqual(DraygonCollisionDefinitions.EmptyOamFrameCount,
             draygonFrames, "compiled Draygon empty-frame set is exact");
         AssertThrows<InvalidDataException>(
             () => DraygonCollision.ComponentsAt(0xee65),
             "Spore Spawn frame cannot enter Draygon collision data");
-        Console.WriteLine($"  Draygon OAM collision: {draygonFrames} frames and {componentsChecked} native zero-hitbox components return no shot/touch callback without ROM reads; 12 Spore Spawn frames excluded.");
+        Console.WriteLine($"  Draygon OAM collision: {draygonFrames} frames and {componentsChecked} native zero-hitbox components return no shot/touch callback without ROM reads; 11 Spore Spawn frames excluded.");
     }
 }

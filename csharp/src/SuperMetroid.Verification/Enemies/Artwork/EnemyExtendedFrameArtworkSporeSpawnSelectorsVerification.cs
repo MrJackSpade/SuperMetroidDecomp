@@ -94,7 +94,8 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
                     if (opcode < 0x8000)
                     {
                         timer = opcode;
-                        visual = Read(cursor + 2);
+                        // A record repeating another's picture shows that record's frame (#2234).
+                        visual = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.PicturedAt(Read(cursor + 2));
                         selectors.Add((ushort)(cursor + 2));
                         instruction = (ushort)(cursor + 4);
                         extra |= 0x8000;

@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions;
 
@@ -23,24 +22,24 @@ internal static class RidleyCollision
     }
 
     /// <summary>Each body frame's components in authored order: Ridley facing forward, or a side-facing pose's legs, hand, torso and head.</summary>
-    private static readonly Dictionary<BodyFrame, ImmutableArray<RidleyCollisionComponent>> FrameComponents =
-        Enum.GetValues<BodyFrame>().ToDictionary(frame => frame, ComponentsOf);
+    private static readonly Dictionary<EnemyFrameId, ImmutableArray<RidleyCollisionComponent>> FrameComponents =
+        BodyFrames.ToDictionary(frame => frame, ComponentsOf);
 
     /// <summary>
     /// The components of <paramref name="frame"/>: the forward body alone, or the side-facing legs, hand, torso and head
     /// (#1937). A right-facing pose mirrors the left-facing origins but keeps its own authored rectangles.
     /// </summary>
-    private static ImmutableArray<RidleyCollisionComponent> ComponentsOf(BodyFrame frame)
+    private static ImmutableArray<RidleyCollisionComponent> ComponentsOf(EnemyFrameId frame)
     {
-        if (frame == BodyFrame.Forward)
+        if (frame == EnemyFrameId.RidleyBodyForward)
             return [new(new(0, ForwardYOffset), Forward)];
         bool right = RightFacing.Contains(frame);
         EnemyHitboxRectangle[] legs = Legs.TryGetValue(frame, out EnemyHitboxRectangle[]? shownLegs)
             ? shownLegs
-            : throw new InvalidOperationException($"Undefined BodyFrame {frame}.");
+            : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
         EnemyHitboxRectangle[] head = Heads.TryGetValue(frame, out EnemyHitboxRectangle[]? shownHead)
             ? shownHead
-            : throw new InvalidOperationException($"Undefined BodyFrame {frame}.");
+            : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
         return
         [
             Side(LeftLegsOrigin, legs),
@@ -56,7 +55,7 @@ internal static class RidleyCollision
     /// <summary>The computed collision components of the body frame <paramref name="frame"/> shows.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> shows no Ridley body frame.</exception>
     internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out BodyFrame body)
-            ? FrameComponents[body]
+        frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<RidleyCollisionComponent> components)
+            ? components
             : throw new InvalidDataException($"Ridley frame {frame} has no compiled collision.");
 }

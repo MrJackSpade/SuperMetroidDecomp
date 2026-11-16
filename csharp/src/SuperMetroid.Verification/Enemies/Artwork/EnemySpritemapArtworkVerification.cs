@@ -288,8 +288,8 @@ internal static class EnemySpritemapArtworkVerification
                 SparkVisualDefinitions.FrameCount + ShitroidVisualDefinitions.FrameCount +
                 KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
                 2 + // Single-frame Kzan and Polyp.
-                RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.Torso.Length +
-                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length,
+                RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.OpenHeadAndNeck.Length +
+                RidleyBreakupVisualDefinitions.Torso.Length + RidleyBreakupVisualDefinitions.Claw.Length,
             EnemySpritemapDefinitions.Frames.Length,
             "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames

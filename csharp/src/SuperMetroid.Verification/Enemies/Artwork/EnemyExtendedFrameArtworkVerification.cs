@@ -200,10 +200,10 @@ internal static class EnemyExtendedFrameArtworkVerification
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.LegacyName.StartsWith("golden_torizo_right_sonic_", StringComparison.Ordinal)),
             "all Golden Torizo right-sonic visual frames are installed");
-        AssertEqual(EnemyExtendedFrameDefinitions.TorizoFallingLeftFrameCount,
+        AssertEqual(EnemyExtendedFrameDefinitions.TorizoFacingLeftSpringingFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.LegacyName.StartsWith("torizo_falling_left", StringComparison.Ordinal)),
-            "shared Torizo falling-left visual frame is installed");
+            "shared Torizo left-facing springing visual frame is installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoLeftFootOrbFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.LegacyName.StartsWith("golden_torizo_left_foot_orb_", StringComparison.Ordinal)),
@@ -225,7 +225,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Draygon presentation selectors partition into 48 OAM and 34 BG2 frames");
 
         Console.WriteLine(
-            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 12 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire, 22 Kraid arm, 6 Golden Torizo awakening, 10 walking-left, 11 rightward, 3 shared right jump-back, 2 new left jump-back, 6 right-orb, 12 left-orb, 21 right-sonic, one falling-left and five left-foot orb OAM frames match native OAM " +
+            "Extended enemy art: 131 Pirate, 11 Ridley, 48 Draygon, 11 Spore Spawn, 28 Ceres steam, 30 Oum, 9 Crocomire, 22 Kraid arm, 6 Golden Torizo awakening, 10 walking-left, 11 rightward, 3 shared right jump-back, 2 new left jump-back, 6 right-orb, 12 left-orb, 21 right-sonic, one left-facing springing and five left-foot orb OAM frames match native OAM " +
             "at three origins with visual ROM reads forbidden.");
     }
     /// <summary>Walks native extended spritemap components for an independent OAM reference, including clipping and packed sprite parts.</summary>

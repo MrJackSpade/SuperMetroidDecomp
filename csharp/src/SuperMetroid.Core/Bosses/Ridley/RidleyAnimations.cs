@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Animation;
-using F = SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions.BodyFrame;
+using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyBodyCueKind;
 using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;
 
@@ -27,8 +27,8 @@ internal static class RidleyAnimations
     internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
         new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
     {
-        [P.InitialFacingLeft] = [Show(F.Left, StandingDuration)],
-        [P.InitialFacingRight] = [Show(F.Right, StandingDuration)],
+        [P.InitialFacingLeft] = [Show(F.RidleyBodyLeft, StandingDuration)],
+        [P.InitialFacingRight] = [Show(F.RidleyBodyRight, StandingDuration)],
         [P.CeresLungeFacingLeft] = [.. Lunge(Side.Left, LungeExtendedDuration), .. Settle(Side.Left)],
         [P.CeresLungeFacingRight] = [.. Lunge(Side.Right, LungeExtendedDuration), .. Settle(Side.Right)],
         [P.RetrieveBabyMetroidFacingLeft] = [.. Lunge(Side.Left, 1)],
@@ -37,12 +37,12 @@ internal static class RidleyAnimations
         [P.OpeningRoarFacingRight] = OpeningRoarBeats(Side.Right),
         [P.DeathRoarFacingLeft] = DeathRoarBeats(Side.Left),
         [P.DeathRoarFacingRight] = DeathRoarBeats(Side.Right),
-        [P.TurnFromLeftToRight] = Turn(F.Left, HorizontalDirection.Right, F.Right),
-        [P.TurnFromRightToLeft] = Turn(F.Right, HorizontalDirection.Left, F.Left),
+        [P.TurnFromLeftToRight] = Turn(F.RidleyBodyLeft, HorizontalDirection.Right, F.RidleyBodyRight),
+        [P.TurnFromRightToLeft] = Turn(F.RidleyBodyRight, HorizontalDirection.Left, F.RidleyBodyLeft),
         [P.FireballingFacingLeft] = FireballingBeats(Side.Left, [Cue(K.AimFireball)]),
-        [P.FireballingEndFacingLeft] = [Cue(K.ClearRoaringFlag), Show(F.Left, 1)],
+        [P.FireballingEndFacingLeft] = [Cue(K.ClearRoaringFlag), Show(F.RidleyBodyLeft, 1)],
         [P.FireballingFacingRight] = FireballingBeats(Side.Right, []),
-        [P.FireballingEndFacingRight] = [Cue(K.ClearRoaringFlag), Show(F.Right, 1)],
+        [P.FireballingEndFacingRight] = [Cue(K.ClearRoaringFlag), Show(F.RidleyBodyRight, 1)],
         [P.TransitionToFlyingFacingLeft] = TransitionToFlyingBeats(Side.Left, new(1, -12), new(-4, -8)),
         [P.TransitionToFlyingFacingRight] = TransitionToFlyingBeats(Side.Right, new(-1, -12), new(4, -8)),
     });
@@ -103,9 +103,9 @@ internal static class RidleyAnimations
     private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
     {
         /// <summary>The left-facing poses.</summary>
-        internal static Side Left { get; } = new(F.Left, F.LeftMouthHalfOpen, F.LeftMouthOpen, F.LeftLegsHalfExtended, F.LeftLegsExtended);
+        internal static Side Left { get; } = new(F.RidleyBodyLeft, F.RidleyBodyLeftMouthHalfOpen, F.RidleyBodyLeftMouthOpen, F.RidleyBodyLeftLegsHalfExtended, F.RidleyBodyLeftLegsExtended);
         /// <summary>The right-facing poses.</summary>
-        internal static Side Right { get; } = new(F.Right, F.RightMouthHalfOpen, F.RightMouthOpen, F.RightLegsHalfExtended, F.RightLegsExtended);
+        internal static Side Right { get; } = new(F.RidleyBodyRight, F.RidleyBodyRightMouthHalfOpen, F.RidleyBodyRightMouthOpen, F.RidleyBodyRightLegsHalfExtended, F.RidleyBodyRightLegsExtended);
     }
 
     /// <summary>Extends the legs, holding the full extension <paramref name="extendedDuration"/> updates.</summary>
@@ -155,9 +155,9 @@ internal static class RidleyAnimations
     [
         Cue(K.FaceForward),
         Show(from, 1),
-        Show(F.Forward, 8),
+        Show(F.RidleyBodyForward, 8),
         Cue(new RidleyBodyCue.Flip(flip)),
-        Show(F.Forward, 1),
+        Show(F.RidleyBodyForward, 1),
         Show(to, 1),
     ];
 

@@ -21,6 +21,15 @@ internal static class EnemyProjectileProgramFrameOperands
             .Concat(EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
             .ToLookup(entry => entry.Operand, entry => entry.Frame);
 
+    /// <summary>
+    /// The bank-$86 operand the installed frame shown from <paramref name="operand"/> is stored at: the operand itself, or,
+    /// for an operand that stores a frame's picture again (#2234), that frame's own operand.
+    /// </summary>
+    internal static ushort OwnOperand(ushort operand) =>
+        EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.TryGetValue(operand, out EnemyProjectileFrameId frame)
+            ? EnemyProjectileProgramFrameDefinitions.Operands[frame]
+            : operand;
+
     /// <summary>Whether bank-$86 operand <paramref name="operand"/> stores an installed program frame.</summary>
     internal static bool Contains(ushort operand) => Frames.Contains(operand);
 

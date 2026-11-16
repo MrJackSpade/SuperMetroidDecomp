@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -223,7 +224,7 @@ internal sealed class NorfairRidleyDeath
             SignedEightEight.FromSixteenthsOfPixel(RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random)) +
             SignedEightEight.FromPixels(RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random));
         // Tail fragments start from their tail link; the body fragments start from the body.
-        RidleyBreakupFrame picture;
+        EnemyFrameId picture;
         if (RidleyBreakup.TailLinkBecoming(part, state.Tail) is { } link)
         {
             fragment.Position = fragment.Position.WithWhole(link.Position);

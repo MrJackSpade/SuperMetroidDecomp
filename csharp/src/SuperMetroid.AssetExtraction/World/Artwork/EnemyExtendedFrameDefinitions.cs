@@ -59,8 +59,8 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int GoldenTorizoRightOrbFrameCount = 6;
     /// <summary>Golden Torizo right-facing sonic attack poses.</summary>
     internal const int GoldenTorizoRightSonicFrameCount = 21;
-    /// <summary>Single left-falling Torizo component pose.</summary>
-    internal const int TorizoFallingLeftFrameCount = 1;
+    /// <summary>The Torizos' one left-facing springing pose, which their leaps and falls show.</summary>
+    internal const int TorizoFacingLeftSpringingFrameCount = 1;
     /// <summary>Golden Torizo left-foot orb component poses.</summary>
     internal const int GoldenTorizoLeftFootOrbFrameCount = 5;
     /// <summary>Additional left-facing Torizo jump-back poses.</summary>
@@ -80,7 +80,7 @@ internal static class EnemyExtendedFrameDefinitions
         GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount +
         GoldenTorizoRightwardFrameCount + TorizoJumpBackFrameCount +
         GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount +
-        TorizoFallingLeftFrameCount + GoldenTorizoLeftFootOrbFrameCount +
+        TorizoFacingLeftSpringingFrameCount + GoldenTorizoLeftFootOrbFrameCount +
         TorizoJumpBackLeftNewFrameCount + GoldenTorizoLeftOrbFrameCount +
         CompleteTorizoAdditionalFrameCount + MotherBrainBodyFrameDefinitions.FrameCount +
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
@@ -108,7 +108,7 @@ internal static class EnemyExtendedFrameDefinitions
         new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount + GoldenTorizoRightwardFrameCount),
         new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackFrameCount),
         new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount),
-        new(EnemyExtendedFrameFamily.TorizoFallingLeft, TorizoFallingLeftFrameCount),
+        new(EnemyExtendedFrameFamily.TorizoFacingLeftSpringing, TorizoFacingLeftSpringingFrameCount),
         new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftFootOrbFrameCount),
         new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackLeftNewFrameCount),
         new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftOrbFrameCount),
